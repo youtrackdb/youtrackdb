@@ -19,14 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.query.live;
 
-import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.QUERY_LIVE_SUPPORT;
+import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.QUERY_LIVE_SUPPORT;
 
 import com.jetbrains.youtrack.db.internal.common.concur.resource.CloseableInStorage;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;

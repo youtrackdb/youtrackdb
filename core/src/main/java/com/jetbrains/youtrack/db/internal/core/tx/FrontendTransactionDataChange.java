@@ -2,7 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.tx;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -17,7 +17,7 @@ public class FrontendTransactionDataChange {
 
   private byte type;
   private byte recordType;
-  private RID id;
+  private RecordId id;
   private Optional<byte[]> record;
   private int version;
   private boolean contentChanged;
@@ -55,7 +55,7 @@ public class FrontendTransactionDataChange {
   public FrontendTransactionDataChange(
       byte type,
       byte recordType,
-      RID id,
+      RecordId id,
       Optional<byte[]> record,
       int version,
       boolean contentChanged) {
@@ -124,7 +124,7 @@ public class FrontendTransactionDataChange {
     return contentChanged;
   }
 
-  public RID getId() {
+  public RecordId getId() {
     return id;
   }
 }

@@ -16,14 +16,14 @@
 
 package com.jetbrains.youtrack.db.internal.lucene;
 
-import static com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.INDEX_TYPE.FULLTEXT;
+import static com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE.FULLTEXT;
 
+import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseLifecycleListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.index.IndexFactory;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
@@ -33,6 +33,7 @@ import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.lucene.engine.LuceneFullTextIndexEngine;
 import com.jetbrains.youtrack.db.internal.lucene.index.LuceneFullTextIndex;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -63,7 +64,7 @@ public class LuceneIndexFactory implements IndexFactory, DatabaseLifecycleListen
 
   public LuceneIndexFactory(boolean manual) {
     if (!manual) {
-      YouTrackDBManager.instance().addDbLifecycleListener(this);
+      YouTrackDBEnginesManager.instance().addDbLifecycleListener(this);
     }
   }
 
@@ -89,15 +90,22 @@ public class LuceneIndexFactory implements IndexFactory, DatabaseLifecycleListen
     final String indexType = im.getType();
     final String algorithm = im.getAlgorithm();
 
-    if (metadata == null) {
-      var metadataDoc = new EntityImpl();
-      metadataDoc.field("analyzer", StandardAnalyzer.class.getName());
-      im.setMetadata(metadataDoc);
+    if (metadata == null || !metadata.containsKey("analyzer")) {
+      HashMap<String, Object> met;
+      if (metadata != null) {
+        met = new HashMap<>(metadata);
+      } else {
+        met = new HashMap<>();
+      }
+
+      met.put("analyzer", StandardAnalyzer.class.getName());
+      im.setMetadata(met);
     }
 
     if (FULLTEXT.toString().equalsIgnoreCase(indexType)) {
       return new LuceneFullTextIndex(im, storage);
     }
+
     throw new ConfigurationException("Unsupported type : " + algorithm);
   }
 

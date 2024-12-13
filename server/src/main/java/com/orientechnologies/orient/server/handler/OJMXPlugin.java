@@ -20,11 +20,11 @@
 
 package com.orientechnologies.orient.server.handler;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.ServerPluginAbstract;
@@ -66,7 +66,7 @@ public class OJMXPlugin extends ServerPluginAbstract {
         if (mBeanServer.isRegistered(onProfiler)) {
           mBeanServer.unregisterMBean(onProfiler);
         }
-        mBeanServer.registerMBean(YouTrackDBManager.instance().getProfiler(), onProfiler);
+        mBeanServer.registerMBean(YouTrackDBEnginesManager.instance().getProfiler(), onProfiler);
       }
 
     } catch (Exception e) {

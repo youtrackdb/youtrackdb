@@ -2,13 +2,14 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
@@ -40,9 +41,6 @@ public class SQLAlterClassStatement extends DDLStatement {
   public SQLIdentifier customKey;
   public SQLExpression customValue;
 
-  protected SQLInteger defaultClusterId;
-  protected SQLIdentifier defaultClusterName;
-
   // only to manage 'round-robin' as a cluster selection strategy (not a valid identifier)
   protected String customString;
 
@@ -72,8 +70,8 @@ public class SQLAlterClassStatement extends DDLStatement {
       switch (property) {
         case NAME:
         case SHORTNAME:
-        case ADDCLUSTER:
-        case REMOVECLUSTER:
+        case ADD_CLUSTER:
+        case REMOVE_CLUSTER:
         case DESCRIPTION:
         case ENCRYPTION:
           if (numberValue != null) {
@@ -84,7 +82,7 @@ public class SQLAlterClassStatement extends DDLStatement {
             builder.append("null");
           }
           break;
-        case CLUSTERSELECTION:
+        case CLUSTER_SELECTION:
           if (identifierValue != null) {
             identifierValue.toString(params, builder);
           } else if (customString != null) {
@@ -119,10 +117,7 @@ public class SQLAlterClassStatement extends DDLStatement {
             }
           }
           break;
-        case OVERSIZE:
-          numberValue.toString(params, builder);
-          break;
-        case STRICTMODE:
+        case STRICT_MODE:
         case ABSTRACT:
           builder.append(booleanValue.booleanValue());
           break;
@@ -136,12 +131,6 @@ public class SQLAlterClassStatement extends DDLStatement {
           }
           break;
       }
-    } else if (defaultClusterId != null) {
-      builder.append(" DEFAULTCLUSTER ");
-      defaultClusterId.toString(params, builder);
-    } else if (defaultClusterName != null) {
-      builder.append(" DEFAULTCLUSTER ");
-      defaultClusterName.toString(params, builder);
     }
     if (unsafe) {
       builder.append(" UNSAFE");
@@ -157,8 +146,8 @@ public class SQLAlterClassStatement extends DDLStatement {
       switch (property) {
         case NAME:
         case SHORTNAME:
-        case ADDCLUSTER:
-        case REMOVECLUSTER:
+        case ADD_CLUSTER:
+        case REMOVE_CLUSTER:
         case DESCRIPTION:
         case ENCRYPTION:
           if (numberValue != null) {
@@ -169,7 +158,7 @@ public class SQLAlterClassStatement extends DDLStatement {
             builder.append(PARAMETER_PLACEHOLDER);
           }
           break;
-        case CLUSTERSELECTION:
+        case CLUSTER_SELECTION:
           if (identifierValue != null) {
             identifierValue.toGenericStatement(builder);
           } else {
@@ -202,10 +191,7 @@ public class SQLAlterClassStatement extends DDLStatement {
             }
           }
           break;
-        case OVERSIZE:
-          numberValue.toGenericStatement(builder);
-          break;
-        case STRICTMODE:
+        case STRICT_MODE:
         case ABSTRACT:
           builder.append(booleanValue.booleanValue());
           break;
@@ -219,12 +205,6 @@ public class SQLAlterClassStatement extends DDLStatement {
           }
           break;
       }
-    } else if (defaultClusterId != null) {
-      builder.append(" DEFAULTCLUSTER ");
-      defaultClusterId.toGenericStatement(builder);
-    } else if (defaultClusterName != null) {
-      builder.append(" DEFAULTCLUSTER ");
-      defaultClusterName.toGenericStatement(builder);
     }
     if (unsafe) {
       builder.append(" UNSAFE");
@@ -247,8 +227,6 @@ public class SQLAlterClassStatement extends DDLStatement {
     result.customKey = customKey == null ? null : customKey.copy();
     result.customValue = customValue == null ? null : customValue.copy();
     result.customString = customString;
-    result.defaultClusterId = defaultClusterId == null ? null : defaultClusterId.copy();
-    result.defaultClusterName = defaultClusterName == null ? null : defaultClusterName.copy();
     result.unsafe = unsafe;
     return result;
   }
@@ -297,12 +275,6 @@ public class SQLAlterClassStatement extends DDLStatement {
     if (!Objects.equals(customValue, that.customValue)) {
       return false;
     }
-    if (!Objects.equals(defaultClusterId, that.defaultClusterId)) {
-      return false;
-    }
-    if (!Objects.equals(defaultClusterName, that.defaultClusterName)) {
-      return false;
-    }
     return Objects.equals(customString, that.customString);
   }
 
@@ -318,8 +290,6 @@ public class SQLAlterClassStatement extends DDLStatement {
     result = 31 * result + (booleanValue != null ? booleanValue.hashCode() : 0);
     result = 31 * result + (customKey != null ? customKey.hashCode() : 0);
     result = 31 * result + (customValue != null ? customValue.hashCode() : 0);
-    result = 31 * result + (defaultClusterId != null ? defaultClusterId.hashCode() : 0);
-    result = 31 * result + (defaultClusterName != null ? defaultClusterName.hashCode() : 0);
     result = 31 * result + (customString != null ? customString.hashCode() : 0);
     result = 31 * result + (unsafe ? 1 : 0);
     return result;
@@ -328,7 +298,8 @@ public class SQLAlterClassStatement extends DDLStatement {
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
     var database = ctx.getDatabase();
-    SchemaClass oClass = database.getMetadata().getSchema().getClass(name.getStringValue());
+    SchemaClassInternal oClass = database.getMetadata().getSchemaInternal()
+        .getClassInternal(name.getStringValue());
     if (oClass == null) {
       throw new CommandExecutionException("Class not found: " + name);
     }
@@ -362,7 +333,7 @@ public class SQLAlterClassStatement extends DDLStatement {
             throw new CommandExecutionException("Invalid class name: " + this);
           }
           break;
-        case ADDCLUSTER:
+        case ADD_CLUSTER:
           if (identifierValue != null) {
             oClass.addCluster(database, identifierValue.getStringValue());
           } else if (numberValue != null) {
@@ -371,7 +342,7 @@ public class SQLAlterClassStatement extends DDLStatement {
             throw new CommandExecutionException("Invalid cluster value: " + this);
           }
           break;
-        case REMOVECLUSTER:
+        case REMOVE_CLUSTER:
           int clusterId = -1;
           if (identifierValue != null) {
             clusterId = ctx.getDatabase().getClusterIdByName(identifierValue.getStringValue());
@@ -396,7 +367,7 @@ public class SQLAlterClassStatement extends DDLStatement {
           // TODO
 
           break;
-        case CLUSTERSELECTION:
+        case CLUSTER_SELECTION:
           if (identifierValue != null) {
             oClass.setClusterSelection(database, identifierValue.getStringValue());
           } else if (customString != null) {
@@ -415,10 +386,7 @@ public class SQLAlterClassStatement extends DDLStatement {
             doSetSuperclasses(ctx, oClass, identifierListValue);
           }
           break;
-        case OVERSIZE:
-          oClass.setOverSize(database, numberValue.getValue().floatValue());
-          break;
-        case STRICTMODE:
+        case STRICT_MODE:
           oClass.setStrictMode(database, booleanValue.booleanValue());
           break;
         case ABSTRACT:
@@ -435,11 +403,6 @@ public class SQLAlterClassStatement extends DDLStatement {
           oClass.setCustom(database, customKey.getStringValue(), (String) value);
           break;
       }
-    } else if (defaultClusterId != null) {
-      oClass.setDefaultClusterId(database, defaultClusterId.getValue().intValue());
-    } else if (defaultClusterName != null) {
-      int clusterId = database.getClusterIdByName(defaultClusterName.getStringValue());
-      oClass.setDefaultClusterId(database, clusterId);
     }
 
     ResultInternal result = new ResultInternal(database);
@@ -449,8 +412,8 @@ public class SQLAlterClassStatement extends DDLStatement {
     return ExecutionStream.singleton(result);
   }
 
-  private void checkNotIndexed(DatabaseSessionInternal session, SchemaClass oClass) {
-    Set<Index> indexes = oClass.getIndexes(session);
+  private void checkNotIndexed(DatabaseSessionInternal session, SchemaClassInternal oClass) {
+    Set<Index> indexes = oClass.getIndexesInternal(session);
     if (indexes != null && indexes.size() > 0) {
       throw new CommandExecutionException(
           "Cannot rename class '"

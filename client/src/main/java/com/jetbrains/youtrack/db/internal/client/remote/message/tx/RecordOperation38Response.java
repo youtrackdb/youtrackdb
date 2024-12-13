@@ -1,13 +1,14 @@
 package com.jetbrains.youtrack.db.internal.client.remote.message.tx;
 
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 
 public class RecordOperation38Response {
 
   private byte type;
   private byte recordType;
-  private RID id;
-  private RID oldId;
+  private RecordId id;
+  private RecordId oldId;
   private byte[] record;
   private byte[] original;
   private int version;
@@ -19,8 +20,8 @@ public class RecordOperation38Response {
   public RecordOperation38Response(
       byte type,
       byte recordType,
-      RID id,
-      RID oldId,
+      RecordId id,
+      RecordId oldId,
       byte[] record,
       int version,
       boolean contentChanged) {
@@ -33,19 +34,19 @@ public class RecordOperation38Response {
     this.contentChanged = contentChanged;
   }
 
-  public RID getId() {
+  public RecordId getId() {
     return id;
   }
 
-  public void setId(RID id) {
+  public void setId(RecordId id) {
     this.id = id;
   }
 
-  public RID getOldId() {
+  public RecordId getOldId() {
     return oldId;
   }
 
-  public void setOldId(RID oldId) {
+  public void setOldId(RecordId oldId) {
     this.oldId = oldId;
   }
 

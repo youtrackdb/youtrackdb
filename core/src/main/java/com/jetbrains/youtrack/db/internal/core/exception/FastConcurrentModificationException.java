@@ -19,7 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.exception;
 
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.ConcurrentModificationException;
 
 /**
  * Exception thrown when MVCC is enabled and a record cannot be updated or deleted because versions

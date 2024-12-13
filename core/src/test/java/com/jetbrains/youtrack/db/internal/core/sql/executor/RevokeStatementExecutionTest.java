@@ -1,9 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
@@ -26,7 +27,7 @@ public class RevokeStatementExecutionTest {
 
   @BeforeClass
   public static void beforeClass() {
-    youTrackDB = new YouTrackDB("plocal:.", YouTrackDBConfig.defaultConfig());
+    youTrackDB = new YouTrackDBImpl("plocal:.", YouTrackDBConfig.defaultConfig());
   }
 
   @AfterClass

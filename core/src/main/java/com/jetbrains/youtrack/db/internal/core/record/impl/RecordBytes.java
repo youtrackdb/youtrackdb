@@ -19,11 +19,12 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
+import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
@@ -64,8 +65,8 @@ public class RecordBytes extends RecordAbstract implements Blob {
     setup(DatabaseRecordThreadLocal.instance().getIfDefined());
   }
 
-  public RecordBytes(final RID iRecordId) {
-    recordId = (RecordId) iRecordId.copy();
+  public RecordBytes(final RecordId iRecordId) {
+    recordId = iRecordId.copy();
     setup(DatabaseRecordThreadLocal.instance().getIfDefined());
   }
 

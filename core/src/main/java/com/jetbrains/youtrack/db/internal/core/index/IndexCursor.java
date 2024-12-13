@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;

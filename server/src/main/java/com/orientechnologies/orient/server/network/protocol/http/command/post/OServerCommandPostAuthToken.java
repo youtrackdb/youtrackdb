@@ -2,10 +2,10 @@ package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.jetbrains.youtrack.db.internal.common.concur.lock.LockException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.SecurityAccessException;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
+import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.OTokenHandler;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -74,7 +74,7 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
         try (DatabaseSessionInternal db = server.openDatabase(iRequest.getDatabaseName(),
             username,
             password)) {
-          user = db.getUser();
+          user = db.geCurrentUser();
 
           if (user != null) {
             byte[] tokenBytes = tokenHandler.getSignedWebToken(db, user);
@@ -114,7 +114,8 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
     try {
       db = server.openDatabase(iDatabaseName, username, password);
 
-      userRid = (db.getUser() == null ? "<server user>" : db.getUser().getIdentity(db).toString());
+      userRid = (db.geCurrentUser() == null ? "<server user>"
+          : db.geCurrentUser().getIdentity(db).toString());
     } catch (SecurityAccessException e) {
       // WRONG USER/PASSWD
     } catch (LockException e) {

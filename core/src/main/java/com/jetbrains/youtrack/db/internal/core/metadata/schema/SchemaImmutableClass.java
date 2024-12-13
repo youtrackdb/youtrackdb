@@ -19,15 +19,17 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ClassTrigger;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibraryImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection.ClusterSelectionStrategy;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityPolicy;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
@@ -35,7 +37,6 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.schedule.ScheduledEvent;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -46,10 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * @since 10/21/14
- */
-public class SchemaImmutableClass implements SchemaClass {
+public class SchemaImmutableClass implements SchemaClassInternal {
 
   /**
    * use SchemaClass.EDGE_CLASS_NAME instead
@@ -68,17 +66,15 @@ public class SchemaImmutableClass implements SchemaClass {
   private final boolean strictMode;
   private final String name;
   private final String streamAbleName;
-  private final Map<String, Property> properties;
+  private final Map<String, PropertyInternal> properties;
   private Map<String, Property> allPropertiesMap;
   private Collection<Property> allProperties;
   private final ClusterSelectionStrategy clusterSelection;
-  private final int defaultClusterId;
   private final int[] clusterIds;
   private final int[] polymorphicClusterIds;
   private final Collection<String> baseClassesNames;
   private final List<String> superClassesNames;
-  private final float overSize;
-  private final float classOverSize;
+
   private final String shortName;
   private final Map<String, String> customFields;
   private final String description;
@@ -98,22 +94,20 @@ public class SchemaImmutableClass implements SchemaClass {
   private boolean ouser;
   private boolean orole;
   private boolean securityPolicy;
-  private Index autoShardingIndex;
   private HashSet<Index> indexes;
 
-  public SchemaImmutableClass(DatabaseSessionInternal session, final SchemaClass oClass,
+  public SchemaImmutableClass(DatabaseSessionInternal session, final SchemaClassInternal oClass,
       final ImmutableSchema schema) {
     isAbstract = oClass.isAbstract();
     strictMode = oClass.isStrictMode();
     this.schema = schema;
 
     superClassesNames = oClass.getSuperClassesNames();
-    superClasses = new ArrayList<SchemaImmutableClass>(superClassesNames.size());
+    superClasses = new ArrayList<>(superClassesNames.size());
 
     name = oClass.getName();
     streamAbleName = oClass.getStreamableName();
     clusterSelection = oClass.getClusterSelection();
-    defaultClusterId = oClass.getDefaultClusterId();
     clusterIds = oClass.getClusterIds();
     polymorphicClusterIds = oClass.getPolymorphicClusterIds();
 
@@ -122,13 +116,11 @@ public class SchemaImmutableClass implements SchemaClass {
       baseClassesNames.add(baseClass.getName());
     }
 
-    overSize = oClass.getOverSize();
-    classOverSize = oClass.getClassOverSize();
     shortName = oClass.getShortName();
 
-    properties = new HashMap<String, Property>();
+    properties = new HashMap<>();
     for (Property p : oClass.declaredProperties()) {
-      properties.put(p.getName(), new ImmutableProperty(session, p, this));
+      properties.put(p.getName(), new ImmutableProperty(session, (PropertyInternal) p, this));
     }
 
     Map<String, String> customFields = new HashMap<String, String>();
@@ -173,16 +165,6 @@ public class SchemaImmutableClass implements SchemaClass {
       this.securityPolicy = SecurityPolicy.class.getSimpleName().equals(this.name);
       this.indexes = new HashSet<>();
       getRawIndexes(indexes);
-
-      final DatabaseSessionInternal db = getDatabase();
-      if (db != null
-          && db.getMetadata() != null
-          && db.getMetadata().getIndexManagerInternal() != null) {
-        this.autoShardingIndex =
-            db.getMetadata().getIndexManagerInternal().getClassAutoShardingIndex(db, name);
-      } else {
-        this.autoShardingIndex = null;
-      }
     }
 
     inited = true;
@@ -252,7 +234,7 @@ public class SchemaImmutableClass implements SchemaClass {
   }
 
   @Override
-  public SchemaClass removeSuperClass(DatabaseSession session, SchemaClass superClass) {
+  public void removeSuperClass(DatabaseSession session, SchemaClass superClass) {
     throw new UnsupportedOperationException();
   }
 
@@ -308,15 +290,22 @@ public class SchemaImmutableClass implements SchemaClass {
 
   @Override
   public Property getProperty(String propertyName) {
+    return getPropertyInternal(propertyName);
+  }
+
+  @Override
+  public PropertyInternal getPropertyInternal(String propertyName) {
     initSuperClasses();
 
-    Property p = properties.get(propertyName);
+    var p = properties.get(propertyName);
     if (p != null) {
       return p;
     }
+
     for (int i = 0; i < superClasses.size() && p == null; i++) {
-      p = superClasses.get(i).getProperty(propertyName);
+      p = superClasses.get(i).getPropertyInternal(propertyName);
     }
+
     return p;
   }
 
@@ -332,23 +321,10 @@ public class SchemaImmutableClass implements SchemaClass {
     throw new UnsupportedOperationException();
   }
 
-  @Override
-  public Property createProperty(
-      DatabaseSession session, String iPropertyName, PropertyType iType, SchemaClass iLinkedClass,
-      boolean unsafe) {
-    throw new UnsupportedOperationException();
-  }
 
   @Override
   public Property createProperty(DatabaseSession session, String iPropertyName, PropertyType iType,
       PropertyType iLinkedType) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Property createProperty(
-      DatabaseSession session, String iPropertyName, PropertyType iType, PropertyType iLinkedType,
-      boolean unsafe) {
     throw new UnsupportedOperationException();
   }
 
@@ -377,15 +353,6 @@ public class SchemaImmutableClass implements SchemaClass {
     return clusterSelection.getCluster(this, entity);
   }
 
-  @Override
-  public int getDefaultClusterId() {
-    return defaultClusterId;
-  }
-
-  @Override
-  public void setDefaultClusterId(DatabaseSession session, int iDefaultClusterId) {
-    throw new UnsupportedOperationException();
-  }
 
   @Override
   public int[] getClusterIds() {
@@ -397,19 +364,19 @@ public class SchemaImmutableClass implements SchemaClass {
     throw new UnsupportedOperationException();
   }
 
-  @Override
   public ClusterSelectionStrategy getClusterSelection() {
     return clusterSelection;
+  }
+
+
+  @Override
+  public SchemaClass setClusterSelection(DatabaseSession session, String iStrategyName) {
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public SchemaClass setClusterSelection(DatabaseSession session,
       ClusterSelectionStrategy clusterSelection) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public SchemaClass setClusterSelection(DatabaseSession session, String iStrategyName) {
     throw new UnsupportedOperationException();
   }
 
@@ -464,18 +431,6 @@ public class SchemaImmutableClass implements SchemaClass {
   }
 
   @Override
-  @Deprecated
-  public Collection<SchemaClass> getBaseClasses() {
-    return getSubclasses();
-  }
-
-  @Override
-  @Deprecated
-  public Collection<SchemaClass> getAllBaseClasses() {
-    return getAllSubclasses();
-  }
-
-  @Override
   public Collection<SchemaClass> getAllSuperClasses() {
     Set<SchemaClass> ret = new HashSet<SchemaClass>();
     getAllSuperClasses(ret);
@@ -489,37 +444,11 @@ public class SchemaImmutableClass implements SchemaClass {
     }
   }
 
-  @Override
-  public long getSize(DatabaseSessionInternal session) {
-    long size = 0;
-    for (int clusterId : clusterIds) {
-      size += getDatabase().getClusterRecordSizeById(clusterId);
-    }
 
-    return size;
-  }
-
-  @Override
-  public float getOverSize() {
-    return overSize;
-  }
-
-  @Override
-  public float getClassOverSize() {
-    return classOverSize;
-  }
-
-  @Override
-  public SchemaClass setOverSize(DatabaseSession session, float overSize) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public long count(DatabaseSession session) {
     return count(session, true);
   }
 
-  @Override
   public long count(DatabaseSession session, boolean isPolymorphic) {
     return getDatabase().countClass(name, isPolymorphic);
   }
@@ -536,7 +465,7 @@ public class SchemaImmutableClass implements SchemaClass {
   }
 
   @Override
-  public void truncate(DatabaseSession session) throws IOException {
+  public void truncate(DatabaseSession session) {
     throw new UnsupportedOperationException();
   }
 
@@ -603,7 +532,7 @@ public class SchemaImmutableClass implements SchemaClass {
     throw new UnsupportedOperationException();
   }
 
-  @Override
+
   public Object get(ATTRIBUTES iAttribute) {
     if (iAttribute == null) {
       throw new IllegalArgumentException("attribute is null");
@@ -618,13 +547,11 @@ public class SchemaImmutableClass implements SchemaClass {
         return getSuperClass();
       case SUPERCLASSES:
         return getSuperClasses();
-      case OVERSIZE:
-        return overSize;
-      case STRICTMODE:
+      case STRICT_MODE:
         return strictMode;
       case ABSTRACT:
         return isAbstract;
-      case CLUSTERSELECTION:
+      case CLUSTER_SELECTION:
         return clusterSelection;
       case CUSTOM:
         return customFields;
@@ -636,24 +563,19 @@ public class SchemaImmutableClass implements SchemaClass {
   }
 
   @Override
-  public SchemaClass set(DatabaseSession session, ATTRIBUTES attribute, Object iValue) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Index createIndex(DatabaseSession session, String iName, INDEX_TYPE iType,
+  public void createIndex(DatabaseSession session, String iName, INDEX_TYPE iType,
       String... fields) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Index createIndex(DatabaseSession session, String iName, String iType,
+  public void createIndex(DatabaseSession session, String iName, String iType,
       String... fields) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Index createIndex(
+  public void createIndex(
       DatabaseSession session, String iName, INDEX_TYPE iType,
       ProgressListener iProgressListener,
       String... fields) {
@@ -661,31 +583,10 @@ public class SchemaImmutableClass implements SchemaClass {
   }
 
   @Override
-  public Index createIndex(
-      DatabaseSession session, String iName,
-      String iType,
-      ProgressListener iProgressListener,
-      EntityImpl metadata,
-      String algorithm,
-      String... fields) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Index createIndex(
-      DatabaseSession session, String iName,
-      String iType,
-      ProgressListener iProgressListener,
-      EntityImpl metadata,
-      String... fields) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Set<Index> getInvolvedIndexes(DatabaseSession session, Collection<String> fields) {
+  public Set<String> getInvolvedIndexes(DatabaseSession session, Collection<String> fields) {
     initSuperClasses();
 
-    final Set<Index> result = new HashSet<Index>(getClassInvolvedIndexes(session, fields));
+    final Set<String> result = new HashSet<>(getClassInvolvedIndexes(session, fields));
 
     for (SchemaImmutableClass superClass : superClasses) {
       result.addAll(superClass.getInvolvedIndexes(session, fields));
@@ -694,20 +595,49 @@ public class SchemaImmutableClass implements SchemaClass {
   }
 
   @Override
-  public Set<Index> getInvolvedIndexes(DatabaseSession session, String... fields) {
+  public Set<Index> getInvolvedIndexesInternal(DatabaseSession session, Collection<String> fields) {
+    initSuperClasses();
+
+    final Set<Index> result = new HashSet<>(getClassInvolvedIndexesInternal(session, fields));
+    for (SchemaImmutableClass superClass : superClasses) {
+      result.addAll(superClass.getInvolvedIndexesInternal(session, fields));
+    }
+
+    return result;
+  }
+
+  @Override
+  public Set<String> getInvolvedIndexes(DatabaseSession session, String... fields) {
     return getInvolvedIndexes(session, Arrays.asList(fields));
   }
 
   @Override
-  public Set<Index> getClassInvolvedIndexes(DatabaseSession session, Collection<String> fields) {
+  public Set<Index> getInvolvedIndexesInternal(DatabaseSession session, String... fields) {
+    return getInvolvedIndexesInternal(session, Arrays.asList(fields));
+  }
+
+  @Override
+  public Set<String> getClassInvolvedIndexes(DatabaseSession session, Collection<String> fields) {
+    return getClassInvolvedIndexesInternal(session, fields).stream().map(Index::getName)
+        .collect(HashSet::new, HashSet::add, HashSet::addAll);
+  }
+
+  @Override
+  public Set<Index> getClassInvolvedIndexesInternal(DatabaseSession session,
+      Collection<String> fields) {
     final DatabaseSessionInternal database = getDatabase();
     final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
     return indexManager.getClassInvolvedIndexes(database, name, fields);
   }
 
   @Override
-  public Set<Index> getClassInvolvedIndexes(DatabaseSession session, String... fields) {
+  public Set<String> getClassInvolvedIndexes(DatabaseSession session, String... fields) {
     return getClassInvolvedIndexes(session, Arrays.asList(fields));
+  }
+
+  @Override
+  public Set<Index> getClassInvolvedIndexesInternal(DatabaseSession session, String... fields) {
+    return getClassInvolvedIndexesInternal(session, Arrays.asList(fields));
   }
 
   @Override
@@ -735,20 +665,55 @@ public class SchemaImmutableClass implements SchemaClass {
   }
 
   @Override
-  public Index getClassIndex(DatabaseSession session, String iName) {
-    final DatabaseSessionInternal database = getDatabase();
-    return database
-        .getMetadata()
-        .getIndexManagerInternal()
-        .getClassIndex(database, this.name, iName);
+  public Set<String> getClassIndexes(DatabaseSession session) {
+    return this.indexes.stream().map(Index::getName).collect(HashSet::new, HashSet::add,
+        HashSet::addAll);
   }
 
   @Override
-  public Set<Index> getClassIndexes(DatabaseSession session) {
+  public String getClusterSelectionStrategyName() {
+    return clusterSelection.getName();
+  }
+
+  @Override
+  public Property createProperty(DatabaseSession session, String iPropertyName,
+      PropertyType iType, PropertyType iLinkedType, boolean unsafe) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Property createProperty(DatabaseSession session, String iPropertyName,
+      PropertyType iType, SchemaClass iLinkedClass, boolean unsafe) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void createIndex(DatabaseSession session, String iName, String iType,
+      ProgressListener iProgressListener, Map<String, ?> metadata, String algorithm,
+      String... fields) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void createIndex(DatabaseSession session, String iName, String iType,
+      ProgressListener iProgressListener, Map<String, ?> metadata, String... fields) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Set<Index> getClassIndexesInternal(DatabaseSession session) {
     return this.indexes;
   }
 
   @Override
+  public Index getClassIndex(DatabaseSession session, String name) {
+    final DatabaseSessionInternal database = (DatabaseSessionInternal) session;
+    return database
+        .getMetadata()
+        .getIndexManagerInternal()
+        .getClassIndex(database, this.name, name);
+  }
+
   public void getClassIndexes(DatabaseSession session, final Collection<Index> indexes) {
     final DatabaseSessionInternal database = getDatabase();
     database.getMetadata().getIndexManagerInternal().getClassIndexes(database, name, indexes);
@@ -759,12 +724,12 @@ public class SchemaImmutableClass implements SchemaClass {
   }
 
   @Override
-  public void getIndexes(DatabaseSession session, final Collection<Index> indexes) {
+  public void getIndexesInternal(DatabaseSession session, final Collection<Index> indexes) {
     initSuperClasses();
 
     getClassIndexes(session, indexes);
-    for (SchemaClass superClass : superClasses) {
-      superClass.getIndexes(session, indexes);
+    for (SchemaClassInternal superClass : superClasses) {
+      superClass.getIndexesInternal(session, indexes);
     }
   }
 
@@ -778,17 +743,18 @@ public class SchemaImmutableClass implements SchemaClass {
   }
 
   @Override
-  public Set<Index> getIndexes(DatabaseSession session) {
+  public Set<String> getIndexes(DatabaseSession session) {
+    return this.indexes.stream().map(Index::getName).collect(HashSet::new, HashSet::add,
+        HashSet::addAll);
+  }
+
+  @Override
+  public Set<Index> getIndexesInternal(DatabaseSession session) {
     return this.indexes;
   }
 
   public Set<Index> getRawIndexes() {
     return indexes;
-  }
-
-  @Override
-  public Index getAutoShardingIndex(DatabaseSession session) {
-    return autoShardingIndex;
   }
 
   @Override
@@ -861,6 +827,11 @@ public class SchemaImmutableClass implements SchemaClass {
   @Override
   public int compareTo(final SchemaClass other) {
     return name.compareTo(other.getName());
+  }
+
+  @Override
+  public SchemaClass set(DatabaseSession session, ATTRIBUTES attribute, Object value) {
+    throw new UnsupportedOperationException();
   }
 
   protected DatabaseSessionInternal getDatabase() {

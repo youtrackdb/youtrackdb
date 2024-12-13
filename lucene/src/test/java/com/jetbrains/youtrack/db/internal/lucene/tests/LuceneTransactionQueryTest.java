@@ -20,16 +20,15 @@ package com.jetbrains.youtrack.db.internal.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -140,12 +139,8 @@ public class LuceneTransactionQueryTest extends LuceneBaseTest {
   public void txUpdateTest() {
 
     Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
-    SchemaClass c1 = db.getMetadata().getSchema().getClass("C1");
-    try {
-      c1.truncate(db);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    var c1 = db.getMetadata().getSchema().getClassInternal("C1");
+    c1.truncate(db);
 
     db.begin();
     Assert.assertEquals(index.getInternal().size(db), 0);
@@ -220,12 +215,8 @@ public class LuceneTransactionQueryTest extends LuceneBaseTest {
   public void txUpdateTestComplex() {
 
     Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
-    SchemaClass c1 = db.getMetadata().getSchema().getClass("C1");
-    try {
-      c1.truncate(db);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    var c1 = db.getMetadata().getSchema().getClassInternal("C1");
+    c1.truncate(db);
 
     db.begin();
     Assert.assertEquals(index.getInternal().size(db), 0);

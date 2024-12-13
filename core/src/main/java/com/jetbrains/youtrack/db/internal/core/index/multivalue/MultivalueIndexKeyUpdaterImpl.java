@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.index.multivalue;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.index.DefaultIndexFactory;
 import com.jetbrains.youtrack.db.internal.core.index.IndexKeyUpdater;
 import com.jetbrains.youtrack.db.internal.core.index.IndexUpdateAction;

@@ -19,22 +19,23 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
 import com.jetbrains.youtrack.db.internal.common.profiler.ProfilerStub;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexCursor;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.index.IndexKeyCursor;
 import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemField;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemField.FieldChain;
@@ -91,7 +92,7 @@ public class ChainedIndexProxy<T> implements IndexInternal {
    * @return proxies needed to process query.
    */
   public static <T> Collection<ChainedIndexProxy<T>> createProxies(
-      DatabaseSessionInternal session, SchemaClass iSchemaClass, FieldChain longChain) {
+      DatabaseSessionInternal session, SchemaClassInternal iSchemaClass, FieldChain longChain) {
     List<ChainedIndexProxy<T>> proxies = new ArrayList<>();
 
     for (List<Index> indexChain : getIndexesForChain(session, iSchemaClass, longChain)) {
@@ -107,7 +108,7 @@ public class ChainedIndexProxy<T> implements IndexInternal {
   }
 
   private static Iterable<List<Index>> getIndexesForChain(
-      DatabaseSessionInternal session, SchemaClass iSchemaClass, FieldChain fieldChain) {
+      DatabaseSessionInternal session, SchemaClassInternal iSchemaClass, FieldChain fieldChain) {
     List<Index> baseIndexes = prepareBaseIndexes(session, iSchemaClass, fieldChain);
 
     if (baseIndexes == null) {
@@ -130,12 +131,12 @@ public class ChainedIndexProxy<T> implements IndexInternal {
   }
 
   private static Collection<Index> prepareLastIndexVariants(
-      DatabaseSessionInternal session, SchemaClass iSchemaClass, FieldChain fieldChain) {
-    SchemaClass oClass = iSchemaClass;
+      DatabaseSessionInternal session, SchemaClassInternal iSchemaClass, FieldChain fieldChain) {
+    SchemaClassInternal oClass = iSchemaClass;
     final Collection<Index> result = new ArrayList<>();
 
     for (int i = 0; i < fieldChain.getItemCount() - 1; i++) {
-      oClass = oClass.getProperty(fieldChain.getItemName(i)).getLinkedClass();
+      oClass = (SchemaClassInternal) oClass.getProperty(fieldChain.getItemName(i)).getLinkedClass();
       if (oClass == null) {
         return result;
       }
@@ -145,7 +146,8 @@ public class ChainedIndexProxy<T> implements IndexInternal {
         new TreeSet<>(Comparator.comparingInt(o -> o.getDefinition().getParamCount()));
 
     involvedIndexes.addAll(
-        oClass.getInvolvedIndexes(session, fieldChain.getItemName(fieldChain.getItemCount() - 1)));
+        oClass.getInvolvedIndexesInternal(session,
+            fieldChain.getItemName(fieldChain.getItemCount() - 1)));
     final Collection<Class<? extends Index>> indexTypes = new HashSet<>(3);
 
     for (Index involvedIndex : involvedIndexes) {
@@ -159,12 +161,12 @@ public class ChainedIndexProxy<T> implements IndexInternal {
   }
 
   private static List<Index> prepareBaseIndexes(
-      DatabaseSessionInternal session, SchemaClass iSchemaClass, FieldChain fieldChain) {
+      DatabaseSessionInternal session, SchemaClassInternal iSchemaClass, FieldChain fieldChain) {
     List<Index> result = new ArrayList<>(fieldChain.getItemCount() - 1);
 
-    SchemaClass oClass = iSchemaClass;
+    SchemaClassInternal oClass = iSchemaClass;
     for (int i = 0; i < fieldChain.getItemCount() - 1; i++) {
-      final Set<Index> involvedIndexes = oClass.getInvolvedIndexes(session,
+      final Set<Index> involvedIndexes = oClass.getInvolvedIndexesInternal(session,
           fieldChain.getItemName(i));
       final Index bestIndex = findBestIndex(involvedIndexes);
 
@@ -173,7 +175,7 @@ public class ChainedIndexProxy<T> implements IndexInternal {
       }
 
       result.add(bestIndex);
-      oClass = oClass.getProperty(fieldChain.getItemName(i)).getLinkedClass();
+      oClass = (SchemaClassInternal) oClass.getProperty(fieldChain.getItemName(i)).getLinkedClass();
     }
     return result;
   }
@@ -455,9 +457,9 @@ public class ChainedIndexProxy<T> implements IndexInternal {
    */
   private static void updateStatistic(Index index) {
 
-    final Profiler profiler = YouTrackDBManager.instance().getProfiler();
+    final Profiler profiler = YouTrackDBEnginesManager.instance().getProfiler();
     if (profiler.isRecording()) {
-      YouTrackDBManager.instance()
+      YouTrackDBEnginesManager.instance()
           .getProfiler()
           .updateCounter(
               profiler.getDatabaseMetric(index.getDatabaseName(), "query.indexUsed"),

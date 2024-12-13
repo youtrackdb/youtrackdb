@@ -15,23 +15,24 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
-import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -67,8 +68,9 @@ public class CRUDTest extends DocumentDBBaseTest {
   }
 
   @Override
-  protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
-    builder.addConfig(GlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+  protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilderImpl builder) {
+    builder.addGlobalConfigurationParameter(GlobalConfiguration.NON_TX_READS_WARNING_MODE,
+        "EXCEPTION");
     return builder.build();
   }
 
@@ -1309,10 +1311,10 @@ public class CRUDTest extends DocumentDBBaseTest {
               .get("The Observer")
               .getIdentity()
               .isPersistent()
-              && reloaded
+              && ((RecordId) reloaded
               .<Map<String, Identifiable>>getProperty("children")
               .get("The Observer")
-              .getIdentity()
+              .getIdentity())
               .isValid());
     }
     database.commit();
@@ -1437,10 +1439,10 @@ public class CRUDTest extends DocumentDBBaseTest {
               .get("The Observer")
               .getIdentity()
               .isPersistent()
-              && reloaded
+              && ((RecordId) reloaded
               .<Map<String, Identifiable>>getProperty("children")
               .get("The Observer")
-              .getIdentity()
+              .getIdentity())
               .isValid());
     }
     database.commit();
@@ -2176,7 +2178,8 @@ public class CRUDTest extends DocumentDBBaseTest {
     Assert.assertEquals(
         loaded.getElementProperty("embeddedDocument").getProperty("testEmbeddedField"),
         "testEmbeddedValue");
-    Assert.assertFalse(loaded.getElementProperty("embeddedDocument").getIdentity().isValid());
+    Assert.assertFalse(
+        ((RecordId) loaded.getElementProperty("embeddedDocument").getIdentity()).isValid());
 
     database.commit();
     database.close();

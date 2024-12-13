@@ -19,8 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db;
 
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBListenerAbstract;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import java.util.concurrent.Callable;
 
 /**
@@ -41,7 +41,7 @@ public class ScenarioThreadLocal extends ThreadLocal<ScenarioThreadLocal.RunCont
   }
 
   static {
-    YouTrackDBManager.instance()
+    YouTrackDBEnginesManager.instance()
         .registerListener(
             new YouTrackDBListenerAbstract() {
               @Override

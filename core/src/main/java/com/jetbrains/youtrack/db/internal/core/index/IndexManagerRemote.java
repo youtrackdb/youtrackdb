@@ -26,13 +26,13 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.MetadataUpdateListener;
 import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.Metadata;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sharding.auto.AutoShardingIndexFactory;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLCreateIndex;
@@ -439,7 +439,7 @@ public class IndexManagerRemote implements IndexManagerAbstract {
       final IndexDefinition iIndexDefinition,
       final int[] iClusterIdsToIndex,
       final ProgressListener progressListener,
-      EntityImpl metadata,
+      Map<String, ?> metadata,
       String engine) {
 
     String createIndexDDL;
@@ -450,8 +450,11 @@ public class IndexManagerRemote implements IndexManagerAbstract {
     }
 
     if (metadata != null) {
+      var entity = new EntityImpl((DatabaseSessionInternal) null);
+      entity.fromMap(metadata);
+
       createIndexDDL +=
-          " " + CommandExecutorSQLCreateIndex.KEYWORD_METADATA + " " + metadata.toJSON();
+          " " + CommandExecutorSQLCreateIndex.KEYWORD_METADATA + " " + entity.toJSON();
     }
 
     acquireExclusiveLock();
@@ -484,7 +487,7 @@ public class IndexManagerRemote implements IndexManagerAbstract {
       IndexDefinition indexDefinition,
       int[] clusterIdsToIndex,
       ProgressListener progressListener,
-      EntityImpl metadata) {
+      Map<String, ?> metadata) {
     return createIndex(
         database,
         iName,
@@ -513,10 +516,6 @@ public class IndexManagerRemote implements IndexManagerAbstract {
 
   public EntityImpl toStream(DatabaseSessionInternal session) {
     throw new UnsupportedOperationException("Remote index cannot be streamed");
-  }
-
-  public void recreateIndexes() {
-    throw new UnsupportedOperationException("recreateIndexes()");
   }
 
   @Override

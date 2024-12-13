@@ -20,15 +20,15 @@ package com.jetbrains.youtrack.db.internal.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabasePool;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.session.SessionPool;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -75,9 +75,9 @@ public class LuceneInsertReadMultiThreadTest extends LuceneBaseTest {
 
     DatabaseSessionInternal db1 = (DatabaseSessionInternal) pool.acquire();
     db1.getMetadata().reload();
-    Schema schema = db1.getMetadata().getSchema();
+    var schema = db1.getMetadata().getSchema();
 
-    Index idx = schema.getClass("City").getClassIndex(db, "City.name");
+    Index idx = schema.getClassInternal("City").getClassIndex(db, "City.name");
 
     db1.begin();
     Assert.assertEquals(idx.getInternal().size(db1), THREADS * CYCLE);
@@ -86,11 +86,11 @@ public class LuceneInsertReadMultiThreadTest extends LuceneBaseTest {
 
   public class LuceneInsert implements Runnable {
 
-    private final DatabasePool pool;
+    private final SessionPool pool;
     private final int cycle;
     private final int commitBuf;
 
-    public LuceneInsert(DatabasePool pool, int cycle) {
+    public LuceneInsert(SessionPool pool, int cycle) {
       this.pool = pool;
       this.cycle = cycle;
 
@@ -123,9 +123,9 @@ public class LuceneInsertReadMultiThreadTest extends LuceneBaseTest {
   public class LuceneReader implements Runnable {
 
     private final int cycle;
-    private final DatabasePool pool;
+    private final SessionPool pool;
 
-    public LuceneReader(DatabasePool pool, int cycle) {
+    public LuceneReader(SessionPool pool, int cycle) {
       this.pool = pool;
       this.cycle = cycle;
     }
@@ -135,8 +135,8 @@ public class LuceneInsertReadMultiThreadTest extends LuceneBaseTest {
 
       final DatabaseSessionInternal db = (DatabaseSessionInternal) pool.acquire();
       db.activateOnCurrentThread();
-      Schema schema = db.getMetadata().getSchema();
-      Index idx = schema.getClass("City").getClassIndex(db, "City.name");
+      var schema = db.getMetadata().getSchema();
+      schema.getClassInternal("City").getClassIndex(db, "City.name");
 
       for (int i = 0; i < cycle; i++) {
 

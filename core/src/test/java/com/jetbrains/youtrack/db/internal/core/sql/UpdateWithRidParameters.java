@@ -3,9 +3,9 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.List;
 import org.junit.Test;
 

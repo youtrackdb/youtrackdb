@@ -1,27 +1,28 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Direction;
+import com.jetbrains.youtrack.db.api.record.Edge;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.record.Direction;
-import com.jetbrains.youtrack.db.internal.core.record.Edge;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -212,25 +213,40 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   @Override
-  default Edge addEdge(Vertex to) {
+  default Edge addRegularEdge(Vertex to) {
     return addEdge(to, EdgeInternal.CLASS_NAME);
-  }
-
-  @Override
-  default Edge addLightWeightEdge(Vertex to) {
-    return addLightWeightEdge(to, EdgeInternal.CLASS_NAME);
   }
 
   @Override
   default Edge addEdge(Vertex to, String type) {
     var db = getBaseDocument().getSession();
-    return db.newEdge(this, to, type == null ? EdgeInternal.CLASS_NAME : type);
+    if (type == null) {
+      return db.newRegularEdge(this, to, EdgeInternal.CLASS_NAME);
+    }
+
+    var schemaClass = db.getClass(type);
+    if (schemaClass == null) {
+      throw new IllegalArgumentException("Schema class for label" + type + " not found");
+    }
+    if (schemaClass.isAbstract()) {
+      return db.newLightweightEdge(this, to, type);
+    }
+
+    return db.newRegularEdge(this, to, schemaClass);
+  }
+
+  @Override
+  default Edge addRegularEdge(Vertex to, String label) {
+    var db = getBaseDocument().getSession();
+
+    return db.newRegularEdge(this, to, label == null ? EdgeInternal.CLASS_NAME : label);
   }
 
   @Override
   default Edge addLightWeightEdge(Vertex to, String label) {
     var db = getBaseDocument().getSession();
-    return db.addLightweightEdge(this, to, label);
+
+    return db.newLightweightEdge(this, to, label);
   }
 
   @Override
@@ -243,6 +259,19 @@ public interface VertexInternal extends Vertex, EntityInternal {
     }
 
     return addEdge(to, className);
+  }
+
+  @Override
+  default Edge addRegularEdge(Vertex to, SchemaClass label) {
+    final String className;
+
+    if (label != null) {
+      className = label.getName();
+    } else {
+      className = EdgeInternal.CLASS_NAME;
+    }
+
+    return addRegularEdge(to, className);
   }
 
   @Override
@@ -579,7 +608,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
           getIdentity(), "The vertex " + getIdentity() + " has been deleted");
     }
 
-    final RID oldIdentity = getIdentity().copy();
+    var oldIdentity = ((RecordId) getIdentity()).copy();
 
     final Record oldRecord = oldIdentity.getRecord();
     var entity = baseEntity.copy();

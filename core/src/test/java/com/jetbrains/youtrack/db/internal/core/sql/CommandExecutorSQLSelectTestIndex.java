@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import org.junit.Test;
 
 public class CommandExecutorSQLSelectTestIndex extends BaseMemoryInternalDatabase {

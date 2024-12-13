@@ -18,14 +18,14 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.tests;
 
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -53,24 +53,24 @@ public class LuceneInsertUpdateTransactionTest extends LuceneBaseTest {
   @Test
   public void testInsertUpdateTransactionWithIndex() {
 
-    Schema schema = db.getMetadata().getSchema();
+    var schema = db.getMetadata().getSchema();
     db.begin();
     EntityImpl doc = new EntityImpl("City");
     doc.field("name", "Rome");
     db.save(doc);
 
-    Index idx = schema.getClass("City").getClassIndex(db, "City.name");
+    Index idx = schema.getClassInternal("City").getClassIndex(db, "City.name");
     Assert.assertNotNull(idx);
     Collection<?> coll;
     try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
-    Assert.assertEquals(coll.size(), 1);
+    Assert.assertEquals(1, coll.size());
     db.rollback();
     try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
-    Assert.assertEquals(coll.size(), 0);
+    Assert.assertEquals(0, coll.size());
     db.begin();
     doc = new EntityImpl("City");
     doc.field("name", "Rome");
@@ -83,6 +83,6 @@ public class LuceneInsertUpdateTransactionTest extends LuceneBaseTest {
     try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
-    Assert.assertEquals(coll.size(), 1);
+    Assert.assertEquals(1, coll.size());
   }
 }

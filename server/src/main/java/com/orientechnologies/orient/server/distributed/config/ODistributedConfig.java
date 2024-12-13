@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.server.distributed.config;
 
-import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
 import com.jetbrains.youtrack.db.internal.core.db.config.MulticastConfguration;
 import com.jetbrains.youtrack.db.internal.core.db.config.NodeConfigurationBuilder;
-import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
 import com.orientechnologies.orient.server.config.distributed.OServerDistributedConfiguration;
 import com.orientechnologies.orient.server.config.distributed.OServerDistributedNetworkMulticastConfiguration;
 
@@ -68,7 +68,8 @@ public class ODistributedConfig {
   public static YouTrackDBConfig buildConfig(
       ContextConfiguration contextConfiguration, OServerDistributedConfiguration distributed) {
 
-    YouTrackDBConfigBuilder builder = YouTrackDBConfig.builder().fromContext(contextConfiguration);
+    YouTrackDBConfigBuilderImpl builder = (YouTrackDBConfigBuilderImpl)
+        YouTrackDBConfig.builder().fromContext(contextConfiguration);
 
     NodeConfigurationBuilder nodeConfigurationBuilder = builder.getNodeConfigurationBuilder();
 

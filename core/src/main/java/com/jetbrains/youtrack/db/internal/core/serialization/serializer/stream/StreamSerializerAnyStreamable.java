@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.stream;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.ArrayUtils;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;

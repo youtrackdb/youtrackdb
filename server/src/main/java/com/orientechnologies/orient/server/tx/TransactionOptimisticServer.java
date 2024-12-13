@@ -1,23 +1,23 @@
 package com.orientechnologies.orient.server.tx;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.record.RecordHook;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
 import com.jetbrains.youtrack.db.internal.client.remote.message.tx.RecordOperationRequest;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
-import com.jetbrains.youtrack.db.internal.core.exception.TransactionException;
+import com.jetbrains.youtrack.db.api.exception.TransactionException;
 import com.jetbrains.youtrack.db.internal.core.index.ClassIndexManager;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.DocumentSerializerDelta;
@@ -62,7 +62,7 @@ public class TransactionOptimisticServer extends TransactionOptimistic {
         switch (recordStatus) {
           case RecordOperation.CREATED:
             RecordAbstract record =
-                YouTrackDBManager.instance()
+                YouTrackDBEnginesManager.instance()
                     .getRecordFactoryManager()
                     .newInstance(operation.getRecordType(), rid, getDatabase());
             RecordSerializerNetworkV37.INSTANCE.fromStream(getDatabase(), operation.getRecord(),
@@ -97,7 +97,7 @@ public class TransactionOptimisticServer extends TransactionOptimistic {
             } else {
               int version = operation.getVersion();
               var updated =
-                  YouTrackDBManager.instance()
+                  YouTrackDBEnginesManager.instance()
                       .getRecordFactoryManager()
                       .newInstance(operation.getRecordType(), rid, getDatabase());
               RecordSerializerNetworkV37.INSTANCE.fromStream(getDatabase(), operation.getRecord(),
@@ -135,7 +135,7 @@ public class TransactionOptimisticServer extends TransactionOptimistic {
       for (RecordOperation update : toMergeUpdates) {
         // SPECIAL CASE FOR UPDATE: WE NEED TO LOAD THE RECORD AND APPLY CHANGES TO GET WORKING
         // HOOKS (LIKE INDEXES)
-        final Record record = update.record.getRecord();
+        var record = update.record.getRecord();
         final boolean contentChanged = RecordInternal.isContentChanged(record);
 
         final RecordAbstract loadedRecord = record.getIdentity().copy().getRecord();

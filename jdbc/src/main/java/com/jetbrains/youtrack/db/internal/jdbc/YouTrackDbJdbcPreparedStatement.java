@@ -13,13 +13,13 @@
  */
 package com.jetbrains.youtrack.db.internal.jdbc;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.jdbc.YouTrackDbJdbcParameterMetadata.ParameterDefinition;
 import java.io.IOException;
 import java.io.InputStream;

@@ -2,19 +2,19 @@ package com.orientechnologies.orient.core.db;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.record.Direction;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.record.Direction;
+import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.orientechnologies.orient.server.AbstractRemoteTest;
 import java.util.Iterator;
 import org.junit.Test;
 
 public class CountRelationshipGraphTest extends AbstractRemoteTest {
 
-  private YouTrackDB youTrackDB;
+  private YouTrackDBImpl youTrackDB;
   private int old;
 
   public void setup() throws Exception {
@@ -22,12 +22,13 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
     GlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(-1);
     super.setup();
     youTrackDB =
-        new YouTrackDB(
+        new YouTrackDBImpl(
             "remote:localhost",
             "root",
             "root",
             YouTrackDBConfig.builder()
-                .addConfig(GlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, -1)
+                .addGlobalConfigurationParameter(
+                    GlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, -1)
                 .build());
   }
 
@@ -64,7 +65,7 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
     vertex1 = g.load(vertex1.getIdentity());
     vertex2 = g.load(vertex2.getIdentity());
 
-    vertex1.addEdge(vertex2);
+    vertex1.addRegularEdge(vertex2);
     vertex1.save();
 
     version = vertex1.getProperty("@version");

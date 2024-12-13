@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.operationsfreezer;
 
 import com.jetbrains.youtrack.db.internal.common.concur.lock.ThreadInterruptedException;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import java.util.concurrent.CountDownLatch;
 
 final class WaitingListNode {

@@ -15,24 +15,26 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.YourTracks;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.RecordHook;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseCompare;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseExport;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseImport;
-import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.File;
 import java.io.IOException;
@@ -84,7 +86,7 @@ public class DbImportExportTest extends DocumentDBBaseTest implements CommandOut
     }
 
     try (YouTrackDB youTrackDBImport =
-        YouTrackDB.embedded(
+        YourTracks.embedded(
             testPath + File.separator + IMPORT_DB_PATH, YouTrackDBConfig.defaultConfig())) {
       youTrackDBImport.createIfNotExists(
           IMPORT_DB_NAME, DatabaseType.PLOCAL, "admin", "admin", "admin");
@@ -113,7 +115,7 @@ public class DbImportExportTest extends DocumentDBBaseTest implements CommandOut
       // EXECUTES ONLY IF NOT REMOTE ON CI/RELEASE TEST ENV
     }
     try (YouTrackDB youTrackDBImport =
-        YouTrackDB.embedded(
+        YourTracks.embedded(
             testPath + File.separator + IMPORT_DB_PATH, YouTrackDBConfig.defaultConfig())) {
       try (var importDB = youTrackDBImport.open(IMPORT_DB_NAME, "admin", "admin")) {
         final DatabaseCompare databaseCompare =
@@ -138,10 +140,11 @@ public class DbImportExportTest extends DocumentDBBaseTest implements CommandOut
     final File exportPath = new File(localTesPath, "export.json.gz");
 
     final YouTrackDBConfig config =
-        new YouTrackDBConfigBuilder()
-            .addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS, true)
+        new YouTrackDBConfigBuilderImpl()
+            .addGlobalConfigurationParameter(GlobalConfiguration.CREATE_DEFAULT_USERS, true)
             .build();
-    try (final YouTrackDB youTrackDB = new YouTrackDB("embedded:" + localTesPath.getPath(),
+    try (final YouTrackDB youTrackDB = new YouTrackDBImpl(
+        "embedded:" + localTesPath.getPath(),
         config)) {
       youTrackDB.create("original", DatabaseType.PLOCAL);
 

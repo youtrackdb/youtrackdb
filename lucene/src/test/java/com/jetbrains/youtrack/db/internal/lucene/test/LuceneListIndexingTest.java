@@ -20,17 +20,18 @@ package com.jetbrains.youtrack.db.internal.lucene.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.Before;
@@ -85,7 +86,7 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     db.save(doc);
     db.commit();
 
-    Index tagsIndex = schema.getClass("City").getClassIndex(db, "City.tags");
+    Index tagsIndex = db.getClassInternal("City").getClassIndex(db, "City.tags");
     Collection<?> coll;
     try (Stream<RID> stream = tagsIndex.getInternal().getRids(db, "Sunny")) {
       coll = stream.collect(Collectors.toList());
@@ -123,7 +124,6 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     List<String> tags = doc.field("tags");
     tags.remove("Sunny");
     tags.add("Rainy");
-
 
     db.save(doc);
     db.commit();
@@ -165,7 +165,7 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     db.save(doc);
     db.commit();
 
-    Index idx = schema.getClass("Person").getClassIndex(db, "Person.name_tags");
+    Index idx = db.getClassInternal("Person").getClassIndex(db, "Person.name_tags");
     Collection<?> coll;
     try (Stream<RID> stream = idx.getInternal().getRids(db, "Enrico")) {
       coll = stream.collect(Collectors.toList());
@@ -244,8 +244,7 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     final SchemaClass c1 = db.createVertexClass("C1");
     c1.createProperty(db, "p1", PropertyType.STRING);
 
-    final EntityImpl metadata = new EntityImpl();
-    metadata.field("default", "org.apache.lucene.analysis.en.EnglishAnalyzer");
+    var metadata = Map.of("default", "org.apache.lucene.analysis.en.EnglishAnalyzer");
 
     c1.createIndex(db, "p1", "FULLTEXT", null, metadata, "LUCENE", new String[]{"p1"});
 

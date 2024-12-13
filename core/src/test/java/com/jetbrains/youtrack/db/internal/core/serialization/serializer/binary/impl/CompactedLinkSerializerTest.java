@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import java.nio.ByteBuffer;
 import org.junit.Assert;

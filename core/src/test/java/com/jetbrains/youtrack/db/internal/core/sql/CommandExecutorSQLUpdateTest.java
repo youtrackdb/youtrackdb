@@ -27,10 +27,10 @@ import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -433,8 +433,8 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
   @Test
   public void testUpdateContentOnClusterTargetMultiple() throws Exception {
     db.command("CREATE class Foo").close();
-    db.command("ALTER CLASS Foo addcluster fooadditional1").close();
-    db.command("ALTER CLASS Foo addcluster fooadditional2").close();
+    db.command("ALTER CLASS Foo add_cluster fooadditional1").close();
+    db.command("ALTER CLASS Foo add_cluster fooadditional2").close();
     db.command("CREATE class Bar").close();
     db.command("CREATE property Foo.bar EMBEDDED Bar").close();
 
@@ -466,9 +466,9 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
   @Test
   public void testUpdateContentOnClusterTargetMultipleSelection() throws Exception {
     db.command("CREATE class Foo").close();
-    db.command("ALTER CLASS Foo addcluster fooadditional1").close();
-    db.command("ALTER CLASS Foo addcluster fooadditional2").close();
-    db.command("ALTER CLASS Foo addcluster fooadditional3").close();
+    db.command("ALTER CLASS Foo add_cluster fooadditional1").close();
+    db.command("ALTER CLASS Foo add_cluster fooadditional2").close();
+    db.command("ALTER CLASS Foo add_cluster fooadditional3").close();
     db.command("CREATE class Bar").close();
     db.command("CREATE property Foo.bar EMBEDDED Bar").close();
 

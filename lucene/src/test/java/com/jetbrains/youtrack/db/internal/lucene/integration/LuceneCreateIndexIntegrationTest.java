@@ -1,12 +1,13 @@
 package com.jetbrains.youtrack.db.internal.lucene.integration;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.orientechnologies.orient.server.OServer;
 import org.junit.After;
 import org.junit.Assert;
@@ -23,7 +24,8 @@ public class LuceneCreateIndexIntegrationTest {
     server0 =
         OServer.startFromClasspathConfig(
             "com/orientechnologies/lucene/integration/orientdb-simple-server-config.xml");
-    remote = new YouTrackDB("remote:localhost", "root", "test", YouTrackDBConfig.defaultConfig());
+    remote = new YouTrackDBImpl("remote:localhost", "root", "test",
+        YouTrackDBConfig.defaultConfig());
 
     remote.execute(
         "create database LuceneCreateIndexIntegrationTest plocal users(admin identified by 'admin'"

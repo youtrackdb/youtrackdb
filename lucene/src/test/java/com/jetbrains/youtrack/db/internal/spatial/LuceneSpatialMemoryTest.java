@@ -14,15 +14,14 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial;
 
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.lucene.tests.LuceneBaseTest;
 import com.jetbrains.youtrack.db.internal.spatial.collections.SpatialCompositeKey;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,224 +35,195 @@ import org.junit.Test;
 /**
  *
  */
-public class LuceneSpatialMemoryTest {
+public class LuceneSpatialMemoryTest extends LuceneBaseTest {
 
   @Test
   public void boundingBoxTest() {
-    //noinspection deprecation
-    try (DatabaseSessionInternal db = new DatabaseDocumentTx("memory:test")) {
-      db.create();
-      try {
+    SchemaClass point = db.getMetadata().getSchema().createClass("Point");
+    point.createProperty(db, "latitude", PropertyType.DOUBLE);
+    point.createProperty(db, "longitude", PropertyType.DOUBLE);
 
-        SchemaClass point = db.getMetadata().getSchema().createClass("Point");
-        point.createProperty(db, "latitude", PropertyType.DOUBLE);
-        point.createProperty(db, "longitude", PropertyType.DOUBLE);
+    db.command("CREATE INDEX Point.ll ON Point(latitude,longitude) SPATIAL ENGINE LUCENE")
+        .close();
 
-        db.command("CREATE INDEX Point.ll ON Point(latitude,longitude) SPATIAL ENGINE LUCENE")
-            .close();
+    EntityImpl document = new EntityImpl("Point");
 
-        EntityImpl document = new EntityImpl("Point");
+    document.field("latitude", 42.2814837);
+    document.field("longitude", -83.7605452);
 
-        document.field("latitude", 42.2814837);
-        document.field("longitude", -83.7605452);
+    db.begin();
+    db.save(document);
+    db.commit();
 
-        db.begin();
-        db.save(document);
-        db.commit();
+    List<?> query =
+        db.query(
+            new SQLSynchQuery<EntityImpl>(
+                "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
+                    + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
 
-        List<?> query =
-            db.query(
-                new SQLSynchQuery<EntityImpl>(
-                    "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
-                        + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
-
-        Assert.assertEquals(query.size(), 1);
-      } finally {
-        db.drop();
-      }
-    }
+    Assert.assertEquals(1, query.size());
   }
 
   @Test
   public void boundingBoxTestTxRollBack() {
+    SchemaClass point = db.getMetadata().getSchema().createClass("Point");
+    point.createProperty(db, "latitude", PropertyType.DOUBLE);
+    point.createProperty(db, "longitude", PropertyType.DOUBLE);
 
-    @SuppressWarnings("deprecation")
-    DatabaseSessionInternal db = new DatabaseDocumentTx("memory:test");
-    db.create();
-    try {
+    db.command("CREATE INDEX Point.ll ON Point(latitude,longitude) SPATIAL ENGINE LUCENE")
+        .close();
 
-      SchemaClass point = db.getMetadata().getSchema().createClass("Point");
-      point.createProperty(db, "latitude", PropertyType.DOUBLE);
-      point.createProperty(db, "longitude", PropertyType.DOUBLE);
+    db.begin();
 
-      db.command("CREATE INDEX Point.ll ON Point(latitude,longitude) SPATIAL ENGINE LUCENE")
-          .close();
+    EntityImpl document = new EntityImpl("Point");
 
-      db.begin();
+    document.field("latitude", 42.2814837);
+    document.field("longitude", -83.7605452);
 
-      EntityImpl document = new EntityImpl("Point");
+    db.begin();
+    db.save(document);
+    db.commit();
 
-      document.field("latitude", 42.2814837);
-      document.field("longitude", -83.7605452);
+    List<?> query =
+        db.query(
+            new SQLSynchQuery<EntityImpl>(
+                "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
+                    + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
 
-      db.begin();
-      db.save(document);
-      db.commit();
+    Assert.assertEquals(1, query.size());
 
-      List<?> query =
-          db.query(
-              new SQLSynchQuery<EntityImpl>(
-                  "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
-                      + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
+    SpatialCompositeKey oSpatialCompositeKey =
+        new SpatialCompositeKey(
+            new ArrayList<List<Number>>() {
+              {
+                add(
+                    new ArrayList<>() {
+                      {
+                        add(42.26531323615103);
+                        add(-83.71986351411135);
+                      }
+                    });
+                add(
+                    new ArrayList<>() {
+                      {
+                        add(42.29239784478525);
+                        add(-83.7662120858887);
+                      }
+                    });
+              }
+            })
+            .setOperation(SpatialOperation.IsWithin);
+    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Point.ll");
 
-      Assert.assertEquals(1, query.size());
+    var baseContext = new BasicCommandContext();
+    baseContext.setDatabase(db);
+    oSpatialCompositeKey.setContext(baseContext);
 
-      SpatialCompositeKey oSpatialCompositeKey =
-          new SpatialCompositeKey(
-              new ArrayList<List<Number>>() {
-                {
-                  add(
-                      new ArrayList<Number>() {
-                        {
-                          add(42.26531323615103);
-                          add(-83.71986351411135);
-                        }
-                      });
-                  add(
-                      new ArrayList<Number>() {
-                        {
-                          add(42.29239784478525);
-                          add(-83.7662120858887);
-                        }
-                      });
-                }
-              })
-              .setOperation(SpatialOperation.IsWithin);
-      Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Point.ll");
-
-      var baseContext = new BasicCommandContext();
-      baseContext.setDatabase(db);
-      oSpatialCompositeKey.setContext(baseContext);
-
-      Collection coll;
-      try (Stream<RID> stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
-        coll = stream.collect(Collectors.toList());
-      }
-      Assert.assertEquals(1, coll.size());
-      db.rollback();
-
-      query =
-          db.query(
-              new SQLSynchQuery<EntityImpl>(
-                  "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
-                      + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
-
-      Assert.assertEquals(0, query.size());
-
-    } finally {
-      db.drop();
+    Collection<?> coll;
+    try (Stream<RID> stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
+      coll = stream.toList();
     }
+    Assert.assertEquals(1, coll.size());
+    db.rollback();
+
+    query =
+        db.query(
+            new SQLSynchQuery<EntityImpl>(
+                "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
+                    + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
+
+    Assert.assertEquals(0, query.size());
   }
 
   @Test
   public void boundingBoxTestTxCommit() {
+    SchemaClass point = db.getMetadata().getSchema().createClass("Point");
+    point.createProperty(db, "latitude", PropertyType.DOUBLE);
+    point.createProperty(db, "longitude", PropertyType.DOUBLE);
 
-    DatabaseSessionInternal db = new DatabaseDocumentTx("memory:test");
+    db.command("CREATE INDEX Point.ll ON Point(latitude,longitude) SPATIAL ENGINE LUCENE")
+        .close();
 
-    db.create();
+    db.begin();
 
-    try {
+    EntityImpl document = new EntityImpl("Point");
 
-      SchemaClass point = db.getMetadata().getSchema().createClass("Point");
-      point.createProperty(db, "latitude", PropertyType.DOUBLE);
-      point.createProperty(db, "longitude", PropertyType.DOUBLE);
+    document.field("latitude", 42.2814837);
+    document.field("longitude", -83.7605452);
 
-      db.command("CREATE INDEX Point.ll ON Point(latitude,longitude) SPATIAL ENGINE LUCENE")
-          .close();
+    db.save(document);
 
-      db.begin();
+    db.commit();
 
-      EntityImpl document = new EntityImpl("Point");
+    List<?> query =
+        db.query(
+            new SQLSynchQuery<EntityImpl>(
+                "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
+                    + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
 
-      document.field("latitude", 42.2814837);
-      document.field("longitude", -83.7605452);
+    Assert.assertEquals(1, query.size());
 
-      db.save(document);
+    SpatialCompositeKey oSpatialCompositeKey =
+        new SpatialCompositeKey(
+            new ArrayList<List<Number>>() {
+              {
+                add(
+                    new ArrayList<>() {
+                      {
+                        add(42.26531323615103);
+                        add(-83.71986351411135);
+                      }
+                    });
+                add(
+                    new ArrayList<>() {
+                      {
+                        add(42.29239784478525);
+                        add(-83.7662120858887);
+                      }
+                    });
+              }
+            })
+            .setOperation(SpatialOperation.IsWithin);
+    var context = new BasicCommandContext();
+    context.setDatabase(db);
+    oSpatialCompositeKey.setContext(context);
 
-      db.commit();
+    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Point.ll");
 
-      List<?> query =
-          db.query(
-              new SQLSynchQuery<EntityImpl>(
-                  "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
-                      + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
-
-      Assert.assertEquals(1, query.size());
-
-      SpatialCompositeKey oSpatialCompositeKey =
-          new SpatialCompositeKey(
-              new ArrayList<List<Number>>() {
-                {
-                  add(
-                      new ArrayList<Number>() {
-                        {
-                          add(42.26531323615103);
-                          add(-83.71986351411135);
-                        }
-                      });
-                  add(
-                      new ArrayList<Number>() {
-                        {
-                          add(42.29239784478525);
-                          add(-83.7662120858887);
-                        }
-                      });
-                }
-              })
-              .setOperation(SpatialOperation.IsWithin);
-      var context = new BasicCommandContext();
-      context.setDatabase(db);
-      oSpatialCompositeKey.setContext(context);
-
-      Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Point.ll");
-
-      Collection coll;
-      try (Stream<RID> stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
-        coll = stream.collect(Collectors.toList());
-      }
-      Assert.assertEquals(1, coll.size());
-
-      db.begin();
-
-      document = db.bindToSession(document);
-      db.delete(document);
-
-      query =
-          db.query(
-              new SQLSynchQuery<EntityImpl>(
-                  "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
-                      + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
-
-      Assert.assertEquals(0, query.size());
-
-      try (Stream<RID> stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
-        coll = stream.collect(Collectors.toList());
-      }
-
-      Assert.assertEquals(0, coll.size());
-
-      db.rollback();
-
-      query =
-          db.query(
-              new SQLSynchQuery<EntityImpl>(
-                  "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
-                      + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
-
-      Assert.assertEquals(1, query.size());
-
-    } finally {
-      db.drop();
+    Collection<?> coll;
+    try (Stream<RID> stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
+      coll = stream.collect(Collectors.toList());
     }
+    Assert.assertEquals(1, coll.size());
+
+    db.begin();
+
+    document = db.bindToSession(document);
+    db.delete(document);
+
+    query =
+        db.query(
+            new SQLSynchQuery<EntityImpl>(
+                "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
+                    + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
+
+    Assert.assertEquals(0, query.size());
+
+    try (Stream<RID> stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
+      coll = stream.collect(Collectors.toList());
+    }
+
+    Assert.assertEquals(0, coll.size());
+
+    db.rollback();
+
+    query =
+        db.query(
+            new SQLSynchQuery<EntityImpl>(
+                "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
+                    + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
+
+    Assert.assertEquals(1, query.size());
+
   }
 }

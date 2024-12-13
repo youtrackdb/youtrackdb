@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.nkbtree.normalizers;
 
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.Collator;

@@ -22,10 +22,10 @@ package com.jetbrains.youtrack.db.internal.core.security;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ImmutableUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
@@ -35,7 +35,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInterna
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityRole;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecuritySystemUserIml;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.authenticator.DatabaseUserAuthenticator;
@@ -113,8 +113,8 @@ public class DefaultSecuritySystem implements SecuritySystem {
       this.load(serverConfig.getConfigurationFile());
     }
     onAfterDynamicPlugins(null);
-    tokenSign = new TokenSignImpl(context.getConfigurations().getConfigurations());
-    for (GlobalUser user : context.getConfigurations().getUsers()) {
+    tokenSign = new TokenSignImpl(context.getConfiguration().getConfiguration());
+    for (GlobalUser user : context.getConfiguration().getUsers()) {
       configUsers.put(user.getName(), user);
     }
   }

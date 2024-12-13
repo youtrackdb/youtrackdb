@@ -15,7 +15,7 @@ package com.jetbrains.youtrack.db.internal.spatial.shape.legacy;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import java.util.Collection;
 import java.util.List;
 import org.locationtech.spatial4j.context.SpatialContext;

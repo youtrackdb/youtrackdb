@@ -1,5 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.db;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+
 /**
  *
  */
@@ -11,7 +13,7 @@ public interface DatabasePoolInternal extends AutoCloseable {
 
   void release(DatabaseSessionInternal database);
 
-  YouTrackDBConfig getConfig();
+  YouTrackDBConfigImpl getConfig();
 
   /**
    * Check if database pool is closed

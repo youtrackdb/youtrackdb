@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command.script;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 

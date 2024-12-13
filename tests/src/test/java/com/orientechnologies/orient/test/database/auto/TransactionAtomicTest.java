@@ -15,19 +15,17 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
-import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseListener;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.ConcurrentModificationException;
+import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
+import com.jetbrains.youtrack.db.api.exception.TransactionException;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.session.SessionListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentModificationException;
-import com.jetbrains.youtrack.db.internal.core.exception.TransactionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
-import com.jetbrains.youtrack.db.internal.core.storage.RecordDuplicatedException;
 import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
@@ -112,8 +110,8 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
         .save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final DatabaseListener listener =
-        new DatabaseListener() {
+    final SessionListener listener =
+        new SessionListener() {
 
           @Override
           public void onAfterTxCommit(DatabaseSession iDatabase) {
@@ -138,33 +136,6 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
 
           @Override
           public void onClose(DatabaseSession iDatabase) {
-          }
-
-          @Override
-          public void onBeforeCommand(CommandRequestText iCommand, CommandExecutor executor) {
-          }
-
-          @Override
-          public void onAfterCommand(
-              CommandRequestText iCommand, CommandExecutor executor, Object result) {
-          }
-
-          @Override
-          public void onCreate(DatabaseSession iDatabase) {
-          }
-
-          @Override
-          public void onDelete(DatabaseSession iDatabase) {
-          }
-
-          @Override
-          public void onOpen(DatabaseSession iDatabase) {
-          }
-
-          @Override
-          public boolean onCorruptionRepairDatabase(
-              DatabaseSession iDatabase, final String iReason, String iWhatWillbeFixed) {
-            return true;
           }
         };
 
@@ -219,10 +190,10 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
 
       database.commit();
 
-      Assert.assertEquals(apple.getIdentity().getClusterId(), fruitClass.getDefaultClusterId());
-      Assert.assertEquals(orange.getIdentity().getClusterId(), fruitClass.getDefaultClusterId());
-      Assert.assertEquals(banana.getIdentity().getClusterId(), fruitClass.getDefaultClusterId());
-      Assert.assertEquals(kumquat.getIdentity().getClusterId(), fruitClass.getDefaultClusterId());
+      Assert.assertEquals(apple.getIdentity().getClusterId(), fruitClass.getClusterIds()[0]);
+      Assert.assertEquals(orange.getIdentity().getClusterId(), fruitClass.getClusterIds()[0]);
+      Assert.assertEquals(banana.getIdentity().getClusterId(), fruitClass.getClusterIds()[0]);
+      Assert.assertEquals(kumquat.getIdentity().getClusterId(), fruitClass.getClusterIds()[0]);
 
       Assert.fail();
 

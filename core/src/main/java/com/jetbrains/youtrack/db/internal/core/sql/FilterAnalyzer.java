@@ -21,10 +21,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemField;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.IndexReuseType;
@@ -47,10 +48,10 @@ public class FilterAnalyzer {
 
   public static List<Index> getInvolvedIndexes(
       DatabaseSessionInternal session,
-      SchemaClass iSchemaClass,
+      SchemaClassInternal iSchemaClass,
       IndexSearchResult searchResultFields) {
     final Set<Index> involvedIndexes =
-        iSchemaClass.getInvolvedIndexes(session, searchResultFields.fields());
+        iSchemaClass.getInvolvedIndexesInternal(session, searchResultFields.fields());
 
     final List<Index> result = new ArrayList<Index>(involvedIndexes.size());
 

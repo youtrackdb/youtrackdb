@@ -1,12 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.record.Edge;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.record.Edge;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import java.util.Set;
 import javax.annotation.Nullable;
 
@@ -24,7 +25,7 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
     super(session);
   }
 
-  public EdgeEntityImpl(DatabaseSessionInternal database, RID rid) {
+  public EdgeEntityImpl(DatabaseSessionInternal database, RecordId rid) {
     super(database, rid);
   }
 

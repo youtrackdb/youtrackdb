@@ -16,15 +16,16 @@
  */
 package com.jetbrains.youtrack.db.internal.core.fetch.json;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.FetchException;
 import com.jetbrains.youtrack.db.internal.core.fetch.FetchContext;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -209,7 +210,8 @@ public class JSONFetchContext implements FetchContext {
   public void writeLinkedAttribute(final Identifiable iRecord, final String iFieldName)
       throws IOException {
     final Object link =
-        iRecord.getIdentity().isValid() ? JSONWriter.encode(iRecord.getIdentity()) : null;
+        ((RecordId) iRecord.getIdentity()).isValid() ? JSONWriter.encode(iRecord.getIdentity())
+            : null;
     jsonWriter.writeAttribute(settings.indentLevel, true, iFieldName, link);
   }
 
@@ -242,7 +244,8 @@ public class JSONFetchContext implements FetchContext {
         firstAttribute = false;
       }
     }
-    if (settings.includeId && record.getIdentity() != null && record.getIdentity().isValid()) {
+    if (settings.includeId && record.getIdentity() != null
+        && ((RecordId) record.getIdentity()).isValid()) {
       json.writeAttribute(
           !firstAttribute ? settings.indentLevel : 1,
           firstAttribute,

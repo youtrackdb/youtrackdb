@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal.common.util;
 
 import com.jetbrains.youtrack.db.internal.common.jnr.Native;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 
 /**
  * Provides various utilities related to memory management and configuration.

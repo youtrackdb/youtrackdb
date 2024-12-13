@@ -21,15 +21,15 @@ package com.jetbrains.youtrack.db.internal.core.metadata.function;
 
 import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.ScriptExecutor;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.RetryQueryException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.type.EntityWrapper;
@@ -205,7 +205,7 @@ public class Function extends EntityWrapper {
 
   @Deprecated
   public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
-    final long start = YouTrackDBManager.instance().getProfiler().startChrono();
+    final long start = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
 
     Object result;
     while (true) {
@@ -230,8 +230,8 @@ public class Function extends EntityWrapper {
       }
     }
 
-    if (YouTrackDBManager.instance().getProfiler().isRecording()) {
-      YouTrackDBManager.instance()
+    if (YouTrackDBEnginesManager.instance().getProfiler().isRecording()) {
+      YouTrackDBEnginesManager.instance()
           .getProfiler()
           .stopChrono(
               "db." + DatabaseRecordThreadLocal.instance().get().getName() + ".function.execute",

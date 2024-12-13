@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 
 /**
  * Is used in together with {@link EntityFieldWalker} to visit all fields of current document.

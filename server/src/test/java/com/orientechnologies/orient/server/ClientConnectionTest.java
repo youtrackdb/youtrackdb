@@ -5,8 +5,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.TokenSecurityException;
 import com.orientechnologies.orient.server.network.protocol.binary.NetworkProtocolBinary;
 import com.orientechnologies.orient.server.token.OTokenHandlerImpl;
@@ -45,7 +45,7 @@ public class ClientConnectionTest extends BaseMemoryInternalDatabase {
   public void testValidToken() throws IOException {
     OClientConnection conn = new OClientConnection(1, protocol);
     OTokenHandler handler = new OTokenHandlerImpl(server.getContextConfiguration());
-    byte[] tokenBytes = handler.getSignedBinaryToken(db, db.getUser(), conn.getData());
+    byte[] tokenBytes = handler.getSignedBinaryToken(db, db.geCurrentUser(), conn.getData());
 
     conn.validateSession(tokenBytes, handler, null);
     assertTrue(conn.getTokenBased());
@@ -60,7 +60,7 @@ public class ClientConnectionTest extends BaseMemoryInternalDatabase {
     GlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT.setValue(0);
     OTokenHandler handler = new OTokenHandlerImpl(server.getContextConfiguration());
     GlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT.setValue(sessionTimeout);
-    byte[] tokenBytes = handler.getSignedBinaryToken(db, db.getUser(), conn.getData());
+    byte[] tokenBytes = handler.getSignedBinaryToken(db, db.geCurrentUser(), conn.getData());
     Thread.sleep(1);
     conn.validateSession(tokenBytes, handler, protocol);
   }
@@ -77,7 +77,7 @@ public class ClientConnectionTest extends BaseMemoryInternalDatabase {
   public void testAlreadyAuthenticatedOnConnection() throws IOException {
     OClientConnection conn = new OClientConnection(1, protocol);
     OTokenHandler handler = new OTokenHandlerImpl(server.getContextConfiguration());
-    byte[] tokenBytes = handler.getSignedBinaryToken(db, db.getUser(), conn.getData());
+    byte[] tokenBytes = handler.getSignedBinaryToken(db, db.geCurrentUser(), conn.getData());
     conn.validateSession(tokenBytes, handler, protocol);
     assertTrue(conn.getTokenBased());
     assertArrayEquals(tokenBytes, conn.getTokenBytes());
@@ -101,7 +101,7 @@ public class ClientConnectionTest extends BaseMemoryInternalDatabase {
   public void testAlreadyAuthenticatedButNotOnSpecificConnection() throws IOException {
     OClientConnection conn = new OClientConnection(1, protocol);
     OTokenHandler handler = new OTokenHandlerImpl(server.getContextConfiguration());
-    byte[] tokenBytes = handler.getSignedBinaryToken(db, db.getUser(), conn.getData());
+    byte[] tokenBytes = handler.getSignedBinaryToken(db, db.geCurrentUser(), conn.getData());
     conn.validateSession(tokenBytes, handler, protocol);
     assertTrue(conn.getTokenBased());
     assertArrayEquals(tokenBytes, conn.getTokenBytes());

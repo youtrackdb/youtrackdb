@@ -15,22 +15,22 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionAbstract;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerSchemaAware2CSV;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -181,10 +181,10 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     vDoc.save();
     database.commit();
 
-    @SuppressWarnings("deprecation")
-    Set<Index> indexes =
-        database.getMetadata().getSchema().getClass("Profile").getProperty("nick")
-            .getIndexes(database);
+    Collection<Index> indexes =
+        database.getMetadata().getSchemaInternal().getClassInternal("Profile")
+            .getPropertyInternal("nick")
+            .getAllIndexesInternal(database);
 
     Assert.assertEquals(indexes.size(), 1);
 
@@ -217,10 +217,10 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     vDoc.save();
     database.commit();
 
-    @SuppressWarnings("deprecation")
     Collection<Index> indexes =
-        database.getMetadata().getSchema().getClass("Profile").getProperty("name")
-            .getIndexes(database);
+        database.getMetadata().getSchemaInternal().getClassInternal("Profile")
+            .getPropertyInternal("name")
+            .getAllIndexesInternal(database);
     Assert.assertEquals(indexes.size(), 1);
 
     Index indexName = indexes.iterator().next();

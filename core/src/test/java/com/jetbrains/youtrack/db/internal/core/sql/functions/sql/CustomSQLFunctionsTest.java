@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import org.junit.Test;
 
 public class CustomSQLFunctionsTest extends DbTestBase {

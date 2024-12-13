@@ -18,12 +18,12 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
 import org.junit.Before;
@@ -81,7 +81,7 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
 
     System.out.println("LuceneInsertReadMultithreadBaseTest all threads completed");
 
-    Index idx = schema.getClass("City").getClassIndex(db, "City.name");
+    Index idx = db.getClassInternal("City").getClassIndex(db, "City.name");
 
     db.begin();
     Assert.assertEquals(idx.getInternal().size(db), THREADS * CYCLE);
@@ -136,7 +136,7 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
       databaseDocumentTx = openDatabase();
 
       Schema schema = databaseDocumentTx.getMetadata().getSchema();
-      Index idx = schema.getClass("City").getClassIndex(db, "City.name");
+      Index idx = databaseDocumentTx.getClassInternal("City").getClassIndex(db, "City.name");
 
       for (int i = 0; i < cycle; i++) {
 

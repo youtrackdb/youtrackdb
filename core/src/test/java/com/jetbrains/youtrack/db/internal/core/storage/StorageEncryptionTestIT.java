@@ -2,23 +2,25 @@ package com.jetbrains.youtrack.db.internal.core.storage;
 
 import static org.junit.Assert.assertTrue;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.io.File;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -34,10 +36,11 @@ public class StorageEncryptionTestIT {
 
     final YouTrackDBConfig youTrackDBConfig =
         YouTrackDBConfig.builder()
-            .addConfig(GlobalConfiguration.STORAGE_ENCRYPTION_KEY, "T1JJRU5UREJfSVNfQ09PTA==")
+            .addGlobalConfigurationParameter(GlobalConfiguration.STORAGE_ENCRYPTION_KEY,
+                "T1JJRU5UREJfSVNfQ09PTA==")
             .build();
     try (final YouTrackDB youTrackDB =
-        new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()), youTrackDBConfig)) {
+        new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()), youTrackDBConfig)) {
       youTrackDB.execute(
           "create database encryption plocal users ( admin identified by 'admin' role admin)");
       try (var session = (DatabaseSessionInternal) youTrackDB.open("encryption", "admin",
@@ -76,7 +79,7 @@ public class StorageEncryptionTestIT {
     }
 
     try (final YouTrackDB youTrackDB =
-        new YouTrackDB(
+        new YouTrackDBImpl(
             DbTestBase.embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig())) {
       try {
         try (final DatabaseSession session = youTrackDB.open("encryption", "admin", "admin")) {
@@ -89,12 +92,12 @@ public class StorageEncryptionTestIT {
 
     final YouTrackDBConfig wrongKeyOneYouTrackDBConfig =
         YouTrackDBConfig.builder()
-            .addConfig(
+            .addGlobalConfigurationParameter(
                 GlobalConfiguration.STORAGE_ENCRYPTION_KEY,
                 "DD0ViGecppQOx4ijWL4XGBwun9NAfbqFaDnVpn9+lj8=")
             .build();
     try (final YouTrackDB youTrackDB =
-        new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()), wrongKeyOneYouTrackDBConfig)) {
+        new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()), wrongKeyOneYouTrackDBConfig)) {
       try {
         try (final DatabaseSession session = youTrackDB.open("encryption", "admin", "admin")) {
           Assert.fail();
@@ -106,12 +109,12 @@ public class StorageEncryptionTestIT {
 
     final YouTrackDBConfig wrongKeyTwoYouTrackDBConfig =
         YouTrackDBConfig.builder()
-            .addConfig(
+            .addGlobalConfigurationParameter(
                 GlobalConfiguration.STORAGE_ENCRYPTION_KEY,
                 "DD0ViGecppQOx4ijWL4XGBwun9NAfbqFaDnVpn9+lj8")
             .build();
     try (final YouTrackDB youTrackDB =
-        new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()), wrongKeyTwoYouTrackDBConfig)) {
+        new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()), wrongKeyTwoYouTrackDBConfig)) {
       try {
         try (final DatabaseSession session = youTrackDB.open("encryption", "admin", "admin")) {
           Assert.fail();
@@ -122,7 +125,7 @@ public class StorageEncryptionTestIT {
     }
 
     try (final YouTrackDB youTrackDB =
-        new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()), youTrackDBConfig)) {
+        new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()), youTrackDBConfig)) {
       try (final DatabaseSessionInternal session =
           (DatabaseSessionInternal) youTrackDB.open("encryption", "admin", "admin")) {
         final IndexManagerAbstract indexManager = session.getMetadata().getIndexManagerInternal();
@@ -165,22 +168,24 @@ public class StorageEncryptionTestIT {
     final File dbDirectoryFile = cleanAndGetDirectory();
 
     try (final YouTrackDB youTrackDB =
-        new YouTrackDB(
+        new YouTrackDBImpl(
             DbTestBase.embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig())) {
       final YouTrackDBConfig youTrackDBConfig =
           YouTrackDBConfig.builder()
-              .addConfig(GlobalConfiguration.STORAGE_ENCRYPTION_KEY, "T1JJRU5UREJfSVNfQ09PTA==")
+              .addGlobalConfigurationParameter(GlobalConfiguration.STORAGE_ENCRYPTION_KEY,
+                  "T1JJRU5UREJfSVNfQ09PTA==")
               .build();
 
       youTrackDB.execute(
           "create database encryption plocal users ( admin identified by 'admin' role admin)");
     }
     try (final YouTrackDB youTrackDB =
-        new YouTrackDB(
+        new YouTrackDBImpl(
             DbTestBase.embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig())) {
-      final YouTrackDBConfig youTrackDBConfig =
-          YouTrackDBConfig.builder()
-              .addConfig(GlobalConfiguration.STORAGE_ENCRYPTION_KEY, "T1JJRU5UREJfSVNfQ09PTA==")
+      final YouTrackDBConfigImpl youTrackDBConfig =
+          (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
+              .addGlobalConfigurationParameter(GlobalConfiguration.STORAGE_ENCRYPTION_KEY,
+                  "T1JJRU5UREJfSVNfQ09PTA==")
               .build();
       try (var session =
           (DatabaseSessionInternal) youTrackDB.open("encryption", "admin", "admin",

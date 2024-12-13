@@ -3,14 +3,15 @@ package com.jetbrains.youtrack.db.internal.core.storage.impl.local;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import java.util.Iterator;
 import org.junit.After;
 import org.junit.Before;
@@ -24,11 +25,11 @@ public class BrowseClusterTest {
   @Before
   public void before() {
     youTrackDb =
-        new YouTrackDB(
+        new YouTrackDBImpl(
             DbTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()
-                .addConfig(GlobalConfiguration.CLASS_MINIMUM_CLUSTERS, 1)
-                .addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addGlobalConfigurationParameter(GlobalConfiguration.CLASS_MINIMUM_CLUSTERS, 1)
+                .addGlobalConfigurationParameter(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     youTrackDb.execute(
         "create database "
@@ -52,7 +53,7 @@ public class BrowseClusterTest {
       db.save(v);
       db.commit();
     }
-    int cluster = db.getClass("One").getDefaultClusterId();
+    int cluster = db.getClass("One").getClusterIds()[0];
     Iterator<ClusterBrowsePage> browser =
         ((AbstractPaginatedStorage) ((DatabaseSessionInternal) db).getStorage())
             .browseCluster(cluster);

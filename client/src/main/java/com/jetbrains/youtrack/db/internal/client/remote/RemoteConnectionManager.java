@@ -19,13 +19,13 @@
  */
 package com.jetbrains.youtrack.db.internal.client.remote;
 
-import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.CLIENT_CHANNEL_IDLE_CLOSE;
-import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.CLIENT_CHANNEL_IDLE_TIMEOUT;
-import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.NETWORK_LOCK_TIMEOUT;
+import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.CLIENT_CHANNEL_IDLE_CLOSE;
+import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.CLIENT_CHANNEL_IDLE_TIMEOUT;
+import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.NETWORK_LOCK_TIMEOUT;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.client.binary.SocketChannelBinaryAsynchClient;
 import java.util.ArrayList;
 import java.util.List;

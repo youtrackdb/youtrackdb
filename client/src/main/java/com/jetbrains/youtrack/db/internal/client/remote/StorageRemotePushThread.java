@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.client.remote;
 
 import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeResponse;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.io.YTIOException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinary;

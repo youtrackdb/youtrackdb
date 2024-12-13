@@ -19,15 +19,16 @@
  */
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer;
 
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -92,9 +93,9 @@ public class JSONWriter {
       }
 
     } else if (iValue instanceof Identifiable linked) {
-      if (linked.getIdentity().isValid()) {
+      if (((RecordId) linked.getIdentity()).isValid()) {
         buffer.append('\"');
-        linked.getIdentity().toString(buffer);
+        ((RecordId) linked.getIdentity()).toString(buffer);
         buffer.append('\"');
       } else {
         if (iFormat != null && iFormat.contains("shallow")) {

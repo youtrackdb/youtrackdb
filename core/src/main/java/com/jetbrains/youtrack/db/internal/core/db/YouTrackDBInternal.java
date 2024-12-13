@@ -20,14 +20,16 @@
 
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.command.script.ScriptManager;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
@@ -60,13 +62,14 @@ public interface YouTrackDBInternal extends AutoCloseable, SchedulerInternal {
     if ("embedded".equals(what)) {
       return embedded(url.substring(url.indexOf(':') + 1), configuration);
     } else if ("remote".equals(what)) {
-      return remote(url.substring(url.indexOf(':') + 1).split(";"), configuration);
+      return remote(url.substring(url.indexOf(':') + 1).split(";"),
+          (YouTrackDBConfigImpl) configuration);
     }
     throw new DatabaseException("not supported database type");
   }
 
-  default YouTrackDB newYouTrackDb() {
-    return new YouTrackDB(this);
+  default YouTrackDBImpl newYouTrackDb() {
+    return new YouTrackDBImpl(this);
   }
 
   /**
@@ -77,7 +80,7 @@ public interface YouTrackDBInternal extends AutoCloseable, SchedulerInternal {
    *                      {@see GlobalConfiguration}.
    * @return a new remote databases factory
    */
-  static YouTrackDBInternal remote(String[] hosts, YouTrackDBConfig configuration) {
+  static YouTrackDBInternal remote(String[] hosts, YouTrackDBConfigImpl configuration) {
     YouTrackDBInternal factory;
     try {
       String className = "com.jetbrains.youtrack.db.internal.client.remote.YouTrackDBRemote";
@@ -89,9 +92,10 @@ public interface YouTrackDBInternal extends AutoCloseable, SchedulerInternal {
       }
       Class<?> kass = loader.loadClass(className);
       Constructor<?> constructor =
-          kass.getConstructor(String[].class, YouTrackDBConfig.class, YouTrackDBManager.class);
+          kass.getConstructor(String[].class, YouTrackDBConfig.class,
+              YouTrackDBEnginesManager.class);
       factory = (YouTrackDBInternal) constructor.newInstance(hosts, configuration,
-          YouTrackDBManager.instance());
+          YouTrackDBEnginesManager.instance());
     } catch (ClassNotFoundException
              | NoSuchMethodException
              | IllegalAccessException
@@ -115,7 +119,7 @@ public interface YouTrackDBInternal extends AutoCloseable, SchedulerInternal {
    * @return a new embedded databases factory
    */
   static YouTrackDBInternal embedded(String directoryPath, YouTrackDBConfig config) {
-    return new YouTrackDBEmbedded(directoryPath, config, YouTrackDBManager.instance());
+    return new YouTrackDBEmbedded(directoryPath, config, YouTrackDBEnginesManager.instance());
   }
 
 
@@ -285,11 +289,11 @@ public interface YouTrackDBInternal extends AutoCloseable, SchedulerInternal {
     return false;
   }
 
-  static YouTrackDBInternal extract(YouTrackDB youTrackDB) {
+  static YouTrackDBInternal extract(YouTrackDBImpl youTrackDB) {
     return youTrackDB.internal;
   }
 
-  static String extractUser(YouTrackDB youTrackDB) {
+  static String extractUser(YouTrackDBImpl youTrackDB) {
     return youTrackDB.serverUser;
   }
 
@@ -364,7 +368,7 @@ public interface YouTrackDBInternal extends AutoCloseable, SchedulerInternal {
       YouTrackDBConfig config,
       DatabaseTask<Void> createOps);
 
-  YouTrackDBConfig getConfigurations();
+  YouTrackDBConfigImpl getConfiguration();
 
   SecuritySystem getSecuritySystem();
 
@@ -380,7 +384,7 @@ public interface YouTrackDBInternal extends AutoCloseable, SchedulerInternal {
   default void endCommand() {
   }
 
-  static YouTrackDBInternal getInternal(YouTrackDB youTrackDB) {
+  static YouTrackDBInternal getInternal(YouTrackDBImpl youTrackDB) {
     return youTrackDB.internal;
   }
 }

@@ -1,23 +1,24 @@
 package com.orientechnologies.orient.server.network;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.LiveQueryMonitor;
-import com.jetbrains.youtrack.db.internal.core.db.LiveQueryResultListener;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.LiveQueryMonitor;
+import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ public class OLiveQueryRemoteTest {
             .getResourceAsStream(
                 "com/orientechnologies/orient/server/network/orientdb-server-config.xml"));
     server.activate();
-    youTrackDB = new YouTrackDB("remote:localhost:", "root", "root",
+    youTrackDB = new YouTrackDBImpl("remote:localhost:", "root", "root",
         YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
@@ -70,9 +71,9 @@ public class OLiveQueryRemoteTest {
     youTrackDB.close();
     server.shutdown();
 
-    YouTrackDBManager.instance().shutdown();
+    YouTrackDBEnginesManager.instance().shutdown();
     FileUtils.deleteRecursively(new File(server.getDatabaseDirectory()));
-    YouTrackDBManager.instance().startup();
+    YouTrackDBEnginesManager.instance().startup();
   }
 
   static class MyLiveQueryListener implements LiveQueryResultListener {
@@ -180,7 +181,7 @@ public class OLiveQueryRemoteTest {
     ResultSet query = db.query("select from OUSer where name = 'reader'");
 
     final Identifiable reader = query.next().getIdentity().orElse(null);
-    final Identifiable current = db.getUser().getIdentity(db);
+    final Identifiable current = db.geCurrentUser().getIdentity(db);
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
 

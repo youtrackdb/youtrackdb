@@ -19,7 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 
 /**
  * Generic record representation with a schema definition. The record has multiple fields. Fields

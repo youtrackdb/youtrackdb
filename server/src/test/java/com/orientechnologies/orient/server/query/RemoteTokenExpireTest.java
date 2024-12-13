@@ -1,17 +1,19 @@
 package com.orientechnologies.orient.server.query;
 
-import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE;
+import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE;
 
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.internal.core.db.SessionPoolImpl;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabasePool;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.session.SessionPool;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.TokenSecurityException;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.token.OTokenHandlerImpl;
 import java.io.File;
@@ -27,7 +29,7 @@ public class RemoteTokenExpireTest {
 
   private static final String SERVER_DIRECTORY = "./target/token";
   private OServer server;
-  private YouTrackDB youTrackDB;
+  private YouTrackDBImpl youTrackDB;
   private DatabaseSession session;
   private int oldPageSize;
 
@@ -46,7 +48,7 @@ public class RemoteTokenExpireTest {
     OTokenHandlerImpl token = (OTokenHandlerImpl) server.getTokenHandler();
     token.setSessionInMills(expireTimeout);
 
-    youTrackDB = new YouTrackDB("remote:localhost", "root", "root",
+    youTrackDB = new YouTrackDBImpl("remote:localhost", "root", "root",
         YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
@@ -60,8 +62,9 @@ public class RemoteTokenExpireTest {
     youTrackDB.close();
 
     var config =
-        YouTrackDBConfig.builder().addConfig(GlobalConfiguration.NETWORK_SOCKET_RETRY, 0).build();
-    youTrackDB = new YouTrackDB("remote:localhost", "root", "root", config);
+        YouTrackDBConfig.builder()
+            .addGlobalConfigurationParameter(GlobalConfiguration.NETWORK_SOCKET_RETRY, 0).build();
+    youTrackDB = new YouTrackDBImpl("remote:localhost", "root", "root", config);
     session = youTrackDB.open(RemoteTokenExpireTest.class.getSimpleName(), "admin", "admin");
   }
 
@@ -200,14 +203,14 @@ public class RemoteTokenExpireTest {
   @Test
   public void itShouldNotFailWithRoundRobin() {
 
-    DatabasePool pool =
-        new DatabasePool(
+    SessionPool pool =
+        new SessionPoolImpl(
             youTrackDB,
             RemoteTokenExpireTest.class.getSimpleName(),
             "admin",
             "admin",
-            YouTrackDBConfig.builder()
-                .addConfig(
+            (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
+                .addGlobalConfigurationParameter(
                     GlobalConfiguration.CLIENT_CONNECTION_STRATEGY,
                     StorageRemote.CONNECTION_STRATEGY.ROUND_ROBIN_CONNECT)
                 .build());
@@ -240,8 +243,8 @@ public class RemoteTokenExpireTest {
     youTrackDB.close();
     server.shutdown();
 
-    YouTrackDBManager.instance().shutdown();
+    YouTrackDBEnginesManager.instance().shutdown();
     FileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    YouTrackDBManager.instance().startup();
+    YouTrackDBEnginesManager.instance().startup();
   }
 }

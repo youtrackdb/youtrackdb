@@ -22,7 +22,7 @@ package com.jetbrains.youtrack.db.internal.client.remote.message;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
@@ -37,14 +37,14 @@ import java.util.UUID;
 public final class CommitResponse implements BinaryResponse {
 
   private Map<UUID, BonsaiCollectionPointer> collectionChanges;
-  private List<ObjectObjectImmutablePair<RID, RID>> updatedRids;
+  private List<ObjectObjectImmutablePair<RecordId, RecordId>> updatedRids;
 
   public CommitResponse(
-      Map<RID, RID> updatedRids, Map<UUID, BonsaiCollectionPointer> collectionChanges) {
+      Map<RecordId, RecordId> updatedRids, Map<UUID, BonsaiCollectionPointer> collectionChanges) {
     super();
     this.updatedRids = new ArrayList<>(updatedRids.size());
 
-    for (Map.Entry<RID, RID> entry : updatedRids.entrySet()) {
+    for (Map.Entry<RecordId, RecordId> entry : updatedRids.entrySet()) {
       this.updatedRids.add(new ObjectObjectImmutablePair<>(entry.getValue(), entry.getKey()));
     }
     this.collectionChanges = collectionChanges;
@@ -85,7 +85,7 @@ public final class CommitResponse implements BinaryResponse {
     collectionChanges = MessageHelper.readCollectionChanges(network);
   }
 
-  public List<ObjectObjectImmutablePair<RID, RID>> getUpdatedRids() {
+  public List<ObjectObjectImmutablePair<RecordId, RecordId>> getUpdatedRids() {
     return updatedRids;
   }
 

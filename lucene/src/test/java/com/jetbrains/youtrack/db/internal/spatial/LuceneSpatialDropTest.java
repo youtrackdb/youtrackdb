@@ -1,76 +1,72 @@
 package com.jetbrains.youtrack.db.internal.spatial;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.YourTracks;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.PartitionedDatabasePool;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.lucene.tests.LuceneBaseTest;
 import java.io.File;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- *
- */
 public class LuceneSpatialDropTest {
-
   private int insertcount;
   private String dbName;
+  private YouTrackDB youTrackDB;
 
   @Before
   public void setUp() throws Exception {
 
-    dbName = "plocal:./target/databases/" + this.getClass().getSimpleName();
+    dbName = this.getClass().getSimpleName();
 
     // @maggiolo00 set cont to 0 and the test will not fail anymore
     insertcount = 100;
 
-    DatabaseSessionInternal db = new DatabaseDocumentTx(dbName);
+    youTrackDB = YourTracks.embedded(LuceneBaseTest.getDirectoryPath(getClass()));
+    youTrackDB.createIfNotExists(dbName, DatabaseType.PLOCAL,
+        "admin", "adminpwd", "admin");
 
-    db.create();
-    SchemaClass test = db.getMetadata().getSchema().createClass("test");
-    test.createProperty(db, "name", PropertyType.STRING);
-    test.createProperty(db, "latitude", PropertyType.DOUBLE).setMandatory(db, false);
-    test.createProperty(db, "longitude", PropertyType.DOUBLE).setMandatory(db, false);
-    db.command("create index test.name on test (name) FULLTEXT ENGINE LUCENE").close();
-    db.command("create index test.ll on test (latitude,longitude) SPATIAL ENGINE LUCENE").close();
-    db.close();
+    try (DatabaseSession db = youTrackDB.open(dbName, "admin", "adminpwd")) {
+      SchemaClass test = db.getSchema().createClass("test");
+      test.createProperty(db, "name", PropertyType.STRING);
+      test.createProperty(db, "latitude", PropertyType.DOUBLE).setMandatory(db, false);
+      test.createProperty(db, "longitude", PropertyType.DOUBLE).setMandatory(db, false);
+      db.command("create index test.name on test (name) FULLTEXT ENGINE LUCENE").close();
+      db.command("create index test.ll on test (latitude,longitude) SPATIAL ENGINE LUCENE").close();
+    }
   }
 
   @Test
   public void testDeleteLuceneIndex1() {
+    try (var dpPool = youTrackDB.cachedPool(dbName, "admin", "adminpwd")) {
+      var db = (DatabaseSessionInternal) dpPool.acquire();
+      fillDb(db, insertcount);
+      db.close();
 
-    PartitionedDatabasePool dbPool = new PartitionedDatabasePool(dbName, "admin", "admin");
+      db = (DatabaseSessionInternal) dpPool.acquire();
+      SQLSynchQuery<EntityImpl> query =
+          new SQLSynchQuery<>(
+              "select from test where [latitude,longitude] WITHIN [[50.0,8.0],[51.0,9.0]]");
+      List<EntityImpl> result = db.command(query).execute(db);
+      Assert.assertEquals(insertcount, result.size());
+      db.close();
+      dpPool.close();
 
-    DatabaseSessionInternal db = dbPool.acquire();
-    fillDb(db, insertcount);
-    db.close();
+      File dbFolder = new File(dbName);
+      Assert.assertFalse(dbFolder.exists());
+    }
 
-    db = dbPool.acquire();
-    // @maggiolo00 Remove the next three lines and the test will not fail anymore
-    SQLSynchQuery<EntityImpl> query =
-        new SQLSynchQuery<EntityImpl>(
-            "select from test where [latitude,longitude] WITHIN [[50.0,8.0],[51.0,9.0]]");
-    List<EntityImpl> result = db.command(query).execute(db);
-    Assert.assertEquals(insertcount, result.size());
-    db.close();
-    dbPool.close();
-
-    // reopen to drop
-    db = (DatabaseSessionInternal) new DatabaseDocumentTx(dbName).open("admin", "admin");
-
-    db.drop();
-    File dbFolder = new File(dbName);
-    Assert.assertFalse(dbFolder.exists());
   }
 
-  private void fillDb(DatabaseSession db, int count) {
+  private static void fillDb(DatabaseSession db, int count) {
     for (int i = 0; i < count; i++) {
       EntityImpl doc = new EntityImpl("test");
       doc.field("name", "TestInsert" + i);

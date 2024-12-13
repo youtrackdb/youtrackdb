@@ -15,15 +15,17 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.ValidationException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.ValidationException;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES_INTERNAL;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentComparator;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -52,6 +54,39 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     account.save();
     account.field("id", "1234567890");
     database.commit();
+  }
+
+  @Test(dependsOnMethods = "validationMandatoryNullableNoCloseDb")
+  public void validationDisabledAdDatabaseLevel() throws ParseException {
+    database.getMetadata().reload();
+    try {
+      EntityImpl entity = new EntityImpl("MyTestClass");
+      database.begin();
+      entity.save();
+      database.commit();
+      Assert.fail();
+    } catch (ValidationException ignored) {
+    }
+
+    database
+        .command("ALTER DATABASE " + ATTRIBUTES_INTERNAL.VALIDATION.name() + " FALSE")
+        .close();
+    try {
+      EntityImpl doc = new EntityImpl("MyTestClass");
+      database.begin();
+      doc.save();
+      database.commit();
+
+      database.begin();
+      database.bindToSession(doc).delete();
+      database.commit();
+    } finally {
+      database.setValidationEnabled(true);
+      database
+          .command("ALTER DATABASE " + DatabaseSessionInternal.ATTRIBUTES_INTERNAL.VALIDATION.name()
+              + " TRUE")
+          .close();
+    }
   }
 
   @Test(dependsOnMethods = "openDb", expectedExceptions = ValidationException.class)
@@ -112,7 +147,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
   public void validationEmbeddedType() throws ParseException {
     database.begin();
     record = database.newInstance("Whiz");
-    record.field("account", database.getUser());
+    record.field("account", database.geCurrentUser());
     record.save();
     database.commit();
   }
@@ -228,40 +263,6 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     readDoc.setProperty("keyField", "K3N");
     readDoc.save();
     database.commit();
-  }
-
-  @Test(dependsOnMethods = "validationMandatoryNullableNoCloseDb")
-  public void validationDisabledAdDatabaseLevel() throws ParseException {
-    database.getMetadata().reload();
-    try {
-      EntityImpl doc = new EntityImpl("MyTestClass");
-      database.begin();
-      doc.save();
-      database.commit();
-      Assert.fail();
-    } catch (ValidationException ignored) {
-    }
-
-    database
-        .command("ALTER DATABASE " + ATTRIBUTES.VALIDATION.name() + " FALSE")
-        .close();
-    database.setValidationEnabled(false);
-    try {
-
-      EntityImpl doc = new EntityImpl("MyTestClass");
-      database.begin();
-      doc.save();
-      database.commit();
-
-      database.begin();
-      database.bindToSession(doc).delete();
-      database.commit();
-    } finally {
-      database.setValidationEnabled(true);
-      database
-          .command("ALTER DATABASE " + ATTRIBUTES.VALIDATION.name() + " TRUE")
-          .close();
-    }
   }
 
   @Test(dependsOnMethods = "validationDisabledAdDatabaseLevel")

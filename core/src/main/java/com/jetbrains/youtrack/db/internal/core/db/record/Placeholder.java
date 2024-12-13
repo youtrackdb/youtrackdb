@@ -19,10 +19,12 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.serialization.Streamable;
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -49,8 +51,8 @@ public class Placeholder implements Identifiable, Streamable {
     this.recordVersion = version;
   }
 
-  public Placeholder(final Record iRecord) {
-    rid = (RecordId) iRecord.getIdentity().copy();
+  public Placeholder(final RecordAbstract iRecord) {
+    rid = iRecord.getIdentity().copy();
     recordVersion = iRecord.getVersion();
   }
 

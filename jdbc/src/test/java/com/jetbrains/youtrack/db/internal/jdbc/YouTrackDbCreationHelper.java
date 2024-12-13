@@ -13,15 +13,15 @@
  */
 package com.jetbrains.youtrack.db.internal.jdbc;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.INDEX_TYPE;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
+import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
 import java.io.BufferedInputStream;
@@ -164,7 +164,7 @@ public class YouTrackDbCreationHelper {
         post.setProperty("title", "the title");
         post.setProperty("content", "the content");
 
-        db.newEdge(writer, post, "Writes");
+        db.newRegularEdge(writer, post, "Writes");
       }
     }
 
@@ -183,7 +183,7 @@ public class YouTrackDbCreationHelper {
     post.setProperty("title", "the title");
     post.setProperty("content", "the content");
 
-    db.newEdge(writer, post, "Writes");
+    db.newRegularEdge(writer, post, "Writes");
   }
 
   private static Blob loadFile(DatabaseSession database, String filePath) throws IOException {

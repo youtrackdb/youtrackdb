@@ -20,37 +20,37 @@
 
 package com.jetbrains.youtrack.db.internal.core.tx;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.exception.TransactionException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.RecordHook.TYPE;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.cache.LocalRecordCache;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.TransactionException;
-import com.jetbrains.youtrack.db.internal.core.hook.RecordHook.TYPE;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableIdentity;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.ClassIndexManager;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceLibraryProxy;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHook;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHookV2;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DirtyManager;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.schedule.ScheduledEvent;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
@@ -80,8 +80,8 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
   private static final AtomicLong txSerial = new AtomicLong();
 
   // order of updates is critical during synchronization of remote transactions
-  protected LinkedHashMap<RID, RID> txGeneratedRealRecordIdMap = new LinkedHashMap<>();
-  protected LinkedHashMap<RID, RecordOperation> recordOperations = new LinkedHashMap<>();
+  protected LinkedHashMap<RecordId, RecordId> txGeneratedRealRecordIdMap = new LinkedHashMap<>();
+  protected LinkedHashMap<RecordId, RecordOperation> recordOperations = new LinkedHashMap<>();
 
   protected LinkedHashMap<String, FrontendTransactionIndexChanges> indexEntries = new LinkedHashMap<>();
   protected HashMap<RID, List<FrontendTransactionRecordIndexOperation>> recordIndexOperations =
@@ -350,7 +350,8 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
 
         if (transactionIndexOperations == null) {
           transactionIndexOperations = new ArrayList<>();
-          recordIndexOperations.put(iValue.getIdentity().copy(), transactionIndexOperations);
+          recordIndexOperations.put(((RecordId) iValue.getIdentity()).copy(),
+              transactionIndexOperations);
         }
 
         transactionIndexOperations.add(
@@ -832,7 +833,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
     userData.clear();
   }
 
-  public void updateIdentityAfterCommit(final RID oldRid, final RID newRid) {
+  public void updateIdentityAfterCommit(final RecordId oldRid, final RecordId newRid) {
     if (oldRid.equals(newRid))
     // NO CHANGE, IGNORE IT
     {
@@ -901,7 +902,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
 
     RecordOperation val = getRecordEntry(oldRid);
     final List<FrontendTransactionRecordIndexOperation> transactionIndexOperations =
-        recordIndexOperations.get(val != null ? val.getRID() : null);
+        recordIndexOperations.get(val != null ? val.getRecordId() : null);
     if (transactionIndexOperations != null) {
       for (final FrontendTransactionRecordIndexOperation indexOperation : transactionIndexOperations) {
         FrontendTransactionIndexChanges indexEntryChanges = indexEntries.get(indexOperation.index);
@@ -1150,7 +1151,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
     return entry;
   }
 
-  public Map<RID, RID> getTxGeneratedRealRecordIdMap() {
+  public Map<RecordId, RecordId> getTxGeneratedRealRecordIdMap() {
     return txGeneratedRealRecordIdMap;
   }
 
@@ -1197,9 +1198,9 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
 
   @Override
   public void resetAllocatedIds() {
-    for (Map.Entry<RID, RecordOperation> op : recordOperations.entrySet()) {
+    for (Map.Entry<RecordId, RecordOperation> op : recordOperations.entrySet()) {
       if (op.getValue().type == RecordOperation.CREATED) {
-        RID lastCreateId = op.getValue().getRID().copy();
+        var lastCreateId = op.getValue().getRecordId().copy();
         RecordId oldNew =
             new RecordId(lastCreateId.getClusterId(), op.getKey().getClusterPosition());
         updateIdentityAfterCommit(lastCreateId, oldNew);
@@ -1211,7 +1212,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
   public void fill(final Iterator<RecordOperation> operations) {
     while (operations.hasNext()) {
       RecordOperation change = operations.next();
-      recordOperations.put(change.getRID(), change);
+      recordOperations.put(change.getRecordId(), change);
       resolveTracking(change);
     }
   }

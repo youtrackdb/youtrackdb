@@ -1,9 +1,10 @@
 package com.orientechnologies.orient.server;
 
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import java.io.File;
 import org.junit.After;
 import org.junit.Before;
@@ -28,7 +29,8 @@ public class BaseServerMemoryDatabase {
       throw new RuntimeException(e);
     }
 
-    context = new YouTrackDB("remote:localhost", "root", "root", YouTrackDBConfig.defaultConfig());
+    context = new YouTrackDBImpl("remote:localhost", "root", "root",
+        YouTrackDBConfig.defaultConfig());
     context
         .execute(
             "create database "

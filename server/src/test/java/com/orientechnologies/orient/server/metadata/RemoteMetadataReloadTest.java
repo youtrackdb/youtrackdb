@@ -4,12 +4,13 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.util.Locale;
@@ -31,7 +32,7 @@ public class RemoteMetadataReloadTest {
     server.startup(getClass().getResourceAsStream("orientdb-server-config.xml"));
     server.activate();
 
-    youTrackDB = new YouTrackDB("remote:localhost", "root", "root",
+    youTrackDB = new YouTrackDBImpl("remote:localhost", "root", "root",
         YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
@@ -47,16 +48,16 @@ public class RemoteMetadataReloadTest {
     youTrackDB.close();
     server.shutdown();
 
-    YouTrackDBManager.instance().shutdown();
+    YouTrackDBEnginesManager.instance().shutdown();
     FileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    YouTrackDBManager.instance().startup();
+    YouTrackDBEnginesManager.instance().startup();
   }
 
   @Test
   public void testStorageUpdate() throws InterruptedException {
-    database.command(" ALTER DATABASE LOCALELANGUAGE  ?", Locale.GERMANY.getLanguage());
+    database.command("ALTER DATABASE LOCALE_LANGUAGE  ?", Locale.GERMANY.getLanguage());
     assertEquals(
-        database.get(ATTRIBUTES.LOCALELANGUAGE), Locale.GERMANY.getLanguage());
+        database.get(DatabaseSession.ATTRIBUTES.LOCALE_LANGUAGE), Locale.GERMANY.getLanguage());
   }
 
   @Test
@@ -67,9 +68,9 @@ public class RemoteMetadataReloadTest {
 
   @Test
   public void testIndexManagerUpdate() throws InterruptedException {
-    database.command(" create class X");
-    database.command(" create property X.y STRING");
-    database.command(" create index X.y on X(y) NOTUNIQUE");
+    database.command("create class X");
+    database.command("create property X.y STRING");
+    database.command("create index X.y on X(y) NOTUNIQUE");
     assertTrue(database.getMetadata().getIndexManagerInternal().existsIndex("X.y"));
   }
 

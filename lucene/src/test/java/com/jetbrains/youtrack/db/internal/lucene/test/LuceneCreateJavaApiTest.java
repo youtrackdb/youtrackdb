@@ -20,13 +20,14 @@ package com.jetbrains.youtrack.db.internal.lucene.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -57,16 +58,16 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
     final Schema schema = db.getMetadata().getSchema();
     final SchemaClass song = schema.getClass(SONG_CLASS);
 
-    final EntityImpl meta = new EntityImpl().field("analyzer",
+    var meta = Map.of("analyzer",
         StandardAnalyzer.class.getName());
-    final Index lucene =
-        song.createIndex(db,
-            "Song.title",
-            SchemaClass.INDEX_TYPE.FULLTEXT.toString(),
-            null,
-            meta,
-            "LUCENE", new String[]{"title"});
 
+    song.createIndex(db,
+        "Song.title",
+        SchemaClass.INDEX_TYPE.FULLTEXT.toString(),
+        null,
+        meta,
+        "LUCENE", new String[]{"title"});
+    var lucene = db.getIndex("Song.title");
     assertThat(lucene).isNotNull();
     assertThat(lucene.getMetadata().containsKey("analyzer")).isTrue();
     assertThat(lucene.getMetadata().get("analyzer"))
@@ -77,13 +78,14 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
   public void testCreateIndexCompositeWithDefaultAnalyzer() {
     final Schema schema = db.getMetadata().getSchema();
     final SchemaClass song = schema.getClass(SONG_CLASS);
-    final Index lucene =
-        song.createIndex(db,
-            "Song.author_description",
-            SchemaClass.INDEX_TYPE.FULLTEXT.toString(),
-            null,
-            null,
-            "LUCENE", new String[]{"author", "description"});
+
+    song.createIndex(db,
+        "Song.author_description",
+        SchemaClass.INDEX_TYPE.FULLTEXT.toString(),
+        null,
+        null,
+        "LUCENE", new String[]{"author", "description"});
+    final Index lucene = db.getIndex("Song.author_description");
 
     assertThat(lucene).isNotNull();
     assertThat(lucene.getMetadata().containsKey("analyzer")).isTrue();
@@ -121,7 +123,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
             + "}");
     db.save(songDoc);
     db.commit();
-    final SchemaClass song = createEmbeddedMapIndex();
+    var song = createEmbeddedMapIndex();
     checkCreatedEmbeddedMapIndex(song, "LUCENE");
 
     queryIndexEmbeddedMapClass("Bolzano", 1);
@@ -131,7 +133,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
   public void testCreateIndexEmbeddedMapApi() {
     addDocumentViaAPI();
 
-    final SchemaClass song = createEmbeddedMapIndex();
+    var song = createEmbeddedMapIndex();
     checkCreatedEmbeddedMapIndex(song, "LUCENE");
 
     queryIndexEmbeddedMapClass("Bolzano", 1);
@@ -141,7 +143,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
   public void testCreateIndexEmbeddedMapApiSimpleTree() {
     addDocumentViaAPI();
 
-    final SchemaClass song = createEmbeddedMapIndexSimple();
+    var song = createEmbeddedMapIndexSimple();
     checkCreatedEmbeddedMapIndex(song, "CELL_BTREE");
 
     queryIndexEmbeddedMapClass("Hello Bolzano how are you today?", 0);
@@ -165,7 +167,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
   public void testCreateIndexEmbeddedMapApiSimpleDoesNotReturnResult() {
     addDocumentViaAPI();
 
-    final SchemaClass song = createEmbeddedMapIndexSimple();
+    var song = createEmbeddedMapIndexSimple();
     checkCreatedEmbeddedMapIndex(song, "CELL_BTREE");
 
     queryIndexEmbeddedMapClass("Bolzano", 0);
@@ -185,9 +187,9 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
     Assert.assertEquals(expectedCount, result.stream().count());
   }
 
-  private void checkCreatedEmbeddedMapIndex(final SchemaClass clazz,
+  private void checkCreatedEmbeddedMapIndex(final SchemaClassInternal clazz,
       final String expectedAlgorithm) {
-    final Index index = clazz.getIndexes(db).iterator().next();
+    final Index index = clazz.getIndexesInternal(db).iterator().next();
     System.out.println(
         "key-name: " + ((IndexInternal) index).getIndexId() + "-" + index.getName());
 
@@ -204,7 +206,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
         index.getDefinition().getTypes()[0]);
   }
 
-  private SchemaClass createEmbeddedMapIndex() {
+  private SchemaClassInternal createEmbeddedMapIndex() {
     final Schema schema = db.getMetadata().getSchema();
     final SchemaClass song = schema.getClass(SONG_CLASS);
     song.createProperty(db, "String" + PropertyType.EMBEDDEDMAP.getName(), PropertyType.EMBEDDEDMAP,
@@ -216,10 +218,10 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
         null,
         "LUCENE", new String[]{"String" + PropertyType.EMBEDDEDMAP.getName() + " by value"});
     Assert.assertEquals(1, song.getIndexes(db).size());
-    return song;
+    return (SchemaClassInternal) song;
   }
 
-  private SchemaClass createEmbeddedMapIndexSimple() {
+  private SchemaClassInternal createEmbeddedMapIndexSimple() {
     final Schema schema = db.getMetadata().getSchema();
     final SchemaClass song = schema.getClass(SONG_CLASS);
     song.createProperty(db, "String" + PropertyType.EMBEDDEDMAP.getName(), PropertyType.EMBEDDEDMAP,
@@ -229,6 +231,6 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
         SchemaClass.INDEX_TYPE.FULLTEXT.toString(),
         "String" + PropertyType.EMBEDDEDMAP.getName() + " by value");
     Assert.assertEquals(1, song.getIndexes(db).size());
-    return song;
+    return (SchemaClassInternal) song;
   }
 }

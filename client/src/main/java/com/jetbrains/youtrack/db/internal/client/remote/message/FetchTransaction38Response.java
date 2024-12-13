@@ -6,7 +6,7 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.tx.IndexChange;
 import com.jetbrains.youtrack.db.internal.client.remote.message.tx.RecordOperation38Response;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -38,7 +38,7 @@ public class FetchTransaction38Response implements BinaryResponse {
       DatabaseSessionInternal session, long txId,
       Iterable<RecordOperation> operations,
       Map<String, FrontendTransactionIndexChanges> indexChanges,
-      Map<RID, RID> updatedRids,
+      Map<RecordId, RecordId> updatedRids,
       DatabaseSessionInternal database) {
     // In some cases the reference are update twice is not yet possible to guess what is the id in
     // the client
@@ -50,9 +50,9 @@ public class FetchTransaction38Response implements BinaryResponse {
       RecordOperation38Response request = new RecordOperation38Response();
       request.setType(txEntry.type);
       request.setVersion(txEntry.record.getVersion());
-      request.setId(txEntry.getRID());
-      RID oldID = updatedRids.get(txEntry.getRID());
-      request.setOldId(oldID != null ? oldID : txEntry.getRID());
+      request.setId(txEntry.getRecordId());
+      var oldID = updatedRids.get(txEntry.getRecordId());
+      request.setOldId(oldID != null ? oldID : txEntry.getRecordId());
       request.setRecordType(RecordInternal.getRecordType(txEntry.record));
       if (txEntry.type == RecordOperation.UPDATED
           && txEntry.record instanceof EntityImpl entity) {

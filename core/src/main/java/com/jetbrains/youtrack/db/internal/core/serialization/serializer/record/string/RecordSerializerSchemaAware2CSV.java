@@ -21,18 +21,18 @@ package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.
 
 import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
@@ -575,43 +575,6 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
       i++;
     }
 
-    // GET THE OVERSIZE IF ANY
-    final float overSize;
-    if (EntityInternalUtils.getImmutableSchemaClass(record) != null)
-    // GET THE CONFIGURED OVERSIZE SETTED PER CLASS
-    {
-      overSize = EntityInternalUtils.getImmutableSchemaClass(record).getOverSize();
-    } else {
-      overSize = 0;
-    }
-
-    // APPEND BLANKS IF NEEDED
-    final int newSize;
-    if (record.hasOwners())
-    // EMBEDDED: GET REAL SIZE
-    {
-      newSize = iOutput.length();
-    } else if (record.getSize() == iOutput.length())
-    // IDENTICAL! DO NOTHING
-    {
-      newSize = record.getSize();
-    } else if (record.getSize() > iOutput.length()) {
-      // APPEND EXTRA SPACES TO FILL ALL THE AVAILABLE SPACE AND AVOID FRAGMENTATION
-      newSize = record.getSize();
-    } else if (overSize > 0) {
-      // APPEND EXTRA SPACES TO GET A LARGER iOutput
-      newSize = (int) (iOutput.length() * overSize);
-    } else // NO OVERSIZE
-    {
-      newSize = iOutput.length();
-    }
-
-    if (newSize > iOutput.length()) {
-      iOutput.ensureCapacity(newSize);
-      for (int b = iOutput.length(); b < newSize; ++b) {
-        iOutput.append(' ');
-      }
-    }
 
     return iOutput;
   }

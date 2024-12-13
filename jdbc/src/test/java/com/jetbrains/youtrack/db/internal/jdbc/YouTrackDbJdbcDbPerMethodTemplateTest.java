@@ -16,9 +16,9 @@ package com.jetbrains.youtrack.db.internal.jdbc;
 import static com.jetbrains.youtrack.db.internal.jdbc.YouTrackDbCreationHelper.createSchemaDB;
 import static com.jetbrains.youtrack.db.internal.jdbc.YouTrackDbCreationHelper.loadDB;
 
+import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import java.io.File;
 import java.util.Properties;
 import javax.sql.DataSource;

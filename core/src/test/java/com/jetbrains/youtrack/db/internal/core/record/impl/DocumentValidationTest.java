@@ -3,12 +3,12 @@ package com.jetbrains.youtrack.db.internal.core.record.impl;
 import static org.junit.Assert.fail;
 
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.exception.ValidationException;
+import com.jetbrains.youtrack.db.api.exception.ValidationException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -166,7 +166,7 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
     d = new EntityImpl(clazzNotVertex);
     checkField(d, "embeddedSimple", db.newVertex());
     db.begin();
-    checkField(d, "embeddedSimple", db.newEdge(db.newVertex(), db.newVertex()));
+    checkField(d, "embeddedSimple", db.newRegularEdge(db.newVertex(), db.newVertex()));
     db.commit();
   }
 

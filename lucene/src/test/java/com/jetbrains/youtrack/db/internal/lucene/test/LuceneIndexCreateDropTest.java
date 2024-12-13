@@ -18,9 +18,9 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.test;
 
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,11 +40,11 @@ public class LuceneIndexCreateDropTest extends BaseLuceneTest {
 
   @Test
   public void dropIndex() {
-    Set<Index> indexes = db.getClass("City").getIndexes(db);
+    Set<Index> indexes = db.getClassInternal("City").getIndexesInternal(db);
     Assert.assertEquals("Exactly one index should exist.", 1, indexes.size());
 
     db.command("drop index City.name").close();
-    indexes = db.getClass("City").getIndexes(db);
+    indexes = db.getClassInternal("City").getIndexesInternal(db);
     Assert.assertEquals("The index should have been deleted.", 0, indexes.size());
   }
 }

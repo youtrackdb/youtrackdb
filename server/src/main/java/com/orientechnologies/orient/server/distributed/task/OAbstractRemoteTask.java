@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.distributed.task;
 
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.orientechnologies.orient.server.distributed.ORemoteTaskFactory;
 import java.io.DataInput;
 import java.io.DataOutput;

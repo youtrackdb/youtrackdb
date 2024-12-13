@@ -19,20 +19,37 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.DB_CUSTOM_SUPPORT;
+import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.DB_CUSTOM_SUPPORT;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.exception.SchemaException;
+import com.jetbrains.youtrack.db.api.exception.SecurityException;
+import com.jetbrains.youtrack.db.api.exception.ValidationException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Edge;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionAbstract;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
@@ -45,43 +62,26 @@ import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMultiValue;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
-import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
-import com.jetbrains.youtrack.db.internal.core.exception.ValidationException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.ClassIndexManager;
 import com.jetbrains.youtrack.db.internal.core.iterator.EmptyMapEntryIterator;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.GlobalProperty;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableProperty;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Identity;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyAccess;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryption;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
-import com.jetbrains.youtrack.db.internal.core.record.Edge;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordSchemaAware;
 import com.jetbrains.youtrack.db.internal.core.record.RecordVersionHelper;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLHelper;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -111,9 +111,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Entity representation to handle values dynamically. Can be used in schema-less, schema-mixed
- * and schema-full modes. Fields can be added at run-time. Instances can be reused across calls by
- * using the reset() before to re-use.
+ * Entity representation to handle values dynamically. Can be used in schema-less, schema-mixed and
+ * schema-full modes. Fields can be added at run-time. Instances can be reused across calls by using
+ * the reset() before to re-use.
  */
 @SuppressWarnings({"unchecked"})
 public class EntityImpl extends RecordAbstract
@@ -155,9 +155,9 @@ public class EntityImpl extends RecordAbstract
     setup(database);
   }
 
-  public EntityImpl(DatabaseSession database, RID rid) {
+  public EntityImpl(DatabaseSession database, RecordId rid) {
     setup((DatabaseSessionInternal) database);
-    this.recordId = (RecordId) rid.copy();
+    this.recordId = rid.copy();
   }
 
   /**
@@ -189,11 +189,11 @@ public class EntityImpl extends RecordAbstract
    * Creates a new instance in memory linked by the Record Id to the persistent one. New instances
    * are not persistent until {@link #save()} is called.
    *
-   * @param iRID Record Id
+   * @param recordId Record Id
    */
-  public EntityImpl(final RID iRID) {
+  public EntityImpl(final RecordId recordId) {
     setup(DatabaseRecordThreadLocal.instance().getIfDefined());
-    recordId = (RecordId) iRID.copy();
+    this.recordId = recordId.copy();
     status = STATUS.NOT_LOADED;
     dirty = false;
     contentChanged = false;
@@ -204,16 +204,17 @@ public class EntityImpl extends RecordAbstract
    * persistent one. New instances are not persistent until {@link #save()} is called.
    *
    * @param iClassName Class name
-   * @param iRID       Record Id
+   * @param recordId   Record Id
    */
-  public EntityImpl(final String iClassName, final RID iRID) {
+  public EntityImpl(final String iClassName, final RecordId recordId) {
     this(iClassName);
-    recordId = (RecordId) iRID.copy();
+
+    this.recordId = recordId.copy();
 
     final DatabaseSessionInternal database = getSession();
-    if (recordId.getClusterId() > -1) {
+    if (this.recordId.getClusterId() > -1) {
       final Schema schema = database.getMetadata().getImmutableSchemaSnapshot();
-      final SchemaClass cls = schema.getClassByClusterId(recordId.getClusterId());
+      final SchemaClass cls = schema.getClassByClusterId(this.recordId.getClusterId());
       if (cls != null && !cls.getName().equals(iClassName)) {
         throw new IllegalArgumentException(
             "Cluster id does not correspond class name should be "
@@ -641,9 +642,9 @@ public class EntityImpl extends RecordAbstract
 
   @Override
   public void setPropertyInternal(String name, Object value) {
-    if (value instanceof Entity element
-        && element.getSchemaClass() == null
-        && !element.getIdentity().isValid()) {
+    if (value instanceof Entity entity
+        && entity.getSchemaClass() == null
+        && !((RecordId) entity.getIdentity()).isValid()) {
       setProperty(name, value, PropertyType.EMBEDDED);
     } else {
       setPropertyInternal(name, value, CommonConst.EMPTY_TYPES_ARRAY);
@@ -901,7 +902,7 @@ public class EntityImpl extends RecordAbstract
               String.format(
                   "Change of field '%s' is not allowed for user '%s'",
                   iRecord.getClassName() + "." + mapEntry.getKey(),
-                  internal.getUser().getName(internal)));
+                  internal.geCurrentUser().getName(internal)));
         }
       }
     }
@@ -1304,7 +1305,7 @@ public class EntityImpl extends RecordAbstract
               + fieldValue);
     } else {
       if (fieldValue instanceof Identifiable embedded) {
-        if (embedded.getIdentity().isValid()) {
+        if (((RecordId) embedded.getIdentity()).isValid()) {
           throw new ValidationException(
               "The field '"
                   + p.getFullName()
@@ -1505,8 +1506,8 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * Returns the entity as Map String,Object . If the entity has identity, then the @rid entry
-   * is valued. If the entity has a class, then the @class entry is valued.
+   * Returns the entity as Map String,Object . If the entity has identity, then the @rid entry is
+   * valued. If the entity has a class, then the @class entry is valued.
    *
    * @since 2.0
    */
@@ -1517,7 +1518,7 @@ public class EntityImpl extends RecordAbstract
       map.put(field, field(field));
     }
 
-    final RID id = getIdentity();
+    final RecordId id = getIdentity();
     if (id.isValid()) {
       map.put(DocumentHelper.ATTRIBUTE_RID, id);
     }
@@ -1879,8 +1880,8 @@ public class EntityImpl extends RecordAbstract
    * @param iPropertyValue field value.
    * @param iFieldType     Forced type (not auto-determined)
    * @return The Record instance itself giving a "fluent interface". Useful to call multiple methods
-   * in chain. If the updated entity is another entity (using the dot (.) notation) then the
-   * entity returned is the changed one or NULL if no entity has been found in chain
+   * in chain. If the updated entity is another entity (using the dot (.) notation) then the entity
+   * returned is the changed one or NULL if no entity has been found in chain
    */
   public EntityImpl field(String iFieldName, Object iPropertyValue, PropertyType... iFieldType) {
     checkForBinding();
@@ -2194,14 +2195,14 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * Merge current entity with the entity passed as parameter. If the field already exists then
-   * the conflicts are managed based on the value of the parameter 'iUpdateOnlyMode'.
+   * Merge current entity with the entity passed as parameter. If the field already exists then the
+   * conflicts are managed based on the value of the parameter 'iUpdateOnlyMode'.
    *
    * @param iOther                              Other EntityImpl instance to merge
-   * @param iUpdateOnlyMode                     if true, the other entity properties will always
-   *                                            be added or overwritten. If false, the missed
-   *                                            properties in the "other" entity will be removed
-   *                                            by original entity
+   * @param iUpdateOnlyMode                     if true, the other entity properties will always be
+   *                                            added or overwritten. If false, the missed
+   *                                            properties in the "other" entity will be removed by
+   *                                            original entity
    * @param iMergeSingleItemsOfMultiValueFields If true, merges single items of multi field fields
    *                                            (collections, maps, arrays, etc)
    */
@@ -2669,9 +2670,8 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * Enabled or disabled the tracking of changes in the entity. This is needed by some triggers
-   * like {@link ClassIndexManager} to determine what
-   * fields are changed to update indexes.
+   * Enabled or disabled the tracking of changes in the entity. This is needed by some triggers like
+   * {@link ClassIndexManager} to determine what fields are changed to update indexes.
    *
    * @param iTrackingChanges True to enable it, otherwise false
    * @return this
@@ -3006,7 +3006,7 @@ public class EntityImpl extends RecordAbstract
    * no constraints then the validation is ignored.
    *
    * @throws ValidationException if the entity breaks some validation constraints defined in the
-   *                              schema
+   *                             schema
    * @see Property
    */
   public void validate() throws ValidationException {
@@ -3094,7 +3094,7 @@ public class EntityImpl extends RecordAbstract
             buffer.append(MultiValue.getSize(f.getValue().value));
             buffer.append(']');
           } else {
-            if (f.getValue().value instanceof Record record) {
+            if (f.getValue().value instanceof RecordAbstract record) {
               if (record.getIdentity().isValid()) {
                 record.getIdentity().toString(buffer);
               } else {

@@ -3,15 +3,15 @@ package com.orientechnologies.orient.server;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.client.remote.RemoteConnectionManager;
 import com.jetbrains.youtrack.db.internal.client.remote.RemoteConnectionPool;
 import com.jetbrains.youtrack.db.internal.client.remote.YouTrackDBRemote;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import javax.management.InstanceAlreadyExistsException;
@@ -49,15 +49,17 @@ public class SocketIdleCleanupIT {
   public void test() throws InterruptedException {
     YouTrackDBConfig config =
         YouTrackDBConfig.builder()
-            .addConfig(GlobalConfiguration.CLIENT_CHANNEL_IDLE_CLOSE, true)
-            .addConfig(GlobalConfiguration.CLIENT_CHANNEL_IDLE_TIMEOUT, 1)
+            .addGlobalConfigurationParameter(GlobalConfiguration.CLIENT_CHANNEL_IDLE_CLOSE, true)
+            .addGlobalConfigurationParameter(GlobalConfiguration.CLIENT_CHANNEL_IDLE_TIMEOUT, 1)
             .build();
-    YouTrackDB orientdb = new YouTrackDB("remote:localhost", "root", "root", config);
-    orientdb.execute("create database test memory users (admin identified by 'admin' role admin)");
-    DatabaseSession session = orientdb.open("test", "admin", "admin");
+    YouTrackDBImpl youTrackDb = new YouTrackDBImpl("remote:localhost", "root", "root",
+        config);
+    youTrackDb.execute(
+        "create database test memory users (admin identified by 'admin' role admin)");
+    DatabaseSession session = youTrackDb.open("test", "admin", "admin");
     session.save(session.newVertex("V"));
     Thread.sleep(2000);
-    YouTrackDBRemote remote = (YouTrackDBRemote) YouTrackDBInternal.extract(orientdb);
+    YouTrackDBRemote remote = (YouTrackDBRemote) YouTrackDBInternal.extract(youTrackDb);
     RemoteConnectionManager connectionManager = remote.getConnectionManager();
     RemoteConnectionPool pool =
         connectionManager.getPool(connectionManager.getURLs().iterator().next());

@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.distributed.task;
 
 import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.orientechnologies.orient.server.distributed.DistributedRequestId;
 
 /**

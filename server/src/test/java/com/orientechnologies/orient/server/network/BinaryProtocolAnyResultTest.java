@@ -2,11 +2,12 @@ package com.orientechnologies.orient.server.network;
 
 import static org.junit.Assert.assertTrue;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +36,7 @@ public class BinaryProtocolAnyResultTest {
   @Ignore
   public void scriptReturnValueTest() throws IOException {
     YouTrackDB orient =
-        new YouTrackDB("remote:localhost", "root", "root", YouTrackDBConfig.defaultConfig());
+        new YouTrackDBImpl("remote:localhost", "root", "root", YouTrackDBConfig.defaultConfig());
 
     if (orient.exists("test")) {
       orient.drop("test");
@@ -59,8 +60,8 @@ public class BinaryProtocolAnyResultTest {
   public void after() {
     server.shutdown();
 
-    YouTrackDBManager.instance().shutdown();
+    YouTrackDBEnginesManager.instance().shutdown();
     FileUtils.deleteRecursively(new File(server.getDatabaseDirectory()));
-    YouTrackDBManager.instance().startup();
+    YouTrackDBEnginesManager.instance().startup();
   }
 }

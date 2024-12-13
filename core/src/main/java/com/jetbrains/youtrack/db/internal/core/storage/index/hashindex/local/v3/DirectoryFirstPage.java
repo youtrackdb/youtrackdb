@@ -21,7 +21,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v3;
 
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 
 /**

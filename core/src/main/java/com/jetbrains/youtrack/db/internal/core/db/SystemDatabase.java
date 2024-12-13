@@ -19,15 +19,18 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.DefaultSecuritySystem;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import javax.annotation.Nonnull;
@@ -157,14 +160,14 @@ public class SystemDatabase {
 
         YouTrackDBConfig config =
             YouTrackDBConfig.builder()
-                .addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
-                .addConfig(GlobalConfiguration.CLASS_MINIMUM_CLUSTERS, 1)
+                .addGlobalConfigurationParameter(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addGlobalConfigurationParameter(GlobalConfiguration.CLASS_MINIMUM_CLUSTERS, 1)
                 .build();
         DatabaseType type = DatabaseType.PLOCAL;
         if (context.isMemoryOnly()) {
           type = DatabaseType.MEMORY;
         }
-        context.create(SYSTEM_DB_NAME, null, null, type, config);
+        context.create(SYSTEM_DB_NAME, null, null, type, (YouTrackDBConfigImpl) config);
         try (var session = context.openNoAuthorization(SYSTEM_DB_NAME)) {
           DefaultSecuritySystem.createSystemRoles(session);
         }
@@ -190,7 +193,8 @@ public class SystemDatabase {
       db.executeInTx(
           () -> {
             Entity info;
-            if (clz.count(db) == 0) {
+            if (db.query("select count(*) as count from " + clz.getName()).
+                findFirst().<Long>getProperty("count") == 0) {
               info = db.newEntity(SERVER_INFO_CLASS);
             } else {
               info = db.browseClass(clz.getName()).next();

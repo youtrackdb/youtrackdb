@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.select;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.api.query.Result;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.client.remote.db;
 
-import com.jetbrains.youtrack.db.internal.core.db.LiveQueryMonitor;
+import com.jetbrains.youtrack.db.api.query.LiveQueryMonitor;
 
 /**
  *

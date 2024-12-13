@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
@@ -9,11 +9,11 @@ import com.jetbrains.youtrack.db.internal.core.index.PropertyRidBagIndexDefiniti
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
 import com.jetbrains.youtrack.db.internal.core.index.PropertyListIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.PropertyMapIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
-import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import java.util.Arrays;
 import java.util.List;
 import org.testng.Assert;
@@ -69,9 +69,8 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
     final Index index =
         database
             .getMetadata()
-            .getSchema()
-            .getClass("sqlCreateIndexTestClass")
-            .getClassIndex(database, "sqlCreateIndexTestClass.prop1");
+            .getIndexManager()
+            .getIndex("sqlCreateIndexTestClass.prop1");
 
     Assert.assertNotNull(index);
 
@@ -95,7 +94,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("sqlCreateIndexTestClass")
+            .getClassInternal("sqlCreateIndexTestClass")
             .getClassIndex(database, "sqlCreateIndexCompositeIndex");
 
     Assert.assertNotNull(index);
@@ -120,7 +119,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("sqlCreateIndexTestClass")
+            .getClassInternal("sqlCreateIndexTestClass")
             .getClassIndex(database, "sqlCreateIndexEmbeddedMapIndex");
 
     Assert.assertNotNull(index);
@@ -144,7 +143,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("sqlCreateIndexTestClass")
+            .getClassInternal("sqlCreateIndexTestClass")
             .getClassIndex(database, "sqlCreateIndexTestClass.prop3");
 
     Assert.assertNotNull(index);
@@ -175,7 +174,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("sqlCreateIndexTestClass")
+            .getClassInternal("sqlCreateIndexTestClass")
             .getClassIndex(database, "sqlCreateIndexEmbeddedMapWrongSpecifierIndex");
 
     Assert.assertNull(index, "Index created while wrong query was executed");
@@ -197,7 +196,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("sqlCreateIndexTestClass")
+            .getClassInternal("sqlCreateIndexTestClass")
             .getClassIndex(database, "sqlCreateIndexEmbeddedMapWrongSpecifierIndex");
 
     Assert.assertNull(index, "Index created while wrong query was executed");
@@ -219,7 +218,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("sqlCreateIndexTestClass")
+            .getClassInternal("sqlCreateIndexTestClass")
             .getClassIndex(database, "sqlCreateIndexEmbeddedMapWrongSpecifierIndex");
 
     Assert.assertNull(index, "Index created while wrong query was executed");
@@ -237,7 +236,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("sqlCreateIndexTestClass")
+            .getClassInternal("sqlCreateIndexTestClass")
             .getClassIndex(database, "sqlCreateIndexEmbeddedMapByKeyIndex");
 
     Assert.assertNotNull(index);
@@ -265,7 +264,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("sqlCreateIndexTestClass")
+            .getClassInternal("sqlCreateIndexTestClass")
             .getClassIndex(database, "sqlCreateIndexEmbeddedMapByValueIndex");
 
     Assert.assertNotNull(index);
@@ -293,7 +292,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("sqlCreateIndexTestClass")
+            .getClassInternal("sqlCreateIndexTestClass")
             .getClassIndex(database, "sqlCreateIndexEmbeddedListIndex");
 
     Assert.assertNotNull(index);
@@ -316,7 +315,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("sqlCreateIndexTestClass")
+            .getClassInternal("sqlCreateIndexTestClass")
             .getClassIndex(database, "sqlCreateIndexRidBagIndex");
 
     Assert.assertNotNull(index);
@@ -336,7 +335,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("sqlCreateIndexTestClass")
+            .getClassInternal("sqlCreateIndexTestClass")
             .getClassIndex(database, "sqlCreateIndexTestClass.prop5");
 
     Assert.assertNotNull(index);
@@ -356,7 +355,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("sqlCreateIndexTestClass")
+            .getClassInternal("sqlCreateIndexTestClass")
             .getClassIndex(database, "sqlCreateIndexTestClass.prop9");
 
     Assert.assertNotNull(index);
@@ -389,7 +388,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("sqlCreateIndexTestClass")
+            .getClassInternal("sqlCreateIndexTestClass")
             .getClassIndex(database, "sqlCreateIndexEmbeddedListWithoutLinkedTypeIndex");
 
     Assert.assertNull(index, "Index created while wrong query was executed");
@@ -415,7 +414,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("sqlCreateIndexTestClass")
+            .getClassInternal("sqlCreateIndexTestClass")
             .getClassIndex(database, "sqlCreateIndexEmbeddedMapWithoutLinkedTypeIndex");
 
     Assert.assertNull(index, "Index created while wrong query was executed");
@@ -436,7 +435,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("sqlCreateIndexTestClass")
+            .getClassInternal("sqlCreateIndexTestClass")
             .getClassIndex(database, "sqlCreateIndexCompositeIndex2");
 
     Assert.assertNotNull(index);
@@ -480,7 +479,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("sqlCreateIndexTestClass")
+            .getClassInternal("sqlCreateIndexTestClass")
             .getClassIndex(database, "sqlCreateIndexCompositeIndex3");
 
     Assert.assertNull(index, "Index created while wrong query was executed");
@@ -497,7 +496,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("sqlCreateIndexTestClass")
+            .getClassInternal("sqlCreateIndexTestClass")
             .getClassIndex(database, "sqlCreateIndexCompositeIndexWithMetadata");
 
     Assert.assertNotNull(index);
@@ -526,7 +525,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("sqlCreateIndexTestClass")
+            .getClassInternal("sqlCreateIndexTestClass")
             .getClassIndex(database, "sqlCreateIndexTestClass.prop8");
 
     Assert.assertNotNull(index);
@@ -559,7 +558,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("sqlCreateIndexTestClass")
+            .getClassInternal("sqlCreateIndexTestClass")
             .getClassIndex(database, "sqlCreateIndexCompositeIndex2WithConfig");
 
     Assert.assertNotNull(index);

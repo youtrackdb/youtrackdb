@@ -2,10 +2,11 @@ package com.orientechnologies.orient.core.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.orientechnologies.orient.server.AbstractRemoteTest;
 import org.junit.Test;
 
@@ -20,7 +21,8 @@ public class SequenceRemoteTest extends AbstractRemoteTest {
   public void setup() throws Exception {
     super.setup();
     YouTrackDB factory =
-        new YouTrackDB("remote:localhost", "root", "root", YouTrackDBConfig.defaultConfig());
+        new YouTrackDBImpl("remote:localhost", "root", "root",
+            YouTrackDBConfig.defaultConfig());
     db = (DatabaseSessionInternal) factory.open(name.getMethodName(), "admin", "admin");
   }
 

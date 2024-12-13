@@ -1,14 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.db.tool;
 
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.StorageRecoverEventListener;
 import java.util.Objects;
 import org.junit.Assert;
@@ -70,7 +71,7 @@ public class GraphRecoveringTest {
     var v2 = session.newVertex("V2");
     v2.setProperty("key", 2);
 
-    v0.addEdge(v1);
+    v0.addRegularEdge(v1);
     v1.addEdge(v2, "E1");
     v2.addEdge(v0, "E2");
 
@@ -82,7 +83,7 @@ public class GraphRecoveringTest {
 
   @Test
   public void testRecoverPerfectGraphNonLW() {
-    try (YouTrackDB youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
+    try (YouTrackDB youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig())) {
       youTrackDB.execute(
           "create database testRecoverPerfectGraphNonLW"
@@ -106,7 +107,7 @@ public class GraphRecoveringTest {
 
   @Test
   public void testRecoverBrokenGraphAllEdges() {
-    try (YouTrackDB youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
+    try (YouTrackDB youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig())) {
       youTrackDB.execute(
           "create database testRecoverBrokenGraphAllEdges"
@@ -143,7 +144,7 @@ public class GraphRecoveringTest {
 
   @Test
   public void testRecoverBrokenGraphLinksInVerticesNonLW() {
-    try (YouTrackDB youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
+    try (YouTrackDB youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig())) {
       youTrackDB.execute(
           "create database testRecoverBrokenGraphLinksInVerticesNonLW"

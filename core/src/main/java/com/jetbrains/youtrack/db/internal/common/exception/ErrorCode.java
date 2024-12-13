@@ -1,8 +1,9 @@
 package com.jetbrains.youtrack.db.internal.common.exception;
 
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.exception.BackupInProgressException;
-import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentModificationException;
+import com.jetbrains.youtrack.db.api.exception.BackupInProgressException;
+import com.jetbrains.youtrack.db.api.exception.ConcurrentModificationException;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import java.lang.reflect.InvocationTargetException;
 

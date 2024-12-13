@@ -15,7 +15,7 @@ public interface CachedDatabasePoolFactory {
    * @return {@link DatabasePoolInternal} cached database pool
    */
   DatabasePoolInternal get(
-      String database, String username, String password, YouTrackDBConfig config);
+      String database, String username, String password, YouTrackDBConfigImpl config);
 
   /**
    * Close all cached pools and clear cache

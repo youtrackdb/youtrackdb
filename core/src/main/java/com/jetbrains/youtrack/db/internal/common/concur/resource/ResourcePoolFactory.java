@@ -3,8 +3,8 @@ package com.jetbrains.youtrack.db.internal.common.concur.resource;
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 import com.googlecode.concurrentlinkedhashmap.EvictionListener;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBListenerAbstract;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -39,8 +39,8 @@ public class ResourcePoolFactory<K, T> extends YouTrackDBListenerAbstract {
             .listener(evictionListener)
             .build();
 
-    YouTrackDBManager.instance().registerWeakYouTrackDBStartupListener(this);
-    YouTrackDBManager.instance().registerWeakYouTrackDBShutdownListener(this);
+    YouTrackDBEnginesManager.instance().registerWeakYouTrackDBStartupListener(this);
+    YouTrackDBEnginesManager.instance().registerWeakYouTrackDBShutdownListener(this);
   }
 
   public int getMaxPoolSize() {

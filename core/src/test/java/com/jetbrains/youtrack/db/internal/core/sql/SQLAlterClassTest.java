@@ -1,7 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -24,7 +25,7 @@ public class SQLAlterClassTest extends DbTestBase {
   public void testQuoted() {
     try {
       db.command("create class `Client-Type`").close();
-      db.command("alter class `Client-Type` addcluster `client-type_usa`").close();
+      db.command("alter class `Client-Type` add_cluster `client-type_usa`").close();
 
       db.begin();
       db.command("insert into `Client-Type` set foo = 'bar'").close();

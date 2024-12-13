@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.iterator;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.api.record.Record;
 
 /**
  * Record iterator to browse records in inverse order: from last to the first.

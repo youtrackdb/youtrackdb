@@ -1,8 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +42,7 @@ public class InsertExecutionPlan extends SelectExecutionPlan {
   }
 
   @Override
-  public Result toResult(DatabaseSessionInternal db) {
+  public Result toResult(DatabaseSession db) {
     ResultInternal res = (ResultInternal) super.toResult(db);
     res.setProperty("type", "InsertExecutionPlan");
     return res;

@@ -19,13 +19,13 @@
 
 package com.jetbrains.youtrack.db.internal.core.tx;
 
+import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.RecordDuplicatedException;
 import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,10 +40,11 @@ public class DuplicateUniqueIndexChangesTxTest extends DbTestBase {
   public void beforeTest() throws Exception {
     super.beforeTest();
     final SchemaClass class_ = db.getMetadata().getSchema().createClass("Person");
-    index =
+    var indexName =
         class_
             .createProperty(db, "name", PropertyType.STRING)
             .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
+    index = db.getIndex(indexName);
   }
 
   @Test

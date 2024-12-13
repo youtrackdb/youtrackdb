@@ -20,18 +20,19 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.StorageEntryConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
 import com.jetbrains.youtrack.db.internal.core.engine.local.EngineLocalPaginated;
 import com.jetbrains.youtrack.db.internal.core.engine.memory.EngineMemory;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.SecurityAccessException;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -151,7 +152,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
       for (SchemaClass cls : db.getMetadata().getSchema().getClasses()) {
         if (!exportedNames.contains(cls.getName())) {
           try {
-            exportClass(db, json, cls);
+            exportClass(db, json, (SchemaClassInternal) cls);
             exportedNames.add(cls.getName());
           } catch (Exception e) {
             LogManager.instance().error(this, "Error on exporting class '" + cls + "'", e);
@@ -186,8 +187,8 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
       json.endCollection(1, true);
     }
 
-    if (db.getUser() != null) {
-      json.writeAttribute(1, false, "currentUser", db.getUser().getName(db));
+    if (db.geCurrentUser() != null) {
+      json.writeAttribute(1, false, "currentUser", db.geCurrentUser().getName(db));
     }
 
     json.beginCollection(1, false, "users");
@@ -281,7 +282,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
   }
 
   protected void exportClass(
-      final DatabaseSessionInternal db, final JSONWriter json, final SchemaClass cls)
+      final DatabaseSessionInternal db, final JSONWriter json, final SchemaClassInternal cls)
       throws IOException {
     json.beginObject(2, true, null);
     json.writeAttribute(3, true, "name", cls.getName());
@@ -289,8 +290,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
         3, true, "superClass", cls.getSuperClass() != null ? cls.getSuperClass().getName() : "");
     json.writeAttribute(3, true, "alias", cls.getShortName());
     json.writeAttribute(3, true, "clusters", cls.getClusterIds());
-    json.writeAttribute(3, true, "defaultCluster", cls.getDefaultClusterId());
-    json.writeAttribute(3, true, "clusterSelection", cls.getClusterSelection().getName());
+    json.writeAttribute(3, true, "clusterSelection", cls.getClusterSelectionStrategyName());
     try {
       json.writeAttribute(3, false, "records", db.countClass(cls.getName()));
     } catch (SecurityAccessException e) {
@@ -319,7 +319,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
       json.endCollection(1, true);
     }
 
-    final Set<Index> indexes = cls.getIndexes(db);
+    final Set<Index> indexes = cls.getIndexesInternal(db);
     if (!indexes.isEmpty()) {
       json.beginCollection(3, true, "indexes");
       for (final Index index : indexes) {

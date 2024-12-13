@@ -3,14 +3,14 @@ package com.jetbrains.youtrack.db.internal.core.serialization.serializer.result.
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BytesContainer;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,7 +41,7 @@ public class ResultSerializationTest extends DbTestBase {
 
   @Test
   public void testSimpleSerialization() {
-    try (var youTrackDB = new YouTrackDB("memory", YouTrackDBConfig.defaultConfig())) {
+    try (var youTrackDB = new YouTrackDBImpl("memory", YouTrackDBConfig.defaultConfig())) {
       youTrackDB.createIfNotExists("test", DatabaseType.MEMORY, "admin", "admin", "admin");
       try (var db = (DatabaseSessionInternal) youTrackDB.open("test", "admin", "admin")) {
         ResultInternal document = new ResultInternal(db);

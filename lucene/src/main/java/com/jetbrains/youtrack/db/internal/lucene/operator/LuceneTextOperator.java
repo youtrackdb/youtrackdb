@@ -16,17 +16,18 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.operator;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.EntitySerializer;
 import com.jetbrains.youtrack.db.internal.core.sql.IndexSearchResult;
@@ -237,22 +238,25 @@ public class LuceneTextOperator extends QueryTargetOperator {
     try {
       EntityImpl doc = iRecord.getRecord();
       if (doc.getClassName() != null) {
-        SchemaClass cls = getDatabase().getMetadata().getSchema().getClass(doc.getClassName());
+        var cls = getDatabase().getMetadata().getSchemaInternal()
+            .getClassInternal(doc.getClassName());
 
         if (isChained(iCondition.getLeft())) {
 
           SQLFilterItemField chained = (SQLFilterItemField) iCondition.getLeft();
 
           SQLFilterItemField.FieldChain fieldChain = chained.getFieldChain();
-          SchemaClass oClass = cls;
+          SchemaClassInternal oClass = cls;
           for (int i = 0; i < fieldChain.getItemCount() - 1; i++) {
-            oClass = oClass.getProperty(fieldChain.getItemName(i)).getLinkedClass();
+            oClass = (SchemaClassInternal) oClass.getProperty(fieldChain.getItemName(i))
+                .getLinkedClass();
           }
           if (oClass != null) {
             cls = oClass;
           }
         }
-        Set<Index> classInvolvedIndexes = cls.getInvolvedIndexes(session, fields(iCondition));
+        Set<Index> classInvolvedIndexes = cls.getInvolvedIndexesInternal(session,
+            fields(iCondition));
         LuceneFullTextIndex idx = null;
         for (Index classInvolvedIndex : classInvolvedIndexes) {
 

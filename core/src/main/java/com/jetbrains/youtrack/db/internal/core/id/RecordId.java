@@ -19,15 +19,17 @@
  */
 package com.jetbrains.youtrack.db.internal.core.id;
 
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.util.PatternConst;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.serialization.BinaryProtocol;
 import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
+import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -38,7 +40,7 @@ import java.io.Serial;
 import java.util.List;
 import javax.annotation.Nonnull;
 
-public class RecordId implements RID {
+public class RecordId implements RID, SerializableStream {
 
   @Serial
   private static final long serialVersionUID = 247070594054408657L;
@@ -296,10 +298,6 @@ public class RecordId implements RID {
     return generateString(clusterId, clusterPosition + 1);
   }
 
-  @Override
-  public RID nextRid() {
-    return new RecordId(clusterId, clusterPosition + 1);
-  }
 
   public RID getIdentity() {
     return this;
@@ -323,18 +321,10 @@ public class RecordId implements RID {
   }
 
   private void checkClusterLimits() {
-    if (clusterId < -2) {
-      throw new DatabaseException(
-          "RecordId cannot support negative cluster id. Found: " + clusterId);
-    }
-
-    if (clusterId > CLUSTER_MAX) {
-      throw new DatabaseException(
-          "RecordId cannot support cluster id major than 32767. Found: " + clusterId);
-    }
+    checkClusterLimits(clusterId);
   }
 
-  protected void checkClusterLimits(int clusterId) {
+  protected static void checkClusterLimits(int clusterId) {
     if (clusterId < -2) {
       throw new DatabaseException(
           "RecordId cannot support negative cluster id. Found: " + clusterId);

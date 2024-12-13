@@ -1,5 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
+import com.jetbrains.youtrack.db.api.query.ExecutionStep;
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +31,7 @@ public class InfoExecutionPlan implements ExecutionPlan {
   }
 
   @Override
-  public Result toResult(DatabaseSessionInternal db) {
+  public Result toResult(DatabaseSession db) {
     return null;
   }
 

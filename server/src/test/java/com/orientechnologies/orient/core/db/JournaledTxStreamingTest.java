@@ -22,11 +22,12 @@ package com.orientechnologies.orient.core.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
 import java.io.DataInputStream;
@@ -70,7 +71,8 @@ public class JournaledTxStreamingTest {
 
     spawnServer();
 
-    ctx = new YouTrackDB("remote:localhost:3500", "root", "root", YouTrackDBConfig.defaultConfig());
+    ctx = new YouTrackDBImpl("remote:localhost:3500", "root", "root",
+        YouTrackDBConfig.defaultConfig());
     ctx.execute("create database " + JournaledTxStreamingTest.class.getSimpleName() + " plocal ")
         .close();
 

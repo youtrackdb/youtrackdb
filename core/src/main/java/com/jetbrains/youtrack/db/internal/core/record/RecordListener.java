@@ -19,6 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record;
 
+import com.jetbrains.youtrack.db.api.record.Record;
+
 /**
  * Listener interface to catch all the record events.
  *

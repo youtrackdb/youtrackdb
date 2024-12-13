@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.metadata;
 
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyInternal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -41,10 +41,10 @@ public class ClassIndexFinder implements IndexFinder {
           }
         };
     for (String ele : rawPath) {
-      Property prop = cand.cl.getProperty(ele);
+      PropertyInternal prop = (PropertyInternal) cand.cl.getProperty(ele);
       if (prop != null) {
         SchemaClass linkedClass = prop.getLinkedClass();
-        Collection<Index> indexes = prop.getAllIndexes(db);
+        Collection<Index> indexes = prop.getAllIndexesInternal(db);
         if (prop.getType().isLink() && linkedClass != null) {
           boolean found = false;
           for (Index index : indexes) {
@@ -88,9 +88,9 @@ public class ClassIndexFinder implements IndexFinder {
     Optional<IndexCandidate> cand = pre.chain;
     String last = pre.last;
 
-    Property prop = cl.getProperty(last);
+    var prop = (PropertyInternal) cl.getProperty(last);
     if (prop != null) {
-      Collection<Index> indexes = prop.getAllIndexes(ctx.getDatabase());
+      Collection<Index> indexes = prop.getAllIndexesInternal(ctx.getDatabase());
       for (Index index : indexes) {
         if (index.getInternal().canBeUsedInEqualityOperators()) {
           if (cand.isPresent()) {
@@ -117,10 +117,10 @@ public class ClassIndexFinder implements IndexFinder {
     Optional<IndexCandidate> cand = pre.chain;
     String last = pre.last;
 
-    Property prop = cl.getProperty(last);
+    var prop = (PropertyInternal) cl.getProperty(last);
     if (prop != null) {
       if (prop.getType() == PropertyType.EMBEDDEDMAP) {
-        Collection<Index> indexes = prop.getAllIndexes(ctx.getDatabase());
+        Collection<Index> indexes = prop.getAllIndexesInternal(ctx.getDatabase());
         for (Index index : indexes) {
           if (index.getInternal().canBeUsedInEqualityOperators()) {
             IndexDefinition def = index.getDefinition();
@@ -153,9 +153,9 @@ public class ClassIndexFinder implements IndexFinder {
     Optional<IndexCandidate> cand = pre.chain;
     String last = pre.last;
 
-    Property prop = cl.getProperty(last);
+    var prop = (PropertyInternal) cl.getProperty(last);
     if (prop != null) {
-      Collection<Index> indexes = prop.getAllIndexes(ctx.getDatabase());
+      Collection<Index> indexes = prop.getAllIndexesInternal(ctx.getDatabase());
       for (Index index : indexes) {
         if (index.getInternal().canBeUsedInEqualityOperators()
             && index.supportsOrderedIterations()) {
@@ -183,10 +183,10 @@ public class ClassIndexFinder implements IndexFinder {
     Optional<IndexCandidate> cand = pre.chain;
     String last = pre.last;
 
-    Property prop = cl.getProperty(last);
+    var prop = (PropertyInternal) cl.getProperty(last);
     if (prop != null) {
       if (prop.getType() == PropertyType.EMBEDDEDMAP) {
-        Collection<Index> indexes = prop.getAllIndexes(ctx.getDatabase());
+        Collection<Index> indexes = prop.getAllIndexesInternal(ctx.getDatabase());
         for (Index index : indexes) {
           IndexDefinition def = index.getDefinition();
           if (index.getInternal().canBeUsedInEqualityOperators()) {
@@ -219,9 +219,9 @@ public class ClassIndexFinder implements IndexFinder {
     Optional<IndexCandidate> cand = pre.chain;
     String last = pre.last;
 
-    Property prop = cl.getProperty(last);
+    var prop = (PropertyInternal) cl.getProperty(last);
     if (prop != null) {
-      Collection<Index> indexes = prop.getAllIndexes(ctx.getDatabase());
+      Collection<Index> indexes = prop.getAllIndexesInternal(ctx.getDatabase());
       for (Index index : indexes) {
         if (SchemaClass.INDEX_TYPE.FULLTEXT.name().equalsIgnoreCase(index.getType())
             && !index.getAlgorithm().equalsIgnoreCase("LUCENE")) {

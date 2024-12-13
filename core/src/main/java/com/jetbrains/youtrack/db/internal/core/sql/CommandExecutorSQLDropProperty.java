@@ -19,14 +19,15 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.common.comparator.CaseInsentiveComparator;
 import com.jetbrains.youtrack.db.internal.common.util.Collections;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import java.util.ArrayList;
@@ -126,8 +127,8 @@ public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
     }
 
     final var database = getDatabase();
-    final SchemaClassImpl sourceClass =
-        (SchemaClassImpl) database.getMetadata().getSchema().getClass(className);
+    var sourceClass =
+        (SchemaClassImpl) database.getMetadata().getSchemaInternal().getClassInternal(className);
     if (sourceClass == null) {
       throw new CommandExecutionException("Source class '" + className + "' not found");
     }
@@ -144,7 +145,7 @@ public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
         final StringBuilder indexNames = new StringBuilder();
 
         boolean first = true;
-        for (final Index index : sourceClass.getClassInvolvedIndexes(database, fieldName)) {
+        for (final Index index : sourceClass.getClassInvolvedIndexesInternal(database, fieldName)) {
           if (!first) {
             indexNames.append(", ");
           } else {

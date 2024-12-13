@@ -20,11 +20,11 @@ package com.jetbrains.youtrack.db.internal.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import java.util.Map;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,15 +48,16 @@ public class LuceneCreateJavaApiTest extends LuceneBaseTest {
 
     SchemaClass song = schema.getClass("Song");
 
-    EntityImpl meta = new EntityImpl().field("analyzer", StandardAnalyzer.class.getName());
-    Index lucene =
-        song.createIndex(db,
-            "Song.title",
-            SchemaClass.INDEX_TYPE.FULLTEXT.toString(),
-            null,
-            meta,
-            "LUCENE", new String[]{"title"});
+    var meta = Map.of("analyzer", StandardAnalyzer.class.getName());
 
+    song.createIndex(db,
+        "Song.title",
+        SchemaClass.INDEX_TYPE.FULLTEXT.toString(),
+        null,
+        meta,
+        "LUCENE", new String[]{"title"});
+
+    Index lucene = db.getIndex("Song.title");
     assertThat(lucene).isNotNull();
 
     assertThat(lucene.getMetadata().containsKey("analyzer")).isTrue();
@@ -68,17 +69,16 @@ public class LuceneCreateJavaApiTest extends LuceneBaseTest {
   @Test
   public void testCreateIndexCompositeWithDefaultAnalyzer() {
     Schema schema = db.getMetadata().getSchema();
-
     SchemaClass song = schema.getClass("Song");
 
-    Index lucene =
-        song.createIndex(db,
-            "Song.author_description",
-            SchemaClass.INDEX_TYPE.FULLTEXT.toString(),
-            null,
-            null,
-            "LUCENE", new String[]{"author", "description"});
+    song.createIndex(db,
+        "Song.author_description",
+        SchemaClass.INDEX_TYPE.FULLTEXT.toString(),
+        null,
+        null,
+        "LUCENE", new String[]{"author", "description"});
 
+    Index lucene = db.getIndex("Song.author_description");
     assertThat(lucene).isNotNull();
 
     assertThat(lucene.getMetadata().containsKey("analyzer")).isTrue();

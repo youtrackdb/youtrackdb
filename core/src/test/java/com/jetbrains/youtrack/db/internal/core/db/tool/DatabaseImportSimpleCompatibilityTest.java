@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.db.tool;
 
+import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;

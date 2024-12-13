@@ -27,22 +27,23 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStep;
+import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStepInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.FetchFromIndexStep;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -142,8 +143,8 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     db.commit();
 
     db.command("CREATE class TestMultipleClusters").close();
-    db.command("alter class TestMultipleClusters addcluster testmultipleclusters1 ").close();
-    db.command("alter class TestMultipleClusters addcluster testmultipleclusters2 ").close();
+    db.command("alter class TestMultipleClusters add_cluster testmultipleclusters1 ").close();
+    db.command("alter class TestMultipleClusters add_cluster testmultipleclusters2 ").close();
 
     db.begin();
     db.command("insert into cluster:testmultipleclusters set name = 'aaa'").close();
@@ -386,7 +387,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   }
 
   private static Profiler getProfilerInstance() {
-    return YouTrackDBManager.instance().getProfiler();
+    return YouTrackDBEnginesManager.instance().getProfiler();
   }
 
   @Test

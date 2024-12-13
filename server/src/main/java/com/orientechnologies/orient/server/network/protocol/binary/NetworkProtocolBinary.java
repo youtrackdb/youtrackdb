@@ -30,22 +30,22 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.ErrorResponse;
 import com.jetbrains.youtrack.db.internal.common.concur.OfflineNodeException;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.LockException;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.ThreadInterruptedException;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.exception.ErrorCode;
 import com.jetbrains.youtrack.db.internal.common.exception.InvalidBinaryChunkException;
 import com.jetbrains.youtrack.db.internal.common.io.YTIOException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.CoreException;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.SecurityAccessException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
@@ -296,7 +296,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
       int clientTxId) {
     long timer;
 
-    timer = YouTrackDBManager.instance().getProfiler().startChrono();
+    timer = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
     LogManager.instance().debug(this, "Request id:" + clientTxId + " type:" + requestType);
 
     try {
@@ -436,7 +436,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
 
     } finally {
 
-      YouTrackDBManager.instance()
+      YouTrackDBEnginesManager.instance()
           .getProfiler()
           .stopChrono(
               "server.network.requests",
@@ -501,7 +501,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
     long timer = 0;
     try {
 
-      timer = YouTrackDBManager.instance().getProfiler().startChrono();
+      timer = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
       byte[] tokenBytes = channel.readBytes();
       connection = onBeforeOperationalRequest(connection, tokenBytes);
       LogManager.instance().debug(this, "Request id:" + clientTxId + " type:" + requestType);
@@ -532,7 +532,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
               requestType);
       sendShutdown();
     } finally {
-      YouTrackDBManager.instance()
+      YouTrackDBEnginesManager.instance()
           .getProfiler()
           .stopChrono(
               "server.network.requests",

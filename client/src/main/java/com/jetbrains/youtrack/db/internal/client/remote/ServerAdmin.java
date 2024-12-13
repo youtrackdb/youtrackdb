@@ -19,10 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.client.remote;
 
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTxInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigImpl;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.IOException;
@@ -201,8 +202,9 @@ public class ServerAdmin {
     } else {
       storageMode = DatabaseType.valueOf(iStorageMode.toUpperCase());
     }
-    YouTrackDBConfig config =
-        YouTrackDBConfig.builder().addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS, true)
+    YouTrackDBConfigImpl config =
+        (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
+            .addGlobalConfigurationParameter(GlobalConfiguration.CREATE_DEFAULT_USERS, true)
             .build();
     if (backupPath != null) {
       remote.restore(iDatabaseName, user, password, storageMode, backupPath, null);

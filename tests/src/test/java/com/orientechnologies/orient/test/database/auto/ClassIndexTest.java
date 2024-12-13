@@ -6,25 +6,26 @@ import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.IndexException;
 import com.jetbrains.youtrack.db.internal.core.index.PropertyIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.PropertyListIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.PropertyMapIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.PropertyRidBagIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.IndexException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.testng.Assert;
@@ -36,8 +37,8 @@ import org.testng.annotations.Test;
 @Test
 public class ClassIndexTest extends DocumentDBBaseTest {
 
-  private SchemaClass oClass;
-  private SchemaClass oSuperClass;
+  private SchemaClassInternal oClass;
+  private SchemaClassInternal oSuperClass;
 
   @Parameters(value = "remote")
   public ClassIndexTest(@Optional Boolean remote) {
@@ -48,10 +49,10 @@ public class ClassIndexTest extends DocumentDBBaseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = database.getMetadata().getSchemaInternal();
 
-    oClass = schema.createClass("ClassIndexTestClass");
-    oSuperClass = schema.createClass("ClassIndexTestSuperClass");
+    oClass = (SchemaClassInternal) schema.createClass("ClassIndexTestClass");
+    oSuperClass = (SchemaClassInternal) schema.createClass("ClassIndexTestSuperClass");
 
     oClass.createProperty(database, "fOne", PropertyType.INTEGER);
     oClass.createProperty(database, "fTwo", PropertyType.STRING);
@@ -90,23 +91,18 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testCreateOnePropertyIndexTest() {
-    final Index result =
-        oClass.createIndex(database,
-            "ClassIndexTestPropertyOne",
-            SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-            null,
-            new EntityImpl().fields("ignoreNullValues", true), new String[]{"fOne"});
-
-    assertEquals(result.getName(), "ClassIndexTestPropertyOne");
-    assertEquals(oClass.getClassIndex(database, "ClassIndexTestPropertyOne").getName(),
-        result.getName());
+    oClass.createIndex(database,
+        "ClassIndexTestPropertyOne",
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        null,
+        Map.of("ignoreNullValues", true), new String[]{"fOne"});
     assertEquals(
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getClassIndex(database, "ClassIndexTestClass", "ClassIndexTestPropertyOne")
             .getName(),
-        result.getName());
+        "ClassIndexTestPropertyOne");
   }
 
   @Test
@@ -116,7 +112,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "ClassIndex:TestPropertyOne",
           SchemaClass.INDEX_TYPE.UNIQUE.toString(),
           null,
-          new EntityImpl().fields("ignoreNullValues", true), new String[]{"fOne"});
+          Map.of("ignoreNullValues", true), new String[]{"fOne"});
       fail();
     } catch (Exception e) {
 
@@ -133,23 +129,19 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void createCompositeIndexTestWithoutListener() {
-    final Index result =
-        oClass.createIndex(database,
-            "ClassIndexTestCompositeOne",
-            SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-            null,
-            new EntityImpl().fields("ignoreNullValues", true), new String[]{"fOne", "fTwo"});
+    oClass.createIndex(database,
+        "ClassIndexTestCompositeOne",
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        null,
+        Map.of("ignoreNullValues", true), new String[]{"fOne", "fTwo"});
 
-    assertEquals(result.getName(), "ClassIndexTestCompositeOne");
-    assertEquals(oClass.getClassIndex(database, "ClassIndexTestCompositeOne").getName(),
-        result.getName());
     assertEquals(
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getClassIndex(database, "ClassIndexTestClass", "ClassIndexTestCompositeOne")
             .getName(),
-        result.getName());
+        "ClassIndexTestCompositeOne");
   }
 
   @Test
@@ -174,52 +166,46 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           }
         };
 
-    final Index result =
-        oClass.createIndex(database,
-            "ClassIndexTestCompositeTwo",
-            SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-            progressListener,
-            new EntityImpl().fields("ignoreNullValues", true),
-            new String[]{"fOne", "fTwo", "fThree"});
-
-    assertEquals(result.getName(), "ClassIndexTestCompositeTwo");
-    assertEquals(oClass.getClassIndex(database, "ClassIndexTestCompositeTwo").getName(),
-        result.getName());
+    oClass.createIndex(database,
+        "ClassIndexTestCompositeTwo",
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        progressListener,
+        Map.of("ignoreNullValues", true),
+        new String[]{"fOne", "fTwo", "fThree"});
     assertEquals(
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getClassIndex(database, "ClassIndexTestClass", "ClassIndexTestCompositeTwo")
             .getName(),
-        result.getName());
+        "ClassIndexTestCompositeTwo");
     assertEquals(atomicInteger.get(), 2);
   }
 
   @Test
   public void testCreateOnePropertyEmbeddedMapIndex() {
-    final Index result =
-        oClass.createIndex(database,
-            "ClassIndexTestPropertyEmbeddedMap",
-            SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-            null,
-            new EntityImpl().fields("ignoreNullValues", true), new String[]{"fEmbeddedMap"});
+    oClass.createIndex(database,
+        "ClassIndexTestPropertyEmbeddedMap",
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        null,
+        Map.of("ignoreNullValues", true), new String[]{"fEmbeddedMap"});
 
-    assertEquals(result.getName(), "ClassIndexTestPropertyEmbeddedMap");
     assertEquals(
         oClass.getClassIndex(database, "ClassIndexTestPropertyEmbeddedMap").getName(),
-        result.getName());
+        "ClassIndexTestPropertyEmbeddedMap");
     assertEquals(
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getClassIndex(database, "ClassIndexTestClass", "ClassIndexTestPropertyEmbeddedMap")
             .getName(),
-        result.getName());
+        "ClassIndexTestPropertyEmbeddedMap");
 
-    final IndexDefinition indexDefinition = result.getDefinition();
+    final IndexDefinition indexDefinition = database.getIndex("ClassIndexTestPropertyEmbeddedMap")
+        .getDefinition();
 
     assertTrue(indexDefinition instanceof PropertyMapIndexDefinition);
-    assertEquals(indexDefinition.getFields().get(0), "fEmbeddedMap");
+    assertEquals(indexDefinition.getFields().getFirst(), "fEmbeddedMap");
     assertEquals(indexDefinition.getTypes()[0], PropertyType.STRING);
     assertEquals(
         ((PropertyMapIndexDefinition) indexDefinition).getIndexBy(),
@@ -228,27 +214,23 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testCreateCompositeEmbeddedMapIndex() {
-    final Index result =
-        oClass.createIndex(database,
-            "ClassIndexTestCompositeEmbeddedMap",
-            SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-            null,
-            new EntityImpl().fields("ignoreNullValues", true),
-            new String[]{"fFifteen", "fEmbeddedMap"});
+    oClass.createIndex(database,
+        "ClassIndexTestCompositeEmbeddedMap",
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        null,
+        Map.of("ignoreNullValues", true),
+        new String[]{"fFifteen", "fEmbeddedMap"});
 
-    assertEquals(result.getName(), "ClassIndexTestCompositeEmbeddedMap");
-    assertEquals(
-        oClass.getClassIndex(database, "ClassIndexTestCompositeEmbeddedMap").getName(),
-        result.getName());
     assertEquals(
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getClassIndex(database, "ClassIndexTestClass", "ClassIndexTestCompositeEmbeddedMap")
             .getName(),
-        result.getName());
+        "ClassIndexTestCompositeEmbeddedMap");
 
-    final IndexDefinition indexDefinition = result.getDefinition();
+    final IndexDefinition indexDefinition = database.getIndex("ClassIndexTestCompositeEmbeddedMap")
+        .getDefinition();
 
     assertTrue(indexDefinition instanceof CompositeIndexDefinition);
     assertEquals(indexDefinition.getFields().toArray(), new String[]{"fFifteen", "fEmbeddedMap"});
@@ -260,18 +242,16 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testCreateCompositeEmbeddedMapByKeyIndex() {
-    final Index result =
-        oClass.createIndex(database,
-            "ClassIndexTestCompositeEmbeddedMapByKey",
-            SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-            null,
-            new EntityImpl().fields("ignoreNullValues", true),
-            new String[]{"fEight", "fEmbeddedMap"});
+    oClass.createIndex(database,
+        "ClassIndexTestCompositeEmbeddedMapByKey",
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        null,
+        Map.of("ignoreNullValues", true),
+        new String[]{"fEight", "fEmbeddedMap"});
 
-    assertEquals(result.getName(), "ClassIndexTestCompositeEmbeddedMapByKey");
     assertEquals(
         oClass.getClassIndex(database, "ClassIndexTestCompositeEmbeddedMapByKey").getName(),
-        result.getName());
+        "ClassIndexTestCompositeEmbeddedMapByKey");
     assertEquals(
         database
             .getMetadata()
@@ -279,9 +259,10 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             .getClassIndex(
                 database, "ClassIndexTestClass", "ClassIndexTestCompositeEmbeddedMapByKey")
             .getName(),
-        result.getName());
+        "ClassIndexTestCompositeEmbeddedMapByKey");
 
-    final IndexDefinition indexDefinition = result.getDefinition();
+    final IndexDefinition indexDefinition = database.getIndex(
+        "ClassIndexTestCompositeEmbeddedMapByKey").getDefinition();
 
     assertTrue(indexDefinition instanceof CompositeIndexDefinition);
     assertEquals(indexDefinition.getFields().toArray(), new String[]{"fEight", "fEmbeddedMap"});
@@ -293,18 +274,16 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testCreateCompositeEmbeddedMapByValueIndex() {
-    final Index result =
-        oClass.createIndex(database,
-            "ClassIndexTestCompositeEmbeddedMapByValue",
-            SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-            null,
-            new EntityImpl().fields("ignoreNullValues", true),
-            new String[]{"fTen", "fEmbeddedMap by value"});
+    oClass.createIndex(database,
+        "ClassIndexTestCompositeEmbeddedMapByValue",
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        null,
+        Map.of("ignoreNullValues", true),
+        new String[]{"fTen", "fEmbeddedMap by value"});
 
-    assertEquals(result.getName(), "ClassIndexTestCompositeEmbeddedMapByValue");
     assertEquals(
         oClass.getClassIndex(database, "ClassIndexTestCompositeEmbeddedMapByValue").getName(),
-        result.getName());
+        "ClassIndexTestCompositeEmbeddedMapByValue");
     assertEquals(
         database
             .getMetadata()
@@ -312,9 +291,10 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             .getClassIndex(
                 database, "ClassIndexTestClass", "ClassIndexTestCompositeEmbeddedMapByValue")
             .getName(),
-        result.getName());
+        "ClassIndexTestCompositeEmbeddedMapByValue");
 
-    final IndexDefinition indexDefinition = result.getDefinition();
+    final IndexDefinition indexDefinition = database.getIndex(
+        "ClassIndexTestCompositeEmbeddedMapByValue").getDefinition();
 
     assertTrue(indexDefinition instanceof CompositeIndexDefinition);
     assertEquals(indexDefinition.getFields().toArray(), new String[]{"fTen", "fEmbeddedMap"});
@@ -326,27 +306,26 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testCreateCompositeLinkMapByValueIndex() {
-    final Index result =
-        oClass.createIndex(database,
-            "ClassIndexTestCompositeLinkMapByValue",
-            SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-            null,
-            new EntityImpl().fields("ignoreNullValues", true),
-            new String[]{"fEleven", "fLinkMap by value"});
+    oClass.createIndex(database,
+        "ClassIndexTestCompositeLinkMapByValue",
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        null,
+        Map.of("ignoreNullValues", true),
+        new String[]{"fEleven", "fLinkMap by value"});
 
-    assertEquals(result.getName(), "ClassIndexTestCompositeLinkMapByValue");
     assertEquals(
         oClass.getClassIndex(database, "ClassIndexTestCompositeLinkMapByValue").getName(),
-        result.getName());
+        "ClassIndexTestCompositeLinkMapByValue");
     assertEquals(
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getClassIndex(database, "ClassIndexTestClass", "ClassIndexTestCompositeLinkMapByValue")
             .getName(),
-        result.getName());
+        "ClassIndexTestCompositeLinkMapByValue");
 
-    final IndexDefinition indexDefinition = result.getDefinition();
+    final IndexDefinition indexDefinition = database.getIndex(
+        "ClassIndexTestCompositeLinkMapByValue").getDefinition();
 
     assertTrue(indexDefinition instanceof CompositeIndexDefinition);
     assertEquals(indexDefinition.getFields().toArray(), new String[]{"fEleven", "fLinkMap"});
@@ -358,27 +337,26 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testCreateCompositeEmbeddedSetIndex() {
-    final Index result =
-        oClass.createIndex(database,
-            "ClassIndexTestCompositeEmbeddedSet",
-            SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-            null,
-            new EntityImpl().fields("ignoreNullValues", true),
-            new String[]{"fTwelve", "fEmbeddedSet"});
+    oClass.createIndex(database,
+        "ClassIndexTestCompositeEmbeddedSet",
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        null,
+        Map.of("ignoreNullValues", true),
+        new String[]{"fTwelve", "fEmbeddedSet"});
 
-    assertEquals(result.getName(), "ClassIndexTestCompositeEmbeddedSet");
     assertEquals(
         oClass.getClassIndex(database, "ClassIndexTestCompositeEmbeddedSet").getName(),
-        result.getName());
+        "ClassIndexTestCompositeEmbeddedSet");
     assertEquals(
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getClassIndex(database, "ClassIndexTestClass", "ClassIndexTestCompositeEmbeddedSet")
             .getName(),
-        result.getName());
+        "ClassIndexTestCompositeEmbeddedSet");
 
-    final IndexDefinition indexDefinition = result.getDefinition();
+    final IndexDefinition indexDefinition = database.getIndex("ClassIndexTestCompositeEmbeddedSet")
+        .getDefinition();
 
     assertTrue(indexDefinition instanceof CompositeIndexDefinition);
     assertEquals(indexDefinition.getFields().toArray(), new String[]{"fTwelve", "fEmbeddedSet"});
@@ -390,27 +368,27 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testGetIndexes")
   public void testCreateCompositeLinkSetIndex() {
-    final Index result =
-        oClass.createIndex(database,
-            "ClassIndexTestCompositeLinkSet",
-            SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-            null,
-            new EntityImpl().fields("ignoreNullValues", true),
-            new String[]{"fTwelve", "fLinkSet"});
+    var indexName = "ClassIndexTestCompositeLinkSet";
+    oClass.createIndex(database,
+        "ClassIndexTestCompositeLinkSet",
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        null,
+        Map.of("ignoreNullValues", true),
+        new String[]{"fTwelve", "fLinkSet"});
 
-    assertEquals(result.getName(), "ClassIndexTestCompositeLinkSet");
     assertEquals(
         oClass.getClassIndex(database, "ClassIndexTestCompositeLinkSet").getName(),
-        result.getName());
+        indexName);
     assertEquals(
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getClassIndex(database, "ClassIndexTestClass", "ClassIndexTestCompositeLinkSet")
             .getName(),
-        result.getName());
+        indexName);
 
-    final IndexDefinition indexDefinition = result.getDefinition();
+    final IndexDefinition indexDefinition = database.getIndex(indexName)
+        .getDefinition();
 
     assertTrue(indexDefinition instanceof CompositeIndexDefinition);
     assertEquals(indexDefinition.getFields().toArray(), new String[]{"fTwelve", "fLinkSet"});
@@ -422,27 +400,27 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testCreateCompositeEmbeddedListIndex() {
-    final Index result =
-        oClass.createIndex(database,
-            "ClassIndexTestCompositeEmbeddedList",
-            SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-            null,
-            new EntityImpl().fields("ignoreNullValues", true),
-            new String[]{"fThirteen", "fEmbeddedList"});
+    String indexName = "ClassIndexTestCompositeEmbeddedList";
+    oClass.createIndex(database,
+        indexName,
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        null,
+        Map.of("ignoreNullValues", true),
+        new String[]{"fThirteen", "fEmbeddedList"});
 
-    assertEquals(result.getName(), "ClassIndexTestCompositeEmbeddedList");
     assertEquals(
-        oClass.getClassIndex(database, "ClassIndexTestCompositeEmbeddedList").getName(),
-        result.getName());
+        oClass.getClassIndex(database, indexName).getName(),
+        indexName);
     assertEquals(
         database
             .getMetadata()
             .getIndexManagerInternal()
-            .getClassIndex(database, "ClassIndexTestClass", "ClassIndexTestCompositeEmbeddedList")
+            .getClassIndex(database, "ClassIndexTestClass", indexName)
             .getName(),
-        result.getName());
+        indexName);
 
-    final IndexDefinition indexDefinition = result.getDefinition();
+    final IndexDefinition indexDefinition = database.getIndex(indexName)
+        .getDefinition();
 
     assertTrue(indexDefinition instanceof CompositeIndexDefinition);
     assertEquals(
@@ -454,27 +432,26 @@ public class ClassIndexTest extends DocumentDBBaseTest {
   }
 
   public void testCreateCompositeLinkListIndex() {
-    final Index result =
-        oClass.createIndex(database,
-            "ClassIndexTestCompositeLinkList",
-            SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-            null,
-            new EntityImpl().fields("ignoreNullValues", true),
-            new String[]{"fFourteen", "fLinkList"});
+    String indexName = "ClassIndexTestCompositeLinkList";
+    oClass.createIndex(database,
+        indexName,
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        null,
+        Map.of("ignoreNullValues", true),
+        new String[]{"fFourteen", "fLinkList"});
 
-    assertEquals(result.getName(), "ClassIndexTestCompositeLinkList");
     assertEquals(
-        oClass.getClassIndex(database, "ClassIndexTestCompositeLinkList").getName(),
-        result.getName());
+        oClass.getClassIndex(database, indexName).getName(),
+        indexName);
     assertEquals(
         database
             .getMetadata()
             .getIndexManagerInternal()
-            .getClassIndex(database, "ClassIndexTestClass", "ClassIndexTestCompositeLinkList")
+            .getClassIndex(database, "ClassIndexTestClass", indexName)
             .getName(),
-        result.getName());
+        indexName);
 
-    final IndexDefinition indexDefinition = result.getDefinition();
+    final IndexDefinition indexDefinition = database.getIndex(indexName).getDefinition();
 
     assertTrue(indexDefinition instanceof CompositeIndexDefinition);
     assertEquals(indexDefinition.getFields().toArray(), new String[]{"fFourteen", "fLinkList"});
@@ -485,26 +462,25 @@ public class ClassIndexTest extends DocumentDBBaseTest {
   }
 
   public void testCreateCompositeRidBagIndex() {
-    final Index result =
-        oClass.createIndex(database,
-            "ClassIndexTestCompositeRidBag",
-            SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-            null,
-            new EntityImpl().fields("ignoreNullValues", true),
-            new String[]{"fFourteen", "fRidBag"});
+    String indexName = "ClassIndexTestCompositeRidBag";
+    oClass.createIndex(database,
+        indexName,
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        null,
+        Map.of("ignoreNullValues", true),
+        new String[]{"fFourteen", "fRidBag"});
 
-    assertEquals(result.getName(), "ClassIndexTestCompositeRidBag");
-    assertEquals(oClass.getClassIndex(database, "ClassIndexTestCompositeRidBag").getName(),
-        result.getName());
+    assertEquals(oClass.getClassIndex(database, indexName).getName(),
+        indexName);
     assertEquals(
         database
             .getMetadata()
             .getIndexManagerInternal()
-            .getClassIndex(database, "ClassIndexTestClass", "ClassIndexTestCompositeRidBag")
+            .getClassIndex(database, "ClassIndexTestClass", indexName)
             .getName(),
-        result.getName());
+        indexName);
 
-    final IndexDefinition indexDefinition = result.getDefinition();
+    final IndexDefinition indexDefinition = database.getIndex(indexName).getDefinition();
 
     assertTrue(indexDefinition instanceof CompositeIndexDefinition);
     assertEquals(indexDefinition.getFields().toArray(), new String[]{"fFourteen", "fRidBag"});
@@ -516,29 +492,28 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testCreateOnePropertyLinkedMapIndex() {
-    final Index result =
-        oClass.createIndex(database,
-            "ClassIndexTestPropertyLinkedMap",
-            SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-            null,
-            new EntityImpl().fields("ignoreNullValues", true), new String[]{"fLinkMap"});
+    String indexName = "ClassIndexTestPropertyLinkedMap";
+    oClass.createIndex(database,
+        indexName,
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        null,
+        Map.of("ignoreNullValues", true), new String[]{"fLinkMap"});
 
-    assertEquals(result.getName(), "ClassIndexTestPropertyLinkedMap");
     assertEquals(
-        oClass.getClassIndex(database, "ClassIndexTestPropertyLinkedMap").getName(),
-        result.getName());
+        oClass.getClassIndex(database, indexName).getName(),
+        indexName);
     assertEquals(
         database
             .getMetadata()
             .getIndexManagerInternal()
-            .getClassIndex(database, "ClassIndexTestClass", "ClassIndexTestPropertyLinkedMap")
+            .getClassIndex(database, "ClassIndexTestClass", indexName)
             .getName(),
-        result.getName());
+        indexName);
 
-    final IndexDefinition indexDefinition = result.getDefinition();
+    final IndexDefinition indexDefinition = database.getIndex(indexName).getDefinition();
 
     assertTrue(indexDefinition instanceof PropertyMapIndexDefinition);
-    assertEquals(indexDefinition.getFields().get(0), "fLinkMap");
+    assertEquals(indexDefinition.getFields().getFirst(), "fLinkMap");
     assertEquals(indexDefinition.getTypes()[0], PropertyType.STRING);
     assertEquals(
         ((PropertyMapIndexDefinition) indexDefinition).getIndexBy(),
@@ -547,29 +522,28 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testCreateOnePropertyLinkMapByKeyIndex() {
-    final Index result =
-        oClass.createIndex(database,
-            "ClassIndexTestPropertyLinkedMapByKey",
-            SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-            null,
-            new EntityImpl().fields("ignoreNullValues", true), new String[]{"fLinkMap by key"});
+    String indexName = "ClassIndexTestPropertyLinkedMapByKey";
+    oClass.createIndex(database,
+        indexName,
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        null,
+        Map.of("ignoreNullValues", true), new String[]{"fLinkMap by key"});
 
-    assertEquals(result.getName(), "ClassIndexTestPropertyLinkedMapByKey");
     assertEquals(
-        oClass.getClassIndex(database, "ClassIndexTestPropertyLinkedMapByKey").getName(),
-        result.getName());
+        oClass.getClassIndex(database, indexName).getName(),
+        indexName);
     assertEquals(
         database
             .getMetadata()
             .getIndexManagerInternal()
-            .getClassIndex(database, "ClassIndexTestClass", "ClassIndexTestPropertyLinkedMapByKey")
+            .getClassIndex(database, "ClassIndexTestClass", indexName)
             .getName(),
-        result.getName());
+        indexName);
 
-    final IndexDefinition indexDefinition = result.getDefinition();
+    final IndexDefinition indexDefinition = database.getIndex(indexName).getDefinition();
 
     assertTrue(indexDefinition instanceof PropertyMapIndexDefinition);
-    assertEquals(indexDefinition.getFields().get(0), "fLinkMap");
+    assertEquals(indexDefinition.getFields().getFirst(), "fLinkMap");
     assertEquals(indexDefinition.getTypes()[0], PropertyType.STRING);
     assertEquals(
         ((PropertyMapIndexDefinition) indexDefinition).getIndexBy(),
@@ -578,30 +552,29 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testCreateOnePropertyLinkMapByValueIndex() {
-    final Index result =
-        oClass.createIndex(database,
-            "ClassIndexTestPropertyLinkedMapByValue",
-            SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-            null,
-            new EntityImpl().fields("ignoreNullValues", true), new String[]{"fLinkMap by value"});
+    String indexName = "ClassIndexTestPropertyLinkedMapByValue";
+    oClass.createIndex(database,
+        indexName,
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        null,
+        Map.of("ignoreNullValues", true), new String[]{"fLinkMap by value"});
 
-    assertEquals(result.getName(), "ClassIndexTestPropertyLinkedMapByValue");
     assertEquals(
-        oClass.getClassIndex(database, "ClassIndexTestPropertyLinkedMapByValue").getName(),
-        result.getName());
+        oClass.getClassIndex(database, indexName).getName(),
+        indexName);
     assertEquals(
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getClassIndex(
-                database, "ClassIndexTestClass", "ClassIndexTestPropertyLinkedMapByValue")
+                database, "ClassIndexTestClass", indexName)
             .getName(),
-        result.getName());
+        indexName);
 
-    final IndexDefinition indexDefinition = result.getDefinition();
+    final IndexDefinition indexDefinition = database.getIndex(indexName).getDefinition();
 
     assertTrue(indexDefinition instanceof PropertyMapIndexDefinition);
-    assertEquals(indexDefinition.getFields().get(0), "fLinkMap");
+    assertEquals(indexDefinition.getFields().getFirst(), "fLinkMap");
     assertEquals(indexDefinition.getTypes()[0], PropertyType.LINK);
     assertEquals(
         ((PropertyMapIndexDefinition) indexDefinition).getIndexBy(),
@@ -610,31 +583,30 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testCreateOnePropertyByKeyEmbeddedMapIndex() {
-    final Index result =
-        oClass.createIndex(database,
-            "ClassIndexTestPropertyByKeyEmbeddedMap",
-            SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-            null,
-            new EntityImpl().fields("ignoreNullValues", true),
-            new String[]{"fEmbeddedMap by key"});
+    String indexName = "ClassIndexTestPropertyByKeyEmbeddedMap";
+    oClass.createIndex(database,
+        indexName,
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        null,
+        Map.of("ignoreNullValues", true),
+        new String[]{"fEmbeddedMap by key"});
 
-    assertEquals(result.getName(), "ClassIndexTestPropertyByKeyEmbeddedMap");
     assertEquals(
-        oClass.getClassIndex(database, "ClassIndexTestPropertyByKeyEmbeddedMap").getName(),
-        result.getName());
+        oClass.getClassIndex(database, indexName).getName(),
+        indexName);
     assertEquals(
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getClassIndex(
-                database, "ClassIndexTestClass", "ClassIndexTestPropertyByKeyEmbeddedMap")
+                database, "ClassIndexTestClass", indexName)
             .getName(),
-        result.getName());
+        indexName);
 
-    final IndexDefinition indexDefinition = result.getDefinition();
+    final IndexDefinition indexDefinition = database.getIndex(indexName).getDefinition();
 
     assertTrue(indexDefinition instanceof PropertyMapIndexDefinition);
-    assertEquals(indexDefinition.getFields().get(0), "fEmbeddedMap");
+    assertEquals(indexDefinition.getFields().getFirst(), "fEmbeddedMap");
     assertEquals(indexDefinition.getTypes()[0], PropertyType.STRING);
     assertEquals(
         ((PropertyMapIndexDefinition) indexDefinition).getIndexBy(),
@@ -643,31 +615,30 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testCreateOnePropertyByValueEmbeddedMapIndex() {
-    final Index result =
-        oClass.createIndex(database,
-            "ClassIndexTestPropertyByValueEmbeddedMap",
-            SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-            null,
-            new EntityImpl().fields("ignoreNullValues", true),
-            new String[]{"fEmbeddedMap by value"});
+    String indexName = "ClassIndexTestPropertyByValueEmbeddedMap";
+    oClass.createIndex(database,
+        indexName,
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        null,
+        Map.of("ignoreNullValues", true),
+        new String[]{"fEmbeddedMap by value"});
 
-    assertEquals(result.getName(), "ClassIndexTestPropertyByValueEmbeddedMap");
     assertEquals(
-        oClass.getClassIndex(database, "ClassIndexTestPropertyByValueEmbeddedMap").getName(),
-        result.getName());
+        oClass.getClassIndex(database, indexName).getName(),
+        indexName);
     assertEquals(
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getClassIndex(
-                database, "ClassIndexTestClass", "ClassIndexTestPropertyByValueEmbeddedMap")
+                database, "ClassIndexTestClass", indexName)
             .getName(),
-        result.getName());
+        indexName);
 
-    final IndexDefinition indexDefinition = result.getDefinition();
+    final IndexDefinition indexDefinition = database.getIndex(indexName).getDefinition();
 
     assertTrue(indexDefinition instanceof PropertyMapIndexDefinition);
-    assertEquals(indexDefinition.getFields().get(0), "fEmbeddedMap");
+    assertEquals(indexDefinition.getFields().getFirst(), "fEmbeddedMap");
     assertEquals(indexDefinition.getTypes()[0], PropertyType.INTEGER);
     assertEquals(
         ((PropertyMapIndexDefinition) indexDefinition).getIndexBy(),
@@ -682,7 +653,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "ClassIndexTestPropertyWrongSpecifierEmbeddedMap",
           SchemaClass.INDEX_TYPE.UNIQUE.toString(),
           null,
-          new EntityImpl().fields("ignoreNullValues", true), new String[]{"fEmbeddedMap by ttt"});
+          Map.of("ignoreNullValues", true), new String[]{"fEmbeddedMap by ttt"});
     } catch (Exception e) {
       Assert.assertTrue(e instanceof IllegalArgumentException);
       exceptionIsThrown = true;
@@ -704,7 +675,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "ClassIndexTestPropertyWrongSpecifierEmbeddedMap",
           SchemaClass.INDEX_TYPE.UNIQUE.toString(),
           null,
-          new EntityImpl().fields("ignoreNullValues", true),
+          Map.of("ignoreNullValues", true),
           new String[]{"fEmbeddedMap b value"});
     } catch (IndexException e) {
       exceptionIsThrown = true;
@@ -722,7 +693,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "ClassIndexTestPropertyWrongSpecifierEmbeddedMap",
           SchemaClass.INDEX_TYPE.UNIQUE.toString(),
           null,
-          new EntityImpl().fields("ignoreNullValues", true),
+          Map.of("ignoreNullValues", true),
           new String[]{"fEmbeddedMap by value t"});
     } catch (IndexException e) {
       exceptionIsThrown = true;
@@ -1186,7 +1157,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetClassInvolvedIndexesOnePropertyArrayParams() {
-    final Set<Index> result = oClass.getClassInvolvedIndexes(database, "fOne");
+    final Set<Index> result = oClass.getClassInvolvedIndexesInternal(database, "fOne");
 
     assertEquals(result.size(), 1);
 
@@ -1212,7 +1183,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetClassInvolvedIndexesTwoPropertiesArrayParams() {
-    final Set<Index> result = oClass.getClassInvolvedIndexes(database, "fTwo", "fOne");
+    final Set<Index> result = oClass.getClassInvolvedIndexesInternal(database, "fTwo", "fOne");
     assertEquals(result.size(), 1);
 
     assertTrue(containsIndex(result, "ClassIndexTestCompositeOne"));
@@ -1237,7 +1208,8 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetClassInvolvedIndexesThreePropertiesArrayParams() {
-    final Set<Index> result = oClass.getClassInvolvedIndexes(database, "fTwo", "fOne", "fThree");
+    final Set<Index> result = oClass.getClassInvolvedIndexesInternal(database, "fTwo", "fOne",
+        "fThree");
 
     assertEquals(result.size(), 1);
     assertEquals(result.iterator().next().getName(), "ClassIndexTestCompositeTwo");
@@ -1262,7 +1234,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetClassInvolvedIndexesNotInvolvedPropertiesArrayParams() {
-    final Set<Index> result = oClass.getClassInvolvedIndexes(database, "fTwo", "fFour");
+    final Set<Index> result = oClass.getClassInvolvedIndexesInternal(database, "fTwo", "fFour");
 
     assertEquals(result.size(), 0);
   }
@@ -1286,7 +1258,8 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetClassInvolvedIndexesPropertiesMorThanNeededArrayParams() {
-    final Set<Index> result = oClass.getClassInvolvedIndexes(database, "fTwo", "fOne", "fThee",
+    final Set<Index> result = oClass.getClassInvolvedIndexesInternal(database, "fTwo", "fOne",
+        "fThee",
         "fFour");
 
     assertEquals(result.size(), 0);
@@ -1312,7 +1285,8 @@ public class ClassIndexTest extends DocumentDBBaseTest {
       })
   public void testGetInvolvedIndexesPropertiesMorThanNeeded() {
     final Set<Index> result =
-        oClass.getClassInvolvedIndexes(database, Arrays.asList("fTwo", "fOne", "fThee", "fFour"));
+        oClass.getClassInvolvedIndexesInternal(database,
+            Arrays.asList("fTwo", "fOne", "fThee", "fFour"));
 
     assertEquals(result.size(), 0);
   }
@@ -1336,7 +1310,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetClassInvolvedIndexesOneProperty() {
-    final Set<Index> result = oClass.getClassInvolvedIndexes(database, List.of("fOne"));
+    final Set<Index> result = oClass.getClassInvolvedIndexesInternal(database, List.of("fOne"));
 
     assertEquals(result.size(), 1);
 
@@ -1362,7 +1336,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetClassInvolvedIndexesTwoProperties() {
-    final Set<Index> result = oClass.getClassInvolvedIndexes(database,
+    final Set<Index> result = oClass.getClassInvolvedIndexesInternal(database,
         Arrays.asList("fTwo", "fOne"));
     assertEquals(result.size(), 1);
 
@@ -1389,7 +1363,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
       })
   public void testGetClassInvolvedIndexesThreeProperties() {
     final Set<Index> result =
-        oClass.getClassInvolvedIndexes(database, Arrays.asList("fTwo", "fOne", "fThree"));
+        oClass.getClassInvolvedIndexesInternal(database, Arrays.asList("fTwo", "fOne", "fThree"));
 
     assertEquals(result.size(), 1);
     assertEquals(result.iterator().next().getName(), "ClassIndexTestCompositeTwo");
@@ -1414,7 +1388,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetClassInvolvedIndexesNotInvolvedProperties() {
-    final Set<Index> result = oClass.getClassInvolvedIndexes(database,
+    final Set<Index> result = oClass.getClassInvolvedIndexesInternal(database,
         Arrays.asList("fTwo", "fFour"));
 
     assertEquals(result.size(), 0);
@@ -1440,7 +1414,8 @@ public class ClassIndexTest extends DocumentDBBaseTest {
       })
   public void testGetClassInvolvedIndexesPropertiesMorThanNeeded() {
     final Set<Index> result =
-        oClass.getClassInvolvedIndexes(database, Arrays.asList("fTwo", "fOne", "fThee", "fFour"));
+        oClass.getClassInvolvedIndexesInternal(database,
+            Arrays.asList("fTwo", "fOne", "fThee", "fFour"));
 
     assertEquals(result.size(), 0);
   }
@@ -1464,7 +1439,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetInvolvedIndexesOnePropertyArrayParams() {
-    final Set<Index> result = oClass.getInvolvedIndexes(database, "fOne");
+    final Set<Index> result = oClass.getInvolvedIndexesInternal(database, "fOne");
 
     assertEquals(result.size(), 1);
 
@@ -1490,7 +1465,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetInvolvedIndexesTwoPropertiesArrayParams() {
-    final Set<Index> result = oClass.getInvolvedIndexes(database, "fTwo", "fOne");
+    final Set<Index> result = oClass.getInvolvedIndexesInternal(database, "fTwo", "fOne");
     assertEquals(result.size(), 1);
 
     assertTrue(containsIndex(result, "ClassIndexTestCompositeOne"));
@@ -1515,7 +1490,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetInvolvedIndexesThreePropertiesArrayParams() {
-    final Set<Index> result = oClass.getInvolvedIndexes(database, "fTwo", "fOne", "fThree");
+    final Set<Index> result = oClass.getInvolvedIndexesInternal(database, "fTwo", "fOne", "fThree");
 
     assertEquals(result.size(), 1);
     assertEquals(result.iterator().next().getName(), "ClassIndexTestCompositeTwo");
@@ -1540,7 +1515,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetInvolvedIndexesNotInvolvedPropertiesArrayParams() {
-    final Set<Index> result = oClass.getInvolvedIndexes(database, "fTwo", "fFour");
+    final Set<Index> result = oClass.getInvolvedIndexesInternal(database, "fTwo", "fFour");
 
     assertEquals(result.size(), 0);
   }
@@ -1564,7 +1539,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetParentInvolvedIndexesArrayParams() {
-    final Set<Index> result = oClass.getInvolvedIndexes(database, "fNine");
+    final Set<Index> result = oClass.getInvolvedIndexesInternal(database, "fNine");
 
     assertEquals(result.size(), 1);
     assertEquals(result.iterator().next().getName(), "ClassIndexTestParentPropertyNine");
@@ -1589,7 +1564,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetParentChildInvolvedIndexesArrayParams() {
-    final Set<Index> result = oClass.getInvolvedIndexes(database, "fOne", "fNine");
+    final Set<Index> result = oClass.getInvolvedIndexesInternal(database, "fOne", "fNine");
 
     assertEquals(result.size(), 0);
   }
@@ -1613,7 +1588,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetInvolvedIndexesOneProperty() {
-    final Set<Index> result = oClass.getInvolvedIndexes(database, List.of("fOne"));
+    final Set<Index> result = oClass.getInvolvedIndexesInternal(database, List.of("fOne"));
 
     assertEquals(result.size(), 1);
 
@@ -1639,7 +1614,8 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetInvolvedIndexesTwoProperties() {
-    final Set<Index> result = oClass.getInvolvedIndexes(database, Arrays.asList("fTwo", "fOne"));
+    final Set<Index> result = oClass.getInvolvedIndexesInternal(database,
+        Arrays.asList("fTwo", "fOne"));
     assertEquals(result.size(), 1);
 
     assertTrue(containsIndex(result, "ClassIndexTestCompositeOne"));
@@ -1664,7 +1640,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetInvolvedIndexesThreeProperties() {
-    final Set<Index> result = oClass.getInvolvedIndexes(database,
+    final Set<Index> result = oClass.getInvolvedIndexesInternal(database,
         Arrays.asList("fTwo", "fOne", "fThree"));
 
     assertEquals(result.size(), 1);
@@ -1690,7 +1666,8 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetInvolvedIndexesNotInvolvedProperties() {
-    final Set<Index> result = oClass.getInvolvedIndexes(database, Arrays.asList("fTwo", "fFour"));
+    final Set<Index> result = oClass.getInvolvedIndexesInternal(database,
+        Arrays.asList("fTwo", "fFour"));
 
     assertEquals(result.size(), 0);
   }
@@ -1714,7 +1691,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetParentInvolvedIndexes() {
-    final Set<Index> result = oClass.getInvolvedIndexes(database, List.of("fNine"));
+    final Set<Index> result = oClass.getInvolvedIndexesInternal(database, List.of("fNine"));
 
     assertEquals(result.size(), 1);
     assertEquals(result.iterator().next().getName(), "ClassIndexTestParentPropertyNine");
@@ -1739,7 +1716,8 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetParentChildInvolvedIndexes() {
-    final Set<Index> result = oClass.getInvolvedIndexes(database, Arrays.asList("fOne", "fNine"));
+    final Set<Index> result = oClass.getInvolvedIndexesInternal(database,
+        Arrays.asList("fOne", "fNine"));
 
     assertEquals(result.size(), 0);
   }
@@ -1765,7 +1743,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeRidBagIndex"
       })
   public void testGetClassIndexes() {
-    final Set<Index> indexes = oClass.getClassIndexes(database);
+    final Set<Index> indexes = oClass.getClassIndexesInternal(database);
     final Set<IndexDefinition> expectedIndexDefinitions = new HashSet<>();
 
     final CompositeIndexDefinition compositeIndexOne =
@@ -1943,7 +1921,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "testCreateCompositeRidBagIndex"
       })
   public void testGetIndexes() {
-    final Set<Index> indexes = oClass.getIndexes(database);
+    final Set<Index> indexes = oClass.getIndexesInternal(database);
     final Set<IndexDefinition> expectedIndexDefinitions = new HashSet<>();
 
     final CompositeIndexDefinition compositeIndexOne =
@@ -2105,21 +2083,21 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testGetIndexesWithoutParent() {
-    final SchemaClass inClass = database.getMetadata().getSchema().createClass("ClassIndexInTest");
+    final SchemaClassInternal inClass = (SchemaClassInternal) database.getMetadata().getSchema()
+        .createClass("ClassIndexInTest");
     inClass.createProperty(database, "fOne", PropertyType.INTEGER);
 
-    final Index result =
-        inClass.createIndex(database,
-            "ClassIndexInTestPropertyOne",
-            SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-            null,
-            new EntityImpl().fields("ignoreNullValues", true), new String[]{"fOne"});
+    String indexName = "ClassIndexInTestPropertyOne";
+    inClass.createIndex(database,
+        indexName,
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        null,
+        Map.of("ignoreNullValues", true), new String[]{"fOne"});
 
-    assertEquals(result.getName(), "ClassIndexInTestPropertyOne");
-    assertEquals(inClass.getClassIndex(database, "ClassIndexInTestPropertyOne").getName(),
-        result.getName());
+    assertEquals(inClass.getClassIndex(database, indexName).getName(),
+        indexName);
 
-    final Set<Index> indexes = inClass.getIndexes(database);
+    final Set<Index> indexes = inClass.getIndexesInternal(database);
     final PropertyIndexDefinition propertyIndexDefinition =
         new PropertyIndexDefinition("ClassIndexInTest", "fOne", PropertyType.INTEGER);
 
@@ -2139,7 +2117,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
         "ClassIndexTestCompositeFieldAbsent",
         SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new EntityImpl().fields("ignoreNullValues", true), new String[]{"fFive"});
+        Map.of("ignoreNullValues", true), new String[]{"fFive"});
   }
 
   @Test
@@ -2153,30 +2131,17 @@ public class ClassIndexTest extends DocumentDBBaseTest {
     }
   }
 
-  @Test(dependsOnMethods = "testGetInvolvedIndexesOnePropertyArrayParams")
-  public void testCreateDictionaryIndex() {
-    final Index result =
-        oClass.createIndex(database, "ClassIndexTestDictionaryIndex",
-            SchemaClass.INDEX_TYPE.DICTIONARY,
-            "fOne");
-
-    assertEquals(result.getName(), "ClassIndexTestDictionaryIndex");
-    assertEquals(oClass.getClassIndex(database, "ClassIndexTestDictionaryIndex").getName(),
-        result.getName());
-    assertEquals(result.getType(), SchemaClass.INDEX_TYPE.DICTIONARY.toString());
-  }
 
   @Test(dependsOnMethods = "testGetInvolvedIndexesOnePropertyArrayParams")
   public void testCreateNotUniqueIndex() {
-    final Index result =
-        oClass.createIndex(database, "ClassIndexTestNotUniqueIndex",
-            SchemaClass.INDEX_TYPE.NOTUNIQUE,
-            "fOne");
+    oClass.createIndex(database, "ClassIndexTestNotUniqueIndex",
+        SchemaClass.INDEX_TYPE.NOTUNIQUE,
+        "fOne");
 
-    assertEquals(result.getName(), "ClassIndexTestNotUniqueIndex");
     assertEquals(oClass.getClassIndex(database, "ClassIndexTestNotUniqueIndex").getName(),
-        result.getName());
-    assertEquals(result.getType(), SchemaClass.INDEX_TYPE.NOTUNIQUE.toString());
+        "ClassIndexTestNotUniqueIndex");
+    var index = database.getIndex("ClassIndexTestNotUniqueIndex");
+    assertEquals(index.getType(), SchemaClass.INDEX_TYPE.NOTUNIQUE.toString());
   }
 
   @Test
@@ -2196,20 +2161,18 @@ public class ClassIndexTest extends DocumentDBBaseTest {
   }
 
   public void createParentPropertyIndex() {
-    final Index result =
-        oSuperClass.createIndex(database,
-            "ClassIndexTestParentPropertyNine",
-            SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-            null,
-            new EntityImpl().fields("ignoreNullValues", true), new String[]{"fNine"});
+    oSuperClass.createIndex(database,
+        "ClassIndexTestParentPropertyNine",
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        null,
+        Map.of("ignoreNullValues", true), new String[]{"fNine"});
 
-    assertEquals(result.getName(), "ClassIndexTestParentPropertyNine");
     assertEquals(
         oSuperClass.getClassIndex(database, "ClassIndexTestParentPropertyNine").getName(),
-        result.getName());
+        "ClassIndexTestParentPropertyNine");
   }
 
-  private boolean containsIndex(
+  private static boolean containsIndex(
       final Collection<? extends Index> classIndexes, final String indexName) {
     for (final Index index : classIndexes) {
       if (index.getName().equals(indexName)) {

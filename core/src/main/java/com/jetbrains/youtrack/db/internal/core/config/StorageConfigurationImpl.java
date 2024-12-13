@@ -19,15 +19,17 @@
  */
 package com.jetbrains.youtrack.db.internal.core.config;
 
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategyFactory;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.id.ImmutableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
@@ -453,7 +455,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
       this.charset = read(values[index++]);
 
       final RecordConflictStrategyFactory conflictStrategyFactory =
-          YouTrackDBManager.instance().getRecordConflictStrategy();
+          YouTrackDBEnginesManager.instance().getRecordConflictStrategy();
       conflictStrategy = conflictStrategyFactory.getStrategy(read(values[index++])).getName();
 
       // @COMPATIBILITY
@@ -1287,7 +1289,8 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
         // @COMPATIBILITY 0.9.25
         int pos = fileName.indexOf("/databases");
         if (pos > -1) {
-          fileName = "${" + YouTrackDBManager.YOUTRACKDB_HOME + "}" + fileName.substring(pos);
+          fileName =
+              "${" + YouTrackDBEnginesManager.YOUTRACKDB_HOME + "}" + fileName.substring(pos);
         }
       }
 

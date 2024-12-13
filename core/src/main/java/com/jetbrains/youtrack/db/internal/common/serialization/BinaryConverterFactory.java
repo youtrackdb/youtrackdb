@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.common.serialization;
 
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 
 /**
  * @since 26.07.12

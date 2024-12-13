@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.security;
 
-import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
+import com.jetbrains.youtrack.db.api.exception.SecurityException;
 
 /**
  * An exception for invalid passwords.

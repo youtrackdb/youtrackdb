@@ -3,13 +3,13 @@ package com.jetbrains.youtrack.db.internal.core.storage.impl.local;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
@@ -17,15 +17,15 @@ import org.junit.Test;
 
 public class MetadataOnlyTest {
 
-  private YouTrackDB youTrackDb;
+  private YouTrackDBImpl youTrackDb;
 
   @Before
   public void before() {
     youTrackDb =
-        new YouTrackDB(
+        new YouTrackDBImpl(
             DbTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()
-                .addConfig(GlobalConfiguration.CLASS_MINIMUM_CLUSTERS, 1)
+                .addGlobalConfigurationParameter(GlobalConfiguration.CLASS_MINIMUM_CLUSTERS, 1)
                 .build());
     youTrackDb.execute(
         "create database testMetadataOnly plocal users (admin identified by 'admin' role admin)");

@@ -13,21 +13,19 @@
  */
 package com.orientechnologies.security.auditing;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.RecordHookAbstract;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
+import com.jetbrains.youtrack.db.api.session.SessionListener;
 import com.jetbrains.youtrack.db.internal.common.parser.VariableParser;
 import com.jetbrains.youtrack.db.internal.common.parser.VariableParserListener;
-import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
-import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.SystemDatabase;
-import com.jetbrains.youtrack.db.internal.core.hook.RecordHookAbstract;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.security.AuditingOperation;
@@ -45,7 +43,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Hook to audit database access.
  */
-public class AuditingHook extends RecordHookAbstract implements DatabaseListener {
+public class AuditingHook extends RecordHookAbstract implements SessionListener {
 
   private final Map<String, OAuditingClassConfig> classes =
       new HashMap<String, OAuditingClassConfig>(20);
@@ -255,18 +253,6 @@ public class AuditingHook extends RecordHookAbstract implements DatabaseListener
   }
 
   @Override
-  public void onCreate(DatabaseSession iDatabase) {
-  }
-
-  @Override
-  public void onDelete(DatabaseSession iDatabase) {
-  }
-
-  @Override
-  public void onOpen(DatabaseSession iDatabase) {
-  }
-
-  @Override
   public void onBeforeTxBegin(DatabaseSession iDatabase) {
   }
 
@@ -305,22 +291,6 @@ public class AuditingHook extends RecordHookAbstract implements DatabaseListener
   public void onClose(DatabaseSession iDatabase) {
   }
 
-  @Override
-  public void onBeforeCommand(CommandRequestText iCommand, CommandExecutor executor) {
-  }
-
-  @Override
-  public void onAfterCommand(
-      CommandRequestText iCommand, CommandExecutor executor, Object result) {
-    logCommand(iCommand.getText());
-  }
-
-  @Override
-  public boolean onCorruptionRepairDatabase(
-      DatabaseSession iDatabase, String iReason, String iWhatWillbeFixed) {
-    return false;
-  }
-
   public EntityImpl getConfiguration() {
     return iConfiguration;
   }
@@ -353,7 +323,7 @@ public class AuditingHook extends RecordHookAbstract implements DatabaseListener
       if (clazz.isOuser() && Arrays.asList(entity.getDirtyFields()).contains("password")) {
         String name = entity.getProperty("name");
         String message = String.format("The password for user '%s' has been changed", name);
-        log(db, AuditingOperation.CHANGED_PWD, db.getName(), db.getUser(), message);
+        log(db, AuditingOperation.CHANGED_PWD, db.getName(), db.geCurrentUser(), message);
       }
     }
     if (!onGlobalUpdate) {
@@ -390,7 +360,7 @@ public class AuditingHook extends RecordHookAbstract implements DatabaseListener
             createLogDocument(db
                 , AuditingOperation.COMMAND,
                 db.getName(),
-                db.getUser(), formatCommandNote(command, cfg.message));
+                db.geCurrentUser(), formatCommandNote(command, cfg.message));
         auditingQueue.offer(entity);
       }
     }
@@ -474,7 +444,8 @@ public class AuditingHook extends RecordHookAbstract implements DatabaseListener
     final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().get();
 
     final EntityImpl entity =
-        createLogDocument(db, operation, db.getName(), db.getUser(), formatNote(iRecord, note));
+        createLogDocument(db, operation, db.getName(), db.geCurrentUser(),
+            formatNote(iRecord, note));
     entity.field("record", iRecord.getIdentity());
     if (changes != null) {
       entity.field("changes", changes, PropertyType.EMBEDDED);
@@ -621,7 +592,7 @@ public class AuditingHook extends RecordHookAbstract implements DatabaseListener
   protected void logClass(final AuditingOperation operation, final String note) {
     final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().get();
 
-    final SecurityUser user = db.getUser();
+    final SecurityUser user = db.geCurrentUser();
 
     final EntityImpl entity = createLogDocument(db, operation, db.getName(), user, note);
 

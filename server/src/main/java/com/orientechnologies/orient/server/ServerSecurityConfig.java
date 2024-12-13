@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server;
 
 import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityConfig;
 import com.jetbrains.youtrack.db.internal.core.security.Syslog;
 import com.orientechnologies.orient.server.config.OServerConfigurationManager;

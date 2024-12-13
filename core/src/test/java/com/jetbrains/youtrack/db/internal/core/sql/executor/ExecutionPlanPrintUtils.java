@@ -1,5 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+
 /**
  *
  */

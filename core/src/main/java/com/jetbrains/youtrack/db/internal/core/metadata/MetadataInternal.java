@@ -16,10 +16,12 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata;
 
+import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManager;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Identity;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
@@ -52,6 +54,8 @@ public interface MetadataInternal extends Metadata {
   void clearThreadLocalSchemaSnapshot();
 
   ImmutableSchema getImmutableSchemaSnapshot();
+
+  SchemaInternal getSchemaInternal();
 
   IndexManagerAbstract getIndexManagerInternal();
 

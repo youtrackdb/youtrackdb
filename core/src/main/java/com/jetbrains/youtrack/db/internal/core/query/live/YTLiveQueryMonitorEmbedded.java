@@ -2,7 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.query.live;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.LiveQueryMonitor;
+import com.jetbrains.youtrack.db.api.query.LiveQueryMonitor;
 
 /**
  *

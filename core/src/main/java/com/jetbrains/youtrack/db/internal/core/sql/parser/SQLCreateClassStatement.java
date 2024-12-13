@@ -3,9 +3,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
@@ -75,7 +75,7 @@ public class SQLCreateClassStatement extends DDLStatement {
           schema.createClass(
               name.getStringValue(), totalClusterNo.getValue().intValue(), superclasses);
     } else if (clusters != null) {
-      clusters.stream().map(x -> x.getValue().intValue()).collect(Collectors.toList());
+      clusters.stream().map(x -> x.getValue().intValue()).toList();
       int[] clusterIds = new int[clusters.size()];
       for (int i = 0; i < clusters.size(); i++) {
         clusterIds[i] = clusters.get(i).getValue().intValue();

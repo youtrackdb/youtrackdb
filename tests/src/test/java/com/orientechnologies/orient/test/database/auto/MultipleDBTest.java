@@ -11,10 +11,10 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.db.DatabaseSessionRemote;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collections;
 import java.util.HashSet;
@@ -61,7 +61,7 @@ public class MultipleDBTest extends DocumentDBBaseTest {
             try {
               var db = createSessionInstance(dbName);
 
-              db.set(ATTRIBUTES.MINIMUMCLUSTERS, 1);
+              db.set(DatabaseSession.ATTRIBUTES.MINIMUM_CLUSTERS, 1);
               db.getMetadata().getSchema().getOrCreateClass("DummyObject");
 
               long start = System.currentTimeMillis();

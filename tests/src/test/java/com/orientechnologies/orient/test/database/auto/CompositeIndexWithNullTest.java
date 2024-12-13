@@ -1,12 +1,14 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.testng.Assert;
@@ -25,13 +27,13 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
   public void testPointQuery() {
     final Schema schema = database.getMetadata().getSchema();
-    SchemaClass clazz = schema.createClass("compositeIndexNullPointQueryClass");
+    SchemaClassInternal clazz = (SchemaClassInternal) schema.createClass(
+        "compositeIndexNullPointQueryClass");
     clazz.createProperty(database, "prop1", PropertyType.INTEGER);
     clazz.createProperty(database, "prop2", PropertyType.INTEGER);
     clazz.createProperty(database, "prop3", PropertyType.INTEGER);
 
-    final EntityImpl metadata = new EntityImpl();
-    metadata.field("ignoreNullValues", false);
+    var metadata = Map.of("ignoreNullValues", false);
 
     clazz.createIndex(database,
         "compositeIndexNullPointQueryIndex",
@@ -93,9 +95,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     clazz.createProperty(database, "prop2", PropertyType.INTEGER);
     clazz.createProperty(database, "prop3", PropertyType.INTEGER);
 
-    final EntityImpl metadata = new EntityImpl();
-    metadata.field("ignoreNullValues", false);
-
+    var metadata = Map.of("ignoreNullValues", false);
     clazz.createIndex(database,
         "compositeIndexNullPointQueryInTxIndex",
         SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
@@ -163,8 +163,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     clazz.createProperty(database, "prop2", PropertyType.INTEGER);
     clazz.createProperty(database, "prop3", PropertyType.INTEGER);
 
-    final EntityImpl metadata = new EntityImpl();
-    metadata.field("ignoreNullValues", false);
+    var metadata = Map.of("ignoreNullValues", false);
 
     clazz.createIndex(database,
         "compositeIndexNullPointQueryInMiddleTxIndex",
@@ -230,8 +229,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     clazz.createProperty(database, "prop2", PropertyType.INTEGER);
     clazz.createProperty(database, "prop3", PropertyType.INTEGER);
 
-    final EntityImpl metadata = new EntityImpl();
-    metadata.field("ignoreNullValues", false);
+    var metadata = Map.of("ignoreNullValues", false);
 
     clazz.createIndex(database,
         "compositeIndexNullRangeQueryIndex",
@@ -292,8 +290,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     clazz.createProperty(database, "prop2", PropertyType.INTEGER);
     clazz.createProperty(database, "prop3", PropertyType.INTEGER);
 
-    final EntityImpl metadata = new EntityImpl();
-    metadata.field("ignoreNullValues", false);
+    var metadata = Map.of("ignoreNullValues", false);
 
     clazz.createIndex(database,
         "compositeIndexNullRangeQueryInMiddleTxIndex",
@@ -352,8 +349,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     clazz.createProperty(database, "prop2", PropertyType.INTEGER);
     clazz.createProperty(database, "prop3", PropertyType.INTEGER);
 
-    final EntityImpl metadata = new EntityImpl();
-    metadata.field("ignoreNullValues", false);
+    var metadata = Map.of("ignoreNullValues", false);
 
     clazz.createIndex(database,
         "compositeIndexNullPointQueryNullInTheMiddleIndex",
@@ -435,9 +431,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     clazz.createProperty(database, "prop2", PropertyType.INTEGER);
     clazz.createProperty(database, "prop3", PropertyType.INTEGER);
 
-    final EntityImpl metadata = new EntityImpl();
-    metadata.field("ignoreNullValues", false);
-
+    var metadata = Map.of("ignoreNullValues", false);
     clazz.createIndex(database,
         "compositeIndexNullPointQueryNullInTheMiddleInMiddleTxIndex",
         SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
@@ -517,8 +511,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     clazz.createProperty(database, "prop2", PropertyType.INTEGER);
     clazz.createProperty(database, "prop3", PropertyType.INTEGER);
 
-    final EntityImpl metadata = new EntityImpl();
-    metadata.field("ignoreNullValues", false);
+    var metadata = Map.of("ignoreNullValues", false);
 
     clazz.createIndex(database,
         "compositeIndexNullRangeQueryNullInTheMiddleIndex",
@@ -570,9 +563,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     clazz.createProperty(database, "prop2", PropertyType.INTEGER);
     clazz.createProperty(database, "prop3", PropertyType.INTEGER);
 
-    final EntityImpl metadata = new EntityImpl();
-    metadata.field("ignoreNullValues", false);
-
+    var metadata = Map.of("ignoreNullValues", false);
     clazz.createIndex(database,
         "compositeIndexNullRangeQueryNullInTheMiddleInMiddleTxIndex",
         SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),

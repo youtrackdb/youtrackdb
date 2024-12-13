@@ -21,7 +21,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.IndexRIDContainer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.MixedIndexRIDContainer;
 import java.util.Collection;

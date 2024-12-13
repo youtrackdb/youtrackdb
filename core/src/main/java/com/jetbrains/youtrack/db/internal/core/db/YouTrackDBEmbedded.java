@@ -20,32 +20,33 @@
 
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.FILE_DELETE_DELAY;
-import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.FILE_DELETE_RETRY;
-import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.WARNING_DEFAULT_USERS;
+import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.FILE_DELETE_DELAY;
+import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.FILE_DELETE_RETRY;
+import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.WARNING_DEFAULT_USERS;
 
-import com.jetbrains.youtrack.db.internal.common.concur.lock.ModificationOperationProhibitedException;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.ModificationOperationProhibitedException;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.thread.SourceTraceExecutorService;
 import com.jetbrains.youtrack.db.internal.common.thread.ThreadPoolExecutors;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.command.script.ScriptManager;
-import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.engine.Engine;
 import com.jetbrains.youtrack.db.internal.core.engine.MemoryAndLocalPaginatedEnginesInitializer;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
 import com.jetbrains.youtrack.db.internal.core.security.DefaultSecuritySystem;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLServerStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.LocalResultSetLifecycleDecorator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLServerStatement;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.config.ClusterBasedStorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
@@ -98,11 +99,11 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   protected final Map<String, SharedContext> sharedContexts = new ConcurrentHashMap<>();
   protected final Set<DatabasePoolInternal> pools =
       Collections.newSetFromMap(new ConcurrentHashMap<>());
-  protected final YouTrackDBConfig configurations;
+  protected final YouTrackDBConfigImpl configuration;
   protected final String basePath;
   protected final Engine memory;
   protected final Engine disk;
-  protected final YouTrackDBManager youTrack;
+  protected final YouTrackDBEnginesManager youTrack;
   protected final CachedDatabasePoolFactory cachedPoolFactory;
   private volatile boolean open = true;
   private final ExecutorService executor;
@@ -117,15 +118,16 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   protected final long maxWALSegmentSize;
   protected final long doubleWriteLogMaxSegSize;
 
-  public YouTrackDBEmbedded(String directoryPath, YouTrackDBConfig configurations,
-      YouTrackDBManager youTrack) {
+  public YouTrackDBEmbedded(String directoryPath, YouTrackDBConfig configuration,
+      YouTrackDBEnginesManager youTrack) {
     super();
     this.youTrack = youTrack;
     youTrack.onEmbeddedFactoryInit(this);
     memory = youTrack.getEngine("memory");
     disk = youTrack.getEngine("plocal");
     directoryPath = directoryPath.trim();
-    if (directoryPath.length() != 0) {
+
+    if (!directoryPath.isEmpty()) {
       final File dirFile = new File(directoryPath);
       if (!dirFile.exists()) {
         LogManager.instance()
@@ -140,8 +142,9 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       this.basePath = null;
     }
 
-    this.configurations =
-        configurations != null ? configurations : YouTrackDBConfig.defaultConfig();
+    this.configuration =
+        (YouTrackDBConfigImpl) (configuration != null ? configuration
+            : YouTrackDBConfig.defaultConfig());
 
     if (basePath == null) {
       maxWALSegmentSize = -1;
@@ -178,7 +181,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     }
     timer = new Timer("YouTrackDB Timer[" + timerName + "]");
 
-    cachedPoolFactory = createCachedDatabasePoolFactory(this.configurations);
+    cachedPoolFactory = createCachedDatabasePoolFactory(this.configuration);
 
     initAutoClose();
 
@@ -187,7 +190,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     systemDatabase = new SystemDatabase(this);
     securitySystem = new DefaultSecuritySystem();
 
-    securitySystem.activate(this, this.configurations.getSecurityConfig());
+    securitySystem.activate(this, this.configuration.getSecurityConfig());
   }
 
   private void initAutoClose() {
@@ -227,15 +230,15 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   }
 
   private boolean getBoolConfig(GlobalConfiguration config) {
-    return this.configurations.getConfigurations().getValueAsBoolean(config);
+    return this.configuration.getConfiguration().getValueAsBoolean(config);
   }
 
   private int getIntConfig(GlobalConfiguration config) {
-    return this.configurations.getConfigurations().getValueAsInteger(config);
+    return this.configuration.getConfiguration().getValueAsInteger(config);
   }
 
   private long getLongConfig(GlobalConfiguration config) {
-    return this.configurations.getConfigurations().getValueAsLong(config);
+    return this.configuration.getConfiguration().getValueAsLong(config);
   }
 
   private int excutorMaxSize(GlobalConfiguration config) {
@@ -254,7 +257,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     return size;
   }
 
-  private int excutorBaseSize(int size) {
+  private static int excutorBaseSize(int size) {
     int baseSize;
 
     if (size > 10) {
@@ -303,7 +306,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   private long calculateInitialMaxWALSegSize() throws IOException {
     String walPath =
-        configurations.getConfigurations().getValueAsString(GlobalConfiguration.WAL_LOCATION);
+        configuration.getConfiguration().getValueAsString(GlobalConfiguration.WAL_LOCATION);
 
     if (walPath == null) {
       walPath = basePath;
@@ -426,7 +429,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     checkDatabaseName(name);
     try {
       final DatabaseSessionEmbedded embedded;
-      YouTrackDBConfig config = solveConfig(null);
+      var config = solveConfig(null);
       synchronized (this) {
         checkOpen();
         AbstractPaginatedStorage storage = getAndOpenStorage(name, config);
@@ -443,14 +446,14 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   }
 
   protected DatabaseSessionEmbedded newSessionInstance(
-      AbstractPaginatedStorage storage, YouTrackDBConfig config, SharedContext sharedContext) {
+      AbstractPaginatedStorage storage, YouTrackDBConfigImpl config, SharedContext sharedContext) {
     DatabaseSessionEmbedded embedded = new DatabaseSessionEmbedded(storage);
     embedded.init(config, getOrCreateSharedContext(storage));
     return embedded;
   }
 
   protected DatabaseSessionEmbedded newCreateSessionInstance(
-      AbstractPaginatedStorage storage, YouTrackDBConfig config, SharedContext sharedContext) {
+      AbstractPaginatedStorage storage, YouTrackDBConfigImpl config, SharedContext sharedContext) {
     DatabaseSessionEmbedded embedded = new DatabaseSessionEmbedded(storage);
     embedded.internalCreate(config, sharedContext);
     return embedded;
@@ -460,7 +463,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     checkDatabaseName(name);
     try {
       final DatabaseSessionEmbedded embedded;
-      YouTrackDBConfig config = solveConfig(null);
+      var config = solveConfig(null);
       synchronized (this) {
         checkOpen();
         AbstractPaginatedStorage storage = getAndOpenStorage(name, config);
@@ -484,10 +487,11 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       final DatabaseSessionEmbedded embedded;
       synchronized (this) {
         checkOpen();
-        config = solveConfig(config);
-        AbstractPaginatedStorage storage = getAndOpenStorage(name, config);
+        config = solveConfig((YouTrackDBConfigImpl) config);
+        AbstractPaginatedStorage storage = getAndOpenStorage(name, (YouTrackDBConfigImpl) config);
 
-        embedded = newSessionInstance(storage, config, getOrCreateSharedContext(storage));
+        embedded = newSessionInstance(storage, (YouTrackDBConfigImpl) config,
+            getOrCreateSharedContext(storage));
       }
       embedded.rebuildIndexes();
       embedded.internalOpen(user, password);
@@ -506,13 +510,15 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       final DatabaseSessionEmbedded embedded;
       synchronized (this) {
         checkOpen();
-        config = solveConfig(config);
+        config = solveConfig((YouTrackDBConfigImpl) config);
         if (!authenticationInfo.getDatabase().isPresent()) {
           throw new SecurityException("Authentication info do not contain the database");
         }
         String database = authenticationInfo.getDatabase().get();
-        AbstractPaginatedStorage storage = getAndOpenStorage(database, config);
-        embedded = newSessionInstance(storage, config, getOrCreateSharedContext(storage));
+        AbstractPaginatedStorage storage = getAndOpenStorage(database,
+            (YouTrackDBConfigImpl) config);
+        embedded = newSessionInstance(storage, (YouTrackDBConfigImpl) config,
+            getOrCreateSharedContext(storage));
       }
       embedded.rebuildIndexes();
       embedded.internalOpen(authenticationInfo);
@@ -526,12 +532,12 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     }
   }
 
-  private AbstractPaginatedStorage getAndOpenStorage(String name, YouTrackDBConfig config) {
+  private AbstractPaginatedStorage getAndOpenStorage(String name, YouTrackDBConfigImpl config) {
     AbstractPaginatedStorage storage = getOrInitStorage(name);
     // THIS OPEN THE STORAGE ONLY THE FIRST TIME
     try {
       // THIS OPEN THE STORAGE ONLY THE FIRST TIME
-      storage.open(config.getConfigurations());
+      storage.open(config.getConfiguration());
     } catch (RuntimeException e) {
       if (storage != null) {
         storages.remove(storage.getName());
@@ -559,13 +565,13 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     }
   }
 
-  protected YouTrackDBConfig solveConfig(YouTrackDBConfig config) {
+  protected YouTrackDBConfigImpl solveConfig(YouTrackDBConfigImpl config) {
     if (config != null) {
-      config.setParent(this.configurations);
+      config.setParent(this.configuration);
       return config;
     } else {
-      YouTrackDBConfig cfg = YouTrackDBConfig.defaultConfig();
-      cfg.setParent(this.configurations);
+      YouTrackDBConfigImpl cfg = (YouTrackDBConfigImpl) YouTrackDBConfig.defaultConfig();
+      cfg.setParent(this.configuration);
       return cfg;
     }
   }
@@ -665,7 +671,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     synchronized (this) {
       if (!exists(name, user, password)) {
         try {
-          config = solveConfig(config);
+          config = solveConfig((YouTrackDBConfigImpl) config);
           AbstractPaginatedStorage storage;
           if (type == DatabaseType.MEMORY) {
             storage =
@@ -687,7 +693,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
                         this);
           }
           storages.put(name, storage);
-          embedded = internalCreate(config, storage);
+          embedded = internalCreate((YouTrackDBConfigImpl) config, storage);
           if (createOps != null) {
             ScenarioThreadLocal.executeAsDistributed(
                 () -> {
@@ -740,7 +746,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
         storages.remove(name);
       }
 
-      ContextConfiguration configs = configurations.getConfigurations();
+      ContextConfiguration configs = configuration.getConfiguration();
       LocalPaginatedStorage.deleteFilesFromDisc(
           name,
           configs.getValueAsInteger(FILE_DELETE_RETRY),
@@ -759,7 +765,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       String path,
       YouTrackDBConfig config) {
     checkDatabaseName(name);
-    config = solveConfig(config);
+    config = solveConfig((YouTrackDBConfigImpl) config);
     final DatabaseSessionEmbedded embedded;
     AbstractPaginatedStorage storage;
     synchronized (this) {
@@ -773,7 +779,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
                       doubleWriteLogMaxSegSize,
                       generateStorageId(),
                       this);
-          embedded = internalCreate(config, storage);
+          embedded = internalCreate((YouTrackDBConfigImpl) config, storage);
           storages.put(name, storage);
         } catch (Exception e) {
           throw BaseException.wrapException(
@@ -812,7 +818,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       synchronized (this) {
         storages.remove(name);
       }
-      ContextConfiguration configs = configurations.getConfigurations();
+      ContextConfiguration configs = configuration.getConfiguration();
       LocalPaginatedStorage.deleteFilesFromDisc(
           name,
           configs.getValueAsInteger(FILE_DELETE_RETRY),
@@ -824,8 +830,8 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   }
 
   protected DatabaseSessionEmbedded internalCreate(
-      YouTrackDBConfig config, AbstractPaginatedStorage storage) {
-    storage.create(config.getConfigurations());
+      YouTrackDBConfigImpl config, AbstractPaginatedStorage storage) {
+    storage.create(config.getConfiguration());
     return newCreateSessionInstance(storage, config, getOrCreateSharedContext(storage));
   }
 
@@ -875,7 +881,6 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
           it.hasNext(); ) {
         it.next().onDrop(db);
       }
-      db.callOnDropListeners();
       db.close();
     } finally {
       DatabaseRecordThreadLocal.instance().set(current);
@@ -926,7 +931,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
             if (!storages.containsKey(name)) {
               AbstractPaginatedStorage storage = getOrInitStorage(name);
               // THIS OPEN THE STORAGE ONLY THE FIRST TIME
-              storage.open(configurations.getConfigurations());
+              storage.open(configuration.getConfiguration());
             }
           });
     }
@@ -941,7 +946,8 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       String name, String user, String password, YouTrackDBConfig config) {
     checkDatabaseName(name);
     checkOpen();
-    DatabasePoolImpl pool = new DatabasePoolImpl(this, name, user, password, solveConfig(config));
+    DatabasePoolImpl pool = new DatabasePoolImpl(this, name, user, password,
+        solveConfig((YouTrackDBConfigImpl) config));
     pools.add(pool);
     return pool;
   }
@@ -957,7 +963,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     checkDatabaseName(database);
     checkOpen();
     DatabasePoolInternal pool =
-        cachedPoolFactory.get(database, user, password, solveConfig(config));
+        cachedPoolFactory.get(database, user, password, solveConfig((YouTrackDBConfigImpl) config));
     pools.add(pool);
     return pool;
   }
@@ -971,7 +977,6 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     timer.cancel();
     securitySystem.shutdown();
     executor.shutdown();
-    preClose();
     try {
       while (!executor.awaitTermination(1, TimeUnit.MINUTES)) {
         LogManager.instance().warn(this, "Failed waiting background operations termination");
@@ -999,12 +1004,6 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     removeShutdownHook();
   }
 
-  public synchronized void preClose() {
-    if (!open) {
-      return;
-    }
-    this.sharedContexts.values().forEach(x -> x.getViewManager().close());
-  }
 
   public synchronized void internalClose() {
     if (!open) {
@@ -1041,8 +1040,8 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     }
   }
 
-  public YouTrackDBConfig getConfigurations() {
-    return configurations;
+  public YouTrackDBConfigImpl getConfiguration() {
+    return configuration;
   }
 
   public void removePool(DatabasePoolInternal pool) {
@@ -1082,7 +1081,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
                   path, maxWALSegmentSize, doubleWriteLogMaxSegSize, generateStorageId(), this);
       // TODO: Add Creation settings and parameters
       if (!exists) {
-        embedded = internalCreate(configurations, storage);
+        embedded = internalCreate(configuration, storage);
       }
       storages.put(name, storage);
     }
@@ -1104,18 +1103,9 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     AbstractPaginatedStorage storage = storages.remove(iDatabaseName);
     if (storage != null) {
       SharedContext ctx = sharedContexts.remove(iDatabaseName);
-      ctx.getViewManager().close();
       ctx.close();
       storage.shutdown();
     }
-  }
-
-  public String getDatabasePath(String iDatabaseName) {
-    AbstractPaginatedStorage storage = storages.get(iDatabaseName);
-    if (storage != null && storage instanceof LocalPaginatedStorage) {
-      return ((LocalPaginatedStorage) storage).getStoragePath().toString();
-    }
-    return null;
   }
 
   protected void checkOpen() {

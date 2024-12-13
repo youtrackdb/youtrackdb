@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server;
 
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 
 public class OServerShutdownHook extends Thread {
 
@@ -27,7 +27,7 @@ public class OServerShutdownHook extends Thread {
 
   protected OServerShutdownHook(final OServer server) {
     this.server = server;
-    YouTrackDBManager.instance().removeShutdownHook();
+    YouTrackDBEnginesManager.instance().removeShutdownHook();
     Runtime.getRuntime().addShutdownHook(this);
   }
 

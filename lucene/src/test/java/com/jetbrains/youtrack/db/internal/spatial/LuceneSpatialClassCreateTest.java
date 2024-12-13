@@ -13,7 +13,7 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.internal.lucene.test.BaseLuceneTest;
 import org.junit.Assert;
 import org.junit.Test;

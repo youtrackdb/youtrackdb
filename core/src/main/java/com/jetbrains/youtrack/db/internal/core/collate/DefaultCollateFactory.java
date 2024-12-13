@@ -19,6 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.collate;
 
+import com.jetbrains.youtrack.db.api.schema.Collate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;

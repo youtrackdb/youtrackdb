@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import java.util.Locale;
 
@@ -65,7 +65,7 @@ public final class RecordOperation implements Comparable<RecordOperation> {
     return "RecordOperation [record=" + record + ", type=" + getName(type) + "]";
   }
 
-  public RID getRID() {
+  public RecordId getRecordId() {
     return record != null ? record.getIdentity() : null;
   }
 

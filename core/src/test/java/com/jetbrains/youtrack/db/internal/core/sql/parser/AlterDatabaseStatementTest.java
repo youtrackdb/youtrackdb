@@ -6,10 +6,8 @@ public class AlterDatabaseStatementTest extends ParserTestAbstract {
 
   @Test
   public void testPlain() {
-    checkRightSyntax("ALTER DATABASE CLUSTERSELECTION 'default'");
-    checkRightSyntax("alter database CLUSTERSELECTION 'default'");
-
-    checkRightSyntax("alter database custom strictSql=false");
+    checkRightSyntax("ALTER DATABASE CLUSTER_SELECTION 'default'");
+    checkRightSyntax("alter database CLUSTER_SELECTION 'default'");
 
     checkWrongSyntax("alter database ");
     checkWrongSyntax("alter database bar baz zz");

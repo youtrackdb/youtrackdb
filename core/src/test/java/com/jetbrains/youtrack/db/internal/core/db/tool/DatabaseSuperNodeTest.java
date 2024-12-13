@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.db.tool;
 
+import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.record.Edge;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.api.record.Edge;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -82,7 +82,7 @@ public class DatabaseSuperNodeTest {
       toNode.save();
 
       for (int i = 0; i < edgeNumber; i++) {
-        final Edge edge = session.newEdge(fromNode, toNode, "NonSuperEdgeClass");
+        final Edge edge = session.newRegularEdge(fromNode, toNode, "NonSuperEdgeClass");
         edge.save();
       }
       session.commit();

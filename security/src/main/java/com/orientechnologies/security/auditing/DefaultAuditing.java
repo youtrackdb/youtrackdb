@@ -14,16 +14,16 @@
 package com.orientechnologies.security.auditing;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseLifecycleListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.SystemDatabase;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.AuditingService;
 import com.jetbrains.youtrack.db.internal.core.security.AuditingOperation;
@@ -493,7 +493,7 @@ public class DefaultAuditing
 
     timer.scheduleAtFixedRate(retainTask, delay, period);
 
-    YouTrackDBManager.instance().addDbLifecycleListener(this);
+    YouTrackDBEnginesManager.instance().addDbLifecycleListener(this);
     if (context instanceof OServerAware) {
       if (((OServerAware) context).getDistributedManager() != null) {
         ((OServerAware) context).getDistributedManager().registerLifecycleListener(this);
@@ -566,7 +566,7 @@ public class DefaultAuditing
       }
     }
 
-    YouTrackDBManager.instance().removeDbLifecycleListener(this);
+    YouTrackDBEnginesManager.instance().removeDbLifecycleListener(this);
 
     if (globalHook != null) {
       globalHook.shutdown(false);

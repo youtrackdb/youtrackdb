@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.lucene.parser;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.lucene.builder.LuceneDateTools;
 import java.util.Map;
 import java.util.Optional;

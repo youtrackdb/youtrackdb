@@ -3,7 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.storage.index.nkbtree.normalizer
 import com.jetbrains.youtrack.db.internal.common.comparator.ByteArrayComparator;
 import com.jetbrains.youtrack.db.internal.common.comparator.UnsafeByteArrayComparator;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import java.text.Collator;
 import java.util.concurrent.TimeUnit;
 import org.junit.Assert;

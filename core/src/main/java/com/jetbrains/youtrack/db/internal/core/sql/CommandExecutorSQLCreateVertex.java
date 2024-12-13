@@ -19,13 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionRuntime;
@@ -42,7 +43,7 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
     implements CommandDistributedReplicateRequest {
 
   public static final String NAME = "CREATE VERTEX";
-  private SchemaClass clazz;
+  private SchemaClassInternal clazz;
   private String clusterName;
   private List<Pair<String, Object>> fields;
 
@@ -88,7 +89,8 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
           }
 
           // GET/CHECK CLASS NAME
-          clazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
+          clazz = (SchemaClassInternal) database.getMetadata().getImmutableSchemaSnapshot()
+              .getClass(className);
           if (clazz == null) {
             throw new CommandSQLParsingException("Class '" + className + "' was not found");
           }
@@ -105,7 +107,8 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
         className = "V";
 
         // GET/CHECK CLASS NAME
-        clazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
+        clazz = (SchemaClassInternal) database.getMetadata().getImmutableSchemaSnapshot()
+            .getClass(className);
         if (clazz == null) {
           throw new CommandSQLParsingException("Class '" + className + "' was not found");
         }

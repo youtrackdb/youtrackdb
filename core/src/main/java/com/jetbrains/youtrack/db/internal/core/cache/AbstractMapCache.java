@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.cache;
 
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;

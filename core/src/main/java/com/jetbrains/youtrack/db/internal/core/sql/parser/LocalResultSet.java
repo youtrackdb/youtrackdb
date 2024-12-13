@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionPlan;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
+import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,13 +64,13 @@ public class LocalResultSet implements ResultSet {
   }
 
   private void logProfiling() {
-    if (executionPlan.getStatement() != null && YouTrackDBManager.instance().getProfiler()
+    if (executionPlan.getStatement() != null && YouTrackDBEnginesManager.instance().getProfiler()
         .isRecording()) {
       final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
       if (db != null) {
-        final SecurityUser user = db.getUser();
+        final SecurityUser user = db.geCurrentUser();
         final String userString = user != null ? user.toString() : null;
-        YouTrackDBManager.instance()
+        YouTrackDBEnginesManager.instance()
             .getProfiler()
             .stopChrono(
                 "db."

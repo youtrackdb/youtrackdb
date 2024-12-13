@@ -22,7 +22,7 @@ package com.jetbrains.youtrack.db.internal.common.concur.resource;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.LockException;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBShutdownListener;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBStartupListener;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,8 +54,8 @@ public class ReentrantResourcePool<K, V> extends ResourcePool<K, V>
       final int maxResources, final ResourcePoolListener<K, V> listener) {
     super(maxResources, listener);
 
-    YouTrackDBManager.instance().registerWeakYouTrackDBShutdownListener(this);
-    YouTrackDBManager.instance().registerWeakYouTrackDBStartupListener(this);
+    YouTrackDBEnginesManager.instance().registerWeakYouTrackDBShutdownListener(this);
+    YouTrackDBEnginesManager.instance().registerWeakYouTrackDBStartupListener(this);
   }
 
   @Override

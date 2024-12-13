@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.id;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;

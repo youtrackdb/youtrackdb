@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.client.remote.message.live;
 
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.api.query.Result;
 
 /**
  *

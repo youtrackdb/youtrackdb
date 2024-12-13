@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.lucene.engine;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
+import com.jetbrains.youtrack.db.api.DatabaseType;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.IOException;
 import java.nio.file.Path;

@@ -19,42 +19,44 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
+import com.jetbrains.youtrack.db.api.security.SecurityUser.STATUSES;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.SystemDatabase;
 import com.jetbrains.youtrack.db.internal.core.db.ScenarioThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.SystemDatabase;
 import com.jetbrains.youtrack.db.internal.core.db.record.ClassTrigger;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.exception.SecurityAccessException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.NullOutputListener;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.INDEX_TYPE;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule.ResourceGeneric;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityRole.ALLOW_MODES;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser.STATUSES;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.security.GlobalUser;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -254,7 +256,7 @@ public class SecurityShared implements SecurityInternal {
       return false;
     }
 
-    final SecurityUser currentUser = session.getUser();
+    final SecurityUser currentUser = session.geCurrentUser();
     if (currentUser != null) {
       // CHECK IF CURRENT USER IS ENLISTED
       if (iAllowAll == null
@@ -573,7 +575,7 @@ public class SecurityShared implements SecurityInternal {
 
     policies.put(currentResource, policy.getElement(session));
     session.save(roleEntity);
-    if (session.getUser() != null && session.getUser()
+    if (session.geCurrentUser() != null && session.geCurrentUser()
         .hasRole(session, role.getName(session), true)) {
       session.reloadUser();
     }
@@ -599,7 +601,7 @@ public class SecurityShared implements SecurityInternal {
       allClasses.addAll(clazz.getAllSubclasses());
       allClasses.addAll(clazz.getAllSuperClasses());
       for (SchemaClass c : allClasses) {
-        for (Index index : c.getIndexes(session)) {
+        for (Index index : ((SchemaClassInternal) c).getIndexesInternal(session)) {
           List<String> indexFields = index.getDefinition().getFields();
           if (indexFields.size() > 1
               && indexFields.contains(((SecurityResourceProperty) res).getPropertyName())) {
@@ -952,12 +954,14 @@ public class SecurityShared implements SecurityInternal {
     adminRole.save(session);
   }
 
-  private void createOrUpdateORestrictedClass(final DatabaseSessionInternal database) {
-    SchemaClass restrictedClass = database.getMetadata().getSchema().getClass(RESTRICTED_CLASSNAME);
+  private static void createOrUpdateORestrictedClass(final DatabaseSessionInternal database) {
+    SchemaClassInternal restrictedClass = database.getMetadata().getSchemaInternal()
+        .getClassInternal(RESTRICTED_CLASSNAME);
     boolean unsafe = false;
     if (restrictedClass == null) {
       restrictedClass =
-          database.getMetadata().getSchema().createAbstractClass(RESTRICTED_CLASSNAME);
+          (SchemaClassInternal) database.getMetadata().getSchemaInternal()
+              .createAbstractClass(RESTRICTED_CLASSNAME);
       unsafe = true;
     }
     if (!restrictedClass.existsProperty(ALLOW_ALL_FIELD)) {
@@ -986,12 +990,14 @@ public class SecurityShared implements SecurityInternal {
     }
   }
 
-  private void createOrUpdateOUserClass(
+  private static void createOrUpdateOUserClass(
       final DatabaseSessionInternal database, SchemaClass identityClass, SchemaClass roleClass) {
     boolean unsafe = false;
-    SchemaClass userClass = database.getMetadata().getSchema().getClass("OUser");
+    SchemaClassInternal userClass = database.getMetadata().getSchemaInternal()
+        .getClassInternal("OUser");
     if (userClass == null) {
-      userClass = database.getMetadata().getSchema().createClass("OUser", identityClass);
+      userClass = (SchemaClassInternal) database.getMetadata().getSchema()
+          .createClass("OUser", identityClass);
       unsafe = true;
     } else if (!userClass.getSuperClasses().contains(identityClass))
     // MIGRATE AUTOMATICALLY TO 1.2.0
@@ -1034,12 +1040,14 @@ public class SecurityShared implements SecurityInternal {
     }
   }
 
-  private static SchemaClass createOrUpdateOSecurityPolicyClass(
+  private static void createOrUpdateOSecurityPolicyClass(
       final DatabaseSessionInternal database) {
-    SchemaClass policyClass = database.getMetadata().getSchema().getClass("OSecurityPolicy");
+    SchemaClassInternal policyClass = database.getMetadata().getSchemaInternal()
+        .getClassInternal("OSecurityPolicy");
     boolean unsafe = false;
     if (policyClass == null) {
-      policyClass = database.getMetadata().getSchema().createClass("OSecurityPolicy");
+      policyClass = (SchemaClassInternal) database.getMetadata().getSchema()
+          .createClass("OSecurityPolicy");
       unsafe = true;
     }
 
@@ -1089,15 +1097,16 @@ public class SecurityShared implements SecurityInternal {
           unsafe);
     }
 
-    return policyClass;
   }
 
   private static SchemaClass createOrUpdateORoleClass(final DatabaseSessionInternal database,
       SchemaClass identityClass) {
-    SchemaClass roleClass = database.getMetadata().getSchema().getClass("ORole");
+    SchemaClassInternal roleClass = database.getMetadata().getSchemaInternal()
+        .getClassInternal("ORole");
     boolean unsafe = false;
     if (roleClass == null) {
-      roleClass = database.getMetadata().getSchema().createClass("ORole", identityClass);
+      roleClass = (SchemaClassInternal) database.getMetadata().getSchema()
+          .createClass("ORole", identityClass);
       unsafe = true;
     } else if (!roleClass.getSuperClasses().contains(identityClass))
     // MIGRATE AUTOMATICALLY TO 1.2.0
@@ -1142,7 +1151,6 @@ public class SecurityShared implements SecurityInternal {
   }
 
   public void load(DatabaseSessionInternal session) {
-    var sessionInternal = session;
     final SchemaClass userClass = session.getMetadata().getSchema().getClass("OUser");
     if (userClass != null) {
       // @COMPATIBILITY <1.3.0
@@ -1191,8 +1199,8 @@ public class SecurityShared implements SecurityInternal {
       // TODO migrate Role to use security policies
     }
 
-    setupPredicateSecurity(sessionInternal);
-    initPredicateSecurityOptimizations(sessionInternal);
+    setupPredicateSecurity(session);
+    initPredicateSecurityOptimizations(session);
   }
 
   private void setupPredicateSecurity(DatabaseSessionInternal session) {
@@ -1333,7 +1341,7 @@ public class SecurityShared implements SecurityInternal {
     if (skipRoleHasPredicateSecurityForClassUpdate) {
       return;
     }
-    SecurityUser user = session.getUser();
+    SecurityUser user = session.geCurrentUser();
     try {
       if (user != null) {
         session.setUser(null);
@@ -1431,7 +1439,7 @@ public class SecurityShared implements SecurityInternal {
   @Override
   public Set<String> getFilteredProperties(DatabaseSessionInternal session,
       EntityImpl entity) {
-    if (session.getUser() == null) {
+    if (session.geCurrentUser() == null) {
       return Collections.emptySet();
     }
     SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
@@ -1443,7 +1451,7 @@ public class SecurityShared implements SecurityInternal {
     }
 
     if (roleHasPredicateSecurityForClass != null) {
-      for (SecurityRole role : session.getUser().getRoles()) {
+      for (SecurityRole role : session.geCurrentUser().getRoles()) {
 
         Map<String, Boolean> roleMap = roleHasPredicateSecurityForClass.get(role.getName(session));
         if (roleMap == null) {
@@ -1477,7 +1485,7 @@ public class SecurityShared implements SecurityInternal {
   public boolean isAllowedWrite(DatabaseSessionInternal session, EntityImpl entity,
       String propertyName) {
 
-    if (session.getUser() == null) {
+    if (session.geCurrentUser() == null) {
       // executeNoAuth
       return true;
     }
@@ -1495,7 +1503,7 @@ public class SecurityShared implements SecurityInternal {
     }
 
     if (roleHasPredicateSecurityForClass != null) {
-      for (SecurityRole role : session.getUser().getRoles()) {
+      for (SecurityRole role : session.geCurrentUser().getRoles()) {
         Map<String, Boolean> roleMap = roleHasPredicateSecurityForClass.get(role.getName(session));
         if (roleMap == null) {
           return true; // TODO hierarchy...?
@@ -1554,7 +1562,7 @@ public class SecurityShared implements SecurityInternal {
 
   @Override
   public boolean canCreate(DatabaseSessionInternal session, Record record) {
-    if (session.getUser() == null) {
+    if (session.geCurrentUser() == null) {
       // executeNoAuth
       return true;
     }
@@ -1568,7 +1576,7 @@ public class SecurityShared implements SecurityInternal {
       }
 
       if (roleHasPredicateSecurityForClass != null) {
-        for (SecurityRole role : session.getUser().getRoles()) {
+        for (SecurityRole role : session.geCurrentUser().getRoles()) {
           Map<String, Boolean> roleMap = roleHasPredicateSecurityForClass.get(
               role.getName(session));
           if (roleMap == null) {
@@ -1598,7 +1606,7 @@ public class SecurityShared implements SecurityInternal {
   @Override
   public boolean canRead(DatabaseSessionInternal session, Record record) {
     // TODO what about server users?
-    if (session.getUser() == null) {
+    if (session.geCurrentUser() == null) {
       // executeNoAuth
       return true;
     }
@@ -1614,7 +1622,7 @@ public class SecurityShared implements SecurityInternal {
       }
 
       if (roleHasPredicateSecurityForClass != null) {
-        for (SecurityRole role : session.getUser().getRoles()) {
+        for (SecurityRole role : session.geCurrentUser().getRoles()) {
           Map<String, Boolean> roleMap = roleHasPredicateSecurityForClass.get(
               role.getName(session));
           if (roleMap == null) {
@@ -1640,7 +1648,7 @@ public class SecurityShared implements SecurityInternal {
 
   @Override
   public boolean canUpdate(DatabaseSessionInternal session, Record record) {
-    if (session.getUser() == null) {
+    if (session.geCurrentUser() == null) {
       // executeNoAuth
       return true;
     }
@@ -1654,7 +1662,7 @@ public class SecurityShared implements SecurityInternal {
       }
 
       if (className != null && roleHasPredicateSecurityForClass != null) {
-        for (SecurityRole role : session.getUser().getRoles()) {
+        for (SecurityRole role : session.geCurrentUser().getRoles()) {
           Map<String, Boolean> roleMap = roleHasPredicateSecurityForClass.get(
               role.getName(session));
           if (roleMap == null) {
@@ -1743,7 +1751,7 @@ public class SecurityShared implements SecurityInternal {
 
   @Override
   public boolean canDelete(DatabaseSessionInternal session, Record record) {
-    if (session.getUser() == null) {
+    if (session.geCurrentUser() == null) {
       // executeNoAuth
       return true;
     }
@@ -1757,7 +1765,7 @@ public class SecurityShared implements SecurityInternal {
       }
 
       if (roleHasPredicateSecurityForClass != null) {
-        for (SecurityRole role : session.getUser().getRoles()) {
+        for (SecurityRole role : session.geCurrentUser().getRoles()) {
           Map<String, Boolean> roleMap = roleHasPredicateSecurityForClass.get(
               role.getName(session));
           if (roleMap == null) {
@@ -1785,7 +1793,7 @@ public class SecurityShared implements SecurityInternal {
 
   @Override
   public boolean canExecute(DatabaseSessionInternal session, Function function) {
-    if (session.getUser() == null) {
+    if (session.geCurrentUser() == null) {
       // executeNoAuth
       return true;
     }
@@ -1827,7 +1835,7 @@ public class SecurityShared implements SecurityInternal {
 
   @Override
   public boolean isReadRestrictedBySecurityPolicy(DatabaseSession session, String resource) {
-    if (session.getUser() == null) {
+    if (session.geCurrentUser() == null) {
       // executeNoAuth
       return false;
     }
@@ -1853,7 +1861,7 @@ public class SecurityShared implements SecurityInternal {
 
   protected void updateAllFilteredProperties(DatabaseSessionInternal session) {
     Set<SecurityResourceProperty> result;
-    if (session.getUser() == null) {
+    if (session.geCurrentUser() == null) {
       result = calculateAllFilteredProperties(session);
       synchronized (this) {
         filteredProperties = result;
@@ -1870,7 +1878,7 @@ public class SecurityShared implements SecurityInternal {
   }
 
   protected void updateAllFilteredPropertiesInternal(DatabaseSessionInternal session) {
-    SecurityUser user = session.getUser();
+    SecurityUser user = session.geCurrentUser();
     try {
       if (user != null) {
         session.setUser(null);
@@ -1927,11 +1935,11 @@ public class SecurityShared implements SecurityInternal {
 
   public boolean couldHaveActivePredicateSecurityRoles(DatabaseSession session,
       String className) {
-    if (session.getUser() == null) {
+    if (session.geCurrentUser() == null) {
       return false;
     }
     if (roleHasPredicateSecurityForClass != null) {
-      for (SecurityRole role : session.getUser().getRoles()) {
+      for (SecurityRole role : session.geCurrentUser().getRoles()) {
         Map<String, Boolean> roleMap = roleHasPredicateSecurityForClass.get(role.getName(session));
         if (roleMap == null) {
           return false; // TODO hierarchy...?

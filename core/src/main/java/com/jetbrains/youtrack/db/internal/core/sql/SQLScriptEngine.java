@@ -20,12 +20,13 @@
 
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.sql.query.BasicLegacyResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.LegacyResultSet;
 import java.io.IOException;
@@ -109,7 +110,8 @@ public class SQLScriptEngine implements ScriptEngine {
       for (int i = 0; i < iArgs.length; ++i) {
         Object par = iArgs[i];
 
-        if (par instanceof Identifiable && ((Identifiable) par).getIdentity().isValid())
+        if (par instanceof Identifiable
+            && ((RecordId) ((Identifiable) par).getIdentity()).isValid())
         // USE THE RID ONLY
         {
           par = ((Identifiable) par).getIdentity();

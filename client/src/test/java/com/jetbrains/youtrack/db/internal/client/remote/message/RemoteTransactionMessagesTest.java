@@ -9,7 +9,6 @@ import static org.junit.Assert.assertTrue;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.comparator.DefaultComparator;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -134,7 +133,7 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
     Map<UUID, BonsaiCollectionPointer> changes = new HashMap<>();
     UUID val = UUID.randomUUID();
     changes.put(val, new BonsaiCollectionPointer(10, new BonsaiBucketPointer(30, 40)));
-    var updatedRids = new HashMap<RID, RID>();
+    var updatedRids = new HashMap<RecordId, RecordId>();
 
     updatedRids.put(new RecordId(10, 20), new RecordId(10, 30));
     updatedRids.put(new RecordId(10, 21), new RecordId(10, 31));

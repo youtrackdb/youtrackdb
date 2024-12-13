@@ -19,6 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+
 /**
  * Base abstract class with RETRY
  */

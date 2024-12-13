@@ -15,20 +15,20 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.ValidationException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.exception.ValidationException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -72,7 +72,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
       database.getMetadata().getSchema().createClass("Address");
     }
 
-    int addressId = database.getMetadata().getSchema().getClass("Address").getDefaultClusterId();
+    int addressId = database.getMetadata().getSchema().getClass("Address").getClusterIds()[0];
 
     for (int i = 0; i < 30; i++) {
       database.begin();
@@ -136,7 +136,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
 
   @Test
   public void insertWithWildcards() {
-    int addressId = database.getMetadata().getSchema().getClass("Address").getDefaultClusterId();
+    int addressId = database.getMetadata().getSchema().getClass("Address").getClusterIds()[0];
 
     List<Long> positions = getValidPositions(addressId);
 
@@ -369,8 +369,8 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     var doc =
         database
             .command(
-                    "insert into Account cluster anotherdefault (id, title) values (10, 'NoSQL"
-                        + " movement')").stream().findFirst().orElseThrow().toEntity();
+                "insert into Account cluster anotherdefault (id, title) values (10, 'NoSQL"
+                    + " movement')").stream().findFirst().orElseThrow().toEntity();
     database.commit();
 
     Assert.assertNotNull(doc);
@@ -468,7 +468,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
         database.command("INSERT INTO Actor2 SET FirstName=\"Butch 1\" RETURN @rid")) {
       Object res1 = resultSet1.next().getProperty("@rid");
       Assert.assertTrue(res1 instanceof RecordId);
-      Assert.assertTrue(((Identifiable) res1).getIdentity().isValid());
+      Assert.assertTrue(((RecordId) ((Identifiable) res1).getIdentity()).isValid());
       // Create many records and return @rid
       try (ResultSet resultSet2 =
           database.command(

@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal.core.command;
 
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStep;
+import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import java.util.Map;
 
 /**

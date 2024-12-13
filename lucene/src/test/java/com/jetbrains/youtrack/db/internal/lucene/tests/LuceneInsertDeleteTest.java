@@ -20,14 +20,14 @@ package com.jetbrains.youtrack.db.internal.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
@@ -56,9 +56,8 @@ public class LuceneInsertDeleteTest extends LuceneBaseTest {
 
   @Test
   public void testInsertUpdateWithIndex() {
-
     db.getMetadata().reload();
-    Schema schema = db.getMetadata().getSchema();
+    var schema = db.getMetadata().getSchema();
 
     EntityImpl doc = new EntityImpl("City");
     doc.field("name", "Rome");
@@ -67,7 +66,7 @@ public class LuceneInsertDeleteTest extends LuceneBaseTest {
     db.save(doc);
     db.commit();
 
-    Index idx = schema.getClass("City").getClassIndex(db, "City.name");
+    Index idx = schema.getClassInternal("City").getClassIndex(db, "City.name");
     Collection<?> coll;
     try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());

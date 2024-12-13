@@ -15,10 +15,10 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -66,7 +66,7 @@ public class SQLDropIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("SQLDropIndexTestClass")
+            .getClassInternal("SQLDropIndexTestClass")
             .getClassIndex(database, "SQLDropIndexTestClass.prop1");
     Assert.assertNotNull(index);
 
@@ -76,7 +76,7 @@ public class SQLDropIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("SQLDropIndexTestClass")
+            .getClassInternal("SQLDropIndexTestClass")
             .getClassIndex(database, "SQLDropIndexTestClass.prop1");
     Assert.assertNull(index);
   }
@@ -93,7 +93,7 @@ public class SQLDropIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("SQLDropIndexTestClass")
+            .getClassInternal("SQLDropIndexTestClass")
             .getClassIndex(database, "SQLDropIndexCompositeIndex");
     Assert.assertNotNull(index);
 
@@ -103,7 +103,7 @@ public class SQLDropIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("SQLDropIndexTestClass")
+            .getClassInternal("SQLDropIndexTestClass")
             .getClassIndex(database, "SQLDropIndexCompositeIndex");
     Assert.assertNull(index);
   }
@@ -114,21 +114,21 @@ public class SQLDropIndexTest extends DocumentDBBaseTest {
         database
             .getMetadata()
             .getSchema()
-            .getClass("SQLDropIndexTestClass")
+            .getClassInternal("SQLDropIndexTestClass")
             .getClassIndex(database, "SQLDropIndexTestClass.prop1");
     Assert.assertNull(index);
     index =
         database
             .getMetadata()
             .getSchema()
-            .getClass("SQLDropIndexTestClass")
+            .getClassInternal("SQLDropIndexTestClass")
             .getClassIndex(database, "SQLDropIndexWithoutClass");
     Assert.assertNull(index);
     index =
         database
             .getMetadata()
             .getSchema()
-            .getClass("SQLDropIndexTestClass")
+            .getClassInternal("SQLDropIndexTestClass")
             .getClassIndex(database, "SQLDropIndexCompositeIndex");
     Assert.assertNull(index);
   }

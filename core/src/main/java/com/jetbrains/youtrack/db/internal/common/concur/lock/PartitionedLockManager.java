@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.common.concur.lock;
 
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

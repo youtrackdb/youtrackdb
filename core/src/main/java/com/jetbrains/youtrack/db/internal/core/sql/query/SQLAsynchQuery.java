@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.query;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestAsynch;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import java.util.List;
 import java.util.Map;
 

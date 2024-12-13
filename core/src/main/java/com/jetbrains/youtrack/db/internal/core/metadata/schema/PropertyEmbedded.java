@@ -1,9 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.collate.Collate;
+import com.jetbrains.youtrack.db.api.schema.Collate;
 import com.jetbrains.youtrack.db.internal.core.collate.DefaultCollate;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
@@ -14,6 +18,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -165,7 +170,7 @@ public class PropertyEmbedded extends PropertyImpl {
 
       if ((this.collate != null && !this.collate.equals(oldCollate))
           || (this.collate == null && oldCollate != null)) {
-        final Set<Index> indexes = owner.getClassIndexes(session);
+        final Set<Index> indexes = owner.getClassIndexesInternal(session);
         final List<Index> indexesToRecreate = new ArrayList<Index>();
 
         for (Index index : indexes) {
@@ -192,8 +197,6 @@ public class PropertyEmbedded extends PropertyImpl {
                 indexToRecreate.getInternal()
                     .loadMetadata(indexToRecreate.getConfiguration(session));
 
-            final EntityImpl metadata = new EntityImpl();
-            metadata.fromMap(indexToRecreate.getMetadata());
 
             final List<String> fields = indexMetadata.getIndexDefinition().getFields();
             final String[] fieldsToIndex = fields.toArray(new String[0]);
@@ -203,7 +206,7 @@ public class PropertyEmbedded extends PropertyImpl {
                 indexMetadata.getName(),
                 indexMetadata.getType(),
                 null,
-                metadata,
+                indexToRecreate.getMetadata(),
                 indexMetadata.getAlgorithm(), fieldsToIndex);
           }
         }

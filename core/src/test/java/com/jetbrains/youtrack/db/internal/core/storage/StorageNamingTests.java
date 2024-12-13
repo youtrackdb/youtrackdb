@@ -19,11 +19,12 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage;
 
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.exception.InvalidDatabaseNameException;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.exception.InvalidDatabaseNameException;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,7 +36,7 @@ public class StorageNamingTests {
 
   @Test
   public void testSpecialLettersOne() {
-    try (YouTrackDB youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
+    try (YouTrackDB youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig())) {
       try {
         youTrackDB.create("name%", DatabaseType.MEMORY);
@@ -48,7 +49,7 @@ public class StorageNamingTests {
 
   @Test
   public void testSpecialLettersTwo() {
-    try (YouTrackDB youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
+    try (YouTrackDB youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig())) {
       try {
         youTrackDB.create("na.me", DatabaseType.MEMORY);
@@ -61,7 +62,7 @@ public class StorageNamingTests {
 
   @Test
   public void testSpecialLettersThree() {
-    try (YouTrackDB youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
+    try (YouTrackDB youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig())) {
       youTrackDB.create("na_me$", DatabaseType.MEMORY);
       youTrackDB.drop("na_me$");

@@ -1,16 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -42,9 +41,9 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
   public void testGetFields() {
     final List<String> fields = compositeIndex.getFields();
 
-    Assert.assertEquals(fields.size(), 2);
-    Assert.assertEquals(fields.get(0), "fOne");
-    Assert.assertEquals(fields.get(1), "fTwo");
+    Assert.assertEquals(2, fields.size());
+    Assert.assertEquals("fOne", fields.get(0));
+    Assert.assertEquals("fTwo", fields.get(1));
   }
 
   @Test
@@ -74,7 +73,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
     final Collection<CompositeKey> collectionResult = (Collection<CompositeKey>) result;
 
-    Assert.assertEquals(collectionResult.size(), 2);
+    Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains(new CompositeKey(12, "key1")));
     Assert.assertTrue(collectionResult.contains(new CompositeKey(12, "key2")));
   }
@@ -370,7 +369,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     final Object result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
     final Collection<CompositeKey> collectionResult = (Collection<CompositeKey>) result;
 
-    Assert.assertEquals(collectionResult.size(), 2);
+    Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains(new CompositeKey(12, "key1")));
     Assert.assertTrue(collectionResult.contains(new CompositeKey(12, "key2")));
   }
@@ -658,23 +657,20 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
   public void testGetParamCount() {
     final int result = compositeIndex.getParamCount();
 
-    Assert.assertEquals(result, 2);
+    Assert.assertEquals(2, result);
   }
 
   @Test
   public void testGetTypes() {
     final PropertyType[] result = compositeIndex.getTypes();
 
-    Assert.assertEquals(result.length, 2);
-    Assert.assertEquals(result[0], PropertyType.INTEGER);
-    Assert.assertEquals(result[1], PropertyType.STRING);
+    Assert.assertEquals(2, result.length);
+    Assert.assertEquals(PropertyType.INTEGER, result[0]);
+    Assert.assertEquals(PropertyType.STRING, result[1]);
   }
 
   @Test
   public void testEmptyIndexReload() {
-    final DatabaseDocumentTx database = new DatabaseDocumentTx("memory:compositetestone");
-    database.create();
-
     final CompositeIndexDefinition emptyCompositeIndex =
         new CompositeIndexDefinition("testClass");
 
@@ -683,17 +679,16 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     emptyCompositeIndex.addIndex(
         new PropertyIndexDefinition("testClass", "fTwo", PropertyType.STRING));
 
-    database.begin();
+    db.begin();
     final EntityImpl docToStore = emptyCompositeIndex.toStream(new EntityImpl());
-    database.save(docToStore, database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    db.save(docToStore);
+    db.commit();
 
-    final EntityImpl docToLoad = database.load(docToStore.getIdentity());
+    final EntityImpl docToLoad = db.load(docToStore.getIdentity());
 
     final CompositeIndexDefinition result = new CompositeIndexDefinition();
     result.fromStream(docToLoad);
 
-    database.drop();
     Assert.assertEquals(result, emptyCompositeIndex);
   }
 
@@ -709,8 +704,6 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testClassOnlyConstructor() {
-    final DatabaseDocumentTx database = new DatabaseDocumentTx("memory:compositetesttwo");
-    database.create();
 
     final CompositeIndexDefinition emptyCompositeIndex =
         new CompositeIndexDefinition(
@@ -729,17 +722,16 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
     Assert.assertEquals(emptyCompositeIndex, emptyCompositeIndexTwo);
 
-    database.begin();
-    final EntityImpl docToStore = emptyCompositeIndex.toStream(new EntityImpl());
-    database.save(docToStore, database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    db.begin();
+    final EntityImpl entityToStore = emptyCompositeIndex.toStream(new EntityImpl());
+    db.save(entityToStore);
+    db.commit();
 
-    final EntityImpl docToLoad = database.load(docToStore.getIdentity());
+    final EntityImpl docToLoad = db.load(entityToStore.getIdentity());
 
     final CompositeIndexDefinition result = new CompositeIndexDefinition();
     result.fromStream(docToLoad);
 
-    database.drop();
     Assert.assertEquals(result, emptyCompositeIndexTwo);
   }
 
@@ -777,8 +769,8 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
           db, multiValueChangeEvent, keysToAdd, keysToRemove, 2, 3);
     }
 
-    Assert.assertEquals(keysToRemove.size(), 0);
-    Assert.assertEquals(keysToAdd.size(), 2);
+    Assert.assertEquals(0, keysToRemove.size());
+    Assert.assertEquals(2, keysToAdd.size());
 
     Assert.assertTrue(keysToAdd.containsKey(new CompositeKey(2, "l1", 3)));
     Assert.assertTrue(keysToAdd.containsKey(new CompositeKey(2, "l3", 3)));
@@ -816,8 +808,8 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
           db, multiValueChangeEvent, keysToAdd, keysToRemove, 2, 3);
     }
 
-    Assert.assertEquals(keysToRemove.size(), 0);
-    Assert.assertEquals(keysToAdd.size(), 2);
+    Assert.assertEquals(0, keysToRemove.size());
+    Assert.assertEquals(2, keysToAdd.size());
 
     Assert.assertTrue(keysToAdd.containsKey(new CompositeKey(2, new RecordId("#10:0"), 3)));
     Assert.assertTrue(keysToAdd.containsKey(new CompositeKey(2, new RecordId("#10:2"), 3)));
@@ -861,8 +853,8 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
           db, multiValueChangeEvent, keysToAdd, keysToRemove, 2, 3);
     }
 
-    Assert.assertEquals(keysToRemove.size(), 1);
-    Assert.assertEquals(keysToAdd.size(), 1);
+    Assert.assertEquals(1, keysToRemove.size());
+    Assert.assertEquals(1, keysToAdd.size());
 
     Assert.assertTrue(keysToAdd.containsKey(new CompositeKey(2, "l4", 3)));
     Assert.assertTrue(keysToRemove.containsKey(new CompositeKey(2, "l1", 3)));
@@ -903,8 +895,8 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
           db, multiValueChangeEvent, keysToAdd, keysToRemove, 2, 3);
     }
 
-    Assert.assertEquals(keysToRemove.size(), 1);
-    Assert.assertEquals(keysToAdd.size(), 1);
+    Assert.assertEquals(1, keysToRemove.size());
+    Assert.assertEquals(1, keysToAdd.size());
 
     Assert.assertTrue(keysToAdd.containsKey(new CompositeKey(2, new RecordId("#10:4"), 3)));
     Assert.assertTrue(keysToRemove.containsKey(new CompositeKey(2, new RecordId("#10:1"), 3)));
@@ -945,8 +937,8 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
           db, multiValueChangeEvent, keysToAdd, keysToRemove, 2, 3);
     }
 
-    Assert.assertEquals(keysToRemove.size(), 0);
-    Assert.assertEquals(keysToAdd.size(), 2);
+    Assert.assertEquals(0, keysToRemove.size());
+    Assert.assertEquals(2, keysToAdd.size());
 
     Assert.assertTrue(keysToAdd.containsKey(new CompositeKey(2, "l1", 3)));
     Assert.assertTrue(keysToAdd.containsKey(new CompositeKey(2, "l3", 3)));
@@ -990,8 +982,8 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
           db, multiValueChangeEvent, keysToAdd, keysToRemove, 2, 3);
     }
 
-    Assert.assertEquals(keysToRemove.size(), 1);
-    Assert.assertEquals(keysToAdd.size(), 1);
+    Assert.assertEquals(1, keysToRemove.size());
+    Assert.assertEquals(1, keysToAdd.size());
 
     Assert.assertTrue(keysToAdd.containsKey(new CompositeKey(2, "l4", 3)));
     Assert.assertTrue(keysToRemove.containsKey(new CompositeKey(2, "l1", 3)));
@@ -1033,8 +1025,8 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
           db, multiValueChangeEvent, keysToAdd, keysToRemove, 2, 3);
     }
 
-    Assert.assertEquals(keysToRemove.size(), 0);
-    Assert.assertEquals(keysToAdd.size(), 2);
+    Assert.assertEquals(0, keysToRemove.size());
+    Assert.assertEquals(2, keysToAdd.size());
 
     Assert.assertTrue(keysToAdd.containsKey(new CompositeKey(2, "k1", 3)));
     Assert.assertTrue(keysToAdd.containsKey(new CompositeKey(2, "k3", 3)));
@@ -1080,8 +1072,8 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
           db, multiValueChangeEvent, keysToAdd, keysToRemove, 2, 3);
     }
 
-    Assert.assertEquals(keysToRemove.size(), 1);
-    Assert.assertEquals(keysToAdd.size(), 1);
+    Assert.assertEquals(1, keysToRemove.size());
+    Assert.assertEquals(1, keysToAdd.size());
 
     Assert.assertTrue(keysToAdd.containsKey(new CompositeKey(2, "k4", 3)));
     Assert.assertTrue(keysToRemove.containsKey(new CompositeKey(2, "k1", 3)));

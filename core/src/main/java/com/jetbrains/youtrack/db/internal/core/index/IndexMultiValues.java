@@ -19,14 +19,16 @@
  */
 package com.jetbrains.youtrack.db.internal.core.index;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.comparator.DefaultComparator;
 import com.jetbrains.youtrack.db.internal.common.stream.Streams;
 import com.jetbrains.youtrack.db.internal.common.types.ModifiableBoolean;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.InvalidIndexEngineIdException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.comparator.AscComparator;
 import com.jetbrains.youtrack.db.internal.core.index.comparator.DescComparator;
 import com.jetbrains.youtrack.db.internal.core.index.iterator.PureTxMultiValueBetweenIndexBackwardSplititerator;
@@ -34,7 +36,6 @@ import com.jetbrains.youtrack.db.internal.core.index.iterator.PureTxMultiValueBe
 import com.jetbrains.youtrack.db.internal.core.index.multivalue.MultiValuesTransformer;
 import com.jetbrains.youtrack.db.internal.core.index.multivalue.MultivalueEntityRemover;
 import com.jetbrains.youtrack.db.internal.core.index.multivalue.MultivalueIndexKeyUpdaterImpl;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransaction;
@@ -137,7 +138,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
 
   public IndexMultiValues put(DatabaseSessionInternal session, Object key,
       final Identifiable singleValue) {
-    final RID rid = singleValue.getIdentity();
+    final RecordId rid = (RecordId) singleValue.getIdentity();
 
     if (!rid.isValid()) {
       if (singleValue instanceof Record) {

@@ -13,14 +13,13 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.lucene.tests.LuceneBaseTest;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
@@ -29,135 +28,115 @@ import org.junit.Test;
 /**
  *
  */
-public class LuceneTransactionGeoQueryTest {
+public class LuceneTransactionGeoQueryTest extends LuceneBaseTest {
 
   private static final String PWKT = "POINT(-160.2075374 21.9029803)";
 
   @Test
   public void testPointTransactionRollBack() {
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass v = schema.getClass("V");
+    SchemaClass oClass = schema.createClass("City");
+    oClass.setSuperClass(db, v);
+    oClass.createProperty(db, "location", PropertyType.EMBEDDED, schema.getClass("OPoint"));
+    oClass.createProperty(db, "name", PropertyType.STRING);
 
-    DatabaseSessionInternal db = new DatabaseDocumentTx("memory:txPoint");
+    db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
 
-    try {
-      db.create();
+    Index idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
+    EntityImpl rome = newCity("Rome", 12.5, 41.9);
+    EntityImpl london = newCity("London", -0.1275, 51.507222);
 
-      Schema schema = db.getMetadata().getSchema();
-      SchemaClass v = schema.getClass("V");
-      SchemaClass oClass = schema.createClass("City");
-      oClass.setSuperClass(db, v);
-      oClass.createProperty(db, "location", PropertyType.EMBEDDED, schema.getClass("OPoint"));
-      oClass.createProperty(db, "name", PropertyType.STRING);
+    db.begin();
 
-      db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
+    db.command(
+            "insert into City set name = 'TestInsert' , location = ST_GeomFromText('"
+                + PWKT
+                + "')")
+        .close();
+    db.save(rome);
+    db.save(london);
+    String query =
+        "select * from City where location && 'LINESTRING(-160.06393432617188"
+            + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
+            + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
+            + " 21.787556698550834)' ";
+    List<EntityImpl> docs = db.query(new SQLSynchQuery<EntityImpl>(query));
+    Assert.assertEquals(1, docs.size());
+    Assert.assertEquals(3, idx.getInternal().size(db));
+    db.rollback();
 
-      Index idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
-      EntityImpl rome = newCity("Rome", 12.5, 41.9);
-      EntityImpl london = newCity("London", -0.1275, 51.507222);
+    query =
+        "select * from City where location && 'LINESTRING(-160.06393432617188"
+            + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
+            + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
+            + " 21.787556698550834)' ";
+    docs = db.query(new SQLSynchQuery<EntityImpl>(query));
 
-      db.begin();
-
-      db.command(
-              "insert into City set name = 'TestInsert' , location = ST_GeomFromText('"
-                  + PWKT
-                  + "')")
-          .close();
-      db.save(rome);
-      db.save(london);
-      String query =
-          "select * from City where location && 'LINESTRING(-160.06393432617188"
-              + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
-              + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
-              + " 21.787556698550834)' ";
-      List<EntityImpl> docs = db.query(new SQLSynchQuery<EntityImpl>(query));
-      Assert.assertEquals(1, docs.size());
-      Assert.assertEquals(3, idx.getInternal().size(db));
-      db.rollback();
-
-      query =
-          "select * from City where location && 'LINESTRING(-160.06393432617188"
-              + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
-              + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
-              + " 21.787556698550834)' ";
-      docs = db.query(new SQLSynchQuery<EntityImpl>(query));
-
-      db.begin();
-      Assert.assertEquals(0, docs.size());
-      Assert.assertEquals(0, idx.getInternal().size(db));
-      db.commit();
-    } finally {
-      db.drop();
-    }
+    db.begin();
+    Assert.assertEquals(0, docs.size());
+    Assert.assertEquals(0, idx.getInternal().size(db));
+    db.commit();
   }
 
   @Test
   public void testPointTransactionUpdate() {
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass v = schema.getClass("V");
+    SchemaClass oClass = schema.createClass("City");
+    oClass.setSuperClass(db, v);
+    oClass.createProperty(db, "location", PropertyType.EMBEDDED, schema.getClass("OPoint"));
+    oClass.createProperty(db, "name", PropertyType.STRING);
 
-    DatabaseSessionInternal db = new DatabaseDocumentTx("memory:txPoint");
+    db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
 
-    try {
-      db.create();
+    Index idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
+    EntityImpl rome = newCity("Rome", 12.5, 41.9);
 
-      Schema schema = db.getMetadata().getSchema();
-      SchemaClass v = schema.getClass("V");
-      SchemaClass oClass = schema.createClass("City");
-      oClass.setSuperClass(db, v);
-      oClass.createProperty(db, "location", PropertyType.EMBEDDED, schema.getClass("OPoint"));
-      oClass.createProperty(db, "name", PropertyType.STRING);
+    db.begin();
 
-      db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
+    db.save(rome);
 
-      Index idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
-      EntityImpl rome = newCity("Rome", 12.5, 41.9);
+    db.commit();
 
-      db.begin();
+    String query =
+        "select * from City where location && 'LINESTRING(-160.06393432617188"
+            + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
+            + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
+            + " 21.787556698550834)' ";
+    List<EntityImpl> docs = db.query(new SQLSynchQuery<EntityImpl>(query));
 
-      db.save(rome);
+    db.begin();
+    Assert.assertEquals(0, docs.size());
+    Assert.assertEquals(1, idx.getInternal().size(db));
 
-      db.commit();
+    db.command("update City set location = ST_GeomFromText('" + PWKT + "')").close();
 
-      String query =
-          "select * from City where location && 'LINESTRING(-160.06393432617188"
-              + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
-              + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
-              + " 21.787556698550834)' ";
-      List<EntityImpl> docs = db.query(new SQLSynchQuery<EntityImpl>(query));
+    query =
+        "select * from City where location && 'LINESTRING(-160.06393432617188"
+            + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
+            + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
+            + " 21.787556698550834)' ";
+    docs = db.query(new SQLSynchQuery<EntityImpl>(query));
+    Assert.assertEquals(1, docs.size());
+    Assert.assertEquals(1, idx.getInternal().size(db));
 
-      db.begin();
-      Assert.assertEquals(0, docs.size());
-      Assert.assertEquals(1, idx.getInternal().size(db));
+    db.commit();
 
-      db.command("update City set location = ST_GeomFromText('" + PWKT + "')").close();
+    query =
+        "select * from City where location && 'LINESTRING(-160.06393432617188"
+            + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
+            + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
+            + " 21.787556698550834)' ";
+    docs = db.query(new SQLSynchQuery<EntityImpl>(query));
 
-      query =
-          "select * from City where location && 'LINESTRING(-160.06393432617188"
-              + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
-              + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
-              + " 21.787556698550834)' ";
-      docs = db.query(new SQLSynchQuery<EntityImpl>(query));
-      Assert.assertEquals(1, docs.size());
-      Assert.assertEquals(1, idx.getInternal().size(db));
-
-      db.commit();
-
-      query =
-          "select * from City where location && 'LINESTRING(-160.06393432617188"
-              + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
-              + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
-              + " 21.787556698550834)' ";
-      docs = db.query(new SQLSynchQuery<EntityImpl>(query));
-
-      db.begin();
-      Assert.assertEquals(1, docs.size());
-      Assert.assertEquals(1, idx.getInternal().size(db));
-      db.commit();
-
-    } finally {
-      db.drop();
-    }
+    db.begin();
+    Assert.assertEquals(1, docs.size());
+    Assert.assertEquals(1, idx.getInternal().size(db));
+    db.commit();
   }
 
-  protected EntityImpl newCity(String name, final Double longitude, final Double latitude) {
-
+  protected static EntityImpl newCity(String name, final Double longitude, final Double latitude) {
     EntityImpl location = new EntityImpl("OPoint");
     location.field(
         "coordinates",

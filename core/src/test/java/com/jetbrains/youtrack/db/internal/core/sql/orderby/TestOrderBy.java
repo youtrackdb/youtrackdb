@@ -2,14 +2,14 @@ package com.jetbrains.youtrack.db.internal.core.sql.orderby;
 
 import static org.junit.Assert.assertEquals;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.INDEX_TYPE;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.api.query.Result;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -20,8 +20,8 @@ public class TestOrderBy extends DbTestBase {
 
   @Test
   public void testGermanOrderBy() {
-    db.set(ATTRIBUTES.LOCALECOUNTRY, Locale.GERMANY.getCountry());
-    db.set(ATTRIBUTES.LOCALELANGUAGE, Locale.GERMANY.getLanguage());
+    db.set(DatabaseSession.ATTRIBUTES.LOCALE_COUNTRY, Locale.GERMANY.getCountry());
+    db.set(DatabaseSession.ATTRIBUTES.LOCALE_LANGUAGE, Locale.GERMANY.getLanguage());
     db.getMetadata().getSchema().createClass("test");
 
     db.begin();
@@ -46,8 +46,8 @@ public class TestOrderBy extends DbTestBase {
   @Test
   @Ignore
   public void testGermanOrderByIndex() {
-    db.set(ATTRIBUTES.LOCALECOUNTRY, Locale.GERMANY.getCountry());
-    db.set(ATTRIBUTES.LOCALELANGUAGE, Locale.GERMANY.getLanguage());
+    db.set(DatabaseSession.ATTRIBUTES.LOCALE_COUNTRY, Locale.GERMANY.getCountry());
+    db.set(DatabaseSession.ATTRIBUTES.LOCALE_LANGUAGE, Locale.GERMANY.getLanguage());
     SchemaClass clazz = db.getMetadata().getSchema().createClass("test");
     clazz.createProperty(db, "name", PropertyType.STRING).createIndex(db, INDEX_TYPE.NOTUNIQUE);
     Record res1 = db.save(new EntityImpl("test").field("name", "Ähhhh"));

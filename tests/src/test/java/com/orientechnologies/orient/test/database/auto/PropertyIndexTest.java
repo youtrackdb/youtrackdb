@@ -15,14 +15,15 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
+import java.util.Map;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -69,14 +70,14 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testCreateUniqueIndex() {
-    final Schema schema = database.getMetadata().getSchema();
-    final SchemaClass oClass = schema.getClass("PropertyIndexTestClass");
+    var schema = database.getMetadata().getSchema();
+    var oClass = schema.getClassInternal("PropertyIndexTestClass");
     final Property propOne = oClass.getProperty("prop1");
 
     propOne.createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE,
-        new EntityImpl().field("ignoreNullValues", true));
+        Map.of("ignoreNullValues", true));
 
-    final Collection<Index> indexes = propOne.getIndexes(database);
+    final Collection<Index> indexes = oClass.getInvolvedIndexesInternal(database, "prop1");
     IndexDefinition indexDefinition = null;
 
     for (final Index index : indexes) {
@@ -103,47 +104,47 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
         "propOne0",
         SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop0", "prop1"});
+        Map.of("ignoreNullValues", true), new String[]{"prop0", "prop1"});
     oClass.createIndex(database,
         "propOne1",
         SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop1", "prop2"});
+        Map.of("ignoreNullValues", true), new String[]{"prop1", "prop2"});
     oClass.createIndex(database,
         "propOne2",
         SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop1", "prop3"});
+        Map.of("ignoreNullValues", true), new String[]{"prop1", "prop3"});
     oClass.createIndex(database,
         "propOne3",
         SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop2", "prop3"});
+        Map.of("ignoreNullValues", true), new String[]{"prop2", "prop3"});
     oClass.createIndex(database,
         "propOne4",
         SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop2", "prop1"});
+        Map.of("ignoreNullValues", true), new String[]{"prop2", "prop1"});
   }
 
   @Test(dependsOnMethods = "createAdditionalSchemas")
   public void testGetIndexes() {
-    final Schema schema = database.getMetadata().getSchema();
-    final SchemaClass oClass = schema.getClass("PropertyIndexTestClass");
-    final Property propOne = oClass.getProperty("prop1");
+    var schema = database.getMetadata().getSchema();
+    var oClass = schema.getClassInternal("PropertyIndexTestClass");
+    oClass.getProperty("prop1");
 
-    final Collection<Index> indexes = propOne.getIndexes(database);
+    var indexes = oClass.getInvolvedIndexesInternal(database, "prop1");
     Assert.assertEquals(indexes.size(), 1);
     Assert.assertNotNull(containsIndex(indexes, "PropertyIndexTestClass.prop1"));
   }
 
   @Test(dependsOnMethods = "createAdditionalSchemas")
   public void testGetAllIndexes() {
-    final Schema schema = database.getMetadata().getSchema();
-    final SchemaClass oClass = schema.getClass("PropertyIndexTestClass");
-    final Property propOne = oClass.getProperty("prop1");
+    var schema = database.getMetadata().getSchema();
+    var oClass = schema.getClassInternal("PropertyIndexTestClass");
+    var propOne = oClass.getPropertyInternal("prop1");
 
-    final Collection<Index> indexes = propOne.getAllIndexes(database);
+    final Collection<Index> indexes = propOne.getAllIndexesInternal(database);
     Assert.assertEquals(indexes.size(), 5);
     Assert.assertNotNull(containsIndex(indexes, "PropertyIndexTestClass.prop1"));
     Assert.assertNotNull(containsIndex(indexes, "propOne0"));
@@ -154,10 +155,11 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testIsIndexedNonIndexedField() {
-    final Schema schema = database.getMetadata().getSchema();
-    final SchemaClass oClass = schema.getClass("PropertyIndexTestClass");
-    final Property propThree = oClass.getProperty("prop3");
-    Assert.assertFalse(propThree.isIndexed(database));
+    var schema = database.getMetadata().getSchema();
+    var oClass = schema.getClass("PropertyIndexTestClass");
+    var propThree = oClass.getProperty("prop3");
+
+    Assert.assertTrue(propThree.getAllIndexes(database).isEmpty());
   }
 
   @Test(dependsOnMethods = {"testCreateUniqueIndex"})
@@ -165,7 +167,7 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
     final Schema schema = database.getMetadata().getSchema();
     final SchemaClass oClass = schema.getClass("PropertyIndexTestClass");
     final Property propOne = oClass.getProperty("prop1");
-    Assert.assertTrue(propOne.isIndexed(database));
+    Assert.assertFalse(propOne.getAllIndexes(database).isEmpty());
   }
 
   @Test(dependsOnMethods = {"testIsIndexedIndexedField"})
@@ -269,64 +271,32 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
         "PropertyIndexFirstIndex",
         SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop4"});
+        Map.of("ignoreNullValues", true), new String[]{"prop4"});
+
     oClass.createIndex(database,
         "PropertyIndexSecondIndex",
         SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop4"});
+        Map.of("ignoreNullValues", true), new String[]{"prop4"});
 
-    oClass.getProperty("prop4").dropIndexes(database);
-
-    Assert.assertNull(
-        database
-            .getMetadata()
-            .getIndexManagerInternal()
-            .getIndex(database, "PropertyIndexFirstIndex"));
-    Assert.assertNull(
-        database
-            .getMetadata()
-            .getIndexManagerInternal()
-            .getIndex(database, "PropertyIndexSecondIndex"));
-  }
-
-  @Test
-  public void testDropIndexesForComposite() throws Exception {
-    final Schema schema = database.getMetadata().getSchema();
-    final SchemaClass oClass = schema.getClass("PropertyIndexTestClass");
-
-    oClass.createIndex(database,
-        "PropertyIndexFirstIndex",
-        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-        null,
-        new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop4"});
-    oClass.createIndex(database,
-        "PropertyIndexSecondIndex",
-        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
-        null,
-        new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop4", "prop5"});
-
-    try {
-      oClass.getProperty("prop4").dropIndexes(database);
-      Assert.fail();
-    } catch (IllegalArgumentException e) {
-      Assert.assertTrue(
-          e.getMessage().contains("This operation applicable only for property indexes. "));
+    var indexes = oClass.getInvolvedIndexes(database, "prop4");
+    for (var index : indexes) {
+      database.getMetadata().getIndexManagerInternal().dropIndex(database, index);
     }
 
-    Assert.assertNotNull(
+    Assert.assertNull(
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "PropertyIndexFirstIndex"));
-    Assert.assertNotNull(
+    Assert.assertNull(
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "PropertyIndexSecondIndex"));
   }
 
-  private Index containsIndex(final Collection<Index> indexes, final String indexName) {
+  private static Index containsIndex(final Collection<Index> indexes, final String indexName) {
     for (final Index index : indexes) {
       if (index.getName().equals(indexName)) {
         return index;

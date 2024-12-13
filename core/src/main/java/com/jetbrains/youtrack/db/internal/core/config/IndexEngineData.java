@@ -2,7 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.config;
 
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;

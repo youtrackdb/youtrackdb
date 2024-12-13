@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.security.binary;
 
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.BinaryTokenPayload;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.TokenHeader;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.TokenMetaInfo;

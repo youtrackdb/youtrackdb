@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.encryption.impl;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.encryption.Encryption;
 import com.jetbrains.youtrack.db.internal.core.exception.InvalidStorageEncryptionKeyException;
 import javax.crypto.Cipher;

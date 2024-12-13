@@ -1,9 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.query.ExecutionStep;
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -87,8 +90,9 @@ public class SelectExecutionPlan implements InternalExecutionPlan {
   }
 
   @Override
-  public Result toResult(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+  public Result toResult(DatabaseSession db) {
+    var session = (DatabaseSessionInternal) db;
+    ResultInternal result = new ResultInternal(session);
     result.setProperty("type", "QueryExecutionPlan");
     result.setProperty(JAVA_TYPE, getClass().getName());
     result.setProperty("cost", getCost());
@@ -96,7 +100,8 @@ public class SelectExecutionPlan implements InternalExecutionPlan {
     result.setProperty(
         "steps",
         steps == null ? null
-            : steps.stream().map(x -> x.toResult(db)).collect(Collectors.toList()));
+            : steps.stream().map(x ->
+                x.toResult(session)).collect(Collectors.toList()));
     return result;
   }
 

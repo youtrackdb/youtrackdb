@@ -19,9 +19,9 @@
 package com.jetbrains.youtrack.db.internal.lucene.tests;
 
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.lucene.index.LuceneIndexNotUnique;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

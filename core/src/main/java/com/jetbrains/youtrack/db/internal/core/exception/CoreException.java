@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.exception;
 
 import com.jetbrains.youtrack.db.internal.common.exception.ErrorCode;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 

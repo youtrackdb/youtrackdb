@@ -1,9 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.iterator;
 
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection.DefaultClusterSelectionStrategy;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.HashSet;
@@ -54,7 +55,7 @@ public class ClassIteratorTest extends DbTestBase {
 
   @Test
   public void testDescendentOrderIteratorWithMultipleClusters() throws Exception {
-    final SchemaClass personClass = db.getMetadata().getSchema().getClass("Person");
+    var personClass = (SchemaClassInternal) db.getMetadata().getSchema().getClass("Person");
 
     // empty old cluster but keep it attached
     personClass.truncate(db);
@@ -63,7 +64,6 @@ public class ClassIteratorTest extends DbTestBase {
     int testClusterId = db.addCluster("test");
     personClass.addClusterId(db, testClusterId);
     personClass.setClusterSelection(db, new DefaultClusterSelectionStrategy());
-    personClass.setDefaultClusterId(db, testClusterId);
 
     for (String name : names) {
       createPerson("Person", name);

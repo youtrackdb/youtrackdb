@@ -1,24 +1,24 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
-import com.jetbrains.youtrack.db.internal.common.concur.lock.ModificationOperationProhibitedException;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.ConcurrentModificationException;
+import com.jetbrains.youtrack.db.api.exception.ModificationOperationProhibitedException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.ReadersWriterSpinLock;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.PartitionedDatabasePool;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseCompare;
-import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentModificationException;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.File;
 import java.util.ArrayList;
@@ -155,7 +155,7 @@ public class StorageBackupMTStateTest {
     System.out.println("Final incremental  backup");
     databaseDocumentTx = new DatabaseDocumentTx(dbURL);
     databaseDocumentTx.open("admin", "admin");
-    databaseDocumentTx.incrementalBackup(backupDir.getAbsolutePath());
+    databaseDocumentTx.incrementalBackup(backupDir.toPath());
 
     Storage storage = databaseDocumentTx.getStorage();
     databaseDocumentTx.close();
@@ -373,7 +373,7 @@ public class StorageBackupMTStateTest {
         flowLock.acquireReadLock();
         try {
           System.out.println("Start backup");
-          db.incrementalBackup(backupDir.getAbsolutePath());
+          db.incrementalBackup(backupDir.toPath());
           System.out.println("End backup");
         } finally {
           flowLock.releaseReadLock();

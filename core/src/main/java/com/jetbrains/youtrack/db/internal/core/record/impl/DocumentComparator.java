@@ -19,13 +19,13 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLSelect;
 import java.text.Collator;
 import java.util.Comparator;
@@ -50,9 +50,9 @@ public class DocumentComparator implements Comparator<Identifiable> {
     collator =
         Collator.getInstance(
             new Locale(
-                internal.get(ATTRIBUTES.LOCALECOUNTRY)
+                internal.get(DatabaseSession.ATTRIBUTES.LOCALE_COUNTRY)
                     + "_"
-                    + internal.get(ATTRIBUTES.LOCALELANGUAGE)));
+                    + internal.get(DatabaseSession.ATTRIBUTES.LOCALE_LANGUAGE)));
   }
 
   @SuppressWarnings("unchecked")

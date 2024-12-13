@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.enterprise.channel.binary;
 
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
 import java.io.IOException;
 import java.io.OutputStream;
 

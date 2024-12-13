@@ -20,8 +20,8 @@
 package com.jetbrains.youtrack.db.internal.core.servlet;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
@@ -39,7 +39,7 @@ public class ServletContextLifeCycleListener implements ServletContextListener {
     if (GlobalConfiguration.INIT_IN_SERVLET_CONTEXT_LISTENER.getValueAsBoolean()) {
       LogManager.instance()
           .info(this, "Start web application is detected, YouTrackDB engine is staring up...");
-      YouTrackDBManager.startUp(true);
+      YouTrackDBEnginesManager.startUp(true);
       LogManager.instance().info(this, "YouTrackDB engine is started");
     }
   }
@@ -47,7 +47,7 @@ public class ServletContextLifeCycleListener implements ServletContextListener {
   @Override
   public void contextDestroyed(ServletContextEvent sce) {
     if (GlobalConfiguration.INIT_IN_SERVLET_CONTEXT_LISTENER.getValueAsBoolean()) {
-      final YouTrackDBManager youTrack = YouTrackDBManager.instance();
+      final YouTrackDBEnginesManager youTrack = YouTrackDBEnginesManager.instance();
       if (youTrack != null) {
         LogManager.instance()
             .info(

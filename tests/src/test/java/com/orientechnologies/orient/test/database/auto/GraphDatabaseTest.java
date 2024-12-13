@@ -15,17 +15,18 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.Edge;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.Direction;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Direction;
+import com.jetbrains.youtrack.db.api.record.Edge;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -71,9 +72,9 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     porsche.setProperty("brand", "Porsche");
     porsche.save();
 
-    database.newEdge(tom, ferrari, "drives").save();
-    database.newEdge(tom, maserati, "drives").save();
-    database.newEdge(tom, porsche, "owns").save();
+    database.newRegularEdge(tom, ferrari, "drives").save();
+    database.newRegularEdge(tom, maserati, "drives").save();
+    database.newRegularEdge(tom, porsche, "owns").save();
 
     database.commit();
 
@@ -94,9 +95,9 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
   }
 
   public void testNotDuplicatedIndexTxChanges() throws IOException {
-    SchemaClass oc = database.createVertexClass("vertexA");
+    var oc = (SchemaClassInternal) database.createVertexClass("vertexA");
     if (oc == null) {
-      oc = database.createVertexClass("vertexA");
+      oc = (SchemaClassInternal) database.createVertexClass("vertexA");
     }
 
     if (!oc.existsProperty("name")) {
@@ -138,7 +139,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     vertexB.setProperty("field1", "value1");
     vertexB.setProperty("field2", "value2");
 
-    Edge edgeC = database.newEdge(vertexA, vertexB);
+    Edge edgeC = database.newRegularEdge(vertexA, vertexB);
     edgeC.setProperty("edgeF1", "edgeV2");
 
     database.commit();
@@ -167,12 +168,12 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     targetVertex.setProperty("car", "audi");
     targetVertex.save();
 
-    Edge edge = database.newEdge(vertex1, vertex2);
+    Edge edge = database.newRegularEdge(vertex1, vertex2);
     edge.setProperty("color", "red");
     edge.setProperty("action", "owns");
     edge.save();
 
-    edge = database.newEdge(vertex1, targetVertex);
+    edge = database.newRegularEdge(vertex1, targetVertex);
     edge.setProperty("color", "red");
     edge.setProperty("action", "wants");
     edge.save();
@@ -219,8 +220,8 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     cityVertex2.setProperty("lat", "53.47497");
     cityVertex2.setProperty("long", "-2.25769");
 
-    database.newEdge(countryVertex1, cityVertex1, "owns").save();
-    database.newEdge(countryVertex1, cityVertex2, "owns").save();
+    database.newRegularEdge(countryVertex1, cityVertex1, "owns").save();
+    database.newRegularEdge(countryVertex1, cityVertex2, "owns").save();
 
     database.commit();
     String subquery = "select out('owns') as out from V where name = 'UK'";

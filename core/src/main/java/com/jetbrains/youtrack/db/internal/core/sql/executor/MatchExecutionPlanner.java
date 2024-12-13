@@ -1,12 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.query.ExecutionStep;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.util.PairLongObject;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.Pattern;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCluster;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
@@ -29,7 +32,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSkip;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLUnwind;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.Pattern;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -857,7 +859,7 @@ public class MatchExecutionPlanner {
     allAliases.addAll(aliasRids.keySet());
 
     var db = ctx.getDatabase();
-    Schema schema = db.getMetadata().getImmutableSchemaSnapshot();
+    var schema = db.getMetadata().getImmutableSchemaSnapshot();
 
     Map<String, Long> result = new LinkedHashMap<String, Long>();
     for (String alias : allAliases) {
@@ -878,7 +880,7 @@ public class MatchExecutionPlanner {
         if (!schema.existsClass(className)) {
           throw new CommandExecutionException("class not defined: " + className);
         }
-        SchemaClass oClass = schema.getClass(className);
+        var oClass = schema.getClassInternal(className);
         long upperBound;
         SQLWhereClause filter = aliasFilters.get(alias);
         if (filter != null) {
@@ -887,12 +889,13 @@ public class MatchExecutionPlanner {
           upperBound = oClass.count(db);
         }
         result.put(alias, upperBound);
-      } else if (clusterName != null) {
+      } else {
         if (!db.existsCluster(clusterName)) {
           throw new CommandExecutionException("cluster not defined: " + clusterName);
         }
         int clusterId = db.getClusterIdByName(clusterName);
-        SchemaClass oClass = db.getMetadata().getSchema().getClassByClusterId(clusterId);
+        var oClass = (SchemaClassInternal) db.getMetadata().getSchema()
+            .getClassByClusterId(clusterId);
         if (oClass != null) {
           long upperBound;
           SQLWhereClause filter = aliasFilters.get(alias);

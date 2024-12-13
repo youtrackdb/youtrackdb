@@ -3,21 +3,22 @@ package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionId;
-import com.jetbrains.youtrack.db.internal.core.tx.TransactionInternal;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionSequenceStatus;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransacationMetadataHolder;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionId;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionSequenceStatus;
+import com.jetbrains.youtrack.db.internal.core.tx.TransactionInternal;
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
@@ -25,14 +26,14 @@ import org.junit.Test;
 
 public class TransactionMetadataTest {
 
-  private YouTrackDB youTrackDB;
+  private YouTrackDBImpl youTrackDB;
   private DatabaseSessionInternal db;
   private static final String DB_NAME = TransactionMetadataTest.class.getSimpleName();
 
   @Before
   public void before() {
 
-    youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
+    youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database `" + DB_NAME + "` plocal users(admin identified by 'admin' role admin)");
@@ -49,7 +50,7 @@ public class TransactionMetadataTest {
     v.setProperty("name", "Foo");
     db.save(v);
     db.commit();
-    db.incrementalBackup("target/backup_metadata");
+    db.incrementalBackup(Path.of("target/backup_metadata"));
     db.close();
     YouTrackDBInternal.extract(youTrackDB)
         .restore(

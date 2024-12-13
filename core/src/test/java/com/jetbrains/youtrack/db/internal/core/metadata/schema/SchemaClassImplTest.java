@@ -5,10 +5,15 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import com.jetbrains.youtrack.db.api.exception.SchemaException;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
-import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,11 +40,11 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
     final Schema oSchema = db.getMetadata().getSchema();
 
     SchemaClass oClass = oSchema.createClass("Test1");
-    final int oldClusterId = oClass.getDefaultClusterId();
+    final int oldClusterId = oClass.getClusterIds()[0];
 
     oClass.setAbstract(db, false);
 
-    assertEquals(oClass.getDefaultClusterId(), oldClusterId);
+    assertEquals(oClass.getClusterIds()[0], oldClusterId);
   }
 
   /**
@@ -56,15 +61,15 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
 
     oClass.setAbstract(db, false);
 
-    assertNotEquals(-1, oClass.getDefaultClusterId());
-    assertNotEquals(oClass.getDefaultClusterId(), db.getDefaultClusterId());
+    assertNotEquals(-1, oClass.getClusterIds()[0]);
+    assertNotEquals(oClass.getClusterIds()[0], db.getDefaultClusterId());
   }
 
   @Test
   public void testCreateNoLinkedClass() {
     final Schema oSchema = db.getMetadata().getSchema();
 
-    SchemaClass oClass = oSchema.createClass("Test21");
+    SchemaClassInternal oClass = (SchemaClassInternal) oSchema.createClass("Test21");
     oClass.createProperty(db, "some", PropertyType.LINKLIST, (SchemaClass) null);
     oClass.createProperty(db, "some2", PropertyType.LINKLIST, (SchemaClass) null, true);
 

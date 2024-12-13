@@ -20,14 +20,14 @@
 package com.orientechnologies.orient.server;
 
 import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.exception.SystemException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.QueryDatabaseState;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.security.ParsedToken;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionPlan;
+import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinary;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.TokenSecurityException;
@@ -355,7 +355,8 @@ public class OClientConnection {
     if (database != null) {
       database.activateOnCurrentThread();
       stats.lastDatabase = database.getName();
-      stats.lastUser = database.getUser() != null ? database.getUser().getName(database) : null;
+      stats.lastUser =
+          database.geCurrentUser() != null ? database.geCurrentUser().getName(database) : null;
       stats.activeQueries = getActiveQueries(database);
     } else {
       stats.lastDatabase = null;

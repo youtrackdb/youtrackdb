@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.security.binary;
 
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.BinaryTokenPayload;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.TokenMetaInfo;
 import java.io.DataOutputStream;

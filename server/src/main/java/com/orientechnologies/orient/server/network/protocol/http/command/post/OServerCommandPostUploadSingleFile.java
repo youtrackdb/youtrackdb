@@ -16,7 +16,8 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
@@ -36,13 +37,13 @@ import java.util.HashMap;
  *
  */
 public class OServerCommandPostUploadSingleFile extends
-    OHttpMultipartRequestCommand<String, RID> {
+    OHttpMultipartRequestCommand<String, RecordId> {
 
   private static final String[] NAMES = {"POST|uploadSingleFile/*"};
 
   protected StringWriter buffer;
   protected JSONWriter writer;
-  protected RID fileRID;
+  protected RecordId fileRID;
   protected String fileDocument;
   protected String fileName;
   protected String fileType;
@@ -126,11 +127,11 @@ public class OServerCommandPostUploadSingleFile extends
 
   @Override
   protected void processFileContent(
-      OHttpRequest iRequest, RID iContentResult, HashMap<String, String> headers)
+      OHttpRequest iRequest, RecordId contentResult, HashMap<String, String> headers)
       throws Exception {
     if (headers.containsKey(OHttpUtils.MULTIPART_CONTENT_NAME)
         && headers.get(OHttpUtils.MULTIPART_CONTENT_NAME).equals(getFileParamenterName())) {
-      fileRID = iContentResult;
+      fileRID = contentResult;
       if (headers.containsKey(OHttpUtils.MULTIPART_CONTENT_FILENAME)) {
         fileName = headers.get(OHttpUtils.MULTIPART_CONTENT_FILENAME);
         if (fileName.charAt(0) == '"') {

@@ -1,11 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent.ChangeType;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.Arrays;
@@ -55,7 +54,7 @@ public class PropertyMapIndexDefinitionTest extends DbTestBase {
 
     final Collection<?> collectionResult = (Collection<?>) result;
 
-    Assert.assertEquals(collectionResult.size(), 2);
+    Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains("st1"));
     Assert.assertTrue(collectionResult.contains("st2"));
   }
@@ -68,7 +67,7 @@ public class PropertyMapIndexDefinitionTest extends DbTestBase {
 
     final Collection<?> collectionResult = (Collection<?>) result;
 
-    Assert.assertEquals(collectionResult.size(), 2);
+    Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains(1));
     Assert.assertTrue(collectionResult.contains(2));
   }
@@ -81,7 +80,7 @@ public class PropertyMapIndexDefinitionTest extends DbTestBase {
 
     final Collection<?> collectionResult = (Collection<?>) result;
 
-    Assert.assertEquals(collectionResult.size(), 2);
+    Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains("st1"));
     Assert.assertTrue(collectionResult.contains("st2"));
   }
@@ -94,7 +93,7 @@ public class PropertyMapIndexDefinitionTest extends DbTestBase {
 
     final Collection<?> collectionResult = (Collection<?>) result;
 
-    Assert.assertEquals(collectionResult.size(), 2);
+    Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains(1));
     Assert.assertTrue(collectionResult.contains(2));
   }
@@ -112,7 +111,7 @@ public class PropertyMapIndexDefinitionTest extends DbTestBase {
 
     final Collection<?> collectionResult = (Collection<?>) result;
 
-    Assert.assertEquals(collectionResult.size(), 2);
+    Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains("st1"));
     Assert.assertTrue(collectionResult.contains("st2"));
   }
@@ -124,7 +123,7 @@ public class PropertyMapIndexDefinitionTest extends DbTestBase {
 
     final Collection<?> collectionResult = (Collection<?>) result;
 
-    Assert.assertEquals(collectionResult.size(), 2);
+    Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains(1));
     Assert.assertTrue(collectionResult.contains(2));
   }
@@ -137,7 +136,7 @@ public class PropertyMapIndexDefinitionTest extends DbTestBase {
 
     final Collection<?> collectionResult = (Collection<?>) result;
 
-    Assert.assertEquals(collectionResult.size(), 2);
+    Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains("st1"));
     Assert.assertTrue(collectionResult.contains("st2"));
   }
@@ -150,7 +149,7 @@ public class PropertyMapIndexDefinitionTest extends DbTestBase {
 
     final Collection<?> collectionResult = (Collection<?>) result;
 
-    Assert.assertEquals(collectionResult.size(), 2);
+    Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains(1));
     Assert.assertTrue(collectionResult.contains(2));
   }
@@ -173,7 +172,7 @@ public class PropertyMapIndexDefinitionTest extends DbTestBase {
 
     final Collection<?> collectionResult = (Collection<?>) result;
 
-    Assert.assertEquals(collectionResult.size(), 2);
+    Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains("st1"));
     Assert.assertTrue(collectionResult.contains("st2"));
   }
@@ -190,7 +189,7 @@ public class PropertyMapIndexDefinitionTest extends DbTestBase {
 
     final Collection<?> collectionResult = (Collection<?>) result;
 
-    Assert.assertEquals(collectionResult.size(), 2);
+    Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains(1));
     Assert.assertTrue(collectionResult.contains(2));
   }
@@ -198,73 +197,64 @@ public class PropertyMapIndexDefinitionTest extends DbTestBase {
   @Test
   public void testGetFields() {
     final List<String> result = propertyIndexByKey.getFields();
-    Assert.assertEquals(result.size(), 1);
-    Assert.assertEquals(result.get(0), "fOne");
+    Assert.assertEquals(1, result.size());
+    Assert.assertEquals("fOne", result.getFirst());
   }
 
   @Test
   public void testGetTypes() {
     final PropertyType[] result = propertyIndexByKey.getTypes();
-    Assert.assertEquals(result.length, 1);
-    Assert.assertEquals(result[0], PropertyType.STRING);
+    Assert.assertEquals(1, result.length);
+    Assert.assertEquals(PropertyType.STRING, result[0]);
   }
 
   @Test
   public void testEmptyIndexByKeyReload() {
-    final DatabaseDocumentTx database = new DatabaseDocumentTx("memory:propertytest");
-    database.create();
-
     propertyIndexByKey =
         new PropertyMapIndexDefinition(
             "tesClass", "fOne", PropertyType.STRING, PropertyMapIndexDefinition.INDEX_BY.KEY);
 
-    database.begin();
+    db.begin();
     final EntityImpl docToStore = propertyIndexByKey.toStream(new EntityImpl());
-    database.save(docToStore, database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    db.save(docToStore);
+    db.commit();
 
-    final EntityImpl docToLoad = database.load(docToStore.getIdentity());
+    final EntityImpl docToLoad = db.load(docToStore.getIdentity());
 
     final PropertyIndexDefinition result = new PropertyMapIndexDefinition();
     result.fromStream(docToLoad);
-
-    database.drop();
     Assert.assertEquals(result, propertyIndexByKey);
   }
 
   @Test
   public void testEmptyIndexByValueReload() {
-    final DatabaseDocumentTx database = new DatabaseDocumentTx("memory:propertytest");
-    database.create();
-
     propertyIndexByValue =
         new PropertyMapIndexDefinition(
             "tesClass", "fOne", PropertyType.INTEGER, PropertyMapIndexDefinition.INDEX_BY.VALUE);
 
-    database.begin();
+    db.begin();
     final EntityImpl docToStore = propertyIndexByValue.toStream(new EntityImpl());
-    database.save(docToStore, database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    db.save(docToStore);
+    db.commit();
 
-    final EntityImpl docToLoad = database.load(docToStore.getIdentity());
+    final EntityImpl docToLoad = db.load(docToStore.getIdentity());
 
     final PropertyIndexDefinition result = new PropertyMapIndexDefinition();
     result.fromStream(docToLoad);
 
-    database.drop();
     Assert.assertEquals(result, propertyIndexByValue);
   }
 
   @Test
   public void testCreateSingleValueByKey() {
     final Object result = propertyIndexByKey.createSingleValue(db, "tt");
-    Assert.assertEquals(result, "tt");
+    Assert.assertEquals("tt", result);
   }
 
   @Test
   public void testCreateSingleValueByValue() {
     final Object result = propertyIndexByValue.createSingleValue(db, "12");
-    Assert.assertEquals(result, 12);
+    Assert.assertEquals(12, result);
   }
 
   @Test(expected = DatabaseException.class)
@@ -283,7 +273,7 @@ public class PropertyMapIndexDefinitionTest extends DbTestBase {
         propertyIndexByKey
             .toCreateIndexDDL("testIndex", "unique", null)
             .toLowerCase(Locale.ENGLISH);
-    Assert.assertEquals(ddl, "create index `testindex` on `testclass` ( `fone` by key ) unique");
+    Assert.assertEquals("create index `testindex` on `testclass` ( `fone` by key ) unique", ddl);
   }
 
   @Test
@@ -292,7 +282,7 @@ public class PropertyMapIndexDefinitionTest extends DbTestBase {
         propertyIndexByValue
             .toCreateIndexDDL("testIndex", "unique", null)
             .toLowerCase(Locale.ENGLISH);
-    Assert.assertEquals(ddl, "create index `testindex` on `testclass` ( `fone` by value ) unique");
+    Assert.assertEquals("create index `testindex` on `testclass` ( `fone` by value ) unique", ddl);
   }
 
   @Test

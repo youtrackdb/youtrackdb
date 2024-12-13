@@ -19,20 +19,20 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.LiveQueryMonitor;
-import com.jetbrains.youtrack.db.internal.core.db.LiveQueryResultListener;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.query.LiveQueryMonitor;
+import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.LiveResultListener;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.util.ArrayList;
@@ -55,12 +55,12 @@ import org.junit.Test;
  */
 public class LiveQueryTest {
 
-  private YouTrackDB odb;
+  private YouTrackDBImpl odb;
   private DatabaseSessionInternal db;
 
   @Before
   public void before() {
-    odb = new YouTrackDB("memory:", YouTrackDBConfig.defaultConfig());
+    odb = new YouTrackDBImpl("memory:", YouTrackDBConfig.defaultConfig());
     odb.execute(
         "create database LiveQueryTest memory users ( admin identified by 'admin' role admin,"
             + " reader identified by 'reader' role reader)");
@@ -149,9 +149,9 @@ public class LiveQueryTest {
     db.command("insert into test set name = 'foo', surname = 'baz'").close();
     db.commit();
 
-    Assert.assertEquals(listener.created.size(), 2);
+    Assert.assertEquals(2, listener.created.size());
     for (Result res : listener.created) {
-      Assert.assertEquals(res.getProperty("name"), "foo");
+      Assert.assertEquals("foo", res.getProperty("name"));
     }
   }
 
@@ -160,7 +160,7 @@ public class LiveQueryTest {
 
     SchemaClass clazz = db.getMetadata().getSchema().createClass("test");
 
-    int defaultCluster = clazz.getDefaultClusterId();
+    int defaultCluster = clazz.getClusterIds()[0];
     final Storage storage = db.getStorage();
 
     MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(1));
@@ -180,9 +180,9 @@ public class LiveQueryTest {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-    Assert.assertEquals(listener.created.size(), 1);
+    Assert.assertEquals(1, listener.created.size());
     for (Result doc : listener.created) {
-      Assert.assertEquals(doc.getProperty("name"), "foo");
+      Assert.assertEquals("foo", doc.getProperty("name"));
       RID rid = doc.getProperty("@rid");
       Assert.assertNotNull(rid);
       Assert.assertTrue(rid.getClusterPosition() >= 0);
@@ -200,7 +200,7 @@ public class LiveQueryTest {
     ResultSet query = db.query("select from OUSer where name = 'reader'");
 
     final Identifiable reader = query.next().getIdentity().get();
-    final Identifiable current = db.getUser().getIdentity(db);
+    final Identifiable current = db.geCurrentUser().getIdentity(db);
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -269,6 +269,6 @@ public class LiveQueryTest {
     db.commit();
 
     Integer integer = future.get();
-    Assert.assertEquals(integer.intValue(), liveMatch);
+    Assert.assertEquals(liveMatch, integer.intValue());
   }
 }

@@ -20,36 +20,44 @@
 
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.ConcurrentModificationException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.SchemaException;
+import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
+import com.jetbrains.youtrack.db.api.exception.SecurityException;
+import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
+import com.jetbrains.youtrack.db.api.query.LiveQueryMonitor;
+import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.RecordHook;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
+import com.jetbrains.youtrack.db.api.session.SessionListener;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.cache.LocalRecordCache;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.ScriptExecutor;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
 import com.jetbrains.youtrack.db.internal.core.db.record.ClassTrigger;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.internal.core.db.viewmanager.ViewManager;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentModificationException;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
-import com.jetbrains.youtrack.db.internal.core.exception.SecurityAccessException;
-import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
-import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.index.ClassIndexManager;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibraryImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaProxy;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaView;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ImmutableUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyAccess;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryptionNone;
@@ -59,7 +67,6 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
@@ -69,8 +76,6 @@ import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHook;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHookV2;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryListenerV2;
 import com.jetbrains.youtrack.db.internal.core.query.live.YTLiveQueryMonitorEmbedded;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeEntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -80,11 +85,9 @@ import com.jetbrains.youtrack.db.internal.core.schedule.ScheduledEvent;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.LiveQueryListenerImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.LocalResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.LocalResultSetLifecycleDecorator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
@@ -98,6 +101,7 @@ import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx.NonTxReadMode;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -116,7 +120,7 @@ import java.util.concurrent.ExecutionException;
 public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     implements QueryLifecycleListener {
 
-  private YouTrackDBConfig config;
+  private YouTrackDBConfigImpl config;
   private Storage storage;
 
   private FrontendTransactionNoTx.NonTxReadMode nonTxReadMode;
@@ -176,7 +180,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     throw new UnsupportedOperationException("Use YouTrackDB");
   }
 
-  public void init(YouTrackDBConfig config, SharedContext sharedContext) {
+  public void init(YouTrackDBConfigImpl config, SharedContext sharedContext) {
     this.sharedContext = sharedContext;
     activateOnCurrentThread();
     this.config = config;
@@ -292,9 +296,9 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
         });
   }
 
-  private void applyListeners(YouTrackDBConfig config) {
+  private void applyListeners(YouTrackDBConfigImpl config) {
     if (config != null) {
-      for (DatabaseListener listener : config.getListeners()) {
+      for (SessionListener listener : config.getListeners()) {
         registerListener(listener);
       }
     }
@@ -320,7 +324,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   /**
    * {@inheritDoc}
    */
-  public void internalCreate(YouTrackDBConfig config, SharedContext ctx) {
+  public void internalCreate(YouTrackDBConfigImpl config, SharedContext ctx) {
     RecordSerializer serializer = RecordSerializerFactory.instance().getDefaultRecordSerializer();
     if (serializer.toString().equals("ORecordDocument2csv")) {
       throw new DatabaseException(
@@ -343,18 +347,10 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   public void callOnCreateListeners() {
     // WAKE UP DB LIFECYCLE LISTENER
-    for (Iterator<DatabaseLifecycleListener> it = YouTrackDBManager.instance()
+    for (Iterator<DatabaseLifecycleListener> it = YouTrackDBEnginesManager.instance()
         .getDbLifecycleListeners();
         it.hasNext(); ) {
       it.next().onCreate(getDatabaseOwner());
-    }
-
-    // WAKE UP LISTENERS
-    for (DatabaseListener listener : browseListeners()) {
-      try {
-        listener.onCreate(this);
-      } catch (Exception ignore) {
-      }
     }
   }
 
@@ -373,7 +369,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
         });
   }
 
-  private void applyAttributes(YouTrackDBConfig config) {
+  private void applyAttributes(YouTrackDBConfigImpl config) {
     if (config != null) {
       for (Entry<ATTRIBUTES, Object> attrs : config.getAttributes().entrySet()) {
         this.set(attrs.getKey(), attrs.getValue());
@@ -392,26 +388,6 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     final String stringValue = IOUtils.getStringContent(iValue != null ? iValue.toString() : null);
     final Storage storage = this.storage;
     switch (iAttribute) {
-      case STATUS:
-        if (stringValue == null) {
-          throw new IllegalArgumentException("DB status can't be null");
-        }
-        setStatus(STATUS.valueOf(stringValue.toUpperCase(Locale.ENGLISH)));
-        break;
-
-      case DEFAULTCLUSTERID:
-        if (iValue != null) {
-          if (iValue instanceof Number) {
-            storage.setDefaultClusterId(((Number) iValue).intValue());
-          } else {
-            storage.setDefaultClusterId(storage.getClusterIdByName(iValue.toString()));
-          }
-        }
-        break;
-
-      case TYPE:
-        throw new IllegalArgumentException("Database type cannot be changed at run-time");
-
       case DATEFORMAT:
         if (stringValue == null) {
           throw new IllegalArgumentException("date format is null");
@@ -423,7 +399,11 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
         storage.setDateFormat(stringValue);
         break;
 
-      case DATETIMEFORMAT:
+      case CLUSTER_SELECTION:
+        storage.setClusterSelection(stringValue);
+        break;
+
+      case DATE_TIME_FORMAT:
         if (stringValue == null) {
           throw new IllegalArgumentException("date format is null");
         }
@@ -448,43 +428,18 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
         storage.setTimeZone(timeZoneValue);
         break;
 
-      case LOCALECOUNTRY:
+      case LOCALE_COUNTRY:
         storage.setLocaleCountry(stringValue);
         break;
 
-      case LOCALELANGUAGE:
+      case LOCALE_LANGUAGE:
         storage.setLocaleLanguage(stringValue);
         break;
 
       case CHARSET:
         storage.setCharset(stringValue);
         break;
-
-      case CUSTOM:
-        int indx = stringValue != null ? stringValue.indexOf('=') : -1;
-        if (indx < 0) {
-          if ("clear".equalsIgnoreCase(stringValue)) {
-            clearCustomInternal();
-          } else {
-            throw new IllegalArgumentException(
-                "Syntax error: expected <name> = <value> or clear, instead found: " + iValue);
-          }
-        } else {
-          String customName = stringValue.substring(0, indx).trim();
-          String customValue = stringValue.substring(indx + 1).trim();
-          if (customValue.isEmpty()) {
-            removeCustomInternal(customName);
-          } else {
-            setCustomInternal(customName, customValue);
-          }
-        }
-        break;
-
-      case CLUSTERSELECTION:
-        storage.setClusterSelection(stringValue);
-        break;
-
-      case MINIMUMCLUSTERS:
+      case MINIMUM_CLUSTERS:
         if (iValue != null) {
           if (iValue instanceof Number) {
             storage.setMinimumClusters(((Number) iValue).intValue());
@@ -498,16 +453,6 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
         }
 
         break;
-
-      case CONFLICTSTRATEGY:
-        storage.setConflictStrategy(
-            YouTrackDBManager.instance().getRecordConflictStrategy().getStrategy(stringValue));
-        break;
-
-      case VALIDATION:
-        storage.setValidation(Boolean.parseBoolean(stringValue));
-        break;
-
       default:
         throw new IllegalArgumentException(
             "Option '" + iAttribute + "' not supported on alter database");
@@ -580,12 +525,12 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
    */
   public DatabaseSessionInternal copy() {
     var storage = (Storage) getSharedContext().getStorage();
-    storage.open(this, null, null, config.getConfigurations());
+    storage.open(this, null, null, config.getConfiguration());
     DatabaseSessionEmbedded database = new DatabaseSessionEmbedded(storage);
     database.init(config, this.sharedContext);
     String user;
-    if (getUser() != null) {
-      user = getUser().getName(this);
+    if (geCurrentUser() != null) {
+      user = geCurrentUser().getName(this);
     } else {
       user = null;
     }
@@ -778,7 +723,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   private void queryCompleted() {
     QueryDatabaseState state = this.queryState.peekLast();
-    state.closeInternal(this);
+
   }
 
   private void queryStarted(LocalResultSetLifecycleDecorator result) {
@@ -847,19 +792,6 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     }
   }
 
-  public void queryStartUsingViewCluster(int clusterId) {
-    SharedContext sharedContext = getSharedContext();
-    ViewManager viewManager = sharedContext.getViewManager();
-    viewManager.startUsingViewCluster(clusterId);
-    this.queryState.peekLast().addViewUseCluster(clusterId);
-  }
-
-  public void queryStartUsingViewIndex(String index) {
-    SharedContext sharedContext = getSharedContext();
-    ViewManager viewManager = sharedContext.getViewManager();
-    viewManager.startUsingViewIndex(index);
-    this.queryState.peekLast().addViewUseIndex(index);
-  }
 
   @Override
   public void queryStarted(String id, ResultSet resultSet) {
@@ -1038,12 +970,12 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   /**
-   * Deletes a entity. Behavior depends by the current running transaction if any. If no
-   * transaction is running then the record is deleted immediately. If an Optimistic transaction is
-   * running then the record will be deleted at commit time. The current transaction will continue
-   * to see the record as deleted, while others not. If a Pessimistic transaction is running, then
-   * an exclusive lock is acquired against the record. Current transaction will continue to see the
-   * record as deleted, while others cannot access to it since it's locked.
+   * Deletes a entity. Behavior depends by the current running transaction if any. If no transaction
+   * is running then the record is deleted immediately. If an Optimistic transaction is running then
+   * the record will be deleted at commit time. The current transaction will continue to see the
+   * record as deleted, while others not. If a Pessimistic transaction is running, then an exclusive
+   * lock is acquired against the record. Current transaction will continue to see the record as
+   * deleted, while others cannot access to it since it's locked.
    *
    * <p>If MVCC is enabled and the version of the entity is different by the version stored in
    * the database, then a {@link ConcurrentModificationException} exception is thrown.
@@ -1189,7 +1121,6 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
         if (clazz.isTriggered()) {
           ClassTrigger.onRecordAfterDelete(entity, this);
         }
-        getSharedContext().getViewManager().recordDeleted(clazz, entity, this);
       }
       LiveQueryHook.addOp(entity, RecordOperation.DELETED, this);
       LiveQueryHookV2.addOp(this, entity, RecordOperation.DELETED);
@@ -1292,6 +1223,28 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     LiveQueryHookV2.notifyForTxChanges(this);
   }
 
+
+  @Override
+  public void set(ATTRIBUTES_INTERNAL attribute, Object value) {
+    checkIfActive();
+
+    if (attribute == null) {
+      throw new IllegalArgumentException("attribute is null");
+    }
+
+    final String stringValue = IOUtils.getStringContent(value != null ? value.toString() : null);
+    final Storage storage = this.storage;
+
+    if (attribute == ATTRIBUTES_INTERNAL.VALIDATION) {
+      var validation = Boolean.parseBoolean(stringValue);
+      storage.setValidation(validation);
+    } else {
+      throw new IllegalArgumentException(
+          "Option '" + attribute + "' not supported on alter database");
+    }
+
+  }
+
   @Override
   protected void afterRollbackOperations() {
     super.afterRollbackOperations();
@@ -1303,7 +1256,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     int clusterId = record.getIdentity().getClusterId();
     if (clusterId == RID.CLUSTER_ID_INVALID) {
       // COMPUTE THE CLUSTER ID
-      SchemaClass schemaClass = null;
+      SchemaClassInternal schemaClass = null;
       if (record instanceof EntityImpl) {
         schemaClass = EntityInternalUtils.getImmutableSchemaClass(this, (EntityImpl) record);
       }
@@ -1326,18 +1279,6 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     }
   }
 
-  @Override
-  public SchemaView getViewFromCluster(int cluster) {
-    ImmutableSchema schema = getMetadata().getImmutableSchemaSnapshot();
-    SchemaView view = schema.getViewByClusterId(cluster);
-    if (view == null) {
-      String viewName = getSharedContext().getViewManager().getViewFromOldCluster(cluster);
-      if (viewName != null) {
-        view = schema.getView(viewName);
-      }
-    }
-    return view;
-  }
 
   @Override
   public boolean executeExists(RID rid) {
@@ -1403,7 +1344,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
               .debug(
                   this,
                   "User '%s' tried to access the reserved resource '%s.%s', operation '%s'",
-                  getUser(),
+                  geCurrentUser(),
                   resourceGeneric,
                   resourceSpecific,
                   iOperation);
@@ -1500,7 +1441,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   public DatabaseSessionEmbedded setConflictStrategy(final String iStrategyName) {
     checkIfActive();
     storage.setConflictStrategy(
-        YouTrackDBManager.instance().getRecordConflictStrategy().getStrategy(iStrategyName));
+        YouTrackDBEnginesManager.instance().getRecordConflictStrategy().getStrategy(iStrategyName));
     return this;
   }
 
@@ -1683,12 +1624,12 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   @Override
-  public String incrementalBackup(final String path) throws UnsupportedOperationException {
+  public String incrementalBackup(final Path path) throws UnsupportedOperationException {
     checkOpenness();
     checkIfActive();
     checkSecurity(Rule.ResourceGeneric.DATABASE, "backup", Role.PERMISSION_EXECUTE);
 
-    return storage.incrementalBackup(this, path, null);
+    return storage.incrementalBackup(this, path.toAbsolutePath().toString(), null);
   }
 
   @Override
@@ -1714,14 +1655,14 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       return;
     }
 
-    final long startTime = YouTrackDBManager.instance().getProfiler().startChrono();
+    final long startTime = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
 
     final FreezableStorageComponent storage = getFreezableStorage();
     if (storage != null) {
       storage.freeze(throwException);
     }
 
-    YouTrackDBManager.instance()
+    YouTrackDBEnginesManager.instance()
         .getProfiler()
         .stopChrono(
             "db." + getName() + ".freeze", "Time to freeze the database", startTime, "db.*.freeze");
@@ -1751,14 +1692,14 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       return;
     }
 
-    final long startTime = YouTrackDBManager.instance().getProfiler().startChrono();
+    final long startTime = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
 
     final FreezableStorageComponent storage = getFreezableStorage();
     if (storage != null) {
       storage.release();
     }
 
-    YouTrackDBManager.instance()
+    YouTrackDBEnginesManager.instance()
         .getProfiler()
         .stopChrono(
             "db." + getName() + ".release",

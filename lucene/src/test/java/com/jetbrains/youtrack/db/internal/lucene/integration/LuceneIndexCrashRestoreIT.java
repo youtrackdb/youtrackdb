@@ -2,16 +2,17 @@ package com.jetbrains.youtrack.db.internal.lucene.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.session.SessionPool;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabasePool;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.SessionPoolImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
 import java.io.File;
@@ -38,8 +39,8 @@ public class LuceneIndexCrashRestoreIT {
   private Process serverProcess;
   private List<String> names;
   private List<String> surnames;
-  private YouTrackDB youTrackDB;
-  private DatabasePool databasePool;
+  private YouTrackDBImpl youTrackDB;
+  private SessionPool sessionPool;
   private static final String BUILD_DIRECTORY = "./target/testLuceneCrash";
 
   @Before
@@ -49,11 +50,12 @@ public class LuceneIndexCrashRestoreIT {
     spawnServer();
 
     youTrackDB =
-        new YouTrackDB("remote:localhost:3900", "root", "root", YouTrackDBConfig.defaultConfig());
+        new YouTrackDBImpl("remote:localhost:3900", "root", "root",
+            YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database testLuceneCrash plocal users (admin identified by 'admin' role admin)");
 
-    databasePool = new DatabasePool(youTrackDB, "testLuceneCrash", "admin", "admin");
+    sessionPool = new SessionPoolImpl(youTrackDB, "testLuceneCrash", "admin", "admin");
 
     // names to be used for person to be indexed
     names =
@@ -133,7 +135,7 @@ public class LuceneIndexCrashRestoreIT {
     DatabaseSessionInternal db;
     ResultSet res;
     try {
-      createSchema(databasePool);
+      createSchema(sessionPool);
 
       for (int i = 0; i < 1; i++) {
         // first round
@@ -149,7 +151,7 @@ public class LuceneIndexCrashRestoreIT {
         System.out.println("Wait for 30 seconds");
         TimeUnit.SECONDS.sleep(30);
 
-        db = (DatabaseSessionInternal) databasePool.acquire();
+        db = (DatabaseSessionInternal) sessionPool.acquire();
         // wildcard will not work
         res = db.query("select from Person where name lucene 'Robert' ");
         assertThat(res).hasSize(0);
@@ -178,7 +180,7 @@ public class LuceneIndexCrashRestoreIT {
 
     System.out.println("All loaders done");
 
-    databasePool.close();
+    sessionPool.close();
     youTrackDB.close();
 
     // now we start embedded
@@ -199,11 +201,12 @@ public class LuceneIndexCrashRestoreIT {
     }
 
     youTrackDB =
-        new YouTrackDB("remote:localhost:3900", "root", "root", YouTrackDBConfig.defaultConfig());
-    databasePool = new DatabasePool(youTrackDB, "testLuceneCrash", "admin", "admin");
+        new YouTrackDBImpl("remote:localhost:3900", "root", "root",
+            YouTrackDBConfig.defaultConfig());
+    sessionPool = new SessionPoolImpl(youTrackDB, "testLuceneCrash", "admin", "admin");
 
     // test query
-    db = (DatabaseSessionInternal) databasePool.acquire();
+    db = (DatabaseSessionInternal) sessionPool.acquire();
     db.getMetadata().reload();
 
     Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.name");
@@ -241,14 +244,14 @@ public class LuceneIndexCrashRestoreIT {
   private List<DataPropagationTask> startLoaders() {
     List<DataPropagationTask> futures = new ArrayList<>();
     for (int i = 0; i < 4; i++) {
-      final DataPropagationTask loader = new DataPropagationTask(databasePool);
+      final DataPropagationTask loader = new DataPropagationTask(sessionPool);
       executorService.submit(loader);
       futures.add(loader);
     }
     return futures;
   }
 
-  private void createSchema(DatabasePool pool) {
+  private void createSchema(SessionPool pool) {
 
     final DatabaseSessionInternal db = (DatabaseSessionInternal) pool.acquire();
 
@@ -302,11 +305,11 @@ public class LuceneIndexCrashRestoreIT {
 
   public class DataPropagationTask implements Callable<Void> {
 
-    private final DatabasePool pool;
+    private final SessionPool pool;
 
     private volatile boolean stop;
 
-    public DataPropagationTask(DatabasePool pool) {
+    public DataPropagationTask(SessionPool pool) {
       stop = false;
       this.pool = pool;
     }

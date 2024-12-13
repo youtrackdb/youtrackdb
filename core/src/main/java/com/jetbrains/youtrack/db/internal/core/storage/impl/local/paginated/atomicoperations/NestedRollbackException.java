@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations;
 
-import com.jetbrains.youtrack.db.internal.core.exception.TransactionException;
+import com.jetbrains.youtrack.db.api.exception.TransactionException;
 
 /**
  * @since 12/3/13

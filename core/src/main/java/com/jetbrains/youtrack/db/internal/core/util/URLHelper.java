@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.util;
 
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
-import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import java.io.File;
 import java.util.Optional;
 
@@ -21,7 +21,7 @@ public class URLHelper {
     if (typeIndex <= 0) {
       throw new ConfigurationException(
           "Error in database URL: the engine was not specified. Syntax is: "
-              + YouTrackDBManager.URL_SYNTAX
+              + YouTrackDBEnginesManager.URL_SYNTAX
               + ". URL was: "
               + url);
     }
@@ -72,7 +72,7 @@ public class URLHelper {
     if (typeIndex <= 0) {
       throw new ConfigurationException(
           "Error in database URL: the engine was not specified. Syntax is: "
-              + YouTrackDBManager.URL_SYNTAX
+              + YouTrackDBEnginesManager.URL_SYNTAX
               + ". URL was: "
               + url);
     }

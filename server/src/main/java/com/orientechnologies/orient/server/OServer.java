@@ -15,9 +15,10 @@
  */
 package com.orientechnologies.orient.server;
 
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.common.console.ConsoleReader;
 import com.jetbrains.youtrack.db.internal.common.console.DefaultConsoleReader;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.log.AnsiCode;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
@@ -25,21 +26,21 @@ import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
 import com.jetbrains.youtrack.db.internal.common.profiler.AbstractProfiler.ProfilerHookValue;
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler.METRIC_TYPE;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTxInternal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
+import com.jetbrains.youtrack.db.api.DatabaseType;
 import com.jetbrains.youtrack.db.internal.core.db.SystemDatabase;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
+import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.TokenAuthInfo;
 import com.jetbrains.youtrack.db.internal.core.security.InvalidPasswordException;
 import com.jetbrains.youtrack.db.internal.core.security.ParsedToken;
@@ -115,16 +116,16 @@ public class OServer {
   private PushManager pushManager;
   private ClassLoader extensionClassLoader;
   private OTokenHandler tokenHandler;
-  private YouTrackDB context;
+  private YouTrackDBImpl context;
   private YouTrackDBInternal databases;
   protected Date startedOn = new Date();
 
   public OServer() {
-    this(!YouTrackDBManager.instance().isInsideWebContainer());
+    this(!YouTrackDBEnginesManager.instance().isInsideWebContainer());
   }
 
   public OServer(boolean shutdownEngineOnExit) {
-    final boolean insideWebContainer = YouTrackDBManager.instance().isInsideWebContainer();
+    final boolean insideWebContainer = YouTrackDBEnginesManager.instance().isInsideWebContainer();
 
     if (insideWebContainer && shutdownEngineOnExit) {
       LogManager.instance()
@@ -138,7 +139,7 @@ public class OServer {
 
     serverRootDirectory =
         SystemVariableResolver.resolveSystemVariables(
-            "${" + YouTrackDBManager.YOUTRACKDB_HOME + "}", ".");
+            "${" + YouTrackDBEnginesManager.YOUTRACKDB_HOME + "}", ".");
 
     LogManager.instance().installCustomFormatter();
 
@@ -148,11 +149,11 @@ public class OServer {
 
     System.setProperty("com.sun.management.jmxremote", "true");
 
-    YouTrackDBManager.instance().startup();
+    YouTrackDBEnginesManager.instance().startup();
 
     if (GlobalConfiguration.PROFILER_ENABLED.getValueAsBoolean()
-        && !YouTrackDBManager.instance().getProfiler().isRecording()) {
-      YouTrackDBManager.instance().getProfiler().startRecording();
+        && !YouTrackDBEnginesManager.instance().getProfiler().isRecording()) {
+      YouTrackDBEnginesManager.instance().getProfiler().startRecording();
     }
 
     if (shutdownEngineOnExit) {
@@ -254,7 +255,7 @@ public class OServer {
     try {
       deinit();
     } finally {
-      YouTrackDBManager.instance().startup();
+      YouTrackDBEnginesManager.instance().startup();
       startup(serverCfg.getConfiguration());
       activate();
     }
@@ -306,7 +307,7 @@ public class OServer {
       config = System.getProperty(OServerConfiguration.PROPERTY_CONFIG_FILE);
     }
 
-    YouTrackDBManager.instance().startup();
+    YouTrackDBEnginesManager.instance().startup();
 
     startup(new File(SystemVariableResolver.resolveSystemVariables(config)));
 
@@ -353,7 +354,7 @@ public class OServer {
         .info(this,
             "YouTrackDB Server v" + YouTrackDBConstants.getVersion() + " is starting up...");
 
-    YouTrackDBManager.instance();
+    YouTrackDBEnginesManager.instance();
 
     if (startupLatch == null) {
       startupLatch = new CountDownLatch(1);
@@ -389,7 +390,7 @@ public class OServer {
       databaseDirectory += "/";
     }
 
-    YouTrackDBConfigBuilder builder = YouTrackDBConfig.builder();
+    YouTrackDBConfigBuilderImpl builder = (YouTrackDBConfigBuilderImpl) YouTrackDBConfig.builder();
     for (ServerUserConfiguration user : serverCfg.getUsers()) {
       builder.addGlobalUser(user.getName(), user.getPassword(), user.getResources());
     }
@@ -417,7 +418,7 @@ public class OServer {
     LogManager.instance()
         .info(this, "Databases directory: " + new File(databaseDirectory).getAbsolutePath());
 
-    YouTrackDBManager.instance()
+    YouTrackDBEnginesManager.instance()
         .getProfiler()
         .registerHookValue(
             "system.databases",
@@ -599,7 +600,7 @@ public class OServer {
         shutdownHook.cancel();
       }
 
-      YouTrackDBManager.instance().getProfiler().unregisterHookValue("system.databases");
+      YouTrackDBEnginesManager.instance().getProfiler().unregisterHookValue("system.databases");
 
       for (OServerLifecycleListener l : lifecycleListeners) {
         l.onBeforeDeactivate();
@@ -650,10 +651,10 @@ public class OServer {
         lock.unlock();
       }
 
-      if (shutdownEngineOnExit && !YouTrackDBManager.isRegisterDatabaseByPath()) {
+      if (shutdownEngineOnExit && !YouTrackDBEnginesManager.isRegisterDatabaseByPath()) {
         try {
           LogManager.instance().info(this, "Shutting down databases:");
-          YouTrackDBManager.instance().shutdown();
+          YouTrackDBEnginesManager.instance().shutdown();
         } catch (Exception e) {
           LogManager.instance().error(this, "Error during YouTrackDB shutdown", e);
         }
@@ -912,7 +913,7 @@ public class OServer {
     final DatabaseSessionInternal database;
     boolean serverAuth = false;
     database = databases.open(iDbUrl, user, password);
-    if (SecurityUser.SERVER_USER_TYPE.equals(database.getUser().getUserType())) {
+    if (SecurityUser.SERVER_USER_TYPE.equals(database.geCurrentUser().getUserType())) {
       serverAuth = true;
     }
     if (serverAuth && data != null) {
@@ -989,7 +990,7 @@ public class OServer {
         if (typeIndex <= 0) {
           throw new ConfigurationException(
               "Error in database URL: the engine was not specified. Syntax is: "
-                  + YouTrackDBManager.URL_SYNTAX
+                  + YouTrackDBEnginesManager.URL_SYNTAX
                   + ". URL was: "
                   + url);
         }
@@ -1226,7 +1227,7 @@ public class OServer {
   }
 
   public ThreadGroup getThreadGroup() {
-    return YouTrackDBManager.instance().getThreadGroup();
+    return YouTrackDBEnginesManager.instance().getThreadGroup();
   }
 
   private void initSystemDatabase() {
@@ -1237,7 +1238,7 @@ public class OServer {
     return databases;
   }
 
-  public YouTrackDB getContext() {
+  public YouTrackDBImpl getContext() {
     return context;
   }
 
@@ -1253,7 +1254,7 @@ public class OServer {
     return databases.exists(databaseName, null, null);
   }
 
-  public void createDatabase(String databaseName, DatabaseType type, YouTrackDBConfig config) {
+  public void createDatabase(String databaseName, DatabaseType type, YouTrackDBConfigImpl config) {
     databases.create(databaseName, null, null, type, config);
   }
 

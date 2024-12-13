@@ -19,6 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.AdaptiveLock;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.LockException;
 import com.jetbrains.youtrack.db.internal.common.concur.resource.ResourcePoolListener;
@@ -26,8 +27,8 @@ import com.jetbrains.youtrack.db.internal.common.concur.resource.ReentrantResour
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBListener;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
@@ -139,7 +140,7 @@ public abstract class DatabasePoolAbstract extends AdaptiveLock
     maxSize = iMaxSize;
     timeout = iTimeout;
     owner = iOwner;
-    YouTrackDBManager.instance().registerListener(this);
+    YouTrackDBEnginesManager.instance().registerListener(this);
 
     if (idleTimeoutMillis > 0 && timeBetweenEvictionRunsMillis > 0) {
       this.evictionTask = new Timer();
@@ -245,7 +246,8 @@ public abstract class DatabasePoolAbstract extends AdaptiveLock
   }
 
   public void release(final DatabaseSessionInternal iDatabase) {
-    final String dbPooledName = iDatabase.getUser().getName(iDatabase) + "@" + iDatabase.getURL();
+    final String dbPooledName =
+        iDatabase.geCurrentUser().getName(iDatabase) + "@" + iDatabase.getURL();
     final ReentrantResourcePool<String, DatabaseSession> pool;
     lock();
     try {

@@ -2,13 +2,14 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import static org.junit.Assert.assertEquals;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.ConcurrentModificationException;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.session.SessionPool;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.db.DatabasePool;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentModificationException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.SessionPoolImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.IntStream;
 import org.junit.After;
@@ -17,7 +18,7 @@ import org.junit.Test;
 
 public class CreateLightWeightEdgesSQLTest {
 
-  private YouTrackDB youTrackDB;
+  private YouTrackDBImpl youTrackDB;
 
   @Before
   public void before() {
@@ -36,34 +37,32 @@ public class CreateLightWeightEdgesSQLTest {
             "admin",
             CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-    session.command("ALTER DATABASE CUSTOM useLightweightEdges = true");
+    session.createLightweightEdgeClass("lightweight");
 
     session.begin();
     session.command("create vertex v set name='a' ");
     session.command("create vertex v set name='b' ");
     session.command(
-        "create edge e from (select from v where name='a') to (select from v where name='a') ");
+        "create edge lightweight from (select from v where name='a') to (select from v where name='a') ");
     session.commit();
 
-    try (ResultSet res = session.query("select expand(out()) from v where name='a' ")) {
-      assertEquals(res.stream().count(), 1);
+    try (ResultSet res = session.query(
+        "select expand(out('lightweight')) from v where name='a' ")) {
+      assertEquals(1, res.stream().count());
     }
     session.close();
   }
 
   @Test
   public void mtTest() throws InterruptedException {
-
-    DatabasePool pool =
-        new DatabasePool(
+    SessionPool pool =
+        new SessionPoolImpl(
             youTrackDB,
             CreateLightWeightEdgesSQLTest.class.getSimpleName(),
             "admin",
             CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     DatabaseSession session = pool.acquire();
-
-    session.command("ALTER DATABASE CUSTOM useLightweightEdges = true");
 
     session.begin();
     session.command("create vertex v set id = 1 ");
@@ -85,7 +84,7 @@ public class CreateLightWeightEdgesSQLTest {
                         try {
                           session1.begin();
                           session1.command(
-                              "create edge e from (select from v where id=1) to (select from v"
+                              "create edge lightweight from (select from v where id=1) to (select from v"
                                   + " where id=2) ");
                           session1.commit();
                         } catch (ConcurrentModificationException e) {
@@ -102,11 +101,13 @@ public class CreateLightWeightEdgesSQLTest {
     latch.await();
 
     session = pool.acquire();
-    try (ResultSet res = session.query("select sum(out().size()) as size from V where id = 1");
-        ResultSet res1 = session.query("select sum(in().size()) as size from V where id = 2")) {
+    try (ResultSet res = session.query(
+        "select sum(out('lightweight').size()) as size from V where id = 1");
+        ResultSet res1 = session.query(
+            "select sum(in('lightweight').size()) as size from V where id = 2")) {
 
-      Integer s1 = res.stream().findFirst().get().getProperty("size");
-      Integer s2 = res1.stream().findFirst().get().getProperty("size");
+      Integer s1 = res.findFirst().getProperty("size");
+      Integer s2 = res1.findFirst().getProperty("size");
       assertEquals(s1, s2);
 
     } finally {

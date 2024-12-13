@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db;
 
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBListenerAbstract;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -49,7 +49,7 @@ public class DatabaseRecordThreadLocal extends ThreadLocal<DatabaseSessionIntern
   private static void registerCleanUpHandler() {
     // we can do that to avoid thread local memory leaks in containers
     if (INSTANCE.get() == null) {
-      final YouTrackDBManager inst = YouTrackDBManager.instance();
+      final YouTrackDBEnginesManager inst = YouTrackDBEnginesManager.instance();
       if (inst == null) {
         throw new DatabaseException("YouTrackDB API is not active.");
       }
@@ -73,12 +73,12 @@ public class DatabaseRecordThreadLocal extends ThreadLocal<DatabaseSessionIntern
   public DatabaseSessionInternal get() {
     DatabaseSessionInternal db = super.get();
     if (db == null) {
-      if (YouTrackDBManager.instance().getDatabaseThreadFactory() == null) {
+      if (YouTrackDBEnginesManager.instance().getDatabaseThreadFactory() == null) {
         throw new DatabaseException(
             "The database instance is not set in the current thread. Be sure to set it with:"
                 + " DatabaseRecordThreadLocal.instance().set(db);");
       } else {
-        db = YouTrackDBManager.instance().getDatabaseThreadFactory().getThreadDatabase();
+        db = YouTrackDBEnginesManager.instance().getDatabaseThreadFactory().getThreadDatabase();
         if (db == null) {
           throw new DatabaseException(
               "The database instance is not set in the current thread. Be sure to set it with:"

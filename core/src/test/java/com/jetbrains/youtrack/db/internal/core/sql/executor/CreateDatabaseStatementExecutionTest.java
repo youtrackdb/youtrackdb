@@ -1,12 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.exception.SecurityAccessException;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,10 +23,10 @@ public class CreateDatabaseStatementExecutionTest {
     final String dbName = "OCreateDatabaseStatementExecutionTest_testPlain";
 
     final YouTrackDB youTrackDb =
-        new YouTrackDB(
+        new YouTrackDBImpl(
             DbTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()
-                .addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addGlobalConfigurationParameter(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     try (ResultSet result =
         youTrackDb.execute(
@@ -52,7 +55,7 @@ public class CreateDatabaseStatementExecutionTest {
   @Test
   public void testNoDefaultUsers() {
     String dbName = "OCreateDatabaseStatementExecutionTest_testNoDefaultUsers";
-    YouTrackDB youTrackDb = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
+    YouTrackDB youTrackDb = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
     try (ResultSet result =
         youTrackDb.execute(

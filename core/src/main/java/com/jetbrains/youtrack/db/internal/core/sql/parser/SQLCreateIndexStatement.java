@@ -2,20 +2,20 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.collate.Collate;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.schema.Collate;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.index.IndexFactory;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionFactory;
+import com.jetbrains.youtrack.db.internal.core.index.IndexException;
+import com.jetbrains.youtrack.db.internal.core.index.IndexFactory;
 import com.jetbrains.youtrack.db.internal.core.index.Indexes;
 import com.jetbrains.youtrack.db.internal.core.index.SimpleKeyIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.IndexException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
@@ -103,7 +103,7 @@ public class SQLCreateIndexStatement extends DDLStatement {
                     new SimpleKeyIndexDefinition(keyTypes, collatesList),
                     null,
                     null,
-                    metadataDoc,
+                    metadataDoc != null ? metadataDoc.toMap() : null,
                     engine);
       } else if (keyTypes != null
           && keyTypes.length == 0
@@ -122,7 +122,7 @@ public class SQLCreateIndexStatement extends DDLStatement {
                     keyDef,
                     null,
                     null,
-                    metadataDoc,
+                    metadataDoc.toMap(),
                     engine);
 
       } else if (className == null && keyTypes == null || keyTypes.length == 0) {
@@ -174,10 +174,11 @@ public class SQLCreateIndexStatement extends DDLStatement {
       EntityImpl metadataDoc) {
     Index idx;
     if ((keyTypes == null || keyTypes.size() == 0) && collatesList == null) {
-
-      idx =
-          oClass.createIndex(database,
-              name.getValue(), type.getStringValue(), null, metadataDoc, engine, fields);
+      String indexName = name.getValue();
+      oClass.createIndex(database,
+          indexName, type.getStringValue(), null, metadataDoc != null ? metadataDoc.toMap() : null,
+          engine, fields);
+      idx = database.getIndex(indexName);
     } else {
       final List<PropertyType> fieldTypeList;
       if (keyTypes == null || keyTypes.size() == 0 && fields.length > 0) {
@@ -221,7 +222,7 @@ public class SQLCreateIndexStatement extends DDLStatement {
                   idxDef,
                   oClass.getPolymorphicClusterIds(),
                   null,
-                  metadataDoc,
+                  metadataDoc != null ? metadataDoc.toMap() : null,
                   engine);
     }
     return idx;

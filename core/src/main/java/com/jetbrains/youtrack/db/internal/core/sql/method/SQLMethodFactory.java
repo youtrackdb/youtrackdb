@@ -15,7 +15,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.method;
 
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import java.util.Set;
 
 /**

@@ -2,14 +2,13 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.MetadataPath;
 import java.lang.reflect.Array;
@@ -480,14 +479,14 @@ public class SQLModifier extends SimpleNode {
     return next == null || next.isCacheable(session);
   }
 
-  public boolean isIndexChain(CommandContext ctx, SchemaClass clazz) {
+  public boolean isIndexChain(CommandContext ctx, SchemaClassInternal clazz) {
     if (suffix != null && suffix.isBaseIdentifier()) {
-      Property prop = clazz.getProperty(suffix.getIdentifier().getStringValue());
+      var prop = clazz.getPropertyInternal(suffix.getIdentifier().getStringValue());
       if (prop != null
-          && prop.getAllIndexes(ctx.getDatabase()).stream()
+          && prop.getAllIndexesInternal(ctx.getDatabase()).stream()
           .anyMatch(idx -> idx.getDefinition().getFields().size() == 1)) {
         if (next != null) {
-          SchemaClass linkedClazz = prop.getLinkedClass();
+          var linkedClazz = (SchemaClassInternal) prop.getLinkedClass();
           return next.isIndexChain(ctx, linkedClazz);
         }
         return true;

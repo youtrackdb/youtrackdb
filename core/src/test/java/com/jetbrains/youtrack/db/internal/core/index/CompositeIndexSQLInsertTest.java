@@ -1,11 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -21,8 +22,8 @@ public class CompositeIndexSQLInsertTest extends DbTestBase {
     book.createIndex(db, "books", "unique", "author", "title", "publicationYears");
 
     book.createProperty(db, "nullKey1", PropertyType.STRING);
-    EntityImpl indexOptions = new EntityImpl();
-    indexOptions.field("ignoreNullValues", true);
+    Map<String, Boolean> indexOptions = new HashMap<>();
+    indexOptions.put("ignoreNullValues", true);
     book.createIndex(db,
         "indexignoresnulls", "NOTUNIQUE", null, indexOptions, new String[]{"nullKey1"});
   }
@@ -73,7 +74,7 @@ public class CompositeIndexSQLInsertTest extends DbTestBase {
                     + " \"white\"")
             .stream()
             .count();
-    Assert.assertEquals(count1, 1);
+    Assert.assertEquals(1, count1);
 
     long count2 =
         db
@@ -82,7 +83,7 @@ public class CompositeIndexSQLInsertTest extends DbTestBase {
                     + " \"white\"")
             .stream()
             .count();
-    Assert.assertEquals(count2, 1);
+    Assert.assertEquals(1, count2);
 
     long count3 =
         db
@@ -90,7 +91,7 @@ public class CompositeIndexSQLInsertTest extends DbTestBase {
             .stream()
             .count();
 
-    Assert.assertEquals(count3, 1);
+    Assert.assertEquals(1, count3);
 
     long count4 =
         db
@@ -99,6 +100,6 @@ public class CompositeIndexSQLInsertTest extends DbTestBase {
                     + " id > 0")
             .stream()
             .count();
-    Assert.assertEquals(count4, 1);
+    Assert.assertEquals(1, count4);
   }
 }

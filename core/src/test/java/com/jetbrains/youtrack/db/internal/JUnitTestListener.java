@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal;
 
 import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import org.junit.Assert;
 import org.junit.runner.Result;
 import org.junit.runner.notification.RunListener;
@@ -51,7 +51,7 @@ public class JUnitTestListener extends RunListener {
 
     if (result.wasSuccessful()) {
       System.out.println("Shutting down YouTrackDB engine and checking for direct memory leaks...");
-      final YouTrackDBManager youTrack = YouTrackDBManager.instance();
+      final YouTrackDBEnginesManager youTrack = YouTrackDBEnginesManager.instance();
 
       if (youTrack != null) {
         // state is verified during engine shutdown

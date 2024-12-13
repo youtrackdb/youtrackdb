@@ -1,10 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ExecutionPlanCache;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBatch;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCreateEdgeStatement;
@@ -100,17 +102,17 @@ public class CreateEdgeExecutionPlanner {
 
     String uniqueIndexName = null;
     if (upsert) {
-      SchemaClass clazz =
+      SchemaClassInternal clazz =
           ctx.getDatabase()
               .getMetadata()
               .getImmutableSchemaSnapshot()
-              .getClass(targetClass.getStringValue());
+              .getClassInternal(targetClass.getStringValue());
       if (clazz == null) {
         throw new CommandExecutionException(
             "Class " + targetClass + " not found in the db schema");
       }
       uniqueIndexName =
-          clazz.getIndexes(db).stream()
+          clazz.getIndexesInternal(db).stream()
               .filter(Index::isUnique)
               .filter(
                   x ->

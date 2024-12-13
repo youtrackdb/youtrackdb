@@ -17,7 +17,7 @@ package com.jetbrains.youtrack.db.internal.spatial.engine;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValuesTransformer;
@@ -93,7 +93,7 @@ public abstract class LuceneSpatialIndexEngineAbstract extends LuceneIndexEngine
   }
 
   @Override
-  public Stream<RawPair<Object, com.jetbrains.youtrack.db.internal.core.id.RID>> iterateEntriesBetween(
+  public Stream<RawPair<Object, com.jetbrains.youtrack.db.api.record.RID>> iterateEntriesBetween(
       DatabaseSessionInternal session, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
@@ -104,7 +104,7 @@ public abstract class LuceneSpatialIndexEngineAbstract extends LuceneIndexEngine
   }
 
   @Override
-  public Stream<RawPair<Object, com.jetbrains.youtrack.db.internal.core.id.RID>> iterateEntriesMajor(
+  public Stream<RawPair<Object, com.jetbrains.youtrack.db.api.record.RID>> iterateEntriesMajor(
       Object fromKey,
       boolean isInclusive,
       boolean ascSortOrder,
@@ -113,7 +113,7 @@ public abstract class LuceneSpatialIndexEngineAbstract extends LuceneIndexEngine
   }
 
   @Override
-  public Stream<RawPair<Object, com.jetbrains.youtrack.db.internal.core.id.RID>> iterateEntriesMinor(
+  public Stream<RawPair<Object, com.jetbrains.youtrack.db.api.record.RID>> iterateEntriesMinor(
       Object toKey,
       boolean isInclusive,
       boolean ascSortOrder,
@@ -122,7 +122,7 @@ public abstract class LuceneSpatialIndexEngineAbstract extends LuceneIndexEngine
   }
 
   @Override
-  public Stream<RawPair<Object, com.jetbrains.youtrack.db.internal.core.id.RID>> stream(
+  public Stream<RawPair<Object, com.jetbrains.youtrack.db.api.record.RID>> stream(
       IndexEngineValuesTransformer valuesTransformer) {
     return null;
   }

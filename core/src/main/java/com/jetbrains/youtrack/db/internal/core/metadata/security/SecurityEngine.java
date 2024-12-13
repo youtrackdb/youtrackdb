@@ -1,18 +1,19 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.SecurityException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrBlock;
@@ -49,7 +50,7 @@ public class SecurityEngine {
       SecurityShared security,
       String resourceString,
       SecurityPolicy.Scope scope) {
-    SecurityUser user = session.getUser();
+    SecurityUser user = session.geCurrentUser();
     if (user == null) {
       return SQLBooleanExpression.FALSE;
     }
@@ -79,7 +80,7 @@ public class SecurityEngine {
       SecurityPolicy.Scope scope) {
     Function function =
         session.getMetadata().getFunctionLibrary().getFunction(resource.getFunctionName());
-    Set<? extends SecurityRole> roles = session.getUser().getRoles();
+    Set<? extends SecurityRole> roles = session.geCurrentUser().getRoles();
     if (roles == null || roles.size() == 0) {
       return null;
     }
@@ -112,15 +113,8 @@ public class SecurityEngine {
             .getMetadata()
             .getImmutableSchemaSnapshot()
             .getClass(resource.getClassName());
-    if (clazz == null) {
-      clazz =
-          session
-              .getMetadata()
-              .getImmutableSchemaSnapshot()
-              .getView(resource.getClassName());
-    }
     String propertyName = resource.getPropertyName();
-    Set<? extends SecurityRole> roles = session.getUser().getRoles();
+    Set<? extends SecurityRole> roles = session.geCurrentUser().getRoles();
     if (roles == null || roles.size() == 0) {
       return null;
     }
@@ -156,7 +150,7 @@ public class SecurityEngine {
     if (clazz == null) {
       return SQLBooleanExpression.TRUE;
     }
-    Set<? extends SecurityRole> roles = session.getUser().getRoles();
+    Set<? extends SecurityRole> roles = session.geCurrentUser().getRoles();
     if (roles == null || roles.size() == 0) {
       return null;
     }
@@ -416,7 +410,7 @@ public class SecurityEngine {
     try {
       // Create a new instance of EntityImpl with a user record id, this will lazy load the user data
       // at the first access with the same execution permission of the policy
-      Identifiable user = session.getUser().getIdentity(session);
+      Identifiable user = session.geCurrentUser().getIdentity(session);
 
       var sessionInternal = session;
       var recordCopy = ((RecordAbstract) record).copy();
@@ -450,7 +444,7 @@ public class SecurityEngine {
     try {
       // Create a new instance of EntityImpl with a user record id, this will lazy load the user data
       // at the first access with the same execution permission of the policy
-      final EntityImpl user = session.getUser().getIdentity(session).getRecordSilently();
+      final EntityImpl user = session.geCurrentUser().getIdentity(session).getRecordSilently();
       return session
           .getSharedContext()
           .getYouTrackDB()

@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.common.log;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.common.parser.VariableParser;
 import com.jetbrains.youtrack.db.internal.common.parser.VariableParserListener;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import java.util.Locale;
 
 /**

@@ -20,8 +20,8 @@
 package com.jetbrains.youtrack.db.internal.core.db;
 
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBListenerAbstract;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.api.record.Record;
 
 /**
  * Uses Thread Local to store information used by hooks.
@@ -32,7 +32,7 @@ public class HookReplacedRecordThreadLocal extends ThreadLocal<Record> {
       new HookReplacedRecordThreadLocal();
 
   static {
-    YouTrackDBManager.instance()
+    YouTrackDBEnginesManager.instance()
         .registerListener(
             new YouTrackDBListenerAbstract() {
               @Override

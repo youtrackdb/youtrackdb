@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.base;
 
 import com.jetbrains.youtrack.db.internal.common.test.SpeedTestMonoThread;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import org.testng.annotations.Test;
 
 @Test(enabled = false)
@@ -32,6 +32,6 @@ public abstract class YouTrackMonoThreadTest extends SpeedTestMonoThread {
 
   @Override
   public void deinit() {
-    System.out.println(YouTrackDBManager.instance().getProfiler().dump());
+    System.out.println(YouTrackDBEnginesManager.instance().getProfiler().dump());
   }
 }

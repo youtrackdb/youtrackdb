@@ -23,8 +23,8 @@ package com.jetbrains.youtrack.db.internal.common.directmemory;
 import com.jetbrains.youtrack.db.internal.common.exception.DirectMemoryAllocationFailedException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.types.ModifiableLong;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.kenai.jffi.MemoryIO;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -142,7 +142,7 @@ public class DirectMemoryAllocator implements DirectMemoryAllocatorMXBean {
 
     if (PROFILE_MEMORY) {
       final long printInterval = (long) MEMORY_STATISTICS_PRINTING_INTERVAL * 60 * 1_000;
-      YouTrackDBManager.instance()
+      YouTrackDBEnginesManager.instance()
           .scheduleTask(new MemoryStatPrinter(consumptionMaps), printInterval, printInterval);
     }
   }

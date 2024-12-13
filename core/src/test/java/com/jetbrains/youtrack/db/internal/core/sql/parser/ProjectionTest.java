@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import org.junit.Assert;

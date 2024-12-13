@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.db.tool.importer;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.record.RID;
 import java.util.Set;
 
 /**

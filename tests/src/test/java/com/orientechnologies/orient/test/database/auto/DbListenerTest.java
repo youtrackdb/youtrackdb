@@ -15,15 +15,13 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
-import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseListener;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.record.RecordHook;
+import com.jetbrains.youtrack.db.api.session.SessionListener;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
 import com.jetbrains.youtrack.db.internal.core.hook.DocumentHookAbstract;
-import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -82,7 +80,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     }
   }
 
-  public class DbListener implements DatabaseListener {
+  public class DbListener implements SessionListener {
 
     @Override
     public void onAfterTxCommit(DatabaseSession iDatabase) {
@@ -112,39 +110,6 @@ public class DbListenerTest extends DocumentDBBaseTest {
     @Override
     public void onClose(DatabaseSession iDatabase) {
       onClose++;
-    }
-
-    @Override
-    public void onBeforeCommand(CommandRequestText iCommand, CommandExecutor executor) {
-      command = iCommand.getText();
-    }
-
-    @Override
-    public void onAfterCommand(
-        CommandRequestText iCommand, CommandExecutor executor, Object result) {
-      commandResult = result;
-    }
-
-    @Override
-    public void onCreate(DatabaseSession iDatabase) {
-      onCreate++;
-    }
-
-    @Override
-    public void onDelete(DatabaseSession iDatabase) {
-      onDelete++;
-    }
-
-    @Override
-    public void onOpen(DatabaseSession iDatabase) {
-      onOpen++;
-    }
-
-    @Override
-    public boolean onCorruptionRepairDatabase(
-        DatabaseSession iDatabase, final String iReason, String iWhatWillbeFixed) {
-      onCorruption++;
-      return true;
     }
   }
 
@@ -247,8 +212,9 @@ public class DbListenerTest extends DocumentDBBaseTest {
   }
 
   @Override
-  protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
-    builder.addConfig(GlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+  protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilderImpl builder) {
+    builder.addGlobalConfigurationParameter(GlobalConfiguration.NON_TX_READS_WARNING_MODE,
+        "EXCEPTION");
     return builder.build();
   }
 

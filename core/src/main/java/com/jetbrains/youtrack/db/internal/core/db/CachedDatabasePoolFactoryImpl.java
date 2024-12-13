@@ -1,7 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.db;
 
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityManager;
 import java.util.TimerTask;
 
@@ -29,11 +31,11 @@ public class CachedDatabasePoolFactoryImpl implements CachedDatabasePoolFactory 
   private final long timeout;
 
   /**
-   * @param youtrackDB instance of {@link YouTrackDB} which will be used for create new database pools
-   *                 {@link DatabasePoolInternal}
-   * @param capacity capacity of pool cache, by default is 100
-   * @param timeout  timeout in milliseconds which means that every timeout will be executed task
-   *                 for clean up cache from closed pools
+   * @param youtrackDB instance of {@link YouTrackDB} which will be used for create new database
+   *                   pools {@link DatabasePoolInternal}
+   * @param capacity   capacity of pool cache, by default is 100
+   * @param timeout    timeout in milliseconds which means that every timeout will be executed task
+   *                   for clean up cache from closed pools
    */
   public CachedDatabasePoolFactoryImpl(YouTrackDBInternal youtrackDB, int capacity, long timeout) {
     poolCache =
@@ -91,7 +93,7 @@ public class CachedDatabasePoolFactoryImpl implements CachedDatabasePoolFactory 
    */
   @Override
   public DatabasePoolInternal get(
-      String database, String username, String password, YouTrackDBConfig parentConfig) {
+      String database, String username, String password, YouTrackDBConfigImpl parentConfig) {
     checkForClose();
 
     String key = SecurityManager.createSHA256(database + username + password);
@@ -101,8 +103,9 @@ public class CachedDatabasePoolFactoryImpl implements CachedDatabasePoolFactory 
       return pool;
     }
 
-    YouTrackDBConfig config =
-        YouTrackDBConfig.builder().addConfig(GlobalConfiguration.DB_POOL_MAX, maxPoolSize)
+    YouTrackDBConfigImpl config = (YouTrackDBConfigImpl)
+        YouTrackDBConfig.builder()
+            .addGlobalConfigurationParameter(GlobalConfiguration.DB_POOL_MAX, maxPoolSize)
             .build();
 
     if (parentConfig != null) {
@@ -154,7 +157,7 @@ public class CachedDatabasePoolFactoryImpl implements CachedDatabasePoolFactory 
   }
 
   /**
-   * Set max pool connections size which will be used for create new {@link DatabasePool}
+   * Set max pool connections size which will be used for create new {@link SessionPoolImpl}
    *
    * @param maxPoolSize max pool connections size
    * @return this instance

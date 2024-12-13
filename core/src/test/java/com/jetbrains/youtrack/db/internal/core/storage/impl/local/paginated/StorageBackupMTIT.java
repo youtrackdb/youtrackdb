@@ -1,21 +1,24 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.exception.ModificationOperationProhibitedException;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.common.concur.lock.ModificationOperationProhibitedException;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigImpl;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBEmbedded;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseCompare;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -48,7 +51,7 @@ public class StorageBackupMTIT {
 
     try {
 
-      youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
+      youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
           YouTrackDBConfig.defaultConfig());
       youTrackDB.execute(
           "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
@@ -88,7 +91,7 @@ public class StorageBackupMTIT {
       }
 
       System.out.println("do inc backup last time");
-      db.incrementalBackup(backupDir.getAbsolutePath());
+      db.incrementalBackup(backupDir.toPath());
 
       youTrackDB.close();
 
@@ -109,7 +112,7 @@ public class StorageBackupMTIT {
           YouTrackDBConfig.defaultConfig());
       embedded.close();
 
-      youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
+      youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
           YouTrackDBConfig.defaultConfig());
       final DatabaseCompare compare =
           new DatabaseCompare(
@@ -130,7 +133,7 @@ public class StorageBackupMTIT {
         }
       }
       try {
-        youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
+        youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.defaultConfig());
         youTrackDB.drop(dbName);
         youTrackDB.drop(backupDbName);
@@ -154,16 +157,17 @@ public class StorageBackupMTIT {
     dbName = StorageBackupMTIT.class.getSimpleName();
     String dbDirectory = buildDirectory + File.separator + dbName;
 
-    final YouTrackDBConfig config =
-        YouTrackDBConfig.builder()
-            .addConfig(GlobalConfiguration.STORAGE_ENCRYPTION_KEY, "T1JJRU5UREJfSVNfQ09PTA==")
+    final YouTrackDBConfigImpl config =
+        (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
+            .addGlobalConfigurationParameter(GlobalConfiguration.STORAGE_ENCRYPTION_KEY,
+                "T1JJRU5UREJfSVNfQ09PTA==")
             .build();
 
     try {
 
       FileUtils.deleteRecursively(new File(dbDirectory));
 
-      youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()), config);
+      youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()), config);
       youTrackDB.execute(
           "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
@@ -202,7 +206,7 @@ public class StorageBackupMTIT {
       }
 
       System.out.println("do inc backup last time");
-      db.incrementalBackup(backupDir.getAbsolutePath());
+      db.incrementalBackup(backupDir.toPath());
 
       youTrackDB.close();
 
@@ -216,7 +220,7 @@ public class StorageBackupMTIT {
       embedded.close();
 
       GlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue("T1JJRU5UREJfSVNfQ09PTA==");
-      youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
+      youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
           YouTrackDBConfig.defaultConfig());
       final DatabaseCompare compare =
           new DatabaseCompare(
@@ -237,7 +241,7 @@ public class StorageBackupMTIT {
         }
       }
       try {
-        youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()), config);
+        youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()), config);
         youTrackDB.drop(dbName);
         youTrackDB.drop(backupDbName);
 
@@ -307,7 +311,7 @@ public class StorageBackupMTIT {
           TimeUnit.MINUTES.sleep(1);
 
           System.out.println(Thread.currentThread() + " do inc backup");
-          db.incrementalBackup(backupPath);
+          db.incrementalBackup(Path.of(backupPath));
           System.out.println(Thread.currentThread() + " done inc backup");
         }
       } catch (Exception | Error e) {

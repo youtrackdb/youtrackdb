@@ -19,12 +19,12 @@
  */
 package com.jetbrains.youtrack.db.internal.core.cache;
 
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.record.RecordVersionHelper;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 
@@ -39,7 +39,7 @@ public class LocalRecordCache extends AbstractRecordCache {
 
   public LocalRecordCache() {
     super(
-        YouTrackDBManager.instance()
+        YouTrackDBEnginesManager.instance()
             .getLocalRecordCache()
             .newInstance(GlobalConfiguration.CACHE_LOCAL_IMPL.getValueAsString()));
   }
@@ -95,12 +95,12 @@ public class LocalRecordCache extends AbstractRecordCache {
     record = underlying.get(rid);
 
     if (record != null) {
-      YouTrackDBManager.instance()
+      YouTrackDBEnginesManager.instance()
           .getProfiler()
           .updateCounter(
               cacheHit, "Record found in Level1 Cache", 1L, "db.*.cache.level1.cache.found");
     } else {
-      YouTrackDBManager.instance()
+      YouTrackDBEnginesManager.instance()
           .getProfiler()
           .updateCounter(
               cacheMiss,

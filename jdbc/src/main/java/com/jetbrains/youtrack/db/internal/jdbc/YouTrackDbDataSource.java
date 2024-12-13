@@ -13,11 +13,12 @@
  */
 package com.jetbrains.youtrack.db.internal.jdbc;
 
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabasePool;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.session.SessionPool;
+import com.jetbrains.youtrack.db.internal.core.db.SessionPoolImpl;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.util.DatabaseURLConnection;
 import com.jetbrains.youtrack.db.internal.core.util.URLHelper;
 import java.io.PrintWriter;
@@ -45,10 +46,10 @@ public class YouTrackDbDataSource implements DataSource {
   private String password;
   private Properties info;
 
-  private YouTrackDB youTrackDB;
+  private YouTrackDBImpl youTrackDB;
   private String dbName;
 
-  private DatabasePool pool;
+  private SessionPool pool;
 
   public YouTrackDbDataSource() {
     info = new Properties();
@@ -73,11 +74,11 @@ public class YouTrackDbDataSource implements DataSource {
   }
 
   @Deprecated
-  public YouTrackDbDataSource(YouTrackDB youTrackDB) {
+  public YouTrackDbDataSource(YouTrackDBImpl youTrackDB) {
     this.youTrackDB = youTrackDB;
   }
 
-  public YouTrackDbDataSource(YouTrackDB youTrackDB, String dbName) {
+  public YouTrackDbDataSource(YouTrackDBImpl youTrackDB, String dbName) {
     this.youTrackDB = youTrackDB;
     this.dbName = dbName;
   }
@@ -124,16 +125,16 @@ public class YouTrackDbDataSource implements DataSource {
       DatabaseURLConnection connUrl = URLHelper.parseNew(youTrackDbUrl);
       YouTrackDBConfig settings =
           YouTrackDBConfig.builder()
-              .addConfig(
+              .addGlobalConfigurationParameter(
                   GlobalConfiguration.DB_POOL_MIN,
                   Integer.valueOf(info.getProperty("db.pool.min", "1")))
-              .addConfig(
+              .addGlobalConfigurationParameter(
                   GlobalConfiguration.DB_POOL_MAX,
                   Integer.valueOf(info.getProperty("db.pool.max", "10")))
               .build();
 
       youTrackDB =
-          new YouTrackDB(
+          new YouTrackDBImpl(
               connUrl.getType() + ":" + connUrl.getPath(),
               serverUsername,
               serverPassword,
@@ -148,9 +149,9 @@ public class YouTrackDbDataSource implements DataSource {
             "admin");
       }
 
-      pool = new DatabasePool(youTrackDB, connUrl.getDbName(), username, password);
+      pool = new SessionPoolImpl(youTrackDB, connUrl.getDbName(), username, password);
     } else if (pool == null) {
-      pool = new DatabasePool(youTrackDB, this.dbName, username, password);
+      pool = new SessionPoolImpl(youTrackDB, this.dbName, username, password);
     }
 
     return new YouTrackDbJdbcConnection(

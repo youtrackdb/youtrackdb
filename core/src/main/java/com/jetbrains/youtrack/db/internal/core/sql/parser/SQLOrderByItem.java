@@ -1,15 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.collate.Collate;
+import com.jetbrains.youtrack.db.api.schema.Collate;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.record.Direction;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.record.Direction;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.text.Collator;
 import java.util.Iterator;
@@ -163,8 +163,8 @@ public class SQLOrderByItem {
 
         DatabaseSessionInternal internal = ctx.getDatabase();
         if (stringCollator == null) {
-          String language = (String) internal.get(ATTRIBUTES.LOCALELANGUAGE);
-          String country = (String) internal.get(ATTRIBUTES.LOCALECOUNTRY);
+          String language = (String) internal.get(DatabaseSession.ATTRIBUTES.LOCALE_LANGUAGE);
+          String country = (String) internal.get(DatabaseSession.ATTRIBUTES.LOCALE_COUNTRY);
           Locale locale;
           if (language != null) {
             if (country != null) {

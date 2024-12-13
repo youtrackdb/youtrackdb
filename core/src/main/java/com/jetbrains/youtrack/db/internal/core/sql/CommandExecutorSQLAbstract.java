@@ -19,17 +19,18 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext.TIMEOUT_STRATEGY;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutorAbstract;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestAbstract;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
@@ -217,8 +218,8 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
 
   protected boolean checkClusterAccess(final DatabaseSessionInternal db,
       final String iClusterName) {
-    return db.getUser() == null
-        || db.getUser()
+    return db.geCurrentUser() == null
+        || db.geCurrentUser()
         .checkIfAllowed(db,
             Rule.ResourceGeneric.CLUSTER, iClusterName, getSecurityOperationType())
         != null;
@@ -226,8 +227,9 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
 
   protected void bindDefaultContextVariables() {
     if (context != null) {
-      if (getDatabase() != null && getDatabase().getUser() != null) {
-        context.setVariable(DEFAULT_PARAM_USER, getDatabase().getUser().getIdentity(getDatabase()));
+      if (getDatabase() != null && getDatabase().geCurrentUser() != null) {
+        context.setVariable(DEFAULT_PARAM_USER,
+            getDatabase().geCurrentUser().getIdentity(getDatabase()));
       }
     }
   }

@@ -20,9 +20,9 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.cluster.v2;
 
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.core.exception.ClusterPositionMapException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.ClusterPositionMap;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.ClusterPositionMapBucket;

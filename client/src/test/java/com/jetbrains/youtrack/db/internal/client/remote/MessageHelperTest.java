@@ -2,12 +2,13 @@ package com.jetbrains.youtrack.db.internal.client.remote;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.client.remote.message.MessageHelper;
 import com.jetbrains.youtrack.db.internal.client.remote.message.MockChannel;
 import com.jetbrains.youtrack.db.internal.client.remote.message.tx.RecordOperationRequest;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
@@ -33,7 +34,8 @@ public class MessageHelperTest {
   @Test
   public void testOIdentifiable() throws IOException {
 
-    YouTrackDB youTrackDB = new YouTrackDB("embedded", YouTrackDBConfig.defaultConfig());
+    YouTrackDB youTrackDB = new YouTrackDBImpl("embedded",
+        YouTrackDBConfig.defaultConfig());
 
     youTrackDB.execute(
         "create database testOIdentifiable memory users (admin identified by 'admin' role admin)");

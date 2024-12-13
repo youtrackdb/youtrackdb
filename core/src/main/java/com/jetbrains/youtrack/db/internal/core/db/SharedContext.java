@@ -1,11 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.listener.ListenerManger;
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.viewmanager.ViewManager;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibraryImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
@@ -29,7 +28,7 @@ import java.util.concurrent.Callable;
  */
 public abstract class SharedContext extends ListenerManger<MetadataUpdateListener> {
 
-  protected static final Profiler PROFILER = YouTrackDBManager.instance().getProfiler();
+  protected static final Profiler PROFILER = YouTrackDBEnginesManager.instance().getProfiler();
 
   protected YouTrackDBInternal youtrackDB;
   protected StorageInfo storage;
@@ -114,13 +113,9 @@ public abstract class SharedContext extends ListenerManger<MetadataUpdateListene
     this.storage = storage;
   }
 
-  public ViewManager getViewManager() {
-    throw new UnsupportedOperationException();
-  }
-
   public synchronized <T> T getResource(final String name, final Callable<T> factory) {
     if (resources == null) {
-      resources = new HashMap<String, Object>();
+      resources = new HashMap<>();
     }
     @SuppressWarnings("unchecked")
     T resource = (T) resources.get(name);
@@ -128,7 +123,7 @@ public abstract class SharedContext extends ListenerManger<MetadataUpdateListene
       try {
         resource = factory.call();
       } catch (Exception e) {
-        BaseException.wrapException(
+        throw BaseException.wrapException(
             new DatabaseException(String.format("instance creation for '%s' failed", name)), e);
       }
       resources.put(name, resource);

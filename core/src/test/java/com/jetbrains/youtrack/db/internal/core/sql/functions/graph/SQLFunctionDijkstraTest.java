@@ -2,14 +2,14 @@ package com.jetbrains.youtrack.db.internal.core.sql.functions.graph;
 
 import static org.junit.Assert.assertEquals;
 
+import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.record.Edge;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.api.record.Edge;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -61,19 +61,19 @@ public class SQLFunctionDijkstraTest {
     v4.setProperty("node_id", "D");
 
     graph.begin();
-    Edge e1 = graph.newEdge(v1, v2, "weight");
+    Edge e1 = graph.newRegularEdge(v1, v2, "weight");
     e1.setProperty("weight", 1.0f);
     e1.save();
 
-    Edge e2 = graph.newEdge(v2, v3, "weight");
+    Edge e2 = graph.newRegularEdge(v2, v3, "weight");
     e2.setProperty("weight", 1.0f);
     e2.save();
 
-    Edge e3 = graph.newEdge(v1, v3, "weight");
+    Edge e3 = graph.newRegularEdge(v1, v3, "weight");
     e3.setProperty("weight", 100.0f);
     e3.save();
 
-    Edge e4 = graph.newEdge(v3, v4, "weight");
+    Edge e4 = graph.newRegularEdge(v3, v4, "weight");
     e4.setProperty("weight", 1.0f);
     e4.save();
     graph.commit();

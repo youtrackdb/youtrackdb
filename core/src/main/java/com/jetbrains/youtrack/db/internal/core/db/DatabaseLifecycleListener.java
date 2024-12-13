@@ -19,15 +19,13 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaView;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 
 /**
  * Listener Interface to receive callbacks on database usage.
  */
 public interface DatabaseLifecycleListener {
-
   enum PRIORITY {
     FIRST,
     EARLY,
@@ -56,11 +54,6 @@ public interface DatabaseLifecycleListener {
   default void onDropClass(DatabaseSessionInternal iDatabase, SchemaClass iClass) {
   }
 
-  default void onCreateView(DatabaseSessionInternal database, SchemaView view) {
-  }
-
-  default void onDropView(DatabaseSessionInternal database, SchemaView cls) {
-  }
 
   /**
    * Event called during the retrieving of distributed configuration, usually at startup and when

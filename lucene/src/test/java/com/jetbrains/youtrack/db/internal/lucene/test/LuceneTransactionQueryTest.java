@@ -18,16 +18,15 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.stream.Collectors;
@@ -59,11 +58,11 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
 
     ResultSet vertices = db.query("select from C1 where p1 lucene \"abc\" ");
 
-    Assert.assertEquals(vertices.stream().count(), 1);
+    Assert.assertEquals(1, vertices.stream().count());
     db.rollback();
 
     vertices = db.query("select from C1 where p1 lucene \"abc\" ");
-    Assert.assertEquals(vertices.stream().count(), 0);
+    Assert.assertEquals(0, vertices.stream().count());
   }
 
   @Test
@@ -104,8 +103,8 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
       coll = rids.collect(Collectors.toList());
     }
 
-    Assert.assertEquals(vertices.stream().count(), 0);
-    Assert.assertEquals(coll.size(), 0);
+    Assert.assertEquals(0, vertices.stream().count());
+    Assert.assertEquals(0, coll.size());
 
     Iterator iterator = coll.iterator();
     int i = 0;
@@ -129,15 +128,11 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
   public void txUpdateTest() {
 
     Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
-    SchemaClass c1 = db.getMetadata().getSchema().getClass("C1");
-    try {
-      c1.truncate(db);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    var c1 = db.getMetadata().getSchema().getClassInternal("C1");
+    c1.truncate(db);
 
     db.begin();
-    Assert.assertEquals(index.getInternal().size(db), 0);
+    Assert.assertEquals(0, index.getInternal().size(db));
 
     EntityImpl doc = new EntityImpl("c1");
     doc.field("p1", "update");
@@ -146,9 +141,9 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
 
     ResultSet vertices = db.query("select from C1 where p1 lucene \"update\" ");
 
-    Assert.assertEquals(vertices.stream().count(), 1);
+    Assert.assertEquals(1, vertices.stream().count());
 
-    Assert.assertEquals(index.getInternal().size(db), 1);
+    Assert.assertEquals(1, index.getInternal().size(db));
 
     db.commit();
 
@@ -161,8 +156,8 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
 
     Result res = vertices.next();
     Assert.assertFalse(vertices.hasNext());
-    Assert.assertEquals(coll.size(), 1);
-    Assert.assertEquals(index.getInternal().size(db), 1);
+    Assert.assertEquals(1, coll.size());
+    Assert.assertEquals(1, index.getInternal().size(db));
 
     db.begin();
 
@@ -175,8 +170,8 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
       coll = stream.collect(Collectors.toList());
     }
 
-    Assert.assertEquals(vertices.stream().count(), 0);
-    Assert.assertEquals(coll.size(), 0);
+    Assert.assertEquals(0, vertices.stream().count());
+    Assert.assertEquals(0, coll.size());
 
     Iterator iterator = coll.iterator();
     int i = 0;
@@ -184,40 +179,36 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
       iterator.next();
       i++;
     }
-    Assert.assertEquals(i, 0);
+    Assert.assertEquals(0, i);
 
-    Assert.assertEquals(index.getInternal().size(db), 1);
+    Assert.assertEquals(1, index.getInternal().size(db));
 
     vertices = db.query("select from C1 where p1 lucene \"removed\"");
     try (Stream<RID> stream = index.getInternal().getRids(db, "removed")) {
       coll = stream.collect(Collectors.toList());
     }
 
-    Assert.assertEquals(vertices.stream().count(), 1);
-    Assert.assertEquals(coll.size(), 1);
+    Assert.assertEquals(1, vertices.stream().count());
+    Assert.assertEquals(1, coll.size());
 
     db.rollback();
 
     vertices = db.query("select from C1 where p1 lucene \"update\" ");
 
-    Assert.assertEquals(vertices.stream().count(), 1);
+    Assert.assertEquals(1, vertices.stream().count());
 
-    Assert.assertEquals(index.getInternal().size(db), 1);
+    Assert.assertEquals(1, index.getInternal().size(db));
   }
 
   @Test
   public void txUpdateTestComplex() {
 
     Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
-    SchemaClass c1 = db.getMetadata().getSchema().getClass("C1");
-    try {
-      c1.truncate(db);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    var c1 = db.getMetadata().getSchema().getClassInternal("C1");
+    c1.truncate(db);
 
     db.begin();
-    Assert.assertEquals(index.getInternal().size(db), 0);
+    Assert.assertEquals(0, index.getInternal().size(db));
 
     EntityImpl doc = new EntityImpl("c1");
     doc.field("p1", "abc");
@@ -242,8 +233,8 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
       coll = stream.collect(Collectors.toList());
     }
 
-    Assert.assertEquals(vertices.stream().count(), 1);
-    Assert.assertEquals(coll.size(), 1);
+    Assert.assertEquals(1, vertices.stream().count());
+    Assert.assertEquals(1, coll.size());
 
     Iterator iterator = coll.iterator();
     int i = 0;
@@ -253,26 +244,26 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
       i++;
     }
 
-    Assert.assertEquals(i, 1);
+    Assert.assertEquals(1, i);
     Assert.assertNotNull(doc1);
     Assert.assertNotNull(rid);
     Assert.assertEquals(doc1.getIdentity().toString(), rid.getIdentity().toString());
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(2, index.getInternal().size(db));
 
     vertices = db.query("select from C1 where p1 lucene \"removed\" ");
     try (Stream<RID> stream = index.getInternal().getRids(db, "removed")) {
       coll = stream.collect(Collectors.toList());
     }
 
-    Assert.assertEquals(vertices.stream().count(), 1);
-    Assert.assertEquals(coll.size(), 1);
+    Assert.assertEquals(1, vertices.stream().count());
+    Assert.assertEquals(1, coll.size());
 
     db.rollback();
 
     vertices = db.query("select from C1 where p1 lucene \"abc\" ");
 
-    Assert.assertEquals(vertices.stream().count(), 2);
+    Assert.assertEquals(2, vertices.stream().count());
 
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(2, index.getInternal().size(db));
   }
 }

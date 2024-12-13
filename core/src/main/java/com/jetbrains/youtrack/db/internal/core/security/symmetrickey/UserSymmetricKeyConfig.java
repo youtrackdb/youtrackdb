@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.security.symmetrickey;
 
-import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
+import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Map;
 

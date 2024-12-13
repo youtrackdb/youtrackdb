@@ -20,13 +20,13 @@
 
 package com.jetbrains.youtrack.db.internal.core.encryption;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.encryption.impl.NothingEncryption;
 import com.jetbrains.youtrack.db.internal.core.encryption.impl.AESEncryption;
 import com.jetbrains.youtrack.db.internal.core.encryption.impl.AESGCMEncryption;
 import com.jetbrains.youtrack.db.internal.core.encryption.impl.DESEncryption;
-import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
+import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;

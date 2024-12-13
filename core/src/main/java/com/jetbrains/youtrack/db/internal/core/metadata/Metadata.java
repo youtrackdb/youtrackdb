@@ -17,7 +17,8 @@
 package com.jetbrains.youtrack.db.internal.core.metadata;
 
 import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibrary;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceLibrary;
 import com.jetbrains.youtrack.db.internal.core.schedule.Scheduler;
@@ -27,7 +28,7 @@ import com.jetbrains.youtrack.db.internal.core.schedule.Scheduler;
  */
 public interface Metadata {
 
-  Schema getSchema();
+  SchemaInternal getSchema();
 
   Security getSecurity();
 

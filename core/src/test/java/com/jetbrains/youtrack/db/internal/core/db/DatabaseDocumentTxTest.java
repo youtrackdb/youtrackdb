@@ -2,22 +2,22 @@ package com.jetbrains.youtrack.db.internal.core.db;
 
 import static org.junit.Assert.assertTrue;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.CommitSerializationException;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.exception.CommitSerializationException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.SchemaException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClassDescendentOrder;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.Collection;
 import java.util.List;
 import org.junit.Assert;
@@ -68,12 +68,12 @@ public class DatabaseDocumentTxTest extends DbTestBase {
   @Test
   public void testTimezone() {
 
-    db.set(ATTRIBUTES.TIMEZONE, "Europe/Rome");
-    Object newTimezone = db.get(ATTRIBUTES.TIMEZONE);
+    db.set(DatabaseSession.ATTRIBUTES.TIMEZONE, "Europe/Rome");
+    Object newTimezone = db.get(DatabaseSession.ATTRIBUTES.TIMEZONE);
     Assert.assertEquals(newTimezone, "Europe/Rome");
 
-    db.set(ATTRIBUTES.TIMEZONE, "foobar");
-    newTimezone = db.get(ATTRIBUTES.TIMEZONE);
+    db.set(DatabaseSession.ATTRIBUTES.TIMEZONE, "foobar");
+    newTimezone = db.get(DatabaseSession.ATTRIBUTES.TIMEZONE);
     Assert.assertEquals(newTimezone, "GMT");
   }
 
@@ -263,7 +263,7 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     Vertex doc2 = db.newVertex(vertexClass);
     doc2.setProperty("name", "second");
     doc2.save();
-    db.newEdge(db.bindToSession(doc1), doc2, "testEdge").save();
+    db.newRegularEdge(db.bindToSession(doc1), doc2, "testEdge").save();
     db.commit();
 
     try (ResultSet rs = db.query("SELECT out() as o FROM " + vertexClass)) {
@@ -299,8 +299,8 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     doc3.setProperty("name", "third");
     doc3.save();
 
-    db.newEdge(doc1, doc2, "testEdge").save();
-    db.newEdge(doc1, doc3, "testEdge").save();
+    db.newRegularEdge(doc1, doc2, "testEdge").save();
+    db.newRegularEdge(doc1, doc3, "testEdge").save();
     db.commit();
 
     try (ResultSet rs = db.query("SELECT out() as o FROM " + vertexClass)) {
@@ -333,8 +333,8 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     doc3.setProperty("name", "third");
     doc3.save();
 
-    db.newEdge(doc1, doc2, "testEdge");
-    db.newEdge(doc1, doc3, "testEdge");
+    db.newRegularEdge(doc1, doc2, "testEdge");
+    db.newRegularEdge(doc1, doc3, "testEdge");
   }
 
   @Test

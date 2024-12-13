@@ -5,7 +5,7 @@ import com.jetbrains.youtrack.db.internal.core.index.IndexManagerRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.YouTrackDBRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.metadata.schema.SchemaRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.metadata.security.SecurityRemote;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
 import com.jetbrains.youtrack.db.internal.core.db.StringCache;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibraryImpl;

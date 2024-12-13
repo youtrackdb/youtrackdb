@@ -15,8 +15,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.method;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.coll.SQLMethodMultiValue;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.conversion.SQLMethodAsDate;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.conversion.SQLMethodAsDateTime;

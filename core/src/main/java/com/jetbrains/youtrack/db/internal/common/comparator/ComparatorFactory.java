@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.common.comparator;
 
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import java.util.Comparator;
 
 /**

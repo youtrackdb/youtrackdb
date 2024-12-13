@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.server.plugin.mail;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.script.ScriptInjection;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.OServer;
@@ -53,7 +53,6 @@ public class MailPlugin extends ServerPluginAbstract
 
   @Override
   public void config(final OServer oServer, final OServerParameterConfiguration[] iParams) {
-
     YouTrackDBInternal.extract(oServer.getContext()).getScriptManager().registerInjection(this);
   }
 

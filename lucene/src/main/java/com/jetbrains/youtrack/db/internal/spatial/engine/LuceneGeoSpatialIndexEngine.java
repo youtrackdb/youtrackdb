@@ -16,9 +16,9 @@ package com.jetbrains.youtrack.db.internal.spatial.engine;
 
 import static com.jetbrains.youtrack.db.internal.lucene.builder.LuceneQueryBuilder.EMPTY_METADATA;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.id.ContextualRecordId;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexEngineException;
@@ -137,8 +137,8 @@ public class LuceneGeoSpatialIndexEngine extends LuceneSpatialIndexEngineAbstrac
   public boolean validatedPut(
       AtomicOperation atomicOperation,
       Object key,
-      com.jetbrains.youtrack.db.internal.core.id.RID value,
-      IndexEngineValidator<Object, com.jetbrains.youtrack.db.internal.core.id.RID> validator) {
+      com.jetbrains.youtrack.db.api.record.RID value,
+      IndexEngineValidator<Object, com.jetbrains.youtrack.db.api.record.RID> validator) {
     throw new UnsupportedOperationException(
         "Validated put is not supported by LuceneGeoSpatialIndexEngine");
   }

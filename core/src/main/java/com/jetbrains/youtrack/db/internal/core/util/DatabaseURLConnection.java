@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.util;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
+import com.jetbrains.youtrack.db.api.DatabaseType;
 import java.util.Optional;
 
 /**

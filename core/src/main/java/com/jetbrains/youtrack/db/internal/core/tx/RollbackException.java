@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.tx;
 
-import com.jetbrains.youtrack.db.internal.core.exception.TransactionException;
+import com.jetbrains.youtrack.db.api.exception.TransactionException;
 
 /**
  * @since 3/11/14

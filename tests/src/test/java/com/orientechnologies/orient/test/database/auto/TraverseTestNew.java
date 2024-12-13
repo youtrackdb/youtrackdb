@@ -17,11 +17,11 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.Edge;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.api.record.Edge;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -96,32 +96,32 @@ public class TraverseTestNew extends DocumentDBBaseTest {
     totalElements++;
 
     database.begin();
-    database.save(database.newEdge(tomCruise, topGun, "actorIn"));
+    database.save(database.newRegularEdge(tomCruise, topGun, "actorIn"));
     database.commit();
 
     totalElements++;
     database.begin();
-    database.save(database.newEdge(megRyan, topGun, "actorIn"));
+    database.save(database.newRegularEdge(megRyan, topGun, "actorIn"));
     database.commit();
     totalElements++;
 
     database.begin();
-    database.save(database.newEdge(tomCruise, missionImpossible, "actorIn"));
+    database.save(database.newRegularEdge(tomCruise, missionImpossible, "actorIn"));
     database.commit();
 
     totalElements++;
 
     database.begin();
-    database.save(database.newEdge(megRyan, youHaveGotMail, "actorIn"));
+    database.save(database.newRegularEdge(megRyan, youHaveGotMail, "actorIn"));
     database.commit();
     totalElements++;
 
     database.begin();
-    database.save(database.newEdge(tomCruise, megRyan, "friend"));
+    database.save(database.newRegularEdge(tomCruise, megRyan, "friend"));
     database.commit();
 
     totalElements++;
-    Edge e = database.newEdge(tomCruise, nicoleKidman, "married");
+    Edge e = database.newRegularEdge(tomCruise, nicoleKidman, "married");
     e.setProperty("year", 1990);
 
     database.begin();

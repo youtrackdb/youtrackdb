@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command;
 
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 
 public class CommandExecutorNotFoundException extends CommandExecutionException {
 

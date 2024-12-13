@@ -1,11 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.HashSet;
 import java.util.List;
@@ -2213,8 +2215,8 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
           v3.setProperty("name", "c");
           v3.save();
 
-          v1.addEdge(v2).save();
-          v2.addEdge(v3).save();
+          v1.addRegularEdge(v2).save();
+          v2.addRegularEdge(v3).save();
         });
 
     String query = "MATCH { class:" + clazz + ", as:a} --> {as:b} --> {as:c}, ";
@@ -2248,9 +2250,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
           v3.setProperty("name", "c");
           v3.save();
 
-          v1.addEdge(v2).save();
-          v2.addEdge(v3).save();
-          v1.addEdge(v3).save();
+          v1.addRegularEdge(v2).save();
+          v2.addRegularEdge(v3).save();
+          v1.addRegularEdge(v3).save();
         });
 
     String query = "MATCH { class:" + clazz + ", as:a} --> {as:b} --> {as:c}, ";
@@ -2282,9 +2284,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
           v3.setProperty("name", "c");
           v3.save();
 
-          v1.addEdge(v2).save();
-          v2.addEdge(v3).save();
-          v1.addEdge(v3).save();
+          v1.addRegularEdge(v2).save();
+          v2.addRegularEdge(v3).save();
+          v1.addRegularEdge(v3).save();
         });
 
     String query = "MATCH { class:" + clazz + ", as:a} --> {as:b} --> {as:c}, ";
@@ -2383,7 +2385,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   }
 
   private Profiler getProfilerInstance() {
-    return YouTrackDBManager.instance().getProfiler();
+    return YouTrackDBEnginesManager.instance().getProfiler();
   }
 
   private void printExecutionPlan(ResultSet result) {

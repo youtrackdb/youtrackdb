@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.shutdown;
 
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager.ShutdownYouTrackDBInstancesHandler;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager.ShutdownYouTrackDBInstancesHandler;
 
 /**
  * Handler which is used inside of shutdown priority queue. The higher priority we have the earlier
@@ -10,19 +10,19 @@ import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager.ShutdownYouTrac
  * <p>There are set of predefined priorities which are used for system shutdown handlers which
  * allows to add your handlers before , between and after them.
  *
- * @see YouTrackDBManager#addShutdownHandler(ShutdownHandler)
- * @see YouTrackDBManager#shutdown()
+ * @see YouTrackDBEnginesManager#addShutdownHandler(ShutdownHandler)
+ * @see YouTrackDBEnginesManager#shutdown()
  */
 public interface ShutdownHandler {
 
   /**
-   * Priority of {@link YouTrackDBManager} handler.
+   * Priority of {@link YouTrackDBEnginesManager} handler.
    */
   int SHUTDOWN_WORKERS_PRIORITY = 1000;
 
   /**
    * Priority of
-   * com.jetbrains.youtrack.db.internal.core.YouTrackDBManager.ShutdownPendingThreadsHandler
+   * com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager.ShutdownPendingThreadsHandler
    * handler.
    */
   int SHUTDOWN_PENDING_THREADS_PRIORITY = 1100;
@@ -33,14 +33,14 @@ public interface ShutdownHandler {
   int SHUTDOWN_ENGINES_PRIORITY = 1200;
 
   /**
-   * Priority of com.jetbrains.youtrack.db.internal.core.YouTrackDBManager.ShutdownProfilerHandler
+   * Priority of com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager.ShutdownProfilerHandler
    * handler.
    */
   int SHUTDOWN_PROFILER_PRIORITY = 1300;
 
   /**
    * Priority of
-   * com.jetbrains.youtrack.db.internal.core.YouTrackDBManager.ShutdownCallListenersHandler
+   * com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager.ShutdownCallListenersHandler
    * handler.
    */
   int SHUTDOWN_CALL_LISTENERS = 1400;
@@ -51,7 +51,7 @@ public interface ShutdownHandler {
   int getPriority();
 
   /**
-   * Code which executed during system shutdown. During call of {@link YouTrackDBManager#shutdown()}
+   * Code which executed during system shutdown. During call of {@link YouTrackDBEnginesManager#shutdown()}
    * method which is called during JVM shutdown.
    */
   void shutdown() throws Exception;

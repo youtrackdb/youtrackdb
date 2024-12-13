@@ -18,11 +18,11 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
@@ -59,7 +59,7 @@ public class LuceneInsertUpdateTransactionTest extends BaseLuceneTest {
     doc.field("name", "Rome");
     db.save(doc);
 
-    Index idx = schema.getClass("City").getClassIndex(db, "City.name");
+    Index idx = db.getClassInternal("City").getClassIndex(db, "City.name");
     Assert.assertNotNull(idx);
 
     Collection<?> coll;

@@ -19,15 +19,15 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record;
 
+import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.exception.SystemException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.RecordFlat;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ViewEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.RecordFlat;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexEntityImpl;
 
 /**
@@ -47,7 +47,7 @@ public class RecordFactoryManager {
 
   public interface RecordFactory {
 
-    Record newRecord(RID rid, DatabaseSessionInternal database);
+    Record newRecord(RecordId rid, DatabaseSessionInternal database);
   }
 
   public RecordFactoryManager() {
@@ -62,8 +62,6 @@ public class RecordFactoryManager {
               return new VertexEntityImpl(database, rid);
             } else if (database.isClusterEdge(cluster)) {
               return new EdgeEntityImpl(database, rid);
-            } else if (database.isClusterView(cluster)) {
-              return new ViewEntityImpl(database, rid);
             }
           }
           return new EntityImpl(database, rid);
@@ -85,7 +83,7 @@ public class RecordFactoryManager {
     return name;
   }
 
-  public Record newInstance(RID rid, DatabaseSessionInternal database) {
+  public Record newInstance(RecordId rid, DatabaseSessionInternal database) {
     try {
       return getFactory(database.getRecordType()).newRecord(rid, database);
     } catch (Exception e) {
@@ -94,7 +92,7 @@ public class RecordFactoryManager {
   }
 
   public RecordAbstract newInstance(
-      final byte iRecordType, RID rid, DatabaseSessionInternal database) {
+      final byte iRecordType, RecordId rid, DatabaseSessionInternal database) {
     try {
       return (RecordAbstract) getFactory(iRecordType).newRecord(rid, database);
     } catch (Exception e) {

@@ -23,10 +23,10 @@ import com.jetbrains.youtrack.db.internal.client.remote.EngineRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
 import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
+import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -225,7 +225,7 @@ public class DatabaseHelper {
       file =
           new File(
               SystemVariableResolver.resolveSystemVariables(
-                  "${" + YouTrackDBManager.YOUTRACKDB_HOME
+                  "${" + YouTrackDBEnginesManager.YOUTRACKDB_HOME
                       + "}/config/youtrackdb-server-config.xml"));
     }
     if (!file.exists()) {

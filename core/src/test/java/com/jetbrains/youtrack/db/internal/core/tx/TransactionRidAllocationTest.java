@@ -7,15 +7,16 @@ import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentCreateException;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.record.Edge;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.api.exception.ConcurrentCreateException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Edge;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +51,7 @@ public class TransactionRidAllocationTest {
 
     ((AbstractPaginatedStorage) db.getStorage())
         .preallocateRids((TransactionInternal) db.getTransaction());
-    RID generated = v.getIdentity();
+    RecordId generated = (RecordId) v.getIdentity();
     assertTrue(generated.isValid());
 
     var db1 = youTrackDB.open("test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -195,7 +196,7 @@ public class TransactionRidAllocationTest {
     db.save(v0);
     for (int i = 0; i < 20; i++) {
       Vertex v = db.newVertex("V");
-      Edge edge = v0.addEdge(v);
+      Edge edge = v0.addRegularEdge(v);
       orecords.add(db.save(edge));
       orecords.add(db.save(v));
     }

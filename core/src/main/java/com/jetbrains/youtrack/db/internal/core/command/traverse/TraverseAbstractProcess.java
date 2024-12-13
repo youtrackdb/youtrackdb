@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.command.traverse;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandProcess;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 
 public abstract class TraverseAbstractProcess<T>
     extends CommandProcess<Traverse, T, Identifiable> {

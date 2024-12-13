@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.server.network.protocol.http;
 
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
-import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.orientechnologies.orient.server.OClientConnection;
 import java.io.IOException;
 import java.io.InputStream;

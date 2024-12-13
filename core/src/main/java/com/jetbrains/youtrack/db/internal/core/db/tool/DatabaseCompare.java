@@ -25,20 +25,20 @@ import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper.DbRelatedCall;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.RawBuffer;
 import java.util.Arrays;
@@ -229,27 +229,6 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
                 + " in DB1 is not equals in custom keys in DB2.");
         ok = false;
       }
-      if (clazz.getOverSize() != clazz2.getOverSize()) {
-        listener.onMessage(
-            "\n- ERR: Class definition for "
-                + clazz.getName()
-                + " in DB1 is not equals in overSize in DB2.");
-        ok = false;
-      }
-
-      if (clazz.getDefaultClusterId() != clazz2.getDefaultClusterId()) {
-        listener.onMessage(
-            "\n- ERR: Class definition for "
-                + clazz.getName()
-                + " in DB1 is not equals in default cluser id in DB2.");
-        ok = false;
-      }
-
-      // if (clazz.getSize() != clazz2.getSize()) {
-      // listener.onMessage("\n- ERR: Class definition for " + clazz.getName() + " in DB1 is not
-      // equals in size in DB2.");
-      // ok = false;
-      // }
 
       for (Property prop : clazz.declaredProperties()) {
         Property prop2 = clazz2.getProperty(prop.getName());

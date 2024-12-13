@@ -19,15 +19,19 @@
  */
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.collection.LazyIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
@@ -38,11 +42,7 @@ import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
@@ -79,13 +79,14 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
     }
 
     Identifiable resultRid = null;
-    RID rid;
+    RecordId rid;
 
     if (iLinked instanceof RID) {
       // JUST THE REFERENCE
-      rid = (RID) iLinked;
+      rid = (RecordId) iLinked;
 
-      assert rid.getIdentity().isValid() || DatabaseRecordThreadLocal.instance().get().isRemote()
+      assert ((RecordId) rid.getIdentity()).isValid() || DatabaseRecordThreadLocal.instance().get()
+          .isRemote()
           : "Impossible to serialize invalid link " + rid.getIdentity();
       resultRid = rid;
     } else {
@@ -103,9 +104,10 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
       // RECORD
       Record iLinkedRecord = ((Identifiable) iLinked).getRecord();
-      rid = iLinkedRecord.getIdentity();
+      rid = (RecordId) iLinkedRecord.getIdentity();
 
-      assert rid.getIdentity().isValid() || DatabaseRecordThreadLocal.instance().get().isRemote()
+      assert ((RecordId) rid.getIdentity()).isValid() || DatabaseRecordThreadLocal.instance().get()
+          .isRemote()
           : "Impossible to serialize invalid link " + rid.getIdentity();
 
       final var database = DatabaseRecordThreadLocal.instance().get();
@@ -384,7 +386,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
                   + iValue);
         }
 
-        if (!((Identifiable) iValue).getIdentity().isValid()
+        if (!((RecordId) ((Identifiable) iValue).getIdentity()).isValid()
             && iValue instanceof EntityImpl
             && ((EntityImpl) iValue).isEmbedded()) {
           // WRONG: IT'S EMBEDDED!
@@ -823,7 +825,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         if (iLinkedType == null)
         // AUTO-DETERMINE LINKED TYPE
         {
-          if (id.getIdentity().isValid()) {
+          if (((RecordId) id.getIdentity()).isValid()) {
             linkedType = PropertyType.LINK;
           } else {
             linkedType = PropertyType.EMBEDDED;
@@ -838,7 +840,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
           }
 
           assert linkedType == PropertyType.EMBEDDED
-              || id.getIdentity().isValid()
+              || ((RecordId) id.getIdentity()).isValid()
               || DatabaseRecordThreadLocal.instance().get().isRemote()
               : "Impossible to serialize invalid link " + id.getIdentity();
 

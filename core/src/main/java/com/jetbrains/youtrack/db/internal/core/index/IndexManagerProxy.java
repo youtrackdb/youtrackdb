@@ -20,13 +20,14 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ProxedResource;
 import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 public class IndexManagerProxy extends ProxedResource<IndexManagerAbstract>
@@ -70,7 +71,7 @@ public class IndexManagerProxy extends ProxedResource<IndexManagerAbstract>
       final IndexDefinition indexDefinition,
       final int[] clusterIdsToIndex,
       final ProgressListener progressListener,
-      final EntityImpl metadata) {
+      final Map<String, ?> metadata) {
     return delegate.createIndex(
         database, iName, iType, indexDefinition, clusterIdsToIndex, progressListener, metadata);
   }
@@ -82,7 +83,7 @@ public class IndexManagerProxy extends ProxedResource<IndexManagerAbstract>
       final IndexDefinition iIndexDefinition,
       final int[] iClusterIdsToIndex,
       final ProgressListener progressListener,
-      final EntityImpl metadata,
+      final Map<String, ?> metadata,
       final String algorithm) {
     return delegate.createIndex(
         database,

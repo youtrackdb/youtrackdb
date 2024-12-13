@@ -19,6 +19,12 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
+import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
+import com.jetbrains.youtrack.db.api.exception.SchemaException;
+import com.jetbrains.youtrack.db.api.exception.SchemaNotCreatedException;
+import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.concur.resource.CloseableInStorage;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.types.ModifiableInteger;
@@ -27,11 +33,6 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.MetadataUpdateListener;
 import com.jetbrains.youtrack.db.internal.core.db.ScenarioThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.viewmanager.ViewCreationListener;
-import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
-import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
-import com.jetbrains.youtrack.db.internal.core.exception.SchemaNotCreatedException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection.ClusterSelectionFactory;
@@ -69,11 +70,8 @@ public abstract class SchemaShared implements CloseableInStorage {
 
   private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-  protected final Map<String, SchemaClass> classes = new HashMap<String, SchemaClass>();
+  protected final Map<String, SchemaClassInternal> classes = new HashMap<>();
   protected final Int2ObjectOpenHashMap<SchemaClass> clustersToClasses = new Int2ObjectOpenHashMap<>();
-
-  protected final Map<String, SchemaView> views = new HashMap<String, SchemaView>();
-  protected final Int2ObjectOpenHashMap<SchemaView> clustersToViews = new Int2ObjectOpenHashMap<>();
 
   private final ClusterSelectionFactory clusterSelectionFactory = new ClusterSelectionFactory();
 
@@ -82,7 +80,7 @@ public abstract class SchemaShared implements CloseableInStorage {
   private final Map<String, GlobalProperty> propertiesByNameType = new HashMap<>();
   private IntOpenHashSet blobClusters = new IntOpenHashSet();
   private volatile int version = 0;
-  private volatile RID identity;
+  private volatile RecordId identity;
   protected volatile ImmutableSchema snapshot;
 
   protected static Set<String> internalClasses = new HashSet<String>();
@@ -97,6 +95,10 @@ public abstract class SchemaShared implements CloseableInStorage {
     internalClasses.add("otrigger");
     internalClasses.add("oschedule");
     internalClasses.add("orids");
+    internalClasses.add("o");
+    internalClasses.add("v");
+    internalClasses.add("e");
+    internalClasses.add("le");
   }
 
   protected static final class ClusterIdsAreEmptyException extends Exception {
@@ -219,27 +221,12 @@ public abstract class SchemaShared implements CloseableInStorage {
     }
   }
 
-  public int countViews(DatabaseSessionInternal database) {
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_READ);
-
-    acquireSchemaReadLock();
-    try {
-      return views.size();
-    } finally {
-      releaseSchemaReadLock();
-    }
-  }
 
   /**
    * Callback invoked when the schema is loaded, after all the initializations.
    */
   public void onPostIndexManagement(DatabaseSessionInternal session) {
     for (SchemaClass c : classes.values()) {
-      if (c instanceof SchemaClassImpl) {
-        ((SchemaClassImpl) c).onPostIndexManagement(session);
-      }
-    }
-    for (SchemaClass c : views.values()) {
       if (c instanceof SchemaClassImpl) {
         ((SchemaClassImpl) c).onPostIndexManagement(session);
       }
@@ -308,17 +295,6 @@ public abstract class SchemaShared implements CloseableInStorage {
       int clusters,
       SchemaClass... superClasses);
 
-  public abstract SchemaView createView(
-      DatabaseSessionInternal database,
-      final String viewName,
-      String statement,
-      Map<String, Object> metadata);
-
-  public abstract SchemaView createView(DatabaseSessionInternal database, ViewConfig cfg);
-
-  public abstract SchemaView createView(
-      DatabaseSessionInternal database, ViewConfig cfg, ViewCreationListener listener)
-      throws UnsupportedOperationException;
 
   public abstract void checkEmbedded();
 
@@ -343,18 +319,6 @@ public abstract class SchemaShared implements CloseableInStorage {
                 + clustersToClasses.get(clusterId)
                 + "'");
       }
-
-      final SchemaView existingView = clustersToViews.get(clusterId);
-
-      if (existingView != null && (cls == null || !cls.equals(existingView))) {
-        throw new SchemaException(
-            "Cluster with id "
-                + clusterId
-                + " already belongs to the view '"
-                + clustersToViews.get(clusterId)
-                + "'");
-      }
-
     } finally {
       releaseSchemaReadLock();
     }
@@ -369,18 +333,7 @@ public abstract class SchemaShared implements CloseableInStorage {
     }
   }
 
-  public SchemaView getViewByClusterId(int clusterId) {
-    acquireSchemaReadLock();
-    try {
-      return clustersToViews.get(clusterId);
-    } finally {
-      releaseSchemaReadLock();
-    }
-  }
-
   public abstract void dropClass(DatabaseSessionInternal database, final String className);
-
-  public abstract void dropView(DatabaseSessionInternal database, final String viewName);
 
   /**
    * Reloads the schema inside a storage's shared lock.
@@ -415,19 +368,6 @@ public abstract class SchemaShared implements CloseableInStorage {
     }
   }
 
-  public boolean existsView(final String viewName) {
-    if (viewName == null) {
-      return false;
-    }
-
-    acquireSchemaReadLock();
-    try {
-      return views.containsKey(viewName.toLowerCase(Locale.ENGLISH));
-    } finally {
-      releaseSchemaReadLock();
-    }
-  }
-
   public SchemaClass getClass(final Class<?> iClass) {
     if (iClass == null) {
       return null;
@@ -436,7 +376,7 @@ public abstract class SchemaShared implements CloseableInStorage {
     return getClass(iClass.getSimpleName());
   }
 
-  public SchemaClass getClass(final String iClassName) {
+  public SchemaClassInternal getClass(final String iClassName) {
     if (iClassName == null) {
       return null;
     }
@@ -444,19 +384,6 @@ public abstract class SchemaShared implements CloseableInStorage {
     acquireSchemaReadLock();
     try {
       return classes.get(iClassName.toLowerCase(Locale.ENGLISH));
-    } finally {
-      releaseSchemaReadLock();
-    }
-  }
-
-  public SchemaView getView(final String viewName) {
-    if (viewName == null) {
-      return null;
-    }
-
-    acquireSchemaReadLock();
-    try {
-      return views.get(viewName.toLowerCase(Locale.ENGLISH));
     } finally {
       releaseSchemaReadLock();
     }
@@ -516,7 +443,7 @@ public abstract class SchemaShared implements CloseableInStorage {
       DatabaseSessionInternal database,
       final String oldName,
       final String newName,
-      final SchemaClass cls) {
+      final SchemaClassInternal cls) {
 
     if (oldName != null && oldName.equalsIgnoreCase(newName)) {
       throw new IllegalArgumentException(
@@ -528,8 +455,7 @@ public abstract class SchemaShared implements CloseableInStorage {
       checkEmbedded();
 
       if (newName != null
-          && (classes.containsKey(newName.toLowerCase(Locale.ENGLISH))
-          || views.containsKey(newName.toLowerCase(Locale.ENGLISH)))) {
+          && (classes.containsKey(newName.toLowerCase(Locale.ENGLISH)))) {
         throw new IllegalArgumentException("Class '" + newName + "' is already present in schema");
       }
 
@@ -538,39 +464,6 @@ public abstract class SchemaShared implements CloseableInStorage {
       }
       if (newName != null) {
         classes.put(newName.toLowerCase(Locale.ENGLISH), cls);
-      }
-
-    } finally {
-      releaseSchemaWriteLock(database);
-    }
-  }
-
-  void changeViewName(
-      DatabaseSessionInternal database,
-      final String oldName,
-      final String newName,
-      final SchemaView view) {
-
-    if (oldName != null && oldName.equalsIgnoreCase(newName)) {
-      throw new IllegalArgumentException(
-          "View '" + oldName + "' cannot be renamed with the same name");
-    }
-
-    acquireSchemaWriteLock(database);
-    try {
-      checkEmbedded();
-
-      if (newName != null
-          && (classes.containsKey(newName.toLowerCase(Locale.ENGLISH))
-          || views.containsKey(newName.toLowerCase(Locale.ENGLISH)))) {
-        throw new IllegalArgumentException("View '" + newName + "' is already present in schema");
-      }
-
-      if (oldName != null) {
-        views.remove(oldName.toLowerCase(Locale.ENGLISH));
-      }
-      if (newName != null) {
-        views.put(newName.toLowerCase(Locale.ENGLISH), view);
       }
 
     } finally {
@@ -621,8 +514,7 @@ public abstract class SchemaShared implements CloseableInStorage {
       // REGISTER ALL THE CLASSES
       clustersToClasses.clear();
 
-      final Map<String, SchemaClass> newClasses = new HashMap<String, SchemaClass>();
-      final Map<String, SchemaView> newViews = new HashMap<String, SchemaView>();
+      final Map<String, SchemaClassInternal> newClasses = new HashMap<>();
 
       Collection<EntityImpl> storedClasses = entity.field("classes");
       for (EntityImpl c : storedClasses) {
@@ -694,35 +586,6 @@ public abstract class SchemaShared implements CloseableInStorage {
 
       // VIEWS
 
-      clustersToViews.clear();
-      Collection<EntityImpl> storedViews = entity.field("views");
-      if (storedViews != null) {
-        for (EntityImpl v : storedViews) {
-
-          String name = v.field("name");
-
-          SchemaViewImpl view;
-          if (views.containsKey(name.toLowerCase(Locale.ENGLISH))) {
-            view = (SchemaViewImpl) views.get(name.toLowerCase(Locale.ENGLISH));
-            view.fromStream(v);
-          } else {
-            view = createViewInstance(name);
-            view.fromStream(v);
-          }
-
-          newViews.put(view.getName().toLowerCase(Locale.ENGLISH), view);
-
-          if (view.getShortName() != null) {
-            newViews.put(view.getShortName().toLowerCase(Locale.ENGLISH), view);
-          }
-
-          addClusterViewMap(view);
-        }
-      }
-
-      views.clear();
-      views.putAll(newViews);
-
       if (entity.containsField("blobClusters")) {
         blobClusters = new IntOpenHashSet((Set<Integer>) entity.field("blobClusters"));
       }
@@ -743,7 +606,6 @@ public abstract class SchemaShared implements CloseableInStorage {
 
   protected abstract SchemaClassImpl createClassInstance(String name);
 
-  protected abstract SchemaViewImpl createViewInstance(String name);
 
   public EntityImpl toNetworkStream() {
     lock.readLock().lock();
@@ -759,13 +621,6 @@ public abstract class SchemaShared implements CloseableInStorage {
 
       entity.field("classes", cc, PropertyType.EMBEDDEDSET);
 
-      // TODO: this should trigger a netowork protocol version change
-      Set<EntityImpl> vv = new HashSet<EntityImpl>();
-      for (SchemaView v : views.values()) {
-        vv.add(((SchemaViewImpl) v).toNetworkStream());
-      }
-
-      entity.field("views", vv, PropertyType.EMBEDDEDSET);
 
       List<EntityImpl> globalProperties = new ArrayList<EntityImpl>();
       for (GlobalProperty globalProperty : properties) {
@@ -802,17 +657,6 @@ public abstract class SchemaShared implements CloseableInStorage {
       }
       entity.field("classes", classesEntities, PropertyType.EMBEDDEDSET);
 
-      // This steps is needed because in views there are duplicate due to aliases
-      Set<SchemaViewImpl> realViews = new HashSet<SchemaViewImpl>();
-      for (SchemaView v : views.values()) {
-        realViews.add(((SchemaViewImpl) v));
-      }
-
-      Set<EntityImpl> viewsEntities = new HashSet<EntityImpl>();
-      for (SchemaClassImpl c : realViews) {
-        viewsEntities.add(c.toStream());
-      }
-      entity.field("views", viewsEntities, PropertyType.EMBEDDEDSET);
 
       List<EntityImpl> globalProperties = new ArrayList<EntityImpl>();
       for (GlobalProperty globalProperty : properties) {
@@ -833,16 +677,6 @@ public abstract class SchemaShared implements CloseableInStorage {
     acquireSchemaReadLock();
     try {
       return new HashSet<SchemaClass>(classes.values());
-    } finally {
-      releaseSchemaReadLock();
-    }
-  }
-
-  public Collection<SchemaView> getViews(DatabaseSessionInternal database) {
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_READ);
-    acquireSchemaReadLock();
-    try {
-      return new HashSet<SchemaView>(views.values());
     } finally {
       releaseSchemaReadLock();
     }
@@ -910,7 +744,7 @@ public abstract class SchemaShared implements CloseableInStorage {
     return version;
   }
 
-  public RID getIdentity() {
+  public RecordId getIdentity() {
     acquireSchemaReadLock();
     try {
       return identity;
@@ -994,16 +828,6 @@ public abstract class SchemaShared implements CloseableInStorage {
       }
 
       clustersToClasses.put(clusterId, cls);
-    }
-  }
-
-  protected void addClusterViewMap(final SchemaView cls) {
-    for (int clusterId : cls.getClusterIds()) {
-      if (clusterId < 0) {
-        continue;
-      }
-
-      clustersToViews.put(clusterId, cls);
     }
   }
 

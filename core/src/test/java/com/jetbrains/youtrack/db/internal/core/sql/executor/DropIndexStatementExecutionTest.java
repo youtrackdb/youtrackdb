@@ -1,10 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -15,13 +16,11 @@ public class DropIndexStatementExecutionTest extends BaseMemoryInternalDatabase 
 
   @Test
   public void testPlain() {
-    Index index =
-        db.getMetadata()
-            .getSchema()
-            .createClass("testPlain")
-            .createProperty(db, "bar", PropertyType.STRING)
-            .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
-    String indexName = index.getName();
+    String indexName = db.getMetadata()
+        .getSchema()
+        .createClass("testPlain")
+        .createProperty(db, "bar", PropertyType.STRING)
+        .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     db.getMetadata().getIndexManagerInternal().reload(db);
     Assert.assertNotNull((db.getMetadata().getIndexManagerInternal()).getIndex(db, indexName));
@@ -39,13 +38,11 @@ public class DropIndexStatementExecutionTest extends BaseMemoryInternalDatabase 
 
   @Test
   public void testAll() {
-    Index index =
-        db.getMetadata()
-            .getSchema()
-            .createClass("testAll")
-            .createProperty(db, "baz", PropertyType.STRING)
-            .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
-    String indexName = index.getName();
+    String indexName = db.getMetadata()
+        .getSchema()
+        .createClass("testAll")
+        .createProperty(db, "baz", PropertyType.STRING)
+        .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     db.getMetadata().getIndexManagerInternal().reload(db);
     Assert.assertNotNull(db.getMetadata().getIndexManagerInternal().getIndex(db, indexName));
@@ -68,7 +65,7 @@ public class DropIndexStatementExecutionTest extends BaseMemoryInternalDatabase 
     Assert.assertNull(db.getMetadata().getIndexManagerInternal().getIndex(db, indexName));
 
     try {
-      ResultSet result = db.command("drop index " + indexName);
+      db.command("drop index " + indexName).close();
       Assert.fail();
     } catch (CommandExecutionException ex) {
     } catch (Exception e) {
@@ -84,7 +81,7 @@ public class DropIndexStatementExecutionTest extends BaseMemoryInternalDatabase 
     Assert.assertNull(db.getMetadata().getIndexManagerInternal().getIndex(db, indexName));
 
     try {
-      ResultSet result = db.command("drop index " + indexName + " if exists");
+      db.command("drop index " + indexName + " if exists").close();
     } catch (Exception e) {
       Assert.fail();
     }

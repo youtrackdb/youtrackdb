@@ -1,17 +1,19 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigImpl;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBEmbedded;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseCompare;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.File;
 import java.util.Random;
@@ -35,7 +37,7 @@ public class StorageBackupTest {
 
     FileUtils.deleteRecursively(new File(dbDirectory));
 
-    YouTrackDB youTrackDB = new YouTrackDB("embedded:" + testDirectory,
+    YouTrackDB youTrackDB = new YouTrackDBImpl("embedded:" + testDirectory,
         YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database `" + dbName + "` plocal users(admin identified by 'admin' role admin)");
@@ -72,7 +74,7 @@ public class StorageBackupTest {
       Assert.assertTrue(backupDir.mkdirs());
     }
 
-    db.incrementalBackup(backupDir.getAbsolutePath());
+    db.incrementalBackup(backupDir.toPath());
     youTrackDB.close();
 
     final String backupDbName = StorageBackupTest.class.getSimpleName() + "BackUp";
@@ -92,7 +94,7 @@ public class StorageBackupTest {
         YouTrackDBConfig.defaultConfig());
     embedded.close();
 
-    youTrackDB = new YouTrackDB("embedded:" + testDirectory, YouTrackDBConfig.defaultConfig());
+    youTrackDB = new YouTrackDBImpl("embedded:" + testDirectory, YouTrackDBConfig.defaultConfig());
     final DatabaseCompare compare =
         new DatabaseCompare(
             (DatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin"),
@@ -105,7 +107,7 @@ public class StorageBackupTest {
       youTrackDB.close();
     }
 
-    youTrackDB = new YouTrackDB("embedded:" + testDirectory, YouTrackDBConfig.defaultConfig());
+    youTrackDB = new YouTrackDBImpl("embedded:" + testDirectory, YouTrackDBConfig.defaultConfig());
     youTrackDB.drop(dbName);
     youTrackDB.drop(backupDbName);
 
@@ -120,7 +122,7 @@ public class StorageBackupTest {
         testDirectory + File.separator + StorageBackupTest.class.getSimpleName();
     FileUtils.deleteRecursively(new File(dbDirectory));
 
-    YouTrackDB youTrackDB = new YouTrackDB("embedded:" + testDirectory,
+    YouTrackDB youTrackDB = new YouTrackDBImpl("embedded:" + testDirectory,
         YouTrackDBConfig.defaultConfig());
 
     final String dbName = StorageBackupTest.class.getSimpleName();
@@ -159,7 +161,7 @@ public class StorageBackupTest {
       Assert.assertTrue(backupDir.mkdirs());
     }
 
-    db.incrementalBackup(backupDir.getAbsolutePath());
+    db.incrementalBackup(backupDir.toPath());
 
     for (int n = 0; n < 3; n++) {
       for (int i = 0; i < 1000; i++) {
@@ -177,10 +179,10 @@ public class StorageBackupTest {
         db.commit();
       }
 
-      db.incrementalBackup(backupDir.getAbsolutePath());
+      db.incrementalBackup(backupDir.toPath());
     }
 
-    db.incrementalBackup(backupDir.getAbsolutePath());
+    db.incrementalBackup(backupDir.toPath());
     db.close();
 
     youTrackDB.close();
@@ -202,7 +204,7 @@ public class StorageBackupTest {
         YouTrackDBConfig.defaultConfig());
     embedded.close();
 
-    youTrackDB = new YouTrackDB("embedded:" + testDirectory, YouTrackDBConfig.defaultConfig());
+    youTrackDB = new YouTrackDBImpl("embedded:" + testDirectory, YouTrackDBConfig.defaultConfig());
     final DatabaseCompare compare =
         new DatabaseCompare(
             (DatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin"),
@@ -215,7 +217,7 @@ public class StorageBackupTest {
       youTrackDB.close();
     }
 
-    youTrackDB = new YouTrackDB("embedded:" + testDirectory, YouTrackDBConfig.defaultConfig());
+    youTrackDB = new YouTrackDBImpl("embedded:" + testDirectory, YouTrackDBConfig.defaultConfig());
     youTrackDB.drop(dbName);
     youTrackDB.drop(backupDbName);
 
@@ -230,11 +232,12 @@ public class StorageBackupTest {
         testDirectory + File.separator + StorageBackupTest.class.getSimpleName();
     FileUtils.deleteRecursively(new File(dbDirectory));
 
-    final YouTrackDBConfig config =
-        YouTrackDBConfig.builder()
-            .addConfig(GlobalConfiguration.STORAGE_ENCRYPTION_KEY, "T1JJRU5UREJfSVNfQ09PTA==")
+    final YouTrackDBConfigImpl config =
+        (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
+            .addGlobalConfigurationParameter(GlobalConfiguration.STORAGE_ENCRYPTION_KEY,
+                "T1JJRU5UREJfSVNfQ09PTA==")
             .build();
-    YouTrackDB youTrackDB = new YouTrackDB("embedded:" + testDirectory, config);
+    YouTrackDB youTrackDB = new YouTrackDBImpl("embedded:" + testDirectory, config);
 
     final String dbName = StorageBackupTest.class.getSimpleName();
     youTrackDB.execute(
@@ -272,7 +275,7 @@ public class StorageBackupTest {
       Assert.assertTrue(backupDir.mkdirs());
     }
 
-    db.incrementalBackup(backupDir.getAbsolutePath());
+    db.incrementalBackup(backupDir.toPath());
 
     for (int n = 0; n < 3; n++) {
       for (int i = 0; i < 1000; i++) {
@@ -290,10 +293,10 @@ public class StorageBackupTest {
         db.commit();
       }
 
-      db.incrementalBackup(backupDir.getAbsolutePath());
+      db.incrementalBackup(backupDir.toPath());
     }
 
-    db.incrementalBackup(backupDir.getAbsolutePath());
+    db.incrementalBackup(backupDir.toPath());
     db.close();
 
     youTrackDB.close();
@@ -309,7 +312,7 @@ public class StorageBackupTest {
     embedded.close();
 
     GlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue("T1JJRU5UREJfSVNfQ09PTA==");
-    youTrackDB = new YouTrackDB("embedded:" + testDirectory, YouTrackDBConfig.defaultConfig());
+    youTrackDB = new YouTrackDBImpl("embedded:" + testDirectory, YouTrackDBConfig.defaultConfig());
 
     final DatabaseCompare compare =
         new DatabaseCompare(
@@ -325,7 +328,7 @@ public class StorageBackupTest {
 
     GlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue(null);
 
-    youTrackDB = new YouTrackDB("embedded:" + testDirectory, config);
+    youTrackDB = new YouTrackDBImpl("embedded:" + testDirectory, config);
     youTrackDB.drop(dbName);
     youTrackDB.drop(backupDbName);
 

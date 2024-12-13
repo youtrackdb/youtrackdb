@@ -5,10 +5,10 @@ import static java.util.Arrays.asList;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,19 +68,19 @@ public class SQLFunctionShortestPathTest {
     vertices.get(3).setProperty("node_id", "C");
     vertices.get(4).setProperty("node_id", "D");
 
-    graph.newEdge(vertices.get(1), vertices.get(2), "Edge1").save();
-    graph.newEdge(vertices.get(2), vertices.get(3), "Edge1").save();
-    graph.newEdge(vertices.get(3), vertices.get(1), "Edge2").save();
-    graph.newEdge(vertices.get(3), vertices.get(4), "Edge1").save();
+    graph.newRegularEdge(vertices.get(1), vertices.get(2), "Edge1").save();
+    graph.newRegularEdge(vertices.get(2), vertices.get(3), "Edge1").save();
+    graph.newRegularEdge(vertices.get(3), vertices.get(1), "Edge2").save();
+    graph.newRegularEdge(vertices.get(3), vertices.get(4), "Edge1").save();
 
     for (int i = 5; i <= 20; i++) {
       var v = graph.newVertex();
       v.save();
       vertices.put(i, v);
       vertices.get(i).setProperty("node_id", "V" + i);
-      graph.newEdge(vertices.get(i - 1), vertices.get(i), "Edge1").save();
+      graph.newRegularEdge(vertices.get(i - 1), vertices.get(i), "Edge1").save();
       if (i % 2 == 0) {
-        graph.newEdge(vertices.get(i - 2), vertices.get(i), "Edge1").save();
+        graph.newRegularEdge(vertices.get(i - 2), vertices.get(i), "Edge1").save();
       }
     }
     graph.commit();

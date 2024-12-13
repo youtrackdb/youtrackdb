@@ -19,6 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.id;
 
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
 import java.io.IOException;
 import java.io.InputStream;

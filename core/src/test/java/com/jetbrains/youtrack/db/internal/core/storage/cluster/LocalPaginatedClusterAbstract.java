@@ -1,10 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.storage.cluster;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.common.exception.HighLevelException;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.common.types.ModifiableInteger;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.RawBuffer;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
@@ -1722,17 +1720,3 @@ public abstract class LocalPaginatedClusterAbstract {
   }
 }
 
-final class RollbackException extends BaseException implements HighLevelException {
-
-  public RollbackException() {
-    super("");
-  }
-
-  public RollbackException(String message) {
-    super(message);
-  }
-
-  public RollbackException(RollbackException exception) {
-    super(exception);
-  }
-}

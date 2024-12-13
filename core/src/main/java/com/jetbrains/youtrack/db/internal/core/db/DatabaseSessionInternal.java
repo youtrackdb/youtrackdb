@@ -20,37 +20,42 @@
 
 package com.jetbrains.youtrack.db.internal.core.db;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.TransactionException;
+import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Edge;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.RecordHook;
+import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
+import com.jetbrains.youtrack.db.api.session.SessionListener;
+import com.jetbrains.youtrack.db.internal.core.cache.LocalRecordCache;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
 import com.jetbrains.youtrack.db.internal.core.db.record.CurrentStorageComponentsFactory;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.TransactionException;
-import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClass;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaView;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceAction;
 import com.jetbrains.youtrack.db.internal.core.query.Query;
-import com.jetbrains.youtrack.db.internal.core.record.Edge;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.storage.RecordMetadata;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageInfo;
@@ -76,8 +81,6 @@ import javax.annotation.Nonnull;
 
 public interface DatabaseSessionInternal extends DatabaseSession {
 
-  String TYPE = "document";
-
   /**
    * Internal. Returns the factory that defines a set of components that current database should use
    * to be compatible to current version of storage. So if you open a database create with old
@@ -91,7 +94,7 @@ public interface DatabaseSessionInternal extends DatabaseSession {
    *
    * @return The new instance.
    */
-  <RET extends Entity> RET newInstance(String iClassName);
+  <RET extends Entity> RET newInstance(String className);
 
   <RET extends Entity> RET newInstance();
 
@@ -119,30 +122,16 @@ public interface DatabaseSessionInternal extends DatabaseSession {
 
   void setSerializer(RecordSerializer serializer);
 
-  int assignAndCheckCluster(Record record, String iClusterName);
+  int assignAndCheckCluster(Record record, String clusterName);
 
   void reloadUser();
 
   void afterReadOperations(final Identifiable identifiable);
 
-  /**
-   * @param identifiable
-   * @return true if the record should be skipped
-   */
   boolean beforeReadOperations(final Identifiable identifiable);
 
-  /**
-   * @param id
-   * @param iClusterName
-   * @return null if nothing changed the instance if has been modified or replaced
-   */
   Identifiable beforeCreateOperations(final Identifiable id, String iClusterName);
 
-  /**
-   * @param id
-   * @param iClusterName
-   * @return null if nothing changed the instance if has been modified or replaced
-   */
   Identifiable beforeUpdateOperations(final Identifiable id, String iClusterName);
 
   void beforeDeleteOperations(final Identifiable id, String iClusterName);
@@ -175,8 +164,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
 
   void callOnCloseListeners();
 
-  void callOnDropListeners();
-
   DatabaseSession setCustom(final String name, final Object iValue);
 
   void setPrefetchRecords(boolean prefetchRecords);
@@ -202,9 +189,7 @@ public interface DatabaseSessionInternal extends DatabaseSession {
    * @param to         the ending vertex of the edge
    * @return the new lightweight edge
    */
-  EdgeInternal newLightweightEdge(String iClassName, Vertex from, Vertex to);
-
-  EdgeInternal addLightweightEdge(Vertex from, Vertex to, String className);
+  EdgeInternal newLightweightEdgeInternal(String iClassName, Vertex from, Vertex to);
 
   Edge newRegularEdge(String iClassName, Vertex from, Vertex to);
 
@@ -255,8 +240,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
 
   /**
    * Executed the commit on the storage hiding away storage concepts from the transaction
-   *
-   * @param transaction
    */
   void internalCommit(TransactionOptimistic transaction);
 
@@ -264,7 +247,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
 
   boolean isClusterEdge(int cluster);
 
-  boolean isClusterView(int cluster);
 
   void internalClose(boolean recycle);
 
@@ -274,7 +256,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
     return command(query, args);
   }
 
-  SchemaView getViewFromCluster(int cluster);
 
   <T> T sendSequenceAction(SequenceAction action) throws ExecutionException, InterruptedException;
 
@@ -316,12 +297,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
   }
 
   default void endExclusiveMetadataChange() {
-  }
-
-  default void queryStartUsingViewCluster(int cluster) {
-  }
-
-  default void queryStartUsingViewIndex(String index) {
   }
 
   void truncateClass(String name);
@@ -413,8 +388,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
    */
   long countClass(String iClassName, final boolean iPolymorphic);
 
-  long countView(String iClassName);
-
   /**
    * Checks if the operation on a resource is allowed for the current user.
    *
@@ -430,17 +403,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
    * @return true if it's active, otherwise false.
    */
   boolean isValidationEnabled();
-
-  /**
-   * Enables or disables the record validation.
-   *
-   * <p>Since 2.2 this setting is persistent.
-   *
-   * @param iEnabled True to enable, false to disable
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   * methods in chain.
-   */
-  DatabaseSession setValidationEnabled(boolean iEnabled);
 
   /**
    * Returns true if current configuration retains objects, otherwise false
@@ -671,8 +633,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
   default void addRidbagPrefetchStats(long execTimeMs) {
   }
 
-  String getType();
-
   /**
    * creates an interrupt timer task for this db instance (without scheduling it!)
    *
@@ -829,7 +789,7 @@ public interface DatabaseSessionInternal extends DatabaseSession {
    * @param iListener the listener to register
    */
   @Deprecated
-  void registerListener(DatabaseListener iListener);
+  void registerListener(SessionListener iListener);
 
   /**
    * Unregisters a listener to the database events.
@@ -837,7 +797,7 @@ public interface DatabaseSessionInternal extends DatabaseSession {
    * @param iListener the listener to unregister
    */
   @Deprecated
-  void unregisterListener(DatabaseListener iListener);
+  void unregisterListener(SessionListener iListener);
 
   @Deprecated
   RecordMetadata getRecordMetadata(final RID rid);
@@ -1017,36 +977,33 @@ public interface DatabaseSessionInternal extends DatabaseSession {
 
   void afterCommitOperations();
 
-  /**
-   * Returns a database attribute value
-   *
-   * @param iAttribute Attributes between #ATTRIBUTES enum
-   * @return The attribute value
-   */
-  Object get(ATTRIBUTES iAttribute);
+  Object get(ATTRIBUTES_INTERNAL attribute);
+
+  void set(ATTRIBUTES_INTERNAL attribute, Object value);
+
+  void setValidationEnabled(boolean value);
+
+  LocalRecordCache getLocalCache();
 
   /**
-   * Sets a database attribute value
+   * retrieves a class from the schema
    *
-   * @param iAttribute Attributes between #ATTRIBUTES enum
-   * @param iValue     Value to set
+   * @param className The class name
+   * @return The object representing the class in the schema. Null if the class does not exist.
    */
-  void set(ATTRIBUTES iAttribute, Object iValue);
+  default SchemaClassInternal getClassInternal(String className) {
+    var schema = getMetadata().getSchemaInternal();
+    return schema.getClassInternal(className);
+  }
 
-  enum ATTRIBUTES {
-    TYPE,
-    STATUS,
-    DEFAULTCLUSTERID,
-    DATEFORMAT,
-    DATETIMEFORMAT,
-    TIMEZONE,
-    LOCALECOUNTRY,
-    LOCALELANGUAGE,
-    CHARSET,
-    CUSTOM,
-    CLUSTERSELECTION,
-    MINIMUMCLUSTERS,
-    CONFLICTSTRATEGY,
+  default Index getIndex(String indexName) {
+    var metadata = getMetadata();
+    var indexManager = metadata.getIndexManagerInternal();
+    return indexManager.getIndex(this, indexName);
+  }
+
+  enum ATTRIBUTES_INTERNAL {
     VALIDATION
   }
+
 }

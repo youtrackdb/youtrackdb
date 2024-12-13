@@ -1,25 +1,25 @@
 package com.jetbrains.youtrack.db.internal.client.remote.metadata.schema;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
 import com.jetbrains.youtrack.db.internal.common.comparator.CaseInsentiveComparator;
 import com.jetbrains.youtrack.db.internal.common.util.Collections;
 import com.jetbrains.youtrack.db.internal.core.collate.DefaultCollate;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.PropertyIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.GlobalProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.INDEX_TYPE;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  *
@@ -292,23 +292,27 @@ public class PropertyRemote extends PropertyImpl {
   }
 
   @Override
-  public Index createIndex(DatabaseSession session, String iType) {
-    return owner.createIndex(session, getFullName(), iType, globalRef.getName());
+  public String createIndex(DatabaseSession session, String iType) {
+    var indexName = getFullName();
+    owner.createIndex(session, indexName, iType, globalRef.getName());
+    return indexName;
   }
 
   @Override
-  public Index createIndex(DatabaseSession session, INDEX_TYPE iType) {
+  public String createIndex(DatabaseSession session, INDEX_TYPE iType) {
     return createIndex(session, iType.toString());
   }
 
   @Override
-  public Index createIndex(DatabaseSession session, String iType, EntityImpl metadata) {
-    return owner.createIndex(session,
-        getFullName(), iType, null, metadata, new String[]{globalRef.getName()});
+  public String createIndex(DatabaseSession session, String iType, Map<String, ?> metadata) {
+    var indexName = getFullName();
+    owner.createIndex(session,
+        indexName, iType, null, metadata, new String[]{globalRef.getName()});
+    return indexName;
   }
 
   @Override
-  public Index createIndex(DatabaseSession session, INDEX_TYPE iType, EntityImpl metadata) {
+  public String createIndex(DatabaseSession session, INDEX_TYPE iType, Map<String, ?> metadata) {
     return createIndex(session, iType.name(), metadata);
   }
 

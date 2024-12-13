@@ -24,8 +24,9 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerStringAbstract;
@@ -393,7 +394,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
       final Map<String, String> fields)
       throws IOException {
     // GET THE TARGET CLASS
-    final SchemaClass cls = db.getMetadata().getSchema().getClass(rid);
+    final SchemaClassInternal cls = db.getMetadata().getSchemaInternal().getClassInternal(rid);
     if (cls == null) {
       iResponse.send(
           OHttpUtils.STATUS_INTERNALERROR_CODE,

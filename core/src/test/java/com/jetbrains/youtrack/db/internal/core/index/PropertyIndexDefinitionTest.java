@@ -1,9 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,7 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class PropertyIndexDefinitionTest extends DbTestBase {
-
   private PropertyIndexDefinition propertyIndex;
 
   @Before
@@ -24,13 +22,13 @@ public class PropertyIndexDefinitionTest extends DbTestBase {
   @Test
   public void testCreateValueSingleParameter() {
     final Object result = propertyIndex.createValue(db, Collections.singletonList("12"));
-    Assert.assertEquals(result, 12);
+    Assert.assertEquals(12, result);
   }
 
   @Test
   public void testCreateValueTwoParameters() {
     final Object result = propertyIndex.createValue(db, Arrays.asList("12", "25"));
-    Assert.assertEquals(result, 12);
+    Assert.assertEquals(12, result);
   }
 
   @Test(expected = DatabaseException.class)
@@ -41,13 +39,13 @@ public class PropertyIndexDefinitionTest extends DbTestBase {
   @Test
   public void testCreateValueSingleParameterArrayParams() {
     final Object result = propertyIndex.createValue(db, "12");
-    Assert.assertEquals(result, 12);
+    Assert.assertEquals(12, result);
   }
 
   @Test
   public void testCreateValueTwoParametersArrayParams() {
     final Object result = propertyIndex.createValue(db, "12", "25");
-    Assert.assertEquals(result, 12);
+    Assert.assertEquals(12, result);
   }
 
   @Test(expected = DatabaseException.class)
@@ -63,41 +61,37 @@ public class PropertyIndexDefinitionTest extends DbTestBase {
     document.field("fTwo", 10);
 
     final Object result = propertyIndex.getDocumentValueToIndex(db, document);
-    Assert.assertEquals(result, 15);
+    Assert.assertEquals(15, result);
   }
 
   @Test
   public void testGetFields() {
     final List<String> result = propertyIndex.getFields();
-    Assert.assertEquals(result.size(), 1);
-    Assert.assertEquals(result.get(0), "fOne");
+    Assert.assertEquals(1, result.size());
+    Assert.assertEquals("fOne", result.getFirst());
   }
 
   @Test
   public void testGetTypes() {
     final PropertyType[] result = propertyIndex.getTypes();
-    Assert.assertEquals(result.length, 1);
-    Assert.assertEquals(result[0], PropertyType.INTEGER);
+    Assert.assertEquals(1, result.length);
+    Assert.assertEquals(PropertyType.INTEGER, result[0]);
   }
 
   @Test
   public void testEmptyIndexReload() {
-    final DatabaseDocumentTx database = new DatabaseDocumentTx("memory:propertytest");
-    database.create();
-
     propertyIndex = new PropertyIndexDefinition("tesClass", "fOne", PropertyType.INTEGER);
 
-    database.begin();
+    db.begin();
     final EntityImpl docToStore = propertyIndex.toStream(new EntityImpl());
-    database.save(docToStore, database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    db.save(docToStore);
+    db.commit();
 
-    final EntityImpl docToLoad = database.load(docToStore.getIdentity());
+    final EntityImpl docToLoad = db.load(docToStore.getIdentity());
 
     final PropertyIndexDefinition result = new PropertyIndexDefinition();
     result.fromStream(docToLoad);
 
-    database.drop();
     Assert.assertEquals(result, propertyIndex);
   }
 
@@ -113,7 +107,7 @@ public class PropertyIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testGetParamCount() {
-    Assert.assertEquals(propertyIndex.getParamCount(), 1);
+    Assert.assertEquals(1, propertyIndex.getParamCount());
   }
 
   @Test

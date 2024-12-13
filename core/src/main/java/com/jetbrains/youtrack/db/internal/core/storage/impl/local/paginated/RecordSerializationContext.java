@@ -20,8 +20,8 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBListenerAbstract;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import java.util.ArrayDeque;
@@ -36,7 +36,7 @@ public class RecordSerializationContext {
       SERIALIZATION_CONTEXT_STACK = new SerializationContextThreadLocal();
 
   static {
-    YouTrackDBManager.instance()
+    YouTrackDBEnginesManager.instance()
         .registerListener(
             new YouTrackDBListenerAbstract() {
               @Override

@@ -19,26 +19,27 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.schema.Collate;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.util.PatternConst;
-import com.jetbrains.youtrack.db.internal.core.collate.Collate;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionFactory;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
 import com.jetbrains.youtrack.db.internal.core.index.IndexFactory;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionFactory;
 import com.jetbrains.youtrack.db.internal.core.index.Indexes;
 import com.jetbrains.youtrack.db.internal.core.index.PropertyMapIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.RuntimeKeyIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.SimpleKeyIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
@@ -74,7 +75,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
   private PropertyType[] keyTypes;
   private byte serializerKeyId;
   private String engine;
-  private EntityImpl metadataDoc = null;
+  private Map<String, ?> metadata = null;
   private String[] collates;
 
   public CommandExecutorSQLCreateIndex parse(final CommandRequest iRequest) {
@@ -220,8 +221,9 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
       if (configPos > -1) {
         final String configString =
             parserText.substring(configPos + KEYWORD_METADATA.length()).trim();
-        metadataDoc = new EntityImpl();
-        metadataDoc.fromJSON(configString);
+        var doc = new EntityImpl();
+        doc.fromJSON(configString);
+        metadata = doc.toMap();
       }
 
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
@@ -311,7 +313,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
                     new SimpleKeyIndexDefinition(keyTypes, collatesList),
                     null,
                     null,
-                    metadataDoc,
+                    metadata,
                     engine);
       } else if (serializerKeyId != 0) {
         idx =
@@ -325,7 +327,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
                     new RuntimeKeyIndexDefinition(serializerKeyId),
                     null,
                     null,
-                    metadataDoc,
+                    metadata,
                     engine);
       } else {
         throw new DatabaseException(
@@ -334,9 +336,9 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
       }
     } else {
       if ((keyTypes == null || keyTypes.length == 0) && collates == null) {
-        idx =
-            oClass.createIndex(database, indexName, indexType.toString(), null, metadataDoc, engine,
-                fields);
+        oClass.createIndex(database, indexName, indexType.toString(), null, metadata, engine,
+            fields);
+        idx = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
       } else {
         final List<PropertyType> fieldTypeList;
         if (keyTypes == null) {
@@ -377,7 +379,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
                     idxDef,
                     oClass.getPolymorphicClusterIds(),
                     null,
-                    metadataDoc,
+                    metadata,
                     engine);
       }
     }

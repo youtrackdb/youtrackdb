@@ -1,14 +1,14 @@
 package com.jetbrains.youtrack.db.internal.core.ridbag;
 
-import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.RID_BAG_SBTREEBONSAI_DELETE_DELAY;
+import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.RID_BAG_SBTREEBONSAI_DELETE_DELAY;
 import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.SBTreeBonsai;

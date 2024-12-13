@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStep;
+import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
+import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InfoExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InfoExecutionStep;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
@@ -177,7 +177,6 @@ public class QueryResponse implements BinaryResponse {
     InfoExecutionStep result = new InfoExecutionStep();
     result.setName(x.getProperty("name"));
     result.setType(x.getProperty("type"));
-    result.setTargetNode(x.getProperty("targetNode"));
     result.setJavaType(x.getProperty("javaType"));
     result.setCost(x.getProperty("cost") == null ? -1 : x.getProperty("cost"));
     List<Result> ssteps = x.getProperty("subSteps");

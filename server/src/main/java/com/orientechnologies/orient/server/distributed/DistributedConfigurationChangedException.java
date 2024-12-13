@@ -19,7 +19,7 @@
 package com.orientechnologies.orient.server.distributed;
 
 import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
-import com.jetbrains.youtrack.db.internal.common.exception.HighLevelException;
+import com.jetbrains.youtrack.db.api.exception.HighLevelException;
 
 /**
  * Cluster id was reassigned during the operation. The client should catch this exception and retry

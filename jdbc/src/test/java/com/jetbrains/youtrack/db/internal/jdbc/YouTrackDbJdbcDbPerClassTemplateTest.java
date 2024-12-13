@@ -17,7 +17,7 @@ import static com.jetbrains.youtrack.db.internal.jdbc.YouTrackDbCreationHelper.c
 import static com.jetbrains.youtrack.db.internal.jdbc.YouTrackDbCreationHelper.loadDB;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
 import java.util.Properties;
 import javax.sql.DataSource;
 import org.assertj.db.type.DataSourceWithLetterCase;

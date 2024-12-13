@@ -18,7 +18,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
 import com.jetbrains.youtrack.db.internal.core.command.script.ScriptManager;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;

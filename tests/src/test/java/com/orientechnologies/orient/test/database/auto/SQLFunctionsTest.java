@@ -18,20 +18,20 @@ package com.orientechnologies.orient.test.database.auto;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityManager;
-import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionAbstract;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -597,19 +597,20 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    new EntityImpl("V").field("sequence", sequence).save();
-    sequence.remove(0);
-    new EntityImpl("V").field("sequence", sequence).save();
+    new EntityImpl("V").field("sequence", sequence, PropertyType.EMBEDDEDLIST).save();
+    var newSequence = new ArrayList<>(sequence);
+    newSequence.remove(0);
+    new EntityImpl("V").field("sequence", newSequence, PropertyType.EMBEDDEDLIST).save();
     database.commit();
 
-    List<EntityImpl> result =
-        database.query("select first(sequence) as first from V where sequence is not null").stream()
-            .map(r -> (EntityImpl) r.toEntity())
+    var result =
+        database.query(
+                "select first(sequence) as first from V where sequence is not null order by first")
             .toList();
 
     Assert.assertEquals(result.size(), 2);
-    Assert.assertEquals(result.get(0).<Object>field("first"), 0L);
-    Assert.assertEquals(result.get(1).<Object>field("first"), 1L);
+    Assert.assertEquals(result.get(0).<Object>getProperty("first"), 0L);
+    Assert.assertEquals(result.get(1).<Object>getProperty("first"), 1L);
   }
 
   @Test
@@ -621,18 +622,22 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
     database.begin();
     new EntityImpl("V").field("sequence2", sequence).save();
-    sequence.remove(sequence.size() - 1);
-    new EntityImpl("V").field("sequence2", sequence).save();
+
+    var newSequence = new ArrayList<>(sequence);
+    newSequence.remove(sequence.size() - 1);
+
+    new EntityImpl("V").field("sequence2", newSequence).save();
     database.commit();
 
-    List<EntityImpl> result =
-        database.query("select last(sequence2) as last from V where sequence2 is not null").stream()
-            .map(r -> (EntityImpl) r.toEntity())
+    var result =
+        database.query(
+                "select last(sequence2) as last from V where sequence2 is not null order by last desc")
             .toList();
 
     Assert.assertEquals(result.size(), 2);
-    Assert.assertEquals(result.get(0).<Object>field("last"), 99L);
-    Assert.assertEquals(result.get(1).<Object>field("last"), 98L);
+
+    Assert.assertEquals(result.get(0).<Object>getProperty("last"), 99L);
+    Assert.assertEquals(result.get(1).<Object>getProperty("last"), 98L);
   }
 
   @Test

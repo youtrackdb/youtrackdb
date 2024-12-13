@@ -19,10 +19,10 @@
  */
 package com.jetbrains.youtrack.db.internal.core.cache;
 
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.profiler.AbstractProfiler.ProfilerHookValue;
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler.METRIC_TYPE;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -130,7 +130,7 @@ public abstract class AbstractRecordCache {
   public void startup() {
     underlying.startup();
 
-    YouTrackDBManager.instance()
+    YouTrackDBEnginesManager.instance()
         .getProfiler()
         .registerHookValue(
             profilerPrefix + "current",
@@ -150,10 +150,12 @@ public abstract class AbstractRecordCache {
   public void shutdown() {
     underlying.shutdown();
 
-    if (YouTrackDBManager.instance().getProfiler() != null) {
-      YouTrackDBManager.instance().getProfiler().unregisterHookValue(profilerPrefix + "enabled");
-      YouTrackDBManager.instance().getProfiler().unregisterHookValue(profilerPrefix + "current");
-      YouTrackDBManager.instance().getProfiler().unregisterHookValue(profilerPrefix + "max");
+    if (YouTrackDBEnginesManager.instance().getProfiler() != null) {
+      YouTrackDBEnginesManager.instance().getProfiler()
+          .unregisterHookValue(profilerPrefix + "enabled");
+      YouTrackDBEnginesManager.instance().getProfiler()
+          .unregisterHookValue(profilerPrefix + "current");
+      YouTrackDBEnginesManager.instance().getProfiler().unregisterHookValue(profilerPrefix + "max");
     }
   }
 }

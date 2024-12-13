@@ -18,13 +18,13 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.tests;
 
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -52,7 +52,7 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends LuceneBaseTest {
   @Test
   public void testInsertUpdateTransactionWithIndex() {
 
-    Schema schema = db.getMetadata().getSchema();
+    var schema = db.getMetadata().getSchema();
     EntityImpl doc = new EntityImpl("City");
     doc.field("name", "");
     EntityImpl doc1 = new EntityImpl("City");
@@ -74,10 +74,10 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends LuceneBaseTest {
     db.commit();
 
     db.begin();
-    Index idx = schema.getClass("City").getClassIndex(db, "City.name");
+    Index idx = schema.getClassInternal("City").getClassIndex(db, "City.name");
     Collection<?> coll;
     try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
-      coll = stream.collect(Collectors.toList());
+      coll = stream.toList();
     }
 
     Assert.assertEquals(2, coll.size());

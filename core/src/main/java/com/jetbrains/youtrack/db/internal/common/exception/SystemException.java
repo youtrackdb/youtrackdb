@@ -1,5 +1,7 @@
 package com.jetbrains.youtrack.db.internal.common.exception;
 
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+
 /**
  * @since 9/28/2015
  */

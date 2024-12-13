@@ -3,7 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.select;
 import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import org.junit.Test;
 
 public class TestSelectDetectType extends DbTestBase {

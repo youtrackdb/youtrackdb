@@ -6,20 +6,21 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.jetbrains.youtrack.db.api.session.SessionPool;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.internal.core.db.SessionPoolImpl;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.db.DatabasePool;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.util.List;
@@ -40,7 +41,7 @@ public class YouTrackDBRemoteTest {
   private static final String SERVER_DIRECTORY = "./target/dbfactory";
   private OServer server;
 
-  private YouTrackDB factory;
+  private YouTrackDBImpl factory;
 
   @Before
   public void before() throws Exception {
@@ -58,11 +59,12 @@ public class YouTrackDBRemoteTest {
 
     YouTrackDBConfig config =
         YouTrackDBConfig.builder()
-            .addConfig(GlobalConfiguration.DB_CACHED_POOL_CAPACITY, 2)
-            .addConfig(GlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT, 300_000)
+            .addGlobalConfigurationParameter(GlobalConfiguration.DB_CACHED_POOL_CAPACITY, 2)
+            .addGlobalConfigurationParameter(GlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT,
+                300_000)
             .build();
 
-    factory = new YouTrackDB("remote:localhost", "root", "root", config);
+    factory = new YouTrackDBImpl("remote:localhost", "root", "root", config);
   }
 
   @Test
@@ -101,7 +103,7 @@ public class YouTrackDBRemoteTest {
       factory.execute("create database test memory users (admin identified by 'admin' role admin)");
     }
 
-    DatabasePool pool = new DatabasePool(factory, "test", "admin", "admin");
+    SessionPool pool = new SessionPoolImpl(factory, "test", "admin", "admin");
     DatabaseSessionInternal db = (DatabaseSessionInternal) pool.acquire();
     db.begin();
     db.save(new EntityImpl(), db.getClusterNameById(db.getDefaultClusterId()));
@@ -119,20 +121,20 @@ public class YouTrackDBRemoteTest {
               + " identified by 'reader' role reader, writer identified by 'writer' role writer)");
     }
 
-    DatabasePool poolAdmin1 = factory.cachedPool("testdb", "admin", "admin");
-    DatabasePool poolAdmin2 = factory.cachedPool("testdb", "admin", "admin");
-    DatabasePool poolReader1 = factory.cachedPool("testdb", "reader", "reader");
-    DatabasePool poolReader2 = factory.cachedPool("testdb", "reader", "reader");
+    SessionPool poolAdmin1 = factory.cachedPool("testdb", "admin", "admin");
+    SessionPool poolAdmin2 = factory.cachedPool("testdb", "admin", "admin");
+    SessionPool poolReader1 = factory.cachedPool("testdb", "reader", "reader");
+    SessionPool poolReader2 = factory.cachedPool("testdb", "reader", "reader");
 
     assertEquals(poolAdmin1, poolAdmin2);
     assertEquals(poolReader1, poolReader2);
     assertNotEquals(poolAdmin1, poolReader1);
 
-    DatabasePool poolWriter1 = factory.cachedPool("testdb", "writer", "writer");
-    DatabasePool poolWriter2 = factory.cachedPool("testdb", "writer", "writer");
+    SessionPool poolWriter1 = factory.cachedPool("testdb", "writer", "writer");
+    SessionPool poolWriter2 = factory.cachedPool("testdb", "writer", "writer");
     assertEquals(poolWriter1, poolWriter2);
 
-    DatabasePool poolAdmin3 = factory.cachedPool("testdb", "admin", "admin");
+    SessionPool poolAdmin3 = factory.cachedPool("testdb", "admin", "admin");
     assertNotEquals(poolAdmin1, poolAdmin3);
 
     poolAdmin1.close();
@@ -147,8 +149,8 @@ public class YouTrackDBRemoteTest {
           "create database testdb memory users (admin identified by 'admin' role admin)");
     }
 
-    DatabasePool poolAdmin1 = factory.cachedPool("testdb", "admin", "admin");
-    DatabasePool poolAdmin2 = factory.cachedPool("testdb", "admin", "admin");
+    SessionPool poolAdmin1 = factory.cachedPool("testdb", "admin", "admin");
+    SessionPool poolAdmin2 = factory.cachedPool("testdb", "admin", "admin");
 
     assertFalse(poolAdmin1.isClosed());
     assertEquals(poolAdmin1, poolAdmin2);
@@ -159,7 +161,7 @@ public class YouTrackDBRemoteTest {
 
     Thread.sleep(5_000);
 
-    DatabasePool poolAdmin3 = factory.cachedPool("testdb", "admin", "admin");
+    SessionPool poolAdmin3 = factory.cachedPool("testdb", "admin", "admin");
     assertNotEquals(poolAdmin1, poolAdmin3);
     assertFalse(poolAdmin3.isClosed());
 
@@ -175,7 +177,7 @@ public class YouTrackDBRemoteTest {
               + " identified by 'reader' role reader, writer identified by 'writer' role writer)");
     }
 
-    DatabasePool pool = new DatabasePool(factory, "test", "admin", "admin");
+    SessionPool pool = new SessionPoolImpl(factory, "test", "admin", "admin");
 
     // do a query and assert on other thread
     Runnable acquirer =
@@ -222,7 +224,7 @@ public class YouTrackDBRemoteTest {
         "noUser",
         DatabaseType.MEMORY,
         YouTrackDBConfig.builder()
-            .addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
+            .addGlobalConfigurationParameter(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
             .build());
     try (DatabaseSession session = factory.open("noUser", "root", "root")) {
       assertEquals(0, session.query("select from OUser").stream().count());
@@ -235,7 +237,7 @@ public class YouTrackDBRemoteTest {
         "noUser",
         DatabaseType.MEMORY,
         YouTrackDBConfig.builder()
-            .addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS, true)
+            .addGlobalConfigurationParameter(GlobalConfiguration.CREATE_DEFAULT_USERS, true)
             .build());
     try (DatabaseSession session = factory.open("noUser", "root", "root")) {
       assertEquals(3, session.query("select from OUser").stream().count());
@@ -277,9 +279,9 @@ public class YouTrackDBRemoteTest {
     factory.close();
     server.shutdown();
 
-    YouTrackDBManager.instance().shutdown();
+    YouTrackDBEnginesManager.instance().shutdown();
     FileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    YouTrackDBManager.instance().startup();
+    YouTrackDBEnginesManager.instance().startup();
 
     DatabaseRecordThreadLocal.instance().remove();
   }

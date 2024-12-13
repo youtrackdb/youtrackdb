@@ -13,11 +13,11 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.io.IOException;
@@ -39,7 +39,6 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
 
   @Before
   public void initMore() {
-    db.set(ATTRIBUTES.CUSTOM, "strictSql=false");
     Schema schema = db.getMetadata().getSchema();
     SchemaClass v = schema.getClass("V");
     SchemaClass oClass = schema.createClass("Place");

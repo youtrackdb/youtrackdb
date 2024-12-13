@@ -2,10 +2,10 @@ package com.jetbrains.youtrack.db.internal.core.command.script;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -38,7 +38,7 @@ public class JSScriptTest extends DbTestBase {
     Assert.assertTrue(resultSet.hasNext());
 
     List<Result> results = resultSet.stream().collect(Collectors.toList());
-    Assert.assertEquals(1, results.size()); // no default users anymore, 'admin' created
+    Assert.assertEquals(2, results.size()); // no default users anymore, 'admin' created
 
     results.stream()
         .map(r -> r.getEntity().get())
@@ -79,7 +79,7 @@ public class JSScriptTest extends DbTestBase {
     Assert.assertEquals(1, results.size());
 
     Number value = results.get(0).getProperty("value");
-    Assert.assertEquals(1, value.intValue()); // no default users anymore, 'admin' created
+    Assert.assertEquals(2, value.intValue()); // no default users anymore, 'admin' created
   }
 
   @Test

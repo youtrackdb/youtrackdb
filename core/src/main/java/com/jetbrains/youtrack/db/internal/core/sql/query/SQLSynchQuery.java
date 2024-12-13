@@ -19,11 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.query;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
@@ -99,7 +99,8 @@ public class SQLSynchQuery<T extends Object> extends SQLAsynchQuery<T>
 
     if (!result.isEmpty()) {
       previousQueryParams = new HashMap<>(queryParams);
-      final RID lastRid = ((Identifiable) result.get(result.size() - 1)).getIdentity();
+      final RecordId lastRid = (RecordId) ((Identifiable) result.get(
+          result.size() - 1)).getIdentity();
       nextPageRID = new RecordId(lastRid.next());
     }
 

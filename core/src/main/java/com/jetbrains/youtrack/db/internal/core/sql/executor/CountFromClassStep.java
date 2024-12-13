@@ -1,9 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
@@ -43,10 +44,8 @@ public class CountFromClassStep extends AbstractExecutionStep {
   private Result produce(CommandContext ctx) {
     var db = ctx.getDatabase();
     ImmutableSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
-    SchemaClass clazz = schema.getClass(target.getStringValue());
-    if (clazz == null) {
-      clazz = schema.getView(target.getStringValue());
-    }
+    var clazz = schema.getClassInternal(target.getStringValue());
+
     if (clazz == null) {
       throw new CommandExecutionException(
           "Class " + target.getStringValue() + " does not exist in the database schema");

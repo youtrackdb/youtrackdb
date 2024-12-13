@@ -1,17 +1,16 @@
 package com.jetbrains.youtrack.db.internal.client.remote.db;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
 import com.jetbrains.youtrack.db.internal.client.remote.message.tx.RecordOperation38Response;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -36,7 +35,7 @@ public class TransactionOptimisticClient extends TransactionOptimistic {
 
   public void replaceContent(List<RecordOperation38Response> operations) {
 
-    Map<RID, RecordOperation> oldEntries = this.recordOperations;
+    Map<RecordId, RecordOperation> oldEntries = this.recordOperations;
     this.recordOperations = new LinkedHashMap<>();
     int createCount = -2; // Start from -2 because temporary rids start from -2
     var db = getDatabase();
@@ -59,7 +58,7 @@ public class TransactionOptimisticClient extends TransactionOptimistic {
         record.unload();
       } else {
         record =
-            YouTrackDBManager.instance()
+            YouTrackDBEnginesManager.instance()
                 .getRecordFactoryManager()
                 .newInstance(operation.getRecordType(), operation.getOldId(), database);
         RecordInternal.unsetDirty(record);
@@ -107,7 +106,8 @@ public class TransactionOptimisticClient extends TransactionOptimistic {
     newRecordsPositionsGenerator = createCount;
   }
 
-  private boolean checkCallHook(Map<RID, RecordOperation> oldEntries, RID rid, byte type) {
+  private static boolean checkCallHook(Map<RecordId, RecordOperation> oldEntries, RecordId rid,
+      byte type) {
     RecordOperation val = oldEntries.get(rid);
     return val == null || val.type != type;
   }

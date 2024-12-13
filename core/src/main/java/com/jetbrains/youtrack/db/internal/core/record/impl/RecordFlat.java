@@ -21,7 +21,6 @@ package com.jetbrains.youtrack.db.internal.core.record.impl;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordStringable;
@@ -44,8 +43,8 @@ public class RecordFlat extends RecordAbstract implements RecordStringable {
     DatabaseRecordThreadLocal.instance().set(iDatabase);
   }
 
-  public RecordFlat(RID rid) {
-    recordId = (RecordId) rid.copy();
+  public RecordFlat(RecordId rid) {
+    recordId = rid.copy();
   }
 
   public RecordFlat() {

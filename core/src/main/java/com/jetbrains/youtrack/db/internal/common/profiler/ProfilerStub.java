@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.common.profiler;
 
-import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.PROFILER_MAXVALUES;
+import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.PROFILER_MAXVALUES;
 
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 import java.util.ArrayList;

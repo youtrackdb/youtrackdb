@@ -21,7 +21,8 @@ package com.jetbrains.youtrack.db.internal.core.tx;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -70,7 +71,7 @@ public interface TransactionInternal extends FrontendTransaction {
    * @param oldRID the id old value.
    * @param rid    the id new value.
    */
-  void updateIdentityAfterCommit(RID oldRID, RID rid);
+  void updateIdentityAfterCommit(RecordId oldRID, RecordId rid);
 
   /**
    * Extract a single change from a specified record id.

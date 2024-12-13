@@ -19,11 +19,23 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.collection.SortedMultiIterator;
 import com.jetbrains.youtrack.db.internal.common.concur.resource.SharedResource;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
@@ -32,23 +44,16 @@ import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.common.util.PatternConst;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.common.util.Sizeable;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.ExecutionThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.id.ContextualRecordId;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
@@ -62,14 +67,12 @@ import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClass;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClusters;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -589,7 +592,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       return false;
     }
 
-    final RID identity = id.getIdentity();
+    final RecordId identity = (RecordId) id.getIdentity();
 
     if (uniqueResult != null) {
       if (uniqueResult.containsKey(identity)) {
@@ -908,7 +911,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
    * Report the tip to the profiler and collect it in context to be reported by tools like Studio
    */
   protected void reportTip(final String iMessage) {
-    YouTrackDBManager.instance().getProfiler().reportTip(iMessage);
+    YouTrackDBEnginesManager.instance().getProfiler().reportTip(iMessage);
     List<String> tips = (List<String>) context.getVariable("tips");
     if (tips == null) {
       tips = new ArrayList<String>(3);
@@ -1074,7 +1077,8 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
     var database = getDatabase();
     final SchemaClass cls = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
-    if (!searchForIndexes(database, cls) && !searchForSubclassIndexes(database, cls)) {
+    if (!searchForIndexes(database, (SchemaClassInternal) cls) && !searchForSubclassIndexes(
+        database, cls)) {
       // CHECK FOR INVERSE ORDER
       final boolean browsingOrderAsc = isBrowsingAscendingOrder();
       super.searchInClasses(browsingOrderAsc);
@@ -1349,8 +1353,9 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
               final DatabaseSessionInternal database = getDatabase();
               if (parsedTarget.getTargetClasses() != null) {
                 final String className = parsedTarget.getTargetClasses().keySet().iterator().next();
-                final SchemaClass cls =
-                    database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
+                var cls =
+                    (SchemaClassInternal) database.getMetadata().getImmutableSchemaSnapshot()
+                        .getClass(className);
                 count = cls.count(session);
               } else if (parsedTarget.getTargetClusters() != null) {
                 for (String cluster : parsedTarget.getTargetClusters().keySet()) {
@@ -1398,7 +1403,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
   private boolean isUsingRestrictedClasses(DatabaseSessionInternal db) {
     boolean restrictedClasses = false;
-    final SecurityUser user = db.getUser();
+    final SecurityUser user = db.geCurrentUser();
 
     if (parsedTarget.getTargetClasses() != null
         && user != null
@@ -1418,7 +1423,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
   }
 
   protected void revertSubclassesProfiler(final CommandContext iContext, int num) {
-    final Profiler profiler = YouTrackDBManager.instance().getProfiler();
+    final Profiler profiler = YouTrackDBEnginesManager.instance().getProfiler();
     if (profiler.isRecording()) {
       profiler.updateCounter(
           profiler.getDatabaseMetric(getDatabase().getName(), "query.indexUseAttemptedAndReverted"),
@@ -1436,7 +1441,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       iContext.updateMetric("compositeIndexUsed", -1);
     }
 
-    final Profiler profiler = YouTrackDBManager.instance().getProfiler();
+    final Profiler profiler = YouTrackDBEnginesManager.instance().getProfiler();
     if (profiler.isRecording()) {
       profiler.updateCounter(
           profiler.getDatabaseMetric(index.getDatabaseName(), "query.indexUsed"),
@@ -1847,7 +1852,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
                 threadContext.setDatabase(localDatabase);
 
                 // CREATE A SNAPSHOT TO AVOID DEADLOCKS
-                db.getMetadata().getSchema().makeSnapshot();
+                ((SchemaInternal) db.getMetadata().getSchema()).makeSnapshot();
                 scanClusterWithIterator(
                     localDatabase, threadContext, clusterIds[current], current, results);
               } catch (RuntimeException t) {
@@ -2009,7 +2014,8 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
     return Math.min(sqlLimit, requestLimit);
   }
 
-  private Stream<RawPair<Object, RID>> tryGetOptimizedSortStream(final SchemaClass iSchemaClass,
+  private Stream<RawPair<Object, RID>> tryGetOptimizedSortStream(
+      final SchemaClassInternal iSchemaClass,
       DatabaseSessionInternal session) {
     if (orderedFields.size() == 0) {
       return null;
@@ -2018,7 +2024,8 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
     }
   }
 
-  private boolean tryOptimizeSort(DatabaseSessionInternal session, final SchemaClass iSchemaClass) {
+  private boolean tryOptimizeSort(DatabaseSessionInternal session,
+      final SchemaClassInternal iSchemaClass) {
     if (orderedFields.size() == 0) {
       return false;
     } else {
@@ -2067,8 +2074,9 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
     }
 
     int attempted = 0;
-    for (SchemaClass subclass : subclasses) {
-      List<Stream<RawPair<Object, RID>>> substreams = getIndexCursors(session, subclass);
+    for (var subclass : subclasses) {
+      List<Stream<RawPair<Object, RID>>> substreams = getIndexCursors(session,
+          (SchemaClassInternal) subclass);
       fullySorted = fullySorted && fullySortedByIndex;
       if (substreams == null || substreams.size() == 0) {
         if (attempted > 0) {
@@ -2100,7 +2108,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
   @SuppressWarnings("rawtypes")
   private List<Stream<RawPair<Object, RID>>> getIndexCursors(
-      DatabaseSessionInternal session, final SchemaClass iSchemaClass) {
+      DatabaseSessionInternal session, final SchemaClassInternal iSchemaClass) {
     // Leaving this in for reference, for the moment.
     // This should not be necessary as searchInClasses() does a security check and when the record
     // iterator
@@ -2267,7 +2275,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
   @SuppressWarnings("rawtypes")
   private boolean searchForIndexes(DatabaseSessionInternal session,
-      final SchemaClass iSchemaClass) {
+      final SchemaClassInternal iSchemaClass) {
     if (uniqueResult != null) {
       uniqueResult.clear();
     }
@@ -2452,7 +2460,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
                 }
               }
 
-              final Profiler profiler = YouTrackDBManager.instance().getProfiler();
+              final Profiler profiler = YouTrackDBEnginesManager.instance().getProfiler();
               if (profiler.isRecording()) {
                 profiler.updateCounter(
                     profiler.getDatabaseMetric(session.getName(), "query.indexUsed"),
@@ -2551,7 +2559,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
    * @param session
    * @return true if execution was optimized
    */
-  private boolean optimizeSort(SchemaClass iSchemaClass, DatabaseSessionInternal session) {
+  private boolean optimizeSort(SchemaClassInternal iSchemaClass, DatabaseSessionInternal session) {
     Stream<RawPair<Object, RID>> stream = getOptimizedSortStream(iSchemaClass, session);
     if (stream != null) {
       fetchValuesFromIndexStream(stream);
@@ -2560,7 +2568,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
     return false;
   }
 
-  private Stream<RawPair<Object, RID>> getOptimizedSortStream(SchemaClass iSchemaClass,
+  private Stream<RawPair<Object, RID>> getOptimizedSortStream(SchemaClassInternal iSchemaClass,
       DatabaseSessionInternal session) {
     final List<String> fieldNames = new ArrayList<String>();
 
@@ -2568,7 +2576,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       fieldNames.add(pair.getKey());
     }
 
-    final Set<Index> indexes = iSchemaClass.getInvolvedIndexes(session, fieldNames);
+    final Set<Index> indexes = iSchemaClass.getInvolvedIndexesInternal(session, fieldNames);
 
     for (Index index : indexes) {
       if (orderByOptimizer.canBeUsedByOrderBy(index, orderedFields)) {

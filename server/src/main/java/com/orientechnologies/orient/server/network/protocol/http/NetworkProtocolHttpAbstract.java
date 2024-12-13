@@ -21,20 +21,20 @@ package com.orientechnologies.orient.server.network.protocol.http;
 
 import com.jetbrains.youtrack.db.internal.common.concur.lock.LockException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.QueryDatabaseState;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentModificationException;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.exception.SecurityAccessException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.ConcurrentModificationException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.SocketChannel;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.NetworkProtocolException;
@@ -916,7 +916,7 @@ public abstract class NetworkProtocolHttpAbstract extends NetworkProtocol
       readAllContent(request);
     } finally {
       if (connection.getStats().lastCommandReceived > -1) {
-        YouTrackDBManager.instance()
+        YouTrackDBEnginesManager.instance()
             .getProfiler()
             .stopChrono(
                 "server.network.requests",
@@ -968,7 +968,7 @@ public abstract class NetworkProtocolHttpAbstract extends NetworkProtocol
   }
 
   protected void connectionClosed() {
-    YouTrackDBManager.instance()
+    YouTrackDBEnginesManager.instance()
         .getProfiler()
         .updateCounter(
             "server.http." + listeningAddress + ".closed",
@@ -979,7 +979,7 @@ public abstract class NetworkProtocolHttpAbstract extends NetworkProtocol
   }
 
   protected void timeout() {
-    YouTrackDBManager.instance()
+    YouTrackDBEnginesManager.instance()
         .getProfiler()
         .updateCounter(
             "server.http." + listeningAddress + ".timeout",
@@ -990,7 +990,7 @@ public abstract class NetworkProtocolHttpAbstract extends NetworkProtocol
   }
 
   protected void connectionError() {
-    YouTrackDBManager.instance()
+    YouTrackDBEnginesManager.instance()
         .getProfiler()
         .updateCounter(
             "server.http." + listeningAddress + ".errors",

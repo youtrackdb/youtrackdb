@@ -19,20 +19,21 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
+import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.StorageEntryConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.SecurityAccessException;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -55,7 +56,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
   private static final String[] NAMES = {"GET|database/*"};
 
   public static void exportClass(
-      final DatabaseSessionInternal db, final JSONWriter json, final SchemaClass cls)
+      final DatabaseSessionInternal db, final JSONWriter json, final SchemaClassInternal cls)
       throws IOException {
     json.beginObject();
     json.writeAttribute("name", cls.getName());
@@ -74,8 +75,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
     json.writeAttribute("abstract", cls.isAbstract());
     json.writeAttribute("strictmode", cls.isStrictMode());
     json.writeAttribute("clusters", cls.getClusterIds());
-    json.writeAttribute("defaultCluster", cls.getDefaultClusterId());
-    json.writeAttribute("clusterSelection", cls.getClusterSelection().getName());
+    json.writeAttribute("clusterSelection", cls.getClusterSelectionStrategyName());
     if (cls instanceof SchemaClassImpl) {
       final Map<String, String> custom = ((SchemaClassImpl) cls).getCustomInternal();
       if (custom != null && !custom.isEmpty()) {
@@ -125,7 +125,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
       json.endCollection();
     }
 
-    final Set<Index> indexes = cls.getIndexes(db);
+    final Set<Index> indexes = cls.getIndexesInternal(db);
     if (!indexes.isEmpty()) {
       json.beginCollection("indexes");
       for (final Index index : indexes) {
@@ -195,7 +195,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
       json.beginCollection("conflictStrategies");
 
       Set<String> strategies =
-          YouTrackDBManager.instance().getRecordConflictStrategy()
+          YouTrackDBEnginesManager.instance().getRecordConflictStrategy()
               .getRegisteredImplementationNames();
 
       int i = 0;
@@ -230,7 +230,8 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
         Collections.sort(classNames);
 
         for (String className : classNames) {
-          final SchemaClass cls = db.getMetadata().getImmutableSchemaSnapshot().getClass(className);
+          var cls = db.getMetadata().getImmutableSchemaSnapshot()
+              .getClassInternal(className);
 
           try {
             exportClass(db, json, cls);
@@ -268,8 +269,8 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
         json.endCollection();
       }
 
-      if (db.getUser() != null) {
-        json.writeAttribute("currentUser", db.getUser().getName(db));
+      if (db.geCurrentUser() != null) {
+        json.writeAttribute("currentUser", db.geCurrentUser().getName(db));
 
         // exportSecurityInfo(db, json);
       }

@@ -1,17 +1,13 @@
 package com.jetbrains.youtrack.db.internal.client.remote.metadata.schema;
 
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.api.exception.SchemaException;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.session.SessionListener;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseLifecycleListener;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.viewmanager.ViewCreationListener;
-import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.ViewConfig;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaView;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaViewImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -20,7 +16,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -74,10 +69,6 @@ public class SchemaRemote extends SchemaShared {
 
   protected SchemaClassImpl createClassInstance(String name) {
     return new SchemaClassRemote(this, name);
-  }
-
-  protected SchemaViewImpl createViewInstance(String name) {
-    return new SchemaViewRemote(this, name);
   }
 
   public SchemaClass createClass(
@@ -157,13 +148,13 @@ public class SchemaRemote extends SchemaShared {
       result = classes.get(className.toLowerCase(Locale.ENGLISH));
 
       // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<DatabaseLifecycleListener> it = YouTrackDBManager.instance()
+      for (Iterator<DatabaseLifecycleListener> it = YouTrackDBEnginesManager.instance()
           .getDbLifecycleListeners();
           it.hasNext(); ) {
         it.next().onCreateClass(database, result);
       }
 
-      for (Iterator<DatabaseListener> it = database.getListeners().iterator(); it.hasNext(); ) {
+      for (Iterator<SessionListener> it = database.getListeners().iterator(); it.hasNext(); ) {
         it.next().onCreateClass(database, result);
       }
 
@@ -238,130 +229,14 @@ public class SchemaRemote extends SchemaShared {
       result = classes.get(className.toLowerCase(Locale.ENGLISH));
 
       // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<DatabaseLifecycleListener> it = YouTrackDBManager.instance()
+      for (Iterator<DatabaseLifecycleListener> it = YouTrackDBEnginesManager.instance()
           .getDbLifecycleListeners();
           it.hasNext(); ) {
         it.next().onCreateClass(database, result);
       }
 
-      for (Iterator<DatabaseListener> it = database.getListeners().iterator(); it.hasNext(); ) {
+      for (Iterator<SessionListener> it = database.getListeners().iterator(); it.hasNext(); ) {
         it.next().onCreateClass(database, result);
-      }
-
-    } finally {
-      releaseSchemaWriteLock(database);
-    }
-
-    return result;
-  }
-
-  public SchemaView createView(
-      DatabaseSessionInternal database, ViewConfig cfg, ViewCreationListener listener)
-      throws UnsupportedOperationException {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public SchemaView createView(DatabaseSessionInternal database, ViewConfig cfg) {
-    final Character wrongCharacter = SchemaShared.checkClassNameIfValid(cfg.getName());
-    if (wrongCharacter != null) {
-      throw new SchemaException(
-          "Invalid view name found. Character '"
-              + wrongCharacter
-              + "' cannot be used in view name '"
-              + cfg.getName()
-              + "'");
-    }
-
-    SchemaView result;
-
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_CREATE);
-    acquireSchemaWriteLock(database);
-    try {
-
-      final String key = cfg.getName().toLowerCase(Locale.ENGLISH);
-      if (views.containsKey(key)) {
-        throw new SchemaException(
-            "View '" + cfg.getName() + "' already exists in current database");
-      }
-
-      StringBuilder cmd = new StringBuilder("create view ");
-      cmd.append('`');
-      cmd.append(cfg.getName());
-      cmd.append('`');
-      cmd.append(" FROM (" + cfg.getQuery() + ") ");
-      if (cfg.isUpdatable()) {
-        cmd.append(" UPDATABLE");
-      }
-      // TODO METADATA!!!
-
-      database.command(cmd.toString()).close();
-      reload(database);
-      result = views.get(cfg.getName().toLowerCase(Locale.ENGLISH));
-
-      // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<DatabaseLifecycleListener> it = YouTrackDBManager.instance()
-          .getDbLifecycleListeners();
-          it.hasNext(); ) {
-        it.next().onCreateView(database, result);
-      }
-
-      for (Iterator<DatabaseListener> it = database.getListeners().iterator(); it.hasNext(); ) {
-        it.next().onCreateView(database, result);
-      }
-
-    } finally {
-      releaseSchemaWriteLock(database);
-    }
-
-    return result;
-  }
-
-  @Override
-  public SchemaView createView(
-      DatabaseSessionInternal database,
-      String name,
-      String statement,
-      Map<String, Object> metadata) {
-    final Character wrongCharacter = SchemaShared.checkClassNameIfValid(name);
-    if (wrongCharacter != null) {
-      throw new SchemaException(
-          "Invalid class name found. Character '"
-              + wrongCharacter
-              + "' cannot be used in view name '"
-              + name
-              + "'");
-    }
-
-    SchemaView result;
-
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_CREATE);
-    acquireSchemaWriteLock(database);
-    try {
-
-      final String key = name.toLowerCase(Locale.ENGLISH);
-      if (views.containsKey(key)) {
-        throw new SchemaException("View '" + name + "' already exists in current database");
-      }
-
-      String cmd = "create view " + '`' + name + '`' + " FROM (" + statement + ") ";
-      //      if (metadata!=null) {//TODO
-      //        cmd.append(" METADATA");
-      //      }
-
-      database.command(cmd).close();
-      reload(database);
-      result = views.get(name.toLowerCase(Locale.ENGLISH));
-
-      // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<DatabaseLifecycleListener> it = YouTrackDBManager.instance()
-          .getDbLifecycleListeners();
-          it.hasNext(); ) {
-        it.next().onCreateView(database, result);
-      }
-
-      for (Iterator<DatabaseListener> it = database.getListeners().iterator(); it.hasNext(); ) {
-        it.next().onCreateView(database, result);
       }
 
     } finally {
@@ -426,52 +301,10 @@ public class SchemaRemote extends SchemaShared {
       database.command(cmd).close();
       reload(database);
 
-      // FREE THE RECORD CACHE
-      database.getLocalCache().freeCluster(cls.getDefaultClusterId());
-
-    } finally {
-      releaseSchemaWriteLock(database);
-    }
-  }
-
-  public void dropView(DatabaseSessionInternal database, final String name) {
-
-    acquireSchemaWriteLock(database);
-    try {
-      if (database.getTransaction().isActive()) {
-        throw new IllegalStateException("Cannot drop a class inside a transaction");
+      var localCache = database.getLocalCache();
+      for (int clusterId : cls.getClusterIds()) {
+        localCache.freeCluster(clusterId);
       }
-
-      if (name == null) {
-        throw new IllegalArgumentException("View name is null");
-      }
-
-      database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_DELETE);
-
-      final String key = name.toLowerCase(Locale.ENGLISH);
-
-      SchemaClass cls = views.get(key);
-
-      if (cls == null) {
-        throw new SchemaException("View '" + name + "' was not found in current database");
-      }
-
-      if (!cls.getSubclasses().isEmpty()) {
-        throw new SchemaException(
-            "View '"
-                + name
-                + "' cannot be dropped because it has sub classes "
-                + cls.getSubclasses()
-                + ". Remove the dependencies before trying to drop it again");
-      }
-
-      String cmd = "drop view " + name + " unsafe";
-      database.command(cmd).close();
-      reload(database);
-
-      // FREE THE RECORD CACHE
-      database.getLocalCache().freeCluster(cls.getDefaultClusterId());
-
     } finally {
       releaseSchemaWriteLock(database);
     }

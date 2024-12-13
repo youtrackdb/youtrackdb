@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -46,7 +46,7 @@ public class OServerCommandGetClass extends OServerCommandAuthenticatedDbAbstrac
       db = getProfiledDatabaseInstance(iRequest);
 
       if (db.getMetadata().getSchema().existsClass(urlParts[2])) {
-        final SchemaClass cls = db.getMetadata().getSchema().getClass(urlParts[2]);
+        var cls = db.getMetadata().getSchemaInternal().getClassInternal(urlParts[2]);
         final StringWriter buffer = new StringWriter();
         final JSONWriter json = new JSONWriter(buffer, OHttpResponse.JSON_FORMAT);
         OServerCommandGetDatabase.exportClass(db, json, cls);

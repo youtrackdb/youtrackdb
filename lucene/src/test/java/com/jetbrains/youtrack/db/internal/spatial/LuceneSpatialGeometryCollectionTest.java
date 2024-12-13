@@ -14,7 +14,7 @@
 package com.jetbrains.youtrack.db.internal.spatial;
 
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Assert;

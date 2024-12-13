@@ -20,58 +20,61 @@
 
 package com.jetbrains.youtrack.db.internal.core.db;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.ConcurrentModificationException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.HighLevelException;
+import com.jetbrains.youtrack.db.api.exception.OfflineClusterException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.exception.SchemaException;
+import com.jetbrains.youtrack.db.api.exception.SecurityException;
+import com.jetbrains.youtrack.db.api.exception.TransactionException;
+import com.jetbrains.youtrack.db.api.exception.ValidationException;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.Direction;
+import com.jetbrains.youtrack.db.api.record.Edge;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.RecordHook;
+import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
+import com.jetbrains.youtrack.db.api.session.SessionListener;
 import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.common.exception.HighLevelException;
 import com.jetbrains.youtrack.db.internal.common.listener.ListenerManger;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.cache.LocalRecordCache;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestInternal;
-import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.record.CurrentStorageComponentsFactory;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
-import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentModificationException;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
-import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
 import com.jetbrains.youtrack.db.internal.core.exception.SessionNotActivatedException;
 import com.jetbrains.youtrack.db.internal.core.exception.TransactionBlockedException;
-import com.jetbrains.youtrack.db.internal.core.exception.TransactionException;
-import com.jetbrains.youtrack.db.internal.core.exception.ValidationException;
-import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClass;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.Metadata;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableView;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaView;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ImmutableUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
 import com.jetbrains.youtrack.db.internal.core.query.Query;
-import com.jetbrains.youtrack.db.internal.core.record.Direction;
-import com.jetbrains.youtrack.db.internal.core.record.Edge;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeDelegate;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeEntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
@@ -83,11 +86,9 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.storage.RawBuffer;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageInfo;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageOperationResult;
-import com.jetbrains.youtrack.db.internal.core.storage.cluster.OfflineClusterException;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransaction;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransaction.TXSTATUS;
@@ -95,7 +96,6 @@ import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx;
 import com.jetbrains.youtrack.db.internal.core.tx.RollbackException;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
-import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -121,7 +121,7 @@ import javax.annotation.Nonnull;
  * Entity API entrypoint.
  */
 @SuppressWarnings("unchecked")
-public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseListener>
+public abstract class DatabaseSessionAbstract extends ListenerManger<SessionListener>
     implements DatabaseSessionInternal {
 
   protected final Map<String, Object> properties = new HashMap<String, Object>();
@@ -185,7 +185,6 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
 
   public void callOnOpenListeners() {
     wakeupOnOpenDbLifecycleListeners();
-    wakeupOnOpenListeners();
   }
 
   protected abstract void loadMetadata();
@@ -196,26 +195,16 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
   }
 
   private void wakeupOnOpenDbLifecycleListeners() {
-    for (Iterator<DatabaseLifecycleListener> it = YouTrackDBManager.instance()
+    for (Iterator<DatabaseLifecycleListener> it = YouTrackDBEnginesManager.instance()
         .getDbLifecycleListeners();
         it.hasNext(); ) {
       it.next().onOpen(getDatabaseOwner());
     }
   }
 
-  private void wakeupOnOpenListeners() {
-    for (DatabaseListener listener : getListenersCopy()) {
-      try {
-        //noinspection deprecation
-        listener.onOpen(getDatabaseOwner());
-      } catch (Exception e) {
-        LogManager.instance().error(this, "Error during call of database listener", e);
-      }
-    }
-  }
 
   private void wakeupOnCloseDbLifecycleListeners() {
-    for (Iterator<DatabaseLifecycleListener> it = YouTrackDBManager.instance()
+    for (Iterator<DatabaseLifecycleListener> it = YouTrackDBEnginesManager.instance()
         .getDbLifecycleListeners();
         it.hasNext(); ) {
       it.next().onClose(getDatabaseOwner());
@@ -223,25 +212,9 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
   }
 
   private void wakeupOnCloseListeners() {
-    for (DatabaseListener listener : getListenersCopy()) {
+    for (SessionListener listener : getListenersCopy()) {
       try {
         listener.onClose(getDatabaseOwner());
-      } catch (Exception e) {
-        LogManager.instance().error(this, "Error during call of database listener", e);
-      }
-    }
-  }
-
-  public void callOnDropListeners() {
-    wakeupOnDropListeners();
-  }
-
-  private void wakeupOnDropListeners() {
-    for (DatabaseListener listener : getListenersCopy()) {
-      try {
-        activateOnCurrentThread();
-        //noinspection deprecation
-        listener.onDelete(getDatabaseOwner());
       } catch (Exception e) {
         LogManager.instance().error(this, "Error during call of database listener", e);
       }
@@ -270,10 +243,6 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
   public DatabaseSessionInternal cleanOutRecord(final RID iRecord, final int iVersion) {
     delete(iRecord, iVersion);
     return this;
-  }
-
-  public String getType() {
-    return TYPE;
   }
 
   public <REC extends Record> RecordIteratorCluster<REC> browseCluster(
@@ -426,7 +395,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
   /**
    * {@inheritDoc}
    */
-  public SecurityUser getUser() {
+  public SecurityUser geCurrentUser() {
     return user;
   }
 
@@ -565,7 +534,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
     final RecordHook.SCOPE scope = RecordHook.SCOPE.typeToScope(type);
     final int scopeOrdinal = scope.ordinal();
 
-    final RID identity = id.getIdentity().copy();
+    var identity = ((RecordId) id.getIdentity()).copy();
     if (!pushInHook(identity)) {
       return RecordHook.RESULT.RECORD_NOT_CHANGED;
     }
@@ -633,15 +602,14 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
    * {@inheritDoc}
    */
   public boolean isValidationEnabled() {
-    return (Boolean) get(ATTRIBUTES.VALIDATION);
+    return (Boolean) get(ATTRIBUTES_INTERNAL.VALIDATION.VALIDATION);
   }
 
   /**
    * {@inheritDoc}
    */
-  public DatabaseSession setValidationEnabled(final boolean iEnabled) {
-    set(ATTRIBUTES.VALIDATION, iEnabled);
-    return this;
+  public void setValidationEnabled(final boolean iEnabled) {
+    set(ATTRIBUTES_INTERNAL.VALIDATION, iEnabled);
   }
 
   @Override
@@ -761,23 +729,33 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
     }
     final StorageInfo storage = getStorageInfo();
     return switch (iAttribute) {
-      case STATUS -> getStatus();
-      case DEFAULTCLUSTERID -> getDefaultClusterId();
-      case TYPE ->
-          getMetadata().getImmutableSchemaSnapshot().existsClass("V") ? "graph" : "document";
       case DATEFORMAT -> storage.getConfiguration().getDateFormat();
-      case DATETIMEFORMAT -> storage.getConfiguration().getDateTimeFormat();
+      case DATE_TIME_FORMAT -> storage.getConfiguration().getDateTimeFormat();
       case TIMEZONE -> storage.getConfiguration().getTimeZone().getID();
-      case LOCALECOUNTRY -> storage.getConfiguration().getLocaleCountry();
-      case LOCALELANGUAGE -> storage.getConfiguration().getLocaleLanguage();
+      case LOCALE_COUNTRY -> storage.getConfiguration().getLocaleCountry();
+      case LOCALE_LANGUAGE -> storage.getConfiguration().getLocaleLanguage();
       case CHARSET -> storage.getConfiguration().getCharset();
-      case CUSTOM -> storage.getConfiguration().getProperties();
-      case CLUSTERSELECTION -> storage.getConfiguration().getClusterSelection();
-      case MINIMUMCLUSTERS -> storage.getConfiguration().getMinimumClusters();
-      case CONFLICTSTRATEGY -> storage.getConfiguration().getConflictStrategy();
-      case VALIDATION -> storage.getConfiguration().isValidationEnabled();
+      case CLUSTER_SELECTION -> storage.getConfiguration().getClusterSelection();
+      case MINIMUM_CLUSTERS -> storage.getConfiguration().getMinimumClusters();
     };
   }
+
+  @Override
+  public Object get(ATTRIBUTES_INTERNAL attribute) {
+    checkIfActive();
+
+    if (attribute == null) {
+      throw new IllegalArgumentException("attribute is null");
+    }
+
+    final StorageInfo storage = getStorageInfo();
+    if (attribute == ATTRIBUTES_INTERNAL.VALIDATION) {
+      return storage.getConfiguration().isValidationEnabled();
+    }
+
+    throw new IllegalArgumentException("attribute is not supported: " + attribute);
+  }
+
 
   public FrontendTransaction getTransaction() {
     checkIfActive();
@@ -948,7 +926,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
 
       if (record == null) {
         record =
-            YouTrackDBManager.instance()
+            YouTrackDBEnginesManager.instance()
                 .getRecordFactoryManager()
                 .newInstance(recordBuffer.recordType, rid, this);
         RecordInternal.unsetDirty(record);
@@ -999,16 +977,16 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
     }
   }
 
-  public int assignAndCheckCluster(Record record, String iClusterName) {
+  public int assignAndCheckCluster(Record record, String clusterName) {
     RecordId rid = (RecordId) record.getIdentity();
     // if provided a cluster name use it.
-    if (rid.getClusterId() <= RID.CLUSTER_POS_INVALID && iClusterName != null) {
-      rid.setClusterId(getClusterIdByName(iClusterName));
+    if (rid.getClusterId() <= RID.CLUSTER_POS_INVALID && clusterName != null) {
+      rid.setClusterId(getClusterIdByName(clusterName));
       if (rid.getClusterId() == -1) {
-        throw new IllegalArgumentException("Cluster name '" + iClusterName + "' is not configured");
+        throw new IllegalArgumentException("Cluster name '" + clusterName + "' is not configured");
       }
     }
-    SchemaClass schemaClass = null;
+    SchemaClassInternal schemaClass = null;
     // if cluster id is not set yet try to find it out
     if (rid.getClusterId() <= RID.CLUSTER_ID_INVALID
         && getStorageInfo().isAssigningClusterIds()) {
@@ -1032,11 +1010,11 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
         }
       } else {
         if (record instanceof RecordBytes) {
-          IntSet blobs = getBlobClusterIds();
-          if (blobs.isEmpty()) {
+          int[] blobs = getBlobClusterIds();
+          if (blobs.length == 0) {
             rid.setClusterId(getDefaultClusterId());
           } else {
-            rid.setClusterId(blobs.iterator().nextInt());
+            rid.setClusterId(blobs[0]);
           }
         } else {
           throw new DatabaseException(
@@ -1095,7 +1073,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
     }
 
     // WAKE UP LISTENERS
-    for (DatabaseListener listener : browseListeners()) {
+    for (SessionListener listener : browseListeners()) {
       try {
         listener.onBeforeTxBegin(this);
       } catch (Exception e) {
@@ -1138,12 +1116,12 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
   /**
    * Creates a entity with specific class.
    *
-   * @param iClassName the name of class that should be used as a class of created entity.
+   * @param className the name of class that should be used as a class of created entity.
    * @return new instance of entity.
    */
   @Override
-  public EntityImpl newInstance(final String iClassName) {
-    return new EntityImpl(this, iClassName);
+  public EntityImpl newInstance(final String className) {
+    return new EntityImpl(this, className);
   }
 
   @Override
@@ -1177,31 +1155,45 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
   }
 
   @Override
-  public EdgeInternal newEdge(Vertex from, Vertex to, String type) {
+  public EdgeInternal newRegularEdge(Vertex from, Vertex to, String type) {
     SchemaClass cl = getMetadata().getImmutableSchemaSnapshot().getClass(type);
     if (cl == null || !cl.isEdgeType()) {
-      throw new IllegalArgumentException(type + " is not an edge class");
+      throw new IllegalArgumentException(type + " is not a regular edge class");
+    }
+    if (cl.isAbstract()) {
+      throw new IllegalArgumentException(
+          type + " is an abstract class and can not be used for creation of regular edge");
     }
 
     return addEdgeInternal(from, to, type, true);
   }
 
   @Override
-  public EdgeInternal addLightweightEdge(Vertex from, Vertex to, String className) {
-    SchemaClass cl = getMetadata().getImmutableSchemaSnapshot().getClass(className);
+  public Edge newLightweightEdge(Vertex from, Vertex to, @Nonnull String type) {
+    SchemaClass cl = getMetadata().getImmutableSchemaSnapshot().getClass(type);
     if (cl == null || !cl.isEdgeType()) {
-      throw new IllegalArgumentException(className + " is not an edge class");
+      throw new IllegalArgumentException(type + " is not a lightweight edge class");
+    }
+    if (!cl.isAbstract()) {
+      throw new IllegalArgumentException(
+          type + " is not an abstract class and can not be used for creation of lightweight edge");
     }
 
-    return addEdgeInternal(from, to, className, false);
+    return addEdgeInternal(from, to, type, false);
   }
 
   @Override
-  public Edge newEdge(Vertex from, Vertex to, SchemaClass type) {
+  public Edge newRegularEdge(Vertex from, Vertex to, SchemaClass type) {
     if (type == null) {
-      return newEdge(from, to, "E");
+      return newRegularEdge(from, to, "E");
     }
-    return newEdge(from, to, type.getName());
+
+    return newRegularEdge(from, to, type.getName());
+  }
+
+  @Override
+  public Edge newLightweightEdge(Vertex from, Vertex to, @Nonnull SchemaClass type) {
+    return newLightweightEdge(from, to, type.getName());
   }
 
   private EdgeInternal addEdgeInternal(
@@ -1263,7 +1255,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
     final String inFieldName = Vertex.getEdgeLinkFieldName(Direction.IN, className);
 
     if (createLightweightEdge) {
-      edge = newLightweightEdge(className, toVertex, inVertex);
+      edge = newLightweightEdgeInternal(className, toVertex, inVertex);
       VertexInternal.createLink(toVertex.getRecord(), inVertex.getRecord(), outFieldName);
       VertexInternal.createLink(inVertex.getRecord(), toVertex.getRecord(), inFieldName);
     } else {
@@ -1335,7 +1327,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
    * {@inheritDoc}
    */
   @Override
-  public Iterable<DatabaseListener> getListeners() {
+  public Iterable<SessionListener> getListeners() {
     return getListenersCopy();
   }
 
@@ -1466,19 +1458,6 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
     }
 
     return (RET) currentTx.saveRecord(record, clusterName);
-  }
-
-  /**
-   * Returns the number of the records of the class iClassName.
-   */
-  public long countView(final String viewName) {
-    final SchemaImmutableView cls =
-        (SchemaImmutableView) getMetadata().getImmutableSchemaSnapshot().getView(viewName);
-    if (cls == null) {
-      throw new IllegalArgumentException("View '" + cls + "' not found in database");
-    }
-
-    return countClass(cls, false);
   }
 
   /**
@@ -1622,7 +1601,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
   }
 
   protected void beforeCommitOperations() {
-    for (DatabaseListener listener : browseListeners()) {
+    for (SessionListener listener : browseListeners()) {
       try {
         listener.onBeforeTxCommit(this);
       } catch (Exception e) {
@@ -1645,7 +1624,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
   }
 
   public void afterCommitOperations() {
-    for (DatabaseListener listener : browseListeners()) {
+    for (SessionListener listener : browseListeners()) {
       try {
         listener.onAfterTxCommit(this);
       } catch (Exception e) {
@@ -1663,7 +1642,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
   }
 
   protected void beforeRollbackOperations() {
-    for (DatabaseListener listener : browseListeners()) {
+    for (SessionListener listener : browseListeners()) {
       try {
         listener.onBeforeTxRollback(this);
       } catch (Exception t) {
@@ -1674,7 +1653,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
   }
 
   protected void afterRollbackOperations() {
-    for (DatabaseListener listener : browseListeners()) {
+    for (SessionListener listener : browseListeners()) {
       try {
         listener.onAfterTxRollback(this);
       } catch (Exception t) {
@@ -1910,8 +1889,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
     return true;
   }
 
-  public IntSet getBlobClusterIds() {
-    return getMetadata().getSchema().getBlobClusters();
+  public int[] getBlobClusterIds() {
+    return getMetadata().getSchema().getBlobClusters().toIntArray();
   }
 
   private void compileHooks() {
@@ -1944,7 +1923,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
     this.setCustom("useLightweightEdges", b);
   }
 
-  public EdgeInternal newLightweightEdge(String iClassName, Vertex from, Vertex to) {
+  public EdgeInternal newLightweightEdgeInternal(String iClassName, Vertex from, Vertex to) {
     SchemaImmutableClass clazz =
         (SchemaImmutableClass) getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
 
@@ -1984,7 +1963,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
   public void queryClosed(String id) {
     QueryDatabaseState removed = this.activeQueries.remove(id);
     getListeners().forEach((it) -> it.onCommandEnd(this, removed.getResultSet()));
-    removed.closeInternal(this);
+
   }
 
   protected synchronized void closeActiveQueries() {
@@ -1993,7 +1972,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
           .values()
           .iterator()
           .next()
-          .close(this); // the query automatically unregisters itself
+          .close(); // the query automatically unregisters itself
     }
   }
 
@@ -2022,15 +2001,6 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
     return clazz != null && clazz.isVertexType();
   }
 
-  @Override
-  public boolean isClusterView(int cluster) {
-    SchemaView view = getViewFromCluster(cluster);
-    return view != null;
-  }
-
-  public SchemaView getViewFromCluster(int cluster) {
-    return getMetadata().getImmutableSchemaSnapshot().getViewByClusterId(cluster);
-  }
 
   public Map<UUID, BonsaiCollectionPointer> getCollectionsChanges() {
     if (collectionsChanges == null) {

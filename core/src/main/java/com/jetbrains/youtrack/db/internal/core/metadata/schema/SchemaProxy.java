@@ -19,17 +19,18 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ProxedResource;
-import com.jetbrains.youtrack.db.internal.core.db.viewmanager.ViewCreationListener;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection.ClusterSelectionFactory;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -37,7 +38,7 @@ import java.util.Set;
  * the current database in the thread local.
  */
 @SuppressWarnings("unchecked")
-public class SchemaProxy extends ProxedResource<SchemaShared> implements Schema {
+public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaInternal {
 
   public SchemaProxy(final SchemaShared iDelegate, final DatabaseSessionInternal iDatabase) {
     super(iDelegate, iDatabase);
@@ -56,9 +57,6 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements Schema 
     return delegate.countClasses(database);
   }
 
-  public int countViews() {
-    return delegate.countViews(database);
-  }
 
   public SchemaClass createClass(final String iClassName) {
     return delegate.createClass(database, iClassName);
@@ -135,18 +133,6 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements Schema 
     return delegate.existsClass(iClassName.toLowerCase(Locale.ENGLISH));
   }
 
-  public boolean existsView(final String name) {
-    if (name == null) {
-      return false;
-    }
-
-    return delegate.existsView(name.toLowerCase(Locale.ENGLISH));
-  }
-
-  public void dropView(final String name) {
-    delegate.dropView(database, name);
-  }
-
   public SchemaClass getClass(final Class<?> iClass) {
     if (iClass == null) {
       return null;
@@ -167,44 +153,10 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements Schema 
     return delegate.getClasses(database);
   }
 
-  public Collection<SchemaView> getViews() {
-    return delegate.getViews(database);
-  }
-
   @Deprecated
   public void load() {
 
     delegate.load(database);
-  }
-
-  public SchemaView getView(final String name) {
-    if (name == null) {
-      return null;
-    }
-
-    return delegate.getView(name);
-  }
-
-  @Override
-  public SchemaView createView(String viewName, String statement) {
-    return createView(database, viewName, statement, new HashMap<>());
-  }
-
-  public SchemaView createView(
-      DatabaseSessionInternal database,
-      final String viewName,
-      String statement,
-      Map<String, Object> metadata) {
-    return delegate.createView(database, viewName, statement, metadata);
-  }
-
-  @Override
-  public SchemaView createView(ViewConfig config) {
-    return delegate.createView(database, config);
-  }
-
-  public SchemaView createView(ViewConfig config, ViewCreationListener listener) {
-    return delegate.createView(database, config, listener);
   }
 
   public Schema reload() {
@@ -217,7 +169,7 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements Schema 
     return delegate.getVersion();
   }
 
-  public RID getIdentity() {
+  public RecordId getIdentity() {
 
     return delegate.getIdentity();
   }
@@ -247,10 +199,7 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements Schema 
     return delegate.getClassByClusterId(clusterId);
   }
 
-  @Override
-  public SchemaView getViewByClusterId(int clusterId) {
-    return delegate.getViewByClusterId(clusterId);
-  }
+
 
   @Override
   public GlobalProperty getGlobalPropertyById(int id) {
@@ -269,6 +218,11 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements Schema 
   @Override
   public ClusterSelectionFactory getClusterSelectionFactory() {
     return delegate.getClusterSelectionFactory();
+  }
+
+  @Override
+  public SchemaClassInternal getClassInternal(String iClassName) {
+    return delegate.getClass(iClassName);
   }
 
   public IntSet getBlobClusters() {

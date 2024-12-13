@@ -1,5 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.db;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
+
 /**
  * Designed to allow live query result listeners to be optimised for batch elaboration. The normal
  * mechanics of the {@link LiveQueryResultListener} is preserved; In addition, at the end of a

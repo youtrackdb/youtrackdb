@@ -16,9 +16,9 @@ package com.jetbrains.youtrack.db.internal.jdbc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -140,8 +140,8 @@ public class YouTrackDbDataSourceTest extends YouTrackDbJdbcDbPerClassTemplateTe
     final String serverPassword = "admin";
     final String dbName = "test";
 
-    YouTrackDB youTrackDB =
-        new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()), serverUser, serverPassword,
+    YouTrackDBImpl youTrackDB =
+        new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()), serverUser, serverPassword,
             YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database ? memory users(admin identified by 'admin' role admin)", dbName);

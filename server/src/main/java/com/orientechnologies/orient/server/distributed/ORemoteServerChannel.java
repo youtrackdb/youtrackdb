@@ -23,8 +23,8 @@ import com.jetbrains.youtrack.db.internal.client.binary.SocketChannelBinarySynch
 import com.jetbrains.youtrack.db.internal.client.remote.message.DistributedConnectRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.DistributedConnectResponse;
 import com.jetbrains.youtrack.db.internal.common.thread.ThreadPoolExecutors;
-import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.binary.BinaryTokenSerializer;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;

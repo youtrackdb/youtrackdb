@@ -20,7 +20,7 @@ package com.jetbrains.youtrack.db.internal.core;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -29,7 +29,7 @@ import com.jetbrains.youtrack.db.internal.core.db.record.CurrentStorageComponent
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.engine.Engine;
 import com.jetbrains.youtrack.db.internal.core.engine.EngineAbstract;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.RawBuffer;
@@ -59,7 +59,7 @@ import org.junit.Test;
  */
 public class PostponedEngineStartTest {
 
-  private static YouTrackDBManager YOUTRACKDB;
+  private static YouTrackDBEnginesManager YOUTRACKDB;
 
   private static Engine ENGINE1;
   private static Engine ENGINE2;
@@ -68,9 +68,9 @@ public class PostponedEngineStartTest {
   @BeforeClass
   public static void before() {
     YOUTRACKDB =
-        new YouTrackDBManager(false) {
+        new YouTrackDBEnginesManager(false) {
           @Override
-          public YouTrackDBManager startup() {
+          public YouTrackDBEnginesManager startup() {
             YOUTRACKDB.registerEngine(ENGINE1 = new NamedEngine("engine1"));
             YOUTRACKDB.registerEngine(ENGINE2 = new NamedEngine("engine2"));
             YOUTRACKDB.registerEngine(FAULTY_ENGINE = new FaultyEngine());
@@ -78,7 +78,7 @@ public class PostponedEngineStartTest {
           }
 
           @Override
-          public YouTrackDBManager shutdown() {
+          public YouTrackDBEnginesManager shutdown() {
             DatabaseDocumentTx.closeAll();
             return this;
           }

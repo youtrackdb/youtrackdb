@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server.network;
 
-import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinary;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

@@ -19,28 +19,35 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.tool;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.DatabaseSession.STATUS;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.SchemaException;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
+import com.jetbrains.youtrack.db.internal.common.util.ArrayUtils;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession.STATUS;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.EntityFieldWalker;
 import com.jetbrains.youtrack.db.internal.core.db.record.ClassTrigger;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.db.tool.importer.ConverterData;
 import com.jetbrains.youtrack.db.internal.core.db.tool.importer.LinksRewriter;
-import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
@@ -50,19 +57,15 @@ import com.jetbrains.youtrack.db.internal.core.index.SimpleKeyIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassEmbedded;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Identity;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityPolicy;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -70,7 +73,6 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONReader;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJSON;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.RidSet;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
@@ -516,8 +518,8 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
           && !dbClass.isSuperClassOf(user)
           && !dbClass.isSuperClassOf(identity) /*&& !dbClass.isSuperClassOf(oSecurityPolicy)*/) {
         classesToDrop.put(className, dbClass);
-        for (final Index index : dbClass.getIndexes(database)) {
-          indexNames.add(index.getName());
+        for (var index : dbClass.getIndexes(database)) {
+          indexNames.add(index);
         }
       }
     }
@@ -554,7 +556,6 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
         listener.onMessage("\n- Class " + className + " was removed.");
       }
     }
-    schema.reload();
     listener.onMessage("\nRemoved " + removedClasses + " classes.");
   }
 
@@ -708,7 +709,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
             StringSerializerHelper.split(
                 blobClusterIds, StringSerializerHelper.RECORD_SEPARATOR)) {
           Integer cluster = Integer.parseInt(i);
-          if (!database.getBlobClusterIds().contains(cluster)) {
+          if (!ArrayUtils.contains(database.getBlobClusterIds(), cluster)) {
             String name = database.getClusterNameById(cluster);
             database.addBlobCluster(name);
           }
@@ -724,47 +725,25 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     long classImported = 0;
 
     try {
-      String prevClassName = "";
       do {
         jsonReader.readNext(JSONReader.BEGIN_OBJECT);
-
         String className =
             jsonReader
                 .readNext(JSONReader.FIELD_ASSIGNMENT)
                 .checkContent("\"name\"")
                 .readString(JSONReader.COMMA_SEPARATOR);
-        prevClassName = className;
 
-        String next = jsonReader.readNext(JSONReader.FIELD_ASSIGNMENT).getValue();
+        var clusterIdsStr = jsonReader
+            .readNext(JSONReader.FIELD_ASSIGNMENT)
+            .checkContent("\"cluster-ids\"")
+            .readString(JSONReader.END_COLLECTION, true)
+            .trim();
 
-        if (next.equals("\"id\"")) {
-          // @COMPATIBILITY 1.0rc4 IGNORE THE ID
-          next = jsonReader.readString(JSONReader.COMMA_SEPARATOR);
-          next = jsonReader.readNext(JSONReader.FIELD_ASSIGNMENT).getValue();
-        }
-
-        final int classDefClusterId;
-        if (jsonReader.isContent("\"default-cluster-id\"")) {
-          next = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
-          classDefClusterId = Integer.parseInt(next);
-        } else {
-          classDefClusterId = database.getDefaultClusterId();
-        }
-
-        int realClassDefClusterId = classDefClusterId;
-        if (!clusterToClusterMapping.isEmpty()
-            && clusterToClusterMapping.get(classDefClusterId) > -2) {
-          realClassDefClusterId = clusterToClusterMapping.get(classDefClusterId);
-        }
-        String classClusterIds =
-            jsonReader
-                .readNext(JSONReader.FIELD_ASSIGNMENT)
-                .checkContent("\"cluster-ids\"")
-                .readString(JSONReader.END_COLLECTION, true)
-                .trim();
+        var classClusterIds =
+            StringSerializerHelper.splitIntArray(
+                clusterIdsStr.substring(1, clusterIdsStr.length() - 1));
 
         jsonReader.readNext(JSONReader.NEXT_IN_OBJECT);
-
         if (className.contains(".")) {
           // MIGRATE OLD NAME WITH . TO _
           final String newClassName = className.replace('.', '_');
@@ -779,40 +758,20 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
         SchemaClassImpl cls = (SchemaClassImpl) database.getMetadata().getSchema()
             .getClass(className);
 
-        if (cls != null) {
-          if (cls.getDefaultClusterId() != realClassDefClusterId) {
-            cls.setDefaultClusterId(database, realClassDefClusterId);
-          }
-        } else {
+        if (cls == null) {
           if (clustersImported) {
             cls =
                 (SchemaClassImpl)
                     database
                         .getMetadata()
                         .getSchema()
-                        .createClass(className, new int[]{realClassDefClusterId});
+                        .createClass(className, classClusterIds);
           } else {
             if (className.equalsIgnoreCase("ORestricted")) {
               cls = (SchemaClassImpl) database.getMetadata().getSchema()
                   .createAbstractClass(className);
             } else {
               cls = (SchemaClassImpl) database.getMetadata().getSchema().createClass(className);
-            }
-          }
-        }
-
-        if (clustersImported) {
-          // REMOVE BRACES
-          classClusterIds = classClusterIds.substring(1, classClusterIds.length() - 1);
-
-          // ASSIGN OTHER CLUSTER IDS
-          for (int i : StringSerializerHelper.splitIntArray(classClusterIds)) {
-            if (i != -1) {
-              if (!clusterToClusterMapping.isEmpty()
-                  && clusterToClusterMapping.get(classDefClusterId) > -2) {
-                i = clusterToClusterMapping.get(i);
-              }
-              cls.addClusterId(database, i);
             }
           }
         }
@@ -827,10 +786,6 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
                 cls.setStrictMode(database, jsonReader.readBoolean(JSONReader.NEXT_IN_OBJECT));
             case "\"abstract\"" ->
                 cls.setAbstract(database, jsonReader.readBoolean(JSONReader.NEXT_IN_OBJECT));
-            case "\"oversize\"" -> {
-              final String oversize = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
-              cls.setOverSize(database, Float.parseFloat(oversize));
-            }
             case "\"short-name\"" -> {
               final String shortName = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
               if (!cls.getName().equalsIgnoreCase(shortName)) {
@@ -921,7 +876,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     }
   }
 
-  private void importProperty(final SchemaClass iClass) throws IOException, ParseException {
+  private void importProperty(final SchemaClassInternal iClass) throws IOException, ParseException {
     jsonReader.readNext(JSONReader.NEXT_OBJ_IN_ARRAY);
 
     if (jsonReader.lastChar() == ']') {
@@ -1760,7 +1715,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
               indexAlgorithm,
               clustersToIndex,
               indexDefinition,
-              metadata);
+              metadata.toMap());
     }
     listener.onMessage("\nDone. Created " + numberOfCreatedIndexes + " indexes.");
     jsonReader.readNext(JSONReader.NEXT_IN_OBJECT);
@@ -1775,7 +1730,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       final String indexAlgorithm,
       final Set<String> clustersToIndex,
       IndexDefinition indexDefinition,
-      final EntityImpl metadata) {
+      final Map<String, ?> metadata) {
     if (indexName == null) {
       throw new IllegalArgumentException("Index name is missing");
     }

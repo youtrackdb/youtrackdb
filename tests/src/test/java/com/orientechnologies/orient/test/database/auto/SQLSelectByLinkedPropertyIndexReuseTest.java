@@ -3,14 +3,16 @@ package com.orientechnologies.orient.test.database.auto;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.ChainedIndexProxy;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
@@ -443,22 +445,22 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
       curatorClass
           .createProperty(database, "salary", PropertyType.INTEGER)
           .createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE,
-              new EntityImpl().field("ignoreNullValues", true));
+              Map.of("ignoreNullValues", true));
       curatorClass.createIndex(database,
           "curotorCompositeIndex",
           SchemaClass.INDEX_TYPE.UNIQUE.name(),
           null,
-          new EntityImpl().field("ignoreNullValues", true), new String[]{"salary", "name"});
+          Map.of("ignoreNullValues", true), new String[]{"salary", "name"});
 
       final SchemaClass groupClass = schema.createClass("lpirtGroup");
       groupClass
           .createProperty(database, "name", PropertyType.STRING)
           .createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE,
-              new EntityImpl().field("ignoreNullValues", true));
+              Map.of("ignoreNullValues", true));
       groupClass
           .createProperty(database, "curator", PropertyType.LINK, curatorClass)
           .createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE,
-              new EntityImpl().field("ignoreNullValues", true));
+              Map.of("ignoreNullValues", true));
 
       final SchemaClass diplomaClass = schema.createClass("lpirtDiploma");
       diplomaClass.createProperty(database, "GPA", PropertyType.DOUBLE)
@@ -467,31 +469,31 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
       diplomaClass
           .createProperty(database, "name", PropertyType.STRING)
           .createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE,
-              new EntityImpl().field("ignoreNullValues", true));
+              Map.of("ignoreNullValues", true));
       diplomaClass.createIndex(database,
           "diplomaThesisUnique",
           SchemaClass.INDEX_TYPE.UNIQUE.name(),
           null,
-          new EntityImpl().field("ignoreNullValues", true), new String[]{"thesis"});
+          Map.of("ignoreNullValues", true), new String[]{"thesis"});
 
       final SchemaClass transcriptClass = schema.createClass("lpirtTranscript");
       transcriptClass
           .createProperty(database, "id", PropertyType.STRING)
           .createIndex(database,
               SchemaClass.INDEX_TYPE.UNIQUE_HASH_INDEX,
-              new EntityImpl().field("ignoreNullValues", true));
+              Map.of("ignoreNullValues", true));
 
       final SchemaClass skillClass = schema.createClass("lpirtSkill");
       skillClass
           .createProperty(database, "name", PropertyType.STRING)
           .createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE,
-              new EntityImpl().field("ignoreNullValues", true));
+              Map.of("ignoreNullValues", true));
 
       final SchemaClass studentClass = schema.createClass("lpirtStudent");
       studentClass
           .createProperty(database, "name", PropertyType.STRING)
           .createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE,
-              new EntityImpl().field("ignoreNullValues", true));
+              Map.of("ignoreNullValues", true));
       studentClass
           .createProperty(database, "group", PropertyType.LINK, groupClass)
           .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
@@ -500,24 +502,24 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
           .createProperty(database, "transcript", PropertyType.LINK, transcriptClass)
           .createIndex(database,
               SchemaClass.INDEX_TYPE.UNIQUE_HASH_INDEX,
-              new EntityImpl().field("ignoreNullValues", true));
+              Map.of("ignoreNullValues", true));
       studentClass.createProperty(database, "skill", PropertyType.LINK, skillClass);
 
-      final EntityImpl metadata = new EntityImpl().field("ignoreNullValues", false);
+      var metadata = Map.of("ignoreNullValues", false);
       studentClass.createIndex(database,
           "studentDiplomaAndNameIndex",
           SchemaClass.INDEX_TYPE.UNIQUE.toString(),
           null,
-          metadata.copy(), new String[]{"diploma", "name"});
+          new HashMap<>(metadata), new String[]{"diploma", "name"});
       studentClass.createIndex(database,
           "studentSkillAndGroupIndex",
           SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.toString(),
           null,
-          metadata.copy(), new String[]{"skill", "group"});
+          new HashMap<>(metadata), new String[]{"skill", "group"});
     }
   }
 
-  private int containsDocumentWithFieldValue(
+  private static int containsDocumentWithFieldValue(
       final List<EntityImpl> docList, final String fieldName, final Object fieldValue) {
     int count = 0;
     for (final EntityImpl docItem : docList) {

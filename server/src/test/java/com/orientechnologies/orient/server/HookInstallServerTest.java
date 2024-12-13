@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.server;
 
+import com.jetbrains.youtrack.db.api.YourTracks;
 import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.hook.DocumentHookAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.config.OServerConfigurationManager;
@@ -89,9 +89,9 @@ public class HookInstallServerTest {
     admin.close();
     server.shutdown();
 
-    YouTrackDBManager.instance().shutdown();
+    YouTrackDBEnginesManager.instance().shutdown();
     FileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    YouTrackDBManager.instance().startup();
+    YouTrackDBEnginesManager.instance().startup();
   }
 
   @Test
@@ -99,7 +99,7 @@ public class HookInstallServerTest {
     final int initValue = count;
 
     try (var pool =
-        YouTrackDB.remote("remote:localhost", "root", "root")) {
+        YourTracks.remote("remote:localhost", "root", "root")) {
       for (int i = 0; i < 10; i++) {
         var poolInstance = pool.cachedPool("test", "admin", "admin");
         var id = i;

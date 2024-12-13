@@ -22,7 +22,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseCompare;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseExport;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseImport;
-import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
+import com.jetbrains.youtrack.db.api.record.RecordHook;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

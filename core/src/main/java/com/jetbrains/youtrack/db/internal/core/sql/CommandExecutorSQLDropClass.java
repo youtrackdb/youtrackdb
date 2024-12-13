@@ -19,14 +19,15 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLDropClassStatement;
 import java.util.Map;
 
@@ -108,7 +109,8 @@ public class CommandExecutorSQLDropClass extends CommandExecutorSQLAbstract
 
   @Override
   public long getDistributedTimeout() {
-    final SchemaClass cls = getDatabase().getMetadata().getSchema().getClass(className);
+    final SchemaClassInternal cls = (SchemaClassInternal) getDatabase().getMetadata().getSchema()
+        .getClass(className);
     if (className != null && cls != null) {
       return getDatabase()
           .getConfiguration()
@@ -134,7 +136,8 @@ public class CommandExecutorSQLDropClass extends CommandExecutorSQLAbstract
     if (ifExists && !database.getMetadata().getSchema().existsClass(className)) {
       return true;
     }
-    final SchemaClass cls = database.getMetadata().getSchema().getClass(className);
+    final SchemaClassInternal cls = (SchemaClassInternal) database.getMetadata().getSchema()
+        .getClass(className);
     if (cls == null) {
       return null;
     }

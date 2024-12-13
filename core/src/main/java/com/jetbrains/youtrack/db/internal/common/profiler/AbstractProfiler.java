@@ -20,13 +20,13 @@
 
 package com.jetbrains.youtrack.db.internal.common.profiler;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.common.concur.resource.SharedResourceAbstract;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBStartupListener;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.ReadCache;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
@@ -105,7 +105,7 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
         final long jvmTotMemory = Runtime.getRuntime().totalMemory();
         final long jvmMaxMemory = Runtime.getRuntime().maxMemory();
 
-        for (Storage s : YouTrackDBManager.instance().getStorages()) {
+        for (Storage s : YouTrackDBEnginesManager.instance().getStorages()) {
           if (s instanceof LocalPaginatedStorage) {
             final ReadCache dk = ((LocalPaginatedStorage) s).getReadCache();
             final WriteCache wk = ((LocalPaginatedStorage) s).getWriteCache();
@@ -168,7 +168,7 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
 
   public AbstractProfiler(boolean registerListener) {
     if (registerListener) {
-      YouTrackDBManager.instance().registerWeakYouTrackDBStartupListener(this);
+      YouTrackDBEnginesManager.instance().registerWeakYouTrackDBStartupListener(this);
     }
   }
 
@@ -177,7 +177,7 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
     dictionary.putAll(profiler.dictionary);
     types.putAll(profiler.types);
 
-    YouTrackDBManager.instance().registerWeakYouTrackDBStartupListener(this);
+    YouTrackDBEnginesManager.instance().registerWeakYouTrackDBStartupListener(this);
   }
 
   protected abstract void setTip(String iMessage, AtomicInteger counter);
@@ -195,7 +195,7 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
     int stgs = 0;
     long diskCacheUsed = 0;
     long diskCacheTotal = 0;
-    for (Storage stg : YouTrackDBManager.instance().getStorages()) {
+    for (Storage stg : YouTrackDBEnginesManager.instance().getStorages()) {
       if (stg instanceof LocalPaginatedStorage) {
         diskCacheUsed += ((LocalPaginatedStorage) stg).getReadCache().getUsedMemory();
         diskCacheTotal += GlobalConfiguration.DISK_CACHE_SIZE.getValueAsLong() * 1024 * 1024;
@@ -255,29 +255,35 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
         if (statsLastAutoDump > 0) {
           final long msFromLastDump = System.currentTimeMillis() - statsLastAutoDump;
 
-          final String[] hooks = YouTrackDBManager.instance().getProfiler().getHookAsString();
+          final String[] hooks = YouTrackDBEnginesManager.instance().getProfiler()
+              .getHookAsString();
           for (String h : hooks) {
             if (h.startsWith("db.") && h.endsWith("createRecord")) {
-              lastCreateRecords += (Long) YouTrackDBManager.instance().getProfiler()
+              lastCreateRecords += (Long) YouTrackDBEnginesManager.instance().getProfiler()
                   .getHookValue(h);
             } else if (h.startsWith("db.") && h.endsWith("readRecord")) {
-              lastReadRecords += (Long) YouTrackDBManager.instance().getProfiler().getHookValue(h);
+              lastReadRecords += (Long) YouTrackDBEnginesManager.instance().getProfiler()
+                  .getHookValue(h);
             } else if (h.startsWith("db.") && h.endsWith("updateRecord")) {
-              lastUpdateRecords += (Long) YouTrackDBManager.instance().getProfiler()
+              lastUpdateRecords += (Long) YouTrackDBEnginesManager.instance().getProfiler()
                   .getHookValue(h);
             } else if (h.startsWith("db.") && h.endsWith("deleteRecord")) {
-              lastDeleteRecords += (Long) YouTrackDBManager.instance().getProfiler()
+              lastDeleteRecords += (Long) YouTrackDBEnginesManager.instance().getProfiler()
                   .getHookValue(h);
             } else if (h.startsWith("db.") && h.endsWith("txCommit")) {
-              lastTxCommit += (Long) YouTrackDBManager.instance().getProfiler().getHookValue(h);
+              lastTxCommit += (Long) YouTrackDBEnginesManager.instance().getProfiler()
+                  .getHookValue(h);
             } else if (h.startsWith("db.") && h.endsWith("txRollback")) {
-              lastTxRollback += (Long) YouTrackDBManager.instance().getProfiler().getHookValue(h);
+              lastTxRollback += (Long) YouTrackDBEnginesManager.instance().getProfiler()
+                  .getHookValue(h);
             }
           }
 
-          final List<String> chronos = YouTrackDBManager.instance().getProfiler().getChronos();
+          final List<String> chronos = YouTrackDBEnginesManager.instance().getProfiler()
+              .getChronos();
           for (String c : chronos) {
-            final ProfilerEntry chrono = YouTrackDBManager.instance().getProfiler().getChrono(c);
+            final ProfilerEntry chrono = YouTrackDBEnginesManager.instance().getProfiler()
+                .getChrono(c);
             if (chrono != null) {
               if (c.startsWith("db.") && c.contains(".command.")) {
                 lastCommands += chrono.entries;
@@ -524,7 +530,7 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
       final int ms = iSeconds * 1000;
 
       autoDumpTask =
-          YouTrackDBManager.instance()
+          YouTrackDBEnginesManager.instance()
               .scheduleTask(
                   () -> {
                     final StringBuilder output = new StringBuilder();
@@ -633,7 +639,7 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
         GlobalConfiguration.PROFILER_MEMORYCHECK_INTERVAL.getValueAsLong();
 
     if (memoryCheckInterval > 0) {
-      YouTrackDBManager.instance()
+      YouTrackDBEnginesManager.instance()
           .scheduleTask(new MemoryChecker(), memoryCheckInterval, memoryCheckInterval);
     }
   }

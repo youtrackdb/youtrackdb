@@ -21,8 +21,8 @@ package com.orientechnologies.orient.server.network.protocol.http;
 
 import com.jetbrains.youtrack.db.internal.common.concur.resource.SharedResourceAbstract;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.orientechnologies.orient.server.OServer;
 import java.security.SecureRandom;
 import java.util.HashMap;
@@ -47,7 +47,7 @@ public class HttpSessionManager extends SharedResourceAbstract {
             .getValueAsInteger(GlobalConfiguration.NETWORK_HTTP_SESSION_EXPIRE_TIMEOUT)
             * 1000;
 
-    YouTrackDBManager.instance()
+    YouTrackDBEnginesManager.instance()
         .scheduleTask(
             new Runnable() {
               @Override

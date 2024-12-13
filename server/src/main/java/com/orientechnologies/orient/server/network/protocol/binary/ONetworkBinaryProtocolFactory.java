@@ -83,7 +83,7 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.ShutdownRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.UnsubscribeRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.UpdateRecordRequest;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import java.util.function.Function;
 

@@ -3,7 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.security.symmetrickey;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import org.junit.Test;
 
 /**

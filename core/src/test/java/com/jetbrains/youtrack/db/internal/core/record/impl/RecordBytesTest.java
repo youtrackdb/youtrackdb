@@ -16,6 +16,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
+import com.jetbrains.youtrack.db.api.record.Blob;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;

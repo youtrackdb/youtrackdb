@@ -3,7 +3,7 @@ package com.jetbrains.youtrack.db.internal.client.remote.message;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
@@ -14,9 +14,9 @@ import java.util.Map;
 public class BeginTransactionResponse implements BinaryResponse {
 
   private long txId;
-  private Map<RID, RID> updatedIds;
+  private Map<RecordId, RecordId> updatedIds;
 
-  public BeginTransactionResponse(long txId, Map<RID, RID> updatedIds) {
+  public BeginTransactionResponse(long txId, Map<RecordId, RecordId> updatedIds) {
     this.txId = txId;
     this.updatedIds = updatedIds;
   }
@@ -31,7 +31,7 @@ public class BeginTransactionResponse implements BinaryResponse {
     channel.writeLong(txId);
     channel.writeInt(updatedIds.size());
 
-    for (Map.Entry<RID, RID> ids : updatedIds.entrySet()) {
+    for (Map.Entry<RecordId, RecordId> ids : updatedIds.entrySet()) {
       channel.writeRID(ids.getKey());
       channel.writeRID(ids.getValue());
     }
@@ -44,8 +44,8 @@ public class BeginTransactionResponse implements BinaryResponse {
     int size = network.readInt();
     updatedIds = new HashMap<>(size);
     while (size-- > 0) {
-      RID key = network.readRID();
-      RID value = network.readRID();
+      RecordId key = network.readRID();
+      RecordId value = network.readRID();
       updatedIds.put(key, value);
     }
   }
@@ -54,7 +54,7 @@ public class BeginTransactionResponse implements BinaryResponse {
     return txId;
   }
 
-  public Map<RID, RID> getUpdatedIds() {
+  public Map<RecordId, RecordId> getUpdatedIds() {
     return updatedIds;
   }
 }

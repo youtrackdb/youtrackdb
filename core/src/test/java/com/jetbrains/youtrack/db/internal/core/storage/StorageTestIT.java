@@ -1,20 +1,21 @@
 package com.jetbrains.youtrack.db.internal.core.storage;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.metadata.Metadata;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.fs.File;
@@ -46,15 +47,15 @@ public class StorageTestIT {
   @Test
   public void testCheckSumFailureReadOnly() throws Exception {
 
-    YouTrackDBConfig config =
-        YouTrackDBConfig.builder()
-            .addConfig(
+    YouTrackDBConfigImpl config =
+        (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
+            .addGlobalConfigurationParameter(
                 GlobalConfiguration.STORAGE_CHECKSUM_MODE,
                 ChecksumMode.StoreAndSwitchReadOnlyMode)
-            .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
+            .addAttribute(DatabaseSession.ATTRIBUTES.MINIMUM_CLUSTERS, 1)
             .build();
 
-    youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()), config);
+    youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()), config);
     youTrackDB.execute(
         "create database "
             + StorageTestIT.class.getSimpleName()
@@ -105,22 +106,22 @@ public class StorageTestIT {
       Assert.fail();
     } catch (StorageException e) {
       youTrackDB.close();
-      youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()), config);
+      youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()), config);
       youTrackDB.open(StorageTestIT.class.getSimpleName(), "admin", "admin");
     }
   }
 
   @Test
   public void testCheckMagicNumberReadOnly() throws Exception {
-    YouTrackDBConfig config =
-        YouTrackDBConfig.builder()
-            .addConfig(
+    YouTrackDBConfigImpl config =
+        (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
+            .addGlobalConfigurationParameter(
                 GlobalConfiguration.STORAGE_CHECKSUM_MODE,
                 ChecksumMode.StoreAndSwitchReadOnlyMode)
-            .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
+            .addAttribute(DatabaseSession.ATTRIBUTES.MINIMUM_CLUSTERS, 1)
             .build();
 
-    youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()), config);
+    youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()), config);
     youTrackDB.execute(
         "create database "
             + StorageTestIT.class.getSimpleName()
@@ -168,7 +169,7 @@ public class StorageTestIT {
       Assert.fail();
     } catch (StorageException e) {
       youTrackDB.close();
-      youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()), config);
+      youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()), config);
       youTrackDB.open(StorageTestIT.class.getSimpleName(), "admin", "admin");
     }
   }
@@ -176,13 +177,14 @@ public class StorageTestIT {
   @Test
   public void testCheckMagicNumberVerify() throws Exception {
 
-    YouTrackDBConfig config =
-        YouTrackDBConfig.builder()
-            .addConfig(GlobalConfiguration.STORAGE_CHECKSUM_MODE, ChecksumMode.StoreAndVerify)
-            .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
+    YouTrackDBConfigImpl config =
+        (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
+            .addGlobalConfigurationParameter(GlobalConfiguration.STORAGE_CHECKSUM_MODE,
+                ChecksumMode.StoreAndVerify)
+            .addAttribute(DatabaseSession.ATTRIBUTES.MINIMUM_CLUSTERS, 1)
             .build();
 
-    youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()), config);
+    youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()), config);
     youTrackDB.execute(
         "create database "
             + StorageTestIT.class.getSimpleName()
@@ -240,13 +242,14 @@ public class StorageTestIT {
   @Test
   public void testCheckSumFailureVerifyAndLog() throws Exception {
 
-    YouTrackDBConfig config =
-        YouTrackDBConfig.builder()
-            .addConfig(GlobalConfiguration.STORAGE_CHECKSUM_MODE, ChecksumMode.StoreAndVerify)
-            .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
+    YouTrackDBConfigImpl config =
+        (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
+            .addGlobalConfigurationParameter(GlobalConfiguration.STORAGE_CHECKSUM_MODE,
+                ChecksumMode.StoreAndVerify)
+            .addAttribute(DatabaseSession.ATTRIBUTES.MINIMUM_CLUSTERS, 1)
             .build();
 
-    youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()), config);
+    youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()), config);
     youTrackDB.execute(
         "create database "
             + StorageTestIT.class.getSimpleName()
@@ -307,7 +310,7 @@ public class StorageTestIT {
   @Test
   public void testCreatedVersionIsStored() {
     youTrackDB =
-        new YouTrackDB(
+        new YouTrackDBImpl(
             DbTestBase.embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database "

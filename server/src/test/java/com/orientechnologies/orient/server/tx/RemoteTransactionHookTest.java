@@ -2,16 +2,19 @@ package com.orientechnologies.orient.server.tx;
 
 import static org.junit.Assert.assertEquals;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.YourTracks;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.hook.DocumentHookAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerHookConfiguration;
 import java.io.File;
@@ -44,9 +47,9 @@ public class RemoteTransactionHookTest extends DbTestBase {
   }
 
   @Override
-  protected YouTrackDB createContext() {
+  protected YouTrackDBImpl createContext() {
     var builder = YouTrackDBConfig.builder();
-    var config = createConfig(builder);
+    var config = createConfig((YouTrackDBConfigBuilderImpl) builder);
 
     final String testConfig =
         System.getProperty("youtrackdb.test.env", DatabaseType.MEMORY.name().toLowerCase());
@@ -57,7 +60,7 @@ public class RemoteTransactionHookTest extends DbTestBase {
       dbType = DatabaseType.MEMORY;
     }
 
-    return YouTrackDB.remote("localhost", "root", "root", config);
+    return (YouTrackDBImpl) YourTracks.remote("localhost", "root", "root", config);
   }
 
   @After
@@ -66,9 +69,9 @@ public class RemoteTransactionHookTest extends DbTestBase {
 
     server.shutdown();
 
-    YouTrackDBManager.instance().shutdown();
+    YouTrackDBEnginesManager.instance().shutdown();
     FileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    YouTrackDBManager.instance().startup();
+    YouTrackDBEnginesManager.instance().startup();
   }
 
   @Test
@@ -90,15 +93,11 @@ public class RemoteTransactionHookTest extends DbTestBase {
 
     assertEquals(2, calls.getBeforeCreate());
     assertEquals(2, calls.getAfterCreate());
-    //    assertEquals(1, calls.getBeforeUpdate());
-    //    assertEquals(1, calls.getAfterUpdate());
-    //    assertEquals(1, calls.getBeforeDelete());
-    //    assertEquals(1, calls.getAfterDelete());
   }
 
   @Test
   public void testCalledInClientTx() {
-    YouTrackDB youTrackDB = new YouTrackDB("embedded:", YouTrackDBConfig.defaultConfig());
+    YouTrackDB youTrackDB = new YouTrackDBImpl("embedded:", YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database test memory users (admin identified by 'admin' role admin)");
     var database = youTrackDB.open("test", "admin", "admin");

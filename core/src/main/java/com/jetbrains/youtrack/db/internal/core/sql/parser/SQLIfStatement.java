@@ -11,7 +11,7 @@ import com.jetbrains.youtrack.db.internal.core.sql.executor.IfExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.IfStep;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.SelectExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.UpdateExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

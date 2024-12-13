@@ -1,5 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.db;
 
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+
 /**
  *
  */

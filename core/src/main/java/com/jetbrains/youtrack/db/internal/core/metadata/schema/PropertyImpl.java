@@ -19,19 +19,23 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.SchemaException;
+import com.jetbrains.youtrack.db.api.schema.Collate;
+import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
 import com.jetbrains.youtrack.db.internal.common.comparator.CaseInsentiveComparator;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.util.Collections;
-import com.jetbrains.youtrack.db.internal.core.collate.Collate;
 import com.jetbrains.youtrack.db.internal.core.collate.DefaultCollate;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.PropertyIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.INDEX_TYPE;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -50,7 +54,7 @@ import java.util.Set;
 /**
  * Contains the description of a persistent class property.
  */
-public abstract class PropertyImpl implements Property {
+public abstract class PropertyImpl implements PropertyInternal {
 
   protected final SchemaClassImpl owner;
   protected PropertyType linkedType;
@@ -130,18 +134,15 @@ public abstract class PropertyImpl implements Property {
    * operations. For massive inserts we suggest to remove the index, make the massive insert and
    * recreate it.
    *
-   * @param session
-   * @param iType   One of types supported.
-   *                <ul>
-   *                  <li>UNIQUE: Doesn't allow duplicates
-   *                  <li>NOTUNIQUE: Allow duplicates
-   *                  <li>FULLTEXT: Indexes single word for full text search
-   *                </ul>
-   * @return
-   * @see {@link SchemaClass#createIndex(DatabaseSession, String, SchemaClass.INDEX_TYPE,
-   * String...)} instead.
+   * @param iType One of types supported.
+   *              <ul>
+   *                <li>UNIQUE: Doesn't allow duplicates
+   *                <li>NOTUNIQUE: Allow duplicates
+   *                <li>FULLTEXT: Indexes single word for full text search
+   *              </ul>
    */
-  public Index createIndex(DatabaseSession session, final INDEX_TYPE iType) {
+  @Override
+  public String createIndex(DatabaseSession session, final INDEX_TYPE iType) {
     return createIndex(session, iType.toString());
   }
 
@@ -150,32 +151,32 @@ public abstract class PropertyImpl implements Property {
    * operations. For massive inserts we suggest to remove the index, make the massive insert and
    * recreate it.
    *
-   * @param session
-   * @param iType
-   * @return
-   * @see {@link SchemaClass#createIndex(DatabaseSession, String, SchemaClass.INDEX_TYPE,
-   * String...)} instead.
+   * @return the index name
    */
-  public Index createIndex(DatabaseSession session, final String iType) {
+  @Override
+  public String createIndex(DatabaseSession session, final String iType) {
     acquireSchemaReadLock();
     try {
-      return owner.createIndex(session, getFullName(), iType, globalRef.getName());
+      var indexName = getFullName();
+      owner.createIndex(session, indexName, iType, globalRef.getName());
+      return indexName;
     } finally {
       releaseSchemaReadLock();
     }
   }
 
   @Override
-  public Index createIndex(DatabaseSession session, INDEX_TYPE iType, EntityImpl metadata) {
+  public String createIndex(DatabaseSession session, INDEX_TYPE iType, Map<String, ?> metadata) {
     return createIndex(session, iType.name(), metadata);
   }
 
-  @Override
-  public Index createIndex(DatabaseSession session, String iType, EntityImpl metadata) {
+  public String createIndex(DatabaseSession session, String iType, Map<String, ?> metadata) {
     acquireSchemaReadLock();
     try {
-      return owner.createIndex(session,
-          getFullName(), iType, null, metadata, new String[]{globalRef.getName()});
+      var indexName = getFullName();
+      owner.createIndex(session,
+          indexName, iType, null, metadata, new String[]{globalRef.getName()});
+      return indexName;
     } finally {
       releaseSchemaReadLock();
     }
@@ -226,43 +227,11 @@ public abstract class PropertyImpl implements Property {
   /**
    * Remove the index on property
    *
-   * @deprecated by {@link Property#dropIndexes(DatabaseSessionInternal)}
+   * @deprecated
    */
   @Deprecated
   public void dropIndexesInternal(DatabaseSessionInternal session) {
     dropIndexes(session);
-  }
-
-  /**
-   * Returns the first index defined for the property.
-   *
-   * @deprecated Use {@link SchemaClass#getInvolvedIndexes(DatabaseSession, String...)} instead.
-   */
-  @Deprecated
-  public Index getIndex(DatabaseSession session) {
-    acquireSchemaReadLock();
-    try {
-      Set<Index> indexes = owner.getInvolvedIndexes(session, globalRef.getName());
-      if (indexes != null && !indexes.isEmpty()) {
-        return indexes.iterator().next();
-      }
-      return null;
-    } finally {
-      releaseSchemaReadLock();
-    }
-  }
-
-  /**
-   * @deprecated Use {@link SchemaClass#getInvolvedIndexes(DatabaseSession, String...)} instead.
-   */
-  @Deprecated
-  public Set<Index> getIndexes(DatabaseSession session) {
-    acquireSchemaReadLock();
-    try {
-      return owner.getInvolvedIndexes(session, globalRef.getName());
-    } finally {
-      releaseSchemaReadLock();
-    }
   }
 
   /**
@@ -699,10 +668,18 @@ public abstract class PropertyImpl implements Property {
     description = entity.containsField("description") ? entity.field("description") : null;
   }
 
-  public Collection<Index> getAllIndexes(DatabaseSession session) {
+  @Override
+  public Collection<String> getAllIndexes(DatabaseSession session) {
+    return getAllIndexesInternal(session).stream().map(Index::getName).toList();
+  }
+
+  @Override
+  public Collection<Index> getAllIndexesInternal(DatabaseSession session) {
     acquireSchemaReadLock();
     try {
-      final Set<Index> indexes = owner.getIndexes(session);
+      final Set<Index> indexes = new HashSet<Index>();
+      owner.getIndexesInternal(session, indexes);
+
       final List<Index> indexList = new LinkedList<Index>();
       for (final Index index : indexes) {
         final IndexDefinition indexDefinition = index.getDefinition();
@@ -720,7 +697,7 @@ public abstract class PropertyImpl implements Property {
   public EntityImpl toStream() {
     EntityImpl entity = new EntityImpl();
     entity.field("name", getName());
-    entity.field("type", getType().id);
+    entity.field("type", getType().getId());
     entity.field("globalId", globalRef.getId());
     entity.field("mandatory", mandatory);
     entity.field("readonly", readonly);
@@ -735,7 +712,7 @@ public abstract class PropertyImpl implements Property {
       entity.removeField("regexp");
     }
     if (linkedType != null) {
-      entity.field("linkedType", linkedType.id);
+      entity.field("linkedType", linkedType.getId());
     }
     if (linkedClass != null || linkedClassName != null) {
       entity.field("linkedClass", linkedClass != null ? linkedClass.getName() : linkedClassName);
@@ -809,7 +786,7 @@ public abstract class PropertyImpl implements Property {
     EntityImpl entity = new EntityImpl();
     entity.setTrackingChanges(false);
     entity.field("name", getName());
-    entity.field("type", getType().id);
+    entity.field("type", getType().getId());
     entity.field("globalId", globalRef.getId());
     entity.field("mandatory", mandatory);
     entity.field("readonly", readonly);
@@ -824,7 +801,7 @@ public abstract class PropertyImpl implements Property {
       entity.removeField("regexp");
     }
     if (linkedType != null) {
-      entity.field("linkedType", linkedType.id);
+      entity.field("linkedType", linkedType.getId());
     }
     if (linkedClass != null || linkedClassName != null) {
       entity.field("linkedClass", linkedClass != null ? linkedClass.getName() : linkedClassName);

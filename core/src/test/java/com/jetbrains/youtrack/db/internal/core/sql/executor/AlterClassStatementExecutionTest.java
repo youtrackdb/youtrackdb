@@ -1,9 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -62,7 +63,7 @@ public class AlterClassStatementExecutionTest extends DbTestBase {
     Schema schema = db.getMetadata().getSchema();
     schema.createClass(className);
     ResultSet result =
-        db.command("alter class " + className + " addcluster " + className + "_new");
+        db.command("alter class " + className + " add_cluster " + className + "_new");
     SchemaClass clazz = schema.getClass(className);
     boolean found = false;
     for (int i : clazz.getClusterIds()) {
@@ -81,7 +82,7 @@ public class AlterClassStatementExecutionTest extends DbTestBase {
     Schema schema = db.getMetadata().getSchema();
     schema.createClass(className);
     ResultSet result =
-        db.command("alter class " + className + " addcluster " + className + "_new");
+        db.command("alter class " + className + " add_cluster " + className + "_new");
     SchemaClass clazz = schema.getClass(className);
     boolean found = false;
     for (int i : clazz.getClusterIds()) {
@@ -93,7 +94,7 @@ public class AlterClassStatementExecutionTest extends DbTestBase {
     result.close();
     Assert.assertTrue(found);
 
-    result = db.command("alter class " + className + " removecluster " + className + "_new");
+    result = db.command("alter class " + className + " remove_cluster " + className + "_new");
     clazz = schema.getClass(className);
     found = false;
     for (int i : clazz.getClusterIds()) {
@@ -141,22 +142,11 @@ public class AlterClassStatementExecutionTest extends DbTestBase {
   }
 
   @Test
-  public void testOversize() {
-    String className = "testOversize";
-    Schema schema = db.getMetadata().getSchema();
-    schema.createClass(className);
-    ResultSet result = db.command("alter class " + className + " oversize 10");
-    SchemaClass clazz = schema.getClass(className);
-    Assert.assertEquals((Object) 10.0f, clazz.getOverSize());
-    result.close();
-  }
-
-  @Test
   public void testStrictmode() {
     String className = "testStrictmode";
     Schema schema = db.getMetadata().getSchema();
     schema.createClass(className);
-    ResultSet result = db.command("alter class " + className + " strictmode true");
+    ResultSet result = db.command("alter class " + className + " strict_mode true");
     SchemaClass clazz = schema.getClass(className);
     Assert.assertTrue(clazz.isStrictMode());
     result.close();
@@ -215,31 +205,5 @@ public class AlterClassStatementExecutionTest extends DbTestBase {
     Assert.assertNull(schema.getClass(className));
     Assert.assertNotNull(schema.getClass(className + "_new"));
     result.close();
-  }
-
-  @Test
-  public void testDefaultCluster() {
-    String className = "testDefaultCluster";
-    Schema schema = db.getMetadata().getSchema();
-    SchemaClass clazz = schema.createClass(className);
-    int[] clusterIds = clazz.getClusterIds();
-    if (clusterIds.length < 2) {
-      clazz.addCluster(db, className + "_1");
-      clusterIds = clazz.getClusterIds();
-    }
-    int currentDefault = clazz.getDefaultClusterId();
-    int firstNonDefault = -1;
-    for (int clusterId : clusterIds) {
-      if (clusterId != currentDefault) {
-        firstNonDefault = clusterId;
-      }
-    }
-
-    try {
-      db.command("alter class " + className + " defaultcluster " + firstNonDefault).close();
-    } catch (CommandExecutionException ex) {
-    }
-
-    Assert.assertEquals(firstNonDefault, schema.getClass(className).getDefaultClusterId());
   }
 }

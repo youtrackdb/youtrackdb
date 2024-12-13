@@ -18,13 +18,13 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.tests;
 
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -69,10 +69,12 @@ public class LuceneInsertUpdateSingleDocumentTransactionTest extends LuceneBaseT
     db.save(doc);
     db.save(doc1);
     db.commit();
-    Index idx = schema.getClass("City").getClassIndex(db, "City.name");
+
+    var indexManager = db.getMetadata().getIndexManager();
+    Index idx = indexManager.getIndex("City.name");
     Collection<?> coll;
     try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
-      coll = stream.collect(Collectors.toList());
+      coll = stream.toList();
     }
 
     db.begin();

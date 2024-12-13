@@ -19,16 +19,17 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record;
 
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableIdentity;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.IdentityChangeListener;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.id.ImmutableRecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DirtyManager;
@@ -77,7 +78,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     unsetDirty();
   }
 
-  public final RID getIdentity() {
+  public final RecordId getIdentity() {
     return recordId;
   }
 
@@ -499,7 +500,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     }
 
     if (status == RecordElement.STATUS.NOT_LOADED) {
-      if (!getIdentity().isValid()) {
+      if (!recordId.isValid()) {
         return;
       }
 
@@ -511,7 +512,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
 
   private String createNotBoundToSessionMessage() {
     return "Record "
-        + getIdentity()
+        + recordId
         + " is not bound to the current session. Please bind record to the database session"
         + " by calling : "
         + DatabaseSession.class.getSimpleName()
@@ -546,7 +547,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     if (this.dirtyManager == null) {
 
       this.dirtyManager = new DirtyManager();
-      if (this.getIdentity().isNew() && getOwner() == null) {
+      if (this.recordId.isNew() && getOwner() == null) {
         this.dirtyManager.setDirty(this);
       }
     }
@@ -560,7 +561,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
       dirtyManager.merge(this.dirtyManager);
     }
     this.dirtyManager = dirtyManager;
-    if (this.getIdentity().isNew() && getOwner() == null && this.dirtyManager != null) {
+    if (this.recordId.isNew() && getOwner() == null && this.dirtyManager != null) {
       this.dirtyManager.setDirty(this);
     }
   }

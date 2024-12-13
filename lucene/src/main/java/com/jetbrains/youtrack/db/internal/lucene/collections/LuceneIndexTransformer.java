@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.lucene.collections;
 
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
 import java.util.stream.Stream;
 
 /**

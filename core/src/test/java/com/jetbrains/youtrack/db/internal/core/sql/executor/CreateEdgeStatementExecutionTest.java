@@ -1,12 +1,14 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.storage.RecordDuplicatedException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -320,7 +322,6 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
     eclazz.createProperty(db, "in", PropertyType.LINK, vclazz2);
 
     db.command("CREATE INDEX " + eClass + "out_in ON " + eclazz + " (out, in) UNIQUE");
-
     for (int i = 0; i < 2; i++) {
       db.begin();
       Vertex v1 = db.newVertex(vClass1);
@@ -369,7 +370,7 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
       db.commit();
       Assert.fail();
     } catch (RecordDuplicatedException | CommandExecutionException e) {
-
+      // OK
     }
   }
 
@@ -413,7 +414,7 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
           .close();
       Assert.fail();
     } catch (CommandExecutionException e) {
-
+      // OK
     }
   }
 

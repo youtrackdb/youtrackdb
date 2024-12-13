@@ -2,39 +2,46 @@ package com.jetbrains.youtrack.db.internal.core.db;
 
 import static com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTxInternal.closeAllOnShutdown;
 
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.exception.CommandScriptException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.TransactionException;
+import com.jetbrains.youtrack.db.api.query.LiveQueryMonitor;
+import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.Edge;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.RecordHook;
+import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
+import com.jetbrains.youtrack.db.api.session.SessionListener;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.cache.LocalRecordCache;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
-import com.jetbrains.youtrack.db.internal.core.command.script.CommandScriptException;
-import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
 import com.jetbrains.youtrack.db.internal.core.db.record.CurrentStorageComponentsFactory;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.TransactionException;
-import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClass;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaView;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceAction;
 import com.jetbrains.youtrack.db.internal.core.query.Query;
-import com.jetbrains.youtrack.db.internal.core.record.Edge;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
@@ -42,8 +49,6 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.B
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.shutdown.ShutdownHandler;
-import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.storage.RecordMetadata;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageInfo;
@@ -54,14 +59,13 @@ import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx.NonTxR
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
 import com.jetbrains.youtrack.db.internal.core.util.DatabaseURLConnection;
 import com.jetbrains.youtrack.db.internal.core.util.URLHelper;
-import it.unimi.dsi.fastutil.ints.IntSet;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -91,13 +95,12 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   protected DatabaseSessionInternal internal;
   private final String url;
   private YouTrackDBInternal factory;
-  private final String type;
   private final String dbName;
   private final String baseUrl;
   private final Map<String, Object> preopenProperties = new HashMap<>();
   private final Map<ATTRIBUTES, Object> preopenAttributes = new HashMap<>();
   // TODO review for the case of browseListener before open.
-  private final Set<DatabaseListener> preopenListener = new HashSet<>();
+  private final Set<SessionListener> preopenListener = new HashSet<>();
   private DatabaseSessionInternal databaseOwner;
   private Storage delegateStorage;
   private RecordConflictStrategy conflictStrategy;
@@ -119,10 +122,10 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
       };
 
   static {
-    YouTrackDBManager.instance()
+    YouTrackDBEnginesManager.instance()
         .registerYouTrackDBStartupListener(
-            () -> YouTrackDBManager.instance().addShutdownHandler(shutdownHandler));
-    YouTrackDBManager.instance().addShutdownHandler(shutdownHandler);
+            () -> YouTrackDBEnginesManager.instance().addShutdownHandler(shutdownHandler));
+    YouTrackDBEnginesManager.instance().addShutdownHandler(shutdownHandler);
   }
 
   public static void closeAll() {
@@ -205,7 +208,6 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
 
     DatabaseURLConnection connection = URLHelper.parse(url);
     this.url = connection.getUrl();
-    type = connection.getType();
     baseUrl = connection.getPath();
     dbName = connection.getDbName();
     this.ownerProtection = ownerProtection;
@@ -213,7 +215,6 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
 
   public DatabaseDocumentTx(DatabaseSessionInternal ref, String baseUrl) {
     url = ref.getURL();
-    type = ref.getType();
     this.baseUrl = baseUrl;
     dbName = ref.getName();
     internal = ref;
@@ -259,8 +260,8 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public int assignAndCheckCluster(Record record, String iClusterName) {
-    return internal.assignAndCheckCluster(record, iClusterName);
+  public int assignAndCheckCluster(Record record, String clusterName) {
+    return internal.assignAndCheckCluster(record, clusterName);
   }
 
   @Override
@@ -302,6 +303,22 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
+  public Object get(ATTRIBUTES_INTERNAL attribute) {
+    return internal.get(attribute);
+  }
+
+  @Override
+  public void set(ATTRIBUTES_INTERNAL attribute, Object value) {
+    internal.set(attribute, value);
+  }
+
+  @Override
+  public void setValidationEnabled(boolean value) {
+    checkOpenness();
+    internal.setValidationEnabled(value);
+  }
+
+  @Override
   public void registerHook(RecordHook iHookImpl) {
     checkOpenness();
     internal.registerHook(iHookImpl);
@@ -331,18 +348,13 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public Iterable<DatabaseListener> getListeners() {
+  public Iterable<SessionListener> getListeners() {
     return internal.getListeners();
   }
 
   @Override
   public DatabaseSession setMVCC(boolean iValue) {
     return null;
-  }
-
-  @Override
-  public String getType() {
-    return this.type;
   }
 
   @Override
@@ -355,7 +367,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
     if (internal != null) {
       internal.setConflictStrategy(iStrategyName);
     } else {
-      conflictStrategy = YouTrackDBManager.instance().getRecordConflictStrategy()
+      conflictStrategy = YouTrackDBEnginesManager.instance().getRecordConflictStrategy()
           .getStrategy(iStrategyName);
     }
     return this;
@@ -372,7 +384,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public String incrementalBackup(String path) {
+  public String incrementalBackup(Path path) {
     checkOpenness();
     return internal.incrementalBackup(path);
   }
@@ -525,28 +537,33 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public EdgeInternal newEdge(Vertex from, Vertex to, String type) {
+  public Edge newRegularEdge(Vertex from, Vertex to, String type) {
     checkOpenness();
-    return internal.newEdge(from, to, type);
+    return internal.newRegularEdge(from, to, type);
   }
 
   @Override
-  public Edge newEdge(Vertex from, Vertex to, SchemaClass type) {
+  public Edge newLightweightEdge(Vertex from, Vertex to, @Nonnull String type) {
     checkOpenness();
-    return internal.newEdge(from, to, type);
+    return internal.newLightweightEdge(from, to, type);
+  }
+
+  @Override
+  public Edge newRegularEdge(Vertex from, Vertex to, SchemaClass type) {
+    checkOpenness();
+    return internal.newRegularEdge(from, to, type);
+  }
+
+  @Override
+  public Edge newLightweightEdge(Vertex from, Vertex to, @Nonnull SchemaClass type) {
+    checkOpenness();
+    return internal.newLightweightEdge(from, to, type);
   }
 
   @Override
   public Entity newEntity() {
     checkOpenness();
     return internal.newInstance();
-  }
-
-  @Override
-  public EdgeInternal addLightweightEdge(Vertex from, Vertex to, String className) {
-    checkOpenness();
-
-    return internal.addLightweightEdge(from, to, className);
   }
 
   @Override
@@ -576,9 +593,9 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public SecurityUser getUser() {
+  public SecurityUser geCurrentUser() {
     if (internal != null) {
-      return internal.getUser();
+      return internal.geCurrentUser();
     }
     return null;
   }
@@ -769,13 +786,6 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public DatabaseSession setValidationEnabled(boolean iEnabled) {
-    checkOpenness();
-    internal.setValidationEnabled(iEnabled);
-    return this;
-  }
-
-  @Override
   public void checkSecurity(String iResource, int iOperation) {
     checkOpenness();
     internal.checkSecurity(iResource, iOperation);
@@ -800,35 +810,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
 
   @Override
   public DatabaseSession open(String iUserName, String iUserPassword) {
-    setupThreadOwner();
-    try {
-      if ("remote".equals(type)) {
-        factory = getOrCreateRemoteFactory(baseUrl);
-        YouTrackDBConfig config = buildConfig(null);
-        internal = factory.open(dbName, iUserName, iUserPassword, config);
-
-      } else {
-        factory = getOrCreateEmbeddedFactory(baseUrl, null);
-        YouTrackDBConfig config = buildConfig(null);
-        internal = factory.open(dbName, iUserName, iUserPassword, config);
-      }
-      if (databaseOwner != null) {
-        internal.setDatabaseOwner(databaseOwner);
-      }
-      if (conflictStrategy != null) {
-        internal.setConflictStrategy(conflictStrategy);
-      }
-      if (serializer != null) {
-        internal.setSerializer(serializer);
-      }
-      for (Entry<String, Object> pro : preopenProperties.entrySet()) {
-        internal.setProperty(pro.getKey(), pro.getValue());
-      }
-    } catch (RuntimeException e) {
-      clearOwner();
-      throw e;
-    }
-    return this;
+    throw new UnsupportedOperationException();
   }
 
   protected void setupThreadOwner() {
@@ -865,56 +847,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
 
   @Override
   public DatabaseSession create(Map<GlobalConfiguration, Object> iInitialSettings) {
-    setupThreadOwner();
-    try {
-      YouTrackDBConfig config = buildConfig(iInitialSettings);
-      if ("remote".equals(type)) {
-        throw new UnsupportedOperationException();
-      } else if ("memory".equals(type)) {
-        factory = getOrCreateEmbeddedFactory(baseUrl, null);
-        factory.create(dbName, null, null, DatabaseType.MEMORY, config);
-        YouTrackDBConfig openConfig =
-            YouTrackDBConfig.builder().fromContext(config.getConfigurations()).build();
-        internal = factory.open(dbName, "admin", "admin", openConfig);
-        for (Map.Entry<ATTRIBUTES, Object> attr : preopenAttributes.entrySet()) {
-          internal.set(attr.getKey(), attr.getValue());
-        }
-
-        for (DatabaseListener oDatabaseListener : preopenListener) {
-          internal.registerListener(oDatabaseListener);
-        }
-
-      } else {
-        factory = getOrCreateEmbeddedFactory(baseUrl, null);
-        factory.create(dbName, null, null, DatabaseType.PLOCAL, config);
-        YouTrackDBConfig openConfig =
-            YouTrackDBConfig.builder().fromContext(config.getConfigurations()).build();
-        internal = factory.open(dbName, "admin", "admin", openConfig);
-        for (Map.Entry<ATTRIBUTES, Object> attr : preopenAttributes.entrySet()) {
-          internal.set(attr.getKey(), attr.getValue());
-        }
-
-        for (DatabaseListener oDatabaseListener : preopenListener) {
-          internal.registerListener(oDatabaseListener);
-        }
-      }
-      if (databaseOwner != null) {
-        internal.setDatabaseOwner(databaseOwner);
-      }
-      if (conflictStrategy != null) {
-        internal.setConflictStrategy(conflictStrategy);
-      }
-      if (serializer != null) {
-        internal.setSerializer(serializer);
-      }
-      for (Entry<String, Object> pro : preopenProperties.entrySet()) {
-        internal.setProperty(pro.getKey(), pro.getValue());
-      }
-    } catch (RuntimeException e) {
-      clearOwner();
-      throw e;
-    }
-    return this;
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -941,7 +874,6 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   @Override
   public void drop() {
     checkOpenness();
-    internal.callOnDropListeners();
     DatabaseRecordThreadLocal.instance().remove();
     factory.drop(this.dbName, null, null);
     this.internal = null;
@@ -956,15 +888,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
 
   @Override
   public boolean exists() {
-    if (internal != null) {
-      return true;
-    }
-    if ("remote".equals(type)) {
-      throw new UnsupportedOperationException();
-    } else {
-      factory = getOrCreateEmbeddedFactory(baseUrl, null);
-      return factory.exists(dbName, null, null);
-    }
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -1114,7 +1038,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public IntSet getBlobClusterIds() {
+  public int[] getBlobClusterIds() {
     checkOpenness();
     return internal.getBlobClusterIds();
   }
@@ -1180,7 +1104,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public void registerListener(DatabaseListener iListener) {
+  public void registerListener(SessionListener iListener) {
     if (internal != null) {
       internal.registerListener(iListener);
     } else {
@@ -1189,7 +1113,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public void unregisterListener(DatabaseListener iListener) {
+  public void unregisterListener(SessionListener iListener) {
     checkOpenness();
     internal.unregisterListener(iListener);
   }
@@ -1201,9 +1125,9 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public Entity newInstance(String iClassName) {
+  public Entity newInstance(String className) {
     checkOpenness();
-    return internal.newInstance(iClassName);
+    return internal.newInstance(className);
   }
 
   @Override
@@ -1217,9 +1141,9 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
     return new RecordBytes();
   }
 
-  public EdgeInternal newLightweightEdge(String iClassName, Vertex from, Vertex to) {
+  public EdgeInternal newLightweightEdgeInternal(String iClassName, Vertex from, Vertex to) {
     checkOpenness();
-    return internal.newLightweightEdge(iClassName, from, to);
+    return internal.newLightweightEdgeInternal(iClassName, from, to);
   }
 
   public Edge newRegularEdge(String iClassName, Vertex from, Vertex to) {
@@ -1237,11 +1161,6 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   public long countClass(String iClassName, boolean iPolymorphic) {
     checkOpenness();
     return internal.countClass(iClassName, iPolymorphic);
-  }
-
-  @Override
-  public long countView(String viewName) {
-    return internal.countView(viewName);
   }
 
   public void setSerializer(RecordSerializer serializer) {
@@ -1265,54 +1184,6 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
     return internal.query(query, args);
   }
 
-  private YouTrackDBConfig buildConfig(final Map<GlobalConfiguration, Object> iProperties) {
-    Map<String, Object> pars = new HashMap<>(preopenProperties);
-    if (iProperties != null) {
-      for (Map.Entry<GlobalConfiguration, Object> par : iProperties.entrySet()) {
-        pars.put(par.getKey().getKey(), par.getValue());
-      }
-    }
-    YouTrackDBConfigBuilder builder = YouTrackDBConfig.builder();
-    final String connectionStrategy =
-        pars != null
-            ? (String) pars.get(GlobalConfiguration.CLIENT_CONNECTION_STRATEGY.getKey())
-            : null;
-    if (connectionStrategy != null) {
-      builder.addConfig(GlobalConfiguration.CLIENT_CONNECTION_STRATEGY, connectionStrategy);
-    }
-
-    final String compressionMethod =
-        pars != null
-            ? (String) pars.get(GlobalConfiguration.STORAGE_COMPRESSION_METHOD.getKey())
-            : null;
-    if (compressionMethod != null)
-    // SAVE COMPRESSION METHOD IN CONFIGURATION
-    {
-      builder.addConfig(GlobalConfiguration.STORAGE_COMPRESSION_METHOD, compressionMethod);
-    }
-
-    final String encryptionKey =
-        pars != null
-            ? (String) pars.get(GlobalConfiguration.STORAGE_ENCRYPTION_KEY.getKey())
-            : null;
-    if (encryptionKey != null)
-    // SAVE ENCRYPTION KEY IN CONFIGURATION
-    {
-      builder.addConfig(GlobalConfiguration.STORAGE_ENCRYPTION_KEY, encryptionKey);
-    }
-
-    for (Map.Entry<ATTRIBUTES, Object> attr : preopenAttributes.entrySet()) {
-      builder.addAttribute(attr.getKey(), attr.getValue());
-    }
-    builder.addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS, true);
-
-    for (DatabaseListener oDatabaseListener : preopenListener) {
-      builder.addListener(oDatabaseListener);
-    }
-
-    return builder.build();
-  }
-
   @Override
   public ResultSet command(String query, Object... args)
       throws CommandSQLParsingException, CommandExecutionException {
@@ -1329,12 +1200,6 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   @Override
   public DatabaseSession setCustom(String name, Object iValue) {
     return internal.setCustom(name, iValue);
-  }
-
-  @Override
-  public void callOnDropListeners() {
-    checkOpenness();
-    internal.callOnDropListeners();
   }
 
   @Override
@@ -1404,11 +1269,6 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public boolean isClusterView(int cluster) {
-    return internal.isClusterView(cluster);
-  }
-
-  @Override
   public Identifiable beforeCreateOperations(Identifiable id, String iClusterName) {
     return internal.beforeCreateOperations(id, iClusterName);
   }
@@ -1459,11 +1319,6 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public SchemaView getViewFromCluster(int cluster) {
-    return internal.getViewFromCluster(cluster);
-  }
-
-  @Override
   public <T> T sendSequenceAction(SequenceAction action)
       throws ExecutionException, InterruptedException {
     throw new UnsupportedOperationException(
@@ -1477,10 +1332,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
 
   @Override
   public boolean isRemote() {
-    if (internal == null) {
-      return "remote".equals(type);
-    }
-    return internal.isRemote();
+    throw new UnsupportedOperationException();
   }
 
   @Override

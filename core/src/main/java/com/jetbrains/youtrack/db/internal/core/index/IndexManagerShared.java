@@ -19,28 +19,28 @@
  */
 package com.jetbrains.youtrack.db.internal.core.index;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.MultiKey;
 import com.jetbrains.youtrack.db.internal.common.util.UncaughtExceptionHandler;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.MetadataUpdateListener;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.Metadata;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityResourceProperty;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sharding.auto.AutoShardingIndexFactory;
@@ -54,7 +54,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -574,7 +573,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
       final IndexDefinition indexDefinition,
       final int[] clusterIdsToIndex,
       ProgressListener progressListener,
-      EntityImpl metadata) {
+      Map<String, ?> metadata) {
     return createIndex(
         database,
         iName,
@@ -607,7 +606,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
       final IndexDefinition indexDefinition,
       final int[] clusterIdsToIndex,
       ProgressListener progressListener,
-      EntityImpl metadata,
+      Map<String, ?> metadata,
       String algorithm) {
 
     final boolean manualIndexesAreUsed =
@@ -649,21 +648,12 @@ public class IndexManagerShared implements IndexManagerAbstract {
         throw new IndexException("Index with name " + iName + " already exists.");
       }
 
-      // manual indexes are always durable
-      if (clusterIdsToIndex == null || clusterIdsToIndex.length == 0) {
-        if (metadata == null) {
-          metadata = new EntityImpl().setTrackingChanges(false);
-        }
-        if (metadata.field("trackMode") == null) {
-          metadata.field("trackMode", "FULL");
-        }
+      if (metadata == null) {
+        metadata = new HashMap<>();
       }
 
       final Set<String> clustersToIndex = findClustersByIds(clusterIdsToIndex, database);
-      Object ignoreNullValues =
-          Optional.ofNullable(metadata)
-              .map(entries -> entries.field("ignoreNullValues"))
-              .orElse(null);
+      Object ignoreNullValues = metadata.get("ignoreNullValues");
       if (Boolean.TRUE.equals(ignoreNullValues)) {
         indexDefinition.setNullValuesIgnored(true);
       } else if (Boolean.FALSE.equals(ignoreNullValues)) {

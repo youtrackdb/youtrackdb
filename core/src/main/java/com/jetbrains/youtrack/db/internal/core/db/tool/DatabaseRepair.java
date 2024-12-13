@@ -19,10 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.tool;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Iterator;
 import java.util.List;
@@ -147,10 +148,10 @@ public class DatabaseRepair extends DatabaseTool {
         return true;
       }
 
-      if (id.isValid()) {
+      if (((RecordId) id).isValid()) {
         if (id.isPersistent()) {
           try {
-            final Record connected = ((Identifiable) fieldValue).getRecord();
+            ((Identifiable) fieldValue).getRecord();
           } catch (RecordNotFoundException rnf) {
             return true;
           }

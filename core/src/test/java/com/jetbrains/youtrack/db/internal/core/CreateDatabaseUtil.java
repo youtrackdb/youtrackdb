@@ -1,9 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core;
 
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 
 /**
  * Used as part of the security test refactoring of the ODB `core` module, cf.
@@ -16,13 +17,13 @@ public class CreateDatabaseUtil {
   public static final String TYPE_PLOCAL = DatabaseType.PLOCAL.name().toLowerCase(); // "plocal";
   public static final String TYPE_MEMORY = DatabaseType.MEMORY.name().toLowerCase(); // "memory";
 
-  public static YouTrackDB createDatabase(
+  public static YouTrackDBImpl createDatabase(
       final String database, final String url, final String type) {
-    final YouTrackDB youTrackDB =
-        new YouTrackDB(
+    final YouTrackDBImpl youTrackDB =
+        new YouTrackDBImpl(
             url,
             YouTrackDBConfig.builder()
-                .addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addGlobalConfigurationParameter(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     if (!youTrackDB.exists(database)) {
       youTrackDB.execute(

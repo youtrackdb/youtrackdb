@@ -16,6 +16,7 @@ package com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection
 
 import static com.jetbrains.youtrack.db.internal.common.util.ClassLoaderHelper.lookupProviderWithYouTrackDBClassLoader;
 
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.ClusterSelectionStrategy;
 import com.jetbrains.youtrack.db.internal.common.factory.ConfigurableStatefulFactory;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import java.lang.reflect.Method;

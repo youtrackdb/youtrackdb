@@ -20,17 +20,17 @@
 
 package com.orientechnologies.orient.server.handler;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
 import com.jetbrains.youtrack.db.internal.common.parser.VariableParser;
 import com.jetbrains.youtrack.db.internal.common.parser.VariableParserListener;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseExport;
-import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -38,6 +38,7 @@ import com.orientechnologies.orient.server.plugin.OServerPluginConfigurable;
 import com.orientechnologies.orient.server.plugin.ServerPluginAbstract;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -273,7 +274,7 @@ public class AutomaticBackup extends ServerPluginAbstract implements OServerPlug
       if (firstTime == null) {
         serverInstance.getDatabases().schedule(task, delay, delay);
       } else {
-        YouTrackDBManager.instance().scheduleTask(task, firstTime, delay);
+        YouTrackDBEnginesManager.instance().scheduleTask(task, firstTime, delay);
       }
     } else {
       LogManager.instance().info(this, "Automatic Backup plugin is disabled");
@@ -400,7 +401,7 @@ public class AutomaticBackup extends ServerPluginAbstract implements OServerPlug
             dbURL,
             iPath);
 
-    db.incrementalBackup(iPath);
+    db.incrementalBackup(Path.of(iPath));
   }
 
   protected void exportDatabase(

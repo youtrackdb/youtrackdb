@@ -1,19 +1,23 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.SchemaException;
+import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.ArrayUtils;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.ScenarioThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
-import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -220,17 +224,12 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
     acquireSchemaWriteLock(database);
     try {
       final SchemaClassImpl cls;
-
-      if (superClass instanceof SchemaClassAbstractDelegate) {
-        cls = (SchemaClassImpl) ((SchemaClassAbstractDelegate) superClass).delegate;
-      } else {
-        cls = (SchemaClassImpl) superClass;
-      }
+      cls = (SchemaClassImpl) superClass;
 
       if (cls != null) {
 
         // CHECK THE USER HAS UPDATE PRIVILEGE AGAINST EXTENDING CLASS
-        final SecurityUser user = database.getUser();
+        final SecurityUser user = database.geCurrentUser();
         if (user != null) {
           user.allow(database, Rule.ResourceGeneric.CLASS, cls.getName(), Role.PERMISSION_UPDATE);
         }
@@ -253,7 +252,7 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
   }
 
   @Override
-  public SchemaClass removeSuperClass(DatabaseSession session, SchemaClass superClass) {
+  public void removeSuperClass(DatabaseSession session, SchemaClass superClass) {
     final DatabaseSessionInternal database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
     acquireSchemaWriteLock(database);
@@ -263,7 +262,6 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
     } finally {
       releaseSchemaWriteLock(database);
     }
-    return this;
   }
 
   protected void removeSuperClassInternal(DatabaseSessionInternal session,
@@ -271,12 +269,7 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
     acquireSchemaWriteLock(session);
     try {
       final SchemaClassImpl cls;
-
-      if (superClass instanceof SchemaClassAbstractDelegate) {
-        cls = (SchemaClassImpl) ((SchemaClassAbstractDelegate) superClass).delegate;
-      } else {
-        cls = (SchemaClassImpl) superClass;
-      }
+      cls = (SchemaClassImpl) superClass;
 
       if (superClasses.contains(cls)) {
         if (cls != null) {
@@ -295,12 +288,7 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
     List<SchemaClassImpl> newSuperClasses = new ArrayList<SchemaClassImpl>();
     SchemaClassImpl cls;
     for (SchemaClass superClass : classes) {
-      if (superClass instanceof SchemaClassAbstractDelegate) {
-        cls = (SchemaClassImpl) ((SchemaClassAbstractDelegate) superClass).delegate;
-      } else {
-        cls = (SchemaClassImpl) superClass;
-      }
-
+      cls = (SchemaClassImpl) superClass;
       if (newSuperClasses.contains(cls)) {
         throw new SchemaException("Duplicated superclass '" + cls.getName() + "'");
       }
@@ -489,7 +477,6 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
   /**
    * {@inheritDoc}
    */
-  @Override
   public SchemaClass truncateCluster(DatabaseSession session, String clusterName) {
     var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_DELETE, name);
@@ -887,7 +874,7 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
     var clusterName = session.getClusterNameById(iId);
     final List<String> indexesToAdd = new ArrayList<String>();
 
-    for (Index index : getIndexes(session)) {
+    for (Index index : getIndexesInternal(session)) {
       indexesToAdd.add(index.getName());
     }
 

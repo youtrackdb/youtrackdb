@@ -20,39 +20,44 @@
 
 package com.jetbrains.youtrack.db.internal.client.remote.db;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandScriptException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.query.LiveQueryMonitor;
+import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Edge;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.RecordHook;
+import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.session.SessionListener;
 import com.jetbrains.youtrack.db.internal.client.remote.LiveQueryClientListener;
 import com.jetbrains.youtrack.db.internal.client.remote.RemoteQueryResult;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
 import com.jetbrains.youtrack.db.internal.client.remote.message.RemoteResultSet;
 import com.jetbrains.youtrack.db.internal.client.remote.metadata.schema.SchemaRemote;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.cache.LocalRecordCache;
-import com.jetbrains.youtrack.db.internal.core.command.script.CommandScriptException;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionAbstract;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.HookReplacedRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.LiveQueryMonitor;
-import com.jetbrains.youtrack.db.internal.core.db.LiveQueryResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigImpl;
 import com.jetbrains.youtrack.db.internal.core.index.ClassIndexManager;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerRemote;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaProxy;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ImmutableUser;
@@ -61,18 +66,13 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceAction;
-import com.jetbrains.youtrack.db.internal.core.record.Edge;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeEntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37Client;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.storage.RecordMetadata;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageInfo;
@@ -82,6 +82,7 @@ import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChange
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx.NonTxReadMode;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -95,7 +96,7 @@ import java.util.concurrent.ExecutionException;
 public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   protected StorageRemoteSession sessionMetadata;
-  private YouTrackDBConfig config;
+  private YouTrackDBConfigImpl config;
   private StorageRemote storage;
   private FrontendTransactionNoTx.NonTxReadMode nonTxReadMode;
 
@@ -181,31 +182,20 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   public void set(ATTRIBUTES iAttribute, Object iValue) {
-    if (iAttribute == ATTRIBUTES.CUSTOM) {
-      String stringValue = iValue.toString();
-      int indx = stringValue != null ? stringValue.indexOf('=') : -1;
-      if (indx < 0) {
-        if ("clear".equalsIgnoreCase(stringValue)) {
-          String query = "alter database CUSTOM 'clear'";
-          // Bypass the database command for avoid transaction management
-          RemoteQueryResult result = storage.command(this, query, new Object[]{iValue});
-          result.getResult().close();
-        } else {
-          throw new IllegalArgumentException(
-              "Syntax error: expected <name> = <value> or clear, instead found: " + iValue);
-        }
-      } else {
-        String customName = stringValue.substring(0, indx).trim();
-        String customValue = stringValue.substring(indx + 1).trim();
-        setCustom(customName, customValue);
-      }
-    } else {
-      String query = "alter database " + iAttribute.name() + " ? ";
-      // Bypass the database command for avoid transaction management
-      RemoteQueryResult result = storage.command(this, query, new Object[]{iValue});
-      result.getResult().close();
-      storage.reload(this);
-    }
+    String query = "alter database " + iAttribute.name() + " ? ";
+    // Bypass the database command for avoid transaction management
+    RemoteQueryResult result = storage.command(this, query, new Object[]{iValue});
+    result.getResult().close();
+    storage.reload(this);
+  }
+
+  @Override
+  public void set(ATTRIBUTES_INTERNAL attribute, Object value) {
+    String query = "alter database " + attribute.name() + " ? ";
+    // Bypass the database command for avoid transaction management
+    RemoteQueryResult result = storage.command(this, query, new Object[]{value});
+    result.getResult().close();
+    storage.reload(this);
   }
 
   @Override
@@ -242,13 +232,13 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     throw new UnsupportedOperationException("use YouTrackDB");
   }
 
-  public void internalOpen(String user, String password, YouTrackDBConfig config) {
+  public void internalOpen(String user, String password, YouTrackDBConfigImpl config) {
     this.config = config;
     applyAttributes(config);
     applyListeners(config);
     try {
 
-      storage.open(this, user, password, config.getConfigurations());
+      storage.open(this, user, password, config.getConfiguration());
 
       status = STATUS.OPEN;
 
@@ -274,7 +264,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     }
   }
 
-  private void applyAttributes(YouTrackDBConfig config) {
+  private void applyAttributes(YouTrackDBConfigImpl config) {
     for (Entry<ATTRIBUTES, Object> attrs : config.getAttributes().entrySet()) {
       this.set(attrs.getKey(), attrs.getValue());
     }
@@ -303,8 +293,8 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     sharedContext.load(this);
   }
 
-  private void applyListeners(YouTrackDBConfig config) {
-    for (DatabaseListener listener : config.getListeners()) {
+  private void applyListeners(YouTrackDBConfigImpl config) {
+    for (SessionListener listener : config.getListeners()) {
       registerListener(listener);
     }
   }
@@ -720,7 +710,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   public DatabaseSessionAbstract setConflictStrategy(final String iStrategyName) {
     checkIfActive();
     storage.setConflictStrategy(
-        YouTrackDBManager.instance().getRecordConflictStrategy().getStrategy(iStrategyName));
+        YouTrackDBEnginesManager.instance().getRecordConflictStrategy().getStrategy(iStrategyName));
     return this;
   }
 
@@ -881,12 +871,12 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   }
 
   @Override
-  public String incrementalBackup(final String path) throws UnsupportedOperationException {
+  public String incrementalBackup(final Path path) throws UnsupportedOperationException {
     checkOpenness();
     checkIfActive();
     checkSecurity(Rule.ResourceGeneric.DATABASE, "backup", Role.PERMISSION_EXECUTE);
 
-    return storage.incrementalBackup(this, path, null);
+    return storage.incrementalBackup(this, path.toAbsolutePath().toString(), null);
   }
 
   @Override

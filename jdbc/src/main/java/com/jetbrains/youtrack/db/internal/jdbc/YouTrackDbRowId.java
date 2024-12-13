@@ -13,14 +13,16 @@
  */
 package com.jetbrains.youtrack.db.internal.jdbc;
 
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import java.sql.RowId;
 
 public class YouTrackDbRowId implements RowId {
 
-  protected final RID rid;
+  protected final RecordId rid;
 
-  public YouTrackDbRowId(final RID rid) {
+  public YouTrackDbRowId(final RecordId rid) {
     this.rid = rid;
   }
 

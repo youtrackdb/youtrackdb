@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.server.network.http;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.io.IOException;
@@ -84,11 +84,11 @@ public abstract class BaseHttpTest {
       server.shutdown();
       server = null;
 
-      YouTrackDBManager.instance().shutdown();
+      YouTrackDBEnginesManager.instance().shutdown();
       if (serverDirectory != null) {
         FileUtils.deleteRecursively(new File(serverDirectory));
       }
-      YouTrackDBManager.instance().startup();
+      YouTrackDBEnginesManager.instance().startup();
     }
   }
 

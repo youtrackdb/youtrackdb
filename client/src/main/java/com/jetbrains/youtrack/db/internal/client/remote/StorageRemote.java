@@ -35,22 +35,23 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.SendTransactionS
 import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeLiveQueryResponse;
 import com.jetbrains.youtrack.db.internal.common.concur.OfflineNodeException;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.ThreadInterruptedException;
-import com.jetbrains.youtrack.db.internal.common.concur.lock.ModificationOperationProhibitedException;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.ModificationOperationProhibitedException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.io.YTIOException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.thread.ThreadPoolExecutors;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
-import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.StorageClusterConfiguration;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.SecurityException;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -129,9 +130,8 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandRequestAsynch;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
-import com.jetbrains.youtrack.db.internal.core.db.LiveQueryMonitor;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
+import com.jetbrains.youtrack.db.api.query.LiveQueryMonitor;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigImpl;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTxInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.CurrentStorageComponentsFactory;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
@@ -237,7 +237,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       YouTrackDBRemote context,
       final String iMode,
       RemoteConnectionManager connectionManager,
-      YouTrackDBConfig config)
+      YouTrackDBConfigImpl config)
       throws IOException {
     this(hosts, name, context, iMode, connectionManager, null, config);
   }
@@ -249,7 +249,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       final String iMode,
       RemoteConnectionManager connectionManager,
       final STATUS status,
-      YouTrackDBConfig config)
+      YouTrackDBConfigImpl config)
       throws IOException {
 
     this.name = normalizeName(name);
@@ -268,7 +268,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     configuration = null;
 
     if (config != null) {
-      clientConfiguration = config.getConfigurations();
+      clientConfiguration = config.getConfiguration();
     } else {
       clientConfiguration = new ContextConfiguration();
     }
@@ -1362,7 +1362,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
           && !getCurrentSession(remoteSession).getAllServerSessions().isEmpty()) {
         RollbackTransactionRequest request = new RollbackTransactionRequest(iTx.getId());
         networkOperation(remoteSession, request,
-            "Error on fetching next page for statment: " + request);
+            "Error on fetching next page for statement: " + request);
       }
     } finally {
       unstickToSession(remoteSession);
@@ -2169,7 +2169,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
             transaction.getRecordOperations(), Collections.emptyMap());
     BeginTransactionResponse response =
         networkOperationNoRetry(database, request, "Error on remote transaction begin");
-    for (Map.Entry<RID, RID> entry : response.getUpdatedIds().entrySet()) {
+    for (Map.Entry<RecordId, RecordId> entry : response.getUpdatedIds().entrySet()) {
       transaction.updateIdentityAfterCommit(entry.getValue(), entry.getKey());
     }
 
@@ -2186,7 +2186,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
         networkOperationNoRetry(database, request,
             "Error on remote transaction state send");
 
-    for (Map.Entry<RID, RID> entry : response.getUpdatedIds().entrySet()) {
+    for (Map.Entry<RecordId, RecordId> entry : response.getUpdatedIds().entrySet()) {
       transaction.updateIdentityAfterCommit(entry.getValue(), entry.getKey());
     }
 

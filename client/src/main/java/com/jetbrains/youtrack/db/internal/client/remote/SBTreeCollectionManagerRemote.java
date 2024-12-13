@@ -22,10 +22,10 @@ package com.jetbrains.youtrack.db.internal.client.remote;
 
 import com.jetbrains.youtrack.db.internal.common.concur.resource.CloseableInStorage;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBShutdownListener;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBStartupListener;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.SBTreeBonsai;
@@ -51,8 +51,8 @@ public class SBTreeCollectionManagerRemote
 
   public SBTreeCollectionManagerRemote() {
 
-    YouTrackDBManager.instance().registerWeakYouTrackDBStartupListener(this);
-    YouTrackDBManager.instance().registerWeakYouTrackDBShutdownListener(this);
+    YouTrackDBEnginesManager.instance().registerWeakYouTrackDBStartupListener(this);
+    YouTrackDBEnginesManager.instance().registerWeakYouTrackDBShutdownListener(this);
   }
 
   @Override

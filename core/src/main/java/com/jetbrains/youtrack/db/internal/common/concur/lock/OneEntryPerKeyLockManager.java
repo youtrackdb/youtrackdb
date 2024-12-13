@@ -20,8 +20,8 @@
 package com.jetbrains.youtrack.db.internal.common.concur.lock;
 
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

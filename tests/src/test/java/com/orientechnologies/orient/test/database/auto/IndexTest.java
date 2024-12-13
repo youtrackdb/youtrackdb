@@ -15,27 +15,27 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
+import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
+import com.jetbrains.youtrack.db.api.query.ExecutionStep;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.INDEX_TYPE;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStep;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.FetchFromIndexStep;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
-import com.jetbrains.youtrack.db.internal.core.storage.RecordDuplicatedException;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.util.ArrayList;
@@ -44,6 +44,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.testng.Assert;
@@ -99,13 +100,10 @@ public class IndexTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "populateIndexDocuments")
   public void testIndexInUniqueIndex() {
     checkEmbeddedDB();
-
-    final Property nickProperty =
-        database.getMetadata().getSchema().getClass("Profile").getProperty("nick");
     Assert.assertEquals(
-        nickProperty.getIndexes(database).iterator().next().getType(),
+        database.getMetadata().getSchema().getClassInternal("Profile")
+            .getInvolvedIndexesInternal(database, "nick").iterator().next().getType(),
         SchemaClass.INDEX_TYPE.UNIQUE.toString());
-
     try (var resultSet =
         database.query(
             "SELECT * FROM Profile WHERE nick in ['ZZZJayLongNickIndex0'"
@@ -190,14 +188,21 @@ public class IndexTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testUseOfIndex")
   public void testChangeOfIndexToNotUnique() {
-    database.getMetadata().getSchema().getClass("Profile").getProperty("nick")
-        .dropIndexes(database);
+    dropIndexes("Profile", "nick");
+
     database
         .getMetadata()
         .getSchema()
         .getClass("Profile")
         .getProperty("nick")
         .createIndex(database, INDEX_TYPE.NOTUNIQUE);
+  }
+
+  private void dropIndexes(String className, String propertyName) {
+    for (var indexName : database.getMetadata().getSchema().getClassInternal(className)
+        .getPropertyInternal(propertyName).getAllIndexes(database)) {
+      database.getMetadata().getIndexManagerInternal().dropIndex(database, indexName);
+    }
   }
 
   @Test(dependsOnMethods = "testChangeOfIndexToNotUnique")
@@ -215,8 +220,7 @@ public class IndexTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "testDuplicatedIndexOnNotUnique")
   public void testChangeOfIndexToUnique() {
     try {
-      database.getMetadata().getSchema().getClass("Profile").getProperty("nick")
-          .dropIndexes(database);
+      dropIndexes("Profile", "nick");
       database
           .getMetadata()
           .getSchema()
@@ -414,18 +418,17 @@ public class IndexTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testChangeOfIndexToUnique")
   public void removeNotUniqueIndexOnNick() {
-    database.getMetadata().getSchema().getClass("Profile").getProperty("nick")
-        .dropIndexes(database);
+    dropIndexes("Profile", "nick");
   }
 
   @Test(dependsOnMethods = "removeNotUniqueIndexOnNick")
   public void testQueryingWithoutNickIndex() {
-    Assert.assertTrue(
-        database.getMetadata().getSchema().getClass("Profile").getProperty("name")
-            .isIndexed(database));
     Assert.assertFalse(
-        database.getMetadata().getSchema().getClass("Profile").getProperty("nick")
-            .isIndexed(database));
+        database.getMetadata().getSchema().getClass("Profile")
+            .getInvolvedIndexes(database, "name").isEmpty());
+    Assert.assertTrue(
+        database.getMetadata().getSchema().getClass("Profile").getInvolvedIndexes(database, "nick")
+            .isEmpty());
 
     List<EntityImpl> result =
         database
@@ -462,10 +465,10 @@ public class IndexTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = {"createNotUniqueIndexOnNick", "populateIndexDocuments"})
   public void testIndexInNotUniqueIndex() {
-    final Property nickProperty =
-        database.getMetadata().getSchema().getClass("Profile").getProperty("nick");
     Assert.assertEquals(
-        nickProperty.getIndexes(database).iterator().next().getType(),
+        database.getClassInternal("Profile").
+            getInvolvedIndexesInternal(database, "nick").iterator()
+            .next().getType(),
         SchemaClass.INDEX_TYPE.NOTUNIQUE.toString());
 
     try (var resultSet =
@@ -700,7 +703,7 @@ public class IndexTest extends DocumentDBBaseTest {
             "idxTerm",
             INDEX_TYPE.UNIQUE.toString(),
             null,
-            new EntityImpl().fields("ignoreNullValues", true), new String[]{"label"});
+            Map.of("ignoreNullValues", true), new String[]{"label"});
       }
 
       db.begin();
@@ -736,7 +739,7 @@ public class IndexTest extends DocumentDBBaseTest {
           "idxTransactionUniqueIndexTest",
           INDEX_TYPE.UNIQUE.toString(),
           null,
-          new EntityImpl().fields("ignoreNullValues", true), new String[]{"label"});
+          Map.of("ignoreNullValues", true), new String[]{"label"});
     }
 
     db.begin();
@@ -773,20 +776,19 @@ public class IndexTest extends DocumentDBBaseTest {
           db.getMetadata()
               .getSchema()
               .createClass("TransactionUniqueIndexTest", 1, (SchemaClass[]) null);
+
       termClass.createProperty(db, "label", PropertyType.STRING);
       termClass.createIndex(db,
           "idxTransactionUniqueIndexTest",
           INDEX_TYPE.UNIQUE.toString(),
           null,
-          new EntityImpl().fields("ignoreNullValues", true), new String[]{"label"});
+          Map.of("ignoreNullValues", true), new String[]{"label"});
     }
-
     final Index index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, "idxTransactionUniqueIndexTest");
     Assert.assertEquals(index.getInternal().size(database), 1);
 
     db.begin();
-
     try {
       EntityImpl docOne = new EntityImpl("TransactionUniqueIndexTest");
       docOne.field("label", "B");
@@ -1090,8 +1092,7 @@ public class IndexTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testIndexRebuildDuringDetachAllNonProxiedObjectDelete")
   public void testRestoreUniqueIndex() {
-    database.getMetadata().getSchema().getClass("Profile").getProperty("nick")
-        .dropIndexes(database);
+    dropIndexes("Profile", "nick");
     database
         .command(
             "CREATE INDEX Profile.nick on Profile (nick) UNIQUE METADATA {ignoreNullValues: true}")
@@ -1169,8 +1170,7 @@ public class IndexTest extends DocumentDBBaseTest {
     final SchemaClass clazz = schema.createClass("NullIndexKeysSupport", 1, (SchemaClass[]) null);
     clazz.createProperty(database, "nullField", PropertyType.STRING);
 
-    EntityImpl metadata = new EntityImpl();
-    metadata.field("ignoreNullValues", false);
+    var metadata = Map.of("ignoreNullValues", false);
 
     clazz.createIndex(database,
         "NullIndexKeysSupportIndex",
@@ -1217,8 +1217,7 @@ public class IndexTest extends DocumentDBBaseTest {
         (SchemaClass[]) null);
     clazz.createProperty(database, "nullField", PropertyType.STRING);
 
-    EntityImpl metadata = new EntityImpl();
-    metadata.field("ignoreNullValues", false);
+    var metadata = Map.of("ignoreNullValues", false);
 
     clazz.createIndex(database,
         "NullHashIndexKeysSupportIndex",
@@ -1270,8 +1269,7 @@ public class IndexTest extends DocumentDBBaseTest {
         (SchemaClass[]) null);
     clazz.createProperty(database, "nullField", PropertyType.STRING);
 
-    EntityImpl metadata = new EntityImpl();
-    metadata.field("ignoreNullValues", false);
+    var metadata = Map.of("ignoreNullValues", false);
 
     clazz.createIndex(database,
         "NullIndexKeysSupportInTxIndex",
@@ -1330,8 +1328,7 @@ public class IndexTest extends DocumentDBBaseTest {
         (SchemaClass[]) null);
     clazz.createProperty(database, "nullField", PropertyType.STRING);
 
-    EntityImpl metadata = new EntityImpl();
-    metadata.field("ignoreNullValues", false);
+    var metadata = Map.of("ignoreNullValues", false);
 
     clazz.createIndex(database,
         "NullIndexKeysSupportInMiddleTxIndex",
@@ -1477,9 +1474,10 @@ public class IndexTest extends DocumentDBBaseTest {
     if (!database.getMetadata().getSchema().existsClass("PreservingIdentityInIndexTxEdge")) {
       database.createEdgeClass("PreservingIdentityInIndexTxEdge");
     }
-    SchemaClass fieldClass = database.getClass("PreservingIdentityInIndexTxChild");
+    var fieldClass = (SchemaClassInternal) database.getClass("PreservingIdentityInIndexTxChild");
     if (fieldClass == null) {
-      fieldClass = database.createVertexClass("PreservingIdentityInIndexTxChild");
+      fieldClass = (SchemaClassInternal) database.createVertexClass(
+          "PreservingIdentityInIndexTxChild");
       fieldClass.createProperty(database, "name", PropertyType.STRING);
       fieldClass.createProperty(database, "in_field", PropertyType.LINK);
       fieldClass.createIndex(database, "nameParentIndex", INDEX_TYPE.NOTUNIQUE, "in_field", "name");
@@ -1490,7 +1488,7 @@ public class IndexTest extends DocumentDBBaseTest {
     database.save(parent);
     Vertex child = database.newVertex("PreservingIdentityInIndexTxChild");
     database.save(child);
-    database.save(database.newEdge(parent, child, "PreservingIdentityInIndexTxEdge"));
+    database.save(database.newRegularEdge(parent, child, "PreservingIdentityInIndexTxEdge"));
     child.setProperty("name", "pokus");
     database.save(child);
 
@@ -1498,13 +1496,13 @@ public class IndexTest extends DocumentDBBaseTest {
     database.save(parent2);
     Vertex child2 = database.newVertex("PreservingIdentityInIndexTxChild");
     database.save(child2);
-    database.save(database.newEdge(parent2, child2, "preservingIdentityInIndexTxEdge"));
+    database.save(database.newRegularEdge(parent2, child2, "preservingIdentityInIndexTxEdge"));
     child2.setProperty("name", "pokus2");
     database.save(child2);
     database.commit();
 
     {
-      fieldClass = database.getClass("PreservingIdentityInIndexTxChild");
+      fieldClass = database.getClassInternal("PreservingIdentityInIndexTxChild");
       Index index = fieldClass.getClassIndex(database, "nameParentIndex");
       CompositeKey key = new CompositeKey(parent.getIdentity(), "pokus");
 
@@ -1518,7 +1516,7 @@ public class IndexTest extends DocumentDBBaseTest {
     }
 
     {
-      fieldClass = database.getClass("PreservingIdentityInIndexTxChild");
+      fieldClass = (SchemaClassInternal) database.getClass("PreservingIdentityInIndexTxChild");
       Index index = fieldClass.getClassIndex(database, "nameParentIndex");
       CompositeKey key = new CompositeKey(parent2.getIdentity(), "pokus2");
 
@@ -1550,9 +1548,9 @@ public class IndexTest extends DocumentDBBaseTest {
             .createClass("EmptyNotUniqueIndexTest", 1, (SchemaClass[]) null);
     emptyNotUniqueIndexClazz.createProperty(database, "prop", PropertyType.STRING);
 
-    final Index notUniqueIndex =
-        emptyNotUniqueIndexClazz.createIndex(database,
-            "EmptyNotUniqueIndexTestIndex", INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "prop");
+    emptyNotUniqueIndexClazz.createIndex(database,
+        "EmptyNotUniqueIndexTestIndex", INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "prop");
+    final Index notUniqueIndex = database.getIndex("EmptyNotUniqueIndexTestIndex");
 
     database.begin();
     EntityImpl document = new EntityImpl("EmptyNotUniqueIndexTest");
@@ -1596,8 +1594,7 @@ public class IndexTest extends DocumentDBBaseTest {
     database.command("CREATE VERTEX NullIterationTest SET name = 'Olivier'").close();
     database.commit();
 
-    EntityImpl metadata = new EntityImpl();
-    metadata.field("ignoreNullValues", false);
+    var metadata = Map.of("ignoreNullValues", false);
 
     testNullIteration.createIndex(database,
         "NullIterationTestIndex",
@@ -1643,7 +1640,7 @@ public class IndexTest extends DocumentDBBaseTest {
     clazz.createProperty(database, "reg", PropertyType.LONG);
     clazz.createProperty(database, "no", PropertyType.INTEGER);
 
-    final EntityImpl mt = new EntityImpl().field("ignoreNullValues", false);
+    var mt = Map.of("ignoreNullValues", false);
     clazz.createIndex(database,
         "MultikeyWithoutFieldIndex",
         INDEX_TYPE.UNIQUE.toString(),
@@ -1868,7 +1865,7 @@ public class IndexTest extends DocumentDBBaseTest {
         "MultikeyWithoutFieldIndexNoNullSupport",
         INDEX_TYPE.UNIQUE.toString(),
         null,
-        new EntityImpl().fields("ignoreNullValues", true),
+        Map.of("ignoreNullValues", true),
         new String[]{"state", "users", "time", "reg", "no"});
 
     EntityImpl document = new EntityImpl("TestMultikeyWithoutFieldNoNullSupport");

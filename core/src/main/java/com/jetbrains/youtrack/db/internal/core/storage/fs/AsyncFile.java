@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.storage.fs;
 
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.ScalableRWLock;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.ThreadInterruptedException;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.RawPairLongObject;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;

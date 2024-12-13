@@ -19,8 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.stream.MixedIndexRIDContainerSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.stream.StreamSerializerRID;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.stream.StreamSerializerSBTreeIndexRIDContainer;
@@ -30,7 +29,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Contains the index metadata.
@@ -55,8 +53,7 @@ public class IndexMetadata {
       String algorithm,
       String valueContainerAlgorithm,
       int version,
-      EntityImpl metadata) {
-    assert metadata == null || metadata.getIdentity().isNew();
+      Map<String, ?> metadata) {
     this.name = name;
     this.indexDefinition = indexDefinition;
     this.clustersToIndex = clustersToIndex;
@@ -72,24 +69,9 @@ public class IndexMetadata {
     this.valueContainerAlgorithm = Objects.requireNonNullElse(valueContainerAlgorithm,
         AutoShardingIndexFactory.NONE_VALUE_CONTAINER);
     this.version = version;
-    this.metadata = initMetadata(metadata);
+    this.metadata = metadata;
   }
 
-  @Nullable
-  private static Map<String, ?> initMetadata(EntityImpl metadataDoc) {
-    if (metadataDoc == null) {
-      return null;
-    }
-
-    var metadata = metadataDoc.toMap();
-
-    metadata.remove("@rid");
-    metadata.remove("@class");
-    metadata.remove("@type");
-    metadata.remove("@version");
-
-    return metadata;
-  }
 
   @Nonnull
   public String getName() {
@@ -188,7 +170,7 @@ public class IndexMetadata {
     return metadata;
   }
 
-  public void setMetadata(EntityImpl metadata) {
-    this.metadata = initMetadata(metadata);
+  public void setMetadata(Map<String, ?> metadata) {
+    this.metadata = metadata;
   }
 }

@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.distributed;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionId;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionInternal;
 import java.util.Set;

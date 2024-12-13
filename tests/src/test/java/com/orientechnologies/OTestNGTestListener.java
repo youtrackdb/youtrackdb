@@ -21,7 +21,7 @@ package com.orientechnologies;
 
 import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import org.testng.Assert;
 import org.testng.ISuite;
 import org.testng.ISuiteListener;
@@ -50,7 +50,7 @@ public class OTestNGTestListener implements ISuiteListener {
     }
     if (!isFailed(suite)) {
       System.out.println("Shutting down engine and checking for direct memory leaks...");
-      final YouTrackDBManager youTrack = YouTrackDBManager.instance();
+      final YouTrackDBEnginesManager youTrack = YouTrackDBEnginesManager.instance();
       if (youTrack != null) {
         // state is verified during shutdown
         youTrack.shutdown();

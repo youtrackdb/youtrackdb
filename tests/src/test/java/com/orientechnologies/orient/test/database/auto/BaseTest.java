@@ -1,11 +1,13 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.YourTracks;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.orientechnologies.orient.server.OServer;
 import java.util.Locale;
@@ -72,13 +74,14 @@ public abstract class BaseTest<T extends DatabaseSessionInternal> {
       }
 
       if (youTrackDB == null) {
-        var builder = new YouTrackDBConfigBuilder();
+        var builder = new YouTrackDBConfigBuilderImpl();
         if (remoteDB) {
           youTrackDB =
-              new YouTrackDB("remote:localhost", "root", SERVER_PASSWORD, createConfig(builder));
+              new YouTrackDBImpl("remote:localhost", "root", SERVER_PASSWORD,
+                  createConfig(builder));
         } else {
           final String buildDirectory = System.getProperty("buildDirectory", ".");
-          youTrackDB = YouTrackDB.embedded(buildDirectory + "/test-db", createConfig(builder));
+          youTrackDB = YourTracks.embedded(buildDirectory + "/test-db", createConfig(builder));
         }
       }
 
@@ -208,8 +211,9 @@ public abstract class BaseTest<T extends DatabaseSessionInternal> {
     return (DatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
   }
 
-  protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
-    builder.addConfig(GlobalConfiguration.NON_TX_READS_WARNING_MODE, "SILENT");
+  protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilderImpl builder) {
+    builder.addGlobalConfigurationParameter(GlobalConfiguration.NON_TX_READS_WARNING_MODE,
+        "SILENT");
     return builder.build();
   }
 

@@ -20,13 +20,13 @@
 package com.orientechnologies.orient.server.network.protocol.http.command;
 
 import com.jetbrains.youtrack.db.internal.common.concur.lock.LockException;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.SecurityAccessException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -215,13 +215,14 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
       db =
           server.openDatabase(
               iDatabaseName, iAuthenticationParts.get(0), iAuthenticationParts.get(1));
-      // if (db.getUser() == null)
+      // if (db.geCurrentUser() == null)
       // // MAYBE A PREVIOUS ROOT REALM? UN AUTHORIZE
       // return false;
 
       // Set user rid after authentication
       iRequest.getData().currentUserId =
-          db.getUser() == null ? "<server user>" : db.getUser().getIdentity(db).toString();
+          db.geCurrentUser() == null ? "<server user>"
+              : db.geCurrentUser().getIdentity(db).toString();
 
       // AUTHENTICATED: CREATE THE SESSION
       iRequest.setSessionId(
@@ -300,9 +301,9 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
       localDatabase = server.openDatabase(iRequest.getDatabaseName(), iRequest.getBearerToken());
     } else {
       RID currentUserId = iRequest.getBearerToken().getToken().getUserId();
-      if (currentUserId != null && localDatabase.getUser() != null) {
+      if (currentUserId != null && localDatabase.geCurrentUser() != null) {
         if (!currentUserId.equals(
-            localDatabase.getUser().getIdentity(localDatabase).getIdentity())) {
+            localDatabase.geCurrentUser().getIdentity(localDatabase).getIdentity())) {
           EntityImpl userDoc = localDatabase.load(currentUserId);
           localDatabase.setUser(new SecurityUserIml(localDatabase, userDoc));
         }
@@ -311,7 +312,8 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
 
     iRequest.getData().lastDatabase = localDatabase.getName();
     iRequest.getData().lastUser =
-        localDatabase.getUser() != null ? localDatabase.getUser().getName(localDatabase) : null;
+        localDatabase.geCurrentUser() != null ? localDatabase.geCurrentUser().getName(localDatabase)
+            : null;
     return localDatabase.getDatabaseOwner();
   }
 
@@ -333,8 +335,10 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
               iRequest.getDatabaseName(), session.getUserName(), session.getUserPassword());
     } else {
       String currentUserId = iRequest.getData().currentUserId;
-      if (currentUserId != null && !currentUserId.isEmpty() && localDatabase.getUser() != null) {
-        if (!currentUserId.equals(localDatabase.getUser().getIdentity(localDatabase).toString())) {
+      if (currentUserId != null && !currentUserId.isEmpty()
+          && localDatabase.geCurrentUser() != null) {
+        if (!currentUserId.equals(
+            localDatabase.geCurrentUser().getIdentity(localDatabase).toString())) {
           EntityImpl userDoc = localDatabase.load(new RecordId(currentUserId));
           localDatabase.setUser(new SecurityUserIml(localDatabase, userDoc));
         }
@@ -343,7 +347,8 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
 
     iRequest.getData().lastDatabase = localDatabase.getName();
     iRequest.getData().lastUser =
-        localDatabase.getUser() != null ? localDatabase.getUser().getName(localDatabase) : null;
+        localDatabase.geCurrentUser() != null ? localDatabase.geCurrentUser().getName(localDatabase)
+            : null;
     iRequest.getExecutor().setDatabase(localDatabase);
     return localDatabase.getDatabaseOwner();
   }

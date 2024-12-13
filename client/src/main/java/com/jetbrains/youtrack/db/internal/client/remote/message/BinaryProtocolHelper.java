@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.client.remote.message;
 
-import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.NETWORK_BINARY_MIN_PROTOCOL_VERSION;
+import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.NETWORK_BINARY_MIN_PROTOCOL_VERSION;
 import static com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol.OLDEST_SUPPORTED_PROTOCOL_VERSION;
 
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 
 public class BinaryProtocolHelper {
 

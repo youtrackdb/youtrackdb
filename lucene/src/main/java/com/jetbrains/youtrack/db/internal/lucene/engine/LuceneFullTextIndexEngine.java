@@ -18,12 +18,12 @@ package com.jetbrains.youtrack.db.internal.lucene.engine;
 
 import static com.jetbrains.youtrack.db.internal.lucene.builder.LuceneQueryBuilder.EMPTY_METADATA;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.id.ContextualRecordId;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.IndexKeyUpdater;
@@ -143,14 +143,14 @@ public class LuceneFullTextIndexEngine extends LuceneIndexEngineAbstract {
   public boolean validatedPut(
       AtomicOperation atomicOperation,
       Object key,
-      com.jetbrains.youtrack.db.internal.core.id.RID value,
-      IndexEngineValidator<Object, com.jetbrains.youtrack.db.internal.core.id.RID> validator) {
+      com.jetbrains.youtrack.db.api.record.RID value,
+      IndexEngineValidator<Object, com.jetbrains.youtrack.db.api.record.RID> validator) {
     throw new UnsupportedOperationException(
         "Validated put is not supported by LuceneFullTextIndexEngine");
   }
 
   @Override
-  public Stream<RawPair<Object, com.jetbrains.youtrack.db.internal.core.id.RID>> iterateEntriesBetween(
+  public Stream<RawPair<Object, com.jetbrains.youtrack.db.api.record.RID>> iterateEntriesBetween(
       DatabaseSessionInternal session, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
@@ -175,7 +175,7 @@ public class LuceneFullTextIndexEngine extends LuceneIndexEngineAbstract {
   }
 
   @Override
-  public Stream<RawPair<Object, com.jetbrains.youtrack.db.internal.core.id.RID>> iterateEntriesMajor(
+  public Stream<RawPair<Object, com.jetbrains.youtrack.db.api.record.RID>> iterateEntriesMajor(
       Object fromKey,
       boolean isInclusive,
       boolean ascSortOrder,
@@ -184,7 +184,7 @@ public class LuceneFullTextIndexEngine extends LuceneIndexEngineAbstract {
   }
 
   @Override
-  public Stream<RawPair<Object, com.jetbrains.youtrack.db.internal.core.id.RID>> iterateEntriesMinor(
+  public Stream<RawPair<Object, com.jetbrains.youtrack.db.api.record.RID>> iterateEntriesMinor(
       Object toKey,
       boolean isInclusive,
       boolean ascSortOrder,

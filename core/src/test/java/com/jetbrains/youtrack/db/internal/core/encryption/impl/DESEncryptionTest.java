@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.encryption.impl;
 
-import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
+import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import java.util.Base64;
 import org.junit.Assert;
 import org.junit.Test;

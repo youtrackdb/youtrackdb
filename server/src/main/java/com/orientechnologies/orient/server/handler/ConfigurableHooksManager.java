@@ -21,11 +21,11 @@
 package com.orientechnologies.orient.server.handler;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseLifecycleListener;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
+import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.config.OServerHookConfiguration;
@@ -52,14 +52,14 @@ public class ConfigurableHooksManager implements DatabaseLifecycleListener {
   public ConfigurableHooksManager(final OServerConfiguration iCfg) {
     configuredHooks = iCfg.hooks;
     if (configuredHooks != null && !configuredHooks.isEmpty()) {
-      YouTrackDBManager.instance().addDbLifecycleListener(this);
+      YouTrackDBEnginesManager.instance().addDbLifecycleListener(this);
     }
   }
 
   public void addHook(OServerHookConfiguration configuration) {
     if (this.configuredHooks == null) {
       configuredHooks = new ArrayList<>();
-      YouTrackDBManager.instance().addDbLifecycleListener(this);
+      YouTrackDBEnginesManager.instance().addDbLifecycleListener(this);
     }
     configuredHooks.add(configuration);
   }

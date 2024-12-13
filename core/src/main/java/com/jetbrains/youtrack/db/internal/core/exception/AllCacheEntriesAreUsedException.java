@@ -20,6 +20,8 @@
 
 package com.jetbrains.youtrack.db.internal.core.exception;
 
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+
 public class AllCacheEntriesAreUsedException extends DatabaseException {
 
   public AllCacheEntriesAreUsedException(AllCacheEntriesAreUsedException exception) {

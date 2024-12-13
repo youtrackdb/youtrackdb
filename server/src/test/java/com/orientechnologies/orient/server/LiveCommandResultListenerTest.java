@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.atLeastOnce;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
-import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHook;
@@ -67,7 +67,7 @@ public class LiveCommandResultListenerTest extends BaseMemoryInternalDatabase {
     connection = manager.connect(protocol);
     OTokenHandlerImpl tokenHandler = new OTokenHandlerImpl(new ContextConfiguration());
     Mockito.when(server.getTokenHandler()).thenReturn(tokenHandler);
-    byte[] token = tokenHandler.getSignedBinaryToken(db, db.getUser(), connection.getData());
+    byte[] token = tokenHandler.getSignedBinaryToken(db, db.geCurrentUser(), connection.getData());
     connection = manager.connect(protocol, connection, token);
     connection.setDatabase(db);
     connection.getData().setSerializationImpl(RecordSerializerNetwork.NAME);

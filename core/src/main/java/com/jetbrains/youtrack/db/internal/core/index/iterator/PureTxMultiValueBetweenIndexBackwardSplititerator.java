@@ -2,8 +2,8 @@ package com.jetbrains.youtrack.db.internal.core.index.iterator;
 
 import com.jetbrains.youtrack.db.internal.common.comparator.DefaultComparator;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.index.IndexMultiValues;
 import com.jetbrains.youtrack.db.internal.core.iterator.EmptyIterator;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges;

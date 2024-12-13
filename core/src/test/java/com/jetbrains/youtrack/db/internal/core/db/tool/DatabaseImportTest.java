@@ -1,10 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.db.tool;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.YourTracks;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -20,7 +21,7 @@ public class DatabaseImportTest {
   public void exportImportOnlySchemaTest() throws IOException {
     String databaseName = "export";
     final String exportDbPath = "target/export_" + DatabaseImportTest.class.getSimpleName();
-    YouTrackDB youTrackDB = YouTrackDB.embedded(exportDbPath, YouTrackDBConfig.defaultConfig());
+    YouTrackDB youTrackDB = YourTracks.embedded(exportDbPath, YouTrackDBConfig.defaultConfig());
     youTrackDB.createIfNotExists(databaseName, DatabaseType.PLOCAL, "admin", "admin", "admin");
 
     final ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -37,7 +38,7 @@ public class DatabaseImportTest {
     youTrackDB.close();
 
     final String importDbPath = "target/import_" + DatabaseImportTest.class.getSimpleName();
-    youTrackDB = YouTrackDB.embedded(importDbPath, YouTrackDBConfig.defaultConfig());
+    youTrackDB = YourTracks.embedded(importDbPath, YouTrackDBConfig.defaultConfig());
     databaseName = "import";
 
     youTrackDB.createIfNotExists(databaseName, DatabaseType.PLOCAL, "admin", "admin", "admin");

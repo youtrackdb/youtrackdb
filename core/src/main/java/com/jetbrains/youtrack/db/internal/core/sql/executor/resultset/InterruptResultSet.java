@@ -3,7 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor.resultset;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.ExecutionThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.exception.CommandInterruptedException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.api.query.Result;
 
 public class InterruptResultSet implements ExecutionStream {
 

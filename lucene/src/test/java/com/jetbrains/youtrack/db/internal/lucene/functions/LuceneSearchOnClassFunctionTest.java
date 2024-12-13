@@ -2,7 +2,7 @@ package com.jetbrains.youtrack.db.internal.lucene.functions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.lucene.tests.LuceneBaseTest;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.InputStream;

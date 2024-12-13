@@ -4,21 +4,21 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.Date;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -173,7 +173,7 @@ public class DefaultValuesTrivialTest {
 
     Property prop = classA.createProperty(database, "name", PropertyType.STRING);
     prop.setDefaultValue(database, "default name");
-    Index index = prop.createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+    prop.createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     {
       EntityImpl doc = new EntityImpl(classA);
@@ -181,7 +181,8 @@ public class DefaultValuesTrivialTest {
       database.begin();
       database.save(doc);
       database.commit();
-      try (Stream<RID> stream = index.getInternal().getRids(database, "default name")) {
+      try (Stream<RID> stream = database.getIndex("ClassA.name").getInternal()
+          .getRids(database, "default name")) {
         assertEquals(1, stream.count());
       }
     }
@@ -196,7 +197,7 @@ public class DefaultValuesTrivialTest {
 
     Property prop = classA.createProperty(database, "name", PropertyType.STRING);
     prop.setDefaultValue(database, "default name");
-    Index index = prop.createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+    prop.createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     {
       database.begin();
@@ -207,10 +208,14 @@ public class DefaultValuesTrivialTest {
       database.save(doc);
       database.commit();
 
-      try (Stream<RID> stream = index.getInternal().getRids(database, "default name")) {
+      var index = database.getIndex("ClassA.name");
+      try (Stream<RID> stream = index.getInternal()
+          .getRids(database, "default name")) {
         assertEquals(1, stream.count());
       }
       database.commit();
+
+      index = database.getIndex("ClassA.name");
       try (Stream<RID> stream = index.getInternal().getRids(database, "default name")) {
         assertEquals(1, stream.count());
       }
@@ -226,9 +231,10 @@ public class DefaultValuesTrivialTest {
 
     Property prop = classA.createProperty(database, "name", PropertyType.STRING);
     prop.setDefaultValue(database, "default name");
-    Property prop2 = classA.createProperty(database, "value", PropertyType.STRING);
-    Index index = classA.createIndex(database, "multi", SchemaClass.INDEX_TYPE.NOTUNIQUE, "value",
+    classA.createProperty(database, "value", PropertyType.STRING);
+    classA.createIndex(database, "multi", SchemaClass.INDEX_TYPE.NOTUNIQUE, "value",
         "name");
+    Index index = database.getIndex("multi");
 
     {
       EntityImpl doc = new EntityImpl(classA);

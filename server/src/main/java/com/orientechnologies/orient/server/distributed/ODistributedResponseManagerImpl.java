@@ -20,10 +20,10 @@
 package com.orientechnologies.orient.server.distributed;
 
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentCreateException;
+import com.jetbrains.youtrack.db.api.exception.ConcurrentCreateException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.distributed.ODistributedServerLog.DIRECTION;
 import com.orientechnologies.orient.server.distributed.task.DistributedOperationException;
@@ -130,7 +130,7 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
             request,
             getExpectedNodes());
 
-        YouTrackDBManager.instance()
+        YouTrackDBEnginesManager.instance()
             .getProfiler()
             .updateCounter(
                 "distributed.node.unexpectedNodeResponse",
@@ -392,7 +392,7 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
       return isMinimumQuorumReached(reachedTimeout);
 
     } finally {
-      YouTrackDBManager.instance()
+      YouTrackDBEnginesManager.instance()
           .getProfiler()
           .stopChrono(
               "distributed.synchResponses",

@@ -23,12 +23,13 @@ package com.jetbrains.youtrack.db.internal.core.db;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import java.io.File;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -46,29 +47,19 @@ import org.junit.Test;
 /**
  *
  */
-public class FreezeAndRecordInsertAtomicityTest {
+public class FreezeAndRecordInsertAtomicityTest extends DbTestBase {
 
-  private static final String URL;
-  private static final int THREADS = Runtime.getRuntime().availableProcessors() * 2;
+  private static final int THREADS = Runtime.getRuntime().availableProcessors() << 1;
   private static final int ITERATIONS = 100;
 
-  static {
-    String buildDirectory = System.getProperty("buildDirectory");
-    if (buildDirectory == null) {
-      buildDirectory = "./target";
-    }
-
-    URL =
-        "plocal:"
-            + buildDirectory
-            + File.separator
-            + FreezeAndRecordInsertAtomicityTest.class.getSimpleName();
-  }
-
   private Random random;
-  private DatabaseDocumentTx db;
   private ExecutorService executorService;
   private CountDownLatch countDownLatch;
+
+  @Override
+  protected DatabaseType calculateDbType() {
+    return DatabaseType.PLOCAL;
+  }
 
   @Before
   public void before() {
@@ -76,12 +67,6 @@ public class FreezeAndRecordInsertAtomicityTest {
     System.out.println(FreezeAndRecordInsertAtomicityTest.class.getSimpleName() + " seed: " + seed);
     random = new Random(seed);
 
-    db = new DatabaseDocumentTx(URL);
-    if (db.exists()) {
-      db.open("admin", "admin");
-      db.drop();
-    }
-    db.create();
     db.getMetadata()
         .getSchema()
         .createClass("Person")
@@ -89,7 +74,6 @@ public class FreezeAndRecordInsertAtomicityTest {
         .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
 
     executorService = Executors.newFixedThreadPool(THREADS);
-
     countDownLatch = new CountDownLatch(THREADS);
   }
 
@@ -97,8 +81,6 @@ public class FreezeAndRecordInsertAtomicityTest {
   public void after() throws InterruptedException {
     executorService.shutdown();
     assertTrue(executorService.awaitTermination(5, TimeUnit.SECONDS));
-
-    db.drop();
   }
 
   @Test
@@ -111,12 +93,9 @@ public class FreezeAndRecordInsertAtomicityTest {
       futures.add(
           executorService.submit(
               () -> {
-                try {
-                  final DatabaseSessionInternal db = new DatabaseDocumentTx(URL);
-                  db.open("admin", "admin");
+                try (final DatabaseSessionInternal db = openDatabase()) {
                   final Index index =
                       db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.name");
-
                   for (int i1 = 0; i1 < ITERATIONS; ++i1) {
                     switch (random.nextInt(2)) {
                       case 0:

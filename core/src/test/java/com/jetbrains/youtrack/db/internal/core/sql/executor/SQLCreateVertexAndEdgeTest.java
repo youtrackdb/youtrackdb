@@ -17,10 +17,11 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import static org.junit.Assert.assertEquals;
 
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,10 +37,10 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
     int eclusterId = db.addCluster("edefault");
 
     db.command("create class V1 extends V").close();
-    db.command("alter class V1 addcluster vdefault").close();
+    db.command("alter class V1 add_cluster vdefault").close();
 
     db.command("create class E1 extends E").close();
-    db.command("alter class E1 addcluster edefault").close();
+    db.command("alter class E1 add_cluster edefault").close();
 
     // VERTEXES
     db.begin();

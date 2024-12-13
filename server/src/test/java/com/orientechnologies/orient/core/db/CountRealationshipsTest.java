@@ -2,13 +2,14 @@ package com.orientechnologies.orient.core.db;
 
 import static org.junit.Assert.assertEquals;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.record.Direction;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.record.Direction;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import org.junit.After;
@@ -31,7 +32,7 @@ public class CountRealationshipsTest {
     server.startup(getClass().getResourceAsStream("orientdb-server-config-tree-ridbag.xml"));
     server.activate();
 
-    youTrackDB = new YouTrackDB("remote:localhost", "root", "root",
+    youTrackDB = new YouTrackDBImpl("remote:localhost", "root", "root",
         YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
@@ -67,7 +68,7 @@ public class CountRealationshipsTest {
     vertex2 = g.load(vertex2.getIdentity());
     vertex1 = g.load(vertex1.getIdentity());
 
-    vertex1.addEdge(vertex2);
+    vertex1.addRegularEdge(vertex2);
     vertex1.save();
 
     version = vertex1.getProperty("@version");
@@ -127,8 +128,8 @@ public class CountRealationshipsTest {
   public void after() {
     youTrackDB.close();
     server.shutdown();
-    YouTrackDBManager.instance().shutdown();
+    YouTrackDBEnginesManager.instance().shutdown();
     FileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    YouTrackDBManager.instance().startup();
+    YouTrackDBEnginesManager.instance().startup();
   }
 }

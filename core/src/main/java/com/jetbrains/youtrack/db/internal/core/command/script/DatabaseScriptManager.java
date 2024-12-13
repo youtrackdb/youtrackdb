@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal.core.command.script;
 
 import com.jetbrains.youtrack.db.internal.common.concur.resource.ResourcePoolListener;
 import com.jetbrains.youtrack.db.internal.common.concur.resource.ResourcePoolFactory;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;

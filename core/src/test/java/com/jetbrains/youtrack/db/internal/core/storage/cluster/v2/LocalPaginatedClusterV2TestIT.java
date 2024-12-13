@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.storage.cluster.v2;
 
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.LocalPaginatedClusterAbstract;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.io.File;
@@ -25,7 +25,7 @@ public class LocalPaginatedClusterV2TestIT extends LocalPaginatedClusterAbstract
     dbName = "clusterTest";
 
     final YouTrackDBConfig config = YouTrackDBConfig.defaultConfig();
-    youTrackDB = new YouTrackDB("plocal:" + buildDirectory, config);
+    youTrackDB = new YouTrackDBImpl("plocal:" + buildDirectory, config);
     youTrackDB.execute(
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 

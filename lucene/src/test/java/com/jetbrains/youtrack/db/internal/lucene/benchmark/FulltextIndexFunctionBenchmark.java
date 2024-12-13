@@ -1,13 +1,14 @@
 package com.jetbrains.youtrack.db.internal.lucene.benchmark;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
+import com.jetbrains.youtrack.db.api.DatabaseType;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
@@ -77,7 +78,7 @@ public class FulltextIndexFunctionBenchmark {
     } else {
       type = DatabaseType.MEMORY;
     }
-    context = new YouTrackDB(path, YouTrackDBConfig.defaultConfig());
+    context = new YouTrackDBImpl(path, YouTrackDBConfig.defaultConfig());
 
     if (context.exists(name)) {
       context.drop(name);
@@ -87,7 +88,7 @@ public class FulltextIndexFunctionBenchmark {
         "create database " + name + " plocal users ( admin identified by 'admin' role admin)");
 
     db = (DatabaseSessionInternal) context.open(name, "admin", "admin");
-    db.set(ATTRIBUTES.MINIMUMCLUSTERS, 8);
+    db.set(DatabaseSession.ATTRIBUTES.MINIMUM_CLUSTERS, 8);
   }
 
   private String getScriptFromStream(final InputStream scriptStream) {

@@ -2,8 +2,8 @@ package com.jetbrains.youtrack.db.internal.lucene.functions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.lucene.test.BaseLuceneTest;
 import java.io.InputStream;
 import org.junit.Before;
@@ -26,7 +26,7 @@ public class LuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
   public void shouldSearchMoreLikeThisWithRid() throws Exception {
     db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE ");
     SchemaClass clazz = db.getMetadata().getSchema().getClass("Song");
-    int defCluster = clazz.getDefaultClusterId();
+    int defCluster = clazz.getClusterIds()[0];
 
     try (ResultSet resultSet =
         db.query(
@@ -45,7 +45,7 @@ public class LuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
     db.command("create index Song.multi on Song (title,author) FULLTEXT ENGINE LUCENE ");
 
     SchemaClass clazz = db.getMetadata().getSchema().getClass("Song");
-    int defCluster = clazz.getDefaultClusterId();
+    int defCluster = clazz.getClusterIds()[0];
 
     try (ResultSet resultSet =
         db.query(
@@ -63,7 +63,7 @@ public class LuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
     db.command("create index Song.multi on Song (title) FULLTEXT ENGINE LUCENE ");
 
     SchemaClass clazz = db.getMetadata().getSchema().getClass("Song");
-    int defCluster = clazz.getDefaultClusterId();
+    int defCluster = clazz.getClusterIds()[0];
 
     try (ResultSet resultSet =
         db.query(
@@ -86,7 +86,7 @@ public class LuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
     db.command("create index Song.multi on Song (title) FULLTEXT ENGINE LUCENE ");
 
     SchemaClass clazz = db.getMetadata().getSchema().getClass("Song");
-    int defCluster = clazz.getDefaultClusterId();
+    int defCluster = clazz.getClusterIds()[0];
 
     try (ResultSet resultSet =
         db.query(
@@ -106,7 +106,7 @@ public class LuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
     db.command("create index Song.multi on Song (title,author) FULLTEXT ENGINE LUCENE ");
 
     SchemaClass clazz = db.getMetadata().getSchema().getClass("Song");
-    int defCluster = clazz.getDefaultClusterId();
+    int defCluster = clazz.getClusterIds()[0];
 
     try (ResultSet resultSet =
         db.query(

@@ -20,8 +20,8 @@
 package com.jetbrains.youtrack.db.internal.core.db;
 
 import com.jetbrains.youtrack.db.internal.common.thread.SoftThread;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBListenerAbstract;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.db.ExecutionThreadLocal.ExecutionThreadData;
 import com.jetbrains.youtrack.db.internal.core.replication.AsyncReplicationError;
 import com.jetbrains.youtrack.db.internal.core.replication.AsyncReplicationOk;
@@ -66,7 +66,7 @@ public class ExecutionThreadLocal extends ThreadLocal<ExecutionThreadData> {
   }
 
   static {
-    final YouTrackDBManager inst = YouTrackDBManager.instance();
+    final YouTrackDBEnginesManager inst = YouTrackDBEnginesManager.instance();
     inst.registerListener(
         new YouTrackDBListenerAbstract() {
           @Override

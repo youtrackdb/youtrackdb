@@ -1,15 +1,16 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v3;
 
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.ReadCache;
@@ -77,27 +78,22 @@ public class LocalHashTableV3WALTestIT extends LocalHashTableV3Base {
     FileUtils.deleteRecursively(buildDir);
 
     youTrackDB =
-        new YouTrackDB(
+        new YouTrackDBImpl(
             DbTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()
-                .addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addGlobalConfigurationParameter(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
 
     CreateDatabaseUtil.createDatabase(ACTUAL_DB_NAME, youTrackDB, CreateDatabaseUtil.TYPE_PLOCAL);
     // youTrackDB.create(ACTUAL_DB_NAME, DatabaseType.PLOCAL);
     databaseDocumentTx =
         youTrackDB.open(ACTUAL_DB_NAME, "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    ((DatabaseSessionInternal) databaseDocumentTx).getSharedContext().getViewManager().close();
 
     CreateDatabaseUtil.createDatabase(EXPECTED_DB_NAME, youTrackDB,
         CreateDatabaseUtil.TYPE_PLOCAL);
     // youTrackDB.create(EXPECTED_DB_NAME, DatabaseType.PLOCAL);
     expectedDatabaseDocumentTx =
         youTrackDB.open(EXPECTED_DB_NAME, "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    ((DatabaseSessionInternal) expectedDatabaseDocumentTx)
-        .getSharedContext()
-        .getViewManager()
-        .close();
     expectedStorage =
         ((LocalPaginatedStorage)
             ((DatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage());

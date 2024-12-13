@@ -18,7 +18,7 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
 import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;

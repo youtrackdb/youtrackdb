@@ -1,25 +1,30 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
+import com.jetbrains.youtrack.db.api.query.ExecutionStep;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.util.PairIntegerObject;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaView;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLAbstract;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.AggregateProjectionSplit;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.ExecutionPlanCache;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBaseExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
@@ -27,7 +32,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCluster;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLEqualsCompareOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ExecutionPlanCache;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromItem;
@@ -487,9 +491,6 @@ public class SelectExecutionPlanner {
       String className = item.getIdentifier().getStringValue();
       SchemaClass clazz = getSchemaFromContext(ctx).getClass(className);
       if (clazz == null) {
-        clazz = getSchemaFromContext(ctx).getView(className);
-      }
-      if (clazz == null) {
         return null;
       }
       int[] clusterIds = clazz.getPolymorphicClusterIds();
@@ -660,11 +661,11 @@ public class SelectExecutionPlanner {
         || info.skip != null) {
       return false;
     }
-    SchemaClass clazz =
+    var clazz =
         ctx.getDatabase()
             .getMetadata()
             .getImmutableSchemaSnapshot()
-            .getClass(targetClass.getStringValue());
+            .getClassInternal(targetClass.getStringValue());
     if (clazz == null) {
       return false;
     }
@@ -689,7 +690,7 @@ public class SelectExecutionPlanner {
       return false;
     }
 
-    for (Index classIndex : clazz.getClassIndexes(ctx.getDatabase())) {
+    for (Index classIndex : clazz.getClassIndexesInternal(ctx.getDatabase())) {
       List<String> fields = classIndex.getDefinition().getFields();
       if (fields.size() == 1
           && fields.get(0).equals(binaryCondition.getLeft().getDefaultAlias().getStringValue())) {
@@ -877,11 +878,8 @@ public class SelectExecutionPlanner {
         && info.target != null
         && info.target.getItem().getIdentifier() != null) {
       String className = info.target.getItem().getIdentifier().getStringValue();
-      Schema schema = getSchemaFromContext(ctx);
-      SchemaClass clazz = schema.getClass(className);
-      if (clazz == null) {
-        clazz = schema.getView(className);
-      }
+      var schema = getSchemaFromContext(ctx);
+      SchemaClassInternal clazz = schema.getClassInternal(className);
       if (clazz != null) {
         info.whereClause.getBaseExpression().rewriteIndexChainsAsSubqueries(ctx, clazz);
       }
@@ -1972,10 +1970,6 @@ public class SelectExecutionPlanner {
       fetcher =
           new FetchFromClassExecutionStep(
               className, filterClusters, info, ctx, orderByRidAsc, profilingEnabled);
-    } else if (schema.getView(className) != null) {
-      fetcher =
-          new FetchFromViewExecutionStep(
-              className, filterClusters, info, ctx, orderByRidAsc, profilingEnabled);
     } else {
       throw new CommandExecutionException(
           "Class or View not present in the schema: " + className);
@@ -2009,13 +2003,10 @@ public class SelectExecutionPlanner {
     if (queryTarget == null) {
       return false;
     }
-    Schema schema = getSchemaFromContext(ctx);
-    SchemaClass clazz = schema.getClass(queryTarget.getStringValue());
+    var schema = getSchemaFromContext(ctx);
+    SchemaClassInternal clazz = schema.getClassInternal(queryTarget.getStringValue());
     if (clazz == null) {
-      clazz = schema.getView(queryTarget.getStringValue());
-      if (clazz == null) {
-        throw new CommandExecutionException("Class not found: " + queryTarget);
-      }
+      throw new CommandExecutionException("Class not found: " + queryTarget);
     }
     if (info.flattenedWhereClause == null || info.flattenedWhereClause.size() == 0) {
       return false;
@@ -2032,8 +2023,9 @@ public class SelectExecutionPlanner {
       indexedFunctionConditions =
           filterIndexedFunctionsWithoutIndex(indexedFunctionConditions, info.target, ctx);
 
-      if (indexedFunctionConditions == null || indexedFunctionConditions.size() == 0) {
-        IndexSearchDescriptor bestIndex = findBestIndexFor(ctx, clazz.getIndexes(ctx.getDatabase()),
+      if (indexedFunctionConditions == null || indexedFunctionConditions.isEmpty()) {
+        IndexSearchDescriptor bestIndex = findBestIndexFor(ctx,
+            clazz.getIndexesInternal(ctx.getDatabase()),
             block, clazz);
         if (bestIndex != null) {
 
@@ -2065,15 +2057,10 @@ public class SelectExecutionPlanner {
           resultSubPlans.add(subPlan);
         } else {
           FetchFromClassExecutionStep step;
-          if (clazz instanceof SchemaView) {
-            step =
-                new FetchFromViewExecutionStep(
-                    clazz.getName(), filterClusters, info, ctx, true, profilingEnabled);
-          } else {
-            step =
-                new FetchFromClassExecutionStep(
-                    clazz.getName(), filterClusters, ctx, true, profilingEnabled);
-          }
+          step =
+              new FetchFromClassExecutionStep(
+                  clazz.getName(), filterClusters, ctx, true, profilingEnabled);
+
           SelectExecutionPlan subPlan = new SelectExecutionPlan(ctx);
           subPlan.chain(step);
           if (!block.getSubBlocks().isEmpty()) {
@@ -2226,17 +2213,14 @@ public class SelectExecutionPlanner {
       QueryPlanningInfo info,
       CommandContext ctx,
       boolean profilingEnabled) {
-    Schema schema = getSchemaFromContext(ctx);
-    SchemaClass clazz = schema.getClass(queryTarget.getStringValue());
+    var schema = getSchemaFromContext(ctx);
+    var clazz = schema.getClassInternal(queryTarget.getStringValue());
     if (clazz == null) {
-      clazz = schema.getView(queryTarget.getStringValue());
-      if (clazz == null) {
-        throw new CommandExecutionException("Class not found: " + queryTarget);
-      }
+      throw new CommandExecutionException("Class not found: " + queryTarget);
     }
 
     for (Index idx :
-        clazz.getIndexes(ctx.getDatabase()).stream()
+        clazz.getIndexesInternal(ctx.getDatabase()).stream()
             .filter(i -> i.supportsOrderedIterations())
             .filter(i -> i.getDefinition() != null)
             .collect(Collectors.toList())) {
@@ -2320,14 +2304,13 @@ public class SelectExecutionPlanner {
       info.flattenedWhereClause = null;
       return true;
     }
-    Schema schema = getSchemaFromContext(ctx);
-    SchemaClass clazz = schema.getClass(targetClass.getStringValue());
+    var schema = getSchemaFromContext(ctx);
+    var clazz = schema.getClassInternal(targetClass.getStringValue());
+
     if (clazz == null) {
-      clazz = schema.getView(targetClass.getStringValue());
-      if (clazz == null) {
-        throw new CommandExecutionException("Class not found: " + targetClass);
-      }
+      throw new CommandExecutionException("Class not found: " + targetClass);
     }
+
     if (clazz.count(ctx.getDatabase(), false) != 0 || clazz.getSubclasses().size() == 0
         || isDiamondHierarchy(clazz)) {
       return false;
@@ -2389,10 +2372,7 @@ public class SelectExecutionPlanner {
         handleClassAsTargetWithIndex(targetClass, filterClusters, info, ctx, profilingEnabled);
     if (result == null) {
       result = new ArrayList<>();
-      SchemaClass clazz = getSchemaFromContext(ctx).getClass(targetClass);
-      if (clazz == null) {
-        clazz = getSchemaFromContext(ctx).getView(targetClass);
-      }
+      var clazz = getSchemaFromContext(ctx).getClassInternal(targetClass);
       if (clazz == null) {
         throw new CommandExecutionException("Cannot find class " + targetClass);
       }
@@ -2433,15 +2413,12 @@ public class SelectExecutionPlanner {
       return null;
     }
 
-    SchemaClass clazz = getSchemaFromContext(ctx).getClass(targetClass);
-    if (clazz == null) {
-      clazz = getSchemaFromContext(ctx).getView(targetClass);
-    }
+    var clazz = getSchemaFromContext(ctx).getClassInternal(targetClass);
     if (clazz == null) {
       throw new CommandExecutionException("Cannot find class " + targetClass);
     }
 
-    Set<Index> indexes = clazz.getIndexes(ctx.getDatabase());
+    Set<Index> indexes = clazz.getIndexesInternal(ctx.getDatabase());
 
     final SchemaClass c = clazz;
     List<IndexSearchDescriptor> indexSearchDescriptors =
@@ -2524,7 +2501,7 @@ public class SelectExecutionPlanner {
     return result;
   }
 
-  private static Schema getSchemaFromContext(CommandContext ctx) {
+  private static SchemaInternal getSchemaFromContext(CommandContext ctx) {
     return ctx.getDatabase().getMetadata().getImmutableSchemaSnapshot();
   }
 

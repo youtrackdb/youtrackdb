@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.exception;
 
-import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 
 public class QueryParsingException extends CommandSQLParsingException {
 

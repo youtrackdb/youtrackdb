@@ -14,19 +14,19 @@
  */
 package com.jetbrains.youtrack.db.internal.core.storage.cluster.v2;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.common.util.RawPairObjectInteger;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.config.StorageClusterConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.StoragePaginatedClusterConfiguration;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
 import com.jetbrains.youtrack.db.internal.core.exception.PaginatedClusterException;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
@@ -1223,7 +1223,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
     acquireExclusiveLock();
     try {
       recordConflictStrategy =
-          YouTrackDBManager.instance().getRecordConflictStrategy().getStrategy(stringValue);
+          YouTrackDBEnginesManager.instance().getRecordConflictStrategy().getStrategy(stringValue);
     } finally {
       releaseExclusiveLock();
     }
@@ -1252,7 +1252,8 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
 
     if (conflictStrategy != null) {
       this.recordConflictStrategy =
-          YouTrackDBManager.instance().getRecordConflictStrategy().getStrategy(conflictStrategy);
+          YouTrackDBEnginesManager.instance().getRecordConflictStrategy()
+              .getStrategy(conflictStrategy);
     }
 
     this.id = id;

@@ -20,12 +20,12 @@
 package com.jetbrains.youtrack.db.internal.core.command.script;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.Edge;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Edge;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.Map;
 
 /**
@@ -81,11 +81,11 @@ public class ScriptDatabaseWrapper {
   }
 
   public Edge newEdge(Vertex from, Vertex to) {
-    return this.database.newEdge(from, to);
+    return this.database.newRegularEdge(from, to);
   }
 
   public Edge newEdge(Vertex from, Vertex to, String edgeClassName) {
-    return this.database.newEdge(from, to, edgeClassName);
+    return this.database.newRegularEdge(from, to, edgeClassName);
   }
 
   public Record save(Record element) {

@@ -38,7 +38,7 @@ public class YouTrackDBShutdownHook extends Thread {
   @Override
   public void run() {
     try {
-      YouTrackDBManager.instance().shutdown();
+      YouTrackDBEnginesManager.instance().shutdown();
     } finally {
       LogManager.instance().shutdown();
     }

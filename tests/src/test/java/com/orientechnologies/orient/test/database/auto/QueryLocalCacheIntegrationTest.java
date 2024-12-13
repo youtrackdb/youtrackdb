@@ -15,10 +15,10 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.ArrayList;
@@ -115,11 +115,12 @@ public class QueryLocalCacheIntegrationTest extends DocumentDBBaseTest {
 
   @Test
   public void queryTest() {
-    final long times = YouTrackDBManager.instance().getProfiler().getCounter("Cache.reused");
+    final long times = YouTrackDBEnginesManager.instance().getProfiler().getCounter("Cache.reused");
 
     List<EntityImpl> resultset =
         database.query(new SQLSynchQuery<EntityImpl>("select * from FetchClass"));
-    Assert.assertEquals(YouTrackDBManager.instance().getProfiler().getCounter("Cache.reused"),
+    Assert.assertEquals(
+        YouTrackDBEnginesManager.instance().getProfiler().getCounter("Cache.reused"),
         times);
 
     RID linked;

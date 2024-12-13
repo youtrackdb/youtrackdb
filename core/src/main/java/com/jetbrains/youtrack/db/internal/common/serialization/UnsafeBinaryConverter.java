@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.common.serialization;
 
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import java.lang.reflect.Field;
 import java.nio.ByteOrder;
 import java.security.AccessController;

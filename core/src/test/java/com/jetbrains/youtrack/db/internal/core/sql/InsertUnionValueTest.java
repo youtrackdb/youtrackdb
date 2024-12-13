@@ -2,10 +2,11 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import static org.junit.Assert.assertEquals;
 
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +17,7 @@ public class InsertUnionValueTest {
 
   @Before
   public void before() {
-    youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
+    youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
     youTrackDB
         .execute(
@@ -39,21 +40,23 @@ public class InsertUnionValueTest {
       session
           .execute(
               "SQL",
-              "  begin; "
-                  + "  let $example = create vertex example;\n"
-                  + "  let $a = {\"aKey\":\"aValue\"};\n"
-                  + "  let $b = {\"anotherKey\":\"anotherValue\"};\n"
-                  + "  let $u = unionAll($a, $b); \n"
-                  + "\n"
-                  + "  /* both of the following throw the exception and require to restart the"
-                  + " server*/\n"
-                  + "  update $example set metadata[\"something\"] = $u;\n"
-                  + "  update $example set metadata.something = $u;"
-                  + "  commit;")
+              """
+                    begin; \
+                    let $example = create vertex example;
+                    let $a = {"aKey":"aValue"};
+                    let $b = {"anotherKey":"anotherValue"};
+                    let $u = unionAll($a, $b);\s
+                  
+                    /* both of the following throw the exception and require to restart the\
+                   server*/
+                    update $example set metadata["something"] = $u;
+                    update $example set metadata.something = $u;\
+                    commit;\
+                  """)
           .close();
       long entries =
           session.query("select expand(metadata.something) from example").stream().count();
-      assertEquals(entries, 2);
+      assertEquals(2, entries);
     }
   }
 }

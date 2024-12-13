@@ -15,18 +15,19 @@
  */
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BytesContainer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerBinary;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.VarIntSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ResultBinary;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.VarIntSerializer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,7 +72,7 @@ public class RecordSerializerBinaryTest {
 
   @Before
   public void before() {
-    odb = new YouTrackDB("memory:", YouTrackDBConfig.defaultConfig());
+    odb = new YouTrackDBImpl("memory:", YouTrackDBConfig.defaultConfig());
     odb.execute("create database test memory users ( admin identified by 'admin' role admin)");
     db = odb.open("test", "admin", "admin");
     db.createClass("TestClass");

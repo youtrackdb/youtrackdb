@@ -20,10 +20,10 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.List;
 import org.testng.Assert;
@@ -110,7 +110,7 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
   public void testSubclassesIndexes() throws Exception {
     database.begin();
 
-    Profiler profiler = YouTrackDBManager.instance().getProfiler();
+    Profiler profiler = YouTrackDBEnginesManager.instance().getProfiler();
 
     long indexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long indexUsageReverted = profiler.getCounter("db.demo.query.indexUseAttemptedAndReverted");
@@ -178,7 +178,7 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
   public void testBaseWithoutIndexAndSubclassesIndexes() throws Exception {
     database.begin();
 
-    Profiler profiler = YouTrackDBManager.instance().getProfiler();
+    Profiler profiler = YouTrackDBEnginesManager.instance().getProfiler();
 
     long indexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long indexUsageReverted = profiler.getCounter("db.demo.query.indexUseAttemptedAndReverted");
@@ -249,7 +249,7 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
   public void testSubclassesIndexesFailed() throws Exception {
     database.begin();
 
-    Profiler profiler = YouTrackDBManager.instance().getProfiler();
+    Profiler profiler = YouTrackDBEnginesManager.instance().getProfiler();
     profiler.startRecording();
 
     for (int i = 0; i < 10000; i++) {

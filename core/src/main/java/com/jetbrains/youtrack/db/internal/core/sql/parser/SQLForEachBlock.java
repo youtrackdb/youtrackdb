@@ -8,7 +8,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ForEachExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ForEachStep;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.GlobalLetExpressionStep;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.UpdateExecutionPlan;
 import java.util.ArrayList;
 import java.util.HashMap;

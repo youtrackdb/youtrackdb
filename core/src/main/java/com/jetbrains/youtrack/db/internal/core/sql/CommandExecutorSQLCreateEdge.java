@@ -19,19 +19,21 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItem;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionRuntime;
@@ -53,7 +55,7 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
 
   private String from;
   private String to;
-  private SchemaClass clazz;
+  private SchemaClassInternal clazz;
   private String edgeLabel;
   private String clusterName;
   private List<Pair<String, Object>> fields;
@@ -107,7 +109,8 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
         } else if (className == null && !temp.isEmpty()) {
           className = tempLower;
 
-          clazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(temp);
+          clazz = (SchemaClassInternal) database.getMetadata().getImmutableSchemaSnapshot()
+              .getClass(temp);
           if (clazz == null) {
             final int committed;
             if (database.getTransaction().isActive()) {
@@ -128,7 +131,7 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
             try {
               Schema schema = database.getMetadata().getSchema();
               SchemaClass e = schema.getClass("E");
-              clazz = schema.createClass(className, e);
+              clazz = (SchemaClassInternal) schema.createClass(className, e);
             } finally {
               // RESTART TRANSACTION
               for (int i = 0; i < committed; ++i) {
@@ -147,7 +150,8 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
       if (className == null) {
         // ASSIGN DEFAULT CLASS
         className = "E";
-        clazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
+        clazz = (SchemaClassInternal) database.getMetadata().getImmutableSchemaSnapshot()
+            .getClass(className);
       }
 
       // GET/CHECK CLASS NAME

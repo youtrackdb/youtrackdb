@@ -15,21 +15,21 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.INDEX_TYPE;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
-import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -527,7 +527,7 @@ public class SQLSelectTest extends AbstractSelectTest {
 
   @Test
   public void queryWhereRidDirectMatching() {
-    int clusterId = database.getMetadata().getSchema().getClass("ORole").getDefaultClusterId();
+    int clusterId = database.getMetadata().getSchema().getClass("ORole").getClusterIds()[0];
     List<Long> positions = getValidPositions(clusterId);
 
     List<EntityImpl> result =
@@ -742,7 +742,7 @@ public class SQLSelectTest extends AbstractSelectTest {
   @Test
   public void queryRecordTargetRid() {
     int profileClusterId =
-        database.getMetadata().getSchema().getClass("Profile").getDefaultClusterId();
+        database.getMetadata().getSchema().getClass("Profile").getClusterIds()[0];
     List<Long> positions = getValidPositions(profileClusterId);
 
     List<EntityImpl> result =
@@ -759,7 +759,7 @@ public class SQLSelectTest extends AbstractSelectTest {
   @Test
   public void queryRecordTargetRids() {
     int profileClusterId =
-        database.getMetadata().getSchema().getClass("Profile").getDefaultClusterId();
+        database.getMetadata().getSchema().getClass("Profile").getClusterIds()[0];
     List<Long> positions = getValidPositions(profileClusterId);
 
     List<EntityImpl> result =
@@ -787,7 +787,7 @@ public class SQLSelectTest extends AbstractSelectTest {
   public void queryRecordAttribRid() {
 
     int profileClusterId =
-        database.getMetadata().getSchema().getClass("Profile").getDefaultClusterId();
+        database.getMetadata().getSchema().getClass("Profile").getClusterIds()[0];
     List<Long> postions = getValidPositions(profileClusterId);
 
     List<EntityImpl> result =

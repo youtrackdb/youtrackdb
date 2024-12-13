@@ -1,14 +1,13 @@
 package com.jetbrains.youtrack.db.internal.client.remote.metadata.schema;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.SchemaException;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassAbstractDelegate;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
@@ -207,7 +206,7 @@ public class SchemaClassRemote extends SchemaClassImpl {
   }
 
   @Override
-  public SchemaClass removeSuperClass(DatabaseSession session, SchemaClass superClass) {
+  public void removeSuperClass(DatabaseSession session, SchemaClass superClass) {
     final DatabaseSessionInternal database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
     acquireSchemaWriteLock(database);
@@ -220,7 +219,6 @@ public class SchemaClassRemote extends SchemaClassImpl {
     } finally {
       releaseSchemaWriteLock(database);
     }
-    return this;
   }
 
   public SchemaClass setName(DatabaseSession session, final String name) {
@@ -307,7 +305,7 @@ public class SchemaClassRemote extends SchemaClassImpl {
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
     acquireSchemaWriteLock(database);
     try {
-      final String cmd = String.format("alter class `%s` strictmode %s", name, isStrict);
+      final String cmd = String.format("alter class `%s` strict_mode %s", name, isStrict);
       database.command(cmd);
     } finally {
       releaseSchemaWriteLock(database);
@@ -346,7 +344,7 @@ public class SchemaClassRemote extends SchemaClassImpl {
     }
     acquireSchemaWriteLock(database);
     try {
-      final String cmd = String.format("alter class `%s` addcluster %d", name, clusterId);
+      final String cmd = String.format("alter class `%s` add_cluster %d", name, clusterId);
       database.command(cmd).close();
 
     } finally {
@@ -368,7 +366,7 @@ public class SchemaClassRemote extends SchemaClassImpl {
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd = String.format("alter class `%s` removecluster %d", name, clusterId);
+      final String cmd = String.format("alter class `%s` remove_cluster %d", name, clusterId);
       database.command(cmd).close();
     } finally {
       releaseSchemaWriteLock(database);
@@ -410,7 +408,7 @@ public class SchemaClassRemote extends SchemaClassImpl {
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd = String.format("alter class `%s` addcluster `%s`", name, clusterNameOrId);
+      final String cmd = String.format("alter class `%s` add_cluster `%s`", name, clusterNameOrId);
       database.command(cmd).close();
 
     } finally {
@@ -475,11 +473,7 @@ public class SchemaClassRemote extends SchemaClassImpl {
     List<SchemaClassImpl> newSuperClasses = new ArrayList<SchemaClassImpl>();
     SchemaClassImpl cls;
     for (SchemaClass superClass : classes) {
-      if (superClass instanceof SchemaClassAbstractDelegate) {
-        cls = (SchemaClassImpl) ((SchemaClassAbstractDelegate) superClass).getDelegate();
-      } else {
-        cls = (SchemaClassImpl) superClass;
-      }
+      cls = (SchemaClassImpl) superClass;
 
       if (newSuperClasses.contains(cls)) {
         throw new SchemaException("Duplicated superclass '" + cls.getName() + "'");

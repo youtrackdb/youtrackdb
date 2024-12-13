@@ -15,24 +15,26 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.exception.ClusterDoesNotExistException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.exception.SchemaException;
+import com.jetbrains.youtrack.db.api.exception.ValidationException;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.ValidationException;
-import com.jetbrains.youtrack.db.internal.core.exception.ClusterDoesNotExistException;
-import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
-import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.HashSet;
 import java.util.List;
@@ -52,8 +54,9 @@ public class SchemaTest extends DocumentDBBaseTest {
   }
 
   @Override
-  protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
-    builder.addConfig(GlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+  protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilderImpl builder) {
+    builder.addGlobalConfigurationParameter(GlobalConfiguration.NON_TX_READS_WARNING_MODE,
+        "EXCEPTION");
     return builder.build();
   }
 
@@ -123,7 +126,7 @@ public class SchemaTest extends DocumentDBBaseTest {
   public void checkClusters() {
 
     for (SchemaClass cls : database.getMetadata().getSchema().getClasses()) {
-      assert cls.isAbstract() || database.getClusterNameById(cls.getDefaultClusterId()) != null;
+      assert cls.isAbstract() || database.getClusterNameById(cls.getClusterIds()[0]) != null;
     }
   }
 
@@ -175,7 +178,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     final String testClassName = "dropTestClass";
     final int clusterId;
     SchemaClass dropTestClass = database.getMetadata().getSchema().createClass(testClassName);
-    clusterId = dropTestClass.getDefaultClusterId();
+    clusterId = dropTestClass.getClusterIds()[0];
     dropTestClass = database.getMetadata().getSchema().getClass(testClassName);
     Assert.assertNotNull(dropTestClass);
     Assert.assertEquals(database.getStorage().getClusterIdByName(testClassName), clusterId);
@@ -203,7 +206,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     final String testClassName = "dropTestClass";
     final int clusterId;
     SchemaClass dropTestClass = database.getMetadata().getSchema().createClass(testClassName);
-    clusterId = dropTestClass.getDefaultClusterId();
+    clusterId = dropTestClass.getClusterIds()[0];
     dropTestClass = database.getMetadata().getSchema().getClass(testClassName);
     Assert.assertNotNull(dropTestClass);
     Assert.assertEquals(database.getStorage().getClusterIdByName(testClassName), clusterId);
@@ -406,7 +409,8 @@ public class SchemaTest extends DocumentDBBaseTest {
   @Test
   public void testRenameClass() {
 
-    SchemaClass oClass = database.getMetadata().getSchema().createClass("RenameClassTest");
+    var oClass = (SchemaClassInternal) database.getMetadata().getSchema()
+        .createClass("RenameClassTest");
 
     database.begin();
     EntityImpl document = new EntityImpl("RenameClassTest");
@@ -432,9 +436,7 @@ public class SchemaTest extends DocumentDBBaseTest {
   }
 
   public void testMinimumClustersAndClusterSelection() {
-
-    database.command(new CommandSQL("alter database minimumclusters 3")).execute(database);
-
+    database.command(new CommandSQL("alter database minimum_clusters 3")).execute(database);
     try {
       database.command("create class multipleclusters").close();
 
@@ -468,7 +470,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
       // CHANGE CLASS STRATEGY to BALANCED
       database
-          .command("alter class multipleclusters clusterselection balanced").close();
+          .command("alter class multipleclusters cluster_selection balanced").close();
 
       for (int i = 0; i < 2; ++i) {
         database.begin();
@@ -481,7 +483,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
     } finally {
       // RESTORE DEFAULT
-      database.command("alter database minimumclusters 0").close();
+      database.command("alter database minimum_clusters 0").close();
     }
   }
 
@@ -631,13 +633,15 @@ public class SchemaTest extends DocumentDBBaseTest {
     }
     database.commit();
 
-    Schema schema = database.getSchema();
-    SchemaClass clazz = schema.getClass(className);
-    Set<Index> idx = clazz.getIndexes(database);
+    var schema = (SchemaInternal) database.getSchema();
+    var clazz = schema.getClassInternal(className);
+    var idx = clazz.getIndexesInternal(database);
+
     Set<String> indexes = new HashSet<>();
     for (Index id : idx) {
       indexes.add(id.getName());
     }
+
     Assert.assertTrue(indexes.contains(className + "." + propertyName.toLowerCase(Locale.ENGLISH)));
     Assert.assertTrue(indexes.contains(className + "." + propertyName.toUpperCase(Locale.ENGLISH)));
     schema.dropClass(className);
@@ -647,7 +651,6 @@ public class SchemaTest extends DocumentDBBaseTest {
     databaseDocumentTx
         .command("CREATE CLASS TestRenameClusterNew extends TestRenameClusterOriginal clusters 2")
         .close();
-
     databaseDocumentTx.begin();
     databaseDocumentTx
         .command("INSERT INTO TestRenameClusterNew (iteration) VALUES(" + i + ")")
@@ -655,14 +658,14 @@ public class SchemaTest extends DocumentDBBaseTest {
     databaseDocumentTx.commit();
 
     databaseDocumentTx
-        .command("ALTER CLASS TestRenameClusterOriginal removecluster TestRenameClusterOriginal")
+        .command("ALTER CLASS TestRenameClusterOriginal remove_cluster TestRenameClusterOriginal")
         .close();
     databaseDocumentTx
-        .command("ALTER CLASS TestRenameClusterNew removecluster TestRenameClusterNew")
+        .command("ALTER CLASS TestRenameClusterNew remove_cluster TestRenameClusterNew")
         .close();
     databaseDocumentTx.command("DROP CLASS TestRenameClusterNew").close();
     databaseDocumentTx
-        .command("ALTER CLASS TestRenameClusterOriginal addcluster TestRenameClusterNew")
+        .command("ALTER CLASS TestRenameClusterOriginal add_cluster TestRenameClusterNew")
         .close();
     databaseDocumentTx.command("DROP CLUSTER TestRenameClusterOriginal").close();
     databaseDocumentTx

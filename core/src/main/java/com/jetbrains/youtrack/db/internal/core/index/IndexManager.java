@@ -19,12 +19,13 @@
  */
 package com.jetbrains.youtrack.db.internal.core.index;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -120,7 +121,7 @@ public interface IndexManager {
       IndexDefinition indexDefinition,
       final int[] clusterIdsToIndex,
       final ProgressListener progressListener,
-      EntityImpl metadata);
+      Map<String, ?> metadata);
 
   /**
    * Creates a new index.
@@ -144,7 +145,7 @@ public interface IndexManager {
       IndexDefinition indexDefinition,
       final int[] clusterIdsToIndex,
       final ProgressListener progressListener,
-      EntityImpl metadata,
+      Map<String, ?> metadata,
       String algorithm);
 
   /**

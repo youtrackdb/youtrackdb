@@ -15,12 +15,13 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.api.query.Result;
 import java.util.ArrayList;
 import java.util.List;
 import org.testng.Assert;
@@ -36,13 +37,13 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
   private static final String WORKER = "Worker";
   private static final String CAR = "Car";
 
-  private RID carID;
-  private RID johnDoeID;
-  private RID janeDoeID;
-  private RID chuckNorrisID;
-  private RID jackBauerID;
-  private RID ctuID;
-  private RID fbiID;
+  private RecordId carID;
+  private RecordId johnDoeID;
+  private RecordId janeDoeID;
+  private RecordId chuckNorrisID;
+  private RecordId jackBauerID;
+  private RecordId ctuID;
+  private RecordId fbiID;
 
   @Parameters(value = "remote")
   public SQLFindReferencesTest(boolean remote) {

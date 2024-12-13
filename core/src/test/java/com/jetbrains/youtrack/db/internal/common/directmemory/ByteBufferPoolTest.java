@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.common.directmemory;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator.Intention;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;

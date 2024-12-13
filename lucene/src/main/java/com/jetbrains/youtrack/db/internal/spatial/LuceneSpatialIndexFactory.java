@@ -15,26 +15,27 @@ package com.jetbrains.youtrack.db.internal.spatial;
 
 import static com.jetbrains.youtrack.db.internal.lucene.LuceneIndexFactory.LUCENE_ALGORITHM;
 
+import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseLifecycleListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexFactory;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
 import com.jetbrains.youtrack.db.internal.core.index.engine.BaseIndexEngine;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.spatial.engine.LuceneSpatialIndexEngineDelegator;
 import com.jetbrains.youtrack.db.internal.spatial.index.LuceneSpatialIndex;
 import com.jetbrains.youtrack.db.internal.spatial.shape.ShapeFactory;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -64,7 +65,7 @@ public class LuceneSpatialIndexFactory implements IndexFactory, DatabaseLifecycl
 
   public LuceneSpatialIndexFactory(boolean manual) {
     if (!manual) {
-      YouTrackDBManager.instance().addDbLifecycleListener(this);
+      YouTrackDBEnginesManager.instance().addDbLifecycleListener(this);
     }
 
     spatialManager = new LuceneSpatialManager(ShapeFactory.INSTANCE);
@@ -105,10 +106,16 @@ public class LuceneSpatialIndexFactory implements IndexFactory, DatabaseLifecycl
           .registerSerializer(LuceneMockSpatialSerializer.INSTANCE, PropertyType.EMBEDDED);
     }
 
-    if (metadata == null) {
-      var metadataDoc = new EntityImpl();
-      metadataDoc.field("analyzer", StandardAnalyzer.class.getName());
-      im.setMetadata(metadataDoc);
+    if (metadata == null || !metadata.containsKey("analyzer")) {
+      HashMap<String, Object> met;
+      if (metadata != null) {
+        met = new HashMap<>(metadata);
+      } else {
+        met = new HashMap<>();
+      }
+
+      met.put("analyzer", StandardAnalyzer.class.getName());
+      im.setMetadata(met);
     }
 
     if (SchemaClass.INDEX_TYPE.SPATIAL.toString().equals(indexType)) {

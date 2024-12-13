@@ -1,8 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
 
@@ -28,32 +29,22 @@ public class FetchFromDatabaseMetadataStep extends AbstractExecutionStep {
     var db = ctx.getDatabase();
     ResultInternal result = new ResultInternal(db);
 
-
     result.setProperty("name", db.getName());
-    result.setProperty("user", db.getUser() == null ? null : db.getUser().getName(db));
-    result.setProperty("type", String.valueOf(db.get(ATTRIBUTES.TYPE)));
-    result.setProperty("status", String.valueOf(db.get(ATTRIBUTES.STATUS)));
+    result.setProperty("user", db.geCurrentUser() == null ? null : db.geCurrentUser().getName(db));
     result.setProperty(
-        "defaultClusterId", String.valueOf(db.get(ATTRIBUTES.DEFAULTCLUSTERID)));
+        "dateFormat", String.valueOf(db.get(DatabaseSession.ATTRIBUTES.DATEFORMAT)));
     result.setProperty(
-        "dateFormat", String.valueOf(db.get(ATTRIBUTES.DATEFORMAT)));
+        "dateTimeFormat", String.valueOf(db.get(DatabaseSession.ATTRIBUTES.DATE_TIME_FORMAT)));
+    result.setProperty("timezone", String.valueOf(db.get(DatabaseSession.ATTRIBUTES.TIMEZONE)));
     result.setProperty(
-        "dateTimeFormat", String.valueOf(db.get(ATTRIBUTES.DATETIMEFORMAT)));
-    result.setProperty("timezone", String.valueOf(db.get(ATTRIBUTES.TIMEZONE)));
+        "localeCountry", String.valueOf(db.get(DatabaseSession.ATTRIBUTES.LOCALE_COUNTRY)));
     result.setProperty(
-        "localeCountry", String.valueOf(db.get(ATTRIBUTES.LOCALECOUNTRY)));
+        "localeLanguage", String.valueOf(db.get(DatabaseSession.ATTRIBUTES.LOCALE_LANGUAGE)));
+    result.setProperty("charset", String.valueOf(db.get(DatabaseSession.ATTRIBUTES.CHARSET)));
     result.setProperty(
-        "localeLanguage", String.valueOf(db.get(ATTRIBUTES.LOCALELANGUAGE)));
-    result.setProperty("charset", String.valueOf(db.get(ATTRIBUTES.CHARSET)));
+        "clusterSelection", String.valueOf(db.get(DatabaseSession.ATTRIBUTES.CLUSTER_SELECTION)));
     result.setProperty(
-        "clusterSelection", String.valueOf(db.get(ATTRIBUTES.CLUSTERSELECTION)));
-    result.setProperty(
-        "minimumClusters", String.valueOf(db.get(ATTRIBUTES.MINIMUMCLUSTERS)));
-    result.setProperty(
-        "conflictStrategy", String.valueOf(db.get(ATTRIBUTES.CONFLICTSTRATEGY)));
-    result.setProperty(
-        "validation", String.valueOf(db.get(ATTRIBUTES.VALIDATION)));
-
+        "minimumClusters", String.valueOf(db.get(DatabaseSession.ATTRIBUTES.MINIMUM_CLUSTERS)));
     return result;
   }
 

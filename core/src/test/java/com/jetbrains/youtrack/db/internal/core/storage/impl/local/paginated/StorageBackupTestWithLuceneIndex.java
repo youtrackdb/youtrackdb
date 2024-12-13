@@ -1,15 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseCompare;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.File;
@@ -92,7 +92,7 @@ public class StorageBackupTestWithLuceneIndex {
       Assert.assertTrue(backupDir.mkdirs());
     }
 
-    db.incrementalBackup(backupDir.getAbsolutePath());
+    db.incrementalBackup(backupDir.toPath());
     final Storage storage = db.getStorage();
     db.close();
 
@@ -109,7 +109,7 @@ public class StorageBackupTestWithLuceneIndex {
 
     backupStorage.close(db, true);
 
-    var youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
+    var youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
     final DatabaseCompare compare =
         new DatabaseCompare(
@@ -155,7 +155,7 @@ public class StorageBackupTestWithLuceneIndex {
     document.save();
     db.commit();
 
-    db.incrementalBackup(backupDir.getAbsolutePath());
+    db.incrementalBackup(backupDir.toPath());
 
     db.begin();
     document = new EntityImpl("BackupClass");
@@ -164,7 +164,7 @@ public class StorageBackupTestWithLuceneIndex {
     document.save();
     db.commit();
 
-    db.incrementalBackup(backupDir.getAbsolutePath());
+    db.incrementalBackup(backupDir.toPath());
 
     final Storage storage = db.getStorage();
     db.close();
@@ -187,7 +187,7 @@ public class StorageBackupTestWithLuceneIndex {
 
     backupStorage.close(db, true);
 
-    var youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
+    var youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
     final DatabaseCompare compare =
         new DatabaseCompare(

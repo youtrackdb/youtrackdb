@@ -19,16 +19,16 @@
  */
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
@@ -50,7 +50,7 @@ import java.util.Set;
 @SuppressWarnings("serial")
 public abstract class RecordSerializerStringAbstract implements RecordSerializer, Serializable {
 
-  protected static final Profiler PROFILER = YouTrackDBManager.instance().getProfiler();
+  protected static final Profiler PROFILER = YouTrackDBEnginesManager.instance().getProfiler();
   private static final char DECIMAL_SEPARATOR = '.';
   private static final String MAX_INTEGER_AS_STRING = String.valueOf(Integer.MAX_VALUE);
   private static final int MAX_INTEGER_DIGITS = MAX_INTEGER_AS_STRING.length();
@@ -244,7 +244,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
         if (iValue instanceof RecordId) {
           ((RecordId) iValue).toString(iBuffer);
         } else {
-          ((Identifiable) iValue).getIdentity().toString(iBuffer);
+          ((RecordId) ((Identifiable) iValue).getIdentity()).toString(iBuffer);
         }
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.link2string"),

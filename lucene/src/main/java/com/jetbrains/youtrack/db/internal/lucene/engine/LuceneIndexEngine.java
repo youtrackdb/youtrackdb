@@ -18,7 +18,7 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.engine;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngine;
 import com.jetbrains.youtrack.db.internal.lucene.query.LuceneQueryContext;
 import com.jetbrains.youtrack.db.internal.lucene.tx.LuceneTxChanges;

@@ -2,7 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.index.comparator;
 
 import com.jetbrains.youtrack.db.internal.common.comparator.DefaultComparator;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
 import java.util.Comparator;
 
 public class DescComparator implements Comparator<RawPair<Object, RID>> {

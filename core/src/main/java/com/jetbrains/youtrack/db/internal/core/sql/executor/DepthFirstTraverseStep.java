@@ -1,10 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInteger;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLTraverseProjectionItem;
@@ -69,7 +71,7 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
     TraverseResult res = null;
     if (item instanceof TraverseResult) {
       res = (TraverseResult) item;
-    } else if (item.isEntity() && item.getEntity().get().getIdentity().isValid()) {
+    } else if (item.isEntity() && ((RecordId) item.getEntity().get().getIdentity()).isValid()) {
       res = new TraverseResult(db, item.getEntity().get());
       res.depth = 0;
     } else if (item.getPropertyNames().size() == 1) {

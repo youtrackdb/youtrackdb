@@ -1,11 +1,14 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,10 +21,10 @@ public class DropDatabaseStatementExecutionTest {
   public void testPlain() {
     String dbName = "ODropDatabaseStatementExecutionTest_testPlain";
     YouTrackDB youTrackDb =
-        new YouTrackDB(
+        new YouTrackDBImpl(
             DbTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()
-                .addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addGlobalConfigurationParameter(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     try {
       try (ResultSet result =
@@ -53,10 +56,10 @@ public class DropDatabaseStatementExecutionTest {
   public void testIfExists1() {
     String dbName = "ODropDatabaseStatementExecutionTest_testIfExists1";
     final YouTrackDB youTrackDb =
-        new YouTrackDB(
+        new YouTrackDBImpl(
             DbTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()
-                .addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addGlobalConfigurationParameter(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     try {
       try (ResultSet result =
@@ -87,10 +90,10 @@ public class DropDatabaseStatementExecutionTest {
   @Test
   public void testIfExists2() {
     String dbName = "ODropDatabaseStatementExecutionTest_testIfExists2";
-    try (YouTrackDB youTrackDb = new YouTrackDB(
+    try (YouTrackDB youTrackDb = new YouTrackDBImpl(
         DbTestBase.embeddedDBUrl(getClass()) + getClass().getSimpleName(),
         YouTrackDBConfig.builder()
-            .addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
+            .addGlobalConfigurationParameter(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
             .build())) {
       youTrackDb.execute("drop database " + dbName + " if exists");
       Assert.assertFalse(youTrackDb.exists(dbName));

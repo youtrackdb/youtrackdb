@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.client.remote.message.tx;
 
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import java.io.DataInput;
 import java.io.DataOutput;

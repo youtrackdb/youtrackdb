@@ -3,9 +3,11 @@ package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.SchemaException;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import org.junit.Test;
 
 public class AlterClassClusterTest extends DbTestBase {
@@ -17,7 +19,7 @@ public class AlterClassClusterTest extends DbTestBase {
 
     clazz.removeClusterId(db, db.getClusterIdByName("Test"));
     clazz = db.getMetadata().getSchema().getClass("Test");
-    assertEquals(clazz.getDefaultClusterId(), db.getClusterIdByName("TestOneMore"));
+    assertEquals(clazz.getClusterIds()[0], db.getClusterIdByName("TestOneMore"));
   }
 
   @Test(expected = DatabaseException.class)

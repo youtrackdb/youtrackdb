@@ -4,7 +4,7 @@ import com.jetbrains.youtrack.db.internal.common.comparator.ByteArrayComparator;
 import com.jetbrains.youtrack.db.internal.common.comparator.UnsafeByteArrayComparator;
 import com.jetbrains.youtrack.db.internal.common.comparator.UnsafeByteArrayComparatorV2;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;

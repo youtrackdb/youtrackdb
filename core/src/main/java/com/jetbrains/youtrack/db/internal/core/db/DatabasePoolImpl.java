@@ -19,14 +19,15 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.DB_POOL_ACQUIRE_TIMEOUT;
-import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.DB_POOL_MAX;
-import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.DB_POOL_MIN;
+import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.DB_POOL_ACQUIRE_TIMEOUT;
+import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.DB_POOL_MAX;
+import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.DB_POOL_MIN;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.AcquireTimeoutException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.common.concur.resource.ResourcePool;
 import com.jetbrains.youtrack.db.internal.common.concur.resource.ResourcePoolListener;
-import com.jetbrains.youtrack.db.internal.core.exception.AcquireTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 
 /**
  *
@@ -35,7 +36,7 @@ public class DatabasePoolImpl implements DatabasePoolInternal {
 
   private volatile ResourcePool<Void, DatabaseSessionInternal> pool;
   private final YouTrackDBInternal factory;
-  private final YouTrackDBConfig config;
+  private final YouTrackDBConfigImpl config;
   private volatile long lastCloseTime = System.currentTimeMillis();
 
   public DatabasePoolImpl(
@@ -43,9 +44,9 @@ public class DatabasePoolImpl implements DatabasePoolInternal {
       String database,
       String user,
       String password,
-      YouTrackDBConfig config) {
-    int max = config.getConfigurations().getValueAsInteger(DB_POOL_MAX);
-    int min = config.getConfigurations().getValueAsInteger(DB_POOL_MIN);
+      YouTrackDBConfigImpl config) {
+    int max = config.getConfiguration().getValueAsInteger(DB_POOL_MAX);
+    int min = config.getConfiguration().getValueAsInteger(DB_POOL_MIN);
     this.factory = factory;
     this.config = config;
     pool =
@@ -81,7 +82,7 @@ public class DatabasePoolImpl implements DatabasePoolInternal {
     }
     if (p != null) {
       return p.getResource(
-          null, config.getConfigurations().getValueAsLong(DB_POOL_ACQUIRE_TIMEOUT));
+          null, config.getConfiguration().getValueAsLong(DB_POOL_ACQUIRE_TIMEOUT));
     } else {
       throw new DatabaseException("The pool is closed");
     }
@@ -128,7 +129,7 @@ public class DatabasePoolImpl implements DatabasePoolInternal {
     return lastCloseTime;
   }
 
-  public YouTrackDBConfig getConfig() {
+  public YouTrackDBConfigImpl getConfig() {
     return config;
   }
 

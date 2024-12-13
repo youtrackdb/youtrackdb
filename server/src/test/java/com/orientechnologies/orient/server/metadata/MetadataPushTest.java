@@ -4,14 +4,14 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.util.Locale;
@@ -39,14 +39,15 @@ public class MetadataPushTest {
     server.startup(getClass().getResourceAsStream("orientdb-server-config.xml"));
     server.activate();
 
-    youTrackDB = new YouTrackDB("remote:localhost", "root", "root",
+    youTrackDB = new YouTrackDBImpl("remote:localhost", "root", "root",
         YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         MetadataPushTest.class.getSimpleName());
     database = youTrackDB.open(MetadataPushTest.class.getSimpleName(), "admin", "admin");
 
-    secondYouTrackDB = new YouTrackDB("remote:localhost", YouTrackDBConfig.defaultConfig());
+    secondYouTrackDB = new YouTrackDBImpl("remote:localhost",
+        YouTrackDBConfig.defaultConfig());
     secondDatabase =
         (DatabaseSessionInternal)
             youTrackDB.open(MetadataPushTest.class.getSimpleName(), "admin", "admin");
@@ -62,15 +63,15 @@ public class MetadataPushTest {
     secondYouTrackDB.close();
     server.shutdown();
 
-    YouTrackDBManager.instance().shutdown();
+    YouTrackDBEnginesManager.instance().shutdown();
     FileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    YouTrackDBManager.instance().startup();
+    YouTrackDBEnginesManager.instance().startup();
   }
 
   @Test
   public void testStorageUpdate() throws Exception {
     database.activateOnCurrentThread();
-    database.command(" ALTER DATABASE LOCALELANGUAGE  ?", Locale.GERMANY.getLanguage());
+    database.command(" ALTER DATABASE LOCALE_LANGUAGE  ?", Locale.GERMANY.getLanguage());
     // Push done in background for now, do not guarantee update before command return.
     secondDatabase.activateOnCurrentThread();
     DbTestBase.assertWithTimeout(
@@ -78,7 +79,7 @@ public class MetadataPushTest {
         () -> {
           secondDatabase.activateOnCurrentThread();
           assertEquals(
-              secondDatabase.get(ATTRIBUTES.LOCALELANGUAGE),
+              secondDatabase.get(DatabaseSession.ATTRIBUTES.LOCALE_LANGUAGE),
               Locale.GERMANY.getLanguage());
         });
   }

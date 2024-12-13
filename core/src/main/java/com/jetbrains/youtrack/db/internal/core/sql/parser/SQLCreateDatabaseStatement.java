@@ -2,14 +2,14 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.command.ServerCommandContext;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
@@ -65,14 +65,15 @@ public class SQLCreateDatabaseStatement extends SQLSimpleExecServerStatement {
       result.setProperty("existing", true);
     } else {
       try {
-        YouTrackDBConfigBuilder configBuilder = YouTrackDBConfig.builder();
+        YouTrackDBConfigBuilderImpl configBuilder = (YouTrackDBConfigBuilderImpl) YouTrackDBConfig.builder();
 
         if (config != null) {
           configBuilder = mapYouTrackDbConfig(this.config, ctx, configBuilder);
         }
 
         if (!users.isEmpty()) {
-          configBuilder = configBuilder.addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS,
+          configBuilder = configBuilder.addGlobalConfigurationParameter(
+              GlobalConfiguration.CREATE_DEFAULT_USERS,
               false);
         }
 
@@ -105,8 +106,8 @@ public class SQLCreateDatabaseStatement extends SQLSimpleExecServerStatement {
     return ExecutionStream.singleton(result);
   }
 
-  private YouTrackDBConfigBuilder mapYouTrackDbConfig(
-      SQLJson config, ServerCommandContext ctx, YouTrackDBConfigBuilder builder) {
+  private YouTrackDBConfigBuilderImpl mapYouTrackDbConfig(
+      SQLJson config, ServerCommandContext ctx, YouTrackDBConfigBuilderImpl builder) {
     Map<String, Object> configMap = config.toMap(new ResultInternal(ctx.getDatabase()), ctx);
 
     Object globalConfig = configMap.get("config");
@@ -115,7 +116,8 @@ public class SQLCreateDatabaseStatement extends SQLSimpleExecServerStatement {
           .entrySet().stream()
           .filter(x -> GlobalConfiguration.findByKey(x.getKey()) != null)
           .forEach(
-              x -> builder.addConfig(GlobalConfiguration.findByKey(x.getKey()), x.getValue()));
+              x -> builder.addGlobalConfigurationParameter(
+                  GlobalConfiguration.findByKey(x.getKey()), x.getValue()));
     }
 
     return builder;

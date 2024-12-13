@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.common.collection.closabledictionary;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -823,7 +823,7 @@ public class ClosableLinkedContainer<K, V extends ClosableItem> {
   }
 
   private void evict() {
-    final long start = YouTrackDBManager.instance().getProfiler().startChrono();
+    final long start = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
 
     final int initialSize = lruList.size();
     int closedFiles = 0;
@@ -865,7 +865,7 @@ public class ClosableLinkedContainer<K, V extends ClosableItem> {
               GlobalConfiguration.OPEN_FILES_LIMIT.getKey());
     }
 
-    YouTrackDBManager.instance()
+    YouTrackDBEnginesManager.instance()
         .getProfiler()
         .stopChrono(
             "disk.closeFiles",

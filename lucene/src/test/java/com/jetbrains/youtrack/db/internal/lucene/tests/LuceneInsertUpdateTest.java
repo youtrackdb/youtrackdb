@@ -18,14 +18,14 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.tests;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -53,8 +53,7 @@ public class LuceneInsertUpdateTest extends LuceneBaseTest {
 
   @Test
   public void testInsertUpdateWithIndex() {
-
-    Schema schema = db.getMetadata().getSchema();
+    var schema = db.getMetadata().getSchema();
 
     EntityImpl doc = new EntityImpl("City");
     doc.field("name", "Rome");
@@ -63,16 +62,16 @@ public class LuceneInsertUpdateTest extends LuceneBaseTest {
     db.save(doc);
     db.commit();
     db.begin();
-    Index idx = schema.getClass("City").getClassIndex(db, "City.name");
+    Index idx = schema.getClassInternal("City").getClassIndex(db, "City.name");
     Collection<?> coll;
     try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
-    Assert.assertEquals(coll.size(), 1);
+    Assert.assertEquals(1, coll.size());
 
     Identifiable next = (Identifiable) coll.iterator().next();
     doc = db.load(next.getIdentity());
-    Assert.assertEquals(doc.field("name"), "Rome");
+    Assert.assertEquals("Rome", doc.field("name"));
 
     doc.field("name", "London");
 
@@ -82,15 +81,15 @@ public class LuceneInsertUpdateTest extends LuceneBaseTest {
     try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
-    Assert.assertEquals(coll.size(), 0);
+    Assert.assertEquals(0, coll.size());
     try (Stream<RID> stream = idx.getInternal().getRids(db, "London")) {
       coll = stream.collect(Collectors.toList());
     }
-    Assert.assertEquals(coll.size(), 1);
+    Assert.assertEquals(1, coll.size());
 
     next = (Identifiable) coll.iterator().next();
     doc = db.load(next.getIdentity());
-    Assert.assertEquals(doc.field("name"), "London");
+    Assert.assertEquals("London", doc.field("name"));
 
     doc.field("name", "Berlin");
 
@@ -100,15 +99,15 @@ public class LuceneInsertUpdateTest extends LuceneBaseTest {
     try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
-    Assert.assertEquals(coll.size(), 0);
+    Assert.assertEquals(0, coll.size());
     try (Stream<RID> stream = idx.getInternal().getRids(db, "London")) {
       coll = stream.collect(Collectors.toList());
     }
 
-    Assert.assertEquals(coll.size(), 0);
+    Assert.assertEquals(0, coll.size());
     try (Stream<RID> stream = idx.getInternal().getRids(db, "Berlin")) {
       coll = stream.collect(Collectors.toList());
     }
-    Assert.assertEquals(coll.size(), 1);
+    Assert.assertEquals(1, coll.size());
   }
 }

@@ -15,9 +15,10 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.multipart;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import java.io.IOException;
@@ -26,16 +27,17 @@ import java.util.Map;
 /**
  *
  */
-public class OHttpMultipartFileToRecordContentParser implements OHttpMultipartContentParser<RID> {
+public class OHttpMultipartFileToRecordContentParser implements
+    OHttpMultipartContentParser<RecordId> {
 
   @Override
-  public RID parse(
+  public RecordId parse(
       final OHttpRequest iRequest,
       final Map<String, String> headers,
       final OHttpMultipartContentInputStream in,
       DatabaseSession database)
       throws IOException {
-    final Blob record = new RecordBytes();
+    var record = new RecordBytes();
     record.fromInputStream(in);
     record.save();
     return record.getIdentity();

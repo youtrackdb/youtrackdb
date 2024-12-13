@@ -1,13 +1,14 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.StringSerializer;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
@@ -33,10 +34,10 @@ public class InvalidRemovedFileIdsIT {
 
     final YouTrackDBConfig config =
         YouTrackDBConfig.builder()
-            .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
+            .addAttribute(DatabaseSession.ATTRIBUTES.MINIMUM_CLUSTERS, 1)
             .build();
 
-    YouTrackDB youTrackDB = new YouTrackDB("plocal:" + buildDirectory, config);
+    YouTrackDB youTrackDB = new YouTrackDBImpl("plocal:" + buildDirectory, config);
     youTrackDB.execute(
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
     var db = (DatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
@@ -77,7 +78,7 @@ public class InvalidRemovedFileIdsIT {
 
     fileMap.close();
 
-    youTrackDB = new YouTrackDB("plocal:" + buildDirectory, config);
+    youTrackDB = new YouTrackDBImpl("plocal:" + buildDirectory, config);
     db = (DatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
     final Schema schema = db.getMetadata().getSchema();

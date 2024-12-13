@@ -22,14 +22,14 @@ package com.jetbrains.youtrack.db.internal.core.fetch;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.fetch.json.JSONFetchContext;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
@@ -993,7 +993,7 @@ public class FetchHelper {
       final FetchListener iListener,
       final FetchContext iContext,
       final RecordSerializerJSON.FormatSettings settings) {
-    if (fieldValue instanceof RID && !((RID) fieldValue).isValid()) {
+    if (fieldValue instanceof RID && !((RecordId) fieldValue).isValid()) {
       // RID NULL: TREAT AS "NULL" VALUE
       iContext.onBeforeStandardField(fieldValue, fieldName, iRootRecord, null);
       iListener.parseLinked(iRootRecord, fieldValue, iUserObject, fieldName, iContext);
@@ -1002,7 +1002,7 @@ public class FetchHelper {
     }
 
     final int fieldDepthLevel = parsedRecords.getInt(fieldValue.getIdentity());
-    if (!fieldValue.getIdentity().isValid()
+    if (!((RecordId) fieldValue.getIdentity()).isValid()
         || (fieldDepthLevel > -1 && fieldDepthLevel == iLevelFromRoot)) {
       removeParsedFromMap(parsedRecords, fieldValue);
       final EntityImpl linked;

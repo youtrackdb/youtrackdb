@@ -13,10 +13,10 @@
  */
 package com.orientechnologies.security.auditing;
 
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.AuditingOperation;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
@@ -42,7 +42,7 @@ public class OAuditingLoggingThread extends Thread {
       final YouTrackDBInternal context,
       SecuritySystem security) {
     super(
-        YouTrackDBManager.instance().getThreadGroup(),
+        YouTrackDBEnginesManager.instance().getThreadGroup(),
         "YouTrackDB Auditing Logging Thread - " + iDatabaseName);
 
     this.databaseName = iDatabaseName;

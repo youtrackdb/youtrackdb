@@ -3,8 +3,8 @@ package com.jetbrains.youtrack.db.internal.core.index;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,7 +13,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-@SuppressWarnings("unchecked")
 public class SimpleKeyIndexDefinitionTest extends DbTestBase {
 
   private SimpleKeyIndexDefinition simpleKeyIndexDefinition;
@@ -39,7 +38,7 @@ public class SimpleKeyIndexDefinitionTest extends DbTestBase {
     final SimpleKeyIndexDefinition keyIndexDefinition =
         new SimpleKeyIndexDefinition(PropertyType.INTEGER);
     final Object result = keyIndexDefinition.createValue(db, "2");
-    Assert.assertEquals(result, 2);
+    Assert.assertEquals(2, result);
   }
 
   @Test
@@ -113,7 +112,7 @@ public class SimpleKeyIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testParamCount() {
-    Assert.assertEquals(simpleKeyIndexDefinition.getParamCount(), 2);
+    Assert.assertEquals(2, simpleKeyIndexDefinition.getParamCount());
   }
 
   @Test
@@ -121,14 +120,14 @@ public class SimpleKeyIndexDefinitionTest extends DbTestBase {
     final SimpleKeyIndexDefinition keyIndexDefinition =
         new SimpleKeyIndexDefinition(PropertyType.INTEGER);
 
-    Assert.assertEquals(keyIndexDefinition.getParamCount(), 1);
+    Assert.assertEquals(1, keyIndexDefinition.getParamCount());
   }
 
   @Test
   public void testGetKeyTypes() {
     Assert.assertEquals(
-        simpleKeyIndexDefinition.getTypes(),
-        new PropertyType[]{PropertyType.INTEGER, PropertyType.STRING});
+        new PropertyType[]{PropertyType.INTEGER, PropertyType.STRING},
+        simpleKeyIndexDefinition.getTypes());
   }
 
   @Test
@@ -136,26 +135,19 @@ public class SimpleKeyIndexDefinitionTest extends DbTestBase {
     final SimpleKeyIndexDefinition keyIndexDefinition =
         new SimpleKeyIndexDefinition(PropertyType.BOOLEAN);
 
-    Assert.assertEquals(keyIndexDefinition.getTypes(), new PropertyType[]{PropertyType.BOOLEAN});
+    Assert.assertEquals(new PropertyType[]{PropertyType.BOOLEAN}, keyIndexDefinition.getTypes());
   }
 
   @Test
   public void testReload() {
-    final DatabaseSessionInternal databaseDocumentTx =
-        new DatabaseDocumentTx("memory:osimplekeyindexdefinitiontest");
-    databaseDocumentTx.create();
-
-    databaseDocumentTx.begin();
+    db.begin();
     final EntityImpl storeDocument = simpleKeyIndexDefinition.toStream(new EntityImpl());
-    storeDocument.save(
-        databaseDocumentTx.getClusterNameById(databaseDocumentTx.getDefaultClusterId()));
-    databaseDocumentTx.commit();
+    storeDocument.save();
+    db.commit();
 
-    final EntityImpl loadDocument = databaseDocumentTx.load(storeDocument.getIdentity());
+    final EntityImpl loadDocument = db.load(storeDocument.getIdentity());
     final SimpleKeyIndexDefinition loadedKeyIndexDefinition = new SimpleKeyIndexDefinition();
     loadedKeyIndexDefinition.fromStream(loadDocument);
-
-    databaseDocumentTx.drop();
 
     Assert.assertEquals(loadedKeyIndexDefinition, simpleKeyIndexDefinition);
   }

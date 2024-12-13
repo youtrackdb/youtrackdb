@@ -1,9 +1,10 @@
 package com.orientechnologies.orient.test.database.security;
 
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import java.io.File;
 import org.junit.Test;
 
@@ -20,7 +21,7 @@ public class SystemUsersTest {
         .info(this, "YOUTRACKDB_HOME: " + System.getProperty("YOUTRACKDB_HOME"));
 
     YouTrackDB orient =
-        new YouTrackDB(
+        new YouTrackDBImpl(
             "plocal:target/" + SystemUsersTest.class.getSimpleName(),
             YouTrackDBConfig.defaultConfig());
 

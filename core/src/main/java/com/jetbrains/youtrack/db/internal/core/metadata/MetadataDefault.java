@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.metadata;
 
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManager;
@@ -29,6 +29,7 @@ import com.jetbrains.youtrack.db.internal.core.index.IndexManagerProxy;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibrary;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibraryProxy;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaProxy;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityProxy;
@@ -53,7 +54,7 @@ public class MetadataDefault implements MetadataInternal {
   protected SchedulerProxy scheduler;
   protected SequenceLibraryProxy sequenceLibrary;
 
-  protected static final Profiler PROFILER = YouTrackDBManager.instance().getProfiler();
+  protected static final Profiler PROFILER = YouTrackDBEnginesManager.instance().getProfiler();
 
   private ImmutableSchema immutableSchema = null;
   private int immutableCount = 0;
@@ -75,6 +76,11 @@ public class MetadataDefault implements MetadataInternal {
   }
 
   public SchemaProxy getSchema() {
+    return schema;
+  }
+
+  @Override
+  public SchemaInternal getSchemaInternal() {
     return schema;
   }
 

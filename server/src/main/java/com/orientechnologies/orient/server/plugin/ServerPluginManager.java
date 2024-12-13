@@ -23,8 +23,8 @@ import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.common.util.Service;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
@@ -101,7 +101,8 @@ public class ServerPluginManager implements Service {
 
     if (hotReload) {
       autoReloadTimerTask =
-          YouTrackDBManager.instance().scheduleTask(this::updatePlugins, CHECK_DELAY, CHECK_DELAY);
+          YouTrackDBEnginesManager.instance()
+              .scheduleTask(this::updatePlugins, CHECK_DELAY, CHECK_DELAY);
     }
   }
 

@@ -1,9 +1,10 @@
 package com.orientechnologies.orient.test.database.auto.hooks;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -11,7 +12,7 @@ public class HookOnIndexedMapTest {
 
   @Test
   public void test() {
-    YouTrackDB orient = new YouTrackDB("plocal:.", "root", "root",
+    YouTrackDB orient = new YouTrackDBImpl("plocal:.", "root", "root",
         YouTrackDBConfig.defaultConfig());
 
     orient.execute(

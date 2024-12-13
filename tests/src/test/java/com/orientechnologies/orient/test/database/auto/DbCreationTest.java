@@ -15,12 +15,14 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.YourTracks;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.exception.CoreException;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import java.io.File;
@@ -57,18 +59,19 @@ public class DbCreationTest {
 
   private void initODB() {
     var configBuilder = YouTrackDBConfig.builder();
-    configBuilder.addConfig(GlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    configBuilder.addGlobalConfigurationParameter(GlobalConfiguration.NON_TX_READS_WARNING_MODE,
+        "EXCEPTION");
 
     if (remoteDB) {
       youTrackDB =
-          YouTrackDB.remote(
+          YourTracks.remote(
               "localhost",
               "root",
               "D2AFD02F20640EC8B7A5140F34FCA49D2289DB1F0D0598BB9DE8AAA75A0792F3",
               configBuilder.build());
     } else {
       final String buildDirectory = System.getProperty("buildDirectory", ".");
-      youTrackDB = YouTrackDB.embedded(buildDirectory + "/test-db", configBuilder.build());
+      youTrackDB = YourTracks.embedded(buildDirectory + "/test-db", configBuilder.build());
     }
   }
 
@@ -100,9 +103,10 @@ public class DbCreationTest {
     String url = calculateURL() + "/";
 
     var configBuilder = YouTrackDBConfig.builder();
-    configBuilder.addConfig(GlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    configBuilder.addGlobalConfigurationParameter(GlobalConfiguration.NON_TX_READS_WARNING_MODE,
+        "EXCEPTION");
 
-    try (var odb = new YouTrackDB(url, "root", "root", configBuilder.build())) {
+    try (var odb = new YouTrackDBImpl(url, "root", "root", configBuilder.build())) {
       var database = odb.open(DB_NAME, "admin", "admin");
       database.close();
     }
@@ -124,19 +128,19 @@ public class DbCreationTest {
   @Test(dependsOnMethods = {"testDbOpenWithLastAsSlash"})
   public void testChangeLocale() {
     try (var database = (DatabaseSessionInternal) youTrackDB.open(DB_NAME, "admin", "admin")) {
-      database.command(" ALTER DATABASE LOCALELANGUAGE  ?", Locale.GERMANY.getLanguage()).close();
-      database.command(" ALTER DATABASE LOCALECOUNTRY  ?", Locale.GERMANY.getCountry()).close();
+      database.command(" ALTER DATABASE LOCALE_LANGUAGE  ?", Locale.GERMANY.getLanguage()).close();
+      database.command(" ALTER DATABASE LOCALE_COUNTRY  ?", Locale.GERMANY.getCountry()).close();
 
       Assert.assertEquals(
-          database.get(ATTRIBUTES.LOCALELANGUAGE), Locale.GERMANY.getLanguage());
+          database.get(DatabaseSession.ATTRIBUTES.LOCALE_LANGUAGE), Locale.GERMANY.getLanguage());
       Assert.assertEquals(
-          database.get(ATTRIBUTES.LOCALECOUNTRY), Locale.GERMANY.getCountry());
-      database.set(ATTRIBUTES.LOCALECOUNTRY, Locale.ENGLISH.getCountry());
-      database.set(ATTRIBUTES.LOCALELANGUAGE, Locale.ENGLISH.getLanguage());
+          database.get(DatabaseSession.ATTRIBUTES.LOCALE_COUNTRY), Locale.GERMANY.getCountry());
+      database.set(DatabaseSession.ATTRIBUTES.LOCALE_COUNTRY, Locale.ENGLISH.getCountry());
+      database.set(DatabaseSession.ATTRIBUTES.LOCALE_LANGUAGE, Locale.ENGLISH.getLanguage());
       Assert.assertEquals(
-          database.get(ATTRIBUTES.LOCALECOUNTRY), Locale.ENGLISH.getCountry());
+          database.get(DatabaseSession.ATTRIBUTES.LOCALE_COUNTRY), Locale.ENGLISH.getCountry());
       Assert.assertEquals(
-          database.get(ATTRIBUTES.LOCALELANGUAGE), Locale.ENGLISH.getLanguage());
+          database.get(DatabaseSession.ATTRIBUTES.LOCALE_LANGUAGE), Locale.ENGLISH.getLanguage());
     }
   }
 
@@ -158,8 +162,9 @@ public class DbCreationTest {
     var url = calculateURL();
 
     var configBuilder = YouTrackDBConfig.builder();
-    configBuilder.addConfig(GlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
-    var odb = new YouTrackDB(url, "root", "root", configBuilder.build());
+    configBuilder.addGlobalConfigurationParameter(GlobalConfiguration.NON_TX_READS_WARNING_MODE,
+        "EXCEPTION");
+    var odb = new YouTrackDBImpl(url, "root", "root", configBuilder.build());
     if (odb.exists("sub")) {
       odb.drop("sub");
     }
@@ -180,9 +185,10 @@ public class DbCreationTest {
     var url = calculateURL();
 
     var configBuilder = YouTrackDBConfig.builder();
-    configBuilder.addConfig(GlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    configBuilder.addGlobalConfigurationParameter(GlobalConfiguration.NON_TX_READS_WARNING_MODE,
+        "EXCEPTION");
 
-    var odb = new YouTrackDB(url, "root", "root", configBuilder.build());
+    var odb = new YouTrackDBImpl(url, "root", "root", configBuilder.build());
     if (odb.exists("sub")) {
       odb.drop("sub");
     }

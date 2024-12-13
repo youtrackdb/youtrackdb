@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.JwtPayload;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.TokenHeader;
@@ -24,7 +24,7 @@ public class TokenHandlerImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testWebTokenCreationValidation()
       throws InvalidKeyException, NoSuchAlgorithmException, IOException {
-    SecurityUser original = db.getUser();
+    SecurityUser original = db.geCurrentUser();
     OTokenHandlerImpl handler = new OTokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
     byte[] token = handler.getSignedWebToken(db, original);
 
@@ -99,7 +99,7 @@ public class TokenHandlerImplTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testTokenForge() throws InvalidKeyException, NoSuchAlgorithmException, IOException {
-    SecurityUser original = db.getUser();
+    SecurityUser original = db.geCurrentUser();
     OTokenHandlerImpl handler = new OTokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
 
     byte[] token = handler.getSignedWebToken(db, original);
@@ -119,7 +119,7 @@ public class TokenHandlerImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testBinartTokenCreationValidation()
       throws InvalidKeyException, NoSuchAlgorithmException, IOException {
-    SecurityUser original = db.getUser();
+    SecurityUser original = db.geCurrentUser();
     OTokenHandlerImpl handler = new OTokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
     ONetworkProtocolData data = new ONetworkProtocolData();
     data.driverName = "aa";
@@ -144,7 +144,7 @@ public class TokenHandlerImplTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testTokenNotRenew() {
-    SecurityUser original = db.getUser();
+    SecurityUser original = db.geCurrentUser();
     OTokenHandlerImpl handler = new OTokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
     ONetworkProtocolData data = new ONetworkProtocolData();
     data.driverName = "aa";
@@ -162,7 +162,7 @@ public class TokenHandlerImplTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testTokenRenew() {
-    SecurityUser original = db.getUser();
+    SecurityUser original = db.geCurrentUser();
     OTokenHandlerImpl handler = new OTokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
     ONetworkProtocolData data = new ONetworkProtocolData();
     data.driverName = "aa";

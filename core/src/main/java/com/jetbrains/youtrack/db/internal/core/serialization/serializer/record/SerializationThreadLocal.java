@@ -19,8 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record;
 
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBListenerAbstract;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 
@@ -29,7 +29,7 @@ public class SerializationThreadLocal extends ThreadLocal<IntSet> {
   public static volatile SerializationThreadLocal INSTANCE = new SerializationThreadLocal();
 
   static {
-    YouTrackDBManager.instance()
+    YouTrackDBEnginesManager.instance()
         .registerListener(
             new YouTrackDBListenerAbstract() {
               @Override

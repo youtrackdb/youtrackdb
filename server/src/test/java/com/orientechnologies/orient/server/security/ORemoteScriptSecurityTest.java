@@ -1,11 +1,12 @@
 package com.orientechnologies.orient.server.security;
 
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.SecurityException;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.orientechnologies.orient.server.OServer;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -37,7 +38,7 @@ public class ORemoteScriptSecurityTest {
     server = OServer.startFromClasspathConfig("abstract-orientdb-server-config.xml");
 
     YouTrackDB youTrackDB =
-        new YouTrackDB("remote:localhost", "root", "root", YouTrackDBConfig.defaultConfig());
+        new YouTrackDBImpl("remote:localhost", "root", "root", YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database ORemoteScriptSecurityTest memory users (admin identified by 'admin' role"
             + " admin)");
@@ -48,7 +49,7 @@ public class ORemoteScriptSecurityTest {
   @Test(expected = SecurityException.class)
   public void testRunJavascript() {
     // CREATE A SEPARATE CONTEXT TO MAKE SURE IT LOAD STAFF FROM SCRATCH
-    try (YouTrackDB writerOrient = new YouTrackDB("remote:localhost",
+    try (YouTrackDB writerOrient = new YouTrackDBImpl("remote:localhost",
         YouTrackDBConfig.defaultConfig())) {
       try (DatabaseSession writer =
           writerOrient.open("ORemoteScriptSecurityTest", "reader", "reader")) {
@@ -61,7 +62,7 @@ public class ORemoteScriptSecurityTest {
   @Test(expected = SecurityException.class)
   public void testRunEcmascript() {
     // CREATE A SEPARATE CONTEXT TO MAKE SURE IT LOAD STAFF FROM SCRATCH
-    try (YouTrackDB writerOrient = new YouTrackDB("remote:localhost",
+    try (YouTrackDB writerOrient = new YouTrackDBImpl("remote:localhost",
         YouTrackDBConfig.defaultConfig())) {
       try (DatabaseSession writer =
           writerOrient.open("ORemoteScriptSecurityTest", "reader", "reader")) {

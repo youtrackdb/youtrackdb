@@ -19,6 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command.script;
 
+import com.jetbrains.youtrack.db.api.exception.CommandScriptException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.StringParser;
 import com.jetbrains.youtrack.db.internal.common.util.ClassLoaderHelper;
@@ -33,10 +34,10 @@ import com.jetbrains.youtrack.db.internal.core.command.script.formatter.SQLScrip
 import com.jetbrains.youtrack.db.internal.core.command.script.formatter.ScriptFormatter;
 import com.jetbrains.youtrack.db.internal.core.command.script.js.JSScriptEngineFactory;
 import com.jetbrains.youtrack.db.internal.core.command.script.transformer.ScriptTransformerImpl;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
+import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionUtilWrapper;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLScriptEngine;

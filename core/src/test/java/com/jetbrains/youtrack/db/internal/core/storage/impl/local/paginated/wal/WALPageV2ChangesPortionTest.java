@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal;
 
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -17,7 +17,7 @@ public class WALPageV2ChangesPortionTest {
 
   @Before
   public void before() {
-    YouTrackDBManager.instance();
+    YouTrackDBEnginesManager.instance();
   }
 
   @Test

@@ -16,18 +16,18 @@ public class YouTrackShutDownTest {
 
   @Before
   public void before() {
-    YouTrackDBManager.instance().startup();
+    YouTrackDBEnginesManager.instance().startup();
   }
 
   @After
   public void after() {
-    YouTrackDBManager.instance().startup();
+    YouTrackDBEnginesManager.instance().startup();
   }
 
   @Test
   public void testShutdownHandler() {
 
-    YouTrackDBManager.instance()
+    YouTrackDBEnginesManager.instance()
         .addShutdownHandler(
             new ShutdownHandler() {
               @Override
@@ -41,10 +41,10 @@ public class YouTrackShutDownTest {
               }
             });
 
-    YouTrackDBManager.instance().shutdown();
+    YouTrackDBEnginesManager.instance().shutdown();
     assertEquals(1, test);
-    YouTrackDBManager.instance().startup();
-    YouTrackDBManager.instance().shutdown();
+    YouTrackDBEnginesManager.instance().startup();
+    YouTrackDBEnginesManager.instance().shutdown();
     assertEquals(1, test);
   }
 }

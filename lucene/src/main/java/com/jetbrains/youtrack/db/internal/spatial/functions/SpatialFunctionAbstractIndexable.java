@@ -13,26 +13,26 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial.functions;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLtOperator;
-import com.jetbrains.youtrack.db.internal.lucene.collections.LuceneResultSetEmpty;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.IndexableSQLFunction;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromItem;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLJson;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLeOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLtOperator;
+import com.jetbrains.youtrack.db.internal.lucene.collections.LuceneResultSetEmpty;
 import com.jetbrains.youtrack.db.internal.spatial.index.LuceneSpatialIndex;
 import com.jetbrains.youtrack.db.internal.spatial.strategy.SpatialQueryBuilderAbstract;
 import java.util.Collection;
@@ -65,7 +65,8 @@ public abstract class SpatialFunctionAbstractIndexable extends SpatialFunctionAb
 
     String className = identifier.getStringValue();
     List<LuceneSpatialIndex> indices =
-        dbMetadata.getImmutableSchemaSnapshot().getClass(className).getIndexes(session).stream()
+        dbMetadata.getImmutableSchemaSnapshot().getClassInternal(className)
+            .getIndexesInternal(session).stream()
             .filter(idx -> idx instanceof LuceneSpatialIndex)
             .map(idx -> (LuceneSpatialIndex) idx)
             .filter(

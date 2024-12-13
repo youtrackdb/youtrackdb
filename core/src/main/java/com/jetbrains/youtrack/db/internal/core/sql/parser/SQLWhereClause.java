@@ -2,19 +2,20 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.PropertyIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexCandidate;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder;
@@ -78,7 +79,7 @@ public class SQLWhereClause extends SimpleNode {
    * @return an estimation of the number of records of this class returned applying this filter, 0
    * if and only if sure that no records are returned
    */
-  public long estimate(SchemaClass oClass, long threshold, CommandContext ctx) {
+  public long estimate(SchemaClassInternal oClass, long threshold, CommandContext ctx) {
     var database = ctx.getDatabase();
     long count = oClass.count(database);
     if (count > 1) {
@@ -90,7 +91,7 @@ public class SQLWhereClause extends SimpleNode {
 
     long indexesCount = 0L;
     List<SQLAndBlock> flattenedConditions = flatten();
-    Set<Index> indexes = oClass.getIndexes(database);
+    Set<Index> indexes = oClass.getIndexesInternal(database);
     for (SQLAndBlock condition : flattenedConditions) {
 
       List<SQLBinaryCondition> indexedFunctConditions =

@@ -19,10 +19,12 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
+import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
@@ -50,12 +52,12 @@ public class RestrictedAccessHook {
 
       Identifiable identity = null;
       if (identityType.equals("user")) {
-        final SecurityUser user = database.getUser();
+        final SecurityUser user = database.geCurrentUser();
         if (user != null) {
           identity = user.getIdentity(database);
         }
       } else if (identityType.equals("role")) {
-        final Set<? extends SecurityRole> roles = database.getUser().getRoles();
+        final Set<? extends SecurityRole> roles = database.geCurrentUser().getRoles();
         if (!roles.isEmpty()) {
           identity = roles.iterator().next().getIdentity(database);
         }
@@ -70,7 +72,7 @@ public class RestrictedAccessHook {
                 + "'. Supported ones are: 'user', 'role'");
       }
 
-      if (identity != null && identity.getIdentity().isValid()) {
+      if (identity != null && ((RecordId) identity.getIdentity()).isValid()) {
         for (String f : fields) {
           database.getSharedContext().getSecurity().allowIdentity(database, entity, f, identity);
         }
@@ -89,14 +91,14 @@ public class RestrictedAccessHook {
     final SchemaImmutableClass cls = EntityInternalUtils.getImmutableSchemaClass(database, ent);
     if (cls != null && cls.isRestricted()) {
 
-      if (database.getUser() == null) {
+      if (database.geCurrentUser() == null) {
         return true;
       }
 
-      if (database.getUser()
+      if (database.geCurrentUser()
           .isRuleDefined(database, Rule.ResourceGeneric.BYPASS_RESTRICTED, null)) {
         if (database
-            .getUser()
+            .geCurrentUser()
             .checkIfAllowed(database,
                 Rule.ResourceGeneric.BYPASS_RESTRICTED, null, Role.PERMISSION_READ)
             != null)

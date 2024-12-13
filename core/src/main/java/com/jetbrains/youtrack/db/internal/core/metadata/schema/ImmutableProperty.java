@@ -19,18 +19,21 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.schema.Collate;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.collate.Collate;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.INDEX_TYPE;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.validation.ValidationBinaryComparable;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.validation.ValidationCollectionComparable;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.validation.ValidationLinkbagComparable;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.validation.ValidationMapComparable;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.validation.ValidationStringComparable;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -42,7 +45,7 @@ import java.util.Set;
 /**
  * @since 10/21/14
  */
-public class ImmutableProperty implements Property {
+public class ImmutableProperty implements PropertyInternal {
 
   private final String name;
   private final String fullName;
@@ -68,10 +71,9 @@ public class ImmutableProperty implements Property {
   private final boolean readOnly;
   private final Comparable<Object> minComparable;
   private final Comparable<Object> maxComparable;
-  private final Set<Index> indexes;
   private final Collection<Index> allIndexes;
 
-  public ImmutableProperty(DatabaseSessionInternal session, Property property,
+  public ImmutableProperty(DatabaseSessionInternal session, PropertyInternal property,
       SchemaImmutableClass owner) {
     name = property.getName();
     fullName = property.getFullName();
@@ -204,9 +206,9 @@ public class ImmutableProperty implements Property {
         }
       }
     }
+
     this.maxComparable = maxComparable;
-    this.indexes = property.getIndexes(session);
-    this.allIndexes = property.getAllIndexes(session);
+    this.allIndexes = property.getAllIndexesInternal(session);
   }
 
   private <T> T safeConvert(DatabaseSessionInternal session, Object value, Class<T> target,
@@ -364,49 +366,30 @@ public class ImmutableProperty implements Property {
   }
 
   @Override
-  public Index createIndex(DatabaseSession session, INDEX_TYPE iType) {
+  public String createIndex(DatabaseSession session, INDEX_TYPE iType) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Index createIndex(DatabaseSession session, String iType) {
+  public String createIndex(DatabaseSession session, String iType) {
+    throw new UnsupportedOperationException();
+  }
+
+
+  public String createIndex(DatabaseSession session, String iType, Map<String, ?> metadata) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Index createIndex(DatabaseSession session, String iType, EntityImpl metadata) {
+  public String createIndex(DatabaseSession session, INDEX_TYPE iType, Map<String, ?> metadata) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Index createIndex(DatabaseSession session, INDEX_TYPE iType, EntityImpl metadata) {
-    throw new UnsupportedOperationException();
+  public Collection<String> getAllIndexes(DatabaseSession session) {
+    return this.allIndexes.stream().map(Index::getName).toList();
   }
 
-  @Override
-  public Property dropIndexes(DatabaseSessionInternal session) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Set<Index> getIndexes(DatabaseSession session) {
-    return indexes;
-  }
-
-  @Override
-  public Index getIndex(DatabaseSession session) {
-    return indexes.iterator().next();
-  }
-
-  @Override
-  public Collection<Index> getAllIndexes(DatabaseSession session) {
-    return this.allIndexes;
-  }
-
-  @Override
-  public boolean isIndexed(DatabaseSession session) {
-    return owner.areIndexed(session, name);
-  }
 
   @Override
   public String getRegexp() {
@@ -459,36 +442,23 @@ public class ImmutableProperty implements Property {
       throw new IllegalArgumentException("attribute is null");
     }
 
-    switch (attribute) {
-      case LINKEDCLASS:
-        return getLinkedClass();
-      case LINKEDTYPE:
-        return linkedType;
-      case MIN:
-        return min;
-      case MANDATORY:
-        return mandatory;
-      case READONLY:
-        return readOnly;
-      case MAX:
-        return max;
-      case DEFAULT:
-        return defaultValue;
-      case NAME:
-        return name;
-      case NOTNULL:
-        return notNull;
-      case REGEXP:
-        return regexp;
-      case TYPE:
-        return type;
-      case COLLATE:
-        return collate;
-      case DESCRIPTION:
-        return description;
-    }
+    return switch (attribute) {
+      case LINKEDCLASS -> getLinkedClass();
+      case LINKEDTYPE -> linkedType;
+      case MIN -> min;
+      case MANDATORY -> mandatory;
+      case READONLY -> readOnly;
+      case MAX -> max;
+      case DEFAULT -> defaultValue;
+      case NAME -> name;
+      case NOTNULL -> notNull;
+      case REGEXP -> regexp;
+      case TYPE -> type;
+      case COLLATE -> collate;
+      case DESCRIPTION -> description;
+      default -> throw new IllegalArgumentException("Cannot find attribute '" + attribute + "'");
+    };
 
-    throw new IllegalArgumentException("Cannot find attribute '" + attribute + "'");
   }
 
   @Override
@@ -539,5 +509,10 @@ public class ImmutableProperty implements Property {
 
   public Comparable<Object> getMinComparable() {
     return minComparable;
+  }
+
+  @Override
+  public Collection<Index> getAllIndexesInternal(DatabaseSession session) {
+    return this.allIndexes;
   }
 }

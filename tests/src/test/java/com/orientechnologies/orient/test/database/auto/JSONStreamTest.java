@@ -15,14 +15,14 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerSchemaAware2CSV;
@@ -248,9 +248,9 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   @Test
   public void testMultiLevelTypes() throws IOException {
     final String oldDataTimeFormat =
-        database.get(ATTRIBUTES.DATETIMEFORMAT).toString();
+        database.get(DatabaseSession.ATTRIBUTES.DATE_TIME_FORMAT).toString();
     database.set(
-        ATTRIBUTES.DATETIMEFORMAT, StorageConfiguration.DEFAULT_DATETIME_FORMAT);
+        DatabaseSession.ATTRIBUTES.DATE_TIME_FORMAT, StorageConfiguration.DEFAULT_DATETIME_FORMAT);
     try {
       final EntityImpl doc = new EntityImpl();
       doc.field("long", 100000000000L);
@@ -332,7 +332,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
           ((Byte) thirdLevelDoc.field("byte")).byteValue(),
           ((Byte) thirdDoc.field("byte")).byteValue());
     } finally {
-      database.set(ATTRIBUTES.DATETIMEFORMAT, oldDataTimeFormat);
+      database.set(DatabaseSession.ATTRIBUTES.DATE_TIME_FORMAT, oldDataTimeFormat);
     }
   }
 

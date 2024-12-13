@@ -19,20 +19,21 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.function;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.MetadataUpdateListener;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
-import com.jetbrains.youtrack.db.internal.core.storage.RecordDuplicatedException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
@@ -158,9 +159,10 @@ public class FunctionLibraryImpl {
       return;
     }
 
-    final SchemaClass f = db.getMetadata().getSchema().createClass("OFunction");
+    var f = (SchemaClassInternal) db.getMetadata().getSchema().createClass("OFunction");
     Property prop = f.createProperty(db, "name", PropertyType.STRING, (PropertyType) null, true);
     prop.createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
+
     f.createProperty(db, "code", PropertyType.STRING, (PropertyType) null, true);
     f.createProperty(db, "language", PropertyType.STRING, (PropertyType) null, true);
     f.createProperty(db, "idempotent", PropertyType.BOOLEAN, (PropertyType) null, true);

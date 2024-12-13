@@ -16,9 +16,10 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
@@ -234,7 +235,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
       Assert.assertTrue(d.fieldNames().length <= 1);
       Assert.assertNotNull(d.field("rid"));
 
-      final RID rid = d.field("rid", RID.class);
+      final RecordId rid = d.field("rid", RID.class);
       Assert.assertTrue(rid.isValid());
     }
   }

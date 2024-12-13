@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v1;
 
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.encryption.Encryption;
 import com.jetbrains.youtrack.db.internal.core.encryption.EncryptionFactory;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
@@ -21,7 +21,8 @@ public class SBTreeV1TestEncryptionTestIT extends SBTreeV1TestIT {
     final File dbDirectory = new File(buildDirectory, dbName);
     FileUtils.deleteRecursively(dbDirectory);
 
-    youTrackDB = new YouTrackDB("plocal:" + buildDirectory, YouTrackDBConfig.defaultConfig());
+    youTrackDB = new YouTrackDBImpl("plocal:" + buildDirectory,
+        YouTrackDBConfig.defaultConfig());
 
     youTrackDB.execute(
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");

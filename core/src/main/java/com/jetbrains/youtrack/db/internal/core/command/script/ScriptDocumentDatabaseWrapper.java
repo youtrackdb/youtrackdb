@@ -20,25 +20,25 @@
 package com.jetbrains.youtrack.db.internal.core.command.script;
 
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession.STATUS;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession.STATUS;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.api.DatabaseSession.ATTRIBUTES;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClass;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.Metadata;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLQuery;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransaction;
 import java.util.Arrays;
@@ -224,24 +224,12 @@ public class ScriptDocumentDatabaseWrapper {
     return database.setMVCC(iValue);
   }
 
-  public long getClusterRecordSizeById(int iClusterId) {
-    return database.getClusterRecordSizeById(iClusterId);
-  }
-
   public boolean isValidationEnabled() {
     return database.isValidationEnabled();
   }
 
-  public long getClusterRecordSizeByName(String iClusterName) {
-    return database.getClusterRecordSizeByName(iClusterName);
-  }
-
-  public DatabaseSession setValidationEnabled(boolean iValue) {
-    return database.setValidationEnabled(iValue);
-  }
-
   public SecurityUser getUser() {
-    return database.getUser();
+    return database.geCurrentUser();
   }
 
   public void setUser(SecurityUserIml user) {
@@ -335,9 +323,5 @@ public class ScriptDocumentDatabaseWrapper {
 
   public void rollback() {
     database.rollback();
-  }
-
-  public String getType() {
-    return database.getType();
   }
 }

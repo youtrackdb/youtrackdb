@@ -1,12 +1,13 @@
 package com.jetbrains.youtrack.db.internal;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabasePool;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.api.YourTracks;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.session.SessionPool;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,32 +18,35 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 
 public class DbTestBase {
-
   private static final AtomicLong counter = new AtomicLong();
   private static final ConcurrentHashMap<Class<?>, Long> ids = new ConcurrentHashMap<>();
 
   protected DatabaseSessionInternal db;
-  protected DatabasePool pool;
-  protected YouTrackDB context;
+  protected SessionPool pool;
+  protected YouTrackDBImpl context;
+
   @Rule
   public TestName name = new TestName();
   protected String databaseName;
   protected DatabaseType dbType;
 
-  protected String user = "admin";
-  protected String password = "adminpwd";
+  protected String adminUser = "admin";
+  protected String adminPassword = "adminpwd";
 
+  protected String readerUser = "reader";
+  protected String readerPassword = "readerpwd";
 
   @Before
   public void beforeTest() throws Exception {
     context = createContext();
     String dbName = name.getMethodName();
+
     dbName = dbName.replace('[', '_');
     dbName = dbName.replace(']', '_');
     this.databaseName = dbName;
 
+    dbType = calculateDbType();
     createDatabase(dbType);
-
   }
 
   public void createDatabase() {
@@ -57,8 +61,10 @@ public class DbTestBase {
       pool.close();
     }
 
-    context.create(this.databaseName, dbType, user, password, "admin");
-    pool = context.cachedPool(this.databaseName, user, password);
+    context.create(this.databaseName, dbType,
+        adminUser, adminPassword, "admin", readerUser, readerPassword, "reader");
+    pool = context.cachedPool(this.databaseName, adminUser, adminPassword);
+
     db = (DatabaseSessionInternal) context.open(this.databaseName, "admin", "adminpwd");
   }
 
@@ -78,21 +84,23 @@ public class DbTestBase {
     return ids.computeIfAbsent(testClass, k -> counter.incrementAndGet());
   }
 
-  protected YouTrackDB createContext() {
+  protected YouTrackDBImpl createContext() {
     var directoryPath = getDirectoryPath(getClass());
     var builder = YouTrackDBConfig.builder();
-    var config = createConfig(builder);
+    var config = createConfig((YouTrackDBConfigBuilderImpl) builder);
 
+    return (YouTrackDBImpl) YourTracks.embedded(directoryPath, config);
+  }
+
+  protected DatabaseType calculateDbType() {
     final String testConfig =
         System.getProperty("youtrackdb.test.env", DatabaseType.MEMORY.name().toLowerCase());
 
     if ("ci".equals(testConfig) || "release".equals(testConfig)) {
-      dbType = DatabaseType.PLOCAL;
-    } else {
-      dbType = DatabaseType.MEMORY;
+      return DatabaseType.PLOCAL;
     }
 
-    return YouTrackDB.embedded(directoryPath, config);
+    return DatabaseType.MEMORY;
   }
 
   @SuppressWarnings("SameParameterValue")
@@ -110,10 +118,14 @@ public class DbTestBase {
   }
 
   public DatabaseSessionInternal openDatabase() {
+    return (DatabaseSessionInternal) context.open(this.databaseName, adminUser, adminPassword);
+  }
+
+  public DatabaseSessionInternal openDatabase(String user, String password) {
     return (DatabaseSessionInternal) context.open(this.databaseName, user, password);
   }
 
-  protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
+  protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilderImpl builder) {
     return builder.build();
   }
 

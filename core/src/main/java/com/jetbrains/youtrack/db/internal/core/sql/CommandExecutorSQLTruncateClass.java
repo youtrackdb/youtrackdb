@@ -19,15 +19,15 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import java.io.IOException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
@@ -42,7 +42,7 @@ public class CommandExecutorSQLTruncateClass extends CommandExecutorSQLAbstract
   public static final String KEYWORD_TRUNCATE = "TRUNCATE";
   public static final String KEYWORD_CLASS = "CLASS";
   public static final String KEYWORD_POLYMORPHIC = "POLYMORPHIC";
-  private SchemaClass schemaClass;
+  private SchemaClassInternal schemaClass;
   private boolean unsafe = false;
   private boolean deep = false;
 
@@ -84,7 +84,7 @@ public class CommandExecutorSQLTruncateClass extends CommandExecutorSQLAbstract
       }
 
       final String className = word.toString();
-      schemaClass = database.getMetadata().getSchema().getClass(className);
+      schemaClass = (SchemaClassInternal) database.getMetadata().getSchema().getClass(className);
 
       if (schemaClass == null) {
         throw new CommandSQLParsingException(
@@ -154,16 +154,11 @@ public class CommandExecutorSQLTruncateClass extends CommandExecutorSQLAbstract
       }
     }
 
-    try {
-      schemaClass.truncate(database);
-      if (deep) {
-        for (SchemaClass subclass : subclasses) {
-          subclass.truncate(database);
-        }
+    schemaClass.truncate(database);
+    if (deep) {
+      for (SchemaClass subclass : subclasses) {
+        ((SchemaClassInternal) subclass).truncate(database);
       }
-    } catch (IOException e) {
-      throw BaseException.wrapException(
-          new CommandExecutionException("Error on executing command"), e);
     }
 
     return recs;

@@ -19,13 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.ThreadInterruptedException;
-import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBListenerAbstract;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.StorageExistsException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.StorageExistsException;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.util.HashMap;
@@ -116,8 +117,8 @@ public class PartitionedDatabasePool extends YouTrackDBListenerAbstract {
 
     partitions = pts;
 
-    YouTrackDBManager.instance().registerWeakYouTrackDBStartupListener(this);
-    YouTrackDBManager.instance().registerWeakYouTrackDBShutdownListener(this);
+    YouTrackDBEnginesManager.instance().registerWeakYouTrackDBStartupListener(this);
+    YouTrackDBEnginesManager.instance().registerWeakYouTrackDBShutdownListener(this);
   }
 
   private static int nextHashCode() {

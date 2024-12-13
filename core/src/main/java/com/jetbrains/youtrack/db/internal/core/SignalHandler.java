@@ -21,7 +21,7 @@
 package com.jetbrains.youtrack.db.internal.core;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -63,20 +63,20 @@ public class SignalHandler implements sun.misc.SignalHandler {
 
     final String s = signal.toString().trim();
 
-    if (YouTrackDBManager.instance().isSelfManagedShutdown()
+    if (YouTrackDBEnginesManager.instance().isSelfManagedShutdown()
         && (s.equals("SIGKILL")
         || s.equals("SIGHUP")
         || s.equals("SIGINT")
         || s.equals("SIGTERM"))) {
-      YouTrackDBManager.instance().shutdown();
+      YouTrackDBEnginesManager.instance().shutdown();
       System.exit(1);
     } else if (s.equals("SIGTRAP")) {
       System.out.println();
       GlobalConfiguration.dumpConfiguration(System.out);
       System.out.println();
-      YouTrackDBManager.instance().getProfiler().dump(System.out);
+      YouTrackDBEnginesManager.instance().getProfiler().dump(System.out);
       System.out.println();
-      System.out.println(YouTrackDBManager.instance().getProfiler().threadDump());
+      System.out.println(YouTrackDBEnginesManager.instance().getProfiler().threadDump());
     } else {
       sun.misc.SignalHandler redefinedHandler = redefinedHandlers.get(signal);
       if (redefinedHandler != null) {

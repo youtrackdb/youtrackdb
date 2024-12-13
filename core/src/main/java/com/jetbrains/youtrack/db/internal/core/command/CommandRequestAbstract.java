@@ -19,11 +19,12 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext.TIMEOUT_STRATEGY;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.replication.AsyncReplicationError;
 import com.jetbrains.youtrack.db.internal.core.replication.AsyncReplicationOk;
 import java.util.Collections;
@@ -35,7 +36,6 @@ import java.util.Set;
 /**
  * Text based Command Request abstract class.
  */
-@SuppressWarnings("serial")
 public abstract class CommandRequestAbstract
     implements CommandRequestInternal, DistributedCommand {
 
@@ -77,7 +77,7 @@ public abstract class CommandRequestAbstract
   }
 
   @SuppressWarnings("unchecked")
-  protected Map<Object, Object> convertToParameters(Object... iArgs) {
+  protected static Map<Object, Object> convertToParameters(Object... iArgs) {
     final Map<Object, Object> params;
 
     if (iArgs.length == 1 && iArgs[0] instanceof Map) {
@@ -90,11 +90,12 @@ public abstract class CommandRequestAbstract
         iArgs = (Object[]) iArgs[0];
       }
 
-      params = new HashMap<Object, Object>(iArgs.length);
+      params = new HashMap<>(iArgs.length);
       for (int i = 0; i < iArgs.length; ++i) {
         Object par = iArgs[i];
 
-        if (par instanceof Identifiable && ((Identifiable) par).getIdentity().isValid())
+        if (par instanceof Identifiable
+            && ((RecordId) ((Identifiable) par).getIdentity()).isValid())
         // USE THE RID ONLY
         {
           par = ((Identifiable) par).getIdentity();

@@ -12,26 +12,26 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLResultsetDelegate;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLSelect;
-import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.sql.IterableRecordSource;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.MatchExecutionPlanner;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.PatternEdge;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.PatternNode;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLTarget;
 import com.jetbrains.youtrack.db.internal.core.sql.query.BasicLegacyResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
@@ -115,8 +115,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     this.returnAliases.add(alias);
   }
 
-  public class MatchContext {
-
+  public static class MatchContext {
     int currentEdgeNumber = 0;
 
     Map<String, Iterable> candidates = new LinkedHashMap<String, Iterable>();
@@ -1439,7 +1438,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     allAliases.addAll(aliasFilters.keySet());
 
     var db = ctx.getDatabase();
-    Schema schema = db.getMetadata().getImmutableSchemaSnapshot();
+    var schema = db.getMetadata().getImmutableSchemaSnapshot();
 
     Map<String, Long> result = new LinkedHashMap<String, Long>();
     for (String alias : allAliases) {
@@ -1451,12 +1450,12 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
       if (!schema.existsClass(className)) {
         throw new CommandExecutionException("class not defined: " + className);
       }
-      SchemaClass oClass = schema.getClass(className);
+      var oClass = schema.getClassInternal(className);
       long upperBound;
       SQLWhereClause filter = aliasFilters.get(alias);
       if (filter != null) {
         List<String> aliasesOnPattern = filter.baseExpression.getMatchPatternInvolvedAliases();
-        if (aliasesOnPattern != null && aliasesOnPattern.size() > 0) {
+        if (aliasesOnPattern != null && !aliasesOnPattern.isEmpty()) {
           // skip root nodes that have a condition on $matched, because they have to be calculated
           // as downstream
           continue;

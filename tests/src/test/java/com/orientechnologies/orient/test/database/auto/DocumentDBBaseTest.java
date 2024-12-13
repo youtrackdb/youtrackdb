@@ -1,19 +1,19 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.Direction;
-import com.jetbrains.youtrack.db.internal.core.record.Edge;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.record.Direction;
+import com.jetbrains.youtrack.db.api.record.Edge;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStep;
+import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
+import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStepInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.FetchFromIndexStep;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.api.query.Result;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -409,7 +409,7 @@ public abstract class DocumentDBBaseTest extends BaseTest<DatabaseSessionInterna
         .setMin(database, "3")
         .setMax(database, "30")
         .createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE,
-            new EntityImpl().field("ignoreNullValues", true));
+            Map.of("ignoreNullValues", true));
     cls.createProperty(database, "followings", PropertyType.LINKSET, cls);
     cls.createProperty(database, "followers", PropertyType.LINKSET, cls);
     cls.createProperty(database, "name", PropertyType.STRING)
@@ -606,7 +606,7 @@ public abstract class DocumentDBBaseTest extends BaseTest<DatabaseSessionInterna
     database.begin();
     carNode = database.bindToSession(carNode);
     motoNode = database.bindToSession(motoNode);
-    database.newEdge(carNode, motoNode).save();
+    database.newRegularEdge(carNode, motoNode).save();
 
     List<Result> result =
         database.query("select from GraphVehicle").stream().collect(Collectors.toList());

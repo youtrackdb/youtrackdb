@@ -1,7 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.viewmanager.ViewManager;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.IndexFactory;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerShared;
@@ -9,12 +8,12 @@ import com.jetbrains.youtrack.db.internal.core.index.Indexes;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibraryImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaEmbedded;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceLibraryImpl;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHook;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHookV2.LiveQueryOps;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.schedule.SchedulerImpl;
@@ -32,7 +31,6 @@ import java.util.Map;
 public class SharedContextEmbedded extends SharedContext {
 
   protected Map<String, DistributedQueryContext> activeDistributedQueries;
-  protected ViewManager viewManager;
 
   public SharedContextEmbedded(Storage storage, YouTrackDBEmbedded youtrackDB) {
     this.youtrackDB = youtrackDB;
@@ -79,8 +77,6 @@ public class SharedContextEmbedded extends SharedContext {
                 listener.onStorageConfigurationUpdate(storage.getName(), update);
               }
             });
-
-    this.viewManager = new ViewManager(youtrackDB, storage.getName());
   }
 
   public synchronized void load(DatabaseSessionInternal database) {
@@ -99,7 +95,6 @@ public class SharedContextEmbedded extends SharedContext {
         scheduler.load(database);
         sequenceLibrary.load(database);
         schema.onPostIndexManagement(database);
-        viewManager.load();
         loaded = true;
       }
     } finally {
@@ -114,7 +109,6 @@ public class SharedContextEmbedded extends SharedContext {
   @Override
   public synchronized void close() {
     stringCache.close();
-    viewManager.close();
     schema.close();
     security.close();
     indexManager.close();
@@ -167,16 +161,11 @@ public class SharedContextEmbedded extends SharedContext {
       // the index does not exist
     }
 
-    viewManager.create();
     loaded = true;
   }
 
   public Map<String, DistributedQueryContext> getActiveDistributedQueries() {
     return activeDistributedQueries;
-  }
-
-  public ViewManager getViewManager() {
-    return viewManager;
   }
 
   public synchronized void reInit(

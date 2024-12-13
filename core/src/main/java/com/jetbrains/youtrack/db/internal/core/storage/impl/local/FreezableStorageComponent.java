@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local;
 
-import com.jetbrains.youtrack.db.internal.common.concur.lock.ModificationOperationProhibitedException;
+import com.jetbrains.youtrack.db.api.exception.ModificationOperationProhibitedException;
 
 /**
  * Interface for storage components that support freeze/release operations.

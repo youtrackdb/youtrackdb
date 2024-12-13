@@ -19,8 +19,24 @@
  */
 package com.orientechnologies.orient.console;
 
-import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.WARNING_DEFAULT_USERS;
+import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.WARNING_DEFAULT_USERS;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.client.remote.DatabaseImportRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
@@ -39,22 +55,17 @@ import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.SignalHandler;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.command.script.CommandExecutorScript;
 import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.StorageEntryConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.tool.BonsaiTreeRepair;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseCompare;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseExport;
@@ -63,30 +74,20 @@ import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseImport;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseImportException;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseRepair;
 import com.jetbrains.youtrack.db.internal.core.db.tool.GraphRepair;
-import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.exception.RetryQueryException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.iterator.IdentifiableIterator;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityManager;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerStringAbstract;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
@@ -99,6 +100,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Array;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -129,7 +131,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
   protected List<Identifiable> currentResultSet;
   protected Object currentResult;
   protected DatabaseURLConnection urlConnection;
-  protected YouTrackDB youTrackDB;
+  protected YouTrackDBImpl youTrackDB;
   private int lastPercentStep;
   private String currentDatabaseUserName;
   private String currentDatabaseUserPassword;
@@ -168,7 +170,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       restoreTerminal(interactiveMode);
     }
 
-    YouTrackDBManager.instance().shutdown();
+    YouTrackDBEnginesManager.instance().shutdown();
     System.exit(result);
   }
 
@@ -254,7 +256,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
           urlConnection.getDbName(), currentDatabaseUserName, currentDatabaseUserPassword);
     }
     youTrackDB =
-        new YouTrackDB(
+        new YouTrackDBImpl(
             urlConnection.getType() + ":" + urlConnection.getPath(),
             iUserName,
             iUserPassword,
@@ -354,7 +356,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     final Map<String, String> omap = parseCommandOptions(options);
 
     urlConnection = URLHelper.parseNew(databaseURL);
-    YouTrackDBConfigBuilder config = YouTrackDBConfig.builder();
+    YouTrackDBConfigBuilderImpl config = (YouTrackDBConfigBuilderImpl) YouTrackDBConfig.builder();
 
     DatabaseType type;
     if (storageType != null) {
@@ -372,12 +374,12 @@ public class ConsoleDatabaseApp extends ConsoleApplication
           || user == null
           || !user.equals(userName)) {
         youTrackDB =
-            new YouTrackDB(
+            new YouTrackDBImpl(
                 conn, currentDatabaseUserName, currentDatabaseUserPassword, config.build());
       }
     } else {
       youTrackDB =
-          new YouTrackDB(conn, currentDatabaseUserName, currentDatabaseUserPassword,
+          new YouTrackDBImpl(conn, currentDatabaseUserName, currentDatabaseUserPassword,
               config.build());
     }
 
@@ -1829,9 +1831,9 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
     message(
         "\nDefault cluster......: "
-            + currentDatabase.getClusterNameById(cls.getDefaultClusterId())
+            + currentDatabase.getClusterNameById(cls.getClusterIds()[0])
             + " (id="
-            + cls.getDefaultClusterId()
+            + cls.getClusterIds()[0]
             + ")");
 
     final StringBuilder clusters = new StringBuilder();
@@ -1847,8 +1849,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     }
 
     message("\nSupported clusters...: " + clusters);
-    message("\nCluster selection....: " + cls.getClusterSelection().getName());
-    message("\nOversize.............: " + cls.getClassOverSize());
+    message("\nCluster selection....: " + cls.getClusterSelectionStrategyName());
 
     if (!cls.getSubclasses().isEmpty()) {
       message("\nSubclasses.........: ");
@@ -1897,23 +1898,17 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.writeRecords(resultSet, -1);
     }
 
-    final Set<Index> indexes = cls.getClassIndexes(currentDatabase);
+    final Set<String> indexes = cls.getClassIndexes(currentDatabase);
     if (!indexes.isEmpty()) {
       message("\n\nINDEXES (" + indexes.size() + " altogether)");
 
       final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
-      for (final Index index : indexes) {
+      for (final String index : indexes) {
         final EntityImpl row = new EntityImpl();
         resultSet.add(row);
 
-        row.field("NAME", index.getName());
-
-        final IndexDefinition indexDefinition = index.getDefinition();
-        if (indexDefinition != null) {
-          final List<String> fields = indexDefinition.getFields();
-          row.field("PROPERTIES", fields);
-        }
+        row.field("NAME", index);
       }
 
       final OTableFormatter formatter = new OTableFormatter(this);
@@ -2021,23 +2016,17 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.writeRecords(resultSet, -1);
     }
 
-    final Collection<Index> indexes = prop.getAllIndexes(currentDatabase);
+    final Collection<String> indexes = prop.getAllIndexes(currentDatabase);
     if (!indexes.isEmpty()) {
       message("\n\nINDEXES (" + indexes.size() + " altogether)");
 
       final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
-      for (final Index index : indexes) {
+      for (final String index : indexes) {
         final EntityImpl row = new EntityImpl();
         resultSet.add(row);
 
-        row.field("NAME", index.getName());
-
-        final IndexDefinition indexDefinition = index.getDefinition();
-        if (indexDefinition != null) {
-          final List<String> fields = indexDefinition.getFields();
-          row.field("PROPERTIES", fields);
-        }
+        row.field("NAME", index);
       }
       final OTableFormatter formatter = new OTableFormatter(this);
       formatter.setMaxWidthSize(getConsoleWidth());
@@ -2510,7 +2499,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     DatabaseURLConnection firstUrl = URLHelper.parseNew(iDb1URL);
     DatabaseURLConnection secondUrl = URLHelper.parseNew(iDb2URL);
     YouTrackDB firstContext =
-        new YouTrackDB(
+        new YouTrackDBImpl(
             firstUrl.getType() + ":" + firstUrl.getPath(),
             iUserName,
             iUserPassword,
@@ -2519,7 +2508,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     if (!firstUrl.getType().equals(secondUrl.getType())
         || !firstUrl.getPath().equals(secondUrl.getPath())) {
       secondContext =
-          new YouTrackDB(
+          new YouTrackDBImpl(
               secondUrl.getType() + ":" + secondUrl.getPath(),
               iUserName,
               iUserPassword,
@@ -2671,7 +2660,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
               + "' to: "
               + iText
               + "...");
-      fName = currentDatabase.incrementalBackup(fileName);
+      fName = currentDatabase.incrementalBackup(Path.of(fileName));
 
       message(
           String.format(
@@ -2813,13 +2802,13 @@ public class ConsoleDatabaseApp extends ConsoleApplication
           name = "profiler command",
           description = "command to execute against the profiler") final String iCommandName) {
     if (iCommandName.equalsIgnoreCase("on")) {
-      YouTrackDBManager.instance().getProfiler().startRecording();
+      YouTrackDBEnginesManager.instance().getProfiler().startRecording();
       message("\nProfiler is ON now, use 'profiler off' to turn off.");
     } else if (iCommandName.equalsIgnoreCase("off")) {
-      YouTrackDBManager.instance().getProfiler().stopRecording();
+      YouTrackDBEnginesManager.instance().getProfiler().stopRecording();
       message("\nProfiler is OFF now, use 'profiler on' to turn on.");
     } else if (iCommandName.equalsIgnoreCase("dump")) {
-      out.println(YouTrackDBManager.instance().getProfiler().dump());
+      out.println(YouTrackDBEnginesManager.instance().getProfiler().dump());
     }
   }
 
@@ -3111,7 +3100,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       pw = parts.get(4);
     }
 
-    youTrackDB = new YouTrackDB(url, user, pw, YouTrackDBConfig.defaultConfig());
+    youTrackDB = new YouTrackDBImpl(url, user, pw, YouTrackDBConfig.defaultConfig());
     return RESULT.OK;
   }
 

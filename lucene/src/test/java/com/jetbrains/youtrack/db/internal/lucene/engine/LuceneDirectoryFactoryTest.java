@@ -7,11 +7,12 @@ import static com.jetbrains.youtrack.db.internal.lucene.engine.LuceneDirectoryFa
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.lucene.test.BaseLuceneTest;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.lucene.test.BaseLuceneTest;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,7 +47,7 @@ public class LuceneDirectoryFactoryTest extends BaseLuceneTest {
   public void shouldCreateNioFsDirectory() throws Exception {
     meta.put(DIRECTORY_TYPE, DIRECTORY_NIO);
     try (YouTrackDB ctx =
-        new YouTrackDB(embeddedDBUrl(getClass()),
+        new YouTrackDBImpl(embeddedDBUrl(getClass()),
             YouTrackDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
@@ -68,7 +69,7 @@ public class LuceneDirectoryFactoryTest extends BaseLuceneTest {
   public void shouldCreateMMapFsDirectory() throws Exception {
     meta.put(DIRECTORY_TYPE, DIRECTORY_MMAP);
     try (YouTrackDB ctx =
-        new YouTrackDB(embeddedDBUrl(getClass()),
+        new YouTrackDBImpl(embeddedDBUrl(getClass()),
             YouTrackDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
@@ -90,7 +91,7 @@ public class LuceneDirectoryFactoryTest extends BaseLuceneTest {
   public void shouldCreateRamDirectory() throws Exception {
     meta.put(DIRECTORY_TYPE, DIRECTORY_RAM);
     try (YouTrackDB ctx =
-        new YouTrackDB(embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig())) {
+        new YouTrackDBImpl(embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
               + databaseName
@@ -107,7 +108,7 @@ public class LuceneDirectoryFactoryTest extends BaseLuceneTest {
   public void shouldCreateRamDirectoryOnMemoryDatabase() {
     meta.put(DIRECTORY_TYPE, DIRECTORY_RAM);
     try (YouTrackDB ctx =
-        new YouTrackDB(embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig())) {
+        new YouTrackDBImpl(embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
               + databaseName
@@ -126,7 +127,7 @@ public class LuceneDirectoryFactoryTest extends BaseLuceneTest {
   public void shouldCreateRamDirectoryOnMemoryFromMmapDatabase() {
     meta.put(DIRECTORY_TYPE, DIRECTORY_MMAP);
     try (YouTrackDB ctx =
-        new YouTrackDB(embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig())) {
+        new YouTrackDBImpl(embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
               + databaseName

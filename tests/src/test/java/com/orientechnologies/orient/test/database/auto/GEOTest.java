@@ -15,10 +15,10 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
@@ -46,26 +46,26 @@ public class GEOTest extends DocumentDBBaseTest {
         .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     final Set<Index> xIndexes =
-        database.getMetadata().getSchema().getClass("MapPoint").getProperty("x")
-            .getIndexes(database);
+        database.getMetadata().getSchema().getClassInternal("MapPoint")
+            .getInvolvedIndexesInternal(database, "x");
     Assert.assertEquals(xIndexes.size(), 1);
 
     final Set<Index> yIndexes =
-        database.getMetadata().getSchema().getClass("MapPoint").getProperty("y")
-            .getIndexes(database);
+        database.getMetadata().getSchema().getClassInternal("MapPoint")
+            .getInvolvedIndexesInternal(database, "y");
     Assert.assertEquals(yIndexes.size(), 1);
   }
 
   @Test(dependsOnMethods = "geoSchema")
   public void checkGeoIndexes() {
     final Set<Index> xIndexes =
-        database.getMetadata().getSchema().getClass("MapPoint").getProperty("x")
-            .getIndexes(database);
+        database.getMetadata().getSchema().getClassInternal("MapPoint").
+            getInvolvedIndexesInternal(database, "x");
     Assert.assertEquals(xIndexes.size(), 1);
 
     final Set<Index> yIndexDefinitions =
-        database.getMetadata().getSchema().getClass("MapPoint").getProperty("y")
-            .getIndexes(database);
+        database.getMetadata().getSchema().getClassInternal("MapPoint")
+            .getInvolvedIndexesInternal(database, "y");
     Assert.assertEquals(yIndexDefinitions.size(), 1);
   }
 

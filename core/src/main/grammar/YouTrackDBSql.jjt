@@ -35,7 +35,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 import java.io.InputStream;
 import java.util.List;
 import java.util.ArrayList;
-import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 
 /** YouTrackDB Sql grammar. */
@@ -229,8 +229,6 @@ TOKEN:
 	|
 	< SUPERCLASSES: ( "s" | "S" ) ( "u" | "U" ) ( "p" | "P" ) ( "e" | "E" ) ( "r" | "R" ) ( "c" | "C" ) ( "l" | "L" ) ( "a" | "A" ) ( "s" | "S" ) ( "s" | "S" ) ( "e" | "E" ) ( "s" | "S" )>
 	|
-	< VIEW: ( "v" | "V" ) ( "i" | "I" ) ( "e" | "E" ) ( "w" | "W" ) >
-	|
 	< UPDATABLE: ( "u" | "U" ) ( "p" | "P" ) ( "d" | "D" ) ( "a" | "A" ) ( "t" | "T" ) ( "a" | "A" ) ( "b" | "B" ) ( "l" | "L" ) ( "e" | "E" )  >
     |
 	< EXCEPTION: ( "e" | "E" ) ( "x" | "X" ) ( "c" | "C" ) ( "e" | "E" ) ( "p" | "P" ) ( "t" | "T" ) ( "i" | "I" ) ( "o" | "O" ) ( "n" | "N" ) >
@@ -263,17 +261,15 @@ TOKEN:
 	|
 	< SHORTNAME: ( "s" | "S" ) ( "h" | "H" ) ( "o" | "O" ) ( "r" | "R" ) ( "t" | "T" ) ("n" | "N") ( "a" | "A" ) ( "m" | "M" ) ( "e" | "E" ) >
 	|
-	< OVERSIZE:  ( "o" | "O" ) ( "v" | "V" ) ( "e" | "E" ) ( "r" | "R" ) ( "s" | "S" ) ( "i" | "I" ) ("z" | "Z") ( "e" | "E" ) >
+	< STRICT_MODE: ( "s" | "S" ) ( "t" | "T" ) ( "r" | "R" ) ( "i" | "I" ) ( "C" | "c" ) ( "T" | "t" ) ("_") ( "m" | "M" ) ( "o" | "O" ) ( "d" | "D" ) ( "e" | "E" ) >
 	|
-	< STRICTMODE: ( "s" | "S" ) ( "t" | "T" ) ( "r" | "R" ) ( "i" | "I" ) ( "C" | "c" ) ( "T" | "t" ) ( "m" | "M" ) ( "o" | "O" ) ( "d" | "D" ) ( "e" | "E" ) >
+	< ADD_CLUSTER: ( "a" | "A" ) ( "d" | "D" ) ( "d" | "D" ) ("_") ( "C" | "c" ) ( "L" | "l" ) ( "U" | "u" ) ( "S" | "s" ) ( "T" | "t" ) ( "E" | "e" ) ( "R" | "r" ) >
 	|
-	< ADDCLUSTER: ( "a" | "A" ) ( "d" | "D" ) ( "d" | "D" ) ( "C" | "c" ) ( "L" | "l" ) ( "U" | "u" ) ( "S" | "s" ) ( "T" | "t" ) ( "E" | "e" ) ( "R" | "r" ) >
-	|
-	< REMOVECLUSTER: ( "r" | "R" ) ( "e" | "E" ) ( "m" | "M" ) ( "o" | "O" ) ( "v" | "V" ) ( "e" | "E" ) ( "C" | "c" ) ( "L" | "l" ) ( "U" | "u" ) ( "S" | "s" ) ( "T" | "t" ) ( "E" | "e" ) ( "R" | "r" ) >
+	< REMOVE_CLUSTER: ( "r" | "R" ) ( "e" | "E" ) ( "m" | "M" ) ( "o" | "O" ) ( "v" | "V" ) ( "e" | "E" ) ("_") ( "C" | "c" ) ( "L" | "l" ) ( "U" | "u" ) ( "S" | "s" ) ( "T" | "t" ) ( "E" | "e" ) ( "R" | "r" ) >
 	|
 	< CUSTOM: ( "c" | "C" ) ( "u" | "U" ) ( "s" | "S" ) ( "t" | "T" ) ( "o" | "O" ) ( "m" | "M" ) >
 	|
-	< CLUSTERSELECTION: ( "C" | "c" ) ( "L" | "l" ) ( "U" | "u" ) ( "S" | "s" ) ( "T" | "t" ) ( "E" | "e" ) ( "R" | "r" ) ( "s" | "S" ) ( "e" | "E" ) ( "l" | "L" ) ( "e" | "E" ) ( "c" | "C" ) ( "t" | "T" ) ( "i" | "I" ) ( "o" | "O" ) ( "n" | "N" ) >
+	< CLUSTER_SELECTION: ( "C" | "c" ) ( "L" | "l" ) ( "U" | "u" ) ( "S" | "s" ) ( "T" | "t" ) ( "E" | "e" ) ( "R" | "r" ) ("_") ( "s" | "S" ) ( "e" | "E" ) ( "l" | "L" ) ( "e" | "E" ) ( "c" | "C" ) ( "t" | "T" ) ( "i" | "I" ) ( "o" | "O" ) ( "n" | "N" ) >
 	|
 	< DESCRIPTION: ( "d" | "D" ) ( "E" | "e" )  ( "s" | "S" ) ( "c" | "C" ) ( "r" | "R" ) ( "i" | "I" ) ( "p" | "P" ) ( "t" | "T" ) ( "i" | "I" ) ( "o" | "O" ) ( "n" | "N" ) >
 	|
@@ -394,8 +390,6 @@ TOKEN:
 	< SECURITY: ( "s" | "S" ) ( "e" | "E" ) ( "c" | "C" ) ( "u" | "U" ) ( "r" | "R" ) ( "i" | "I" ) ( "t" | "T" ) ( "y" | "Y" ) >
 	|
 	< POLICY: ( "p" | "P" ) ( "o" | "O" ) ( "l" | "L" ) ( "i" | "I" ) ( "c" | "C" ) ( "y" | "Y" ) >
-	|
-	< DEFAULTCLUSTER: ( "D" | "d") ( "E" | "e") ( "F" | "f") ( "A" | "a") ( "U" | "u") ( "L" | "l") ( "T" | "t") ( "C" | "c" ) ( "L" | "l" ) ( "U" | "u" ) ( "S" | "s" ) ( "T" | "t" ) ( "E" | "e" ) ( "R" | "r" ) >
 	|
 	< SYSTEM: ( "s" | "S" ) ( "y" | "Y" ) ( "s" | "S" ) ( "t" | "T" ) ( "e" | "E" ) ( "m" | "M" ) >
 	|
@@ -770,8 +764,6 @@ SQLIdentifier Identifier():
     |
     token = <CLASSES>
     |
-    token = <VIEW>
-    |
     token = <UPDATABLE>
     |
     token = <MINDEPTH>
@@ -812,17 +804,15 @@ SQLIdentifier Identifier():
 	|
 	token = <SUPERCLASSES>
 	|
-	token = <OVERSIZE>
+	token = <STRICT_MODE>
 	|
-	token = <STRICTMODE>
+	token = <ADD_CLUSTER>
 	|
-	token = <ADDCLUSTER>
-	|
-	token = <REMOVECLUSTER>
+	token = <REMOVE_CLUSTER>
 	|
 	token = <CUSTOM>
 	|
-	token = <CLUSTERSELECTION>
+	token = <CLUSTER_SELECTION>
 	|
 	token = <DESCRIPTION>
 	|
@@ -943,8 +933,6 @@ SQLIdentifier Identifier():
     token = <USERS>
     |
     token = <RID>
-    |
-    token = <DEFAULTCLUSTER>
     |
     token = <SECURITY>
     |
@@ -1159,9 +1147,6 @@ SQLStatement StatementInternal():
                 |
                 LOOKAHEAD(DropClassStatement())
                 result = DropClassStatement()
-                |
-                LOOKAHEAD(DropViewStatement())
-                result = DropViewStatement()
                 |
                 LOOKAHEAD(AlterPropertyStatement())
                 result = AlterPropertyStatement()
@@ -4009,12 +3994,12 @@ SQLAlterClassStatement AlterClassStatement():
 	(
 
 		(
-			<NAME> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.NAME; }
+			<NAME> { jjtThis.property = com.jetbrains.youtrack.db.api.schema.SchemaClass.ATTRIBUTES.NAME; }
 			jjtThis.identifierValue = Identifier()
 		)
 		|
 		(
-			<SHORTNAME> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.SHORTNAME; }
+			<SHORTNAME> { jjtThis.property = com.jetbrains.youtrack.db.api.schema.SchemaClass.ATTRIBUTES.SHORTNAME; }
 			(
 				jjtThis.identifierValue = Identifier()
 				|
@@ -4023,7 +4008,7 @@ SQLAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<SUPERCLASS> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.SUPERCLASS; }
+			<SUPERCLASS> { jjtThis.property = com.jetbrains.youtrack.db.api.schema.SchemaClass.ATTRIBUTES.SUPERCLASS; }
 			[
 				(
 					<PLUS> {jjtThis.add = true;}
@@ -4042,7 +4027,7 @@ SQLAlterClassStatement AlterClassStatement():
 		|
 		(
 			<SUPERCLASSES> {
-				jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.SUPERCLASSES;
+				jjtThis.property = com.jetbrains.youtrack.db.api.schema.SchemaClass.ATTRIBUTES.SUPERCLASSES;
 				jjtThis.identifierListValue = new ArrayList<SQLIdentifier>();
 			}
 			(
@@ -4059,12 +4044,7 @@ SQLAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<OVERSIZE> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.OVERSIZE; }
-			jjtThis.numberValue = Number()
-		)
-		|
-		(
-			<STRICTMODE> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.STRICTMODE; }
+			<STRICT_MODE> { jjtThis.property = com.jetbrains.youtrack.db.api.schema.SchemaClass.ATTRIBUTES.STRICT_MODE; }
 			(
 				(
 					<TRUE> { jjtThis.booleanValue = true; }
@@ -4077,7 +4057,7 @@ SQLAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<ADDCLUSTER> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.ADDCLUSTER; }
+			<ADD_CLUSTER> { jjtThis.property = com.jetbrains.youtrack.db.api.schema.SchemaClass.ATTRIBUTES.ADD_CLUSTER; }
 			(
 				jjtThis.identifierValue = Identifier()
 				|
@@ -4086,7 +4066,7 @@ SQLAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<REMOVECLUSTER> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.REMOVECLUSTER; }
+			<REMOVE_CLUSTER> { jjtThis.property = com.jetbrains.youtrack.db.api.schema.SchemaClass.ATTRIBUTES.REMOVE_CLUSTER; }
 			(
 				jjtThis.identifierValue = Identifier()
 				|
@@ -4095,14 +4075,14 @@ SQLAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<CUSTOM> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.CUSTOM; }
+			<CUSTOM> { jjtThis.property = com.jetbrains.youtrack.db.api.schema.SchemaClass.ATTRIBUTES.CUSTOM; }
 			jjtThis.customKey = Identifier()
 			<EQ>
 			jjtThis.customValue = Expression()
 		)
 		|
 		(
-			<ABSTRACT> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.ABSTRACT; }
+			<ABSTRACT> { jjtThis.property = com.jetbrains.youtrack.db.api.schema.SchemaClass.ATTRIBUTES.ABSTRACT; }
 			(
 				(
 					<TRUE> { jjtThis.booleanValue = true; }
@@ -4115,7 +4095,7 @@ SQLAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<CLUSTERSELECTION> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.CLUSTERSELECTION; }
+			<CLUSTER_SELECTION> { jjtThis.property = com.jetbrains.youtrack.db.api.schema.SchemaClass.ATTRIBUTES.CLUSTER_SELECTION; }
 			(
 				jjtThis.identifierValue = Identifier()
 				|
@@ -4126,7 +4106,7 @@ SQLAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<DESCRIPTION> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.DESCRIPTION; }
+			<DESCRIPTION> { jjtThis.property = com.jetbrains.youtrack.db.api.schema.SchemaClass.ATTRIBUTES.DESCRIPTION; }
 			(
 				jjtThis.identifierValue = Identifier()
 				|
@@ -4135,22 +4115,13 @@ SQLAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<ENCRYPTION> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.ENCRYPTION; }
+			<ENCRYPTION> { jjtThis.property = com.jetbrains.youtrack.db.api.schema.SchemaClass.ATTRIBUTES.ENCRYPTION; }
 			(
 				jjtThis.identifierValue = Identifier()
 				|
 				<NULL>
 			)
 		)
-		|
-        (
-            <DEFAULTCLUSTER>
-            (
-                jjtThis.defaultClusterId = Integer()
-                |
-                jjtThis.defaultClusterName = Identifier()
-            )
-        )
 	)
 	[ <UNSAFE> { jjtThis.unsafe = true; } ]
 	{ return jjtThis; }
@@ -4170,17 +4141,6 @@ SQLDropClassStatement DropClassStatement():
 	[ <UNSAFE> { jjtThis.unsafe = true; } ]
 	{ return jjtThis; }
 }
-
-SQLDropViewStatement DropViewStatement():
-{}
-{
-	<DROP> <VIEW>
-	jjtThis.name = Identifier()
-	[ <IF> <EXISTS> { jjtThis.ifExists = true; } ]
-	{ return jjtThis; }
-}
-
-
 void IfNotExists():{}
 {
     <IF> <NOT> <EXISTS>
@@ -4471,14 +4431,6 @@ SQLAlterDatabaseStatement AlterDatabaseStatement():
 {
 	<ALTER> <DATABASE>
     (
-        LOOKAHEAD(3)
-        (
-            <CUSTOM>
-            jjtThis.customPropertyName = Identifier()
-            <EQ>
-            jjtThis.customPropertyValue = Expression()
-        )
-        |
         (
             jjtThis.settingName = Identifier()
             jjtThis.settingValue = Expression()

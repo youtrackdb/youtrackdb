@@ -6,7 +6,8 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.tx.IndexChange;
 import com.jetbrains.youtrack.db.internal.client.remote.message.tx.RecordOperationRequest;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
@@ -36,10 +37,10 @@ public class FetchTransactionResponse implements BinaryResponse {
       DatabaseSessionInternal session, long txId,
       Iterable<RecordOperation> operations,
       Map<String, FrontendTransactionIndexChanges> indexChanges,
-      Map<RID, RID> updatedRids) {
+      Map<RecordId, RecordId> updatedRids) {
     // In some cases the reference are update twice is not yet possible to guess what is the id in
     // the client
-    Map<RID, RID> reversed =
+    Map<RecordId, RecordId> reversed =
         updatedRids.entrySet().stream()
             .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
     this.txId = txId;
@@ -49,9 +50,9 @@ public class FetchTransactionResponse implements BinaryResponse {
       RecordOperationRequest request = new RecordOperationRequest();
       request.setType(txEntry.type);
       request.setVersion(txEntry.record.getVersion());
-      request.setId(txEntry.getRID());
-      RID oldID = reversed.get(txEntry.getRID());
-      request.setOldId(oldID != null ? oldID : txEntry.getRID());
+      request.setId(txEntry.getRecordId());
+      var oldID = reversed.get(txEntry.getRecordId());
+      request.setOldId(oldID != null ? oldID : txEntry.getRecordId());
       request.setRecordType(RecordInternal.getRecordType(txEntry.record));
       request.setRecord(
           RecordSerializerNetworkV37Client.INSTANCE.toStream(session, txEntry.record));

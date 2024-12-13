@@ -14,7 +14,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.ClusterSelectionStrategy;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.concurrent.atomic.AtomicLong;
 
