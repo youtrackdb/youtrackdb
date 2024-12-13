@@ -149,7 +149,7 @@
           <properties>
             <property>
               <name>listener</name>
-              <value>com.orientechnologies.OTestNGTestListener</value>
+              <value>com.jetbrains.youtrack.db.TestNGTestListener</value>
             </property>
           </properties>
           <redirectTestOutputToFile>false</redirectTestOutputToFile>
@@ -169,7 +169,7 @@
             <configuration>
               <suiteXmlFiles>
                 <suiteXmlFile>
-                  src/test/java/com/orientechnologies/orient/test/database/auto/embedded-test-db-from-scratch.xml
+                  src/test/java/com/jetbrains/youtrack/db/auto/embedded-test-db-from-scratch.xml
                 </suiteXmlFile>
               </suiteXmlFiles>
             </configuration>
@@ -181,13 +181,13 @@
             </goals>
             <configuration>
               <systemPropertyVariables>
-                <youtrackdb.config.file>target/test-classes/orientdb-server-config.xml
+                <youtrackdb.config.file>target/test-classes/youtrackdb-server-config.xml
                 </youtrackdb.config.file>
                 <YOUTRACKDB_HOME>${project.build.directory}/remote-server</YOUTRACKDB_HOME>
               </systemPropertyVariables>
               <suiteXmlFiles>
                 <suiteXmlFile>
-                  src/test/java/com/orientechnologies/orient/test/database/auto/remote-test-db-from-scratch.xml
+                  src/test/java/com/jetbrains/youtrack/db/auto/remote-test-db-from-scratch.xml
                 </suiteXmlFile>
               </suiteXmlFiles>
             </configuration>

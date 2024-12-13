@@ -1408,9 +1408,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
   @ConsoleCommand(
       description =
-          "Set a server user. If the user already exists, the password and permissions are updated."
-              + " For more information look at"
-              + " http://orientdb.com/docs/last/Security.html#orientdb-server-security",
+          "Set a server user. If the user already exists, the password and permissions are updated.",
       onlineHelp = "Console-Command-Set-Server-User")
   public void setServerUser(
       @ConsoleParameter(name = "user-name", description = "User name") String iServerUserName,
@@ -1419,8 +1417,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       @ConsoleParameter(
           name = "user-permissions",
           description =
-              "Permissions, look at"
-                  + " http://orientdb.com/docs/last/Security.html#servers-resources")
+              "User permissions")
       String iPermissions) {
 
     if (iServerUserName == null || iServerUserName.length() == 0) {
