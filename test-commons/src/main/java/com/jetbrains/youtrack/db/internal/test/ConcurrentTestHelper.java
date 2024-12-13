@@ -1,4 +1,4 @@
-package com.orientechnologies.orient.test;
+package com.jetbrains.youtrack.db.internal.test;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;

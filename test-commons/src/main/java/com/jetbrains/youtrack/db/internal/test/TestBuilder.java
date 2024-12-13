@@ -13,14 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.orientechnologies.orient.test;
+package com.jetbrains.youtrack.db.internal.test;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
- * @param <T> the type of the {@link Callable} to be created with {@link #createWorker() }
+ * @param <T> see {@link TestFactory}
  */
-public interface TestFactory<T> {
+public class TestBuilder<T> {
 
-  Callable<T> createWorker();
+  private final List<Callable<T>> workers = new ArrayList<Callable<T>>();
+
+  public TestBuilder<T> add(int threadCount, TestFactory<T> factory) {
+    workers.addAll(ConcurrentTestHelper.prepareWorkers(threadCount, factory));
+    return this;
+  }
+
+  public Collection<T> go() {
+    return ConcurrentTestHelper.go(workers);
+  }
 }

@@ -21,8 +21,8 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.orientechnologies.orient.test.ConcurrentTestHelper;
-import com.orientechnologies.orient.test.TestFactory;
+import com.jetbrains.youtrack.db.internal.test.ConcurrentTestHelper;
+import com.jetbrains.youtrack.db.internal.test.TestFactory;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 import org.testng.Assert;
