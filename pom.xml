@@ -49,19 +49,19 @@
     <tag>HEAD</tag>
   </scm>
   <issueManagement>
-    <system>GitHub Issues</system>
-    <url>https://github.com/laa/orientdb/issues</url>
+    <system>YouTrack</system>
+    <url>https://youtrack.jetbrains.com/issues/YTDB</url>
   </issueManagement>
   <distributionManagement>
     <snapshotRepository>
-      <id>space-orientdb-daily</id>
-      <url>https://packages.jetbrains.team/maven/p/xodus/orientdb-daily</url>
+      <id>space-youtrackdb-daily</id>
+      <url>https://packages.jetbrains.team/maven/p/xodus/youtrackdb-daily</url>
     </snapshotRepository>
   </distributionManagement>
   <repositories>
     <repository>
-      <id>space-orientdb-daily</id>
-      <url>https://packages.jetbrains.team/maven/p/xodus/orientdb-daily</url>
+      <id>space-youtrackdb-daily</id>
+      <url>https://packages.jetbrains.team/maven/p/xodus/youtrackdb-daily</url>
       <releases>
         <enabled>false</enabled>
       </releases>

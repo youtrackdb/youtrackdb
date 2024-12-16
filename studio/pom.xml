@@ -25,16 +25,15 @@
 	</licenses>
   <distributionManagement>
     <snapshotRepository>
-      <id>space-orientdb-daily</id>
-      <url>https://packages.jetbrains.team/maven/p/xodus/orientdb-daily</url>
-      <uniqueVersion>false</uniqueVersion>
+      <id>space-youtrackdb-daily</id>
+      <url>https://packages.jetbrains.team/maven/p/xodus/youtrackdb-daily</url>
     </snapshotRepository>
   </distributionManagement>
 	<repositories>
 		<repository>
-			<id>space-orientdb-daily</id>
-			<url>https://packages.jetbrains.team/maven/p/xodus/orientdb-daily</url>
-			<releases>
+      <id>space-youtrackdb-daily</id>
+      <url>https://packages.jetbrains.team/maven/p/xodus/youtrackdb-daily</url>
+      <releases>
 				<enabled>false</enabled>
 			</releases>
 			<snapshots>
