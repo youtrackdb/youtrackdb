@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Handles Multi-value types such as Arrays, Collections and Maps. It recognizes special YouTrackDB
@@ -791,6 +792,21 @@ public class MultiValue {
 
     return false;
   }
+
+
+  public static boolean contains(final Object iObject, final Function<Object, Boolean> iPredicate) {
+    var iterator = getMultiValueIterator(iObject);
+    if (iterator == null) {
+      return false;
+    }
+    while (iterator.hasNext()) {
+      if (iPredicate.apply(iterator.next())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
 
   public static int indexOf(final Object iObject, final Object iItem) {
     if (iObject == null) {

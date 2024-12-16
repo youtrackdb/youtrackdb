@@ -6,6 +6,7 @@ import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.query.QueryHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder.Operation;
 import java.util.Map;
+import java.util.function.Function;
 
 public class SQLLikeOperator extends SimpleNode implements SQLBinaryCompareOperator {
 
@@ -19,13 +20,17 @@ public class SQLLikeOperator extends SimpleNode implements SQLBinaryCompareOpera
 
   @Override
   public boolean execute(Object iLeft, Object iRight) {
-    if (MultiValue.isMultiValue(iLeft) || MultiValue.isMultiValue(iRight)) {
+    if (MultiValue.isMultiValue(iRight)) {
       return false;
     }
-
     if (iLeft == null || iRight == null) {
       return false;
     }
+
+    if (MultiValue.isMultiValue(iLeft)){
+      return MultiValue.contains(iLeft, item -> QueryHelper.like(item.toString(), iRight.toString()));
+    }
+
     return QueryHelper.like(iLeft.toString(), iRight.toString());
   }
 

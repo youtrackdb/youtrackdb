@@ -33,3 +33,7 @@ The full Server distribution is a few MBs without the demo database.
 ## Licensing
 
 OxygenDB is licensed under the Apache 2 license. 
+
+## Build status
+
+You can find status of our builds on [![TeamCity](https://oxygendb.teamcity.com/app/rest/builds/buildType:(id:OxygenDB_UnitTests)/statusIcon)](https://oxygendb.teamcity.com/viewType.html?buildTypeId=OxygenDB_UnitTests&guest=1)

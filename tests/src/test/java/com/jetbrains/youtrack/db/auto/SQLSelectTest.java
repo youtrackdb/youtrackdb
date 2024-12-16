@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1689,5 +1690,77 @@ public class SQLSelectTest extends AbstractSelectTest {
                 + " ASC LIMIT :limit",
             params);
     Assert.assertEquals(results.size(), 1);
+  }
+
+  @Test
+  public void selectLikeFromSet() {
+    String vertexClass = "SetContainer";
+    OSchema schema = database.getMetadata().getSchema();
+    OClass v = schema.getClass("V");
+    var clazz = schema.createClass(vertexClass, v);
+    database.begin();
+    var container1 = database.newVertex(clazz);
+    container1.setProperty("data", Set.of("hello", "world", "baobab"));
+    container1.save();
+    var container2 = database.newVertex(vertexClass);
+    container2.setProperty("data", Set.of("1hello", "2world", "baobab"));
+    container2.save();
+    database.commit();
+    List<ODocument> results = executeQuery("SELECT FROM SetContainer WHERE data LIKE 'wor%'");
+    Assert.assertEquals(results.size(), 1);
+
+    results = executeQuery("SELECT FROM SetContainer WHERE data LIKE 'bobo%'");
+    Assert.assertEquals(results.size(), 0);
+
+    results = executeQuery("SELECT FROM SetContainer WHERE data LIKE '%hell%'");
+    Assert.assertEquals(results.size(), 2);
+  }
+
+  @Test
+  public void selectLikeFromList() {
+    String vertexClass = "ListContainer";
+    OSchema schema = database.getMetadata().getSchema();
+    OClass v = schema.getClass("V");
+    var clazz = schema.createClass(vertexClass, v);
+    database.begin();
+    var container1 = database.newVertex(clazz);
+    container1.setProperty("data", List.of("hello", "world", "baobab"));
+    container1.save();
+    var container2 = database.newVertex(vertexClass);
+    container2.setProperty("data", List.of("1hello", "2world", "baobab"));
+    container2.save();
+    database.commit();
+    List<ODocument> results = executeQuery("SELECT FROM ListContainer WHERE data LIKE 'wor%'");
+    Assert.assertEquals(results.size(), 1);
+
+    results = executeQuery("SELECT FROM ListContainer WHERE data LIKE 'bobo%'");
+    Assert.assertEquals(results.size(), 0);
+
+    results = executeQuery("SELECT FROM ListContainer WHERE data LIKE '%hell%'");
+    Assert.assertEquals(results.size(), 2);
+  }
+
+  @Test
+  public void selectLikeFromArray() {
+    String vertexClass = "ArrayContainer";
+    OSchema schema = database.getMetadata().getSchema();
+    OClass v = schema.getClass("V");
+    var clazz = schema.createClass(vertexClass, v);
+    database.begin();
+    var container1 = database.newVertex(clazz);
+    container1.setProperty("data", new String[]{"hello", "world", "baobab"});
+    container1.save();
+    var container2 = database.newVertex(vertexClass);
+    container2.setProperty("data", new String[]{"1hello", "2world", "baobab"});
+    container2.save();
+    database.commit();
+    List<ODocument> results = executeQuery("SELECT FROM ArrayContainer WHERE data LIKE 'wor%'");
+    Assert.assertEquals(results.size(), 1);
+
+    results = executeQuery("SELECT FROM ArrayContainer WHERE data LIKE 'bobo%'");
+    Assert.assertEquals(results.size(), 0);
+
+    results = executeQuery("SELECT FROM ArrayContainer WHERE data LIKE '%hell%'");
+    Assert.assertEquals(results.size(), 2);
   }
 }
