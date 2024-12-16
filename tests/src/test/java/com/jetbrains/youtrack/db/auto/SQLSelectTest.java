@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1695,8 +1694,8 @@ public class SQLSelectTest extends AbstractSelectTest {
   @Test
   public void selectLikeFromSet() {
     String vertexClass = "SetContainer";
-    OSchema schema = database.getMetadata().getSchema();
-    OClass v = schema.getClass("V");
+    Schema schema = database.getMetadata().getSchema();
+    SchemaClass v = schema.getClass("V");
     var clazz = schema.createClass(vertexClass, v);
     database.begin();
     var container1 = database.newVertex(clazz);
@@ -1706,7 +1705,8 @@ public class SQLSelectTest extends AbstractSelectTest {
     container2.setProperty("data", Set.of("1hello", "2world", "baobab"));
     container2.save();
     database.commit();
-    List<ODocument> results = executeQuery("SELECT FROM SetContainer WHERE data LIKE 'wor%'");
+
+    List<EntityImpl> results = executeQuery("SELECT FROM SetContainer WHERE data LIKE 'wor%'");
     Assert.assertEquals(results.size(), 1);
 
     results = executeQuery("SELECT FROM SetContainer WHERE data LIKE 'bobo%'");
@@ -1719,8 +1719,8 @@ public class SQLSelectTest extends AbstractSelectTest {
   @Test
   public void selectLikeFromList() {
     String vertexClass = "ListContainer";
-    OSchema schema = database.getMetadata().getSchema();
-    OClass v = schema.getClass("V");
+    Schema schema = database.getMetadata().getSchema();
+    SchemaClass v = schema.getClass("V");
     var clazz = schema.createClass(vertexClass, v);
     database.begin();
     var container1 = database.newVertex(clazz);
@@ -1730,7 +1730,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     container2.setProperty("data", List.of("1hello", "2world", "baobab"));
     container2.save();
     database.commit();
-    List<ODocument> results = executeQuery("SELECT FROM ListContainer WHERE data LIKE 'wor%'");
+    List<EntityImpl> results = executeQuery("SELECT FROM ListContainer WHERE data LIKE 'wor%'");
     Assert.assertEquals(results.size(), 1);
 
     results = executeQuery("SELECT FROM ListContainer WHERE data LIKE 'bobo%'");
@@ -1743,8 +1743,8 @@ public class SQLSelectTest extends AbstractSelectTest {
   @Test
   public void selectLikeFromArray() {
     String vertexClass = "ArrayContainer";
-    OSchema schema = database.getMetadata().getSchema();
-    OClass v = schema.getClass("V");
+    Schema schema = database.getMetadata().getSchema();
+    SchemaClass v = schema.getClass("V");
     var clazz = schema.createClass(vertexClass, v);
     database.begin();
     var container1 = database.newVertex(clazz);
@@ -1754,7 +1754,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     container2.setProperty("data", new String[]{"1hello", "2world", "baobab"});
     container2.save();
     database.commit();
-    List<ODocument> results = executeQuery("SELECT FROM ArrayContainer WHERE data LIKE 'wor%'");
+    List<EntityImpl> results = executeQuery("SELECT FROM ArrayContainer WHERE data LIKE 'wor%'");
     Assert.assertEquals(results.size(), 1);
 
     results = executeQuery("SELECT FROM ArrayContainer WHERE data LIKE 'bobo%'");
