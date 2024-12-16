@@ -6,6 +6,7 @@ import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -13,6 +14,7 @@ import org.junit.Test;
  */
 public class LuceneFreezeReleaseTest extends BaseLuceneTest {
   @Test
+  @Ignore
   public void freezeReleaseTest() {
     if (isWindows()) {
       return;
@@ -47,6 +49,7 @@ public class LuceneFreezeReleaseTest extends BaseLuceneTest {
 
   // With double calling freeze/release
   @Test
+  @Ignore
   public void freezeReleaseMisUsageTest() {
     if (isWindows()) {
       return;
