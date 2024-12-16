@@ -1,5 +1,5 @@
 ############################################################
-# Dockerfile to run an OrientDB (Graph) Container
+# Dockerfile to run an YouTrackDB (Graph) Container
 # for current developed version
 ############################################################
 

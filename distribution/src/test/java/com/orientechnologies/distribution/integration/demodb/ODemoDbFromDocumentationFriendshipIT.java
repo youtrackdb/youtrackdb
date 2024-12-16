@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 /**
- * Created by frank on 24/05/2017.
+ *
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ODemoDbFromDocumentationFriendshipIT extends OIntegrationTestTemplate {
@@ -22,7 +22,7 @@ public class ODemoDbFromDocumentationFriendshipIT extends OIntegrationTestTempla
     OResultSet resultSet =
         db.query(
             "MATCH {Class: Profiles, as: profile, where: (Name='Santo' AND"
-                + " Surname='OrientDB')}-HasFriend-{Class: Profiles, as: friend} \n"
+                + " Surname='YouTrackDB')}-HasFriend-{Class: Profiles, as: friend} \n"
                 + "RETURN $pathelements");
 
     Assert.assertEquals(resultSet.stream().count(), 20);
@@ -33,7 +33,7 @@ public class ODemoDbFromDocumentationFriendshipIT extends OIntegrationTestTempla
             "SELECT \n"
                 + "  both('HasFriend').size() AS FriendsNumber \n"
                 + "FROM `Profiles` \n"
-                + "WHERE Name='Santo' AND Surname='OrientDB'");
+                + "WHERE Name='Santo' AND Surname='YouTrackDB'");
 
     final List<OResult> results = resultSet.stream().collect(Collectors.toList());
     Assert.assertEquals(results.size(), 1);
@@ -50,7 +50,7 @@ public class ODemoDbFromDocumentationFriendshipIT extends OIntegrationTestTempla
     OResultSet resultSet =
         db.query(
             "MATCH {Class: Profiles, as: profile, where: (Name='Santo' AND"
-                + " Surname='OrientDB')}-HasFriend-{Class: Profiles, as:"
+                + " Surname='YouTrackDB')}-HasFriend-{Class: Profiles, as:"
                 + " friend}<-HasProfile-{class: Customers, as: customer}\n"
                 + "RETURN $pathelements");
 
@@ -65,7 +65,7 @@ public class ODemoDbFromDocumentationFriendshipIT extends OIntegrationTestTempla
     OResultSet resultSet =
         db.query(
             "MATCH {Class: Profiles, as: profile, where: (Name='Santo' AND"
-                + " Surname='OrientDB')}-HasFriend-{Class: Profiles, as:"
+                + " Surname='YouTrackDB')}-HasFriend-{Class: Profiles, as:"
                 + " friend}<-HasProfile-{class: Customers, as: customer}-IsFromCountry->{Class:"
                 + " Countries, as: country}\n"
                 + "RETURN $pathelements");
@@ -81,7 +81,7 @@ public class ODemoDbFromDocumentationFriendshipIT extends OIntegrationTestTempla
     OResultSet resultSet =
         db.query(
             "MATCH {Class: Profiles, as: profile, where: (Name='Santo' AND"
-                + " Surname='OrientDB')}-HasFriend-{Class: Profiles, as:"
+                + " Surname='YouTrackDB')}-HasFriend-{Class: Profiles, as:"
                 + " friend}<-HasProfile-{class: Customers, as: customer}<-HasCustomer-{Class:"
                 + " Orders, as: order} \n"
                 + "RETURN $pathelements");
@@ -105,7 +105,7 @@ public class ODemoDbFromDocumentationFriendshipIT extends OIntegrationTestTempla
                 + "  SELECT expand(customer) \n"
                 + "  FROM (\n"
                 + "    MATCH {Class: Profiles, as: profile, where: (Name='Santo' AND"
-                + " Surname='OrientDB')}-HasFriend-{Class: Profiles, as:"
+                + " Surname='YouTrackDB')}-HasFriend-{Class: Profiles, as:"
                 + " friend}<-HasProfile-{class: Customers, as: customer} \n"
                 + "    RETURN customer\n"
                 + "  )\n"
@@ -138,7 +138,7 @@ public class ODemoDbFromDocumentationFriendshipIT extends OIntegrationTestTempla
                 + "  SELECT expand(customer) \n"
                 + "  FROM (\n"
                 + "    MATCH {Class: Profiles, as: profile, where: (Name='Santo' AND"
-                + " Surname='OrientDB')}-HasFriend-{Class: Profiles, as:"
+                + " Surname='YouTrackDB')}-HasFriend-{Class: Profiles, as:"
                 + " friend}<-HasProfile-{class: Customers, as: customer} \n"
                 + "    RETURN customer\n"
                 + "  )\n"
@@ -183,7 +183,7 @@ public class ODemoDbFromDocumentationFriendshipIT extends OIntegrationTestTempla
     final OResult result = results.iterator().next();
 
     Assert.assertEquals(result.getProperty("Friend_Name"), "Emanuele");
-    Assert.assertEquals(result.getProperty("Friend_Surname"), "OrientDB");
+    Assert.assertEquals(result.getProperty("Friend_Surname"), "YouTrackDB");
 
     resultSet.close();
   }

@@ -11,7 +11,7 @@ import org.junit.Before;
  *
  * <p>
  *
- * <p>Created by frank on 15/03/2017.
+ * <p>
  */
 public abstract class OIntegrationTestTemplate extends OSingleOrientDBServerBaseIT {
 

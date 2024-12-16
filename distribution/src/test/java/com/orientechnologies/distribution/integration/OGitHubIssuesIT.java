@@ -16,7 +16,7 @@ import org.junit.Test;
 
 /**
  * This integration test keeps track of issues to avoid regressions. It creates a database called as
- * the class name, which is dropped at the end of the work. Created by santo-it on 2017-03-22.
+ * the class name, which is dropped at the end of the work.
  */
 public class OGitHubIssuesIT extends OSingleOrientDBServerWithDatabasePerTestMethodBaseIT {
 

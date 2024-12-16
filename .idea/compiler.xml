@@ -6,19 +6,16 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="orientdb-server" />
-        <module name="orientdb-lucene" />
-        <module name="orientdb-test-commons" />
-        <module name="orientdb-client" />
-        <module name="orientdb-tools" />
-        <module name="orientdb-tests" />
-        <module name="orientdb-core" />
-        <module name="orientdb-jdbc" />
-        <module name="orientdb-security" />
+        <module name="youtrackdb-core" />
+        <module name="youtrackdb-test-commons" />
+        <module name="youtrackdb-server" />
+        <module name="youtrackdb-tests" />
+        <module name="youtrackdb-tools" />
+        <module name="youtrackdb-jdbc" />
+        <module name="youtrackdb-lucene" />
+        <module name="youtrackdb-security" />
+        <module name="youtrackdb-client" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="orientdb-object" target="17" />
-    </bytecodeTargetLevel>
   </component>
 </project>

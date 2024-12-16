@@ -1,10 +1,4 @@
 #!/bin/sh
-#
-# Copyright (c) OrientDB LTD (http://www.orientdb.com)
-#
-# HISTORY:
-# 2012-07-31: Added -w option
-#
 
 # resolve links - $0 may be a softlink
 PRG="$0"
@@ -30,13 +24,13 @@ done
 # Get standard environment variables
 PRGDIR=`dirname "$PRG"`
 
-# Only set ORIENTDB_HOME if not already set
-[ -f "$ORIENTDB_HOME"/bin/server.sh ] || ORIENTDB_HOME=`cd "$PRGDIR/.." ; pwd`
-cd "$ORIENTDB_HOME/bin"
+# Only set YOUTRACKDB_HOME if not already set
+[ -f "$YOUTRACKDB_HOME"/bin/server.sh ] || YOUTRACKDB_HOME=`cd "$PRGDIR/.." ; pwd`
+cd "$YOUTRACKDB_HOME/bin"
 
 if [ ! -f "${CONFIG_FILE}" ]
 then
-  CONFIG_FILE=$ORIENTDB_HOME/config/orientdb-server-config.xml
+  CONFIG_FILE=$YOUTRACKDB_HOME/config/youtrackdb-server-config.xml
 fi
 
 # Set JavaHome if it exists
@@ -46,32 +40,32 @@ else
    JAVA=java
 fi
 
-LOG_FILE=$ORIENTDB_HOME/config/orientdb-server-log.properties
+LOG_FILE=$YOUTRACKDB_HOME/config/youtrackdb-server-log.properties
 JAVA_OPTS=-Djava.awt.headless=true
 
-if [ -z "$ORIENTDB_PID" ] ; then
-    ORIENTDB_PID=$ORIENTDB_HOME/bin/orient.pid
+if [ -z "$YOUTRACKDB_PID" ] ; then
+    YOUTRACKDB_PID=$YOUTRACKDB_HOME/bin/youtrack.pid
 fi
 
 PARAMS=$*
 
-if [ -f "$ORIENTDB_PID" ] && [ "${#PARAMS}" -eq 0 ] ; then
+if [ -f "$YOUTRACKDB_PID" ] && [ "${#PARAMS}" -eq 0 ] ; then
     echo "pid file detected, killing process"
-    kill -15 `cat "$ORIENTDB_PID"` >/dev/null 2>&1
-    echo "waiting for OrientDB server to shutdown"
-    while ps -p `cat $ORIENTDB_PID` > /dev/null; do sleep 1; done
-    rm "$ORIENTDB_PID"
+    kill -15 `cat "$YOUTRACKDB_PID"` >/dev/null 2>&1
+    echo "waiting for YoutrackDB server to shutdown"
+    while ps -p `cat $YOUTRACKDB_PID` > /dev/null; do sleep 1; done
+    rm "$YOUTRACKDB_PID"
 else
     echo "pid file not present or params detected"
-    "$JAVA" -client $JAVA_OPTS -Dorientdb.config.file="$CONFIG_FILE" \
-        -cp "$ORIENTDB_HOME/lib/orientdb-tools-@VERSION@.jar:$ORIENTDB_HOME/lib/*" \
-        com.orientechnologies.orient.server.OServerShutdownMain $*
+    "$JAVA" -client $JAVA_OPTS -Dyoutrackdb.config.file="$CONFIG_FILE" \
+        -cp "$YOUTRACKDB_HOME/lib/youtrackdb-tools-@VERSION@.jar:$YOUTRACKDB_HOME/lib/*" \
+        com.jetbrains.youtrack.db.internal.server.ServerShutdownMain $*
 
     if [ "x$wait" = "xyes" ] ; then
-      echo "wait for OrientDB server to shutdown"
+      echo "wait for YoutrackDB server to shutdown"
 
       while true ; do
-        ps auxw | grep java | grep $ORIENTDB_HOME/lib/orientdb-server > /dev/null || break
+        ps auxw | grep java | grep $YOUTRACKDB_HOME/lib/youtrackdb-server > /dev/null || break
         sleep 1;
       done
     fi

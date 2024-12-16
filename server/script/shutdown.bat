@@ -1,13 +1,8 @@
 @echo off
 rem
-rem Copyright (c) Orient Technologies LTD (http://www.orientechnologies.com)
-rem
-rem HISTORY:
-rem 2012-07-31: Added -w option
-rem
 rem
 
-rem Guess ORIENTDB_HOME if not defined
+rem Guess YOUTRACKDB_HOME if not defined
 set CURRENT_DIR=%cd%
 
 if exist "%JAVA_HOME%\bin\java.exe" goto setJavaHome
@@ -18,16 +13,16 @@ goto okJava
 set JAVA="%JAVA_HOME%\bin\java"
 
 :okJava
-if not "%ORIENTDB_HOME%" == "" goto gotHome
-set ORIENTDB_HOME=%CURRENT_DIR%
-if exist "%ORIENTDB_HOME%\bin\server.bat" goto okHome
+if not "%YOUTRACKDB_HOME%" == "" goto gotHome
+set YOUTRACKDB_HOME=%CURRENT_DIR%
+if exist "%YOUTRACKDB_HOME%\bin\server.bat" goto okHome
 cd ..
-set ORIENTDB_HOME=%cd%
+set YOUTRACKDB_HOME=%cd%
 cd %CURRENT_DIR%
 
 :gotHome
-if exist "%ORIENTDB_HOME%\bin\server.bat" goto okHome
-echo The ORIENTDB_HOME environment variable is not defined correctly
+if exist "%YOUTRACKDB_HOME%\bin\server.bat" goto okHome
+echo The YOUTRACKDB_HOME environment variable is not defined correctly
 echo This environment variable is needed to run this program
 goto end
 
@@ -42,13 +37,13 @@ shift
 goto setArgs
 
 :doneSetArgs
-if NOT exist "%CONFIG_FILE%" set CONFIG_FILE=%ORIENTDB_HOME%/config/orientdb-server-config.xml
+if NOT exist "%CONFIG_FILE%" set CONFIG_FILE=%YOUTRACKDB_HOME%/config/youtrackdb-server-config.xml
 
-set LOG_FILE=%ORIENTDB_HOME%/config/orientdb-server-log.properties
+set LOG_FILE=%YOUTRACKDB_HOME%/config/youtrackdb-server-log.properties
 set LOG_LEVEL=warning
-set WWW_PATH=%ORIENTDB_HOME%/www
+set WWW_PATH=%YOUTRACKDB_HOME%/www
 set JAVA_OPTS=-Djava.awt.headless=true
 
-call %JAVA% -client %JAVA_OPTS% -Dorientdb.config.file="%CONFIG_FILE%" -cp "%ORIENTDB_HOME%\lib\orientdb-tools-@VERSION@.jar;%ORIENTDB_HOME%\lib\*" com.orientechnologies.orient.server.OServerShutdownMain %CMD_LINE_ARGS%
+call %JAVA% -client %JAVA_OPTS% -Dyoutrackdb.config.file="%CONFIG_FILE%" -cp "%YOUTRACKDB_HOME%\lib\youtrackdb-tools-@VERSION@.jar;%YOUTRACKDB_HOME%\lib\*" com.jetbrains.youtrack.db.internal.server.ServerShutdownMain %CMD_LINE_ARGS%
 
 :end

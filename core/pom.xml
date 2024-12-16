@@ -1,29 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- ~ /* ~ * Copyright 2014 Orient Technologies LTD (info(at)orientechnologies.com) 
-    ~ * ~ * Licensed under the Apache License, Version 2.0 (the "License"); ~ 
-    * you may not use this file except in compliance with the License. ~ * You 
-    may obtain a copy of the License at ~ * ~ * http://www.apache.org/licenses/LICENSE-2.0 
-    ~ * ~ * Unless required by applicable law or agreed to in writing, software 
-    ~ * distributed under the License is distributed on an "AS IS" BASIS, ~ * 
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-    ~ * See the License for the specific language governing permissions and ~ 
-    * limitations under the License. ~ * ~ * For more information: http://www.orientechnologies.com 
-    ~ */ -->
+<!-- Licensed under the  Apache License, Version 2.0 (the "License");
+    You may not use this file except in compliance with the License.
+    You may obtain a copy of the License  at http://www.apache.org/licenses/LICENSE-2.0.
+    Unless required by applicable law or agreed to in writing, software distributed under the
+    License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS
+    OF ANY KIND, either express or implied. See the License for the specific
+    language governing permissions and limitations under the License. -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>com.orientechnologies</groupId>
-    <artifactId>orientdb-parent</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <groupId>com.jetbrains.youtrack.db</groupId>
+    <artifactId>youtrackdb-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>orientdb-core</artifactId>
-  <name>OrientDB Core</name>
+  <artifactId>youtrackdb-core</artifactId>
+  <name>YouTrackDB Core</name>
 
   <properties>
     <jna.version>4.0.0</jna.version>
@@ -43,7 +40,7 @@
       -Ddb.makeFullCheckpointOnSchemaChange=false
       -Dsecurity.userPasswordSaltIterations=10
       -Dmemory.directMemory.trackMode=true
-      -Djava.util.logging.manager=com.orientechnologies.common.log.ShutdownLogManager
+      -Djava.util.logging.manager=com.jetbrains.youtrack.db.internal.common.log.ShutdownLogManager
       -Dstorage.diskCache.checksumMode=storeAndThrow
       -Dsecurity.warningDefaultUsers=false
       <!-- new security feature -->
@@ -124,7 +121,7 @@
           <properties>
             <property>
               <name>listener</name>
-              <value>com.orientechnologies.OJUnitTestListener</value>
+              <value>com.jetbrains.youtrack.db.internal.JUnitTestListener</value>
             </property>
           </properties>
         </configuration>
@@ -146,7 +143,7 @@
           <properties>
             <property>
               <name>listener</name>
-              <value>com.orientechnologies.OJUnitTestListener</value>
+              <value>com.jetbrains.youtrack.db.internal.JUnitTestListener</value>
             </property>
           </properties>
         </configuration>
@@ -232,13 +229,12 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.18.1</version>
     </dependency>
 
     <!-- test -->
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-test-commons</artifactId>
+      <groupId>com.jetbrains.youtrack.db</groupId>
+      <artifactId>youtrackdb-test-commons</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
@@ -279,24 +275,13 @@
       <groupId>org.graalvm.js</groupId>
       <artifactId>js</artifactId>
       <version>${graalvm.version}</version>
+      <type>pom</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.graalvm.js</groupId>
       <artifactId>js-scriptengine</artifactId>
       <version>${graalvm.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.graalvm.tools</groupId>
-      <artifactId>profiler</artifactId>
-      <version>${graalvm.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.graalvm.tools</groupId>
-      <artifactId>chromeinspector</artifactId>
-      <version>${graalvm.version}</version>
-      <scope>runtime</scope>
     </dependency>
   </dependencies>
 

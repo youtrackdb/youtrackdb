@@ -1,19 +1,17 @@
 #!/bin/sh
-# OrientDB Backup script
-#
-# Copyright (c) Orient Technologies LTD (http://www.orientechnologies.com)
+# YouTrackDB Backup script
 
 DB=$1
 USER=$2
 PASSWD=$3
 DEST_BACKUP=$4
-SNAPSHOT_NAME=orientdbbackup
+SNAPSHOT_NAME=youtrackdbbackup
 ECHO_PATH=/dev/null
-TMP_MOUNT=/tmp/orientdb/backup
+TMP_MOUNT=/tmp/youtrackdb/backup
 
 if [ "$#" -lt "4" ]
 then
-	echo "\nOrientDB Backup www.orientechnologies.com\n"
+	echo "\nYouTrackDB Backup\n"
 	echo "Help on: https://github.com/orientechnologies/orientdb/wiki/Backup-and-Restore\n"
 	echo "Usage: $0 <dburl> <user> <password> <destination> [<type>]\n"
 	echo "Where:"
@@ -46,9 +44,9 @@ done
 # Get standard environment variables
 PRGDIR=`dirname "$PRG"`
 
-# Only set ORIENTDB_HOME if not already set
-[ -f "$ORIENTDB_HOME"/bin/orient.sh ] || ORIENTDB_HOME=`cd "$PRGDIR/.." ; pwd`
-export ORIENTDB_HOME
+# Only set YOUTRACKDB_HOME if not already set
+[ -f "$YOUTRACKDB_HOME"/bin/youtrackdb.sh ] || YOUTRACKDB_HOME=`cd "$PRGDIR/.." ; pwd`
+export YOUTRACKDB_HOME
 
 
 if [ "$#" != "5" ] || [ "$5" = "default" ]
@@ -94,13 +92,13 @@ check_errs $? "Impossible to find zip command check if is correctly installed"
 
 ENGINE=`echo $DB | awk -F ':' '{print $1}'`
 DB_NAME=` echo $DB | awk -F '/' '{print $NF}'`
-echo $ORIENTDB_HOME
+echo $YOUTRACKDB_HOME
 if [ "$ENGINE" = "plocal" ]
 then
 	DB_PATH=`echo $DB | awk -F ':' '{print $2}'`
 	FREEZE=false
 else
-	DB_PATH="$ORIENTDB_HOME/databases/$DB_NAME"
+	DB_PATH="$YOUTRACKDB_HOME/databases/$DB_NAME"
 	FREEZE=true
 fi
 TMP_PATH=`pwd`

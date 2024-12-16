@@ -1,32 +1,13 @@
 #!/bin/sh
-#
-# Copyright (c) OrientDB LTD (http://http://orientdb.com/)
-#
 
-echo "           .                                          "
-echo "          .\`        \`                                 "
-echo "          ,      \`:.                                  "
-echo "         \`,\`    ,:\`                                   "
-echo "         .,.   :,,                                    "
-echo "         .,,  ,,,                                     "
-echo "    .    .,.:::::  \`\`\`\`                                 :::::::::     :::::::::   "
-echo "    ,\`   .::,,,,::.,,,,,,\`;;                      .:    ::::::::::    :::    :::  "
-echo "    \`,.  ::,,,,,,,:.,,.\`  \`                       .:    :::      :::  :::     ::: "
-echo "     ,,:,:,,,,,,,,::.   \`        \`         \`\`     .:    :::      :::  :::     ::: "
-echo "      ,,:.,,,,,,,,,: \`::, ,,   ::,::\`   : :,::\`  ::::   :::      :::  :::    :::  "
-echo "       ,:,,,,,,,,,,::,:   ,,  :.    :   ::    :   .:    :::      :::  :::::::     "
-echo "        :,,,,,,,,,,:,::   ,,  :      :  :     :   .:    :::      :::  :::::::::   "
-echo "  \`     :,,,,,,,,,,:,::,  ,, .::::::::  :     :   .:    :::      :::  :::     ::: "
-echo "  \`,...,,:,,,,,,,,,: .:,. ,, ,,         :     :   .:    :::      :::  :::     ::: "
-echo "    .,,,,::,,,,,,,:  \`: , ,,  :     \`   :     :   .:    :::      :::  :::     ::: "
-echo "      ...,::,,,,::.. \`:  .,,  :,    :   :     :   .:    :::::::::::   :::     ::: "
-echo "           ,::::,,,. \`:   ,,   :::::    :     :   .:    :::::::::     ::::::::::  "
-echo "           ,,:\` \`,,.                                  "
-echo "          ,,,    .,\`                                  "
-echo "         ,,.     \`,                                   "
-echo "       \`\`        \`.                                                          "
-echo "                 \`\`                                       www.orientdb.com"
-echo "                 \`                                    "
+echo ' #     #               #######                             ######  ######  '
+echo '  #   #   ####  #    #    #    #####    ##    ####  #    # #     # #     # '
+echo '   # #   #    # #    #    #    #    #  #  #  #    # #   #  #     # #     # '
+echo '    #    #    # #    #    #    #    # #    # #      ####   #     # ######  '
+echo '    #    #    # #    #    #    #####  ###### #      #  #   #     # #     # '
+echo '    #    #    # #    #    #    #   #  #    # #    # #   #  #     # #     # '
+echo '    #     ####   ####     #    #    # #    #  ####  #    # ######  ######  '
+
 
 # resolve links - $0 may be a softlink
 PRG="$0"
@@ -44,14 +25,14 @@ done
 # Get standard environment variables
 PRGDIR=`dirname "$PRG"`
 
-# Only set ORIENTDB_HOME if not already set
-[ -f "$ORIENTDB_HOME"/bin/server.sh ] || ORIENTDB_HOME=`cd "$PRGDIR/.." ; pwd`
-export ORIENTDB_HOME
-cd "$ORIENTDB_HOME/bin"
+# Only set YOUTRACKDB_HOME if not already set
+[ -f "$YOUTRACKDB_HOME"/bin/server.sh ] || YOUTRACKDB_HOME=`cd "$PRGDIR/.." ; pwd`
+export YOUTRACKDB_HOME
+cd "$YOUTRACKDB_HOME/bin"
 
 if [ ! -f "${CONFIG_FILE}" ]
 then
-  CONFIG_FILE=$ORIENTDB_HOME/config/orientdb-server-config.xml
+  CONFIG_FILE=$YOUTRACKDB_HOME/config/youtrackdb-server-config.xml
 fi
 
 # Raspberry Pi check (Java VM does not run with -server argument on ARMv6)
@@ -68,21 +49,21 @@ else
 fi
 export JAVA
 
-if [ -z "$ORIENTDB_LOG_CONF" ] ; then
-    ORIENTDB_LOG_CONF=$ORIENTDB_HOME/config/orientdb-server-log.properties
+if [ -z "$YOUTRACKDB_LOG_CONF" ] ; then
+    YOUTRACKDB_LOG_CONF=$YOUTRACKDB_HOME/config/youtrackdb-server-log.properties
 fi
 
-if [ -z "$ORIENTDB_WWW_PATH" ] ; then
-    ORIENTDB_WWW_PATH=$ORIENTDB_HOME/www
+if [ -z "$YOUTRACKDB_WWW_PATH" ] ; then
+    YOUTRACKDB_WWW_PATH=$YOUTRACKDB_HOME/www
 fi
 
-if [ -z "$ORIENTDB_PID" ] ; then
-    ORIENTDB_PID=$ORIENTDB_HOME/bin/orient.pid
+if [ -z "$YOUTRACKDB_PID" ] ; then
+    YOUTRACKDB_PID=$YOUTRACKDB_HOME/bin/youtrack.pid
 fi
 
-if [ -f "$ORIENTDB_PID" ]; then
-    echo "removing old pid file $ORIENTDB_PID"
-    rm "$ORIENTDB_PID"
+if [ -f "$YOUTRACKDB_PID" ]; then
+    echo "removing old pid file $YOUTRACKDB_PID"
+    rm "$YOUTRACKDB_PID"
 fi
 
 # DEBUG OPTS, SIMPLY USE 'server.sh debug'
@@ -96,32 +77,32 @@ for var in "$@"; do
     fi
 done
 
-# ORIENTDB memory options, default to 2GB of heap.
+# YOUTRACKDB memory options, default to 2GB of heap.
 
-if [ -z "$ORIENTDB_OPTS_MEMORY" ] ; then
-    ORIENTDB_OPTS_MEMORY="-Xms2G -Xmx2G"
+if [ -z "$YOUTRACKDB_OPTS_MEMORY" ] ; then
+    YOUTRACKDB_OPTS_MEMORY="-Xms2G -Xmx2G"
 fi
 
 if [ -z "$JAVA_OPTS_SCRIPT" ] ; then
     JAVA_OPTS_SCRIPT="-Djna.nosys=true -XX:+HeapDumpOnOutOfMemoryError -Djava.awt.headless=true -Dfile.encoding=UTF8 -Drhino.opt.level=9"
 fi
 
-# ORIENTDB SETTINGS LIKE DISKCACHE, ETC
-if [ -z "$ORIENTDB_SETTINGS" ]; then
-    ORIENTDB_SETTINGS="" # HERE YOU CAN PUT YOUR DEFAULT SETTINGS
+# YOUTRACKDB SETTINGS LIKE DISKCACHE, ETC
+if [ -z "$YOUTRACKDB_SETTINGS" ]; then
+    YOUTRACKDB_SETTINGS="" # HERE YOU CAN PUT YOUR DEFAULT SETTINGS
 fi
 
-echo $$ > $ORIENTDB_PID
+echo $$ > $YOUTRACKDB_PID
 
 exec "$JAVA" $JAVA_OPTS \
-    $ORIENTDB_OPTS_MEMORY \
+    $YOUTRACKDB_OPTS_MEMORY \
     $JAVA_OPTS_SCRIPT \
-    $ORIENTDB_SETTINGS \
+    $YOUTRACKDB_SETTINGS \
     $DEBUG_OPTS \
-    -Djava.util.logging.manager=com.orientechnologies.common.log.ShutdownLogManager \
-    -Djava.util.logging.config.file="$ORIENTDB_LOG_CONF" \
-    -Dorientdb.config.file="$CONFIG_FILE" \
-    -Dorientdb.www.path="$ORIENTDB_WWW_PATH" \
-    -Dorientdb.build.number="@BUILD@" \
-    -cp "$ORIENTDB_HOME/lib/orientdb-server-@VERSION@.jar:$ORIENTDB_HOME/lib/*:$ORIENTDB_HOME/plugins/*" \
-    $ARGS com.orientechnologies.orient.server.OServerMain
+    -Djava.util.logging.manager=com.jetbrains.youtrack.db.internal.common.log.ShutdownLogManager \
+    -Djava.util.logging.config.file="$YOUTRACKDB_LOG_CONF" \
+    -Dyoutrackdb.config.file="$CONFIG_FILE" \
+    -Dyoutrackdb.www.path="$YOUTRACKDB_WWW_PATH" \
+    -Dyoutrackdb.build.number="@BUILD@" \
+    -cp "$YOUTRACKDB_HOME/lib/youtrackdb-server-@VERSION@.jar:$YOUTRACKDB_HOME/lib/*:$YOUTRACKDB_HOME/plugins/*" \
+    $ARGS com.jetbrains.youtrack.db.internal.server.ServerMain

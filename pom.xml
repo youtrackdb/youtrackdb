@@ -1,26 +1,26 @@
 <?xml version="1.0"?>
 
-<!-- ~ Copyright 2010-2013 Orient Technologies LTD ~ ~ Licensed under the 
-    Apache License, Version 2.0 (the "License"); ~ you may not use this file 
-    except in compliance with the License. ~ You may obtain a copy of the License 
-    at ~ ~ http://www.apache.org/licenses/LICENSE-2.0 ~ ~ Unless required by 
-    applicable law or agreed to in writing, software ~ distributed under the 
-    License is distributed on an "AS IS" BASIS, ~ WITHOUT WARRANTIES OR CONDITIONS 
-    OF ANY KIND, either express or implied. ~ See the License for the specific 
-    language governing permissions and ~ limitations under the License. -->
-
+<!-- Licensed under the Apache License, Version 2.0 (the "License");
+    You may not use this file except in compliance with the License.
+    You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software distributed under the
+    License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.orientechnologies</groupId>
-  <artifactId>orientdb-parent</artifactId>
-  <version>4.0.0-SNAPSHOT</version>
+  <groupId>com.jetbrains.youtrack.db</groupId>
+  <artifactId>youtrackdb-parent</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>OrientDB</name>
-  <description>OrientDB NoSQL document graph dbms</description>
+  <name>YouTrackDB</name>
+  <description>YouTrackDB NoSQL document graph DB</description>
   <inceptionYear>2009</inceptionYear>
   <licenses>
     <license>
@@ -43,25 +43,25 @@
   </modules>
 
   <scm>
-    <connection>scm:git:git@github.com:laa/orientdb.git</connection>
-    <developerConnection>scm:git:git@github.com:laa/orientdb.git</developerConnection>
-    <url>scm:git:git@github.com:laa/orientdb.git</url>
+    <connection>scm:git:git@github.com:youtrackdb/youtrackdb.git</connection>
+    <developerConnection>scm:git:git@github.com:youtrackdb/youtrackdb.git</developerConnection>
+    <url>scm:git:git@github.com:youtrackdb/youtrackdb.git</url>
     <tag>HEAD</tag>
   </scm>
   <issueManagement>
-    <system>GitHub Issues</system>
-    <url>https://github.com/laa/orientdb/issues</url>
+    <system>YouTrack</system>
+    <url>https://youtrack.jetbrains.com/issues/YTDB</url>
   </issueManagement>
   <distributionManagement>
     <snapshotRepository>
-      <id>space-orientdb-daily</id>
-      <url>https://packages.jetbrains.team/maven/p/xodus/orientdb-daily</url>
+      <id>space-youtrackdb-daily</id>
+      <url>https://packages.jetbrains.team/maven/p/xodus/youtrackdb-daily</url>
     </snapshotRepository>
   </distributionManagement>
   <repositories>
     <repository>
-      <id>space-orientdb-daily</id>
-      <url>https://packages.jetbrains.team/maven/p/xodus/orientdb-daily</url>
+      <id>space-youtrackdb-daily</id>
+      <url>https://packages.jetbrains.team/maven/p/xodus/youtrackdb-daily</url>
       <releases>
         <enabled>false</enabled>
       </releases>
@@ -75,9 +75,9 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
-    <maven.compiler.release>17</maven.compiler.release>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <maven.compiler.release>21</maven.compiler.release>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssZ</maven.build.timestamp.format>
     <!--This property is updated automatically and is needed to make build reproducible-->
     <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
@@ -93,10 +93,10 @@
     <javaassist.version>3.30.2-GA</javaassist.version>
     <jaxb.api.version>2.3.0</jaxb.api.version>
     <project.rootdir>${project.basedir}/</project.rootdir>
-    <graalvm.version>21.3.12</graalvm.version>
+    <graalvm.version>24.1.1</graalvm.version>
     <slf4j.version>2.0.16</slf4j.version>
     <slf4j.version>2.0.16</slf4j.version>
-    <toolchain.jdk.version>[17,22)</toolchain.jdk.version>
+    <toolchain.jdk.version>[21,)</toolchain.jdk.version>
   </properties>
 
 
@@ -131,6 +131,17 @@
         <groupId>it.unimi.dsi</groupId>
         <artifactId>fastutil</artifactId>
         <version>8.5.15</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>2.18.1</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.18.1</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -183,7 +194,7 @@
             <properties>
               <property>
                 <name>listener</name>
-                <value>com.orientechnologies.OJUnitTestListener</value>
+                <value>com.jetbrains.youtrack.db.internal.JUnitTestListener</value>
               </property>
             </properties>
             <useModulePath>false</useModulePath>
@@ -255,7 +266,7 @@
             <allowTimestampedSnapshots>true</allowTimestampedSnapshots>
             <pushChanges>false</pushChanges>
             <tagNameFormat>@{project.version}</tagNameFormat>
-            <scmCommentPrefix>OrientDB</scmCommentPrefix>
+            <scmCommentPrefix>YouTrackDB</scmCommentPrefix>
             <localCheckout>true</localCheckout>
           </configuration>
         </plugin>
@@ -519,7 +530,7 @@
                 <systemPropertyVariables>
                   <buildDirectory>${project.build.directory}</buildDirectory>
                   <security.userPasswordSaltIterations>1</security.userPasswordSaltIterations>
-                  <orientdb.test.env>ci</orientdb.test.env>
+                  <youtrackdb.test.env>ci</youtrackdb.test.env>
                 </systemPropertyVariables>
                 <useModulePath>false</useModulePath>
               </configuration>
@@ -539,12 +550,12 @@
               <configuration>
                 <systemPropertyVariables>
                   <buildDirectory>${project.build.directory}</buildDirectory>
-                  <orientdb.test.env>ci</orientdb.test.env>
+                  <youtrackdb.test.env>ci</youtrackdb.test.env>
                 </systemPropertyVariables>
                 <properties>
                   <property>
                     <name>listener</name>
-                    <value>com.orientechnologies.OJUnitTestListener</value>
+                    <value>com.jetbrains.youtrack.db.internal.JUnitTestListener</value>
                   </property>
                 </properties>
               </configuration>

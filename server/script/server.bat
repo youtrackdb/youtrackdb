@@ -1,34 +1,16 @@
 @echo off
 rem
-rem Copyright (c) OrientDB LTD (http://www.orientdb.com)
 rem
 
-echo            .                                          
-echo           .`        `                                 
-echo           ,      `:.                                  
-echo          `,`    ,:`                                   
-echo          .,.   :,,                                    
-echo          .,,  ,,,                                     
-echo     .    .,.:::::  ````                                 :::::::::     :::::::::
-echo     ,`   .::,,,,::.,,,,,,`;;                      .:    ::::::::::    :::    :::
-echo     `,.  ::,,,,,,,:.,,.`  `                       .:    :::      :::  :::     :::
-echo      ,,:,:,,,,,,,,::.   `        `         ``     .:    :::      :::  :::     :::
-echo       ,,:.,,,,,,,,,: `::, ,,   ::,::`   : :,::`  ::::   :::      :::  :::    :::
-echo        ,:,,,,,,,,,,::,:   ,,  :.    :   ::    :   .:    :::      :::  :::::::
-echo         :,,,,,,,,,,:,::   ,,  :      :  :     :   .:    :::      :::  :::::::::
-echo   `     :,,,,,,,,,,:,::,  ,, .::::::::  :     :   .:    :::      :::  :::     :::
-echo   `,...,,:,,,,,,,,,: .:,. ,, ,,         :     :   .:    :::      :::  :::     :::
-echo     .,,,,::,,,,,,,:  `: , ,,  :     `   :     :   .:    :::      :::  :::     :::
-echo       ...,::,,,,::.. `:  .,,  :,    :   :     :   .:    :::::::::::   :::     :::
-echo            ,::::,,,. `:   ,,   :::::    :     :   .:    :::::::::     ::::::::::
-echo            ,,:` `,,.                                  
-echo           ,,,    .,`                                  
-echo          ,,.     `,
-echo        ``        `.                                         
-echo                  ``                                         www.orientdb.com
-echo                  `                                    
 
-rem Guess ORIENTDB_HOME if not defined
+echo ' #     #               #######                             ######  ######  '
+echo '  #   #   ####  #    #    #    #####    ##    ####  #    # #     # #     # '
+echo '   # #   #    # #    #    #    #    #  #  #  #    # #   #  #     # #     # '
+echo '    #    #    # #    #    #    #    # #    # #      ####   #     # ######  '
+echo '    #    #    # #    #    #    #####  ###### #      #  #   #     # #     # '
+echo '    #    #    # #    #    #    #   #  #    # #    # #   #  #     # #     # '
+echo '    #     ####   ####     #    #    # #    #  ####  #    # ######  ######  '
+
 set CURRENT_DIR=%cd%
 
 if exist "%JAVA_HOME:"=%\bin\java.exe" goto setJavaHome
@@ -39,16 +21,16 @@ goto okJava
 set JAVA="%JAVA_HOME:"=%\bin\java"
 
 :okJava
-if not "%ORIENTDB_HOME%" == "" goto gotHome
-set ORIENTDB_HOME=%CURRENT_DIR%
-if exist "%ORIENTDB_HOME%\bin\server.bat" goto okHome
+if not "%YOUTRACKDB_HOME%" == "" goto gotHome
+set YOUTRACKDB_HOME=%CURRENT_DIR%
+if exist "%YOUTRACKDB_HOME%\bin\server.bat" goto okHome
 cd ..
-set ORIENTDB_HOME=%cd%
+set YOUTRACKDB_HOME=%cd%
 cd %CURRENT_DIR%
 
 :gotHome
-if exist "%ORIENTDB_HOME%\bin\server.bat" goto okHome
-echo The ORIENTDB_HOME environment variable is not defined correctly
+if exist "%YOUTRACKDB_HOME%\bin\server.bat" goto okHome
+echo The YOUTRACKDB_HOME environment variable is not defined correctly
 echo This environment variable is needed to run this program
 goto end
 
@@ -65,22 +47,22 @@ goto setArgs
 :doneSetArgs
 
 
-if NOT exist "%CONFIG_FILE%" set CONFIG_FILE=%ORIENTDB_HOME%/config/orientdb-server-config.xml
+if NOT exist "%CONFIG_FILE%" set CONFIG_FILE=%YOUTRACKDB_HOME%/config/youtrackdb-server-config.xml
 
-set LOG_FILE=%ORIENTDB_HOME%/config/orientdb-server-log.properties
-set WWW_PATH=%ORIENTDB_HOME%/www
-set ORIENTDB_SETTINGS=-Dprofiler.enabled=true
+set LOG_FILE=%YOUTRACKDB_HOME%/config/youtrackdb-server-log.properties
+set WWW_PATH=%YOUTRACKDB_HOME%/www
+set YOUTRACKDB_SETTINGS=-Dprofiler.enabled=true
 set JAVA_OPTS_SCRIPT= -Djna.nosys=true -XX:+HeapDumpOnOutOfMemoryError -Djava.awt.headless=true -Dfile.encoding=UTF8 -Drhino.opt.level=9
 
-rem TO DEBUG ORIENTDB SERVER RUN IT WITH THESE OPTIONS:
+rem TO DEBUG YOUTRACKDB SERVER RUN IT WITH THESE OPTIONS:
 rem -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1044
 rem AND ATTACH TO THE CURRENT HOST, PORT 1044
 
-rem ORIENTDB MAXIMUM HEAP. USE SYNTAX -Xmx<memory>, WHERE <memory> HAS THE TOTAL MEMORY AND SIZE UNIT. EXAMPLE: -Xmx512m
+rem YOUTRACKDB MAXIMUM HEAP. USE SYNTAX -Xmx<memory>, WHERE <memory> HAS THE TOTAL MEMORY AND SIZE UNIT. EXAMPLE: -Xmx512m
 set MAXHEAP=-Xms2G -Xmx2G
-rem ORIENTDB MAXIMUM DISKCACHE IN MB, EXAMPLE: "-Dstorage.diskCache.bufferSize=8192" FOR 8GB of DISKCACHE
+rem YOUTRACKDB MAXIMUM DISKCACHE IN MB, EXAMPLE: "-Dstorage.diskCache.bufferSize=8192" FOR 8GB of DISKCACHE
 set MAXDISKCACHE=
 
-call %JAVA% -server %JAVA_OPTS% %MAXHEAP% %JAVA_OPTS_SCRIPT% %ORIENTDB_SETTINGS% %MAXDISKCACHE% -Djava.util.logging.manager=com.orientechnologies.common.log.ShutdownLogManager -Djava.util.logging.config.file="%LOG_FILE%" -Dorientdb.config.file="%CONFIG_FILE%" -Dorientdb.www.path="%WWW_PATH%" -Dorientdb.build.number="@BUILD@" -cp "%ORIENTDB_HOME%\lib\*;%ORIENTDB_HOME%\plugins\*" %CMD_LINE_ARGS% com.orientechnologies.orient.server.OServerMain
+call %JAVA% -server %JAVA_OPTS% %MAXHEAP% %JAVA_OPTS_SCRIPT% %YOUTRACKDB_SETTINGS% %MAXDISKCACHE% -Dcom.jetbrains.youtrack.db.internal.common.log.ShutdownLogManager -Djava.util.logging.config.file="%LOG_FILE%" -Dyoutrackdb.config.file="%CONFIG_FILE%" -Dyoutrackdb.www.path="%WWW_PATH%" -Dyoutrackdb.build.number="@BUILD@" -cp "%YOUTRACKDB_HOME%\lib\*;%YOUTRACKDB_HOME%\plugins\*" %CMD_LINE_ARGS% com.jetbrains.youtrack.db.internal.server.ServerMain
 
 :end

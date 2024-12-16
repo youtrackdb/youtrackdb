@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 /**
- * Created by santo-it on 2017-08-14.
+ *
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ODemoDbFromDocumentationTraversesIT extends OIntegrationTestTemplate {
@@ -20,7 +20,7 @@ public class ODemoDbFromDocumentationTraversesIT extends OIntegrationTestTemplat
     OResultSet resultSet =
         db.query(
             "TRAVERSE * FROM (\n"
-                + "  SELECT FROM Profiles WHERE Name='Santo' and Surname='OrientDB'\n"
+                + "  SELECT FROM Profiles WHERE Name='Santo' and Surname='YouTrackDB'\n"
                 + ") MAXDEPTH 3");
 
     assertThat(resultSet).hasSize(85);

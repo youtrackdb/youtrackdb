@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 /**
- * Created by santo-it on 2017-08-28.
+ *
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ODemoDbFromDocumentationLocationsIT extends OIntegrationTestTemplate {
@@ -23,7 +23,7 @@ public class ODemoDbFromDocumentationLocationsIT extends OIntegrationTestTemplat
     OResultSet resultSet =
         db.query(
             "MATCH {Class: Profiles, as: profile, where: (Name='Santo' AND"
-                + " Surname='OrientDB')}<-HasProfile-{Class: Customers, as:"
+                + " Surname='YouTrackDB')}<-HasProfile-{Class: Customers, as:"
                 + " customer}-HasVisited->{class: Locations, as: location} \n"
                 + "RETURN $pathelements");
 
@@ -58,7 +58,7 @@ public class ODemoDbFromDocumentationLocationsIT extends OIntegrationTestTemplat
     OResultSet resultSet =
         db.query(
             "MATCH {Class: Profiles, as: profile, where: (Name='Santo' and"
-                + " Surname='OrientDB')}-HasFriend->{Class: Profiles, as:"
+                + " Surname='YouTrackDB')}-HasFriend->{Class: Profiles, as:"
                 + " friend}<-HasProfile-{Class: Customers, as: customer}-HasVisited->{Class:"
                 + " Locations, as: location} \n"
                 + "RETURN $pathelements");

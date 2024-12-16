@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import org.junit.Test;
 
 /**
- * Created by frank on 15/03/2017.
+ *
  */
 public class ODemoDbMetadataConsistencyIT extends OIntegrationTestTemplate {
 

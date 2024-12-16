@@ -1,4 +1,5 @@
-### OrientDB Version: <version here>  
+### YouTrackDB Version: <version here>
+
 ### Java Version: <version here>  
 ### OS: <os here>  
 

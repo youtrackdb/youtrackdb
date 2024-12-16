@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,11 +9,14 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.cloudbees.syslog.sender;
 
-import com.cloudbees.syslog.*;
+import com.cloudbees.syslog.Facility;
+import com.cloudbees.syslog.MessageFormat;
+import com.cloudbees.syslog.Severity;
+import com.cloudbees.syslog.SyslogMessage;
 import com.cloudbees.syslog.util.InternalLogger;
 import java.io.CharArrayWriter;
 import java.io.IOException;
@@ -26,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a>
+ *
  */
 public abstract class AbstractSyslogMessageSender implements SyslogMessageSender {
 

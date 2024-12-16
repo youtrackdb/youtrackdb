@@ -1,24 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--
-  ~ /*
-   ~  *  Copyright 2014 Orient Technologies LTD (info(at)orientechnologies.com)
-   ~  *
-   ~  *  Licensed under the Apache License, Version 2.0 (the "License");
-   ~  *  you may not use this file except in compliance with the License.
-   ~  *  You may obtain a copy of the License at
-   ~  *
-   ~  *       http://www.apache.org/licenses/LICENSE-2.0
-   ~  *
-   ~  *  Unless required by applicable law or agreed to in writing, software
-   ~  *  distributed under the License is distributed on an "AS IS" BASIS,
-   ~  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   ~  *  See the License for the specific language governing permissions and
-   ~  *  limitations under the License.
-   ~  *
-   ~  * For more information: http://www.orientechnologies.com
-   ~  */
-   -->
+<!-- Licensed under the  Apache License, Version 2.0 (the "License");
+    You may not use this file except in compliance with the License.
+    You may obtain a copy of the License  at http://www.apache.org/licenses/LICENSE-2.0.
+    Unless required by applicable law or agreed to in writing, software distributed under the
+    License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS
+    OF ANY KIND, either express or implied. See the License for the specific
+    language governing permissions and limitations under the License. -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -27,38 +15,49 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.orientechnologies</groupId>
-    <artifactId>orientdb-parent</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <groupId>com.jetbrains.youtrack.db</groupId>
+    <artifactId>youtrackdb-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>orientdb-client</artifactId>
+  <artifactId>youtrackdb-client</artifactId>
 
-  <name>OrientDB Client</name>
+  <name>YouTrackDB Client</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.rootdir>${project.basedir}/../</project.rootdir>
     <!--This property is updated automatically and is needed to make build reproducible-->
     <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
+    <argLine>
+      -ea
+      -Xmx${heapSize}
+      -Dmemory.directMemory.trackMode=true
+      -Djava.util.logging.manager=com.jetbrains.youtrack.db.internal.common.log.ShutdownLogManager
+      -Dstorage.diskCache.checksumMode=storeAndThrow
+      -Dstorage.diskCache.bufferSize=4096
+      -Dsecurity.warningDefaultUsers=false
+      -Dfile.log.deletion=false
+      -Dtx.nonTxReadsWarningMode=SILENT
+    </argLine>
   </properties>
 
   <dependencies>
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-core</artifactId>
+      <groupId>com.jetbrains.youtrack.db</groupId>
+      <artifactId>youtrackdb-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-test-commons</artifactId>
+      <groupId>com.jetbrains.youtrack.db</groupId>
+      <artifactId>youtrackdb-test-commons</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-core</artifactId>
+      <groupId>com.jetbrains.youtrack.db</groupId>
+      <artifactId>youtrackdb-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
@@ -74,69 +73,11 @@
           <properties>
             <property>
               <name>listener</name>
-              <value>com.orientechnologies.OJUnitTestListener</value>
+              <value>com.jetbrains.youtrack.db.internal.JUnitTestListener</value>
             </property>
           </properties>
         </configuration>
       </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>java17</id>
-      <activation>
-        <jdk>[17,)</jdk>
-      </activation>
-      <properties>
-        <argLine>
-          -ea
-          -Xmx${heapSize}
-          -Dmemory.directMemory.trackMode=true
-          -Djava.util.logging.manager=com.orientechnologies.common.log.ShutdownLogManager
-          -Dstorage.diskCache.checksumMode=storeAndThrow
-          -Dstorage.diskCache.bufferSize=4096
-          -Dsecurity.warningDefaultUsers=false
-          -Dfile.log.deletion=false
-          -Dtx.nonTxReadsWarningMode=SILENT
-          --add-opens jdk.unsupported/sun.misc=ALL-UNNAMED
-          --add-opens java.base/sun.security.x509=ALL-UNNAMED
-        </argLine>
-      </properties>
-    </profile>
-
-    <profile>
-      <id>crash-tests</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <version>${surefire.version}</version>
-            <configuration>
-              <skipTests>true</skipTests>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>secondary-tests</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>${surefire.version}</version>
-            <configuration>
-              <includes>
-                <include>**/*ST.java</include>
-              </includes>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
-
 </project>
