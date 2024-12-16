@@ -15,6 +15,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.cluster.v2;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
@@ -26,7 +27,6 @@ import com.jetbrains.youtrack.db.internal.core.config.StorageClusterConfiguratio
 import com.jetbrains.youtrack.db.internal.core.config.StoragePaginatedClusterConfiguration;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
 import com.jetbrains.youtrack.db.internal.core.exception.PaginatedClusterException;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
@@ -1274,11 +1274,6 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
     } finally {
       releaseExclusiveLock();
     }
-  }
-
-  @Override
-  public void setEncryption(final String method, final String key) {
-    throw new UnsupportedOperationException("Encryption should be configured on storage level.");
   }
 
   private static PhysicalPosition createPhysicalPosition(

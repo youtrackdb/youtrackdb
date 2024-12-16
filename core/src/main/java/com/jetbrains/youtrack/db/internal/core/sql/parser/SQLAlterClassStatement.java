@@ -73,15 +73,6 @@ public class SQLAlterClassStatement extends DDLStatement {
         case ADD_CLUSTER:
         case REMOVE_CLUSTER:
         case DESCRIPTION:
-        case ENCRYPTION:
-          if (numberValue != null) {
-            numberValue.toString(params, builder); // clusters only
-          } else if (identifierValue != null) {
-            identifierValue.toString(params, builder);
-          } else {
-            builder.append("null");
-          }
-          break;
         case CLUSTER_SELECTION:
           if (identifierValue != null) {
             identifierValue.toString(params, builder);
@@ -149,15 +140,6 @@ public class SQLAlterClassStatement extends DDLStatement {
         case ADD_CLUSTER:
         case REMOVE_CLUSTER:
         case DESCRIPTION:
-        case ENCRYPTION:
-          if (numberValue != null) {
-            numberValue.toGenericStatement(builder); // clusters only
-          } else if (identifierValue != null) {
-            identifierValue.toGenericStatement(builder);
-          } else {
-            builder.append(PARAMETER_PLACEHOLDER);
-          }
-          break;
         case CLUSTER_SELECTION:
           if (identifierValue != null) {
             identifierValue.toGenericStatement(builder);
@@ -362,10 +344,6 @@ public class SQLAlterClassStatement extends DDLStatement {
           } else {
             throw new CommandExecutionException("Invalid class name: " + this);
           }
-          break;
-        case ENCRYPTION:
-          // TODO
-
           break;
         case CLUSTER_SELECTION:
           if (identifierValue != null) {

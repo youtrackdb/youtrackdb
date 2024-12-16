@@ -19,11 +19,10 @@
  */
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local;
 
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.comparator.DefaultComparator;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
-import com.jetbrains.youtrack.db.internal.core.encryption.Encryption;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValidator;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import java.io.IOException;
 import java.util.Comparator;
@@ -38,7 +37,6 @@ public interface HashTable<K, V> {
       BinarySerializer<K> keySerializer,
       BinarySerializer<V> valueSerializer,
       PropertyType[] keyTypes,
-      Encryption encryption,
       HashFunction<K> keyHashFunction,
       boolean nullKeyIsSupported)
       throws IOException;
@@ -72,7 +70,6 @@ public interface HashTable<K, V> {
       String name,
       PropertyType[] keyTypes,
       boolean nullKeyIsSupported,
-      Encryption encryption,
       HashFunction<K> keyHashFunction,
       final BinarySerializer<K> keySerializer,
       final BinarySerializer<V> valueSerializer);

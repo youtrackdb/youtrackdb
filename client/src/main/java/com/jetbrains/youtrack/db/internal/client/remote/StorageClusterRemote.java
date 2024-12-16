@@ -21,10 +21,10 @@ package com.jetbrains.youtrack.db.internal.client.remote;
 
 import com.jetbrains.youtrack.db.internal.core.config.StorageClusterConfiguration;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
-import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.RawBuffer;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.ClusterBrowsePage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import java.io.IOException;
@@ -105,11 +105,6 @@ public class StorageClusterRemote implements StorageCluster {
 
   @Override
   public void setRecordConflictStrategy(final String conflictStrategy) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setEncryption(final String encryptionName, final String encryptionKey) {
     throw new UnsupportedOperationException();
   }
 

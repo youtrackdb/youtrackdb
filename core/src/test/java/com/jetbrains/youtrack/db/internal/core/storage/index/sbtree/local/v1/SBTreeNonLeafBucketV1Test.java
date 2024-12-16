@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v1;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
 import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator.Intention;
 import com.jetbrains.youtrack.db.internal.common.directmemory.Pointer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntryImpl;
@@ -92,14 +92,14 @@ public class SBTreeNonLeafBucketV1Test {
     Assert.assertEquals(treeBucket.size(), keyIndexMap.size());
 
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
-      int bucketIndex = treeBucket.find(keyIndexEntry.getKey(), null, LongSerializer.INSTANCE);
+      int bucketIndex = treeBucket.find(keyIndexEntry.getKey(), LongSerializer.INSTANCE);
       Assert.assertEquals(bucketIndex, (int) keyIndexEntry.getValue());
     }
 
     long prevRight = -1;
     for (int i = 0; i < treeBucket.size(); i++) {
       SBTreeBucketV1.SBTreeEntry<Long, Identifiable> entry =
-          treeBucket.getEntry(i, null, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
+          treeBucket.getEntry(i, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
 
       if (prevRight > 0) {
         Assert.assertEquals(entry.leftChild, prevRight);
@@ -111,7 +111,7 @@ public class SBTreeNonLeafBucketV1Test {
     long prevLeft = -1;
     for (int i = treeBucket.size() - 1; i >= 0; i--) {
       SBTreeBucketV1.SBTreeEntry<Long, Identifiable> entry =
-          treeBucket.getEntry(i, null, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
+          treeBucket.getEntry(i, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
 
       if (prevLeft > 0) {
         Assert.assertEquals(entry.rightChild, prevLeft);
@@ -160,7 +160,7 @@ public class SBTreeNonLeafBucketV1Test {
     int originalSize = treeBucket.size();
 
     treeBucket.shrink(
-        treeBucket.size() / 2, false, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
+        treeBucket.size() / 2, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
     Assert.assertEquals(treeBucket.size(), index / 2);
 
     index = 0;
@@ -174,14 +174,14 @@ public class SBTreeNonLeafBucketV1Test {
     }
 
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
-      int bucketIndex = treeBucket.find(keyIndexEntry.getKey(), null, LongSerializer.INSTANCE);
+      int bucketIndex = treeBucket.find(keyIndexEntry.getKey(), LongSerializer.INSTANCE);
       Assert.assertEquals(bucketIndex, (int) keyIndexEntry.getValue());
     }
 
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
       SBTreeBucketV1.SBTreeEntry<Long, Identifiable> entry =
           treeBucket.getEntry(
-              keyIndexEntry.getValue(), null, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
+              keyIndexEntry.getValue(), LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
 
       Assert.assertEquals(
           entry,
@@ -210,7 +210,7 @@ public class SBTreeNonLeafBucketV1Test {
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
       SBTreeBucketV1.SBTreeEntry<Long, Identifiable> entry =
           treeBucket.getEntry(
-              keyIndexEntry.getValue(), null, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
+              keyIndexEntry.getValue(), LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
 
       Assert.assertEquals(
           entry,

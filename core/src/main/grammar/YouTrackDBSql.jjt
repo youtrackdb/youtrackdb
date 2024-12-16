@@ -273,8 +273,6 @@ TOKEN:
 	|
 	< DESCRIPTION: ( "d" | "D" ) ( "E" | "e" )  ( "s" | "S" ) ( "c" | "C" ) ( "r" | "R" ) ( "i" | "I" ) ( "p" | "P" ) ( "t" | "T" ) ( "i" | "I" ) ( "o" | "O" ) ( "n" | "N" ) >
 	|
-	< ENCRYPTION: ( "E" | "e" ) ( "n" | "N" ) ( "c" | "C" ) ( "r" | "R" ) ( "y" | "Y" ) ( "p" | "P" ) ( "t" | "T" ) ( "i" | "I" ) ( "o" | "O" ) ( "n" | "N" ) >
-	|
 	< DROP: ( "d" | "D" ) ( "r" | "R" ) ( "o" | "O" ) ( "p" | "P" ) >
 	|
 	< PROPERTY: ( "p" | "P" ) ( "r" | "R" ) ( "o" | "O" ) ( "p" | "P" ) ( "e" | "E" ) ( "r" | "R" ) ( "t" | "T" ) ( "y" | "Y" ) >
@@ -815,8 +813,6 @@ SQLIdentifier Identifier():
 	token = <CLUSTER_SELECTION>
 	|
 	token = <DESCRIPTION>
-	|
-	token = <ENCRYPTION>
 	|
 	token = <DROP>
 	|
@@ -4112,15 +4108,6 @@ SQLAlterClassStatement AlterClassStatement():
 				|
             	<NULL>
             )
-		)
-		|
-		(
-			<ENCRYPTION> { jjtThis.property = com.jetbrains.youtrack.db.api.schema.SchemaClass.ATTRIBUTES.ENCRYPTION; }
-			(
-				jjtThis.identifierValue = Identifier()
-				|
-				<NULL>
-			)
 		)
 	)
 	[ <UNSAFE> { jjtThis.unsafe = true; } ]

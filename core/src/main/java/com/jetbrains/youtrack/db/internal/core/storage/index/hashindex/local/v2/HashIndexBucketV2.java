@@ -19,13 +19,12 @@
  */
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v2;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.common.comparator.DefaultComparator;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.encryption.Encryption;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.HashTable;
@@ -66,19 +65,18 @@ public final class HashIndexBucketV2<K, V> extends DurablePage {
   public HashTable.Entry<K, V> find(
       final K key,
       final long hashCode,
-      final Encryption encryption,
       final BinarySerializer<K> keySerializer,
       final BinarySerializer<V> valueSerializer) {
-    final int index = binarySearch(key, hashCode, encryption, keySerializer);
+    final int index = binarySearch(key, hashCode, keySerializer);
     if (index < 0) {
       return null;
     }
 
-    return getEntry(index, encryption, keySerializer, valueSerializer);
+    return getEntry(index, keySerializer, valueSerializer);
   }
 
   private int binarySearch(
-      K key, long hashCode, Encryption encryption, BinarySerializer<K> keySerializer) {
+      K key, long hashCode, BinarySerializer<K> keySerializer) {
     int low = 0;
     int high = size() - 1;
 
@@ -92,7 +90,7 @@ public final class HashIndexBucketV2<K, V> extends DurablePage {
       } else if (greaterThanUnsigned(midHashCode, hashCode)) {
         cmp = 1;
       } else {
-        final K midVal = getKey(mid, encryption, keySerializer);
+        final K midVal = getKey(mid, keySerializer);
         //noinspection unchecked
         cmp = keyComparator.compare(midVal, key);
       }
@@ -118,7 +116,6 @@ public final class HashIndexBucketV2<K, V> extends DurablePage {
 
   public HashTable.Entry<K, V> getEntry(
       final int index,
-      final Encryption encryption,
       final BinarySerializer<K> keySerializer,
       final BinarySerializer<V> valueSerializer) {
     int entryPosition = getIntValue(POSITIONS_ARRAY_OFFSET + index * IntegerSerializer.INT_SIZE);
@@ -127,21 +124,10 @@ public final class HashIndexBucketV2<K, V> extends DurablePage {
     entryPosition += LongSerializer.LONG_SIZE;
 
     final K key;
-    if (encryption == null) {
-      key = deserializeFromDirectMemory(keySerializer, entryPosition);
 
-      entryPosition += getObjectSizeInDirectMemory(keySerializer, entryPosition);
-    } else {
-      final int encryptedLength = getIntValue(entryPosition);
-      entryPosition += IntegerSerializer.INT_SIZE;
+    key = deserializeFromDirectMemory(keySerializer, entryPosition);
 
-      final byte[] encryptedKey = getBinaryValue(entryPosition, encryptedLength);
-      entryPosition += encryptedLength;
-
-      final byte[] binaryKey = encryption.decrypt(encryptedKey);
-
-      key = keySerializer.deserializeNativeObject(binaryKey, 0);
-    }
+    entryPosition += getObjectSizeInDirectMemory(keySerializer, entryPosition);
 
     final V value = deserializeFromDirectMemory(valueSerializer, entryPosition);
     return new HashTable.Entry<>(key, value, hashCode);
@@ -149,7 +135,6 @@ public final class HashIndexBucketV2<K, V> extends DurablePage {
 
   public HashTable.RawEntry getRawEntry(
       final int index,
-      final Encryption encryption,
       final BinarySerializer<K> keySerializer,
       final BinarySerializer<V> valueSerializer) {
     int entryPosition = getIntValue(POSITIONS_ARRAY_OFFSET + index * IntegerSerializer.INT_SIZE);
@@ -159,15 +144,9 @@ public final class HashIndexBucketV2<K, V> extends DurablePage {
 
     final byte[] key;
     final byte[] value;
-    if (encryption == null) {
-      final int keySize = getObjectSizeInDirectMemory(keySerializer, entryPosition);
-      key = getBinaryValue(entryPosition, keySize);
-      entryPosition += keySize;
-    } else {
-      final int encryptedLength = getIntValue(entryPosition);
-      key = getBinaryValue(entryPosition, encryptedLength + IntegerSerializer.INT_SIZE);
-      entryPosition += encryptedLength + IntegerSerializer.INT_SIZE;
-    }
+    final int keySize = getObjectSizeInDirectMemory(keySerializer, entryPosition);
+    key = getBinaryValue(entryPosition, keySize);
+    entryPosition += keySize;
 
     final int valueSize = getObjectSizeInDirectMemory(valueSerializer, entryPosition);
     value = getBinaryValue(entryPosition, valueSize);
@@ -192,7 +171,6 @@ public final class HashIndexBucketV2<K, V> extends DurablePage {
    */
   public V getValue(
       final int index,
-      final Encryption encryption,
       final BinarySerializer<K> keySerializer,
       final BinarySerializer<V> valueSerializer) {
     int entryPosition = getIntValue(POSITIONS_ARRAY_OFFSET + index * IntegerSerializer.INT_SIZE);
@@ -200,14 +178,7 @@ public final class HashIndexBucketV2<K, V> extends DurablePage {
     // skip hash code
     entryPosition += LongSerializer.LONG_SIZE;
 
-    if (encryption == null) {
-      // skip key
-      entryPosition += getObjectSizeInDirectMemory(keySerializer, entryPosition);
-    } else {
-      final int encryptedLength = getIntValue(entryPosition);
-      entryPosition += encryptedLength + IntegerSerializer.INT_SIZE;
-    }
-
+    entryPosition += getObjectSizeInDirectMemory(keySerializer, entryPosition);
     return deserializeFromDirectMemory(valueSerializer, entryPosition);
   }
 
@@ -217,28 +188,16 @@ public final class HashIndexBucketV2<K, V> extends DurablePage {
   }
 
   public K getKey(
-      final int index, final Encryption encryption, final BinarySerializer<K> keySerializer) {
+      final int index, final BinarySerializer<K> keySerializer) {
     int entryPosition = getIntValue(POSITIONS_ARRAY_OFFSET + index * IntegerSerializer.INT_SIZE);
-
-    if (encryption == null) {
-      return deserializeFromDirectMemory(keySerializer, entryPosition + LongSerializer.LONG_SIZE);
-    } else {
-      final int encryptedLength = getIntValue(entryPosition + LongSerializer.LONG_SIZE);
-      final byte[] encryptedBinaryKey =
-          getBinaryValue(
-              entryPosition + LongSerializer.LONG_SIZE + IntegerSerializer.INT_SIZE,
-              encryptedLength);
-      final byte[] decryptedBinaryKey = encryption.decrypt(encryptedBinaryKey);
-      return keySerializer.deserializeNativeObject(decryptedBinaryKey, 0);
-    }
+    return deserializeFromDirectMemory(keySerializer, entryPosition + LongSerializer.LONG_SIZE);
   }
 
   public int getIndex(
       final long hashCode,
       final K key,
-      final Encryption encryption,
       final BinarySerializer<K> keySerializer) {
-    return binarySearch(key, hashCode, encryption, keySerializer);
+    return binarySearch(key, hashCode, keySerializer);
   }
 
   public int size() {
@@ -247,17 +206,15 @@ public final class HashIndexBucketV2<K, V> extends DurablePage {
 
   public Iterator<HashTable.RawEntry> iterator(
       final BinarySerializer<K> keySerializer,
-      final BinarySerializer<V> valueSerializer,
-      final Encryption encryption) {
-    return new RawEntryIterator(0, keySerializer, valueSerializer, encryption);
+      final BinarySerializer<V> valueSerializer) {
+    return new RawEntryIterator(0, keySerializer, valueSerializer);
   }
 
   public Iterator<HashTable.Entry<K, V>> iterator(
       int index,
       BinarySerializer<K> keySerializer,
-      BinarySerializer<V> valueSerializer,
-      Encryption encryption) {
-    return new EntryIterator(index, keySerializer, valueSerializer, encryption);
+      BinarySerializer<V> valueSerializer) {
+    return new EntryIterator(index, keySerializer, valueSerializer);
   }
 
   public int getContentSize() {
@@ -379,17 +336,14 @@ public final class HashIndexBucketV2<K, V> extends DurablePage {
     private int currentIndex;
     private final BinarySerializer<K> keySerializer;
     private final BinarySerializer<V> valueSerializer;
-    private final Encryption encryption;
 
     private EntryIterator(
         int currentIndex,
         BinarySerializer<K> keySerializer,
-        BinarySerializer<V> valueSerializer,
-        Encryption encryption) {
+        BinarySerializer<V> valueSerializer) {
       this.currentIndex = currentIndex;
       this.keySerializer = keySerializer;
       this.valueSerializer = valueSerializer;
-      this.encryption = encryption;
     }
 
     @Override
@@ -404,7 +358,7 @@ public final class HashIndexBucketV2<K, V> extends DurablePage {
       }
 
       final HashTable.Entry<K, V> entry =
-          getEntry(currentIndex, encryption, keySerializer, valueSerializer);
+          getEntry(currentIndex, keySerializer, valueSerializer);
       currentIndex++;
       return entry;
     }
@@ -420,17 +374,15 @@ public final class HashIndexBucketV2<K, V> extends DurablePage {
     private int currentIndex;
     private final BinarySerializer<K> keySerializer;
     private final BinarySerializer<V> valueSerializer;
-    private final Encryption encryption;
 
     private RawEntryIterator(
         int currentIndex,
         BinarySerializer<K> keySerializer,
-        BinarySerializer<V> valueSerializer,
-        Encryption encryption) {
+        BinarySerializer<V> valueSerializer) {
       this.currentIndex = currentIndex;
       this.keySerializer = keySerializer;
       this.valueSerializer = valueSerializer;
-      this.encryption = encryption;
+
     }
 
     @Override
@@ -445,7 +397,7 @@ public final class HashIndexBucketV2<K, V> extends DurablePage {
       }
 
       final HashTable.RawEntry entry =
-          getRawEntry(currentIndex, encryption, keySerializer, valueSerializer);
+          getRawEntry(currentIndex, keySerializer, valueSerializer);
       currentIndex++;
       return entry;
     }

@@ -27,11 +27,9 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.comparator.DefaultComparator;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerializer;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
-import com.jetbrains.youtrack.db.internal.core.encryption.Encryption;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.comparator.AlwaysGreaterKey;
@@ -110,7 +108,6 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
   private int keySize;
   private BinarySerializer<K> keySerializer;
   private PropertyType[] keyTypes;
-  private Encryption encryption;
 
   public CellBTreeSingleValueV1(
       final String name,
@@ -131,8 +128,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
       AtomicOperation atomicOperation,
       final BinarySerializer<K> keySerializer,
       final PropertyType[] keyTypes,
-      final int keySize,
-      final Encryption encryption) {
+      final int keySize) {
     assert keySerializer != null;
     executeInsideComponentOperation(
         atomicOperation,
@@ -147,7 +143,6 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
               this.keyTypes = null;
             }
 
-            this.encryption = encryption;
             this.keySerializer = keySerializer;
 
             fileId = addFile(atomicOperation, getFullName());
@@ -198,7 +193,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
               loadPageForRead(atomicOperation, fileId, pageIndex)) {
             final CellBTreeBucketSingleValueV1<K> keyBucket =
                 new CellBTreeBucketSingleValueV1<>(keyBucketCacheEntry);
-            return keyBucket.getValue(bucketSearchResult.itemIndex, encryption, keySerializer);
+            return keyBucket.getValue(bucketSearchResult.itemIndex, keySerializer);
           }
         } else {
           try (final CacheEntry nullBucketCacheEntry =
@@ -272,7 +267,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
               final byte[] oldRawValue;
               if (bucketSearchResult.itemIndex > -1) {
                 oldRawValue =
-                    keyBucket.getRawValue(bucketSearchResult.itemIndex, encryption, keySerializer);
+                    keyBucket.getRawValue(bucketSearchResult.itemIndex, keySerializer);
               } else {
                 oldRawValue = null;
               }
@@ -431,8 +426,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
       final String name,
       final int keySize,
       final PropertyType[] keyTypes,
-      final BinarySerializer<K> keySerializer,
-      final Encryption encryption) {
+      final BinarySerializer<K> keySerializer) {
     acquireExclusiveLock();
     try {
       final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
@@ -443,7 +437,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
       this.keySize = keySize;
       this.keyTypes = keyTypes;
       this.keySerializer = keySerializer;
-      this.encryption = encryption;
+
     } catch (final IOException e) {
       throw BaseException.wrapException(
           new CellBTreeSingleValueV1Exception("Exception during loading of sbtree " + name, this),
@@ -505,7 +499,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
                 final CellBTreeBucketSingleValueV1<K> keyBucket =
                     new CellBTreeBucketSingleValueV1<>(keyBucketCacheEntry);
                 final byte[] rawRemovedValue =
-                    keyBucket.getRawValue(bucketSearchResult.itemIndex, encryption, keySerializer);
+                    keyBucket.getRawValue(bucketSearchResult.itemIndex, keySerializer);
 
                 final int clusterId =
                     ShortSerializer.INSTANCE.deserializeNative(rawRemovedValue, 0);
@@ -609,7 +603,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
             loadPageForRead(atomicOperation, fileId, searchResult.pageIndex)) {
           final CellBTreeBucketSingleValueV1<K> bucket =
               new CellBTreeBucketSingleValueV1<>(cacheEntry);
-          return bucket.getKey(searchResult.itemIndex, encryption, keySerializer);
+          return bucket.getKey(searchResult.itemIndex, keySerializer);
         }
       } finally {
         releaseSharedLock();
@@ -641,7 +635,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
             loadPageForRead(atomicOperation, fileId, searchResult.pageIndex)) {
           final CellBTreeBucketSingleValueV1<K> bucket =
               new CellBTreeBucketSingleValueV1<>(cacheEntry);
-          return bucket.getKey(searchResult.itemIndex, encryption, keySerializer);
+          return bucket.getKey(searchResult.itemIndex, keySerializer);
         }
       } finally {
         releaseSharedLock();
@@ -1031,13 +1025,13 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     final int bucketSize = bucketToSplit.size();
 
     final int indexToSplit = bucketSize >>> 1;
-    final K separationKey = bucketToSplit.getKey(indexToSplit, encryption, keySerializer);
+    final K separationKey = bucketToSplit.getKey(indexToSplit, keySerializer);
     final List<byte[]> rightEntries = new ArrayList<>(indexToSplit);
 
     final int startRightIndex = splitLeaf ? indexToSplit : indexToSplit + 1;
 
     for (int i = startRightIndex; i < bucketSize; i++) {
-      rightEntries.add(bucketToSplit.getRawEntry(i, encryption != null, keySerializer));
+      rightEntries.add(bucketToSplit.getRawEntry(i, keySerializer));
     }
 
     if (entryToSplit.getPageIndex() != ROOT_INDEX) {
@@ -1102,9 +1096,9 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
           new CellBTreeBucketSingleValueV1<>(rightBucketEntry);
       newRightBucket.init(splitLeaf);
 
-      newRightBucket.addAll(rightEntries, encryption != null, keySerializer);
+      newRightBucket.addAll(rightEntries);
 
-      bucketToSplit.shrink(indexToSplit, encryption != null, keySerializer);
+      bucketToSplit.shrink(indexToSplit, keySerializer);
 
       if (splitLeaf) {
         final long rightSiblingPageIndex = bucketToSplit.getRightSibling();
@@ -1193,18 +1187,8 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
   }
 
   private byte[] serializeKey(K separationKey) {
-    final byte[] serializedKey =
+    return
         keySerializer.serializeNativeAsWhole(separationKey, (Object[]) keyTypes);
-    final byte[] rawKey;
-    if (encryption == null) {
-      rawKey = serializedKey;
-    } else {
-      final byte[] encryptedKey = encryption.encrypt(serializedKey);
-      rawKey = new byte[encryptedKey.length + IntegerSerializer.INT_SIZE];
-      IntegerSerializer.INSTANCE.serializeNative(encryptedKey.length, rawKey, 0);
-      System.arraycopy(encryptedKey, 0, rawKey, IntegerSerializer.INT_SIZE, encryptedKey.length);
-    }
-    return rawKey;
   }
 
   private UpdateBucketSearchResult splitRootBucket(
@@ -1220,7 +1204,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     final List<byte[]> leftEntries = new ArrayList<>(indexToSplit);
 
     for (int i = 0; i < indexToSplit; i++) {
-      leftEntries.add(bucketToSplit.getRawEntry(i, encryption != null, keySerializer));
+      leftEntries.add(bucketToSplit.getRawEntry(i, keySerializer));
     }
 
     final CacheEntry leftBucketEntry;
@@ -1260,7 +1244,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
           new CellBTreeBucketSingleValueV1<>(leftBucketEntry);
       newLeftBucket.init(splitLeaf);
 
-      newLeftBucket.addAll(leftEntries, encryption != null, keySerializer);
+      newLeftBucket.addAll(leftEntries);
 
       if (splitLeaf) {
         newLeftBucket.setRightSibling(rightBucketEntry.getPageIndex());
@@ -1275,7 +1259,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
           new CellBTreeBucketSingleValueV1<>(rightBucketEntry);
       newRightBucket.init(splitLeaf);
 
-      newRightBucket.addAll(rightEntries, encryption != null, keySerializer);
+      newRightBucket.addAll(rightEntries);
 
       if (splitLeaf) {
         newRightBucket.setLeftSibling(leftBucketEntry.getPageIndex());
@@ -1285,7 +1269,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     }
 
     bucketToSplit = new CellBTreeBucketSingleValueV1<>(bucketEntry);
-    bucketToSplit.shrink(0, encryption != null, keySerializer);
+    bucketToSplit.shrink(0, keySerializer);
     if (splitLeaf) {
       bucketToSplit.switchBucketType();
     }
@@ -1339,7 +1323,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
       try (final CacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
         @SuppressWarnings("ObjectAllocationInLoop") final CellBTreeBucketSingleValueV1<K> keyBucket =
             new CellBTreeBucketSingleValueV1<>(bucketEntry);
-        final int index = keyBucket.find(key, keySerializer, encryption);
+        final int index = keyBucket.find(key, keySerializer);
 
         if (keyBucket.isLeaf()) {
           return new BucketSearchResult(index, pageIndex);
@@ -1378,7 +1362,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
       try (final CacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
         @SuppressWarnings("ObjectAllocationInLoop") final CellBTreeBucketSingleValueV1<K> keyBucket =
             new CellBTreeBucketSingleValueV1<>(bucketEntry);
-        final int index = keyBucket.find(key, keySerializer, encryption);
+        final int index = keyBucket.find(key, keySerializer);
 
         if (keyBucket.isLeaf()) {
           itemIndexes.add(index);
@@ -1594,7 +1578,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
 
               while (itemIndex < bucketSize && dataCache.size() < prefetchSize) {
                 @SuppressWarnings("ObjectAllocationInLoop") final RawPair<K, RID> entry =
-                    convertToMapEntry(bucket.getEntry(itemIndex, encryption, keySerializer));
+                    convertToMapEntry(bucket.getEntry(itemIndex, keySerializer));
                 itemIndex++;
 
                 if (fromKey != null) {
@@ -1766,7 +1750,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
 
               while (itemIndex >= 0 && dataCache.size() < prefetchSize) {
                 @SuppressWarnings("ObjectAllocationInLoop") final RawPair<K, RID> entry =
-                    convertToMapEntry(bucket.getEntry(itemIndex, encryption, keySerializer));
+                    convertToMapEntry(bucket.getEntry(itemIndex, keySerializer));
                 itemIndex--;
 
                 if (toKey != null) {

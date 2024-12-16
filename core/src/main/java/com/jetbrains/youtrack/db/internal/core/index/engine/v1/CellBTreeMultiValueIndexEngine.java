@@ -8,7 +8,6 @@ import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySeria
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.encryption.Encryption;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
@@ -104,12 +103,10 @@ public final class CellBTreeMultiValueIndexEngine
 
     BinarySerializer keySerializer = storage.resolveObjectSerializer(data.getKeySerializedId());
 
-    final Encryption encryption =
-        AbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
     try {
       if (mvTree != null) {
         mvTree.create(
-            keySerializer, data.getKeyTypes(), data.getKeySize(), encryption, atomicOperation);
+            keySerializer, data.getKeyTypes(), data.getKeySize(), atomicOperation);
       } else {
         final PropertyType[] sbTypes = calculateTypes(data.getKeyTypes());
         assert svTree != null;
@@ -119,11 +116,11 @@ public final class CellBTreeMultiValueIndexEngine
             atomicOperation,
             new IndexMultiValuKeySerializer(),
             sbTypes,
-            data.getKeySize() + 1,
-            encryption);
+            data.getKeySize() + 1
+        );
         nullTree.create(
             atomicOperation, CompactedLinkSerializer.INSTANCE,
-            new PropertyType[]{PropertyType.LINK}, 1, null);
+            new PropertyType[]{PropertyType.LINK}, 1);
       }
     } catch (IOException e) {
       throw BaseException.wrapException(
@@ -228,8 +225,6 @@ public final class CellBTreeMultiValueIndexEngine
 
   @Override
   public void load(IndexEngineData data) {
-    final Encryption encryption =
-        AbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
 
     String name = data.getName();
     int keySize = data.getKeySize();
@@ -238,17 +233,17 @@ public final class CellBTreeMultiValueIndexEngine
 
     if (mvTree != null) {
       //noinspection unchecked
-      mvTree.load(name, keySize, keyTypes, keySerializer, encryption);
+      mvTree.load(name, keySize, keyTypes, keySerializer);
     } else {
       assert svTree != null;
       assert nullTree != null;
 
       final PropertyType[] sbTypes = calculateTypes(keyTypes);
 
-      svTree.load(name, keySize + 1, sbTypes, new IndexMultiValuKeySerializer(), null);
+      svTree.load(name, keySize + 1, sbTypes, new IndexMultiValuKeySerializer());
       nullTree.load(
-          nullTreeName, 1, new PropertyType[]{PropertyType.LINK}, CompactedLinkSerializer.INSTANCE,
-          null);
+          nullTreeName, 1, new PropertyType[]{PropertyType.LINK}, CompactedLinkSerializer.INSTANCE
+      );
     }
   }
 

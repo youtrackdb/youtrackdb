@@ -25,9 +25,6 @@ public class AlterClassStatementTest extends ParserTestAbstract {
     checkRightSyntax("ALTER CLASS Foo DESCRIPTION bar");
     checkRightSyntax("ALTER CLASS Foo description bar");
 
-    checkRightSyntax("ALTER CLASS Foo ENCRYPTION des");
-    checkRightSyntax("ALTER CLASS Foo encryption des");
-
     checkRightSyntax("ALTER CLASS Foo CLUSTER_SELECTION default");
 
     checkRightSyntax("ALTER CLASS Foo CLUSTER_SELECTION round-robin");
@@ -60,8 +57,6 @@ public class AlterClassStatementTest extends ParserTestAbstract {
     checkRightSyntax("ALTER CLASS Foo CUSTOM bar=baz");
     checkRightSyntax("ALTER CLASS Foo custom bar=baz");
     checkRightSyntax("ALTER CLASS Foo CUSTOM bar = baz");
-
-    checkRightSyntax("alter class polymorpicIdsPropagation remove_cluster 436");
 
     checkRightSyntax("ALTER CLASS Person CUSTOM `onCreate.identityType`=role");
 

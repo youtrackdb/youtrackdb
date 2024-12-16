@@ -20,18 +20,17 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.engine;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.encryption.Encryption;
-import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.core.index.IndexException;
 import com.jetbrains.youtrack.db.internal.core.index.IndexKeyUpdater;
 import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
 import com.jetbrains.youtrack.db.internal.core.index.IndexUpdateAction;
-import com.jetbrains.youtrack.db.internal.core.index.IndexException;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngine;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValidator;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValuesTransformer;
@@ -39,9 +38,8 @@ import com.jetbrains.youtrack.db.internal.core.iterator.EmptyIterator;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.HashFunction;
-import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.MurmurHash3HashFunction;
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.HashTable;
-import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.SHA256HashFunction;
+import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.MurmurHash3HashFunction;
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v2.LocalHashTableV2;
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v3.LocalHashTableV3;
 import com.jetbrains.youtrack.db.internal.core.storage.index.versionmap.VersionPositionMap;
@@ -131,22 +129,14 @@ public final class HashTableIndexEngine implements IndexEngine {
         storage.resolveObjectSerializer(data.getValueSerializerId());
     BinarySerializer keySerializer = storage.resolveObjectSerializer(data.getKeySerializedId());
 
-    final Encryption encryption =
-        AbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
     final HashFunction<Object> hashFunction;
-
-    if (encryption != null) {
-      hashFunction = new SHA256HashFunction<>(keySerializer);
-    } else {
-      hashFunction = new MurmurHash3HashFunction<>(keySerializer);
-    }
+    hashFunction = new MurmurHash3HashFunction<>(keySerializer);
 
     hashTable.create(
         atomicOperation,
         keySerializer,
         valueSerializer,
         data.getKeyTypes(),
-        encryption,
         hashFunction,
         data.isNullValuesSupport());
     versionPositionMap.create(atomicOperation);
@@ -206,24 +196,15 @@ public final class HashTableIndexEngine implements IndexEngine {
     BinarySerializer valueSerializer =
         storage.resolveObjectSerializer(data.getValueSerializerId());
 
-    final Encryption encryption =
-        AbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
-
     final HashFunction<Object> hashFunction;
 
-    if (encryption != null) {
-      //noinspection unchecked
-      hashFunction = new SHA256HashFunction<>(keySerializer);
-    } else {
-      //noinspection unchecked
-      hashFunction = new MurmurHash3HashFunction<>(keySerializer);
-    }
+    //noinspection unchecked
+    hashFunction = new MurmurHash3HashFunction<>(keySerializer);
     //noinspection unchecked
     hashTable.load(
         data.getName(),
         data.getKeyTypes(),
         data.isNullValuesSupport(),
-        encryption,
         hashFunction,
         keySerializer,
         valueSerializer);

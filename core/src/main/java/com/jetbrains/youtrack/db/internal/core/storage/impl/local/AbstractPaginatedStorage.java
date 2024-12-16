@@ -78,9 +78,6 @@ import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.CurrentStorageComponentsFactory;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBagDeleter;
-import com.jetbrains.youtrack.db.internal.core.encryption.Encryption;
-import com.jetbrains.youtrack.db.internal.core.encryption.EncryptionFactory;
-import com.jetbrains.youtrack.db.internal.core.encryption.impl.NothingEncryption;
 import com.jetbrains.youtrack.db.internal.core.exception.FastConcurrentModificationException;
 import com.jetbrains.youtrack.db.internal.core.exception.InternalErrorException;
 import com.jetbrains.youtrack.db.internal.core.exception.InvalidIndexEngineIdException;
@@ -1411,33 +1408,6 @@ public abstract class AbstractPaginatedStorage
   }
 
   @Override
-  public String getClusterEncryption(int clusterId) {
-    try {
-      stateLock.readLock().lock();
-      try {
-
-        checkOpennessAndMigration();
-
-        checkClusterId(clusterId);
-        final StorageCluster cluster = clusters.get(clusterId);
-        if (cluster == null) {
-          throwClusterDoesNotExist(clusterId);
-        }
-
-        return cluster.encryption();
-      } finally {
-        stateLock.readLock().unlock();
-      }
-    } catch (final RuntimeException ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Error ee) {
-      throw logAndPrepareForRethrow(ee, false);
-    } catch (final Throwable t) {
-      throw logAndPrepareForRethrow(t, false);
-    }
-  }
-
-  @Override
   public boolean isSystemCluster(int clusterId) {
     try {
       stateLock.readLock().lock();
@@ -2677,16 +2647,6 @@ public abstract class AbstractPaginatedStorage
     return componentsFactory.binarySerializerFactory.getObjectSerializer(serializerId);
   }
 
-  public static Encryption loadEncryption(
-      final String cfgEncryption, final String cfgEncryptionKey) {
-    final Encryption encryption;
-    if (cfgEncryption == null || cfgEncryption.equalsIgnoreCase(NothingEncryption.NAME)) {
-      encryption = null;
-    } else {
-      encryption = EncryptionFactory.INSTANCE.getEncryption(cfgEncryption, cfgEncryptionKey);
-    }
-    return encryption;
-  }
 
   private static int generateIndexId(final int internalId, final BaseIndexEngine indexEngine) {
     return indexEngine.getEngineAPIVersion() << (IntegerSerializer.INT_SIZE * 8 - 5) | internalId;
@@ -5119,10 +5079,6 @@ public abstract class AbstractPaginatedStorage
             cluster,
             StorageClusterConfiguration.STATUS.valueOf(stringValue.toUpperCase()));
       }
-      //noinspection deprecation
-      case ENCRYPTION:
-        throw new UnsupportedOperationException(
-            "Encryption should be configured on storage level.");
       default:
         throw new IllegalArgumentException(
             "Runtime change of attribute '" + attribute + "' is not supported");
@@ -5362,7 +5318,7 @@ public abstract class AbstractPaginatedStorage
     {
       return;
     }
-    final RecordId rid = (RecordId) rec.getIdentity();
+    final RecordId rid = rec.getIdentity();
 
     if (txEntry.type == RecordOperation.UPDATED && rid.isNew())
     // OVERWRITE OPERATION AS CREATE

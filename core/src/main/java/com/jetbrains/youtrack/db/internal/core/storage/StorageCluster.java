@@ -31,9 +31,7 @@ public interface StorageCluster {
   enum ATTRIBUTES {
     NAME,
     CONFLICTSTRATEGY,
-    STATUS,
-    @Deprecated
-    ENCRYPTION
+    STATUS
   }
 
   void configure(int iId, String iClusterName) throws IOException;
@@ -53,8 +51,6 @@ public interface StorageCluster {
   void setClusterName(String name);
 
   void setRecordConflictStrategy(String conflictStrategy);
-
-  void setEncryption(String encryptionName, String encryptionKey);
 
   String encryption();
 

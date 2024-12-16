@@ -1,16 +1,16 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v1;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.HighLevelException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
@@ -93,8 +93,8 @@ public class SBTreeV1TestIT {
                 LinkSerializer.INSTANCE,
                 null,
                 1,
-                false,
-                null));
+                false
+            ));
   }
 
   @After
@@ -877,8 +877,8 @@ public class SBTreeV1TestIT {
                 LinkSerializer.INSTANCE,
                 null,
                 1,
-                true,
-                null));
+                true
+            ));
 
     try {
       for (int i = 0; i < 10; i++) {

@@ -2,15 +2,14 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.StorageEntryConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -101,11 +100,6 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
                 ? null
                 : cluster.getRecordConflictStrategy().getName());
         item.setProperty("tombstonesCount", cluster.getTombstonesCount());
-        try {
-          item.setProperty("encryption", cluster.encryption());
-        } catch (Exception e) {
-          LogManager.instance().error(this, "Can not set value of encryption parameter", e);
-        }
         result.add(item);
       }
     }

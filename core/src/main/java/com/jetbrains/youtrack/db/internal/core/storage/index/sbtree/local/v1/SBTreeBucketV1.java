@@ -27,7 +27,6 @@ import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySeria
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
-import com.jetbrains.youtrack.db.internal.core.encryption.Encryption;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
 import java.util.ArrayList;
@@ -108,13 +107,13 @@ public final class SBTreeBucketV1<K, V> extends DurablePage {
   }
 
   public int find(
-      final K key, final Encryption encryption, final BinarySerializer<K> keySerializer) {
+      final K key, final BinarySerializer<K> keySerializer) {
     int low = 0;
     int high = size() - 1;
 
     while (low <= high) {
       int mid = (low + high) >>> 1;
-      K midVal = getKey(mid, encryption, keySerializer);
+      K midVal = getKey(mid, keySerializer);
       int cmp = comparator.compare(midVal, key);
 
       if (cmp < 0) {
@@ -224,29 +223,14 @@ public final class SBTreeBucketV1<K, V> extends DurablePage {
 
   public SBTreeEntry<K, V> getEntry(
       final int entryIndex,
-      final Encryption encryption,
       final BinarySerializer<K> keySerializer,
       final BinarySerializer<V> valueSerializer) {
     int entryPosition =
         getIntValue(entryIndex * IntegerSerializer.INT_SIZE + POSITIONS_ARRAY_OFFSET);
 
     if (isLeaf()) {
-      K key;
-      if (encryption == null) {
-        key = deserializeFromDirectMemory(keySerializer, entryPosition);
-
-        entryPosition += getObjectSizeInDirectMemory(keySerializer, entryPosition);
-      } else {
-        final int encryptionSize = getIntValue(entryPosition);
-        entryPosition += IntegerSerializer.INT_SIZE;
-
-        final byte[] encryptedKey = getBinaryValue(entryPosition, encryptionSize);
-        entryPosition += encryptedKey.length;
-
-        final byte[] serializedKey = encryption.decrypt(encryptedKey);
-
-        key = keySerializer.deserializeNativeObject(serializedKey, 0);
-      }
+      K key = deserializeFromDirectMemory(keySerializer, entryPosition);
+      entryPosition += getObjectSizeInDirectMemory(keySerializer, entryPosition);
 
       assert getByteValue(entryPosition) == 0;
       final V value =
@@ -260,28 +244,13 @@ public final class SBTreeBucketV1<K, V> extends DurablePage {
       long rightChild = getLongValue(entryPosition);
       entryPosition += LongSerializer.LONG_SIZE;
 
-      K key;
-
-      if (encryption == null) {
-        key = deserializeFromDirectMemory(keySerializer, entryPosition);
-      } else {
-        final int encryptionSize = getIntValue(entryPosition);
-        entryPosition += IntegerSerializer.INT_SIZE;
-
-        final byte[] encryptedKey = getBinaryValue(entryPosition, encryptionSize);
-
-        final byte[] serializedKey = encryption.decrypt(encryptedKey);
-
-        key = keySerializer.deserializeNativeObject(serializedKey, 0);
-      }
-
+      K key = deserializeFromDirectMemory(keySerializer, entryPosition);
       return new SBTreeEntry<>(leftChild, rightChild, key, null);
     }
   }
 
   public byte[] getRawEntry(
       final int entryIndex,
-      final boolean isEncrypted,
       final BinarySerializer<K> keySerializer,
       final BinarySerializer<V> valueSerializer) {
     int entryPosition =
@@ -290,12 +259,7 @@ public final class SBTreeBucketV1<K, V> extends DurablePage {
 
     if (isLeaf()) {
       final int keySize;
-      if (!isEncrypted) {
-        keySize = getObjectSizeInDirectMemory(keySerializer, entryPosition);
-      } else {
-        final int encryptedSize = getIntValue(entryPosition);
-        keySize = IntegerSerializer.INT_SIZE + encryptedSize;
-      }
+      keySize = getObjectSizeInDirectMemory(keySerializer, entryPosition);
 
       entryPosition += keySize;
 
@@ -307,14 +271,7 @@ public final class SBTreeBucketV1<K, V> extends DurablePage {
       return getBinaryValue(startEntryPosition, keySize + valueSize + ByteSerializer.BYTE_SIZE);
     } else {
       entryPosition += 2 * LongSerializer.LONG_SIZE;
-
-      final int keySize;
-      if (!isEncrypted) {
-        keySize = getObjectSizeInDirectMemory(keySerializer, entryPosition);
-      } else {
-        final int encryptedSize = getIntValue(entryPosition);
-        keySize = IntegerSerializer.INT_SIZE + encryptedSize;
-      }
+      final int keySize = getObjectSizeInDirectMemory(keySerializer, entryPosition);
 
       return getBinaryValue(startEntryPosition, keySize + 2 * LongSerializer.LONG_SIZE);
     }
@@ -353,21 +310,13 @@ public final class SBTreeBucketV1<K, V> extends DurablePage {
 
   byte[] getRawValue(
       final int entryIndex,
-      final boolean isEncrypted,
       final BinarySerializer<K> keySerializer,
       final BinarySerializer<V> valueSerializer) {
     assert isLeaf();
 
     int entryPosition =
         getIntValue(entryIndex * IntegerSerializer.INT_SIZE + POSITIONS_ARRAY_OFFSET);
-
-    // skip key
-    if (!isEncrypted) {
-      entryPosition += getObjectSizeInDirectMemory(keySerializer, entryPosition);
-    } else {
-      final int encryptedSize = getIntValue(entryPosition);
-      entryPosition += IntegerSerializer.INT_SIZE + encryptedSize;
-    }
+    entryPosition += getObjectSizeInDirectMemory(keySerializer, entryPosition);
 
     assert getByteValue(entryPosition) == 0;
 
@@ -396,23 +345,14 @@ public final class SBTreeBucketV1<K, V> extends DurablePage {
   }
 
   public K getKey(
-      final int index, final Encryption encryption, final BinarySerializer<K> keySerializer) {
+      final int index, final BinarySerializer<K> keySerializer) {
     int entryPosition = getIntValue(index * IntegerSerializer.INT_SIZE + POSITIONS_ARRAY_OFFSET);
 
     if (!isLeaf()) {
       entryPosition += 2 * LongSerializer.LONG_SIZE;
     }
 
-    if (encryption == null) {
-      return deserializeFromDirectMemory(keySerializer, entryPosition);
-    } else {
-      final int encryptedSize = getIntValue(entryPosition);
-      entryPosition += IntegerSerializer.INT_SIZE;
-
-      final byte[] encryptedKey = getBinaryValue(entryPosition, encryptedSize);
-      final byte[] serializedKey = encryption.decrypt(encryptedKey);
-      return keySerializer.deserializeNativeObject(serializedKey, 0);
-    }
+    return deserializeFromDirectMemory(keySerializer, entryPosition);
   }
 
   public boolean isLeaf() {
@@ -420,10 +360,7 @@ public final class SBTreeBucketV1<K, V> extends DurablePage {
   }
 
   public void addAll(
-      final List<byte[]> rawEntries,
-      final boolean isEncrypted,
-      final BinarySerializer<K> keySerializer,
-      final BinarySerializer<V> valueSerializer) {
+      final List<byte[]> rawEntries) {
     final int currentSize = size();
     for (int i = 0; i < rawEntries.size(); i++) {
       appendRawEntry(i + currentSize, rawEntries.get(i));
@@ -434,13 +371,12 @@ public final class SBTreeBucketV1<K, V> extends DurablePage {
 
   public void shrink(
       final int newSize,
-      final boolean isEncrypted,
       final BinarySerializer<K> keySerializer,
       final BinarySerializer<V> valueSerializer) {
     final List<byte[]> rawEntries = new ArrayList<>(newSize);
 
     for (int i = 0; i < newSize; i++) {
-      rawEntries.add(getRawEntry(i, isEncrypted, keySerializer, valueSerializer));
+      rawEntries.add(getRawEntry(i, keySerializer, valueSerializer));
     }
 
     final int oldSize = getIntValue(SIZE_OFFSET);
@@ -451,7 +387,7 @@ public final class SBTreeBucketV1<K, V> extends DurablePage {
       removedEntries = new ArrayList<>(oldSize - newSize);
 
       for (int i = newSize; i < oldSize; i++) {
-        removedEntries.add(getRawEntry(i, isEncrypted, keySerializer, valueSerializer));
+        removedEntries.add(getRawEntry(i, keySerializer, valueSerializer));
       }
     }
 

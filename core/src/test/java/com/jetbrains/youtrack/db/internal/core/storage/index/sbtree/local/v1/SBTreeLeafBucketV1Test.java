@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v1;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
 import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator.Intention;
 import com.jetbrains.youtrack.db.internal.common.directmemory.Pointer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
@@ -90,7 +90,7 @@ public class SBTreeLeafBucketV1Test {
     Assert.assertEquals(treeBucket.size(), keyIndexMap.size());
 
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
-      int bucketIndex = treeBucket.find(keyIndexEntry.getKey(), null, LongSerializer.INSTANCE);
+      int bucketIndex = treeBucket.find(keyIndexEntry.getKey(), LongSerializer.INSTANCE);
       Assert.assertEquals(bucketIndex, (int) keyIndexEntry.getValue());
     }
 
@@ -148,7 +148,7 @@ public class SBTreeLeafBucketV1Test {
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
       SBTreeBucketV1.SBTreeEntry<Long, Identifiable> entry =
           treeBucket.getEntry(
-              keyIndexEntry.getValue(), null, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
+              keyIndexEntry.getValue(), LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
 
       Assert.assertEquals(
           entry,
@@ -162,7 +162,7 @@ public class SBTreeLeafBucketV1Test {
                   new RecordId(keyIndexEntry.getValue() + 5, keyIndexEntry.getValue() + 5))));
       Assert.assertEquals(
           keyIndexEntry.getKey(),
-          treeBucket.getKey(keyIndexEntry.getValue(), null, LongSerializer.INSTANCE));
+          treeBucket.getKey(keyIndexEntry.getValue(), LongSerializer.INSTANCE));
     }
 
     cacheEntry.releaseExclusiveLock();
@@ -208,7 +208,7 @@ public class SBTreeLeafBucketV1Test {
     int originalSize = treeBucket.size();
 
     treeBucket.shrink(
-        treeBucket.size() / 2, false, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
+        treeBucket.size() / 2, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
     Assert.assertEquals(treeBucket.size(), index / 2);
 
     index = 0;
@@ -222,7 +222,7 @@ public class SBTreeLeafBucketV1Test {
     }
 
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
-      int bucketIndex = treeBucket.find(keyIndexEntry.getKey(), null, LongSerializer.INSTANCE);
+      int bucketIndex = treeBucket.find(keyIndexEntry.getKey(), LongSerializer.INSTANCE);
       Assert.assertEquals(bucketIndex, (int) keyIndexEntry.getValue());
     }
 
@@ -246,7 +246,7 @@ public class SBTreeLeafBucketV1Test {
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
       SBTreeBucketV1.SBTreeEntry<Long, Identifiable> entry =
           treeBucket.getEntry(
-              keyIndexEntry.getValue(), null, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
+              keyIndexEntry.getValue(), LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
 
       Assert.assertEquals(
           entry,
@@ -307,7 +307,7 @@ public class SBTreeLeafBucketV1Test {
     for (int i = 0; i < itemsToDelete; i++) {
       final byte[] rawKey = treeBucket.getRawKey(i, false, LongSerializer.INSTANCE);
       final byte[] rawValue =
-          treeBucket.getRawValue(i, false, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
+          treeBucket.getRawValue(i, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
 
       treeBucket.removeLeafEntry(treeBucket.size() - 1, rawKey, rawValue);
     }
@@ -325,7 +325,7 @@ public class SBTreeLeafBucketV1Test {
     }
 
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
-      int bucketIndex = treeBucket.find(keyIndexEntry.getKey(), null, LongSerializer.INSTANCE);
+      int bucketIndex = treeBucket.find(keyIndexEntry.getKey(), LongSerializer.INSTANCE);
       Assert.assertEquals(bucketIndex, (int) keyIndexEntry.getValue());
     }
 
@@ -349,7 +349,7 @@ public class SBTreeLeafBucketV1Test {
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
       final SBTreeBucketV1.SBTreeEntry<Long, Identifiable> entry =
           treeBucket.getEntry(
-              keyIndexEntry.getValue(), null, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
+              keyIndexEntry.getValue(), LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
       Assert.assertEquals(
           entry,
           new SBTreeBucketV1.SBTreeEntry<>(

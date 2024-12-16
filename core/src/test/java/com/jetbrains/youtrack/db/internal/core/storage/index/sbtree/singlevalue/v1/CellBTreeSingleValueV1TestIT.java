@@ -63,7 +63,7 @@ public class CellBTreeSingleValueV1TestIT {
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
         atomicOperation ->
-            singleValueTree.create(atomicOperation, UTF8Serializer.INSTANCE, null, 1, null));
+            singleValueTree.create(atomicOperation, UTF8Serializer.INSTANCE, null, 1));
   }
 
   @After

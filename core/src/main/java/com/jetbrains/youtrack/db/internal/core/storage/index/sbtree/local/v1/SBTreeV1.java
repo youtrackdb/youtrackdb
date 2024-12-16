@@ -20,14 +20,13 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v1;
 
-import com.jetbrains.youtrack.db.internal.common.comparator.DefaultComparator;
-import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
-import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.encryption.Encryption;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.TooBigIndexKeyException;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.common.comparator.DefaultComparator;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.IndexKeyUpdater;
 import com.jetbrains.youtrack.db.internal.core.index.IndexUpdateAction;
@@ -35,12 +34,11 @@ import com.jetbrains.youtrack.db.internal.core.index.comparator.AlwaysGreaterKey
 import com.jetbrains.youtrack.db.internal.core.index.comparator.AlwaysLessKey;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValidator;
 import com.jetbrains.youtrack.db.internal.core.iterator.EmptyIterator;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurableComponent;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.SBTree;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import java.io.IOException;
@@ -112,7 +110,6 @@ public final class SBTreeV1<K, V> extends DurableComponent
   private BinarySerializer<V> valueSerializer;
   private boolean nullPointerSupport;
   private final AtomicLong bonsayFileId = new AtomicLong(0);
-  private Encryption encryption;
 
   public SBTreeV1(
       final String name,
@@ -135,8 +132,7 @@ public final class SBTreeV1<K, V> extends DurableComponent
       final BinarySerializer<V> valueSerializer,
       final PropertyType[] keyTypes,
       final int keySize,
-      final boolean nullPointerSupport,
-      final Encryption encryption) {
+      final boolean nullPointerSupport) {
     assert keySerializer != null;
 
     executeInsideComponentOperation(
@@ -150,8 +146,6 @@ public final class SBTreeV1<K, V> extends DurableComponent
             } else {
               this.keyTypes = null;
             }
-
-            this.encryption = encryption;
             this.keySerializer = keySerializer;
 
             this.valueSerializer = valueSerializer;
@@ -208,7 +202,7 @@ public final class SBTreeV1<K, V> extends DurableComponent
 
             final SBTreeBucketV1.SBTreeEntry<K, V> treeEntry =
                 keyBucket.getEntry(
-                    bucketSearchResult.itemIndex, encryption, keySerializer, valueSerializer);
+                    bucketSearchResult.itemIndex, keySerializer, valueSerializer);
             return treeEntry.value.getValue();
           }
         } else {
@@ -302,7 +296,6 @@ public final class SBTreeV1<K, V> extends DurableComponent
                 oldRawValue =
                     keyBucket.getRawValue(
                         bucketSearchResult.itemIndex,
-                        encryption != null,
                         keySerializer,
                         valueSerializer);
               } else {
@@ -465,20 +458,7 @@ public final class SBTreeV1<K, V> extends DurableComponent
   }
 
   private byte[] serializeKey(final K key) {
-    final byte[] serializedKey = keySerializer.serializeNativeAsWhole(key, (Object[]) keyTypes);
-    final byte[] rawKey;
-
-    if (encryption == null) {
-      rawKey = serializedKey;
-    } else {
-      final byte[] encryptedKey = encryption.encrypt(serializedKey);
-
-      rawKey = new byte[IntegerSerializer.INT_SIZE + encryptedKey.length];
-      IntegerSerializer.INSTANCE.serializeNative(encryptedKey.length, rawKey, 0);
-      System.arraycopy(encryptedKey, 0, rawKey, IntegerSerializer.INT_SIZE, encryptedKey.length);
-    }
-
-    return rawKey;
+    return keySerializer.serializeNativeAsWhole(key, (Object[]) keyTypes);
   }
 
   @Override
@@ -526,8 +506,7 @@ public final class SBTreeV1<K, V> extends DurableComponent
       final BinarySerializer<V> valueSerializer,
       final PropertyType[] keyTypes,
       final int keySize,
-      final boolean nullPointerSupport,
-      final Encryption encryption) {
+      final boolean nullPointerSupport) {
     acquireExclusiveLock();
     try {
       this.keySize = keySize;
@@ -537,9 +516,7 @@ public final class SBTreeV1<K, V> extends DurableComponent
         this.keyTypes = null;
       }
 
-      this.encryption = encryption;
       this.nullPointerSupport = nullPointerSupport;
-
       final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
 
       fileId = openFile(atomicOperation, getFullName());
@@ -649,7 +626,7 @@ public final class SBTreeV1<K, V> extends DurableComponent
 
       removedValue =
           keyBucket.getRawValue(
-              bucketSearchResult.itemIndex, encryption != null, keySerializer, valueSerializer);
+              bucketSearchResult.itemIndex, keySerializer, valueSerializer);
       keyBucket.removeLeafEntry(bucketSearchResult.itemIndex, key, removedValue);
     }
 
@@ -695,7 +672,7 @@ public final class SBTreeV1<K, V> extends DurableComponent
         try (final CacheEntry cacheEntry =
             loadPageForRead(atomicOperation, fileId, searchResult.getLastPathItem())) {
           final SBTreeBucketV1<K, V> bucket = new SBTreeBucketV1<>(cacheEntry);
-          return bucket.getKey(searchResult.itemIndex, encryption, keySerializer);
+          return bucket.getKey(searchResult.itemIndex, keySerializer);
         }
       } finally {
         releaseSharedLock();
@@ -726,7 +703,7 @@ public final class SBTreeV1<K, V> extends DurableComponent
         try (final CacheEntry cacheEntry =
             loadPageForRead(atomicOperation, fileId, searchResult.getLastPathItem())) {
           final SBTreeBucketV1<K, V> bucket = new SBTreeBucketV1<>(cacheEntry);
-          return bucket.getKey(searchResult.itemIndex, encryption, keySerializer);
+          return bucket.getKey(searchResult.itemIndex, keySerializer);
         }
       } finally {
         releaseSharedLock();
@@ -927,11 +904,11 @@ public final class SBTreeV1<K, V> extends DurableComponent
 
             if (itemIndex < bucket.size()) {
               @SuppressWarnings("ObjectAllocationInLoop") final SBTreeBucketV1.SBTreeEntry<K, V> entry =
-                  bucket.getEntry(itemIndex, encryption, keySerializer, valueSerializer);
+                  bucket.getEntry(itemIndex, keySerializer, valueSerializer);
               bucketIndex = entry.leftChild;
             } else {
               @SuppressWarnings("ObjectAllocationInLoop") final SBTreeBucketV1.SBTreeEntry<K, V> entry =
-                  bucket.getEntry(itemIndex - 1, encryption, keySerializer, valueSerializer);
+                  bucket.getEntry(itemIndex - 1, keySerializer, valueSerializer);
               bucketIndex = entry.rightChild;
             }
 
@@ -998,11 +975,11 @@ public final class SBTreeV1<K, V> extends DurableComponent
 
             if (itemIndex > -1) {
               @SuppressWarnings("ObjectAllocationInLoop") final SBTreeBucketV1.SBTreeEntry<K, V> entry =
-                  bucket.getEntry(itemIndex, encryption, keySerializer, valueSerializer);
+                  bucket.getEntry(itemIndex, keySerializer, valueSerializer);
               bucketIndex = entry.rightChild;
             } else {
               @SuppressWarnings("ObjectAllocationInLoop") final SBTreeBucketV1.SBTreeEntry<K, V> entry =
-                  bucket.getEntry(0, encryption, keySerializer, valueSerializer);
+                  bucket.getEntry(0, keySerializer, valueSerializer);
               bucketIndex = entry.leftChild;
             }
 
@@ -1131,14 +1108,14 @@ public final class SBTreeV1<K, V> extends DurableComponent
       final int bucketSize = bucketToSplit.size();
 
       final int indexToSplit = bucketSize >>> 1;
-      final K separationKey = bucketToSplit.getKey(indexToSplit, encryption, keySerializer);
+      final K separationKey = bucketToSplit.getKey(indexToSplit, keySerializer);
       final List<byte[]> rightEntries = new ArrayList<>(indexToSplit);
 
       final int startRightIndex = splitLeaf ? indexToSplit : indexToSplit + 1;
 
       for (int i = startRightIndex; i < bucketSize; i++) {
         rightEntries.add(
-            bucketToSplit.getRawEntry(i, encryption != null, keySerializer, valueSerializer));
+            bucketToSplit.getRawEntry(i, keySerializer, valueSerializer));
       }
 
       if (pageIndex != ROOT_INDEX) {
@@ -1187,9 +1164,9 @@ public final class SBTreeV1<K, V> extends DurableComponent
       rightPageIndex = rightBucketEntry.getPageIndex();
       final SBTreeBucketV1<K, V> newRightBucket = new SBTreeBucketV1<>(rightBucketEntry);
       newRightBucket.init(splitLeaf);
-      newRightBucket.addAll(rightEntries, encryption != null, keySerializer, valueSerializer);
+      newRightBucket.addAll(rightEntries);
 
-      bucketToSplit.shrink(indexToSplit, encryption != null, keySerializer, valueSerializer);
+      bucketToSplit.shrink(indexToSplit, keySerializer, valueSerializer);
       if (splitLeaf) {
         final long rightSiblingPageIndex = bucketToSplit.getRightSibling();
 
@@ -1213,7 +1190,7 @@ public final class SBTreeV1<K, V> extends DurableComponent
       CacheEntry parentCacheEntry = loadPageForWrite(atomicOperation, fileId, parentIndex, true);
       try {
         SBTreeBucketV1<K, V> parentBucket = new SBTreeBucketV1<>(parentCacheEntry);
-        int insertionIndex = parentBucket.find(separationKey, encryption, keySerializer);
+        int insertionIndex = parentBucket.find(separationKey, keySerializer);
         assert insertionIndex < 0;
 
         insertionIndex = -insertionIndex - 1;
@@ -1273,7 +1250,7 @@ public final class SBTreeV1<K, V> extends DurableComponent
 
     for (int i = 0; i < indexToSplit; i++) {
       leftEntries.add(
-          bucketToSplit.getRawEntry(i, encryption != null, keySerializer, valueSerializer));
+          bucketToSplit.getRawEntry(i, keySerializer, valueSerializer));
     }
 
     final CacheEntry rightBucketEntry = addPage(atomicOperation, fileId);
@@ -1285,7 +1262,7 @@ public final class SBTreeV1<K, V> extends DurableComponent
       leftBucketIndex = leftBucketEntry.getPageIndex();
       final SBTreeBucketV1<K, V> newLeftBucket = new SBTreeBucketV1<>(leftBucketEntry);
       newLeftBucket.init(splitLeaf);
-      newLeftBucket.addAll(leftEntries, encryption != null, keySerializer, valueSerializer);
+      newLeftBucket.addAll(leftEntries);
 
       if (splitLeaf) {
         newLeftBucket.setRightSibling(rightBucketEntry.getPageIndex());
@@ -1295,7 +1272,7 @@ public final class SBTreeV1<K, V> extends DurableComponent
     try (CacheEntry entry = rightBucketEntry) {
       final SBTreeBucketV1<K, V> newRightBucket = new SBTreeBucketV1<>(entry);
       newRightBucket.init(splitLeaf);
-      newRightBucket.addAll(rightEntries, encryption != null, keySerializer, valueSerializer);
+      newRightBucket.addAll(rightEntries);
 
       if (splitLeaf) {
         newRightBucket.setLeftSibling(leftBucketIndex);
@@ -1305,7 +1282,7 @@ public final class SBTreeV1<K, V> extends DurableComponent
     }
 
     bucketToSplit = new SBTreeBucketV1<>(bucketEntry);
-    bucketToSplit.shrink(0, encryption != null, keySerializer, valueSerializer);
+    bucketToSplit.shrink(0, keySerializer, valueSerializer);
     if (splitLeaf) {
       bucketToSplit.switchBucketType();
     }
@@ -1349,7 +1326,7 @@ public final class SBTreeV1<K, V> extends DurableComponent
       try (final CacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
         @SuppressWarnings("ObjectAllocationInLoop") final SBTreeBucketV1<K, V> keyBucket = new SBTreeBucketV1<>(
             bucketEntry);
-        final int index = keyBucket.find(key, encryption, keySerializer);
+        final int index = keyBucket.find(key, keySerializer);
 
         if (keyBucket.isLeaf()) {
           return new BucketSearchResult(index, path);
@@ -1357,16 +1334,16 @@ public final class SBTreeV1<K, V> extends DurableComponent
 
         if (index >= 0) {
           //noinspection ObjectAllocationInLoop
-          entry = keyBucket.getEntry(index, encryption, keySerializer, valueSerializer);
+          entry = keyBucket.getEntry(index, keySerializer, valueSerializer);
         } else {
           final int insertionIndex = -index - 1;
           if (insertionIndex >= keyBucket.size()) {
             //noinspection ObjectAllocationInLoop
             entry =
-                keyBucket.getEntry(insertionIndex - 1, encryption, keySerializer, valueSerializer);
+                keyBucket.getEntry(insertionIndex - 1, keySerializer, valueSerializer);
           } else {
             //noinspection ObjectAllocationInLoop
-            entry = keyBucket.getEntry(insertionIndex, encryption, keySerializer, valueSerializer);
+            entry = keyBucket.getEntry(insertionIndex, keySerializer, valueSerializer);
           }
         }
       }
@@ -1521,7 +1498,7 @@ public final class SBTreeV1<K, V> extends DurableComponent
               }
 
               @SuppressWarnings("ObjectAllocationInLoop") final K key =
-                  bucket.getEntry(itemIndex, encryption, keySerializer, valueSerializer).key;
+                  bucket.getEntry(itemIndex, keySerializer, valueSerializer).key;
               itemIndex++;
 
               keysCache.add(key);
@@ -1660,7 +1637,7 @@ public final class SBTreeV1<K, V> extends DurableComponent
 
               @SuppressWarnings("ObjectAllocationInLoop") final RawPair<K, V> entry =
                   convertToMapEntry(
-                      bucket.getEntry(itemIndex, encryption, keySerializer, valueSerializer));
+                      bucket.getEntry(itemIndex, keySerializer, valueSerializer));
               itemIndex++;
 
               if (fromKey != null) {
@@ -1828,7 +1805,7 @@ public final class SBTreeV1<K, V> extends DurableComponent
 
               @SuppressWarnings("ObjectAllocationInLoop") final RawPair<K, V> entry =
                   convertToMapEntry(
-                      bucket.getEntry(itemIndex, encryption, keySerializer, valueSerializer));
+                      bucket.getEntry(itemIndex, keySerializer, valueSerializer));
               itemIndex--;
 
               if (toKey != null) {

@@ -93,8 +93,8 @@ public class SBTreeV2TestIT {
                 LinkSerializer.INSTANCE,
                 null,
                 1,
-                false,
-                null));
+                false
+            ));
   }
 
   @After
@@ -867,8 +867,8 @@ public class SBTreeV2TestIT {
                 LinkSerializer.INSTANCE,
                 null,
                 1,
-                true,
-                null));
+                true
+            ));
 
     try {
       for (int i = 0; i < 10; i++) {

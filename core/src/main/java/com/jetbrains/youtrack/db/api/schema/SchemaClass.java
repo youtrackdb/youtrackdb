@@ -45,8 +45,7 @@ public interface SchemaClass extends Comparable<SchemaClass> {
     CUSTOM,
     ABSTRACT,
     CLUSTER_SELECTION,
-    DESCRIPTION,
-    ENCRYPTION
+    DESCRIPTION
   }
 
   enum INDEX_TYPE {

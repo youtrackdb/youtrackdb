@@ -28,7 +28,6 @@ import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.encryption.Encryption;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
 import com.jetbrains.youtrack.db.internal.core.index.IndexKeyUpdater;
 import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
@@ -42,7 +41,6 @@ import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atom
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.HashFunction;
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.HashTable;
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.MurmurHash3HashFunction;
-import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.SHA256HashFunction;
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v2.LocalHashTableV2;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -104,18 +102,11 @@ public final class AutoShardingIndexEngine implements IndexEngine {
         storage.resolveObjectSerializer(data.getValueSerializerId());
     BinarySerializer keySerializer = storage.resolveObjectSerializer(data.getKeySerializedId());
 
-    final Encryption encryption =
-        AbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
-
     this.strategy = new AutoShardingMurmurStrategy(keySerializer);
 
     final HashFunction<Object> hashFunction;
 
-    if (encryption != null) {
-      hashFunction = new SHA256HashFunction<>(keySerializer);
-    } else {
-      hashFunction = new MurmurHash3HashFunction<>(keySerializer);
-    }
+    hashFunction = new MurmurHash3HashFunction<>(keySerializer);
     Map<String, String> engineProperties = data.getEngineProperties();
     final String partitionsProperty = engineProperties.get("partitions");
     if (partitionsProperty != null) {
@@ -139,7 +130,6 @@ public final class AutoShardingIndexEngine implements IndexEngine {
             keySerializer,
             valueSerializer,
             data.getKeyTypes(),
-            encryption,
             hashFunction,
             data.isNullValuesSupport());
       }
@@ -156,11 +146,7 @@ public final class AutoShardingIndexEngine implements IndexEngine {
         storage.resolveObjectSerializer(data.getValueSerializerId());
     Map<String, String> engineProperties = data.getEngineProperties();
 
-    final Encryption encryption =
-        AbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
-
     this.strategy = new AutoShardingMurmurStrategy(keySerializer);
-
     if (storage != null) {
       final String partitionsAsString = engineProperties.get("partitions");
       if (partitionsAsString == null || partitionsAsString.isEmpty()) {
@@ -176,14 +162,7 @@ public final class AutoShardingIndexEngine implements IndexEngine {
       int i = 0;
 
       final HashFunction<Object> hashFunction;
-
-      if (encryption != null) {
-        //noinspection unchecked
-        hashFunction = new SHA256HashFunction<>(keySerializer);
-      } else {
-        //noinspection unchecked
-        hashFunction = new MurmurHash3HashFunction<>(keySerializer);
-      }
+      hashFunction = new MurmurHash3HashFunction<>(keySerializer);
 
       for (HashTable<Object, Object> p : partitions)
       //noinspection unchecked
@@ -192,7 +171,6 @@ public final class AutoShardingIndexEngine implements IndexEngine {
             data.getName() + "_" + (i++),
             data.getKeyTypes(),
             data.isNullValuesSupport(),
-            encryption,
             hashFunction,
             keySerializer,
             valueSerializer);

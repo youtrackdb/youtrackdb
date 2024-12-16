@@ -68,7 +68,7 @@ public class CellBTreeMultiValueV2TestIT {
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
         atomicOperation ->
-            multiValueTree.create(UTF8Serializer.INSTANCE, null, 1, null, atomicOperation));
+            multiValueTree.create(UTF8Serializer.INSTANCE, null, 1, atomicOperation));
   }
 
   @After

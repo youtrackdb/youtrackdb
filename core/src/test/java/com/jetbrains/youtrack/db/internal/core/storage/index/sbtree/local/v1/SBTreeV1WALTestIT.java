@@ -116,8 +116,8 @@ public class SBTreeV1WALTestIT extends SBTreeV1TestIT {
                 LinkSerializer.INSTANCE,
                 null,
                 1,
-                false,
-                null));
+                false
+            ));
   }
 
   private void createExpectedSBTree() {

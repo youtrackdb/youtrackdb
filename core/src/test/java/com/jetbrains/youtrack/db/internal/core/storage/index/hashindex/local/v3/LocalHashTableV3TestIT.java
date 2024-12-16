@@ -61,7 +61,6 @@ public class LocalHashTableV3TestIT extends LocalHashTableV3Base {
                 IntegerSerializer.INSTANCE,
                 BinarySerializerFactory.getInstance().getObjectSerializer(PropertyType.STRING),
                 null,
-                null,
                 murmurHash3HashFunction,
                 true));
   }

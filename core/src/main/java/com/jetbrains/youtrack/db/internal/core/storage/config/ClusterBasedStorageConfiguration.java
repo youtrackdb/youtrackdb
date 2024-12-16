@@ -163,7 +163,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
     lock.writeLock().lock();
     try {
       cluster.create(atomicOperation);
-      btree.create(atomicOperation, StringSerializer.INSTANCE, null, 1, null);
+      btree.create(atomicOperation, StringSerializer.INSTANCE, null, 1);
 
       this.configuration = contextConfiguration;
 
@@ -250,7 +250,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
       this.configuration = configuration;
 
       cluster.open(atomicOperation);
-      btree.load(COMPONENT_NAME, 1, null, StringSerializer.INSTANCE, null);
+      btree.load(COMPONENT_NAME, 1, null, StringSerializer.INSTANCE);
 
       readConfiguration();
       readMinimumClusters();

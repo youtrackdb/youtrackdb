@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v3;
 
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperationsManager;
@@ -68,7 +68,6 @@ public class LocalHashTableV3IterationTestIT {
                 atomicOperation,
                 IntegerSerializer.INSTANCE,
                 BinarySerializerFactory.getInstance().getObjectSerializer(PropertyType.STRING),
-                null,
                 null,
                 hashFunction,
                 true));

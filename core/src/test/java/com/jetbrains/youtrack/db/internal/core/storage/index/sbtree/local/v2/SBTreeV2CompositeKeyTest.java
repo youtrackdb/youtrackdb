@@ -3,10 +3,10 @@ package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v2;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
@@ -50,8 +50,8 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
                 LinkSerializer.INSTANCE,
                 null,
                 2,
-                false,
-                null));
+                false
+            ));
 
     for (double i = 1; i < 4; i++) {
       for (double j = 1; j < 10; j++) {

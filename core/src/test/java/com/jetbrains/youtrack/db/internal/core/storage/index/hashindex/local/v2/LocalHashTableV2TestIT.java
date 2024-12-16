@@ -55,7 +55,6 @@ public class LocalHashTableV2TestIT extends LocalHashTableV2Base {
                     IntegerSerializer.INSTANCE,
                     BinarySerializerFactory.getInstance().getObjectSerializer(PropertyType.STRING),
                     null,
-                    null,
                     murmurHash3HashFunction,
                     true));
   }

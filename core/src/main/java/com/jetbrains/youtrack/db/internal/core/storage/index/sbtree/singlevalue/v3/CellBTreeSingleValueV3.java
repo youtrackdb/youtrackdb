@@ -30,7 +30,6 @@ import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySeria
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerializer;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
-import com.jetbrains.youtrack.db.internal.core.encryption.Encryption;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.comparator.AlwaysGreaterKey;
@@ -129,8 +128,7 @@ public final class CellBTreeSingleValueV3<K> extends DurableComponent
       final AtomicOperation atomicOperation,
       final BinarySerializer<K> keySerializer,
       final PropertyType[] keyTypes,
-      final int keySize,
-      final Encryption encryption) {
+      final int keySize) {
     assert keySerializer != null;
 
     executeInsideComponentOperation(
@@ -416,8 +414,7 @@ public final class CellBTreeSingleValueV3<K> extends DurableComponent
       final String name,
       final int keySize,
       final PropertyType[] keyTypes,
-      final BinarySerializer<K> keySerializer,
-      final Encryption encryption) {
+      final BinarySerializer<K> keySerializer) {
     acquireExclusiveLock();
     try {
       final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();

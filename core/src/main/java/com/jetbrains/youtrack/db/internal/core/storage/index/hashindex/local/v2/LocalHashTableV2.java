@@ -1,17 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v2;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.TooBigIndexKeyException;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.common.util.RawPairIntegerObject;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.encryption.Encryption;
 import com.jetbrains.youtrack.db.internal.core.exception.LocalHashTableV2Exception;
-import com.jetbrains.youtrack.db.api.exception.TooBigIndexKeyException;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValidator;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
@@ -117,7 +115,6 @@ public class LocalHashTableV2<K, V> extends DurableComponent implements HashTabl
 
   private HashTableDirectory directory;
 
-  private Encryption encryption;
 
   public LocalHashTableV2(
       final String name,
@@ -139,7 +136,6 @@ public class LocalHashTableV2<K, V> extends DurableComponent implements HashTabl
       final BinarySerializer<K> keySerializer,
       final BinarySerializer<V> valueSerializer,
       final PropertyType[] keyTypes,
-      final Encryption encryption,
       final HashFunction<K> keyHashFunction,
       final boolean nullKeyIsSupported)
       throws IOException {
@@ -150,7 +146,6 @@ public class LocalHashTableV2<K, V> extends DurableComponent implements HashTabl
           try {
             this.keyHashFunction = keyHashFunction;
             this.comparator = new HashTable.KeyHashCodeComparator<>(this.keyHashFunction);
-            this.encryption = encryption;
 
             if (keyTypes != null) {
               this.keyTypes = Arrays.copyOf(keyTypes, keyTypes.length);
@@ -236,7 +231,7 @@ public class LocalHashTableV2<K, V> extends DurableComponent implements HashTabl
             final HashIndexBucketV2<K, V> bucket = new HashIndexBucketV2<>(cacheEntry);
 
             final Entry<K, V> entry =
-                bucket.find(key, hashCode, encryption, keySerializer, valueSerializer);
+                bucket.find(key, hashCode, keySerializer, valueSerializer);
             if (entry == null) {
               return null;
             }
@@ -310,7 +305,7 @@ public class LocalHashTableV2<K, V> extends DurableComponent implements HashTabl
               try (final CacheEntry cacheEntry =
                   loadPageForWrite(atomicOperation, fileId, pageIndex, true)) {
                 final HashIndexBucketV2<K, V> bucket = new HashIndexBucketV2<>(cacheEntry);
-                final int positionIndex = bucket.getIndex(hashCode, key, encryption, keySerializer);
+                final int positionIndex = bucket.getIndex(hashCode, key, keySerializer);
                 found = positionIndex >= 0;
 
                 if (found) {
@@ -383,17 +378,7 @@ public class LocalHashTableV2<K, V> extends DurableComponent implements HashTabl
       return null;
     }
 
-    final byte[] serializedKey = keySerializer.serializeNativeAsWhole(key, (Object[]) keyTypes);
-    final byte[] rawKey;
-    if (encryption == null) {
-      rawKey = serializedKey;
-    } else {
-      final byte[] encryptedKey = encryption.encrypt(serializedKey);
-      rawKey = new byte[encryptedKey.length + IntegerSerializer.INT_SIZE];
-      IntegerSerializer.INSTANCE.serializeNative(encryptedKey.length, rawKey, 0);
-      System.arraycopy(encryptedKey, 0, rawKey, IntegerSerializer.INT_SIZE, encryptedKey.length);
-    }
-    return rawKey;
+    return keySerializer.serializeNativeAsWhole(key, (Object[]) keyTypes);
   }
 
   private void changeSize(final int sizeDiff, final AtomicOperation atomicOperation)
@@ -439,7 +424,7 @@ public class LocalHashTableV2<K, V> extends DurableComponent implements HashTabl
 
           while (bucket.size() == 0
               || comparator.compare(
-              bucket.getKey(bucket.size() - 1, encryption, keySerializer), key)
+              bucket.getKey(bucket.size() - 1, keySerializer), key)
               <= 0) {
             bucketPath = nextBucketToFind(bucketPath, bucket.getDepth(), atomicOperation);
             if (bucketPath == null) {
@@ -461,7 +446,7 @@ public class LocalHashTableV2<K, V> extends DurableComponent implements HashTabl
             bucket = new HashIndexBucketV2<>(cacheEntry);
           }
 
-          final int index = bucket.getIndex(hashCode, key, encryption, keySerializer);
+          final int index = bucket.getIndex(hashCode, key, keySerializer);
           final int startIndex;
           if (index >= 0) {
             startIndex = index + 1;
@@ -497,7 +482,6 @@ public class LocalHashTableV2<K, V> extends DurableComponent implements HashTabl
       final String name,
       final PropertyType[] keyTypes,
       final boolean nullKeyIsSupported,
-      final Encryption encryption,
       final HashFunction<K> keyHashFunction,
       final BinarySerializer<K> keySerializer,
       final BinarySerializer<V> valueSerializer) {
@@ -511,7 +495,6 @@ public class LocalHashTableV2<K, V> extends DurableComponent implements HashTabl
         this.keyTypes = null;
       }
 
-      this.encryption = encryption;
       this.nullKeyIsSupported = nullKeyIsSupported;
 
       final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
@@ -545,7 +528,7 @@ public class LocalHashTableV2<K, V> extends DurableComponent implements HashTabl
       final HashIndexBucketV2<K, V> bucket, final int startIndex, final int endIndex) {
     @SuppressWarnings("unchecked") final Entry<K, V>[] entries = new Entry[endIndex - startIndex];
     final Iterator<Entry<K, V>> iterator =
-        bucket.iterator(startIndex, keySerializer, valueSerializer, encryption);
+        bucket.iterator(startIndex, keySerializer, valueSerializer);
 
     for (int i = 0, k = startIndex; k < endIndex; i++, k++) {
       entries[i] = iterator.next();
@@ -758,7 +741,7 @@ public class LocalHashTableV2<K, V> extends DurableComponent implements HashTabl
             bucket = new HashIndexBucketV2<>(cacheEntry);
           }
 
-          final int index = bucket.getIndex(hashCode, key, encryption, keySerializer);
+          final int index = bucket.getIndex(hashCode, key, keySerializer);
           final int startIndex;
           if (index >= 0) {
             startIndex = index;
@@ -819,7 +802,7 @@ public class LocalHashTableV2<K, V> extends DurableComponent implements HashTabl
             bucket = new HashIndexBucketV2<>(cacheEntry);
           }
 
-          return bucket.getEntry(0, encryption, keySerializer, valueSerializer);
+          return bucket.getEntry(0, keySerializer, valueSerializer);
         } finally {
           cacheEntry.close();
         }
@@ -879,7 +862,7 @@ public class LocalHashTableV2<K, V> extends DurableComponent implements HashTabl
             bucketPath = prevBucketPath;
           }
 
-          return bucket.getEntry(bucket.size() - 1, encryption, keySerializer, valueSerializer);
+          return bucket.getEntry(bucket.size() - 1, keySerializer, valueSerializer);
         } finally {
           cacheEntry.close();
         }
@@ -919,7 +902,7 @@ public class LocalHashTableV2<K, V> extends DurableComponent implements HashTabl
         try {
           HashIndexBucketV2<K, V> bucket = new HashIndexBucketV2<>(cacheEntry);
           while (bucket.size() == 0
-              || comparator.compare(bucket.getKey(0, encryption, keySerializer), key) >= 0) {
+              || comparator.compare(bucket.getKey(0, keySerializer), key) >= 0) {
             final HashTable.BucketPath prevBucketPath =
                 prevBucketToFind(bucketPath, bucket.getDepth(), atomicOperation);
             if (prevBucketPath == null) {
@@ -944,7 +927,7 @@ public class LocalHashTableV2<K, V> extends DurableComponent implements HashTabl
           }
 
           final int startIndex = 0;
-          final int index = bucket.getIndex(hashCode, key, encryption, keySerializer);
+          final int index = bucket.getIndex(hashCode, key, keySerializer);
 
           final int endIndex;
           if (index >= 0) {
@@ -1017,7 +1000,7 @@ public class LocalHashTableV2<K, V> extends DurableComponent implements HashTabl
           }
 
           final int startIndex = 0;
-          final int index = bucket.getIndex(hashCode, key, encryption, keySerializer);
+          final int index = bucket.getIndex(hashCode, key, keySerializer);
 
           final int endIndex;
           if (index >= 0) {
@@ -1419,7 +1402,7 @@ public class LocalHashTableV2<K, V> extends DurableComponent implements HashTabl
       final CacheEntry cacheEntry = loadPageForWrite(atomicOperation, fileId, pageIndex, true);
       try {
         final HashIndexBucketV2<K, V> bucket = new HashIndexBucketV2<>(cacheEntry);
-        final int index = bucket.getIndex(hashCode, key, encryption, keySerializer);
+        final int index = bucket.getIndex(hashCode, key, keySerializer);
 
         final byte[] oldRawValue =
             index > -1 ? bucket.getRawValue(index, rawKey.length, valueSerializer) : null;
@@ -1948,7 +1931,7 @@ public class LocalHashTableV2<K, V> extends DurableComponent implements HashTabl
 
     final List<RawEntry> entries = new ArrayList<>(bucket.size());
     final Iterator<RawEntry> entryIterator =
-        bucket.iterator(keySerializer, valueSerializer, encryption);
+        bucket.iterator(keySerializer, valueSerializer);
     while (entryIterator.hasNext()) {
       final RawEntry entry = entryIterator.next();
       entries.add(entry);
@@ -2008,7 +1991,7 @@ public class LocalHashTableV2<K, V> extends DurableComponent implements HashTabl
     }
 
     final Iterator<RawEntry> positionIterator =
-        bucket.iterator(keySerializer, valueSerializer, encryption);
+        bucket.iterator(keySerializer, valueSerializer);
 
     final long firstValue = positionIterator.next().hashCode >>> (HASH_CODE_SIZE - bucketDepth);
     while (positionIterator.hasNext()) {

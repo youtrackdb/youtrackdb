@@ -16,8 +16,6 @@ import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
-import com.jetbrains.youtrack.db.internal.core.storage.Storage;
-import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -75,25 +73,6 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
 
     } finally {
       releaseSchemaWriteLock(session);
-    }
-  }
-
-  public SchemaClassImpl setEncryption(DatabaseSessionInternal session, final String iValue) {
-    session.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
-
-    acquireSchemaWriteLock(session);
-    try {
-      setEncryptionInternal(session, iValue);
-    } finally {
-      releaseSchemaWriteLock(session);
-    }
-    return this;
-  }
-
-  protected void setEncryptionInternal(DatabaseSessionInternal database, final String value) {
-    for (int cl : getClusterIds()) {
-      final Storage storage = database.getStorage();
-      storage.setClusterAttribute(cl, StorageCluster.ATTRIBUTES.ENCRYPTION, value);
     }
   }
 

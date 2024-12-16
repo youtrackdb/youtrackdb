@@ -7,7 +7,6 @@ import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySeria
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.encryption.Encryption;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
 import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValidator;
@@ -79,12 +78,9 @@ public final class CellBTreeSingleValueIndexEngine
 
     BinarySerializer keySerializer = storage.resolveObjectSerializer(data.getKeySerializedId());
 
-    final Encryption encryption =
-        AbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
-
     try {
       sbTree.create(
-          atomicOperation, keySerializer, data.getKeyTypes(), data.getKeySize(), encryption);
+          atomicOperation, keySerializer, data.getKeyTypes(), data.getKeySize());
       versionPositionMap.create(atomicOperation);
     } catch (IOException e) {
       throw BaseException.wrapException(new IndexException("Error of creation of index " + name),
@@ -120,14 +116,10 @@ public final class CellBTreeSingleValueIndexEngine
 
   @Override
   public void load(IndexEngineData data) {
-    final Encryption encryption =
-        AbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
-
-    String name = data.getName();
     int keySize = data.getKeySize();
     PropertyType[] keyTypes = data.getKeyTypes();
     BinarySerializer keySerializer = storage.resolveObjectSerializer(data.getKeySerializedId());
-    sbTree.load(name, keySize, keyTypes, keySerializer, encryption);
+    sbTree.load(name, keySize, keyTypes, keySerializer);
     try {
       versionPositionMap.open();
     } catch (final IOException e) {

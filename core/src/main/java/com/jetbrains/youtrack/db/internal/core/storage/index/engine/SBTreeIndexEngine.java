@@ -21,12 +21,11 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.engine;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.encryption.Encryption;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
 import com.jetbrains.youtrack.db.internal.core.index.IndexKeyUpdater;
 import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
@@ -105,8 +104,6 @@ public class SBTreeIndexEngine implements IndexEngine {
         storage.resolveObjectSerializer(data.getValueSerializerId());
     BinarySerializer keySerializer = storage.resolveObjectSerializer(data.getKeySerializedId());
 
-    final Encryption encryption =
-        AbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
 
     try {
       sbTree.create(
@@ -115,8 +112,8 @@ public class SBTreeIndexEngine implements IndexEngine {
           valueSerializer,
           data.getKeyTypes(),
           data.getKeySize(),
-          data.isNullValuesSupport(),
-          encryption);
+          data.isNullValuesSupport()
+      );
       versionPositionMap.create(atomicOperation);
     } catch (IOException e) {
       throw BaseException.wrapException(
@@ -157,17 +154,14 @@ public class SBTreeIndexEngine implements IndexEngine {
 
   @Override
   public void load(IndexEngineData data) {
-    final Encryption encryption =
-        AbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
-
     sbTree.load(
         data.getName(),
         (BinarySerializer) storage.resolveObjectSerializer(data.getKeySerializedId()),
         (BinarySerializer) storage.resolveObjectSerializer(data.getValueSerializerId()),
         data.getKeyTypes(),
         data.getKeySize(),
-        data.isNullValuesSupport(),
-        encryption);
+        data.isNullValuesSupport()
+    );
     try {
       versionPositionMap.open();
     } catch (final IOException e) {

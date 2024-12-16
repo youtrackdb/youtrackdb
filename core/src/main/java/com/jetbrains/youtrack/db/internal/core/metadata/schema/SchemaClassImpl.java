@@ -1064,9 +1064,6 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
       case DESCRIPTION:
         setDescription(session, stringValue);
         break;
-      case ENCRYPTION:
-        setEncryption(sessionInternal, stringValue);
-        break;
     }
     return this;
   }
@@ -1086,9 +1083,6 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
     }
     return s.startsWith("`") && s.endsWith("`");
   }
-
-  public abstract SchemaClassImpl setEncryption(DatabaseSessionInternal session,
-      final String iValue);
 
   public void createIndex(DatabaseSession session, final String iName, final INDEX_TYPE iType,
       final String... fields) {

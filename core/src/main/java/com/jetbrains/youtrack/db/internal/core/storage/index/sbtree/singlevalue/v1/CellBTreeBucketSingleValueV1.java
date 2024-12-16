@@ -27,7 +27,6 @@ import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSeriali
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerializer;
-import com.jetbrains.youtrack.db.internal.core.encryption.Encryption;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
@@ -86,13 +85,13 @@ public final class CellBTreeBucketSingleValueV1<K> extends DurablePage {
   }
 
   public int find(
-      final K key, final BinarySerializer<K> keySerializer, final Encryption encryption) {
+      final K key, final BinarySerializer<K> keySerializer) {
     int low = 0;
     int high = size() - 1;
 
     while (low <= high) {
       final int mid = (low + high) >>> 1;
-      final K midVal = getKey(mid, encryption, keySerializer);
+      final K midVal = getKey(mid, keySerializer);
       final int cmp = comparator.compare(midVal, key);
 
       if (cmp < 0) {
@@ -204,27 +203,16 @@ public final class CellBTreeBucketSingleValueV1<K> extends DurablePage {
   }
 
   public SBTreeEntry<K> getEntry(
-      final int entryIndex, Encryption encryption, BinarySerializer<K> keySerializer) {
+      final int entryIndex, BinarySerializer<K> keySerializer) {
     int entryPosition =
         getIntValue(entryIndex * IntegerSerializer.INT_SIZE + POSITIONS_ARRAY_OFFSET);
 
     if (isLeaf()) {
       final K key;
-      if (encryption == null) {
-        key = deserializeFromDirectMemory(keySerializer, entryPosition);
 
-        entryPosition += getObjectSizeInDirectMemory(keySerializer, entryPosition);
-      } else {
-        final int encryptionSize = getIntValue(entryPosition);
-        entryPosition += IntegerSerializer.INT_SIZE;
+      key = deserializeFromDirectMemory(keySerializer, entryPosition);
 
-        final byte[] encryptedKey = getBinaryValue(entryPosition, encryptionSize);
-        entryPosition += encryptedKey.length;
-
-        final byte[] serializedKey = encryption.decrypt(encryptedKey);
-
-        key = keySerializer.deserializeNativeObject(serializedKey, 0);
-      }
+      entryPosition += getObjectSizeInDirectMemory(keySerializer, entryPosition);
 
       final int clusterId = getShortValue(entryPosition);
       final long clusterPosition = getLongValue(entryPosition + ShortSerializer.SHORT_SIZE);
@@ -238,19 +226,7 @@ public final class CellBTreeBucketSingleValueV1<K> extends DurablePage {
       entryPosition += IntegerSerializer.INT_SIZE;
 
       final K key;
-
-      if (encryption == null) {
-        key = deserializeFromDirectMemory(keySerializer, entryPosition);
-      } else {
-        final int encryptionSize = getIntValue(entryPosition);
-        entryPosition += IntegerSerializer.INT_SIZE;
-
-        final byte[] encryptedKey = getBinaryValue(entryPosition, encryptionSize);
-
-        final byte[] serializedKey = encryption.decrypt(encryptedKey);
-
-        key = keySerializer.deserializeNativeObject(serializedKey, 0);
-      }
+      key = deserializeFromDirectMemory(keySerializer, entryPosition);
 
       return new SBTreeEntry<>(leftChild, rightChild, key, null);
     }
@@ -275,31 +251,21 @@ public final class CellBTreeBucketSingleValueV1<K> extends DurablePage {
   }
 
   public byte[] getRawEntry(
-      final int entryIndex, boolean isEncrypted, BinarySerializer<K> keySerializer) {
+      final int entryIndex, BinarySerializer<K> keySerializer) {
     int entryPosition =
         getIntValue(entryIndex * IntegerSerializer.INT_SIZE + POSITIONS_ARRAY_OFFSET);
     final int startEntryPosition = entryPosition;
 
     if (isLeaf()) {
       final int keySize;
-      if (!isEncrypted) {
-        keySize = getObjectSizeInDirectMemory(keySerializer, entryPosition);
-      } else {
-        final int encryptedSize = getIntValue(entryPosition);
-        keySize = IntegerSerializer.INT_SIZE + encryptedSize;
-      }
+      keySize = getObjectSizeInDirectMemory(keySerializer, entryPosition);
 
       return getBinaryValue(startEntryPosition, keySize + RID_SIZE);
     } else {
       entryPosition += 2 * IntegerSerializer.INT_SIZE;
 
       final int keySize;
-      if (!isEncrypted) {
-        keySize = getObjectSizeInDirectMemory(keySerializer, entryPosition);
-      } else {
-        final int encryptedSize = getIntValue(entryPosition);
-        keySize = IntegerSerializer.INT_SIZE + encryptedSize;
-      }
+      keySize = getObjectSizeInDirectMemory(keySerializer, entryPosition);
 
       return getBinaryValue(startEntryPosition, keySize + 2 * IntegerSerializer.INT_SIZE);
     }
@@ -312,19 +278,12 @@ public final class CellBTreeBucketSingleValueV1<K> extends DurablePage {
    * @return the obtained value.
    */
   public RID getValue(
-      final int entryIndex, Encryption encryption, BinarySerializer<K> keySerializer) {
+      final int entryIndex, BinarySerializer<K> keySerializer) {
     assert isLeaf();
 
     int entryPosition =
         getIntValue(entryIndex * IntegerSerializer.INT_SIZE + POSITIONS_ARRAY_OFFSET);
-
-    // skip key
-    if (encryption == null) {
-      entryPosition += getObjectSizeInDirectMemory(keySerializer, entryPosition);
-    } else {
-      final int encryptedSize = getIntValue(entryPosition);
-      entryPosition += IntegerSerializer.INT_SIZE + encryptedSize;
-    }
+    entryPosition += getObjectSizeInDirectMemory(keySerializer, entryPosition);
 
     final int clusterId = getShortValue(entryPosition);
     final long clusterPosition = getLongValue(entryPosition + ShortSerializer.SHORT_SIZE);
@@ -346,40 +305,25 @@ public final class CellBTreeBucketSingleValueV1<K> extends DurablePage {
   }
 
   byte[] getRawValue(
-      final int entryIndex, Encryption encryption, BinarySerializer<K> keySerializer) {
+      final int entryIndex, BinarySerializer<K> keySerializer) {
     assert isLeaf();
 
     int entryPosition =
         getIntValue(entryIndex * IntegerSerializer.INT_SIZE + POSITIONS_ARRAY_OFFSET);
 
-    // skip key
-    if (encryption == null) {
-      entryPosition += getObjectSizeInDirectMemory(keySerializer, entryPosition);
-    } else {
-      final int encryptedSize = getIntValue(entryPosition);
-      entryPosition += IntegerSerializer.INT_SIZE + encryptedSize;
-    }
+    entryPosition += getObjectSizeInDirectMemory(keySerializer, entryPosition);
 
     return getBinaryValue(entryPosition, RID_SIZE);
   }
 
-  public K getKey(final int index, Encryption encryption, BinarySerializer<K> keySerializer) {
+  public K getKey(final int index, BinarySerializer<K> keySerializer) {
     int entryPosition = getIntValue(index * IntegerSerializer.INT_SIZE + POSITIONS_ARRAY_OFFSET);
 
     if (!isLeaf()) {
       entryPosition += 2 * IntegerSerializer.INT_SIZE;
     }
 
-    if (encryption == null) {
-      return deserializeFromDirectMemory(keySerializer, entryPosition);
-    } else {
-      final int encryptedSize = getIntValue(entryPosition);
-      entryPosition += IntegerSerializer.INT_SIZE;
-
-      final byte[] encryptedKey = getBinaryValue(entryPosition, encryptedSize);
-      final byte[] serializedKey = encryption.decrypt(encryptedKey);
-      return keySerializer.deserializeNativeObject(serializedKey, 0);
-    }
+    return deserializeFromDirectMemory(keySerializer, entryPosition);
   }
 
   public boolean isLeaf() {
@@ -387,9 +331,7 @@ public final class CellBTreeBucketSingleValueV1<K> extends DurablePage {
   }
 
   public void addAll(
-      final List<byte[]> rawEntries,
-      final boolean isEncrypted,
-      final BinarySerializer<K> keySerializer) {
+      final List<byte[]> rawEntries) {
     final int currentSize = size();
     for (int i = 0; i < rawEntries.size(); i++) {
       appendRawEntry(i + currentSize, rawEntries.get(i));
@@ -399,17 +341,17 @@ public final class CellBTreeBucketSingleValueV1<K> extends DurablePage {
   }
 
   public void shrink(
-      final int newSize, final boolean isEncrypted, final BinarySerializer<K> keySerializer) {
+      final int newSize, final BinarySerializer<K> keySerializer) {
     final int currentSize = size();
     final List<byte[]> rawEntries = new ArrayList<>(newSize);
     final List<byte[]> removedEntries = new ArrayList<>(currentSize - newSize);
 
     for (int i = 0; i < newSize; i++) {
-      rawEntries.add(getRawEntry(i, isEncrypted, keySerializer));
+      rawEntries.add(getRawEntry(i, keySerializer));
     }
 
     for (int i = newSize; i < currentSize; i++) {
-      removedEntries.add(getRawEntry(i, isEncrypted, keySerializer));
+      removedEntries.add(getRawEntry(i, keySerializer));
     }
 
     setIntValue(FREE_POINTER_OFFSET, MAX_PAGE_SIZE_BYTES);

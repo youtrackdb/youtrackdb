@@ -100,19 +100,6 @@ public class SchemaClassRemote extends SchemaClassImpl {
     }
   }
 
-  public SchemaClassImpl setEncryption(DatabaseSessionInternal session, final String iValue) {
-    session.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
-
-    acquireSchemaWriteLock(session);
-    try {
-      final String cmd = String.format("alter class `%s` encryption %s", name, iValue);
-      session.command(cmd);
-    } finally {
-      releaseSchemaWriteLock(session);
-    }
-    return this;
-  }
-
   @Override
   public SchemaClass setClusterSelection(DatabaseSession session, final String value) {
     DatabaseSessionInternal database = (DatabaseSessionInternal) session;
