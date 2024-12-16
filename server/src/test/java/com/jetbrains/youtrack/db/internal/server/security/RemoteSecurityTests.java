@@ -20,7 +20,7 @@ import org.junit.Test;
 public class RemoteSecurityTests {
 
   private static final String DB_NAME = RemoteSecurityTests.class.getSimpleName();
-  private YouTrackDB orient;
+  private YouTrackDB youTrackDB;
   private YouTrackDBServer server;
   private DatabaseSession db;
 
@@ -28,13 +28,13 @@ public class RemoteSecurityTests {
   public void before()
       throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
     server = YouTrackDBServer.startFromClasspathConfig("abstract-youtrackdb-server-config.xml");
-    orient = new YouTrackDBImpl("remote:localhost", "root", "root",
+    youTrackDB = new YouTrackDBImpl("remote:localhost", "root", "root",
         YouTrackDBConfig.defaultConfig());
-    orient.execute(
+    youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin, writer identified"
             + " by 'writer' role writer, reader identified by 'reader' role reader)",
         DB_NAME);
-    this.db = orient.open(DB_NAME, "admin", "admin");
+    this.db = youTrackDB.open(DB_NAME, "admin", "admin");
     SchemaClass person = db.createClass("Person");
     person.createProperty(db, "name", PropertyType.STRING);
   }
@@ -43,8 +43,8 @@ public class RemoteSecurityTests {
   public void after() {
     this.db.activateOnCurrentThread();
     this.db.close();
-    orient.drop(DB_NAME);
-    orient.close();
+    youTrackDB.drop(DB_NAME);
+    youTrackDB.close();
     server.shutdown();
   }
 
@@ -55,7 +55,7 @@ public class RemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (DatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
+    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
       Entity elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
@@ -80,7 +80,7 @@ public class RemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (DatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
+    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
       filteredSession.command("insert into Person SET name = 'foo'");
       filteredSession.commit();
@@ -112,7 +112,7 @@ public class RemoteSecurityTests {
     db.commit();
 
     db.close();
-    try (DatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
+    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
       try (ResultSet rs = filteredSession.query("select from Person")) {
         Assert.assertTrue(rs.hasNext());
         rs.next();
@@ -140,7 +140,7 @@ public class RemoteSecurityTests {
     db.save(elem);
     db.commit();
 
-    try (DatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
+    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
       try (ResultSet rs = filteredSession.query("select from Person where name = 'bar'")) {
 
         Assert.assertFalse(rs.hasNext());
@@ -169,7 +169,7 @@ public class RemoteSecurityTests {
     db.save(elem);
     db.commit();
 
-    try (DatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
+    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
       try (ResultSet rs = filteredSession.query("select from Person where name = 'foo'")) {
         Assert.assertTrue(rs.hasNext());
         Result item = rs.next();
@@ -186,7 +186,7 @@ public class RemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (DatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
+    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
       Entity elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
@@ -212,7 +212,7 @@ public class RemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (DatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
+    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
       Entity elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
@@ -237,7 +237,7 @@ public class RemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (DatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
+    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
       Entity elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
@@ -264,7 +264,7 @@ public class RemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (DatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
+    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
       Entity elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
@@ -289,7 +289,7 @@ public class RemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (DatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
+    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
 
       filteredSession.begin();
       Entity elem = filteredSession.newEntity("Person");
@@ -321,7 +321,7 @@ public class RemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (DatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
+    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
       Entity elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
@@ -368,7 +368,7 @@ public class RemoteSecurityTests {
     db.save(elem);
     db.commit();
 
-    try (DatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
+    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
       try (ResultSet rs = filteredSession.query("select count(*) as count from Person")) {
         Assert.assertEquals(1L, (long) rs.next().getProperty("count"));
       }
@@ -395,7 +395,7 @@ public class RemoteSecurityTests {
     db.commit();
 
     db.close();
-    try (DatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
+    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
       try (ResultSet rs =
           filteredSession.query("select count(*) as count from Person where name = 'bar'")) {
         Assert.assertEquals(0L, (long) rs.next().getProperty("count"));
@@ -427,7 +427,7 @@ public class RemoteSecurityTests {
     db.save(elem);
     db.commit();
 
-    try (DatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
+    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
       try (final ResultSet resultSet =
           filteredSession.query("SELECT from Person where name = ?", "bar")) {
         Assert.assertEquals(0, resultSet.stream().count());
@@ -459,7 +459,7 @@ public class RemoteSecurityTests {
     db.save(elem);
     db.commit();
 
-    try (DatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
+    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
       try (final ResultSet resultSet =
           filteredSession.query("SELECT from Person where name = ?", "bar")) {
         Assert.assertEquals(0, resultSet.stream().count());
@@ -488,7 +488,7 @@ public class RemoteSecurityTests {
 
     db.close();
 
-    db = orient.open(DB_NAME, "reader", "reader");
+    db = youTrackDB.open(DB_NAME, "reader", "reader");
     try (final ResultSet resultSet = db.query("SELECT from Person")) {
       Result item = resultSet.next();
       Assert.assertNull(item.getProperty("name"));
@@ -511,7 +511,7 @@ public class RemoteSecurityTests {
 
     db.close();
 
-    db = orient.open(DB_NAME, "reader", "reader");
+    db = youTrackDB.open(DB_NAME, "reader", "reader");
     try (final ResultSet resultSet = db.query("SELECT from Person")) {
       try {
         db.begin();

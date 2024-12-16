@@ -1,7 +1,5 @@
 @echo off
 rem
-rem Copyright (c) Orient Technologies LTD (http://www.orientechnologies.com)
-rem
 rem Guess YOUTRACKDB_HOME if not defined
 set CURRENT_DIR=%cd%
 
@@ -38,14 +36,14 @@ goto setArgs
 
 :doneSetArgs
 
-set KEYSTORE=%YOUTRACKDB_HOME%\config\cert\orientdb-console.ks
+set KEYSTORE=%YOUTRACKDB_HOME%\config\cert\youtrackdb-console.ks
 set KEYSTORE_PASS=password
-set TRUSTSTORE=%YOUTRACKDB_HOME%\config\cert\orientdb-console.ts
+set TRUSTSTORE=%YOUTRACKDB_HOME%\config\cert\youtrackdb-console.ts
 set TRUSTSTORE_PASS=password
 set SSL_OPTS="-Dclient.ssl.enabled=false -Djavax.net.ssl.keyStore=%KEYSTORE% -Djavax.net.ssl.keyStorePassword=%KEYSTORE_PASS% -Djavax.net.ssl.trustStore=%TRUSTSTORE% -Djavax.net.ssl.trustStorePassword=%TRUSTSTORE_PASS%"
 
-set ORIENTDB_SETTINGS=-Xmx1024m -Djna.nosys=true -Djava.util.logging.config.file="%YOUTRACKDB_HOME%\config\orientdb-client-log.properties" -Djava.awt.headless=true
+set YOUTRACKDB_SETTINGS=-Xmx1024m -Djna.nosys=true -Djava.util.logging.config.file="%YOUTRACKDB_HOME%\config\youtrackdb-client-log.properties" -Djava.awt.headless=true
 
-call %JAVA% -client %SSL_OPTS% %ORIENTDB_SETTINGS% -Dfile.encoding=utf-8 -Dorientdb.build.number="@BUILD@" -cp "%YOUTRACKDB_HOME%\lib\*;%YOUTRACKDB_HOME%\plugins\*" com.orientechnologies.orient.console.ConsoleDatabaseApp %CMD_LINE_ARGS%
+call %JAVA% -client %SSL_OPTS% %YOUTRACKDB_SETTINGS% -Dfile.encoding=utf-8 -Dyoutrackdb.build.number="@BUILD@" -cp "%YOUTRACKDB_HOME%\lib\*;%YOUTRACKDB_HOME%\plugins\*" com.jetbrains.youtrack.db.internal.console.ConsoleDatabaseApp %CMD_LINE_ARGS%
 
 :end

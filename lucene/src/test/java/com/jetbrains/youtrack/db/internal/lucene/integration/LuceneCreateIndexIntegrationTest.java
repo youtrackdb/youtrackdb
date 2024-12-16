@@ -23,7 +23,7 @@ public class LuceneCreateIndexIntegrationTest {
   public void before() throws Exception {
     server0 =
         YouTrackDBServer.startFromClasspathConfig(
-            "com/orientechnologies/lucene/integration/orientdb-simple-server-config.xml");
+            "com/orientechnologies/lucene/integration/youtrackdb-simple-server-config.xml");
     remote = new YouTrackDBImpl("remote:localhost", "root", "test",
         YouTrackDBConfig.defaultConfig());
 

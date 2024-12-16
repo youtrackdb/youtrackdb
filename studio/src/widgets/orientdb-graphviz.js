@@ -1,9 +1,5 @@
-/**
- * @license OrientDB-GraphViz v0.0.1
- * (c) 2010-2014 Orient Technologies, Ltd.
- * License: MIT
- */
 import '../styles/orientdb-graphviz.css';
+
 let OrientGraph = (function () {
 
   var graph = {};

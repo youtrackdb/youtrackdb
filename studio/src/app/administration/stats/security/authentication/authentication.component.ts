@@ -1,21 +1,17 @@
 import {
   Component,
+  ComponentFactoryResolver,
+  Injector,
+  Input,
   OnDestroy,
   OnInit,
-  Input,
-  ViewContainerRef,
   ViewChild,
-  ComponentFactoryResolver,
-  Injector
+  ViewContainerRef
 } from "@angular/core";
-import {
-  MetricService,
-  SecurityService,
-  NotificationService
-} from "../../../../core/services";
-import { PasswordAuthenticatorComponent } from "./authenticators/passwordauthenticator.component";
-import { ModalComponent } from "ng2-bs3-modal";
-import { KerberosAuthenticatorComponent } from "./authenticators";
+import {MetricService, NotificationService, SecurityService} from "../../../../core/services";
+import {PasswordAuthenticatorComponent} from "./authenticators/passwordauthenticator.component";
+import {ModalComponent} from "ng2-bs3-modal";
+import {KerberosAuthenticatorComponent} from "./authenticators";
 
 declare const angular: any;
 
@@ -56,19 +52,19 @@ const suppertedAuthenticators = {
       }
     }
   },
-  "com.orientechnologies.orient.server.security.authenticator.ServerConfigAuthenticator": {
+  "com.jetbrains.youtrack.db.internal.server.security.authenticator.ServerConfigAuthenticator": {
     defaultVal: {
       name: "ServerConfig",
       class:
-        "com.orientechnologies.orient.server.security.authenticator.ServerConfigAuthenticator",
+        "com.jetbrains.youtrack.db.internal.server.security.authenticator.ServerConfigAuthenticator",
       enabled: true
     }
   },
-  "com.orientechnologies.orient.server.security.authenticator.SystemUserAuthenticator": {
+  "com.jetbrains.youtrack.db.internal.server.security.authenticator.SystemUserAuthenticator": {
     defaultVal: {
       name: "SystemAuthenticator",
       class:
-        "com.orientechnologies.orient.server.security.authenticator.SystemUserAuthenticator",
+        "com.jetbrains.youtrack.db.internal.server.security.authenticator.SystemUserAuthenticator",
       enabled: true
     }
   }

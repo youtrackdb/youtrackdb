@@ -70,8 +70,7 @@ describe("HomePage", function () {
 
     var inputUser = browser.getHTML('.noty_text', false);
 
-    var message = `com.orientechnologies.orient.core.exception.OSecurityAccessException: User 'reader' does not have permission to execute the operation 'Create' against the resource: ResourceGeneric [name=CLASS, legacyName=database.class].V\n\tDB name="${config.defaultDB}"`
-
+    var message = `com.jetbrains.youtrack.db.api.exception.SecurityAccessException: User 'reader' does not have permission to execute the operation 'Create' against the resource: ResourceGeneric [name=CLASS, legacyName=database.class].V\n\tDB name="${config.defaultDB}"`
     expect(inputUser).to.equal(message);
 
   });

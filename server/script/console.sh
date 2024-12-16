@@ -1,7 +1,4 @@
 #!/bin/sh
-#
-# Copyright (c) Orient Technologies LTD (http://www.orientechnologies.com)
-#
 
 # resolve links - $0 may be a softlink
 PRG="$0"
@@ -20,7 +17,7 @@ done
 PRGDIR=`dirname "$PRG"`
 
 # Only set YOUTRACKDB_HOME if not already set
-[ -f "$ORIENTDB_HOME"/lib/orientdb-tools-@VERSION@.jar ] || YOUTRACKDB_HOME=`cd "$PRGDIR/.." ; pwd`
+[ -f "$YOUTRACKDB_HOME"/lib/youtrackdb-tools-@VERSION@.jar ] || YOUTRACKDB_HOME=`cd "$PRGDIR/.." ; pwd`
 export YOUTRACKDB_HOME
 
 
@@ -32,23 +29,23 @@ else
 fi
 export JAVA
 
-if [ -z "$ORIENTDB_OPTS_MEMORY" ] ; then
-    ORIENTDB_OPTS_MEMORY="-Xmx1024m "
+if [ -z "$YOUTRACKDB_OPTS_MEMORY" ] ; then
+    YOUTRACKDB_OPTS_MEMORY="-Xmx1024m "
 fi
 
-ORIENTDB_SETTINGS="-Djna.nosys=true -Djava.util.logging.config.file=\"$ORIENTDB_HOME/config/orientdb-client-log.properties\" -Djava.awt.headless=true"
-#JAVA_OPTS=-Xmx1024m
-KEYSTORE="$ORIENTDB_HOME/config/cert/orientdb-console.ks"
+YOUTRACKDB_SETTINGS="-Djna.nosys=true -Djava.util.logging.config.file=\"$YOUTRACKDB_HOME/config/youtrackdb-client-log.properties\" -Djava.awt.headless=true"
+
+KEYSTORE="$YOUTRACKDB_HOME/config/cert/youtrackdb-console.ks"
 KEYSTORE_PASS=password
-TRUSTSTORE="$ORIENTDB_HOME/config/cert/orientdb-console.ts"
+TRUSTSTORE="$YOUTRACKDB_HOME/config/cert/youtrackdb-console.ts"
 TRUSTSTORE_PASS=password
 SSL_OPTS="-Dclient.ssl.enabled=false "
 
-exec "$JAVA" -client $JAVA_OPTS $ORIENTDB_OPTS_MEMORY $ORIENTDB_SETTINGS $SSL_OPTS \
-    -Dfile.encoding=utf-8 -Dorientdb.build.number="@BUILD@" \
-    -cp "$ORIENTDB_HOME/lib/orientdb-tools-@VERSION@.jar:$ORIENTDB_HOME/lib/*:$ORIENTDB_HOME/plugins/*" \
+exec "$JAVA" -client $JAVA_OPTS $YOUTRACKDB_OPTS_MEMORY $YOUTRACKDB_SETTINGS $SSL_OPTS \
+    -Dfile.encoding=utf-8 -Dyoutrackdb.build.number="@BUILD@" \
+    -cp "$YOUTRACKDB_HOME/lib/youtrackdb-tools-@VERSION@.jar:$YOUTRACKDB_HOME/lib/*:$YOUTRACKDB_HOME/plugins/*" \
     "-Djavax.net.ssl.keyStore=$KEYSTORE" \
     "-Djavax.net.ssl.keyStorePassword=$KEYSTORE_PASS" \
     "-Djavax.net.ssl.trustStore=$TRUSTSTORE" \
     "-Djavax.net.ssl.trustStorePassword=$TRUSTSTORE_PASS" \
-    com.orientechnologies.orient.console.OConsoleDatabaseApp $*
+    com.jetbrains.youtrack.db.internal.console.ConsoleDatabaseApp $*

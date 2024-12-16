@@ -1,10 +1,5 @@
 @echo off
 rem
-rem Copyright (c) Orient Technologies LTD (http://www.orientechnologies.com)
-rem
-rem HISTORY:
-rem 2012-07-31: Added -w option
-rem
 rem
 
 rem Guess YOUTRACKDB_HOME if not defined
@@ -49,6 +44,6 @@ set LOG_LEVEL=warning
 set WWW_PATH=%YOUTRACKDB_HOME%/www
 set JAVA_OPTS=-Djava.awt.headless=true
 
-call %JAVA% -client %JAVA_OPTS% -Dyoutrackdb.config.file="%CONFIG_FILE%" -cp "%YOUTRACKDB_HOME%\lib\orientdb-tools-@VERSION@.jar;%YOUTRACKDB_HOME%\lib\*" com.orientechnologies.orient.server.OServerShutdownMain %CMD_LINE_ARGS%
+call %JAVA% -client %JAVA_OPTS% -Dyoutrackdb.config.file="%CONFIG_FILE%" -cp "%YOUTRACKDB_HOME%\lib\youtrackdb-tools-@VERSION@.jar;%YOUTRACKDB_HOME%\lib\*" com.jetbrains.youtrack.db.internal.server.ServerShutdownMain %CMD_LINE_ARGS%
 
 :end

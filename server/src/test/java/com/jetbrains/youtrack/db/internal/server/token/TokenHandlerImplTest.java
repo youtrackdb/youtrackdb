@@ -5,10 +5,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.JwtPayload;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.TokenHeader;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.YouTrackDBJwtHeader;
@@ -56,7 +56,7 @@ public class TokenHandlerImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testSerializeDeserializeWebHeader() throws Exception {
     TokenHeader header = new YouTrackDBJwtHeader();
-    header.setType("Orient");
+    header.setType("YouTrackDB");
     header.setAlgorithm("some");
     header.setKeyId("the_key");
     TokenHandlerImpl handler = new TokenHandlerImpl();
@@ -77,7 +77,7 @@ public class TokenHandlerImplTest extends BaseMemoryInternalDatabase {
     payload.setAudience("audiance");
     payload.setExpiry(1L);
     payload.setIssuedAt(2L);
-    payload.setIssuer("orient");
+    payload.setIssuer("YouTrackDB");
     payload.setNotBefore(3L);
     payload.setUserName("the subject");
     payload.setTokenId("aaa");

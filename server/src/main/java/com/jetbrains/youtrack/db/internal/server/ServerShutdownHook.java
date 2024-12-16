@@ -32,7 +32,7 @@ public class ServerShutdownHook extends Thread {
   }
 
   /**
-   * Catch the JVM exit and assure to shutdown the Orient Server.
+   * Catch the JVM exit and assure to shutdown the Youtrackdb Server.
    */
   @Override
   public void run() {

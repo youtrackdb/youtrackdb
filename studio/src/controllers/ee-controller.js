@@ -55,7 +55,7 @@ import "../views/server/distributed/events/mailwhat.html";
 import "../views/server/distributed/events/logwhen.html";
 import "../views/server/distributed/events/metricwhen.html";
 
-import { POLLING } from "../constants";
+import {POLLING} from "../constants";
 import Utilities from "../util/library";
 import EEServices from "../services/ee-services";
 import angular from "angular";
@@ -2914,23 +2914,23 @@ ee.controller("ServerAuthTabController", [
       }
     };
     $scope.suppertedAuthenticators = {
-      "com.orientechnologies.orient.server.security.authenticator.ODefaultPasswordAuthenticator": {
+      "com.jetbrains.youtrack.db.internal.server.security.authenticator.DefaultPasswordAuthenticator": {
         template: "views/server/stats/security/defaultPwd.html",
 
         defaultVal: {
           name: "Password",
           class:
-            "com.orientechnologies.orient.server.security.authenticator.ODefaultPasswordAuthenticator",
+            "com.jetbrains.youtrack.db.internal.server.security.authenticator.DefaultPasswordAuthenticator",
           enabled: true
         }
       },
-      "com.orientechnologies.security.kerberos.OKerberosAuthenticator": {
+      "com.jetbrains.youtrack.db.internal.security.kerberos.KerberosAuthenticator": {
         template: "views/server/stats/security/kerberos.html",
 
         defaultVal: {
           name: "Kerberos",
           class:
-            "com.orientechnologies.security.kerberos.OKerberosAuthenticator",
+            "com.jetbrains.youtrack.db.internal.security.kerberos.KerberosAuthenticator",
           enabled: true,
           debug: false,
 

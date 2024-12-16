@@ -35,15 +35,16 @@ public class BinaryProtocolAnyResultTest {
   @Test
   @Ignore
   public void scriptReturnValueTest() throws IOException {
-    YouTrackDB orient =
+    YouTrackDB youTrackDB =
         new YouTrackDBImpl("remote:localhost", "root", "root", YouTrackDBConfig.defaultConfig());
 
-    if (orient.exists("test")) {
-      orient.drop("test");
+    if (youTrackDB.exists("test")) {
+      youTrackDB.drop("test");
     }
 
-    orient.execute("create database test memory users (admin identified by 'admin' role admin)");
-    DatabaseSession db = orient.open("test", "admin", "admin");
+    youTrackDB.execute(
+        "create database test memory users (admin identified by 'admin' role admin)");
+    DatabaseSession db = youTrackDB.open("test", "admin", "admin");
 
     Object res = db.execute("SQL", " let $one = select from OUser limit 1; return [$one,1]");
 
@@ -52,8 +53,8 @@ public class BinaryProtocolAnyResultTest {
     assertTrue(((List) res).get(1) instanceof Integer);
     db.close();
 
-    orient.drop("test");
-    orient.close();
+    youTrackDB.drop("test");
+    youTrackDB.close();
   }
 
   @After

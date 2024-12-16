@@ -2,17 +2,6 @@
 <youtrackdb-server>
   <handlers>
     <handler
-      class="com.orientechnologies.orient.server.hazelcast.OHazelcastPlugin">
-      <parameters>
-        <parameter value="europe-0" name="nodeName"/>
-        <parameter value="false" name="enabled"/>
-        <parameter value="src/test/resources/hazelcast-0.xml"
-          name="configuration.hazelcast"/>
-        <parameter name="configuration.db.default"
-          value="src/test/resources/default-distributed-db-config.json"/>
-      </parameters>
-    </handler>
-    <handler
       class="com.jetbrains.youtrack.db.internal.server.handler.ServerSideScriptInterpreter">
       <parameters>
         <parameter value="false" name="enabled"/>

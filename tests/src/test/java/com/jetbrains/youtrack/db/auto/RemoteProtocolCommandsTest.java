@@ -2,13 +2,13 @@ package com.jetbrains.youtrack.db.auto;
 
 import static org.testng.AssertJUnit.assertTrue;
 
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageOperationResult;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 @Test
 public class RemoteProtocolCommandsTest extends BaseDBTest {
 
-  private static final String serverPort = System.getProperty("orient.server.port", "2424");
+  private static final String serverPort = System.getProperty("youtrackdb.server.port", "2424");
 
   @Parameters(value = "remote")
   public RemoteProtocolCommandsTest(boolean remote) {

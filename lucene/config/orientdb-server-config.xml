@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <youtrackdb-server>
   <handlers>
-    <handler
-      class="com.orientechnologies.orient.graph.handler.OGraphServerHandler">
-      <parameters>
-        <parameter name="enabled" value="true"/>
-        <parameter name="graph.pool.max" value="50"/>
-      </parameters>
-    </handler>
     <handler class="com.jetbrains.youtrack.db.internal.server.handler.JMXPlugin">
       <parameters>
         <parameter value="false" name="enabled"/>
@@ -26,10 +19,6 @@
         <parameter value="yyyy-MM-dd HH:mm:ss" name="profile.default.mail.date.format"/>
       </parameters>
     </handler>
-    <!--<handler class="com.orientechnologies.lucene.OLuceneSpatialIndexPlugin">-->
-
-    <!--</handler>-->
-
     <handler class="com.jetbrains.youtrack.db.internal.server.handler.AutomaticBackup">
       <parameters>
         <parameter value="false" name="enabled"/>

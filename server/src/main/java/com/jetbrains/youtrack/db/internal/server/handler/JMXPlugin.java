@@ -76,11 +76,6 @@ public class JMXPlugin extends ServerPluginAbstract {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.orientechnologies.orient.server.handler.ServerHandlerAbstract#shutdown()
-   */
   @Override
   public void shutdown() {
     try {
