@@ -96,6 +96,9 @@ public class GetPropertyOnLoadValueTest extends DbTestBase {
 
   @Test
   public void testStringBlobOnLoadValue() {
+    db.createVertexClass("test");
+
+    db.begin();
     String before = "Hello World";
     var byteArrayBefore = before.getBytes();
     String after = "Goodbye Cruel World";
@@ -103,8 +106,7 @@ public class GetPropertyOnLoadValueTest extends DbTestBase {
     var byteArrayAfter = after.getBytes();
     var oBlob = db.newBlob(byteArrayBefore);
     var oBlob2 = db.newBlob(byteArrayAfter);
-    db.createVertexClass("test");
-    db.begin();
+
     VertexEntityImpl doc = (VertexEntityImpl) db.newVertex("test");
     doc.setProperty("stringBlob", oBlob);
     doc.save();

@@ -65,7 +65,7 @@ public final class QueryRequest implements BinaryRequest<QueryResponse> {
       this.recordsPerPage = 100;
     }
     this.operationType = operationType;
-    EntityImpl parms = new EntityImpl(session);
+    EntityImpl parms = new EntityImpl(null);
     parms.field("params", this.params);
 
     paramsBytes = MessageHelper.getRecordBytes(session, parms, serializer);
@@ -81,7 +81,7 @@ public final class QueryRequest implements BinaryRequest<QueryResponse> {
     this.language = language;
     this.statement = iCommand;
     this.params = namedParams;
-    EntityImpl parms = new EntityImpl(session);
+    EntityImpl parms = new EntityImpl(null);
     parms.field("params", this.params);
 
     paramsBytes = MessageHelper.getRecordBytes(session, parms, serializer);
@@ -154,7 +154,7 @@ public final class QueryRequest implements BinaryRequest<QueryResponse> {
   public Map<String, Object> getParams(DatabaseSessionInternal db) {
     if (params == null && this.paramsBytes != null) {
       // params
-      EntityImpl paramsEntity = new EntityImpl(db);
+      EntityImpl paramsEntity = new EntityImpl(null);
       paramsEntity.setTrackingChanges(false);
       serializer.fromStream(db, this.paramsBytes, paramsEntity, null);
       this.params = paramsEntity.field("params");

@@ -104,12 +104,6 @@ public class ChannelBinaryProtocol {
   public static final byte REQUEST_SBTREE_BONSAI_GET_ENTRIES_MAJOR = 113;
   public static final byte REQUEST_RIDBAG_GET_SIZE = 114;
 
-  // TASK
-  public static final byte DISTRIBUTED_REQUEST = 120;
-  public static final byte DISTRIBUTED_RESPONSE = 121;
-  public static final byte DISTRIBUTED_CONNECT = 122;
-  public static final byte COORDINATED_DISTRIBUTED_MESSAGE = 123;
-
   public static final byte REQUEST_RECORD_EXISTS = 124;
   public static final byte REQUEST_SEND_TRANSACTION_STATE = 125;
 

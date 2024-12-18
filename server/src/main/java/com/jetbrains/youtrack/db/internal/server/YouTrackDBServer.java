@@ -55,7 +55,6 @@ import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfigura
 import com.jetbrains.youtrack.db.internal.server.config.ServerSocketFactoryConfiguration;
 import com.jetbrains.youtrack.db.internal.server.config.ServerStorageConfiguration;
 import com.jetbrains.youtrack.db.internal.server.config.ServerUserConfiguration;
-import com.jetbrains.youtrack.db.internal.server.distributed.ODistributedServerManager;
 import com.jetbrains.youtrack.db.internal.server.handler.ConfigurableHooksManager;
 import com.jetbrains.youtrack.db.internal.server.network.ServerNetworkListener;
 import com.jetbrains.youtrack.db.internal.server.network.ServerSocketFactory;
@@ -107,7 +106,6 @@ public class YouTrackDBServer {
       new ArrayList<OServerLifecycleListener>();
   protected ServerPluginManager pluginManager;
   protected ConfigurableHooksManager hookManager;
-  protected ODistributedServerManager distributedManager;
   private final Map<String, Object> variables = new HashMap<String, Object>();
   private String serverRootDirectory;
   private String databaseDirectory;
@@ -556,13 +554,6 @@ public class YouTrackDBServer {
       lock.unlock();
       startupLatch.countDown();
     }
-    if (distributedManager != null) {
-      try {
-        distributedManager.waitUntilNodeOnline();
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-      }
-    }
 
     return this;
   }
@@ -931,9 +922,6 @@ public class YouTrackDBServer {
     return databases.openNoAuthorization(database);
   }
 
-  public ODistributedServerManager getDistributedManager() {
-    return distributedManager;
-  }
 
   public void setServerRootDirectory(final String rootDirectory) {
     this.serverRootDirectory = rootDirectory;
@@ -1196,11 +1184,6 @@ public class YouTrackDBServer {
         }
 
         final ServerPlugin plugin = (ServerPlugin) loadClass(h.clazz).newInstance();
-
-        if (plugin instanceof ODistributedServerManager) {
-          distributedManager = (ODistributedServerManager) plugin;
-        }
-
         pluginManager.registerPlugin(
             new ServerPluginInfo(plugin.getName(), null, null, null, plugin, null, 0, null));
 

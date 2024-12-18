@@ -256,7 +256,7 @@ public final class CommandResponse implements BinaryResponse {
 
     if (protocolVersion >= ChannelBinaryProtocol.PROTOCOL_VERSION_35) {
       channel.writeByte((byte) 'w');
-      EntityImpl entity = new EntityImpl(db);
+      EntityImpl entity = new EntityImpl(null);
       entity.field("result", result);
       MessageHelper.writeIdentifiable(db, channel, entity, recordSerializer);
       if (listener != null) {
@@ -266,7 +266,7 @@ public final class CommandResponse implements BinaryResponse {
       channel.writeByte((byte) 'a');
       final StringBuilder value = new StringBuilder(64);
       if (listener != null) {
-        EntityImpl entity = new EntityImpl(db);
+        EntityImpl entity = new EntityImpl(null);
         entity.field("result", result);
         listener.linkdedBySimpleValue(db, entity);
       }

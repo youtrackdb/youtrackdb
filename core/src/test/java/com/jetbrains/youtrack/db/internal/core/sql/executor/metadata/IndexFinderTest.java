@@ -2,6 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor.metadata;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
@@ -101,24 +102,26 @@ public class IndexFinderTest {
   @Test
   public void testFindRangeNotMatchIndex() {
     SchemaClass cl = this.session.createClass("cl");
+
     Property prop = cl.createProperty(session, "name", PropertyType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
+
     Property prop1 = cl.createProperty(session, "surname", PropertyType.STRING);
     prop1.createIndex(session, INDEX_TYPE.UNIQUE);
-    Property prop2 = cl.createProperty(session, "third", PropertyType.STRING);
-    prop2.createIndex(session, INDEX_TYPE.FULLTEXT);
+
+    cl.createProperty(session, "third", PropertyType.STRING);
 
     IndexFinder finder = new ClassIndexFinder("cl");
     BasicCommandContext ctx = new BasicCommandContext(session);
     Optional<IndexCandidate> result =
         finder.findAllowRangeIndex(new MetadataPath("name"), Operation.Ge, null, ctx);
 
-    assertFalse(result.isPresent());
+    assertTrue(result.isPresent());
 
     Optional<IndexCandidate> result1 =
         finder.findAllowRangeIndex(new MetadataPath("surname"), Operation.Ge, null, ctx);
 
-    assertFalse(result1.isPresent());
+    assertTrue(result1.isPresent());
 
     Optional<IndexCandidate> result2 =
         finder.findAllowRangeIndex(new MetadataPath("third"), Operation.Ge, null, ctx);

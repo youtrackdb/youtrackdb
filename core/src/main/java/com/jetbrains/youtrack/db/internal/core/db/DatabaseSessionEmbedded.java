@@ -45,7 +45,6 @@ import com.jetbrains.youtrack.db.api.session.SessionListener;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
-import com.jetbrains.youtrack.db.internal.core.cache.LocalRecordCache;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.ScriptExecutor;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
@@ -121,7 +120,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     implements QueryLifecycleListener {
 
   private YouTrackDBConfigImpl config;
-  private Storage storage;
+  private final Storage storage;
 
   private FrontendTransactionNoTx.NonTxReadMode nonTxReadMode;
 
@@ -162,8 +161,6 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       this.componentsFactory = storage.getComponentsFactory();
 
       unmodifiableHooks = Collections.unmodifiableMap(hooks);
-
-      localCache = new LocalRecordCache();
 
       init();
 
@@ -529,8 +526,6 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   public DatabaseSessionInternal copy() {
     var storage = (Storage) getSharedContext().getStorage();
     storage.open(this, null, null, config.getConfiguration());
-    DatabaseSessionEmbedded database = new DatabaseSessionEmbedded(storage);
-    database.init(config, this.sharedContext);
     String user;
     if (geCurrentUser() != null) {
       user = geCurrentUser().getName(this);
@@ -538,8 +533,11 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       user = null;
     }
 
+    DatabaseSessionEmbedded database = new DatabaseSessionEmbedded(storage);
+    database.init(config, this.sharedContext);
     database.internalOpen(user, null, false);
     database.callOnOpenListeners();
+
     this.activateOnCurrentThread();
     return database;
   }
@@ -568,7 +566,6 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   public Storage getStorage() {
-    assert assertIfNotActive();
     return storage;
   }
 
@@ -578,12 +575,6 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     return storage;
   }
 
-  @Override
-  public void replaceStorage(Storage iNewStorage) {
-    assert assertIfNotActive();
-    this.getSharedContext().setStorage(iNewStorage);
-    storage = iNewStorage;
-  }
 
   @Override
   public ResultSet query(String query, Object[] args) {
@@ -1940,7 +1931,6 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   public NonTxReadMode getNonTxReadMode() {
-    assert assertIfNotActive();
     return nonTxReadMode;
   }
 

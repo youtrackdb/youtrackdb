@@ -94,14 +94,15 @@ public class HookChangeValidationTest extends DbTestBase {
     db.commit();
 
     db.begin();
-    doc = db.bindToSession(doc);
-    assertEquals("value1-create", doc.field("property1"));
-    assertEquals("value2-create", doc.field("property2"));
-    assertEquals("value3-create", doc.field("property3"));
-
-    doc.field("property1", "value1-update");
-    doc.field("property2", "value2-update");
     try {
+      doc = db.bindToSession(doc);
+      assertEquals("value1-create", doc.field("property1"));
+      assertEquals("value2-create", doc.field("property2"));
+      assertEquals("value3-create", doc.field("property3"));
+
+      doc.field("property1", "value1-update");
+      doc.field("property2", "value2-update");
+
       doc.save();
       db.commit();
       Assert.fail("The document save should fail for validation exception");

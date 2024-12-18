@@ -2,13 +2,13 @@ package com.jetbrains.youtrack.db.internal.core.sql.functions.graph;
 
 import static java.util.Arrays.asList;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +20,7 @@ import org.junit.Test;
 public class SQLFunctionShortestPathTest {
 
   private YouTrackDB youTrackDB;
-  private DatabaseSession graph;
+  private DatabaseSessionInternal db;
 
   private Map<Integer, Vertex> vertices = new HashMap<Integer, Vertex>();
   private SQLFunctionShortestPath function;
@@ -34,7 +34,7 @@ public class SQLFunctionShortestPathTest {
 
   @After
   public void tearDown() throws Exception {
-    graph.close();
+    db.close();
     youTrackDB.close();
   }
 
@@ -43,23 +43,23 @@ public class SQLFunctionShortestPathTest {
         CreateDatabaseUtil.createDatabase(
             "SQLFunctionShortestPath", DbTestBase.embeddedDBUrl(getClass()),
             CreateDatabaseUtil.TYPE_MEMORY);
-    graph =
-        youTrackDB.open("SQLFunctionShortestPath", "admin",
+    db =
+        (DatabaseSessionInternal) youTrackDB.open("SQLFunctionShortestPath", "admin",
             CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-    graph.createEdgeClass("Edge1");
-    graph.createEdgeClass("Edge2");
+    db.createEdgeClass("Edge1");
+    db.createEdgeClass("Edge2");
 
-    graph.begin();
-    var v1 = graph.newVertex();
+    db.begin();
+    var v1 = db.newVertex();
     v1.save();
     vertices.put(1, v1);
-    var v2 = graph.newVertex();
+    var v2 = db.newVertex();
     v2.save();
     vertices.put(2, v2);
-    var v3 = graph.newVertex();
+    var v3 = db.newVertex();
     vertices.put(3, v3);
-    var v4 = graph.newVertex();
+    var v4 = db.newVertex();
     v4.save();
     vertices.put(4, v4);
 
@@ -68,35 +68,38 @@ public class SQLFunctionShortestPathTest {
     vertices.get(3).setProperty("node_id", "C");
     vertices.get(4).setProperty("node_id", "D");
 
-    graph.newRegularEdge(vertices.get(1), vertices.get(2), "Edge1").save();
-    graph.newRegularEdge(vertices.get(2), vertices.get(3), "Edge1").save();
-    graph.newRegularEdge(vertices.get(3), vertices.get(1), "Edge2").save();
-    graph.newRegularEdge(vertices.get(3), vertices.get(4), "Edge1").save();
+    db.newRegularEdge(vertices.get(1), vertices.get(2), "Edge1").save();
+    db.newRegularEdge(vertices.get(2), vertices.get(3), "Edge1").save();
+    db.newRegularEdge(vertices.get(3), vertices.get(1), "Edge2").save();
+    db.newRegularEdge(vertices.get(3), vertices.get(4), "Edge1").save();
 
     for (int i = 5; i <= 20; i++) {
-      var v = graph.newVertex();
+      var v = db.newVertex();
       v.save();
       vertices.put(i, v);
       vertices.get(i).setProperty("node_id", "V" + i);
-      graph.newRegularEdge(vertices.get(i - 1), vertices.get(i), "Edge1").save();
+      db.newRegularEdge(vertices.get(i - 1), vertices.get(i), "Edge1").save();
       if (i % 2 == 0) {
-        graph.newRegularEdge(vertices.get(i - 2), vertices.get(i), "Edge1").save();
+        db.newRegularEdge(vertices.get(i - 2), vertices.get(i), "Edge1").save();
       }
     }
-    graph.commit();
+    db.commit();
   }
 
   @Test
   public void testExecute() {
     bindVertices();
 
+    var context = new BasicCommandContext();
+    context.setDatabase(db);
+
     final List<RID> result =
         function.execute(
             null,
             null,
             null,
-            new Object[]{vertices.get(1), vertices.get(4)},
-            new BasicCommandContext());
+            new Object[]{vertices.get(1), vertices.get(4)}, context
+        );
 
     Assert.assertEquals(3, result.size());
     Assert.assertEquals(vertices.get(1).getIdentity(), result.get(0));
@@ -108,13 +111,16 @@ public class SQLFunctionShortestPathTest {
   public void testExecuteOut() {
     bindVertices();
 
+    var context = new BasicCommandContext();
+    context.setDatabase(db);
+
     final List<RID> result =
         function.execute(
             null,
             null,
             null,
             new Object[]{vertices.get(1), vertices.get(4), "out", null},
-            new BasicCommandContext());
+            context);
 
     Assert.assertEquals(4, result.size());
     Assert.assertEquals(vertices.get(1).getIdentity(), result.get(0));
@@ -127,13 +133,16 @@ public class SQLFunctionShortestPathTest {
   public void testExecuteOnlyEdge1() {
     bindVertices();
 
+    var context = new BasicCommandContext();
+    context.setDatabase(db);
+
     final List<RID> result =
         function.execute(
             null,
             null,
             null,
             new Object[]{vertices.get(1), vertices.get(4), null, "Edge1"},
-            new BasicCommandContext());
+            context);
 
     Assert.assertEquals(4, result.size());
     Assert.assertEquals(vertices.get(1).getIdentity(), result.get(0));
@@ -146,13 +155,16 @@ public class SQLFunctionShortestPathTest {
   public void testExecuteOnlyEdge1AndEdge2() {
     bindVertices();
 
+    var context = new BasicCommandContext();
+    context.setDatabase(db);
+
     final List<RID> result =
         function.execute(
             null,
             null,
             null,
             new Object[]{vertices.get(1), vertices.get(4), "BOTH", asList("Edge1", "Edge2")},
-            new BasicCommandContext());
+            context);
 
     Assert.assertEquals(3, result.size());
     Assert.assertEquals(vertices.get(1).getIdentity(), result.get(0));
@@ -164,13 +176,16 @@ public class SQLFunctionShortestPathTest {
   public void testLong() {
     bindVertices();
 
+    var context = new BasicCommandContext();
+    context.setDatabase(db);
+
     final List<RID> result =
         function.execute(
             null,
             null,
             null,
             new Object[]{vertices.get(1), vertices.get(20)},
-            new BasicCommandContext());
+            context);
 
     Assert.assertEquals(11, result.size());
     Assert.assertEquals(vertices.get(1).getIdentity(), result.get(0));
@@ -185,6 +200,9 @@ public class SQLFunctionShortestPathTest {
   public void testMaxDepth1() {
     bindVertices();
 
+    var context = new BasicCommandContext();
+    context.setDatabase(db);
+
     Map<String, Object> additionalParams = new HashMap<String, Object>();
     additionalParams.put(SQLFunctionShortestPath.PARAM_MAX_DEPTH, 11);
     final List<RID> result =
@@ -193,7 +211,7 @@ public class SQLFunctionShortestPathTest {
             null,
             null,
             new Object[]{vertices.get(1), vertices.get(20), null, null, additionalParams},
-            new BasicCommandContext());
+            context);
 
     Assert.assertEquals(11, result.size());
   }
@@ -201,6 +219,9 @@ public class SQLFunctionShortestPathTest {
   @Test
   public void testMaxDepth2() {
     bindVertices();
+
+    var context = new BasicCommandContext();
+    context.setDatabase(db);
 
     Map<String, Object> additionalParams = new HashMap<String, Object>();
     additionalParams.put(SQLFunctionShortestPath.PARAM_MAX_DEPTH, 12);
@@ -210,7 +231,7 @@ public class SQLFunctionShortestPathTest {
             null,
             null,
             new Object[]{vertices.get(1), vertices.get(20), null, null, additionalParams},
-            new BasicCommandContext());
+            context);
 
     Assert.assertEquals(11, result.size());
   }
@@ -218,6 +239,9 @@ public class SQLFunctionShortestPathTest {
   @Test
   public void testMaxDepth3() {
     bindVertices();
+
+    var context = new BasicCommandContext();
+    context.setDatabase(db);
 
     Map<String, Object> additionalParams = new HashMap<String, Object>();
     additionalParams.put(SQLFunctionShortestPath.PARAM_MAX_DEPTH, 10);
@@ -227,7 +251,7 @@ public class SQLFunctionShortestPathTest {
             null,
             null,
             new Object[]{vertices.get(1), vertices.get(20), null, null, additionalParams},
-            new BasicCommandContext());
+            context);
 
     Assert.assertEquals(0, result.size());
   }
@@ -235,6 +259,9 @@ public class SQLFunctionShortestPathTest {
   @Test
   public void testMaxDepth4() {
     bindVertices();
+
+    var context = new BasicCommandContext();
+    context.setDatabase(db);
 
     Map<String, Object> additionalParams = new HashMap<String, Object>();
     additionalParams.put(SQLFunctionShortestPath.PARAM_MAX_DEPTH, 3);
@@ -244,7 +271,7 @@ public class SQLFunctionShortestPathTest {
             null,
             null,
             new Object[]{vertices.get(1), vertices.get(20), null, null, additionalParams},
-            new BasicCommandContext());
+            context);
 
     Assert.assertEquals(0, result.size());
   }
@@ -252,7 +279,7 @@ public class SQLFunctionShortestPathTest {
   private void bindVertices() {
     var newVertices = new HashMap<Integer, Vertex>();
     for (var entry : vertices.entrySet()) {
-      newVertices.put(entry.getKey(), graph.bindToSession(entry.getValue()));
+      newVertices.put(entry.getKey(), db.bindToSession(entry.getValue()));
     }
 
     vertices = newVertices;

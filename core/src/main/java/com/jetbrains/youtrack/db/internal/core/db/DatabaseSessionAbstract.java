@@ -135,7 +135,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   protected static final byte recordType = EntityImpl.RECORD_TYPE;
   protected final Map<RecordHook, RecordHook.HOOK_POSITION> hooks = new LinkedHashMap<>();
   protected boolean retainRecords = true;
-  protected LocalRecordCache localCache;
+  protected final LocalRecordCache localCache = new LocalRecordCache();
   protected CurrentStorageComponentsFactory componentsFactory;
   protected boolean initialized = false;
   protected FrontendTransactionAbstract currentTx;
@@ -510,7 +510,6 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   @Override
   public LocalRecordCache getLocalCache() {
-    assert assertIfNotActive();
     return localCache;
   }
 
@@ -607,7 +606,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   public boolean isValidationEnabled() {
     assert assertIfNotActive();
-    return (Boolean) get(ATTRIBUTES_INTERNAL.VALIDATION.VALIDATION);
+    return (Boolean) get(ATTRIBUTES_INTERNAL.VALIDATION);
   }
 
   /**
@@ -1111,7 +1110,6 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   public void setDefaultTransactionMode() {
-    assert assertIfNotActive();
     if (!(currentTx instanceof FrontendTransactionNoTx)) {
       currentTx = new FrontendTransactionNoTx(this);
     }
@@ -1163,11 +1161,13 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public Entity newEmbededEntity(String className) {
+    assert assertIfNotActive();
     return new EntityImplEmbedded(className, this);
   }
 
   @Override
   public Entity newEmbededEntity() {
+    assert assertIfNotActive();
     return new EntityImplEmbedded(this);
   }
 
@@ -1896,7 +1896,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     }
 
     if (currentDatabase != this) {
-      throw new SessionNotActivatedException(getName());
+      throw new SessionNotActivatedException();
     }
 
     return true;

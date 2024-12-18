@@ -73,12 +73,6 @@ public class DocumentTest extends DbTestBase {
   }
 
   @Test
-  public void testNullConstructor() {
-    db.newEntity((String) null);
-    db.newEntity((SchemaClass) null);
-  }
-
-  @Test
   public void testClearResetsFieldTypes() throws Exception {
     EntityImpl doc = (EntityImpl) db.newEntity();
     doc.setFieldType("integer", PropertyType.INTEGER);

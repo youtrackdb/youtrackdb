@@ -58,7 +58,7 @@ public class CollectionOfLinkInNestedDocumentTest extends DbTestBase {
     db.begin();
     EntityImpl base = (EntityImpl) db.newEntity();
     base.field("nested", nested, PropertyType.EMBEDDED);
-    Identifiable id = db.save(base, db.getClusterNameById(db.getDefaultClusterId()));
+    Identifiable id = db.save(base);
     db.commit();
 
     EntityImpl base1 = db.load(id.getIdentity());
@@ -83,7 +83,7 @@ public class CollectionOfLinkInNestedDocumentTest extends DbTestBase {
     db.begin();
     EntityImpl base = (EntityImpl) db.newEntity();
     base.field("nested", nested, PropertyType.EMBEDDED);
-    Identifiable id = db.save(base, db.getClusterNameById(db.getDefaultClusterId()));
+    Identifiable id = db.save(base);
     db.commit();
 
     EntityImpl base1 = db.load(id.getIdentity());

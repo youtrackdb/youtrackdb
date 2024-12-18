@@ -27,6 +27,7 @@ import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableIdentity;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.IdentityChangeListener;
@@ -36,6 +37,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.DirtyManager;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJSON;
+import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -158,6 +160,11 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     return this;
   }
 
+  @Override
+  public boolean isEmbedded() {
+    return false;
+  }
+
   public RecordAbstract setDirty() {
     if (!dirty && recordId.isPersistent()) {
       if (session == null) {
@@ -167,6 +174,13 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
       var tx = session.getTransaction();
       if (!tx.isActive()) {
         throw new DatabaseException("Cannot modify persisted record outside of transaction");
+      }
+
+      if (!isEmbedded()) {
+        assert recordId.isPersistent();
+
+        var optimistic = (TransactionOptimistic) tx;
+        optimistic.addRecordOperation(this, RecordOperation.UPDATED, null);
       }
     }
 
@@ -203,7 +217,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   public <RET extends Record> RET fromJSON(final String iSource, final String iOptions) {
     status = STATUS.UNMARSHALLING;
     try {
-      RecordSerializerJSON.INSTANCE.fromString(getSession(),
+      RecordSerializerJSON.INSTANCE.fromString(getSessionIfDefined(),
           iSource, this, null, iOptions, false); // Add new parameter to accommodate new API,
       // nothing change
       return (RET) this;

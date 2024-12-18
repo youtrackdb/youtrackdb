@@ -3,16 +3,16 @@ package com.jetbrains.youtrack.db.internal.core.ridbag;
 import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.RID_BAG_SBTREEBONSAI_DELETE_DELAY;
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
+import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.EdgeBTree;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.EdgeBTree;
 import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
     doc.field("bag", bag);
 
     db.begin();
-    RID id = db.save(doc, db.getClusterNameById(db.getDefaultClusterId())).getIdentity();
+    RID id = db.save(doc).getIdentity();
     db.commit();
 
     doc = db.bindToSession(doc);

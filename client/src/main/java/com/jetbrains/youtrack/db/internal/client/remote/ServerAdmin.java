@@ -317,16 +317,6 @@ public class ServerAdmin {
     return this;
   }
 
-  /**
-   * Gets the cluster status.
-   *
-   * @return the JSON containing the current cluster structure
-   */
-  public EntityImpl clusterStatus() {
-    checkConnected();
-    return remote.getClusterStatus(user, password);
-  }
-
   public synchronized Map<String, String> getGlobalConfigurations() throws IOException {
     checkConnected();
     return remote.getGlobalConfigurations(user, password);

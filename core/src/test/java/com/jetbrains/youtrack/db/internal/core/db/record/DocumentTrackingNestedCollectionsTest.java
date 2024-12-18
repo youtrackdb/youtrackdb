@@ -29,7 +29,7 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
     Set objects = new HashSet();
 
     document.field("objects", objects);
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
 
     objects = document.field("objects");
     Set subObjects = new HashSet();
@@ -72,7 +72,7 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
     EntityImpl nestedDoc = (EntityImpl) db.newEntity();
     subObjects.add(nestedDoc);
 
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     db.begin();
@@ -105,7 +105,7 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
     EntityImpl nestedDoc = (EntityImpl) db.newEntity();
     subObjects.add(nestedDoc);
 
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     db.begin();
@@ -113,7 +113,7 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
     objects = document.field("objects");
     subObjects = (List) objects.iterator().next();
     subObjects.add("one");
-    subObjects.add((EntityImpl) db.newEntity());
+    subObjects.add(db.newEntity());
 
     assertTrue(document.isDirty());
     List<MultiValueChangeEvent<Object, Object>> multiValueChangeEvents =
@@ -138,7 +138,7 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
     EntityImpl nestedDoc = (EntityImpl) db.newEntity();
     subObjects.put("one", nestedDoc);
 
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     db.begin();
@@ -146,7 +146,7 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
     objects = document.field("objects");
     subObjects = (Map) objects.values().iterator().next();
     subObjects.put("one", "String");
-    subObjects.put("two", (EntityImpl) db.newEntity());
+    subObjects.put("two", db.newEntity());
 
     assertTrue(document.isDirty());
     List<MultiValueChangeEvent<Object, Object>> multiValueChangeEvents =

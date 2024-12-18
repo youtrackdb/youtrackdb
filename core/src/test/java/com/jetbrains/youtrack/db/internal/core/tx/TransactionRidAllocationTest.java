@@ -3,20 +3,20 @@ package com.jetbrains.youtrack.db.internal.core.tx;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.exception.ConcurrentCreateException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Edge;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.api.exception.ConcurrentCreateException;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Edge;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.util.ArrayList;
 import java.util.List;
@@ -120,7 +120,7 @@ public class TransactionRidAllocationTest {
     for (var recordOperation : recordOperations) {
       var record = recordOperation.first;
       record.setup(second);
-      transactionOptimistic.addRecord(record, recordOperation.second, null);
+      transactionOptimistic.addRecordOperation(record, recordOperation.second, null);
     }
 
     ((AbstractPaginatedStorage) second.getStorage()).preallocateRids(transactionOptimistic);
@@ -182,7 +182,7 @@ public class TransactionRidAllocationTest {
     for (var recordOperation : recordOperations) {
       var record = recordOperation.first;
       record.setup(second);
-      transactionOptimistic.addRecord(record, recordOperation.second, null);
+      transactionOptimistic.addRecordOperation(record, recordOperation.second, null);
     }
     ((AbstractPaginatedStorage) second.getStorage()).preallocateRids(transactionOptimistic);
   }

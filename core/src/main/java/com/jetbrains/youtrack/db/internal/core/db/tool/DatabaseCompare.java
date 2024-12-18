@@ -21,6 +21,7 @@ package com.jetbrains.youtrack.db.internal.core.db.tool;
 
 import static com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper.makeDbCall;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.Property;
@@ -73,9 +74,9 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
 
     listener.onMessage(
         "\nComparing two local databases:\n1) "
-            + databaseOne.getURL()
+            + makeDbCall(databaseOne, DatabaseSession::getURL)
             + "\n2) "
-            + databaseTwo.getURL()
+            + makeDbCall(databaseTwo, DatabaseSession::getURL)
             + "\n");
 
     this.databaseOne = databaseOne;
@@ -157,13 +158,13 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
               this,
               "Error on comparing database '%s' against '%s'",
               e,
-              databaseOne.getName(),
-              databaseTwo.getName());
+              makeDbCall(databaseOne, DatabaseSession::getName),
+              makeDbCall(databaseTwo, DatabaseSession::getName));
       throw new DatabaseExportException(
           "Error on comparing database '"
-              + databaseOne.getName()
+              + makeDbCall(databaseOne, DatabaseSession::getName)
               + "' against '"
-              + databaseTwo.getName()
+              + makeDbCall(databaseTwo, DatabaseSession::getName)
               + "'",
           e);
     } finally {
@@ -185,8 +186,10 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
   }
 
   private void compareSchema() {
-    Schema schema1 = databaseOne.getMetadata().getImmutableSchemaSnapshot();
-    Schema schema2 = databaseTwo.getMetadata().getImmutableSchemaSnapshot();
+    Schema schema1 = makeDbCall(databaseOne,
+        database1 -> database1.getMetadata().getImmutableSchemaSnapshot());
+    Schema schema2 = makeDbCall(databaseTwo,
+        database2 -> database2.getMetadata().getImmutableSchemaSnapshot());
     boolean ok = true;
     for (SchemaClass clazz : schema1.getClasses()) {
       SchemaClass clazz2 = schema2.getClass(clazz.getName());

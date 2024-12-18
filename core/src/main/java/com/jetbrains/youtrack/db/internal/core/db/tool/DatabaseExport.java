@@ -19,8 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.tool;
 
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.Property;
@@ -29,15 +27,12 @@ import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.io.YTIOException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
-import com.jetbrains.youtrack.db.internal.core.index.RuntimeKeyIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
@@ -447,80 +442,6 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
 
     writer.endCollection(1, true);
     listener.onMessage("\nOK (" + indexes.size() + " indexes)");
-  }
-
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  private void exportManualIndexes() throws IOException {
-    listener.onMessage("\nExporting manual indexes content...");
-
-    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
-    indexManager.reload(database);
-
-    final Collection<? extends Index> indexes = indexManager.getIndexes(database);
-
-    EntityImpl exportEntry;
-
-    int manualIndexes = 0;
-    for (Index index : indexes) {
-      if (!index.isAutomatic()) {
-        if (manualIndexes == 0) {
-          writer.beginCollection(database, 1, true, "manualIndexes");
-        }
-
-        listener.onMessage("\n- Exporting index " + index.getName() + " ...");
-
-        writer.beginObject(2, true, null);
-        writer.writeAttribute(database, 3, true, "name", index.getName());
-
-        ResultSet indexContent = database.query("select from index:" + index.getName());
-
-        writer.beginCollection(database, 3, true, "content");
-
-        int i = 0;
-        while (indexContent.hasNext()) {
-          Result indexEntry = indexContent.next();
-          if (i > 0) {
-            writer.append(",");
-          }
-
-          final IndexDefinition indexDefinition = index.getDefinition();
-
-          exportEntry = new EntityImpl(database);
-          exportEntry.setLazyLoad(false);
-
-          if (indexDefinition instanceof RuntimeKeyIndexDefinition
-              && ((RuntimeKeyIndexDefinition) indexDefinition).getSerializer() != null) {
-            final BinarySerializer binarySerializer =
-                ((RuntimeKeyIndexDefinition) indexDefinition).getSerializer();
-
-            final int dataSize = binarySerializer.getObjectSize(indexEntry.getProperty("key"));
-            final byte[] binaryContent = new byte[dataSize];
-            binarySerializer.serialize(indexEntry.getProperty("key"), binaryContent, 0);
-
-            exportEntry.field("binary", true);
-            exportEntry.field("key", binaryContent);
-          } else {
-            exportEntry.field("binary", false);
-            exportEntry.field("key", indexEntry.<Object>getProperty("key"));
-          }
-          exportEntry.field("rid", indexEntry.<Object>getProperty("rid"));
-
-          i++;
-
-          writer.append(exportEntry.toJSON());
-        }
-        writer.endCollection(3, true);
-
-        writer.endObject(2, true);
-        listener.onMessage("OK (entries=" + index.getInternal().size(database) + ")");
-        manualIndexes++;
-      }
-    }
-
-    if (manualIndexes > 0) {
-      writer.endCollection(1, true);
-    }
-    listener.onMessage("\nOK (" + manualIndexes + " manual indexes)");
   }
 
   private void exportSchema() throws IOException {

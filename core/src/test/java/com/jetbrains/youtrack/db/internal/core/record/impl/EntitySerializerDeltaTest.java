@@ -110,7 +110,7 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     originalDoc = db.bindToSession(originalDoc);
     serializerDelta.deserializeDelta(db, bytes, originalDoc);
     nestedDoc = originalDoc.field(nestedDocField);
-    assertEquals(nestedDoc.field(fieldName), testValue);
+    assertEquals(testValue, nestedDoc.field(fieldName));
     db.rollback();
   }
 
@@ -134,7 +134,6 @@ public class EntitySerializerDeltaTest extends DbTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    EntityImpl originalDoc = doc.copy();
 
     List<String> newArray = doc.field(fieldName);
     newArray.set(1, "three");
@@ -142,11 +141,14 @@ public class EntitySerializerDeltaTest extends DbTestBase {
 
     // test serialization/deserialization
     DocumentSerializerDelta serializerDelta = DocumentSerializerDelta.instance();
-
     byte[] bytes = serializerDelta.serializeDelta(db, doc);
-    serializerDelta.deserializeDelta(db, bytes, originalDoc);
+    db.rollback();
+    db.begin();
 
-    List<?> checkList = originalDoc.getProperty(fieldName);
+    doc = db.bindToSession(doc);
+    serializerDelta.deserializeDelta(db, bytes, doc);
+
+    List<?> checkList = doc.getProperty(fieldName);
     assertEquals("three", checkList.get(1));
     assertFalse(checkList.contains("toRemove"));
     db.rollback();
@@ -170,7 +172,6 @@ public class EntitySerializerDeltaTest extends DbTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    EntityImpl originalDoc = doc.copy();
 
     Set<String> newArray = doc.field(fieldName);
     newArray.add("three");
@@ -180,9 +181,13 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     DocumentSerializerDelta serializerDelta = DocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(db, doc);
-    serializerDelta.deserializeDelta(db, bytes, originalDoc);
+    db.rollback();
 
-    Set<String> checkSet = originalDoc.field(fieldName);
+    db.begin();
+    doc = db.bindToSession(doc);
+    serializerDelta.deserializeDelta(db, bytes, doc);
+
+    Set<String> checkSet = doc.field(fieldName);
     assertTrue(checkSet.contains("three"));
     assertFalse(checkSet.contains("toRemove"));
     db.rollback();
@@ -210,7 +215,6 @@ public class EntitySerializerDeltaTest extends DbTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    EntityImpl originalDoc = doc.copy();
 
     @SuppressWarnings("unchecked")
     Set<String> newSet = ((Set<Set<String>>) doc.getProperty(fieldName)).iterator().next();
@@ -220,9 +224,13 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     DocumentSerializerDelta serializerDelta = DocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(db, doc);
-    serializerDelta.deserializeDelta(db, bytes, originalDoc);
+    db.rollback();
 
-    Set<Set<String>> checkSet = originalDoc.field(fieldName);
+    db.begin();
+    doc = db.bindToSession(doc);
+    serializerDelta.deserializeDelta(db, bytes, doc);
+
+    Set<Set<String>> checkSet = doc.field(fieldName);
     assertTrue(checkSet.iterator().next().contains("three"));
     db.rollback();
   }
@@ -251,20 +259,21 @@ public class EntitySerializerDeltaTest extends DbTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    EntityImpl originalDoc = doc.copy();
 
-    @SuppressWarnings("unchecked")
-    List<String> newList = ((List<List<String>>) doc.field(fieldName)).get(0);
+    List<String> newList = doc.<List<List<String>>>field(fieldName).getFirst();
     newList.set(1, "three");
 
     // test serialization/deserialization
     DocumentSerializerDelta serializerDelta = DocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(db, doc);
-    serializerDelta.deserializeDelta(db, bytes, originalDoc);
+    db.rollback();
+    db.begin();
+    doc = db.bindToSession(doc);
+    serializerDelta.deserializeDelta(db, bytes, doc);
 
-    List<List<String>> checkList = originalDoc.field(fieldName);
-    assertEquals("three", checkList.get(0).get(1));
+    List<List<String>> checkList = doc.field(fieldName);
+    assertEquals("three", checkList.getFirst().get(1));
     db.rollback();
   }
 
@@ -309,8 +318,8 @@ public class EntitySerializerDeltaTest extends DbTestBase {
 
     List<EntityImpl> checkList = originalDoc.field(fieldName);
     EntityImpl checkDoc = checkList.get(1);
-    assertEquals(checkDoc.field(constantField), constValue);
-    assertEquals(checkDoc.field(variableField), "two");
+    assertEquals(constValue, checkDoc.field(constantField));
+    assertEquals("two", checkDoc.field(variableField));
     db.rollback();
   }
 
@@ -345,20 +354,22 @@ public class EntitySerializerDeltaTest extends DbTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    EntityImpl originalDoc = doc.copy();
 
     originalValue = doc.getProperty(fieldName);
-    EntityImpl d1 = originalValue.get(0).get(0);
+    EntityImpl d1 = originalValue.getFirst().getFirst();
     d1.setProperty(variableField, "two");
 
     // test serialization/deserialization
     DocumentSerializerDelta serializerDelta = DocumentSerializerDelta.instance();
-
     byte[] bytes = serializerDelta.serializeDelta(db, doc);
-    serializerDelta.deserializeDelta(db, bytes, originalDoc);
+    db.rollback();
 
-    List<List<EntityImpl>> checkList = originalDoc.field(fieldName);
-    assertEquals("two", checkList.get(0).get(0).field(variableField));
+    db.begin();
+    doc = db.bindToSession(doc);
+    serializerDelta.deserializeDelta(db, bytes, doc);
+
+    List<List<EntityImpl>> checkList = doc.field(fieldName);
+    assertEquals("two", checkList.getFirst().getFirst().field(variableField));
     db.rollback();
   }
 
@@ -388,20 +399,21 @@ public class EntitySerializerDeltaTest extends DbTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    EntityImpl originalDoc = doc.copy();
-
     @SuppressWarnings("unchecked")
-    List<String> innerList = ((List<List<List<String>>>) doc.field(fieldName)).get(0).get(0);
+    List<String> innerList = ((List<List<List<String>>>) doc.field(fieldName)).getFirst()
+        .getFirst();
     innerList.set(0, "changed");
 
     // test serialization/deserialization
     DocumentSerializerDelta serializerDelta = DocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(db, doc);
-    serializerDelta.deserializeDelta(db, bytes, originalDoc);
-
-    List<List<List<String>>> checkList = originalDoc.field(fieldName);
-    assertEquals("changed", checkList.get(0).get(0).get(0));
+    db.rollback();
+    db.begin();
+    doc = db.bindToSession(doc);
+    serializerDelta.deserializeDelta(db, bytes, doc);
+    List<List<List<String>>> checkList = doc.field(fieldName);
+    assertEquals("changed", checkList.getFirst().getFirst().getFirst());
     db.rollback();
   }
 
@@ -452,7 +464,7 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     List<EntityImpl> checkList = originalDoc.field(fieldName);
     EntityImpl checkDoc = checkList.get(1);
     List<String> checkInnerList = checkDoc.field(variableField);
-    assertEquals("changed", checkInnerList.get(0));
+    assertEquals("changed", checkInnerList.getFirst());
     db.rollback();
   }
 
@@ -474,7 +486,6 @@ public class EntitySerializerDeltaTest extends DbTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    EntityImpl originalDoc = doc.copy();
 
     List<String> newArray = doc.field(fieldName);
     newArray.add("three");
@@ -483,9 +494,12 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     DocumentSerializerDelta serializerDelta = DocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(db, doc);
-    serializerDelta.deserializeDelta(db, bytes, originalDoc);
+    db.rollback();
+    db.begin();
+    doc = db.bindToSession(doc);
+    serializerDelta.deserializeDelta(db, bytes, doc);
 
-    List<String> checkList = originalDoc.field(fieldName);
+    List<String> checkList = doc.field(fieldName);
     assertEquals(3, checkList.size());
     db.rollback();
   }
@@ -521,7 +535,7 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     originalDoc.fromStream(doc.toStream());
 
     @SuppressWarnings("unchecked")
-    List<String> newArray = ((List<List<String>>) doc.field(fieldName)).get(0);
+    List<String> newArray = ((List<List<String>>) doc.field(fieldName)).getFirst();
     newArray.add("three");
 
     // test serialization/deserialization
@@ -531,7 +545,7 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     List<List<String>> rootList = originalDoc.field(fieldName);
-    List<String> checkList = rootList.get(0);
+    List<String> checkList = rootList.getFirst();
     assertEquals(3, checkList.size());
     db.rollback();
   }
@@ -556,7 +570,6 @@ public class EntitySerializerDeltaTest extends DbTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    EntityImpl originalDoc = doc.copy();
 
     List<String> newArray = doc.field(fieldName);
     newArray.remove(0);
@@ -564,12 +577,14 @@ public class EntitySerializerDeltaTest extends DbTestBase {
 
     // test serialization/deserialization
     DocumentSerializerDelta serializerDelta = DocumentSerializerDelta.instance();
-
     byte[] bytes = serializerDelta.serializeDelta(db, doc);
-    serializerDelta.deserializeDelta(db, bytes, originalDoc);
+    db.rollback();
 
-    List<String> checkList = originalDoc.field(fieldName);
-    assertEquals("three", checkList.get(0));
+    db.begin();
+    doc = db.bindToSession(doc);
+    serializerDelta.deserializeDelta(db, bytes, doc);
+    List<String> checkList = doc.field(fieldName);
+    assertEquals("three", checkList.getFirst());
     db.rollback();
   }
 
@@ -634,7 +649,7 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     assertFalse(originalDoc.hasProperty(fieldName));
-    assertEquals(originalDoc.getProperty("other"), "new");
+    assertEquals("new", originalDoc.getProperty("other"));
     db.rollback();
   }
 
@@ -718,7 +733,7 @@ public class EntitySerializerDeltaTest extends DbTestBase {
 
     List<Identifiable> checkList = originalDoc.field(fieldName);
     EntityImpl checkDoc = checkList.get(1).getRecord(db);
-    assertEquals(checkDoc.field(constantField), constValue);
+    assertEquals(constValue, checkDoc.field(constantField));
     assertFalse(checkDoc.hasProperty(variableField));
     db.rollback();
   }
@@ -741,7 +756,6 @@ public class EntitySerializerDeltaTest extends DbTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    EntityImpl originalDoc = doc.copy();
 
     Map<String, String> containedMap = doc.field(fieldName);
     containedMap.put("first", "changed");
@@ -750,9 +764,13 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     DocumentSerializerDelta serializerDelta = DocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(db, doc);
-    serializerDelta.deserializeDelta(db, bytes, originalDoc);
+    db.rollback();
 
-    containedMap = originalDoc.field(fieldName);
+    db.begin();
+    doc = db.bindToSession(doc);
+    serializerDelta.deserializeDelta(db, bytes, doc);
+
+    containedMap = doc.field(fieldName);
     assertEquals("changed", containedMap.get("first"));
     db.rollback();
   }
@@ -779,22 +797,26 @@ public class EntitySerializerDeltaTest extends DbTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    EntityImpl originalDoc = doc.copy();
 
     @SuppressWarnings("unchecked")
-    Map<String, String> containedMap = ((List<Map<String, String>>) doc.field(fieldName)).get(0);
+    Map<String, String> containedMap = ((List<Map<String, String>>) doc.field(
+        fieldName)).getFirst();
     containedMap.put("first", "changed");
     // test serialization/deserialization
     DocumentSerializerDelta serializerDelta = DocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(db, doc);
-    serializerDelta.deserializeDelta(db, bytes, originalDoc);
+    db.rollback();
+
+    db.begin();
+    doc = db.bindToSession(doc);
+    serializerDelta.deserializeDelta(db, bytes, doc);
 
     //noinspection unchecked
-    containedMap = ((List<Map<String, String>>) originalDoc.field(fieldName)).get(0);
+    containedMap = ((List<Map<String, String>>) doc.field(fieldName)).get(0);
     assertEquals("changed", containedMap.get("first"));
     //noinspection unchecked
-    containedMap = ((List<Map<String, String>>) originalDoc.field(fieldName)).get(1);
+    containedMap = ((List<Map<String, String>>) doc.field(fieldName)).get(1);
     assertEquals("one", containedMap.get("first"));
     db.rollback();
   }
@@ -868,17 +890,18 @@ public class EntitySerializerDeltaTest extends DbTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    EntityImpl originalDoc = doc.copy();
-
-    Map<String, String> containedMap = (Map<String, String>) ((List) doc.field(fieldName)).get(0);
+    Map<String, String> containedMap = (Map<String, String>) ((List) doc.field(
+        fieldName)).getFirst();
     containedMap.put("first", "changed");
     // test serialization/deserialization
     DocumentSerializerDelta serializerDelta = DocumentSerializerDelta.instance();
-
     byte[] bytes = serializerDelta.serializeDelta(db, doc);
-    serializerDelta.deserializeDelta(db, bytes, originalDoc);
+    db.rollback();
+    db.begin();
+    doc = db.bindToSession(doc);
+    serializerDelta.deserializeDelta(db, bytes, doc);
 
-    containedMap = (Map<String, String>) ((List) originalDoc.field(fieldName)).get(0);
+    containedMap = (Map<String, String>) ((List) doc.field(fieldName)).getFirst();
     assertEquals("changed", containedMap.get("first"));
     db.rollback();
   }
@@ -1138,25 +1161,27 @@ public class EntitySerializerDeltaTest extends DbTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    EntityImpl originalDoc = doc.copy();
     doc.setProperty("one", null);
-    ((List<String>) doc.getProperty("list")).add(null);
-    ((Set<String>) doc.getProperty("set")).add(null);
-    ((Map<String, String>) doc.getProperty("map")).put("nullValue", null);
-    ((List<Identifiable>) doc.getProperty("linkList")).add(null);
-    ((Set<Identifiable>) doc.getProperty("linkSet")).add(null);
-    ((Map<String, Identifiable>) doc.getProperty("linkMap")).put("nullValue", null);
+    doc.<List<String>>getProperty("list").add(null);
+    doc.<Set<String>>getProperty("set").add(null);
+    doc.<Map<String, String>>getProperty("map").put("nullValue", null);
+    doc.<List<Identifiable>>getProperty("linkList").add(null);
+    doc.<Set<Identifiable>>getProperty("linkSet").add(null);
+    doc.<Map<String, Identifiable>>getProperty("linkMap").put("nullValue", null);
     // test serialization/deserialization
     DocumentSerializerDelta serializerDelta = DocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(db, doc);
-    serializerDelta.deserializeDelta(db, bytes, originalDoc);
-    assertTrue(((List) originalDoc.getProperty("list")).contains(null));
-    assertTrue(((Set) originalDoc.getProperty("set")).contains(null));
-    assertTrue(((Map) originalDoc.getProperty("map")).containsKey("nullValue"));
-    assertTrue(((List) originalDoc.getProperty("linkList")).contains(null));
-    assertTrue(((Set) originalDoc.getProperty("linkSet")).contains(null));
-    assertTrue(((Map) originalDoc.getProperty("linkMap")).containsKey("nullValue"));
+    db.rollback();
+    db.begin();
+    doc = db.bindToSession(doc);
+    serializerDelta.deserializeDelta(db, bytes, doc);
+    assertTrue(((List) doc.getProperty("list")).contains(null));
+    assertTrue(((Set) doc.getProperty("set")).contains(null));
+    assertTrue(((Map) doc.getProperty("map")).containsKey("nullValue"));
+    assertTrue(((List) doc.getProperty("linkList")).contains(null));
+    assertTrue(((Set) doc.getProperty("linkSet")).contains(null));
+    assertTrue(((Map) doc.getProperty("linkMap")).containsKey("nullValue"));
     db.rollback();
   }
 
@@ -1182,32 +1207,34 @@ public class EntitySerializerDeltaTest extends DbTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    EntityImpl originalDoc = doc.copy();
     link2 = db.bindToSession(link2);
     link1 = db.bindToSession(link1);
 
-    ((List<Identifiable>) doc.getProperty("linkList")).set(1, link2);
-    ((List<Identifiable>) doc.getProperty("linkList")).remove(link1);
-    ((List<Identifiable>) doc.getProperty("linkList")).add(link2);
-    ((Set<Identifiable>) doc.getProperty("linkSet")).add(link2);
-    ((Set<Identifiable>) doc.getProperty("linkSet")).remove(link1);
-    ((Map<String, Identifiable>) doc.getProperty("linkMap")).put("new", link2);
-    ((Map<String, Identifiable>) doc.getProperty("linkMap")).put("three", link2);
-    ((Map<String, Identifiable>) doc.getProperty("linkMap")).remove("two");
+    doc.<List<Identifiable>>getProperty("linkList").set(1, link2);
+    doc.<List<Identifiable>>getProperty("linkList").remove(link1);
+    doc.<List<Identifiable>>getProperty("linkList").add(link2);
+
+    doc.<Set<Identifiable>>getProperty("linkSet").add(link2);
+    doc.<Set<Identifiable>>getProperty("linkSet").remove(link1);
+    doc.<Map<String, Identifiable>>getProperty("linkMap").put("new", link2);
+    doc.<Map<String, Identifiable>>getProperty("linkMap").put("three", link2);
+    doc.<Map<String, Identifiable>>getProperty("linkMap").remove("two");
     // test serialization/deserialization
     DocumentSerializerDelta serializerDelta = DocumentSerializerDelta.instance();
-
     byte[] bytes = serializerDelta.serializeDelta(db, doc);
-    serializerDelta.deserializeDelta(db, bytes, originalDoc);
-    assertFalse(((List) originalDoc.getProperty("linkList")).contains(link1));
-    assertTrue(((List) originalDoc.getProperty("linkList")).contains(link2));
-    assertEquals(((List) originalDoc.getProperty("linkList")).get(1), link2);
-    assertTrue(((Set) originalDoc.getProperty("linkSet")).contains(link2));
-    assertFalse(((Set) originalDoc.getProperty("linkSet")).contains(link1));
-    assertEquals(((Map) originalDoc.getProperty("linkMap")).get("new"), link2);
-    assertEquals(((Map) originalDoc.getProperty("linkMap")).get("three"), link2);
-    assertTrue(((Map) originalDoc.getProperty("linkMap")).containsKey("one"));
-    assertFalse(((Map) originalDoc.getProperty("linkMap")).containsKey("two"));
+    db.rollback();
+    db.begin();
+    doc = db.bindToSession(doc);
+    serializerDelta.deserializeDelta(db, bytes, doc);
+    assertFalse(doc.<List<Identifiable>>getProperty("linkList").contains(link1));
+    assertTrue(doc.<List<Identifiable>>getProperty("linkList").contains(link2));
+    assertEquals(doc.<List<Identifiable>>getProperty("linkList").get(1), link2);
+    assertTrue(doc.<Set<Identifiable>>getProperty("linkSet").contains(link2));
+    assertFalse(doc.<Set<Identifiable>>getProperty("linkSet").contains(link1));
+    assertEquals(doc.<Map<String, Identifiable>>getProperty("linkMap").get("new"), link2);
+    assertEquals(doc.<Map<String, Identifiable>>getProperty("linkMap").get("three"), link2);
+    assertTrue(doc.<Map<String, Identifiable>>getProperty("linkMap").containsKey("one"));
+    assertFalse(doc.<Map<String, Identifiable>>getProperty("linkMap").containsKey("two"));
     db.rollback();
   }
 
@@ -1239,37 +1266,38 @@ public class EntitySerializerDeltaTest extends DbTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    EntityImpl originalDoc = doc.copy();
     Entity embedded1 = db.newEntity();
     embedded1.setProperty("other", 1);
-    ((Map<String, Entity>) doc.getProperty("mapEmbedded")).put("newDoc", embedded1);
-    ((Map<String, String>) doc.getProperty("map")).put("value", "other");
-    ((Map<String, String>) doc.getProperty("map")).put("two", "something");
-    ((Map<String, String>) doc.getProperty("map1")).remove("one");
-    ((Map<String, String>) doc.getProperty("map1")).put("two", "something");
-    ((Map<String, Map<String, String>>) doc.getProperty("mapNested"))
+    doc.<Map<String, Entity>>getProperty("mapEmbedded").put("newDoc", embedded1);
+    doc.<Map<String, String>>getProperty("map").put("value", "other");
+    doc.<Map<String, String>>getProperty("map").put("two", "something");
+    doc.<Map<String, String>>getProperty("map1").remove("one");
+    doc.<Map<String, String>>getProperty("map1").put("two", "something");
+    doc.<Map<String, Map<String, String>>>getProperty("mapNested")
         .get("nest")
         .put("other", "value");
     // test serialization/deserialization
     DocumentSerializerDelta serializerDelta = DocumentSerializerDelta.instance();
-
     byte[] bytes = serializerDelta.serializeDelta(db, doc);
-    serializerDelta.deserializeDelta(db, bytes, originalDoc);
-    assertNotNull(((Map) originalDoc.getProperty("mapEmbedded")).get("newDoc"));
+    db.rollback();
+    db.begin();
+    doc = db.bindToSession(doc);
+    serializerDelta.deserializeDelta(db, bytes, doc);
+    assertNotNull((doc.<Map<String, String>>getProperty("mapEmbedded")).get("newDoc"));
     assertEquals(
-        ((Map<String, Entity>) originalDoc.getProperty("mapEmbedded"))
+        doc.<Map<String, Entity>>getProperty("mapEmbedded")
             .get("newDoc")
             .getProperty("other"),
         Integer.valueOf(1));
-    assertEquals(((Map) originalDoc.getProperty("map")).get("value"), "other");
-    assertEquals(((Map) originalDoc.getProperty("map")).get("two"), "something");
-    assertEquals(((Map) originalDoc.getProperty("map1")).get("two"), "something");
-    assertNull(((Map) originalDoc.getProperty("map1")).get("one"));
+    assertEquals("other", doc.<Map<String, String>>getProperty("map").get("value"));
+    assertEquals("something", doc.<Map<String, String>>getProperty("map").get("two"));
+    assertEquals("something", doc.<Map<String, String>>getProperty("map1").get("two"));
+    assertNull(doc.<Map<String, String>>getProperty("map1").get("one"));
     assertEquals(
-        ((Map<String, Map<String, String>>) originalDoc.getProperty("mapNested"))
+        "value",
+        doc.<Map<String, Map<String, String>>>getProperty("mapNested")
             .get("nest")
-            .get("other"),
-        "value");
+            .get("other"));
     db.rollback();
   }
 
@@ -1776,9 +1804,9 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     assertEquals(extr.fields(), document.fields());
     List<List<String>> savedValue = extr.field("complexArray");
     assertEquals(savedValue.size(), array.length);
-    assertEquals(savedValue.get(0).size(), array[0].length);
-    assertEquals(savedValue.get(0).get(0), array[0][0]);
-    assertEquals(savedValue.get(0).get(1), array[0][1]);
+    assertEquals(savedValue.getFirst().size(), array[0].length);
+    assertEquals(savedValue.getFirst().get(0), array[0][0]);
+    assertEquals(savedValue.getFirst().get(1), array[0][1]);
   }
 
   @Test
@@ -2017,7 +2045,7 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     serializerDelta.deserialize(db, res, extr);
 
     List<EntityImpl> ser = extr.field("embeddedList");
-    assertEquals(ser.size(), 4);
+    assertEquals(4, ser.size());
     assertNotNull(ser.get(0));
     assertNotNull(ser.get(1));
     assertNull(ser.get(2));
@@ -2028,7 +2056,7 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     assertEquals(inList.<Object>field("surname"), embeddedInList.field("surname"));
 
     Set<EntityImpl> setEmb = extr.field("embeddedSet");
-    assertEquals(setEmb.size(), 3);
+    assertEquals(3, setEmb.size());
     boolean ok = false;
     for (EntityImpl inSet : setEmb) {
       assertNotNull(inSet);
@@ -2062,7 +2090,7 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     serializerDelta.deserialize(db, res, extr);
 
     assertNotNull(extr.field("seri"));
-    assertEquals(extr.fieldType("seri"), PropertyType.CUSTOM);
+    assertEquals(PropertyType.CUSTOM, extr.fieldType("seri"));
     SimpleSerializableClass newser = extr.field("seri");
     assertEquals(newser.name, ser.name);
     GlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(old);
@@ -2081,10 +2109,10 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     final String[] fields = extr.fieldNames();
 
     assertNotNull(fields);
-    assertEquals(fields.length, 3);
-    assertEquals(fields[0], "a");
-    assertEquals(fields[1], "b");
-    assertEquals(fields[2], "c");
+    assertEquals(3, fields.length);
+    assertEquals("a", fields[0]);
+    assertEquals("b", fields[1]);
+    assertEquals("c", fields[2]);
   }
 
   @Test
@@ -2156,7 +2184,7 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     }
   }
 
-  private class WrongData {
+  private static class WrongData {
 
   }
 }

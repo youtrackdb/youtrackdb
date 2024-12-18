@@ -45,7 +45,7 @@ public class SubscribeLiveQueryRequest implements BinaryRequest<SubscribeLiveQue
     RecordSerializerNetworkV37Client serializer = new RecordSerializerNetworkV37Client();
     network.writeString(query);
     // params
-    EntityImpl parms = new EntityImpl(database);
+    EntityImpl parms = new EntityImpl(null);
     parms.field("params", this.params);
 
     byte[] bytes = MessageHelper.getRecordBytes(database, parms, serializer);
@@ -58,7 +58,7 @@ public class SubscribeLiveQueryRequest implements BinaryRequest<SubscribeLiveQue
       RecordSerializer serializer)
       throws IOException {
     this.query = channel.readString();
-    EntityImpl paramsEntity = new EntityImpl(db);
+    EntityImpl paramsEntity = new EntityImpl(null);
     byte[] bytes = channel.readBytes();
     serializer.fromStream(db, bytes, paramsEntity, null);
     this.params = paramsEntity.field("params");

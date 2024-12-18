@@ -36,14 +36,13 @@ public class HookRegisterRemoveTest extends DbTestBase {
     db.registerHook(iHookImpl);
 
     db.begin();
-    db.save(((EntityImpl) db.newEntity()).field("test", "test"),
-        db.getClusterNameById(db.getDefaultClusterId()));
+    db.save(((EntityImpl) db.newEntity()).field("test", "test"));
     db.commit();
     assertEquals(3, integer.get());
     db.unregisterHook(iHookImpl);
 
     db.begin();
-    db.save((EntityImpl) db.newEntity(), db.getClusterNameById(db.getDefaultClusterId()));
+    db.save(db.newEntity());
     db.commit();
 
     assertEquals(3, integer.get());

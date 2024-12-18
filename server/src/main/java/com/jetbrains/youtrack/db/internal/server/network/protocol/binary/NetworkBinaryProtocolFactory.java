@@ -39,8 +39,6 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.CountRecordsRequ
 import com.jetbrains.youtrack.db.internal.client.remote.message.CountRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CreateDatabaseRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CreateRecordRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.DistributedConnectRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.DistributedStatusRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.DropClusterRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.DropDatabaseRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.ExistsDatabaseRequest;
@@ -126,7 +124,6 @@ public class NetworkBinaryProtocolFactory {
       case ChannelBinaryProtocol.REQUEST_DB_DROP -> new DropDatabaseRequest();
       case ChannelBinaryProtocol.REQUEST_DB_SIZE -> new GetSizeRequest();
       case ChannelBinaryProtocol.REQUEST_DB_COUNTRECORDS -> new CountRecordsRequest();
-      case ChannelBinaryProtocol.REQUEST_CLUSTER -> new DistributedStatusRequest();
       case ChannelBinaryProtocol.REQUEST_CLUSTER_COUNT -> new CountRequest();
       case ChannelBinaryProtocol.REQUEST_CLUSTER_DATARANGE -> new GetClusterDataRangeRequest();
       case ChannelBinaryProtocol.REQUEST_CLUSTER_ADD -> new AddClusterRequest();
@@ -162,7 +159,6 @@ public class NetworkBinaryProtocolFactory {
       case ChannelBinaryProtocol.REQUEST_RIDBAG_GET_SIZE -> new SBTGetRealBagSizeRequest();
       case ChannelBinaryProtocol.REQUEST_INCREMENTAL_BACKUP -> new IncrementalBackupRequest();
       case ChannelBinaryProtocol.REQUEST_DB_IMPORT -> new ImportRequest();
-      case ChannelBinaryProtocol.DISTRIBUTED_CONNECT -> new DistributedConnectRequest();
       default -> throw new DatabaseException("binary protocol command with code: " + requestType);
     };
   }
@@ -192,7 +188,6 @@ public class NetworkBinaryProtocolFactory {
       case ChannelBinaryProtocol.REQUEST_DB_DROP -> new DropDatabaseRequest();
       case ChannelBinaryProtocol.REQUEST_DB_SIZE -> new GetSizeRequest();
       case ChannelBinaryProtocol.REQUEST_DB_COUNTRECORDS -> new CountRecordsRequest();
-      case ChannelBinaryProtocol.REQUEST_CLUSTER -> new DistributedStatusRequest();
       case ChannelBinaryProtocol.REQUEST_CLUSTER_COUNT -> new CountRequest();
       case ChannelBinaryProtocol.REQUEST_CLUSTER_DATARANGE -> new GetClusterDataRangeRequest();
       case ChannelBinaryProtocol.REQUEST_CLUSTER_ADD -> new AddClusterRequest();
@@ -224,7 +219,6 @@ public class NetworkBinaryProtocolFactory {
       case ChannelBinaryProtocol.REQUEST_RIDBAG_GET_SIZE -> new SBTGetRealBagSizeRequest();
       case ChannelBinaryProtocol.REQUEST_INCREMENTAL_BACKUP -> new IncrementalBackupRequest();
       case ChannelBinaryProtocol.REQUEST_DB_IMPORT -> new ImportRequest();
-      case ChannelBinaryProtocol.DISTRIBUTED_CONNECT -> new DistributedConnectRequest();
       default -> throw new DatabaseException(
           "binary protocol command with code: " + requestType + " for protocol version 37");
     };

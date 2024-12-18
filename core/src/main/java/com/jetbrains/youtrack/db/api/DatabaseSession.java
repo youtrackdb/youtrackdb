@@ -793,8 +793,7 @@ public interface DatabaseSession extends AutoCloseable {
    * @param record The entity to save
    * @return The saved entity.
    */
-  <RET extends com.jetbrains.youtrack.db.api.record.Record> RET save(
-      com.jetbrains.youtrack.db.api.record.Record record);
+  <RET extends Record> RET save(Record record);
 
   /**
    * Deletes an entity from the database in synchronous mode.

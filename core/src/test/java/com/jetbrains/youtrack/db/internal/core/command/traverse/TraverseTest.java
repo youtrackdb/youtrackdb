@@ -61,7 +61,7 @@ public class TraverseTest extends DbTestBase {
     rootDocument.setProperty("c", new ArrayList<>(Arrays.asList(c1, c2, c3)),
         PropertyType.LINKLIST);
 
-    db.executeInTx(() -> rootDocument.save(db.getClusterNameById(db.getDefaultClusterId())));
+    db.executeInTx(() -> rootDocument.save());
 
     rootDocument = db.bindToSession(rootDocument);
     final List<EntityImpl> expectedResult =
@@ -124,7 +124,7 @@ public class TraverseTest extends DbTestBase {
     rootDocument.setProperty("c", new ArrayList<>(Arrays.asList(c1, c2, c3)),
         PropertyType.LINKLIST);
 
-    db.executeInTx(() -> rootDocument.save(db.getClusterNameById(db.getDefaultClusterId())));
+    db.executeInTx(() -> rootDocument.save());
 
     rootDocument = db.bindToSession(rootDocument);
     final List<EntityImpl> expectedResult =

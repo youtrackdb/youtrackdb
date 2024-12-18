@@ -26,7 +26,7 @@ public class ListDatabasesResponse implements BinaryResponse {
   public void write(DatabaseSessionInternal session, ChannelDataOutput channel,
       int protocolVersion, RecordSerializer serializer)
       throws IOException {
-    final EntityImpl result = new EntityImpl(session);
+    final EntityImpl result = new EntityImpl(null);
     result.field("databases", databases);
     byte[] toSend = serializer.toStream(session, result);
     channel.writeBytes(toSend);
@@ -36,7 +36,7 @@ public class ListDatabasesResponse implements BinaryResponse {
   public void read(DatabaseSessionInternal db, ChannelDataInput network,
       StorageRemoteSession session) throws IOException {
     RecordSerializer serializer = RecordSerializerNetworkFactory.INSTANCE.current();
-    final EntityImpl result = new EntityImpl(db);
+    final EntityImpl result = new EntityImpl(null);
     serializer.fromStream(db, network.readBytes(), result, null);
     databases = result.field("databases");
   }

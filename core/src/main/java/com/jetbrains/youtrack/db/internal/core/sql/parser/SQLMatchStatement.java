@@ -71,7 +71,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
   private CommandContext context;
 
   long threshold = 20;
-  private int limitFromProtocol = -1;
+  private final int limitFromProtocol = -1;
 
   public List<SQLNestedProjection> getReturnNestedProjections() {
     return returnNestedProjections;
@@ -498,13 +498,6 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
     return resultingSchedule;
   }
 
-  private Object getResult(SQLAsynchQuery<EntityImpl> request) {
-    if (request instanceof SQLSynchQuery) {
-      return ((SQLSynchQuery<EntityImpl>) request).getResult();
-    }
-
-    return null;
-  }
 
   private boolean calculateMatch(
       Pattern pattern,

@@ -222,7 +222,7 @@ public class SequenceTest {
 
             for (int j = 0; j < count / threads; j++) {
               try {
-                mtSeq1.next(db);
+                mtSeq1.next(databaseDocument);
                 success.incrementAndGet();
               } catch (Exception e) {
                 e.printStackTrace();
@@ -249,54 +249,56 @@ public class SequenceTest {
     final CountDownLatch latch = new CountDownLatch(count);
     final AtomicInteger errors = new AtomicInteger(0);
     final AtomicInteger success = new AtomicInteger(0);
-    ExecutorService service = Executors.newFixedThreadPool(threads);
+    try (ExecutorService service = Executors.newFixedThreadPool(threads)) {
 
-    for (int i = 0; i < threads; i++) {
-      service.execute(
-          () -> {
-            DatabaseSessionInternal databaseDocument =
-                (DatabaseSessionInternal)
-                    youTrackDB.open(SequenceTest.class.getSimpleName(), "admin", "admin");
-            Sequence mtSeq1 =
-                databaseDocument.getMetadata().getSequenceLibrary().getSequence("mtSeq");
+      for (int i = 0; i < threads; i++) {
+        service.execute(
+            () -> {
+              DatabaseSessionInternal databaseDocument =
+                  (DatabaseSessionInternal)
+                      youTrackDB.open(SequenceTest.class.getSimpleName(), "admin", "admin");
+              Sequence mtSeq1 =
+                  databaseDocument.getMetadata().getSequenceLibrary().getSequence("mtSeq");
 
-            for (int j = 0; j < count / threads; j++) {
-              for (int retry = 0; retry < 10; ++retry) {
-                try {
+              for (int j = 0; j < count / threads; j++) {
+                for (int retry = 0; retry < 10; ++retry) {
+                  try {
 
-                  databaseDocument.begin();
-                  mtSeq1.next(db);
-                  databaseDocument.commit();
-                  success.incrementAndGet();
-                  break;
+                    databaseDocument.begin();
+                    mtSeq1.next(databaseDocument);
+                    databaseDocument.commit();
+                    success.incrementAndGet();
+                    break;
 
-                } catch (ConcurrentModificationException e) {
-                  if (retry >= 10) {
+                  } catch (ConcurrentModificationException e) {
+                    if (retry >= 10) {
+                      e.printStackTrace();
+                      errors.incrementAndGet();
+                      break;
+                    }
+
+                    // RETRY
+                    try {
+                      Thread.sleep(10 + new Random().nextInt(100));
+                    } catch (InterruptedException e1) {
+                    }
+                    continue;
+                  } catch (Exception e) {
                     e.printStackTrace();
                     errors.incrementAndGet();
-                    break;
+                    throw e;
                   }
-
-                  // RETRY
-                  try {
-                    Thread.sleep(10 + new Random().nextInt(100));
-                  } catch (InterruptedException e1) {
-                  }
-                  continue;
-                } catch (Exception e) {
-                  e.printStackTrace();
-                  errors.incrementAndGet();
                 }
+                latch.countDown();
               }
-              latch.countDown();
-            }
-          });
-    }
-    latch.await();
+            });
+      }
+      latch.await();
 
-    assertThat(errors.get()).isEqualTo(0);
-    assertThat(success.get()).isEqualTo(1000);
-    assertThat(mtSeq.current(db)).isEqualTo(1000);
+      assertThat(errors.get()).isEqualTo(0);
+      assertThat(success.get()).isEqualTo(1000);
+      assertThat(mtSeq.current(db)).isEqualTo(1000);
+    }
   }
 
   @Test

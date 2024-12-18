@@ -18,8 +18,6 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.CountRecordsRequ
 import com.jetbrains.youtrack.db.internal.client.remote.message.CountRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CreateDatabaseRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CreateRecordRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.DistributedConnectRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.DistributedStatusRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.DropClusterRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.DropDatabaseRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.ExistsDatabaseRequest;
@@ -58,7 +56,6 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.ServerInfoReques
 import com.jetbrains.youtrack.db.internal.client.remote.message.ServerQueryRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SetGlobalConfigurationRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.ShutdownRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeDistributedConfigurationRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeFunctionsRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeIndexManagerRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeLiveQueryRequest;
@@ -91,8 +88,6 @@ public interface BinaryRequestExecutor {
   BinaryResponse executeGetSize(GetSizeRequest request);
 
   BinaryResponse executeCountRecords(CountRecordsRequest request);
-
-  BinaryResponse executeDistributedStatus(DistributedStatusRequest request);
 
   BinaryResponse executeCountCluster(CountRequest request);
 
@@ -183,16 +178,12 @@ public interface BinaryRequestExecutor {
 
   BinaryResponse executeSubscribe(SubscribeRequest request);
 
-  BinaryResponse executeSubscribeDistributedConfiguration(
-      SubscribeDistributedConfigurationRequest request);
 
   BinaryResponse executeSubscribeLiveQuery(SubscribeLiveQueryRequest request);
 
   BinaryResponse executeUnsubscribe(UnsubscribeRequest request);
 
   BinaryResponse executeUnsubscribeLiveQuery(UnsubscribeLiveQueryRequest request);
-
-  BinaryResponse executeDistributedConnect(DistributedConnectRequest request);
 
   BinaryResponse executeSubscribeStorageConfiguration(
       SubscribeStorageConfigurationRequest request);

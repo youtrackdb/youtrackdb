@@ -21,7 +21,6 @@ package com.jetbrains.youtrack.db.internal.core.record.impl;
 
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.record.Blob;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
@@ -38,7 +37,6 @@ import java.util.Arrays;
  * files. The object can be reused across calls to the database by using the reset() at every
  * re-use.
  */
-@SuppressWarnings({"unchecked"})
 public class RecordBytes extends RecordAbstract implements Blob {
 
   private static final byte[] EMPTY_SOURCE = new byte[]{};
@@ -51,7 +49,7 @@ public class RecordBytes extends RecordAbstract implements Blob {
     super(iSource);
     dirty = true;
     contentChanged = true;
-    DatabaseRecordThreadLocal.instance().set(iDatabase);
+    setup(iDatabase);
   }
 
   public RecordBytes(DatabaseSessionInternal session, final RecordId iRecordId) {
@@ -105,8 +103,7 @@ public class RecordBytes extends RecordAbstract implements Blob {
   public int fromInputStream(final InputStream in) throws IOException {
     incrementLoading();
     try {
-      final MemoryStream out = new MemoryStream();
-      try {
+      try (MemoryStream out = new MemoryStream()) {
         final byte[] buffer = new byte[MemoryStream.DEF_SIZE];
         int readBytesCount;
         while (true) {
@@ -118,8 +115,6 @@ public class RecordBytes extends RecordAbstract implements Blob {
         }
         out.flush();
         source = out.toByteArray();
-      } finally {
-        out.close();
       }
       size = source.length;
       return size;

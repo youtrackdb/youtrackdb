@@ -17,8 +17,6 @@ import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.AddClusterRequest;
@@ -52,10 +50,6 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.CreateDatabaseRe
 import com.jetbrains.youtrack.db.internal.client.remote.message.CreateDatabaseResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CreateRecordRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CreateRecordResponse;
-import com.jetbrains.youtrack.db.internal.client.remote.message.DistributedConnectRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.DistributedConnectResponse;
-import com.jetbrains.youtrack.db.internal.client.remote.message.DistributedStatusRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.DistributedStatusResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.DropClusterRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.DropClusterResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.DropDatabaseRequest;
@@ -131,8 +125,6 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.SetGlobalConfigu
 import com.jetbrains.youtrack.db.internal.client.remote.message.SetGlobalConfigurationResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.ShutdownRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.ShutdownResponse;
-import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeDistributedConfigurationRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeDistributedConfigurationResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeFunctionsRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeFunctionsResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeIndexManagerRequest;
@@ -179,7 +171,6 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.LocalResultSetLifecycleDecorator;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
@@ -194,16 +185,12 @@ import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPo
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.EdgeBTree;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.server.distributed.DistributedConfiguration;
-import com.jetbrains.youtrack.db.internal.server.distributed.ODistributedServerManager;
-import com.jetbrains.youtrack.db.internal.server.distributed.RemoteServerController;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.binary.AbstractCommandResultListener;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.binary.AsyncCommandResultListener;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.binary.HandshakeInfo;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.binary.LiveCommandResultListener;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.binary.NetworkProtocolBinary;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.binary.SyncCommandResultListener;
-import com.jetbrains.youtrack.db.internal.server.plugin.ServerPlugin;
 import com.jetbrains.youtrack.db.internal.server.tx.TransactionOptimisticServer;
 import java.io.File;
 import java.io.IOException;
@@ -358,28 +345,6 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
   public BinaryResponse executeCountRecords(CountRecordsRequest request) {
     var db = connection.getDatabase();
     return new CountRecordsResponse(db.getStorage().countRecords(db));
-  }
-
-  @Override
-  public BinaryResponse executeDistributedStatus(DistributedStatusRequest request) {
-    final EntityImpl req = request.getStatus();
-    EntityImpl clusterConfig = new EntityImpl(null);
-
-    final String operation = req.field("operation");
-    if (operation == null) {
-      throw new IllegalArgumentException("Cluster operation is null");
-    }
-
-    if (operation.equals("status")) {
-      final ServerPlugin plugin = server.getPlugin("cluster");
-      if (plugin != null && plugin instanceof ODistributedServerManager) {
-        clusterConfig = ((ODistributedServerManager) plugin).getClusterConfiguration();
-      }
-    } else {
-      throw new IllegalArgumentException("Cluster operation '" + operation + "' is not supported");
-    }
-
-    return new DistributedStatusResponse(clusterConfig);
   }
 
   @Override
@@ -772,7 +737,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
           changedIds = collectionManager.changedIds();
         }
 
-        return new CommitResponse(serverTransaction.getTxGeneratedRealRecordIdMap(), changedIds);
+        return new CommitResponse(serverTransaction.getGeneratedOriginalRecordIdMap(), changedIds);
       } catch (final RuntimeException e) {
         if (serverTransaction.isActive()) {
           database.rollback(true);
@@ -1165,21 +1130,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
       tokenToSend = CommonConst.EMPTY_BYTE_ARRAY;
     }
 
-    final ServerPlugin plugin = server.getPlugin("cluster");
     byte[] distriConf = null;
-    EntityImpl distributedCfg;
-    if (plugin instanceof ODistributedServerManager) {
-      distributedCfg = ((ODistributedServerManager) plugin).getClusterConfiguration();
-
-      final DistributedConfiguration dbCfg =
-          ((ODistributedServerManager) plugin)
-              .getDatabaseConfiguration(connection.getDatabase().getName());
-      if (dbCfg != null) {
-        // ENHANCE SERVER CFG WITH DATABASE CFG
-        distributedCfg.field("database", dbCfg.getDocument(), PropertyType.EMBEDDED);
-      }
-      distriConf = getRecordBytes(connection, distributedCfg);
-    }
 
     String[] clusterNames = new String[clusters.size()];
     int[] clusterIds = new int[clusters.size()];
@@ -1482,7 +1433,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
       }
 
       return new BeginTransactionResponse(
-          tx.getId(), serverTransaction.getTxGeneratedRealRecordIdMap());
+          tx.getId(), serverTransaction.getGeneratedOriginalRecordIdMap());
     }
 
     database.begin(new TransactionOptimisticServer(database, request.getTxId()));
@@ -1497,7 +1448,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
     }
 
     return new BeginTransactionResponse(
-        tx.getId(), serverTransaction.getTxGeneratedRealRecordIdMap());
+        tx.getId(), serverTransaction.getGeneratedOriginalRecordIdMap());
   }
 
   @Override
@@ -1514,7 +1465,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
     var serverTransaction =
         doExecuteBeginTransaction(request.getTxId(), database, recordOperations);
     return new BeginTransactionResponse(
-        tx.getId(), serverTransaction.getTxGeneratedRealRecordIdMap());
+        tx.getId(), serverTransaction.getGeneratedOriginalRecordIdMap());
   }
 
   private static TransactionOptimisticServer doExecuteBeginTransaction(
@@ -1564,7 +1515,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
     }
 
     return new SendTransactionStateResponse(
-        tx.getId(), serverTransaction.getTxGeneratedRealRecordIdMap());
+        tx.getId(), serverTransaction.getGeneratedOriginalRecordIdMap());
   }
 
   @Override
@@ -1628,7 +1579,8 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
           changedIds = collectionManager.changedIds();
         }
 
-        return new Commit37Response(serverTransaction.getTxGeneratedRealRecordIdMap(), changedIds);
+        return new Commit37Response(serverTransaction.getGeneratedOriginalRecordIdMap(),
+            changedIds);
       } catch (final RuntimeException e) {
         if (serverTransaction.isActive()) {
           database.rollback(true);
@@ -1707,7 +1659,8 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
           changedIds = collectionManager.changedIds();
         }
 
-        return new Commit37Response(serverTransaction.getTxGeneratedRealRecordIdMap(), changedIds);
+        return new Commit37Response(serverTransaction.getGeneratedOriginalRecordIdMap(),
+            changedIds);
       } catch (final RuntimeException e) {
         if (serverTransaction.isActive()) {
           database.rollback(true);
@@ -1746,7 +1699,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
     return new FetchTransactionResponse(database,
         tx.getId(),
         tx.getRecordOperations(),
-        tx.getTxGeneratedRealRecordIdMap());
+        tx.getGeneratedOriginalRecordIdMap());
   }
 
   @Override
@@ -1765,7 +1718,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
         tx.getId(),
         tx.getRecordOperations(),
         Collections.emptyMap(),
-        tx.getTxGeneratedRealRecordIdMap(),
+        tx.getGeneratedOriginalRecordIdMap(),
         database);
   }
 
@@ -1786,26 +1739,6 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
   @Override
   public BinaryResponse executeUnsubscribe(UnsubscribeRequest request) {
     return new UnsubscribeResponse(request.getUnsubscribeRequest().execute(this));
-  }
-
-  @Override
-  public BinaryResponse executeSubscribeDistributedConfiguration(
-      SubscribeDistributedConfigurationRequest request) {
-    PushManager manager = server.getPushManager();
-    manager.subscribeDistributeConfig((NetworkProtocolBinary) connection.getProtocol());
-
-    YouTrackDBInternal databases = server.getDatabases();
-    Set<String> dbs = databases.listLodadedDatabases();
-    ODistributedServerManager plugin = server.getPlugin("cluster");
-    if (plugin != null) {
-      databases.execute(
-          () -> {
-            for (String db : dbs) {
-              plugin.notifyClients(db);
-            }
-          });
-    }
-    return new SubscribeDistributedConfigurationResponse();
   }
 
   @Override
@@ -1865,54 +1798,5 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
         connection.getDatabase().live(request.getQuery(), listener, request.getParams());
     listener.setMonitorId(monitor.getMonitorId());
     return new SubscribeLiveQueryResponse(monitor.getMonitorId());
-  }
-
-  @Override
-  public BinaryResponse executeDistributedConnect(DistributedConnectRequest request) {
-    HandshakeInfo handshakeInfo =
-        new HandshakeInfo(
-            (short) ChannelBinaryProtocol.PROTOCOL_VERSION_38,
-            "YouTrackDB Distributed",
-            "",
-            (byte) 0,
-            ChannelBinaryProtocol.ERROR_MESSAGE_JAVA);
-    ((NetworkProtocolBinary) connection.getProtocol()).setHandshakeInfo(handshakeInfo);
-
-    // TODO:check auth type
-    SecurityUser serverUser =
-        server.authenticateUser(request.getUsername(), request.getPassword(), "server.connect");
-
-    if (serverUser == null) {
-      throw new SecurityAccessException(
-          "Wrong user/password to [connect] to the remote YouTrackDB Server instance");
-    }
-
-    connection.getData().driverName = "YouTrackDB Distributed";
-    connection.getData().clientId = "YouTrackDB Distributed";
-    connection.getData().setSerializer(RecordSerializerNetworkV37.INSTANCE);
-    connection.setTokenBased(true);
-    connection.getData().supportsLegacyPushMessages = false;
-    connection.getData().collectStats = false;
-    int chosenProtocolVersion =
-        Math.min(
-            request.getDistributedProtocolVersion(),
-            RemoteServerController.CURRENT_PROTOCOL_VERSION);
-    if (chosenProtocolVersion < RemoteServerController.MIN_SUPPORTED_PROTOCOL_VERSION) {
-      LogManager.instance()
-          .error(
-              this,
-              "Rejected distributed connection from '%s' too old not supported",
-              null,
-              connection.getRemoteAddress());
-      throw new DatabaseException("protocol version too old rejected connection");
-    } else {
-      connection.setServerUser(serverUser);
-      connection.getData().serverUsername = serverUser.getName(null);
-      connection.getData().serverUser = true;
-      byte[] token =
-          server.getTokenHandler().getSignedBinaryToken(null, null, connection.getData());
-
-      return new DistributedConnectResponse(connection.getId(), token, chosenProtocolVersion);
-    }
   }
 }

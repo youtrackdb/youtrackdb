@@ -127,7 +127,7 @@ public class SQLMethodInclude extends AbstractSQLMethod {
     return null;
   }
 
-  private Object copy(DatabaseSessionInternal db, final EntityImpl entity,
+  private static Object copy(DatabaseSessionInternal db, final EntityImpl entity,
       final Object[] iFieldNames) {
     final EntityImpl ent = new EntityImpl(db);
     for (Object iFieldName : iFieldNames) {
@@ -156,13 +156,14 @@ public class SQLMethodInclude extends AbstractSQLMethod {
     return ent;
   }
 
-  private Object copy(DatabaseSessionInternal db, final Map map, final Object[] iFieldNames) {
+  private static Object copy(DatabaseSessionInternal db, final Map map,
+      final Object[] iFieldNames) {
     final EntityImpl entity = new EntityImpl(db);
-    for (int i = 0; i < iFieldNames.length; ++i) {
-      if (iFieldNames[i] != null) {
-        final String fieldName = iFieldNames[i].toString();
+    for (Object iFieldName : iFieldNames) {
+      if (iFieldName != null) {
+        final String fieldName = iFieldName.toString();
 
-        if (fieldName.endsWith("*")) {
+        if (!fieldName.isEmpty() && fieldName.charAt(fieldName.length() - 1) == '*') {
           final String fieldPart = fieldName.substring(0, fieldName.length() - 1);
           final List<String> toInclude = new ArrayList<String>();
           for (Object f : map.keySet()) {

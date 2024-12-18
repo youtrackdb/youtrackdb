@@ -28,9 +28,6 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.AuditingOperation;
 import com.jetbrains.youtrack.db.internal.core.security.AuditingService;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
-import com.jetbrains.youtrack.db.internal.server.OServerAware;
-import com.jetbrains.youtrack.db.internal.server.distributed.ODistributedLifecycleListener;
-import com.jetbrains.youtrack.db.internal.server.distributed.ODistributedServerManager;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -47,7 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  */
 public class DefaultAuditing
-    implements AuditingService, DatabaseLifecycleListener, ODistributedLifecycleListener {
+    implements AuditingService, DatabaseLifecycleListener {
 
   public static final String AUDITING_LOG_CLASSNAME = "OAuditingLog";
 
@@ -340,10 +337,6 @@ public class DefaultAuditing
     }
   }
 
-  public void onDatabaseChangeStatus(
-      String iNode, String iDatabaseName, ODistributedServerManager.DB_STATUS iNewStatus) {
-  }
-
   @Deprecated
   public static String getClusterName(final String dbName) {
     return dbName + "_auditing";
@@ -494,11 +487,6 @@ public class DefaultAuditing
     timer.scheduleAtFixedRate(retainTask, delay, period);
 
     YouTrackDBEnginesManager.instance().addDbLifecycleListener(this);
-    if (context instanceof OServerAware) {
-      if (((OServerAware) context).getDistributedManager() != null) {
-        ((OServerAware) context).getDistributedManager().registerLifecycleListener(this);
-      }
-    }
 
     if (systemDbImporter != null && systemDbImporter.isEnabled()) {
       systemDbImporter.start();
@@ -560,12 +548,6 @@ public class DefaultAuditing
       systemDbImporter.shutdown();
     }
 
-    if (context instanceof OServerAware) {
-      if (((OServerAware) context).getDistributedManager() != null) {
-        ((OServerAware) context).getDistributedManager().unregisterLifecycleListener(this);
-      }
-    }
-
     YouTrackDBEnginesManager.instance().removeDbLifecycleListener(this);
 
     if (globalHook != null) {
@@ -577,9 +559,7 @@ public class DefaultAuditing
       retainTask.cancel();
     }
 
-    if (timer != null) {
-      timer.cancel();
-    }
+    timer.cancel();
   }
 
   // SecurityComponent

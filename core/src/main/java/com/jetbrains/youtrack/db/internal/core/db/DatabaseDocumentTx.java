@@ -441,10 +441,6 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
     internal.setUser(user);
   }
 
-  @Override
-  public void replaceStorage(Storage iNewStorage) {
-    internal.replaceStorage(iNewStorage);
-  }
 
   @Override
   public void resetInitialization() {

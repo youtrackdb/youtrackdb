@@ -372,6 +372,7 @@ public class ResultInternal implements Result {
     if (isEntity()) {
       return getEntity().get();
     }
+
     EntityImpl entity = new EntityImpl(session);
     for (String s : getPropertyNames()) {
       if (s == null) {
@@ -384,7 +385,7 @@ public class ResultInternal implements Result {
           } else {
             continue;
           }
-          RecordId oldId = (RecordId) entity.getIdentity();
+          RecordId oldId = entity.getIdentity();
           oldId.setClusterId(((RID) newRid).getClusterId());
           oldId.setClusterPosition(((RID) newRid).getClusterPosition());
         } else {
@@ -405,6 +406,7 @@ public class ResultInternal implements Result {
         }
       }
     }
+
     return entity;
   }
 
@@ -629,7 +631,7 @@ public class ResultInternal implements Result {
       if (cached != null) {
         if (!cached.isDirty()) {
           cached.fromStream(record.toStream());
-          cached.setIdentity((RecordId) record.getIdentity());
+          cached.setIdentity(record.getIdentity());
           cached.setVersion(record.getVersion());
 
           assert !cached.isDirty();

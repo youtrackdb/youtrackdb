@@ -27,7 +27,7 @@ public class DirtyManagerReferenceCleanTest extends DbTestBase {
     doc.field("ref", doc1);
     doc.field("bb");
 
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
     Identifiable id = doc.getIdentity();
     db.commit();
 

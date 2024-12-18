@@ -34,8 +34,6 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.Connect37Request
 import com.jetbrains.youtrack.db.internal.client.remote.message.ConnectResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CreateDatabaseRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CreateDatabaseResponse;
-import com.jetbrains.youtrack.db.internal.client.remote.message.DistributedStatusRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.DistributedStatusResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.DropDatabaseRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.ExistsDatabaseRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.ExistsDatabaseResponse;
@@ -274,16 +272,6 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
 
     return res;
   }
-
-  public EntityImpl getClusterStatus(String username, String password) {
-    DistributedStatusRequest request = new DistributedStatusRequest();
-    DistributedStatusResponse response = connectAndSend(null, username, password, request);
-
-    LogManager.instance()
-        .debug(this, "Cluster status %s", response.getClusterConfig().toJSON("prettyPrint"));
-    return response.getClusterConfig();
-  }
-
   public String getGlobalConfiguration(
       String username, String password, GlobalConfiguration config) {
     GetGlobalConfigurationRequest request = new GetGlobalConfigurationRequest(config.getKey());

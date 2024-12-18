@@ -522,14 +522,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
    */
   void setUser(SecurityUser user);
 
-  /**
-   * Internal only: replace the storage with a new one.
-   *
-   * @param iNewStorage The new storage to use. Usually it's a wrapped instance of the current
-   *                    cluster.
-   */
-  void replaceStorage(Storage iNewStorage);
-
   void resetInitialization();
 
   /**

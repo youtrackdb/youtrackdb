@@ -148,7 +148,7 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
     final boolean simpleParams = buffer.getAsBoolean();
     if (simpleParams) {
       final byte[] paramBuffer = buffer.getAsByteArray();
-      final EntityImpl param = new EntityImpl(db);
+      final EntityImpl param = new EntityImpl(null);
       if (serializer != null) {
         serializer.fromStream(db, paramBuffer, param, null);
       } else {
@@ -187,7 +187,7 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
     final boolean compositeKeyParamsPresent = buffer.getAsBoolean();
     if (compositeKeyParamsPresent) {
       final byte[] paramBuffer = buffer.getAsByteArray();
-      final EntityImpl param = new EntityImpl(db);
+      final EntityImpl param = new EntityImpl(null);
       if (serializer != null) {
         serializer.fromStream(db, paramBuffer, param, null);
       } else {

@@ -41,7 +41,7 @@ public class TransactionOptimisticClient extends TransactionOptimistic {
     var db = getDatabase();
     for (RecordOperation38Response operation : operations) {
       if (!operation.getOldId().equals(operation.getId())) {
-        txGeneratedRealRecordIdMap.put(operation.getId().copy(), operation.getOldId());
+        generatedOriginalRecordIdMap.put(operation.getId().copy(), operation.getOldId());
       }
 
       RecordAbstract record = null;

@@ -27,18 +27,15 @@ public class RecordLazySetTest extends DbTestBase {
     db.begin();
     doc1 =
         db.save(
-            ((EntityImpl) db.newEntity()).field("doc1", "doc1"),
-            db.getClusterNameById(db.getDefaultClusterId()));
+            ((EntityImpl) db.newEntity()).field("doc1", "doc1"));
     rid1 = doc1.getIdentity();
     doc2 =
         db.save(
-            ((EntityImpl) db.newEntity()).field("doc2", "doc2"),
-            db.getClusterNameById(db.getDefaultClusterId()));
+            ((EntityImpl) db.newEntity()).field("doc2", "doc2"));
     rid2 = doc2.getIdentity();
     doc3 =
         db.save(
-            ((EntityImpl) db.newEntity()).field("doc3", "doc3"),
-            db.getClusterNameById(db.getDefaultClusterId()));
+            ((EntityImpl) db.newEntity()).field("doc3", "doc3"));
     rid3 = doc3.getIdentity();
     db.commit();
   }

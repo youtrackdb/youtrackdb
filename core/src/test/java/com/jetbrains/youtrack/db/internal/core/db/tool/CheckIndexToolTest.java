@@ -63,7 +63,7 @@ public class CheckIndexToolTest extends BaseMemoryInternalDatabase {
     db.command("create property testclass.name string");
     db.command("create property testclass.tags linklist");
     db.command("alter property testclass.tags default '[]'");
-    db.command("create index testclass_tags_idx on testclass (tags) NOTUNIQUE_HASH_INDEX");
+    db.command("create index testclass_tags_idx on testclass (tags) NOTUNIQUE");
 
     db.begin();
     db.command("insert into testclass set name = 'a',tags = [#5:0] ");

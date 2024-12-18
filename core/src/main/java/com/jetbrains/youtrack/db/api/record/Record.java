@@ -127,4 +127,11 @@ public interface Record extends Identifiable {
    * @return true if the record exists, otherwise false
    */
   boolean exists();
+
+  /**
+   * Returns true if the current entity is embedded
+   *
+   * @return true if the current entity is embedded
+   */
+  boolean isEmbedded();
 }

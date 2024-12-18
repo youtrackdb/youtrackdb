@@ -2396,21 +2396,6 @@ public class ConsoleDatabaseApp extends ConsoleApplication
         .writeRecords(currentDatabase, servers, -1);
   }
 
-  @ConsoleCommand(description = "Displays the status of the cluster nodes")
-  public void clusterStatus() throws IOException {
-    checkForRemoteServer();
-    try {
-
-      message("\nCluster status:");
-      EntityImpl clusterStatus =
-          ((YouTrackDBRemote) YouTrackDBInternal.extract(youTrackDB))
-              .getClusterStatus(currentDatabaseUserName, currentDatabaseUserPassword);
-      out.println(clusterStatus.toJSON("attribSameRow,alwaysFetchEmbedded,fetchPlan:*:0"));
-
-    } catch (Exception e) {
-      printError(e);
-    }
-  }
 
   @ConsoleCommand(description = "Check database integrity", splitInWords = false)
   public void checkDatabase(

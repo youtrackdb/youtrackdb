@@ -270,11 +270,4 @@ public interface Entity extends Record {
    * valued. If the entity has a class, then the @class entry is valued.
    */
   Map<String, Object> toMap();
-
-  /**
-   * Returns true if the current entity is embedded
-   *
-   * @return true if the current entity is embedded
-   */
-  boolean isEmbedded();
 }

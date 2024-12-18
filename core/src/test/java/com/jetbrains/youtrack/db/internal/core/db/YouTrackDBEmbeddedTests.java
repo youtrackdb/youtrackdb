@@ -22,7 +22,6 @@ import com.jetbrains.youtrack.db.api.session.SessionPool;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.io.File;
 import java.util.List;
@@ -72,8 +71,7 @@ public class YouTrackDBEmbeddedTests {
               youTrackDb.open(
                   "createAndUseEmbeddedDatabase", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       db.executeInTx(
-          () -> db.save((EntityImpl) db.newEntity(),
-              db.getClusterNameById(db.getDefaultClusterId())));
+          () -> db.save(db.newEntity()));
       db.close();
     }
   }
@@ -552,8 +550,7 @@ public class YouTrackDBEmbeddedTests {
         (DatabaseSessionInternal)
             youTrackDb.open("test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     db.executeInTx(
-        () -> db.save((EntityImpl) db.newEntity(),
-            db.getClusterNameById(db.getDefaultClusterId())));
+        () -> db.save(db.newEntity()));
     db.close();
     youTrackDb.close();
   }

@@ -46,7 +46,6 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.RemoteResultSet;
 import com.jetbrains.youtrack.db.internal.client.remote.metadata.schema.SchemaRemote;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
-import com.jetbrains.youtrack.db.internal.core.cache.LocalRecordCache;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionAbstract;
@@ -113,8 +112,6 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
       unmodifiableHooks = Collections.unmodifiableMap(hooks);
 
-      localCache = new LocalRecordCache();
-
       try {
         var cfg = storage.getConfiguration();
         if (cfg != null) {
@@ -149,6 +146,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
       throw BaseException.wrapException(new DatabaseException("Error on opening database "), t);
     }
   }
+
 
   public DatabaseSession open(final String iUserName, final String iUserPassword) {
     throw new UnsupportedOperationException("Use YouTrackDB");
@@ -220,6 +218,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   public DatabaseSessionInternal copy() {
     DatabaseSessionRemote database = new DatabaseSessionRemote(storage, this.sharedContext);
     database.storage = storage.copy(this, database);
+
     database.storage.addUser();
     database.status = STATUS.OPEN;
     database.applyAttributes(config);
@@ -313,7 +312,6 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   public Storage getStorage() {
-    assert assertIfNotActive();
     return storage;
   }
 
@@ -326,11 +324,6 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   public StorageInfo getStorageInfo() {
     assert assertIfNotActive();
     return storage;
-  }
-
-  @Override
-  public void replaceStorage(Storage iNewStorage) {
-    throw new UnsupportedOperationException("unsupported replace of storage for remote database");
   }
 
   private void checkAndSendTransaction() {

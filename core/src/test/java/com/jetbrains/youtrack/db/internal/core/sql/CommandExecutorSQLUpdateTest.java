@@ -25,12 +25,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -542,7 +542,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("CREATE class TestSource").close();
     db.command("CREATE class TestLinked").close();
     db.command("CREATE property TestLinked.id STRING").close();
-    db.command("CREATE INDEX TestLinked.id ON TestLinked (id) UNIQUE_HASH_INDEX ENGINE HASH_INDEX")
+    db.command("CREATE INDEX TestLinked.id ON TestLinked (id) UNIQUE")
         .close();
 
     db.begin();

@@ -32,7 +32,7 @@ public class DocumentTest extends DbTestBase {
 
   @Test
   public void testFromMapNotSaved() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final EntityImpl doc = new EntityImpl(db);
     doc.field("name", "Jay");
     doc.field("surname", "Miner");
     Map<String, Object> map = doc.toMap();

@@ -83,6 +83,7 @@ import com.jetbrains.youtrack.db.internal.core.record.RecordVersionHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
+import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -2443,6 +2444,7 @@ public class EntityImpl extends RecordAbstract
     if (owner != null) {
       // PROPAGATES TO THE OWNER
       var ownerEntity = owner.get();
+
       if (ownerEntity != null) {
         ownerEntity.setDirty();
       }
@@ -3520,7 +3522,16 @@ public class EntityImpl extends RecordAbstract
         dirtyManager.removeNew(this);
       }
     }
+
     this.owner = new WeakReference<>(iOwner);
+
+    var tx = getSession().getTransaction();
+    if (!tx.isActive()) {
+      return;
+    }
+
+    var optimistic = (TransactionOptimistic) tx;
+    optimistic.deleteRecordOperation(this);
   }
 
   void removeOwner(final RecordElement iRecordElement) {

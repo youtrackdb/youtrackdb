@@ -30,7 +30,7 @@ public class DocumentSerializationPersistentTest extends BaseMemoryInternalDatab
 
     doc.setProperty("country", linkedDoc, PropertyType.LINK);
     doc.setProperty("numbers", Arrays.asList(0, 1, 2, 3, 4, 5));
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
 
     db.commit();
   }

@@ -21,8 +21,7 @@ public class SessionPoolTest {
         new SessionPoolImpl(youTrackDb, "test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     var db = (DatabaseSessionInternal) pool.acquire();
     db.executeInTx(
-        () -> db.save((EntityImpl) db.newEntity(),
-            db.getClusterNameById(db.getDefaultClusterId())));
+        () -> db.save(db.newEntity()));
     db.close();
     pool.close();
     youTrackDb.close();
@@ -54,7 +53,7 @@ public class SessionPoolTest {
     DatabaseSessionInternal db = (DatabaseSessionInternal) pool.acquire();
     db.createClass("Test");
     db.begin();
-    db.save((EntityImpl) db.newEntity("Test"));
+    db.save(db.newEntity("Test"));
     db.close();
     db = (DatabaseSessionInternal) pool.acquire();
     assertEquals(db.countClass("Test"), 0);

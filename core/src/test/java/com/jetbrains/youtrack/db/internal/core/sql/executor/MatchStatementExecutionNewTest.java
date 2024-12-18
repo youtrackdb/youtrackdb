@@ -2,12 +2,12 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.HashSet;
 import java.util.List;
@@ -221,7 +221,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   private void initTriangleTest() {
     db.command("CREATE class TriangleV extends V").close();
     db.command("CREATE property TriangleV.uid INTEGER").close();
-    db.command("CREATE index TriangleV_uid on TriangleV (uid) UNIQUE_HASH_INDEX").close();
+    db.command("CREATE index TriangleV_uid on TriangleV (uid) UNIQUE").close();
     db.command("CREATE class TriangleE extends E").close();
 
     for (int i = 0; i < 10; i++) {

@@ -25,9 +25,7 @@ import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
@@ -36,7 +34,6 @@ import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
 import com.jetbrains.youtrack.db.internal.common.util.ArrayUtils;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
@@ -52,7 +49,6 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
-import com.jetbrains.youtrack.db.internal.core.index.RuntimeKeyIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.SimpleKeyIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
@@ -252,15 +248,12 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
                 if (tag.equals("indexes")) {
                   importIndexes();
                 } else {
-                  if (tag.equals("manualIndexes")) {
-                    importManualIndexes();
+
+                  if (tag.equals("brokenRids")) {
+                    processBrokenRids();
                   } else {
-                    if (tag.equals("brokenRids")) {
-                      processBrokenRids();
-                    } else {
-                      throw new DatabaseImportException(
-                          "Invalid format. Found unsupported tag '" + tag + "'");
-                    }
+                    throw new DatabaseImportException(
+                        "Invalid format. Found unsupported tag '" + tag + "'");
                   }
                 }
               }
@@ -557,102 +550,6 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       }
     }
     listener.onMessage("\nRemoved " + removedClasses + " classes.");
-  }
-
-  private void importManualIndexes() throws IOException, ParseException {
-    listener.onMessage("\nImporting manual index entries...");
-
-    EntityImpl entity = new EntityImpl(database);
-
-    IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
-    // FORCE RELOADING
-    indexManager.reload(database);
-
-    int n = 0;
-    do {
-      jsonReader.readNext(JSONReader.BEGIN_OBJECT);
-
-      jsonReader.readString(JSONReader.FIELD_ASSIGNMENT);
-      final String indexName = jsonReader.readString(JSONReader.NEXT_IN_ARRAY);
-
-      if (indexName == null || indexName.length() == 0) {
-        return;
-      }
-
-      listener.onMessage("\n- Index '" + indexName + "'...");
-
-      final Index index =
-          database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
-
-      long tot = 0;
-
-      jsonReader.readNext(JSONReader.BEGIN_COLLECTION);
-
-      do {
-        final String value = jsonReader.readString(JSONReader.NEXT_IN_ARRAY).trim();
-        if ("[]".equals(value)) {
-          return;
-        }
-
-        if (!value.isEmpty()) {
-          entity = (EntityImpl) RecordSerializerJSON.INSTANCE.fromString(database, value,
-              entity, null);
-          entity.setLazyLoad(false);
-
-          final Identifiable oldRid = entity.field("rid");
-          assert oldRid != null;
-
-          final Identifiable newRid;
-          if (!entity.<Boolean>field("binary")) {
-            try (final ResultSet result =
-                database.query(
-                    "select value from " + EXPORT_IMPORT_CLASS_NAME + " where key = ?",
-                    String.valueOf(oldRid))) {
-              if (!result.hasNext()) {
-                newRid = oldRid;
-              } else {
-                newRid = new RecordId(result.next().<String>getProperty("value"));
-              }
-            }
-
-            index.put(database, entity.field("key"), newRid.getIdentity());
-          } else {
-            RuntimeKeyIndexDefinition<?> runtimeKeyIndexDefinition =
-                (RuntimeKeyIndexDefinition<?>) index.getDefinition();
-            BinarySerializer<?> binarySerializer = runtimeKeyIndexDefinition.getSerializer();
-
-            try (final ResultSet result =
-                database.query(
-                    "select value from " + EXPORT_IMPORT_CLASS_NAME + " where key = ?",
-                    String.valueOf(entity.<Identifiable>field("rid")))) {
-              if (!result.hasNext()) {
-                newRid = entity.field("rid");
-              } else {
-                newRid = new RecordId(result.next().<String>getProperty("value"));
-              }
-            }
-
-            index.put(database, binarySerializer.deserialize(entity.field("key"), 0), newRid);
-          }
-          tot++;
-        }
-      } while (jsonReader.lastChar() == ',');
-
-      if (index != null) {
-        listener.onMessage("OK (" + tot + " entries)");
-        n++;
-      } else {
-        listener.onMessage("ERR, the index wasn't found in configuration");
-      }
-
-      jsonReader.readNext(JSONReader.END_OBJECT);
-      jsonReader.readNext(JSONReader.NEXT_IN_ARRAY);
-
-    } while (jsonReader.lastChar() == ',');
-
-    listener.onMessage("\nDone. Imported " + String.format("%,d", n) + " indexes.");
-
-    jsonReader.readNext(JSONReader.NEXT_IN_OBJECT);
   }
 
   private void setLinkedClasses() {

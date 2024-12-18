@@ -81,7 +81,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
   private static final AtomicLong txSerial = new AtomicLong();
 
   // order of updates is critical during synchronization of remote transactions
-  protected LinkedHashMap<RecordId, RecordId> txGeneratedRealRecordIdMap = new LinkedHashMap<>();
+  protected LinkedHashMap<RecordId, RecordId> generatedOriginalRecordIdMap = new LinkedHashMap<>();
   protected LinkedHashMap<RecordId, RecordOperation> recordOperations = new LinkedHashMap<>();
 
   protected LinkedHashMap<String, FrontendTransactionIndexChanges> indexEntries = new LinkedHashMap<>();
@@ -504,7 +504,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
         }
       }
 
-      addRecord(iRecord, RecordOperation.DELETED, null);
+      addRecordOperation(iRecord, RecordOperation.DELETED, null);
     } catch (Exception e) {
       rollback(true, 0);
       throw e;
@@ -557,10 +557,10 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
               EntityInternalUtils.convertAllMultiValuesToTrackedVersions((EntityImpl) rec);
             }
             if (rec == passedRecord) {
-              addRecord(rec, RecordOperation.CREATED, clusterName);
+              addRecordOperation(rec, RecordOperation.CREATED, clusterName);
               originalSaved = true;
             } else {
-              addRecord(rec, RecordOperation.CREATED, database.getClusterName(rec));
+              addRecordOperation(rec, RecordOperation.CREATED, database.getClusterName(rec));
             }
           }
         }
@@ -590,10 +590,10 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
                       ? RecordOperation.UPDATED
                       : RecordOperation.CREATED;
 
-              addRecord(rec, operation, clusterName);
+              addRecordOperation(rec, operation, clusterName);
               originalSaved = true;
             } else {
-              addRecord(rec, RecordOperation.UPDATED, database.getClusterName(rec));
+              addRecordOperation(rec, RecordOperation.UPDATED, database.getClusterName(rec));
             }
           }
         }
@@ -604,7 +604,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
             passedRecord.getIdentity().isValid()
                 ? RecordOperation.UPDATED
                 : RecordOperation.CREATED;
-        addRecord(passedRecord, operation, clusterName);
+        addRecordOperation(passedRecord, operation, clusterName);
       }
       return passedRecord;
     } catch (Exception e) {
@@ -630,7 +630,130 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
     status = iStatus;
   }
 
-  public void addRecord(RecordAbstract record, byte status, String clusterName) {
+  public void addRecordOperation(RecordAbstract record, byte status, String clusterName) {
+    try {
+      markAsChanged(record);
+
+      if (clusterName == null) {
+        clusterName = database.getClusterNameById(record.getIdentity().getClusterId());
+      }
+
+      try {
+        final RecordId rid = record.getIdentity();
+        RecordOperation txEntry = getRecordEntry(rid);
+
+        if (txEntry != null) {
+          if (txEntry.record != record) {
+            throw new TransactionException(
+                "Found record in transaction with the same RID but different instance");
+          }
+        }
+
+        if (status == RecordOperation.CREATED && txEntry != null) {
+          status = RecordOperation.UPDATED;
+        }
+        switch (status) {
+          case RecordOperation.CREATED: {
+            Identifiable res = database.beforeCreateOperations(record, clusterName);
+            if (res != null) {
+              record = (RecordAbstract) res;
+            }
+          }
+          break;
+          case RecordOperation.UPDATED: {
+            Identifiable res = database.beforeUpdateOperations(record, clusterName);
+            if (res != null) {
+              record = (RecordAbstract) res;
+            }
+          }
+          break;
+          case RecordOperation.DELETED:
+            database.beforeDeleteOperations(record, clusterName);
+            break;
+        }
+
+        try {
+          if (!rid.isValid()) {
+            database.assignAndCheckCluster(record, clusterName);
+            rid.setClusterPosition(newRecordsPositionsGenerator--);
+          }
+          if (txEntry == null) {
+            if (!(rid.isTemporary() && status != RecordOperation.CREATED)) {
+              // NEW ENTRY: JUST REGISTER IT
+              txEntry = new RecordOperation(record, status);
+              recordOperations.put(rid.copy(), txEntry);
+            }
+          } else {
+            // UPDATE PREVIOUS STATUS
+            txEntry.record = record;
+
+            switch (txEntry.type) {
+              case RecordOperation.UPDATED:
+                if (status == RecordOperation.DELETED) {
+                  txEntry.type = RecordOperation.DELETED;
+                }
+                break;
+              case RecordOperation.DELETED:
+                break;
+              case RecordOperation.CREATED:
+                if (status == RecordOperation.DELETED) {
+                  recordOperations.remove(rid);
+                }
+                break;
+            }
+          }
+
+          switch (status) {
+            case RecordOperation.CREATED:
+              database.afterCreateOperations(record);
+              break;
+            case RecordOperation.UPDATED:
+              database.afterUpdateOperations(record);
+              break;
+            case RecordOperation.DELETED:
+              database.afterDeleteOperations(record);
+              break;
+          }
+
+          // RESET TRACKING
+          if (record instanceof EntityImpl && ((EntityImpl) record).isTrackingChanges()) {
+            EntityInternalUtils.clearTrackData(((EntityImpl) record));
+          }
+        } catch (final Exception e) {
+          switch (status) {
+            case RecordOperation.CREATED:
+              database.callbackHooks(TYPE.CREATE_FAILED, record);
+              break;
+            case RecordOperation.UPDATED:
+              database.callbackHooks(TYPE.UPDATE_FAILED, record);
+              break;
+            case RecordOperation.DELETED:
+              database.callbackHooks(TYPE.DELETE_FAILED, record);
+              break;
+          }
+          throw BaseException.wrapException(
+              new DatabaseException("Error on saving record " + record.getIdentity()), e);
+        }
+      } finally {
+        switch (status) {
+          case RecordOperation.CREATED:
+            database.callbackHooks(TYPE.FINALIZE_CREATION, record);
+            break;
+          case RecordOperation.UPDATED:
+            database.callbackHooks(TYPE.FINALIZE_UPDATE, record);
+            break;
+          case RecordOperation.DELETED:
+            database.callbackHooks(TYPE.FINALIZE_DELETION, record);
+            break;
+        }
+      }
+    } catch (Exception e) {
+      rollback(true, 0);
+      throw e;
+    }
+  }
+
+  private void markAsChanged(RecordAbstract record) {
     if (record.isUnloaded()) {
       throw new DatabaseException(
           "Record "
@@ -641,120 +764,18 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
     }
     changed = true;
     checkTransactionValid();
+  }
 
-    if (clusterName == null) {
-      clusterName = database.getClusterNameById(record.getIdentity().getClusterId());
+  public void deleteRecordOperation(RecordAbstract record) {
+    var identity = record.getIdentity();
+
+    if (generatedOriginalRecordIdMap.containsKey(identity)) {
+      throw new TransactionException(
+          "Cannot delete record operation for record with identity " + identity
+              + " because it was updated during transaction");
     }
 
-    try {
-      final RecordId rid = record.getIdentity();
-      RecordOperation txEntry = getRecordEntry(rid);
-
-      if (txEntry != null) {
-        if (txEntry.record != record) {
-          throw new TransactionException(
-              "Found record in transaction with the same RID but different instance");
-        }
-      }
-
-      if (status == RecordOperation.CREATED && txEntry != null) {
-        status = RecordOperation.UPDATED;
-      }
-      switch (status) {
-        case RecordOperation.CREATED: {
-          Identifiable res = database.beforeCreateOperations(record, clusterName);
-          if (res != null) {
-            record = (RecordAbstract) res;
-          }
-        }
-        break;
-        case RecordOperation.UPDATED: {
-          Identifiable res = database.beforeUpdateOperations(record, clusterName);
-          if (res != null) {
-            record = (RecordAbstract) res;
-          }
-        }
-        break;
-        case RecordOperation.DELETED:
-          database.beforeDeleteOperations(record, clusterName);
-          break;
-      }
-
-      try {
-        if (!rid.isValid()) {
-          database.assignAndCheckCluster(record, clusterName);
-          rid.setClusterPosition(newRecordsPositionsGenerator--);
-        }
-        if (txEntry == null) {
-          if (!(rid.isTemporary() && status != RecordOperation.CREATED)) {
-            // NEW ENTRY: JUST REGISTER IT
-            txEntry = new RecordOperation(record, status);
-            recordOperations.put(rid.copy(), txEntry);
-          }
-        } else {
-          // UPDATE PREVIOUS STATUS
-          txEntry.record = record;
-
-          switch (txEntry.type) {
-            case RecordOperation.UPDATED:
-              if (status == RecordOperation.DELETED) {
-                txEntry.type = RecordOperation.DELETED;
-              }
-              break;
-            case RecordOperation.DELETED:
-              break;
-            case RecordOperation.CREATED:
-              if (status == RecordOperation.DELETED) {
-                recordOperations.remove(rid);
-              }
-              break;
-          }
-        }
-
-        switch (status) {
-          case RecordOperation.CREATED:
-            database.afterCreateOperations(record);
-            break;
-          case RecordOperation.UPDATED:
-            database.afterUpdateOperations(record);
-            break;
-          case RecordOperation.DELETED:
-            database.afterDeleteOperations(record);
-            break;
-        }
-
-        // RESET TRACKING
-        if (record instanceof EntityImpl && ((EntityImpl) record).isTrackingChanges()) {
-          EntityInternalUtils.clearTrackData(((EntityImpl) record));
-        }
-      } catch (final Exception e) {
-        switch (status) {
-          case RecordOperation.CREATED:
-            database.callbackHooks(TYPE.CREATE_FAILED, record);
-            break;
-          case RecordOperation.UPDATED:
-            database.callbackHooks(TYPE.UPDATE_FAILED, record);
-            break;
-          case RecordOperation.DELETED:
-            database.callbackHooks(TYPE.DELETE_FAILED, record);
-            break;
-        }
-        throw BaseException.wrapException(
-            new DatabaseException("Error on saving record " + record.getIdentity()), e);
-      }
-    } finally {
-      switch (status) {
-        case RecordOperation.CREATED:
-          database.callbackHooks(TYPE.FINALIZE_CREATION, record);
-          break;
-        case RecordOperation.UPDATED:
-          database.callbackHooks(TYPE.FINALIZE_UPDATE, record);
-          break;
-        case RecordOperation.DELETED:
-          database.callbackHooks(TYPE.FINALIZE_DELETION, record);
-          break;
-      }
-    }
+    recordOperations.remove(identity);
   }
 
   private void doCommit() {
@@ -876,7 +897,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
 
     final RecordOperation rec = getRecordEntry(oldRid);
     if (rec != null) {
-      txGeneratedRealRecordIdMap.put(newRid.copy(), oldRid.copy());
+      generatedOriginalRecordIdMap.put(newRid.copy(), oldRid.copy());
 
       if (!rec.record.getIdentity().equals(newRid)) {
         final RecordId recordId = rec.record.getIdentity();
@@ -1137,19 +1158,22 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
   }
 
   public RecordOperation getRecordEntry(RID ridPar) {
+    assert ridPar instanceof RecordId;
+
     RID rid = ridPar;
     RecordOperation entry;
     do {
       entry = recordOperations.get(rid);
       if (entry == null) {
-        rid = txGeneratedRealRecordIdMap.get(rid);
+        rid = generatedOriginalRecordIdMap.get(rid);
       }
     } while (entry == null && rid != null && !rid.equals(ridPar));
+
     return entry;
   }
 
-  public Map<RecordId, RecordId> getTxGeneratedRealRecordIdMap() {
-    return txGeneratedRealRecordIdMap;
+  public Map<RecordId, RecordId> getGeneratedOriginalRecordIdMap() {
+    return generatedOriginalRecordIdMap;
   }
 
   @Override
@@ -1201,7 +1225,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
         RecordId oldNew =
             new RecordId(lastCreateId.getClusterId(), op.getKey().getClusterPosition());
         updateIdentityAfterCommit(lastCreateId, oldNew);
-        txGeneratedRealRecordIdMap.put(oldNew, op.getKey());
+        generatedOriginalRecordIdMap.put(oldNew, op.getKey());
       }
     }
   }

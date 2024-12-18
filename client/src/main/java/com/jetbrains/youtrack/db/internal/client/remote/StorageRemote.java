@@ -92,7 +92,6 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.ReopenResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.RollbackTransactionRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SendTransactionStateRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SendTransactionStateResponse;
-import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeDistributedConfigurationRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeFunctionsRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeIndexManagerRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeLiveQueryRequest;
@@ -1798,7 +1797,6 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
                       .getValueAsLong(GlobalConfiguration.NETWORK_REQUEST_TIMEOUT));
           pushThread.start();
           subscribeStorageConfiguration(session);
-          subscribeDistributedConfiguration(session);
           subscribeSchema(session);
           subscribeIndexManager(session);
           subscribeFunctions(session);
@@ -1810,9 +1808,6 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     }
   }
 
-  private void subscribeDistributedConfiguration(StorageRemoteSession nodeSession) {
-    pushThread.subscribe(new SubscribeDistributedConfigurationRequest(), nodeSession);
-  }
 
   private void subscribeStorageConfiguration(StorageRemoteSession nodeSession) {
     pushThread.subscribe(new SubscribeStorageConfigurationRequest(), nodeSession);
@@ -2321,7 +2316,6 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       }
     }
     if (aValidSession != null) {
-      subscribeDistributedConfiguration(aValidSession);
       subscribeStorageConfiguration(aValidSession);
     } else {
       LogManager.instance()

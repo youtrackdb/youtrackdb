@@ -35,7 +35,7 @@ public class YouTrackDBServerTest {
 
     conf = new ServerConfiguration();
 
-    conf.handlers = new ArrayList<ServerHandlerConfiguration>();
+    conf.handlers = new ArrayList<>();
     ServerHandlerConfiguration handlerConfiguration = new ServerHandlerConfiguration();
     handlerConfiguration.clazz = ServerFailingOnStarupPluginStub.class.getName();
     handlerConfiguration.parameters = new ServerParameterConfiguration[0];

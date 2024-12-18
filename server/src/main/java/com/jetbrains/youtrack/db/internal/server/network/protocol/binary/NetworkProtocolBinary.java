@@ -36,7 +36,6 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.Error37Response;
 import com.jetbrains.youtrack.db.internal.client.remote.message.ErrorResponse;
 import com.jetbrains.youtrack.db.internal.common.concur.OfflineNodeException;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.LockException;
-import com.jetbrains.youtrack.db.internal.common.concur.lock.ThreadInterruptedException;
 import com.jetbrains.youtrack.db.internal.common.exception.ErrorCode;
 import com.jetbrains.youtrack.db.internal.common.exception.InvalidBinaryChunkException;
 import com.jetbrains.youtrack.db.internal.common.io.YTIOException;
@@ -63,13 +62,7 @@ import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChanne
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.TokenSecurityException;
 import com.jetbrains.youtrack.db.internal.server.ClientConnection;
 import com.jetbrains.youtrack.db.internal.server.ConnectionBinaryExecutor;
-import com.jetbrains.youtrack.db.internal.server.OServerAware;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
-import com.jetbrains.youtrack.db.internal.server.distributed.DistributedException;
-import com.jetbrains.youtrack.db.internal.server.distributed.DistributedRequest;
-import com.jetbrains.youtrack.db.internal.server.distributed.DistributedResponse;
-import com.jetbrains.youtrack.db.internal.server.distributed.ODistributedDatabase;
-import com.jetbrains.youtrack.db.internal.server.distributed.ODistributedServerManager;
 import com.jetbrains.youtrack.db.internal.server.network.ServerNetworkListener;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.NetworkProtocol;
 import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginHelper;
@@ -177,18 +170,9 @@ public class NetworkProtocolBinary extends NetworkProtocol {
     return requestType == ChannelBinaryProtocol.REQUEST_CONNECT
         || requestType == ChannelBinaryProtocol.REQUEST_DB_OPEN
         || requestType == ChannelBinaryProtocol.REQUEST_SHUTDOWN
-        || requestType == ChannelBinaryProtocol.REQUEST_DB_REOPEN
-        || requestType == ChannelBinaryProtocol.DISTRIBUTED_CONNECT;
+        || requestType == ChannelBinaryProtocol.REQUEST_DB_REOPEN;
   }
 
-  private static boolean isDistributed(int requestType) {
-    return requestType == ChannelBinaryProtocol.DISTRIBUTED_REQUEST
-        || requestType == ChannelBinaryProtocol.DISTRIBUTED_RESPONSE;
-  }
-
-  private static boolean isCoordinated(int requestType) {
-    return requestType == ChannelBinaryProtocol.COORDINATED_DISTRIBUTED_MESSAGE;
-  }
 
   @Override
   protected void execute() throws Exception {
@@ -215,7 +199,6 @@ public class NetworkProtocolBinary extends NetworkProtocol {
         // ANY OPERATIONS
         this.softShutdown();
         if (requestType != ChannelBinaryProtocol.REQUEST_HANDSHAKE
-            && isDistributed(requestType)
             && requestType != ChannelBinaryProtocol.REQUEST_OK_PUSH) {
           clientTxId = channel.readInt();
           channel.clearInput();
@@ -241,26 +224,12 @@ public class NetworkProtocolBinary extends NetworkProtocol {
         connection.activateDatabaseOnCurrentThread();
       }
 
-      if (isCoordinated(requestType)) {
-        coordinatedRequest(connection, requestType, clientTxId);
-      } else if (isDistributed(requestType)) {
-        distributedRequest(connection, requestType, clientTxId);
-      } else {
-        sessionRequest(connection, requestType, clientTxId);
-      }
+      sessionRequest(connection, requestType, clientTxId);
     } catch (IOException e) {
       // if an exception arrive to this point we need to kill the current socket.
       sendShutdown();
       throw e;
     }
-  }
-
-  private void coordinatedRequest(ClientConnection connection, int requestType, int clientTxId)
-      throws IOException {
-    byte[] tokenBytes = channel.readBytes();
-    connection = onBeforeOperationalRequest(connection, tokenBytes);
-    ((OServerAware) server.getDatabases())
-        .coordinatedRequest(connection, requestType, clientTxId, channel);
   }
 
   private void handleHandshake() throws IOException {
@@ -280,7 +249,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
   }
 
   public boolean shouldReadToken(ClientConnection connection, int requestType) {
-    if (handshakeInfo != null || requestType == ChannelBinaryProtocol.DISTRIBUTED_CONNECT) {
+    if (handshakeInfo != null) {
       return true;
     } else {
       if (connection == null) {
@@ -455,8 +424,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
         if (clientTxId >= 0
             && connection == null
             && (requestType == ChannelBinaryProtocol.REQUEST_DB_OPEN
-            || requestType == ChannelBinaryProtocol.REQUEST_CONNECT
-            || requestType == ChannelBinaryProtocol.DISTRIBUTED_CONNECT)) {
+            || requestType == ChannelBinaryProtocol.REQUEST_CONNECT)) {
           // THIS EXCEPTION SHULD HAPPEN IN ANY CASE OF OPEN/CONNECT WITH SESSIONID >= 0, BUT FOR
           // COMPATIBILITY IT'S ONLY IF THERE
           // IS NO CONNECTION
@@ -473,7 +441,6 @@ public class NetworkProtocolBinary extends NetworkProtocol {
         connection =
             server.getClientConnectionManager().reConnect(this, connection.getTokenBytes());
         connection.acquire();
-        waitDistribuedIsOnline(connection);
         connection.init(server);
 
         if (connection.getData().serverUser) {
@@ -497,51 +464,6 @@ public class NetworkProtocolBinary extends NetworkProtocol {
     return connection;
   }
 
-  private void distributedRequest(ClientConnection connection, int requestType, int clientTxId) {
-    long timer = 0;
-    try {
-
-      timer = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
-      byte[] tokenBytes = channel.readBytes();
-      connection = onBeforeOperationalRequest(connection, tokenBytes);
-      LogManager.instance().debug(this, "Request id:" + clientTxId + " type:" + requestType);
-
-      try {
-        switch (requestType) {
-          case ChannelBinaryProtocol.DISTRIBUTED_REQUEST:
-            executeDistributedRequest(connection);
-            break;
-
-          case ChannelBinaryProtocol.DISTRIBUTED_RESPONSE:
-            executeDistributedResponse(connection);
-            break;
-        }
-      } finally {
-        requests++;
-        afterOperationRequest(connection);
-      }
-
-    } catch (Exception t) {
-      // IN CASE OF DISTRIBUTED ANY EXCEPTION AT THIS POINT CAUSE THIS CONNECTION TO CLOSE
-      LogManager.instance()
-          .warn(
-              this,
-              "I/O Error on distributed channel  clientId=%d reqType=%d",
-              t,
-              clientTxId,
-              requestType);
-      sendShutdown();
-    } finally {
-      YouTrackDBEnginesManager.instance()
-          .getProfiler()
-          .stopChrono(
-              "server.network.requests",
-              "Total received requests",
-              timer,
-              "server.network.requests");
-    }
-  }
-
   private ClientConnection onBeforeOperationalRequest(
       ClientConnection connection, byte[] tokenBytes) {
     try {
@@ -555,7 +477,6 @@ public class NetworkProtocolBinary extends NetworkProtocol {
         }
         connection.acquire();
         connection.validateSession(tokenBytes, server.getTokenHandler(), this);
-        waitDistribuedIsOnline(connection);
         connection.init(server);
         if (connection.getData().serverUser) {
           connection.setServerUser(
@@ -583,7 +504,6 @@ public class NetworkProtocolBinary extends NetworkProtocol {
           }
           connection.acquire();
           connection.validateSession(tokenBytes, server.getTokenHandler(), this);
-          waitDistribuedIsOnline(connection);
           connection.init(server);
           if (connection.getData().serverUser) {
             connection.setServerUser(
@@ -605,29 +525,6 @@ public class NetworkProtocolBinary extends NetworkProtocol {
       throw e;
     }
     return connection;
-  }
-
-  private void waitDistribuedIsOnline(ClientConnection connection) {
-    if (requests == 0) {
-      final ODistributedServerManager manager = server.getDistributedManager();
-      if (manager != null && connection.hasDatabase()) {
-        try {
-          if (manager.getMessageService() != null) {
-            String databaseName = connection.getDatabaseName();
-            final ODistributedDatabase dDatabase = manager.getDatabase(databaseName);
-            if (dDatabase != null) {
-              dDatabase.waitForOnline();
-            } else {
-              manager.waitUntilNodeOnline(manager.getLocalNodeName(), databaseName);
-            }
-          }
-        } catch (java.lang.InterruptedException e) {
-          Thread.currentThread().interrupt();
-          throw BaseException.wrapException(new ThreadInterruptedException("Request interrupted"),
-              e);
-        }
-      }
-    }
   }
 
   protected void afterOperationRequest(ClientConnection connection) {
@@ -679,59 +576,6 @@ public class NetworkProtocolBinary extends NetworkProtocol {
     }
   }
 
-  private void executeDistributedRequest(ClientConnection connection) throws IOException {
-    setDataCommandInfo(connection, "Distributed request");
-
-    checkServerAccess(connection.getDatabase(), "server.replication", connection);
-
-    final ODistributedServerManager manager = server.getDistributedManager();
-    final DistributedRequest req = new DistributedRequest(manager);
-
-    req.fromStream(channel.getDataInput());
-
-    final String dbName = req.getDatabaseName();
-    ODistributedDatabase ddb = null;
-    if (dbName != null) {
-      ddb = manager.getDatabase(dbName);
-      if (ddb == null && req.getTask().isNodeOnlineRequired()) {
-        throw new DistributedException(
-            "Database configuration not found for database '" + req.getDatabaseName() + "'");
-      }
-    }
-
-    // SET THE SENDER IN THE TASK
-    String senderNodeName = manager.getNodeNameById(req.getId().getNodeId());
-    req.getTask().setNodeSource(senderNodeName);
-
-    if (ddb != null) {
-      ddb.processRequest(req, true);
-    } else {
-      manager.executeOnLocalNodeFromRemote(req);
-    }
-  }
-
-  private void executeDistributedResponse(ClientConnection connection) throws IOException {
-    setDataCommandInfo(connection, "Distributed response");
-
-    checkServerAccess(connection.getDatabase(), "server.replication", connection);
-
-    final ODistributedServerManager manager = server.getDistributedManager();
-    final DistributedResponse response = new DistributedResponse();
-
-    response.fromStream(channel.getDataInput());
-
-    // WHILE MSG SERVICE IS UP & RUNNING
-    while (manager.getMessageService() == null) {
-      try {
-        Thread.sleep(100);
-      } catch (java.lang.InterruptedException e) {
-        return;
-      }
-    }
-
-    manager.getMessageService().dispatchResponseToThread(response);
-  }
-
   protected void sendError(
       final ClientConnection connection, final int iClientTxId, final Throwable t)
       throws IOException {
@@ -754,7 +598,6 @@ public class NetworkProtocolBinary extends NetworkProtocol {
         if (tokenConnection
             && requestType != ChannelBinaryProtocol.REQUEST_CONNECT
             && (requestType != ChannelBinaryProtocol.REQUEST_DB_OPEN
-            && requestType != ChannelBinaryProtocol.DISTRIBUTED_CONNECT
             && requestType != ChannelBinaryProtocol.REQUEST_SHUTDOWN
             || (connection != null
             && connection.getData() != null
@@ -905,7 +748,6 @@ public class NetworkProtocolBinary extends NetworkProtocol {
           && Boolean.TRUE.equals(connection.getTokenBased())
           && connection.getToken() != null
           && requestType != ChannelBinaryProtocol.REQUEST_CONNECT
-          && requestType != ChannelBinaryProtocol.DISTRIBUTED_CONNECT
           && requestType != ChannelBinaryProtocol.REQUEST_DB_OPEN) {
         // TODO: Check if the token is expiring and if it is send a new token
         byte[] renewedToken = server.getTokenHandler().renewIfNeeded(connection.getToken());

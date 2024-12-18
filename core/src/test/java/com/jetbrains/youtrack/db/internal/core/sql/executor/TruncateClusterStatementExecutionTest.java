@@ -2,10 +2,10 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,6 @@ import org.junit.Test;
  *
  */
 public class TruncateClusterStatementExecutionTest extends DbTestBase {
-
   @Test
   public void testClusterWithIndex() {
     final String clusterName = "TruncateClusterWithIndex";
@@ -32,10 +31,10 @@ public class TruncateClusterStatementExecutionTest extends DbTestBase {
     clazz.createIndex(db, "TruncateClusterIndex", SchemaClass.INDEX_TYPE.UNIQUE, "value");
 
     db.begin();
-    final EntityImpl document = ((EntityImpl) db.newEntity());
+    final EntityImpl document = ((EntityImpl) db.newEntity(className));
     document.field("value", "val");
 
-    document.save(clusterName);
+    document.save();
     db.commit();
 
     Assert.assertEquals(1, db.countClass(className));
