@@ -1,11 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.db;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.common.listener.ListenerManger;
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
-import com.jetbrains.youtrack.db.api.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibraryImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
@@ -34,7 +33,7 @@ public abstract class SharedContext extends ListenerManger<MetadataUpdateListene
   protected StorageInfo storage;
   protected SchemaShared schema;
   protected SecurityInternal security;
-  protected IndexManagerAbstract indexManager;
+
   protected FunctionLibraryImpl functionLibrary;
   protected SchedulerImpl scheduler;
   protected SequenceLibraryImpl sequenceLibrary;
@@ -57,10 +56,6 @@ public abstract class SharedContext extends ListenerManger<MetadataUpdateListene
 
   public SecurityInternal getSecurity() {
     return security;
-  }
-
-  public IndexManagerAbstract getIndexManager() {
-    return indexManager;
   }
 
   public FunctionLibraryImpl getFunctionLibrary() {

@@ -96,7 +96,7 @@ public class ConnectionExecutorTransactionTest {
     assertFalse(db.getTransaction().isActive());
 
     BeginTransactionRequest request =
-        new BeginTransactionRequest(db, 10, true, true, operations, new HashMap<>());
+        new BeginTransactionRequest(db, 10, true, true, operations);
     BinaryResponse response = request.execute(executor);
     assertTrue(db.getTransaction().isActive());
     assertTrue(response instanceof BeginTransactionResponse);
@@ -117,7 +117,7 @@ public class ConnectionExecutorTransactionTest {
     assertFalse(db.getTransaction().isActive());
 
     BeginTransactionRequest request =
-        new BeginTransactionRequest(db, 10, true, true, operations, new HashMap<>());
+        new BeginTransactionRequest(db, 10, true, true, operations);
     BinaryResponse response = request.execute(executor);
     assertTrue(db.getTransaction().isActive());
     assertTrue(response instanceof BeginTransactionResponse);
@@ -143,7 +143,7 @@ public class ConnectionExecutorTransactionTest {
     assertFalse(db.getTransaction().isActive());
 
     BeginTransactionRequest request =
-        new BeginTransactionRequest(db, 10, true, true, operations, new HashMap<>());
+        new BeginTransactionRequest(db, 10, true, true, operations);
     BinaryResponse response = request.execute(executor);
     assertTrue(db.getTransaction().isActive());
     assertTrue(response instanceof BeginTransactionResponse);
@@ -174,7 +174,7 @@ public class ConnectionExecutorTransactionTest {
     assertFalse(db.getTransaction().isActive());
 
     BeginTransactionRequest request =
-        new BeginTransactionRequest(db, 10, true, true, operations, new HashMap<>());
+        new BeginTransactionRequest(db, 10, true, true, operations);
     BinaryResponse response = request.execute(executor);
     assertTrue(db.getTransaction().isActive());
     assertTrue(response instanceof BeginTransactionResponse);
@@ -205,7 +205,7 @@ public class ConnectionExecutorTransactionTest {
     assertFalse(db.getTransaction().isActive());
 
     BeginTransactionRequest request =
-        new BeginTransactionRequest(db, 10, true, true, operations, new HashMap<>());
+        new BeginTransactionRequest(db, 10, true, true, operations);
     BinaryResponse response = request.execute(executor);
     assertTrue(db.getTransaction().isActive());
     assertTrue(response instanceof BeginTransactionResponse);
@@ -244,7 +244,7 @@ public class ConnectionExecutorTransactionTest {
     assertFalse(db.getTransaction().isActive());
 
     BeginTransactionRequest request =
-        new BeginTransactionRequest(db, 10, true, true, operations, new HashMap<>());
+        new BeginTransactionRequest(db, 10, true, true, operations);
     BinaryResponse response = request.execute(executor);
     assertTrue(db.getTransaction().isActive());
     assertTrue(response instanceof BeginTransactionResponse);
@@ -265,7 +265,7 @@ public class ConnectionExecutorTransactionTest {
   public void testBeginChangeFetchTransaction() {
 
     db.begin();
-    db.save(((EntityImpl) db.newEntity("test")));
+    db.save(db.newEntity("test"));
     db.commit();
 
     ConnectionBinaryExecutor executor = new ConnectionBinaryExecutor(connection, server);
@@ -276,7 +276,7 @@ public class ConnectionExecutorTransactionTest {
     assertFalse(db.getTransaction().isActive());
 
     BeginTransactionRequest request =
-        new BeginTransactionRequest(db, 10, true, true, operations, new HashMap<>());
+        new BeginTransactionRequest(db, 10, true, true, operations);
     BinaryResponse response = request.execute(executor);
     assertTrue(db.getTransaction().isActive());
     assertTrue(response instanceof BeginTransactionResponse);
@@ -310,7 +310,7 @@ public class ConnectionExecutorTransactionTest {
     assertFalse(db.getTransaction().isActive());
 
     BeginTransactionRequest request =
-        new BeginTransactionRequest(db, 10, true, true, operations, new HashMap<>());
+        new BeginTransactionRequest(db, 10, true, true, operations);
     BinaryResponse response = request.execute(executor);
     assertTrue(db.getTransaction().isActive());
     assertTrue(response instanceof BeginTransactionResponse);
@@ -328,8 +328,8 @@ public class ConnectionExecutorTransactionTest {
     db.commit();
 
     ConnectionBinaryExecutor executor = new ConnectionBinaryExecutor(connection, server);
-    BeginTransactionRequest request = new BeginTransactionRequest(db, 10, false, true, null,
-        null);
+    BeginTransactionRequest request = new BeginTransactionRequest(db, 10, false, true, null
+    );
     BinaryResponse response = request.execute(executor);
     assertTrue(db.getTransaction().isActive());
     assertTrue(response instanceof BeginTransactionResponse);
@@ -365,7 +365,7 @@ public class ConnectionExecutorTransactionTest {
     List<RecordOperation> operations = new ArrayList<>();
 
     BeginTransactionRequest request =
-        new BeginTransactionRequest(db, 10, false, true, operations, new HashMap<>());
+        new BeginTransactionRequest(db, 10, false, true, operations);
     BinaryResponse response = request.execute(executor);
 
     assertTrue(db.getTransaction().isActive());

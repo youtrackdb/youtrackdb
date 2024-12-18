@@ -22,6 +22,7 @@ package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
 import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 
 public class GlobalPropertyImpl implements GlobalProperty {
@@ -57,8 +58,8 @@ public class GlobalPropertyImpl implements GlobalProperty {
     this.id = entity.field("id");
   }
 
-  public EntityImpl toEntity() {
-    final EntityImpl entity = new EntityImpl(null);
+  public EntityImpl toEntity(DatabaseSessionInternal db) {
+    final EntityImpl entity = new EntityImpl(db);
     entity.field("name", name);
     entity.field("type", type.name());
     entity.field("id", id);

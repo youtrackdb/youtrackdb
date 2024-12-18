@@ -101,9 +101,6 @@ public class Commit38Request implements BinaryRequest<Commit37Response> {
 
       // END OF RECORD ENTRIES
       network.writeByte((byte) 0);
-
-      // SEND MANUAL INDEX CHANGES
-      MessageHelper.writeTransactionIndexChanges(db, network, serializer, indexChanges);
     }
   }
 
@@ -124,11 +121,6 @@ public class Commit38Request implements BinaryRequest<Commit37Response> {
           operations.add(entry);
         }
       } while (hasEntry == 1);
-
-      // RECEIVE MANUAL INDEX CHANGES
-      this.indexChanges =
-          MessageHelper.readTransactionIndexChanges(db,
-              channel, (RecordSerializerNetworkV37) serializer);
     }
   }
 

@@ -16,7 +16,7 @@ public class RebeginTransactionRequest extends BeginTransactionRequest {
       boolean usingLong,
       Iterable<RecordOperation> operations,
       Map<String, FrontendTransactionIndexChanges> changes) {
-    super(session, txId, true, usingLong, operations, changes);
+    super(session, txId, true, usingLong, operations);
   }
 
   public RebeginTransactionRequest() {

@@ -101,7 +101,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
     Set<RID> orids = extractRids(stream);
 
-    assertEquals(orids.size(), 18);
+    assertEquals(18, orids.size());
 
     for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
@@ -113,7 +113,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
         localSBTree.iterateEntriesBetween(compositeKey(2.0), true, compositeKey(3.0), true, false);
     orids = extractRids(stream);
 
-    assertEquals(orids.size(), 18);
+    assertEquals(18, orids.size());
     for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
         assertTrue(orids.contains(new RecordId(i, j)));
@@ -127,7 +127,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
         localSBTree.iterateEntriesBetween(compositeKey(2.0), true, compositeKey(3.0), false, true);
 
     Set<RID> orids = extractRids(stream);
-    assertEquals(orids.size(), 9);
+    assertEquals(9, orids.size());
 
     for (int j = 1; j <= 9; j++) {
       assertTrue(orids.contains(new RecordId(2, j)));
@@ -137,7 +137,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
         localSBTree.iterateEntriesBetween(compositeKey(2.0), true, compositeKey(3.0), false, false);
     orids = extractRids(stream);
 
-    assertEquals(orids.size(), 9);
+    assertEquals(9, orids.size());
 
     for (int j = 1; j <= 9; j++) {
       assertTrue(orids.contains(new RecordId(2, j)));
@@ -150,7 +150,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
         localSBTree.iterateEntriesBetween(compositeKey(2.0), false, compositeKey(3.0), true, true);
     Set<RID> orids = extractRids(stream);
 
-    assertEquals(orids.size(), 9);
+    assertEquals(9, orids.size());
 
     for (int i = 1; i <= 9; i++) {
       assertTrue(orids.contains(new RecordId(3, i)));
@@ -160,7 +160,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
         localSBTree.iterateEntriesBetween(compositeKey(2.0), false, compositeKey(3.0), true, false);
     orids = extractRids(stream);
 
-    assertEquals(orids.size(), 9);
+    assertEquals(9, orids.size());
 
     for (int i = 1; i <= 9; i++) {
       assertTrue(orids.contains(new RecordId(3, i)));
@@ -173,20 +173,20 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
         localSBTree.iterateEntriesBetween(compositeKey(2.0), false, compositeKey(3.0), false, true);
     Set<RID> orids = extractRids(stream);
 
-    assertEquals(orids.size(), 0);
+    assertEquals(0, orids.size());
 
     stream =
         localSBTree.iterateEntriesBetween(
             compositeKey(2.0), false, compositeKey(3.0), false, false);
     orids = extractRids(stream);
 
-    assertEquals(orids.size(), 0);
+    assertEquals(0, orids.size());
 
     stream =
         localSBTree.iterateEntriesBetween(compositeKey(1.0), false, compositeKey(3.0), false, true);
     orids = extractRids(stream);
 
-    assertEquals(orids.size(), 9);
+    assertEquals(9, orids.size());
 
     for (int i = 1; i <= 9; i++) {
       assertTrue(orids.contains(new RecordId(2, i)));
@@ -197,7 +197,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
             compositeKey(1.0), false, compositeKey(3.0), false, false);
     orids = extractRids(stream);
 
-    assertEquals(orids.size(), 9);
+    assertEquals(9, orids.size());
 
     for (int i = 1; i <= 9; i++) {
       assertTrue(orids.contains(new RecordId(2, i)));
@@ -211,7 +211,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
             compositeKey(2.0, 4.0), true, compositeKey(3.0), true, true);
     Set<RID> orids = extractRids(stream);
 
-    assertEquals(orids.size(), 15);
+    assertEquals(15, orids.size());
 
     for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
@@ -227,7 +227,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
             compositeKey(2.0, 4.0), true, compositeKey(3.0), true, false);
     orids = extractRids(stream);
 
-    assertEquals(orids.size(), 15);
+    assertEquals(15, orids.size());
 
     for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
@@ -246,7 +246,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
             compositeKey(2.0, 4.0), true, compositeKey(3.0), false, true);
 
     Set<RID> orids = extractRids(stream);
-    assertEquals(orids.size(), 6);
+    assertEquals(6, orids.size());
 
     for (int j = 4; j <= 9; j++) {
       assertTrue(orids.contains(new RecordId(2, j)));
@@ -257,7 +257,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
             compositeKey(2.0, 4.0), true, compositeKey(3.0), false, false);
     orids = extractRids(stream);
 
-    assertEquals(orids.size(), 6);
+    assertEquals(6, orids.size());
 
     for (int j = 4; j <= 9; j++) {
       assertTrue(orids.contains(new RecordId(2, j)));
@@ -271,7 +271,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
             compositeKey(2.0, 4.0), false, compositeKey(3.0), true, true);
 
     Set<RID> orids = extractRids(stream);
-    assertEquals(orids.size(), 14);
+    assertEquals(14, orids.size());
 
     for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
@@ -286,7 +286,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
         localSBTree.iterateEntriesBetween(
             compositeKey(2.0, 4.0), false, compositeKey(3.0), true, false);
     orids = extractRids(stream);
-    assertEquals(orids.size(), 14);
+    assertEquals(14, orids.size());
 
     for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
@@ -305,7 +305,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
             compositeKey(2.0, 4.0), false, compositeKey(3.0), false, true);
 
     Set<RID> orids = extractRids(stream);
-    assertEquals(orids.size(), 5);
+    assertEquals(5, orids.size());
 
     for (int i = 5; i <= 9; i++) {
       assertTrue(orids.contains(new RecordId(2, i)));
@@ -316,7 +316,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
             compositeKey(2.0, 4.0), false, compositeKey(3.0), false, false);
     orids = extractRids(stream);
 
-    assertEquals(orids.size(), 5);
+    assertEquals(5, orids.size());
 
     for (int i = 5; i <= 9; i++) {
       assertTrue(orids.contains(new RecordId(2, i)));
@@ -329,7 +329,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
         localSBTree.iterateEntriesMajor(compositeKey(2.0), true, true);
     Set<RID> orids = extractRids(stream);
 
-    assertEquals(orids.size(), 18);
+    assertEquals(18, orids.size());
 
     for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
@@ -340,7 +340,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
     stream = localSBTree.iterateEntriesMajor(compositeKey(2.0), true, false);
     orids = extractRids(stream);
 
-    assertEquals(orids.size(), 18);
+    assertEquals(18, orids.size());
 
     for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
@@ -354,7 +354,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
     Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesMajor(compositeKey(2.0), false, true);
     Set<RID> orids = extractRids(stream);
-    assertEquals(orids.size(), 9);
+    assertEquals(9, orids.size());
 
     for (int i = 1; i <= 9; i++) {
       assertTrue(orids.contains(new RecordId(3, i)));
@@ -363,7 +363,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
     stream = localSBTree.iterateEntriesMajor(compositeKey(2.0), false, false);
     orids = extractRids(stream);
 
-    assertEquals(orids.size(), 9);
+    assertEquals(9, orids.size());
 
     for (int i = 1; i <= 9; i++) {
       assertTrue(orids.contains(new RecordId(3, i)));
@@ -375,7 +375,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
     Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesMajor(compositeKey(2.0, 3.0), true, true);
     Set<RID> orids = extractRids(stream);
-    assertEquals(orids.size(), 16);
+    assertEquals(16, orids.size());
 
     for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
@@ -389,7 +389,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
     stream = localSBTree.iterateEntriesMajor(compositeKey(2.0, 3.0), true, false);
     orids = extractRids(stream);
 
-    assertEquals(orids.size(), 16);
+    assertEquals(16, orids.size());
 
     for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
@@ -406,7 +406,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
     Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesMajor(compositeKey(2.0, 3.0), false, true);
     Set<RID> orids = extractRids(stream);
-    assertEquals(orids.size(), 15);
+    assertEquals(15, orids.size());
 
     for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
@@ -420,7 +420,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
     stream = localSBTree.iterateEntriesMajor(compositeKey(2.0, 3.0), false, false);
     orids = extractRids(stream);
 
-    assertEquals(orids.size(), 15);
+    assertEquals(15, orids.size());
 
     for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
@@ -437,7 +437,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
     Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesMinor(compositeKey(3.0), true, true);
     Set<RID> orids = extractRids(stream);
-    assertEquals(orids.size(), 27);
+    assertEquals(27, orids.size());
 
     for (int i = 1; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
@@ -448,7 +448,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
     stream = localSBTree.iterateEntriesMinor(compositeKey(3.0), true, false);
     orids = extractRids(stream);
 
-    assertEquals(orids.size(), 27);
+    assertEquals(27, orids.size());
 
     for (int i = 1; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
@@ -462,7 +462,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
     Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesMinor(compositeKey(3.0), false, true);
     Set<RID> orids = extractRids(stream);
-    assertEquals(orids.size(), 18);
+    assertEquals(18, orids.size());
 
     for (int i = 1; i < 3; i++) {
       for (int j = 1; j <= 9; j++) {
@@ -473,7 +473,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
     stream = localSBTree.iterateEntriesMinor(compositeKey(3.0), false, false);
     orids = extractRids(stream);
 
-    assertEquals(orids.size(), 18);
+    assertEquals(18, orids.size());
 
     for (int i = 1; i < 3; i++) {
       for (int j = 1; j <= 9; j++) {
@@ -487,7 +487,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
     Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesMinor(compositeKey(3.0, 2.0), true, true);
     Set<RID> orids = extractRids(stream);
-    assertEquals(orids.size(), 20);
+    assertEquals(20, orids.size());
 
     for (int i = 1; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
@@ -502,7 +502,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
     stream = localSBTree.iterateEntriesMinor(compositeKey(3.0, 2.0), true, false);
     orids = extractRids(stream);
 
-    assertEquals(orids.size(), 20);
+    assertEquals(20, orids.size());
 
     for (int i = 1; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
@@ -521,7 +521,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
         localSBTree.iterateEntriesMinor(compositeKey(3.0, 2.0), false, true);
     Set<RID> orids = extractRids(stream);
 
-    assertEquals(orids.size(), 19);
+    assertEquals(19, orids.size());
 
     for (int i = 1; i < 3; i++) {
       for (int j = 1; j <= 9; j++) {
@@ -532,7 +532,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
     stream = localSBTree.iterateEntriesMinor(compositeKey(3.0, 2.0), false, false);
     orids = extractRids(stream);
 
-    assertEquals(orids.size(), 19);
+    assertEquals(19, orids.size());
 
     for (int i = 1; i < 3; i++) {
       for (int j = 1; j <= 9; j++) {

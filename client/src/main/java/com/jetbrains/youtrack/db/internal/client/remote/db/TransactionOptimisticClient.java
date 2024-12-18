@@ -1,21 +1,21 @@
 package com.jetbrains.youtrack.db.internal.client.remote.db;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
 import com.jetbrains.youtrack.db.internal.client.remote.message.tx.RecordOperation38Response;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.DocumentSerializerDelta;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges.OPERATION;
+import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -81,7 +81,7 @@ public class TransactionOptimisticClient extends TransactionOptimistic {
         record.fromStream(operation.getRecord());
       }
 
-      var rid = (RecordId) record.getIdentity();
+      var rid = record.getIdentity();
       var operationId = operation.getId();
       rid.setClusterId(operationId.getClusterId());
       rid.setClusterPosition(operationId.getClusterPosition());
@@ -140,7 +140,7 @@ public class TransactionOptimisticClient extends TransactionOptimistic {
         }
       }
       try {
-        final RecordId rid = (RecordId) iRecord.getIdentity();
+        final RecordId rid = iRecord.getIdentity();
         RecordOperation txEntry = getRecordEntry(rid);
 
         if (txEntry == null) {
@@ -223,7 +223,8 @@ public class TransactionOptimisticClient extends TransactionOptimistic {
 
   @Override
   public void addIndexEntry(
-      Index delegate, String iIndexName, OPERATION iOperation, Object key, Identifiable iValue) {
-    this.indexChanged.add(delegate.getName());
+      IndexInternal index, String iIndexName, OPERATION iOperation, Object key,
+      Identifiable iValue) {
+    this.indexChanged.add(index.getName());
   }
 }

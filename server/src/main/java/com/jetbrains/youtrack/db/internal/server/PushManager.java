@@ -4,7 +4,6 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryPushReques
 import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryPushResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushDistributedConfigurationRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushFunctionsRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.PushIndexManagerRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSchemaRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSequencesRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushStorageConfigurationRequest;
@@ -13,8 +12,6 @@ import com.jetbrains.youtrack.db.internal.common.thread.ThreadPoolExecutors;
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.MetadataUpdateListener;
-import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
-import com.jetbrains.youtrack.db.internal.core.index.IndexManagerShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.binary.NetworkProtocolBinary;
 import java.io.IOException;
@@ -140,15 +137,6 @@ public class PushManager implements MetadataUpdateListener {
     entity.setup(null);
     PushSchemaRequest request = new PushSchemaRequest(entity);
     this.schema.send(db, database, request, this);
-  }
-
-  @Override
-  public void onIndexManagerUpdate(DatabaseSessionInternal session, String database,
-      IndexManagerAbstract indexManager) {
-    var entity = ((IndexManagerShared) indexManager).toNetworkStream(session);
-    entity.setup(null);
-    PushIndexManagerRequest request = new PushIndexManagerRequest(entity);
-    this.indexManager.send(session, database, request, this);
   }
 
   @Override

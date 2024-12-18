@@ -2,16 +2,13 @@ package com.jetbrains.youtrack.db.internal.client.remote.message;
 
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
-import com.jetbrains.youtrack.db.internal.client.remote.message.tx.IndexChange;
 import com.jetbrains.youtrack.db.internal.client.remote.message.tx.RecordOperationRequest;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37Client;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
@@ -27,7 +24,6 @@ public class FetchTransactionResponse implements BinaryResponse {
 
   private long txId;
   private List<RecordOperationRequest> operations;
-  private List<IndexChange> indexChanges;
 
   public FetchTransactionResponse() {
   }
@@ -35,7 +31,6 @@ public class FetchTransactionResponse implements BinaryResponse {
   public FetchTransactionResponse(
       DatabaseSessionInternal db, long txId,
       Iterable<RecordOperation> operations,
-      Map<String, FrontendTransactionIndexChanges> indexChanges,
       Map<RecordId, RecordId> updatedRids) {
     // In some cases the reference are update twice is not yet possible to guess what is the id in
     // the client
@@ -43,7 +38,6 @@ public class FetchTransactionResponse implements BinaryResponse {
         updatedRids.entrySet().stream()
             .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
     this.txId = txId;
-    this.indexChanges = new ArrayList<>();
     List<RecordOperationRequest> netOperations = new ArrayList<>();
     for (RecordOperation txEntry : operations) {
       RecordOperationRequest request = new RecordOperationRequest();
@@ -59,10 +53,6 @@ public class FetchTransactionResponse implements BinaryResponse {
       netOperations.add(request);
     }
     this.operations = netOperations;
-
-    for (Map.Entry<String, FrontendTransactionIndexChanges> change : indexChanges.entrySet()) {
-      this.indexChanges.add(new IndexChange(change.getKey(), change.getValue()));
-    }
   }
 
   @Override
@@ -77,10 +67,6 @@ public class FetchTransactionResponse implements BinaryResponse {
 
     // END OF RECORD ENTRIES
     channel.writeByte((byte) 0);
-
-    // SEND MANUAL INDEX CHANGES
-    MessageHelper.writeTransactionIndexChanges(db,
-        channel, (RecordSerializerNetworkV37) serializer, indexChanges);
   }
 
   static void writeTransactionEntry(
@@ -126,9 +112,6 @@ public class FetchTransactionResponse implements BinaryResponse {
         operations.add(entry);
       }
     } while (hasEntry == 1);
-
-    // RECEIVE MANUAL INDEX CHANGES
-    this.indexChanges = MessageHelper.readTransactionIndexChanges(db, network, serializer);
   }
 
   static RecordOperationRequest readTransactionEntry(
@@ -163,9 +146,5 @@ public class FetchTransactionResponse implements BinaryResponse {
 
   public List<RecordOperationRequest> getOperations() {
     return operations;
-  }
-
-  public List<IndexChange> getIndexChanges() {
-    return indexChanges;
   }
 }

@@ -608,12 +608,7 @@ public class ChainedIndexProxy<T> implements IndexInternal {
   }
 
   @Override
-  public String getIndexNameByKey(Object key) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public boolean acquireAtomicExclusiveLock(Object key) {
+  public boolean acquireAtomicExclusiveLock() {
     throw new UnsupportedOperationException();
   }
 

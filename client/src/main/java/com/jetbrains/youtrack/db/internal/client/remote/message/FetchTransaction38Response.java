@@ -2,7 +2,6 @@ package com.jetbrains.youtrack.db.internal.client.remote.message;
 
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
-import com.jetbrains.youtrack.db.internal.client.remote.message.tx.IndexChange;
 import com.jetbrains.youtrack.db.internal.client.remote.message.tx.RecordOperation38Response;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
@@ -11,7 +10,6 @@ import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.DocumentSerializerDelta;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37Client;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
@@ -28,7 +26,6 @@ public class FetchTransaction38Response implements BinaryResponse {
 
   private long txId;
   private List<RecordOperation38Response> operations;
-  private List<IndexChange> indexChanges;
 
   public FetchTransaction38Response() {
   }
@@ -43,7 +40,6 @@ public class FetchTransaction38Response implements BinaryResponse {
     // the client
 
     this.txId = txId;
-    this.indexChanges = new ArrayList<>();
     List<RecordOperation38Response> netOperations = new ArrayList<>();
     for (RecordOperation txEntry : operations) {
       RecordOperation38Response request = new RecordOperation38Response();
@@ -57,7 +53,7 @@ public class FetchTransaction38Response implements BinaryResponse {
           && txEntry.record instanceof EntityImpl entity) {
         var result =
             database.getStorage()
-                .readRecord(database, (RecordId) entity.getIdentity(), false, false, null);
+                .readRecord(database, entity.getIdentity(), false, false, null);
 
         EntityImpl entityFromPersistence = new EntityImpl(db, entity.getIdentity());
         entityFromPersistence.fromStream(result.buffer);
@@ -73,10 +69,6 @@ public class FetchTransaction38Response implements BinaryResponse {
       netOperations.add(request);
     }
     this.operations = netOperations;
-
-    for (Map.Entry<String, FrontendTransactionIndexChanges> change : indexChanges.entrySet()) {
-      this.indexChanges.add(new IndexChange(change.getKey(), change.getValue()));
-    }
   }
 
   @Override
@@ -91,10 +83,6 @@ public class FetchTransaction38Response implements BinaryResponse {
 
     // END OF RECORD ENTRIES
     channel.writeByte((byte) 0);
-
-    // SEND MANUAL INDEX CHANGES
-    MessageHelper.writeTransactionIndexChanges(db,
-        channel, (RecordSerializerNetworkV37) serializer, indexChanges);
   }
 
   static void writeTransactionEntry(
@@ -141,9 +129,6 @@ public class FetchTransaction38Response implements BinaryResponse {
         operations.add(entry);
       }
     } while (hasEntry == 1);
-
-    // RECEIVE MANUAL INDEX CHANGES
-    this.indexChanges = MessageHelper.readTransactionIndexChanges(db, network, serializer);
   }
 
   static RecordOperation38Response readTransactionEntry(
@@ -179,9 +164,5 @@ public class FetchTransaction38Response implements BinaryResponse {
 
   public List<RecordOperation38Response> getOperations() {
     return operations;
-  }
-
-  public List<IndexChange> getIndexChanges() {
-    return indexChanges;
   }
 }

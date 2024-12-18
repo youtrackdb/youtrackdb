@@ -2384,16 +2384,16 @@ public abstract class AbstractPaginatedStorage
   private void commitIndexes(DatabaseSessionInternal db,
       final Map<String, FrontendTransactionIndexChanges> indexesToCommit) {
     for (final FrontendTransactionIndexChanges changes : indexesToCommit.values()) {
-      final IndexInternal index = changes.getAssociatedIndex();
-
+      var index = changes.getIndex();
       try {
-        final int indexId = index.getIndexId();
         if (changes.cleared) {
-          clearIndex(indexId);
+          clearIndex(index.getIndexId());
         }
+
         for (final FrontendTransactionIndexChangesPerKey changesPerKey : changes.changesPerKey.values()) {
           applyTxChanges(db, changesPerKey, index);
         }
+
         applyTxChanges(db, changes.nullKeyChanges, index);
       } catch (final InvalidIndexEngineIdException e) {
         throw BaseException.wrapException(new StorageException("Error during index commit"), e);
@@ -5654,30 +5654,7 @@ public abstract class AbstractPaginatedStorage
 
   private static void lockIndexes(final TreeMap<String, FrontendTransactionIndexChanges> indexes) {
     for (final FrontendTransactionIndexChanges changes : indexes.values()) {
-      assert changes.changesPerKey instanceof TreeMap;
-
-      final IndexInternal index = changes.getAssociatedIndex();
-
-      final List<Object> orderedIndexNames = new ArrayList<>(changes.changesPerKey.keySet());
-      if (orderedIndexNames.size() > 1) {
-        orderedIndexNames.sort(
-            (o1, o2) -> {
-              final String i1 = index.getIndexNameByKey(o1);
-              final String i2 = index.getIndexNameByKey(o2);
-              return i1.compareTo(i2);
-            });
-      }
-
-      boolean fullyLocked = false;
-      for (final Object key : orderedIndexNames) {
-        if (index.acquireAtomicExclusiveLock(key)) {
-          fullyLocked = true;
-          break;
-        }
-      }
-      if (!fullyLocked && !changes.nullKeyChanges.isEmpty()) {
-        index.acquireAtomicExclusiveLock(null);
-      }
+      changes.getIndex().acquireAtomicExclusiveLock();
     }
   }
 

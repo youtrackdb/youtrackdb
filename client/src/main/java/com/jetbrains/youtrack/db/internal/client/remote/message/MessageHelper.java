@@ -5,9 +5,7 @@ import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.client.remote.CollectionNetworkSerializer;
-import com.jetbrains.youtrack.db.internal.client.remote.message.tx.IndexChange;
 import com.jetbrains.youtrack.db.internal.client.remote.message.tx.RecordOperationRequest;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
@@ -26,23 +24,16 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.result.b
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChangesPerKey;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChangesPerKey.TransactionIndexEntry;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NavigableMap;
-import java.util.TreeMap;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -303,101 +294,6 @@ public class MessageHelper {
         break;
     }
     return entry;
-  }
-
-  static void writeTransactionIndexChanges(
-      DatabaseSessionInternal db, ChannelDataOutput network, RecordSerializerNetworkV37 serializer,
-      List<IndexChange> changes)
-      throws IOException {
-    network.writeInt(changes.size());
-    for (IndexChange indexChange : changes) {
-      network.writeString(indexChange.getName());
-      network.writeBoolean(indexChange.getKeyChanges().cleared);
-
-      int size = indexChange.getKeyChanges().changesPerKey.size();
-      if (indexChange.getKeyChanges().nullKeyChanges != null) {
-        size += 1;
-      }
-      network.writeInt(size);
-      if (indexChange.getKeyChanges().nullKeyChanges != null) {
-        network.writeByte((byte) -1);
-        network.writeInt(indexChange.getKeyChanges().nullKeyChanges.size());
-        for (TransactionIndexEntry perKeyChange :
-            indexChange.getKeyChanges().nullKeyChanges.getEntriesAsList()) {
-          network.writeInt(perKeyChange.getOperation().ordinal());
-          network.writeRID(perKeyChange.getValue().getIdentity());
-        }
-      }
-      for (FrontendTransactionIndexChangesPerKey change :
-          indexChange.getKeyChanges().changesPerKey.values()) {
-        PropertyType type = PropertyType.getTypeByValue(change.key);
-        byte[] value = serializer.serializeValue(db, change.key, type);
-        network.writeByte((byte) type.getId());
-        network.writeBytes(value);
-        network.writeInt(change.size());
-        for (TransactionIndexEntry perKeyChange :
-            change.getEntriesAsList()) {
-          FrontendTransactionIndexChanges.OPERATION op = perKeyChange.getOperation();
-          if (op == FrontendTransactionIndexChanges.OPERATION.REMOVE
-              && perKeyChange.getValue() == null) {
-            op = FrontendTransactionIndexChanges.OPERATION.CLEAR;
-          }
-
-          network.writeInt(op.ordinal());
-          if (op != FrontendTransactionIndexChanges.OPERATION.CLEAR) {
-            network.writeRID(perKeyChange.getValue().getIdentity());
-          }
-        }
-      }
-    }
-  }
-
-  static List<IndexChange> readTransactionIndexChanges(
-      DatabaseSessionInternal db, ChannelDataInput channel,
-      RecordSerializerNetworkV37 serializer) throws IOException {
-    List<IndexChange> changes = new ArrayList<>();
-    int val = channel.readInt();
-    while (val-- > 0) {
-      String indexName = channel.readString();
-      boolean cleared = channel.readBoolean();
-      FrontendTransactionIndexChanges entry = new FrontendTransactionIndexChanges();
-      entry.cleared = cleared;
-      int changeCount = channel.readInt();
-      NavigableMap<Object, FrontendTransactionIndexChangesPerKey> entries = new TreeMap<>();
-      while (changeCount-- > 0) {
-        byte bt = channel.readByte();
-        Object key;
-        if (bt == -1) {
-          key = null;
-        } else {
-          PropertyType type = PropertyType.getById(bt);
-          key = serializer.deserializeValue(db, channel.readBytes(), type);
-        }
-        FrontendTransactionIndexChangesPerKey changesPerKey = new FrontendTransactionIndexChangesPerKey(
-            key);
-        int keyChangeCount = channel.readInt();
-        while (keyChangeCount-- > 0) {
-          int op = channel.readInt();
-          FrontendTransactionIndexChanges.OPERATION oper = FrontendTransactionIndexChanges.OPERATION.values()[op];
-          RecordId id;
-          if (oper == FrontendTransactionIndexChanges.OPERATION.CLEAR) {
-            oper = FrontendTransactionIndexChanges.OPERATION.REMOVE;
-            id = null;
-          } else {
-            id = channel.readRID();
-          }
-          changesPerKey.add(id, oper);
-        }
-        if (key == null) {
-          entry.nullKeyChanges = changesPerKey;
-        } else {
-          entries.put(changesPerKey.key, changesPerKey);
-        }
-      }
-      entry.changesPerKey = entries;
-      changes.add(new IndexChange(indexName, entry));
-    }
-    return changes;
   }
 
   public static Identifiable readIdentifiable(

@@ -6,6 +6,7 @@ import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
 import com.jetbrains.youtrack.db.internal.core.index.IndexFactory;
+import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerShared;
 import com.jetbrains.youtrack.db.internal.core.index.Indexes;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
@@ -29,8 +30,8 @@ import java.util.Map;
  *
  */
 public class SharedContextEmbedded extends SharedContext {
-
   protected Map<String, DistributedQueryContext> activeDistributedQueries;
+  protected IndexManagerAbstract indexManager;
 
   public SharedContextEmbedded(Storage storage, YouTrackDBEmbedded youtrackDB) {
     this.youtrackDB = youtrackDB;
@@ -161,6 +162,10 @@ public class SharedContextEmbedded extends SharedContext {
     }
 
     loaded = true;
+  }
+
+  public IndexManagerAbstract getIndexManager() {
+    return indexManager;
   }
 
   public Map<String, DistributedQueryContext> getActiveDistributedQueries() {

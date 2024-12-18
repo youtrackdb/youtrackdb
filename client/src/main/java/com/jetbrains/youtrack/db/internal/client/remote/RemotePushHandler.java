@@ -1,15 +1,14 @@
 package com.jetbrains.youtrack.db.internal.client.remote;
 
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinary;
 import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryPushRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryPushResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.LiveQueryPushRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushDistributedConfigurationRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushFunctionsRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.PushIndexManagerRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSchemaRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSequencesRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushStorageConfigurationRequest;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinary;
 
 /**
  *
@@ -33,8 +32,6 @@ public interface RemotePushHandler {
   void returnSocket(SocketChannelBinary network);
 
   BinaryPushResponse executeUpdateSchema(PushSchemaRequest request);
-
-  BinaryPushResponse executeUpdateIndexManager(PushIndexManagerRequest request);
 
   BinaryPushResponse executeUpdateFunction(PushFunctionsRequest request);
 

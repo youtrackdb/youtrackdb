@@ -109,26 +109,10 @@ public interface IndexInternal extends Index {
   void close();
 
   /**
-   * Returns the index name for a key. The name is always the current index name, but in cases where
-   * the index supports key-based sharding.
-   *
-   * @param key the index key.
-   * @return The index name involved
-   */
-  String getIndexNameByKey(Object key);
-
-  /**
    * Acquires exclusive lock in the active atomic operation running on the current thread for this
    * index.
-   *
-   * <p>If this index supports a more narrow locking, for example key-based sharding, it may use
-   * the provided {@code key} to infer a more narrow lock scope, but that is not a requirement.
-   *
-   * @param key the index key to lock.
-   * @return {@code true} if this index was locked entirely, {@code false} if this index locking is
-   * sensitive to the provided {@code key} and only some subset of this index was locked.
    */
-  boolean acquireAtomicExclusiveLock(Object key);
+  boolean acquireAtomicExclusiveLock();
 
   /**
    * @return number of entries in the index.

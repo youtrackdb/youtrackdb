@@ -4,7 +4,6 @@ import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
-import com.jetbrains.youtrack.db.internal.client.remote.message.tx.IndexChange;
 import com.jetbrains.youtrack.db.internal.client.remote.message.tx.RecordOperationRequest;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
@@ -29,7 +28,6 @@ public class BeginTransaction38Request implements BinaryRequest<BeginTransaction
   private boolean usingLog;
   private boolean hasContent;
   private List<RecordOperationRequest> operations;
-  private List<IndexChange> indexChanges;
 
   public BeginTransaction38Request(
       DatabaseSessionInternal db, long txId,
@@ -41,7 +39,6 @@ public class BeginTransaction38Request implements BinaryRequest<BeginTransaction
     this.txId = txId;
     this.hasContent = hasContent;
     this.usingLog = usingLog;
-    this.indexChanges = new ArrayList<>();
     this.operations = new ArrayList<>();
 
     if (hasContent) {
@@ -71,10 +68,6 @@ public class BeginTransaction38Request implements BinaryRequest<BeginTransaction
         }
         this.operations.add(request);
       }
-
-      for (Map.Entry<String, FrontendTransactionIndexChanges> change : indexChanges.entrySet()) {
-        this.indexChanges.add(new IndexChange(change.getKey(), change.getValue()));
-      }
     }
   }
 
@@ -97,9 +90,6 @@ public class BeginTransaction38Request implements BinaryRequest<BeginTransaction
 
       // END OF RECORD ENTRIES
       network.writeByte((byte) 0);
-
-      // SEND MANUAL INDEX CHANGES
-      MessageHelper.writeTransactionIndexChanges(db, network, serializer, indexChanges);
     }
   }
 
@@ -120,13 +110,6 @@ public class BeginTransaction38Request implements BinaryRequest<BeginTransaction
           operations.add(entry);
         }
       } while (hasEntry == 1);
-
-      // RECEIVE MANUAL INDEX CHANGES
-      this.indexChanges =
-          MessageHelper.readTransactionIndexChanges(db,
-              channel, (RecordSerializerNetworkV37) serializer);
-    } else {
-      this.indexChanges = new ArrayList<>();
     }
   }
 
@@ -152,10 +135,6 @@ public class BeginTransaction38Request implements BinaryRequest<BeginTransaction
 
   public List<RecordOperationRequest> getOperations() {
     return operations;
-  }
-
-  public List<IndexChange> getIndexChanges() {
-    return indexChanges;
   }
 
   public long getTxId() {

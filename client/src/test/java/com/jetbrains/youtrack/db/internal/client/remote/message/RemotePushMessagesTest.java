@@ -4,18 +4,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.client.remote.message.push.StorageConfigurationPayload;
 import com.jetbrains.youtrack.db.internal.core.config.StorageClusterConfiguration;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.StorageEntryConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
-import com.jetbrains.youtrack.db.internal.client.remote.message.push.StorageConfigurationPayload;
-import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.StorageEntryConfiguration;
-import com.jetbrains.youtrack.db.api.YouTrackDB;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,32 +65,6 @@ public class RemotePushMessagesTest extends DbTestBase {
     PushSchemaRequest readRequest = new PushSchemaRequest();
     readRequest.read(session, channel);
     assertNotNull(readRequest.getSchema());
-  }
-
-  @Test
-  public void testIndexManager() throws IOException {
-    try (YouTrackDB youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
-        YouTrackDBConfig.defaultConfig())) {
-      youTrackDB.execute(
-          "create database test memory users (admin identified by 'admin' role admin)");
-      try (DatabaseSession session = youTrackDB.open("test", "admin", "admin")) {
-        session.begin();
-        EntityImpl schema =
-            ((DatabaseSessionInternal) session).getSharedContext().getIndexManager()
-                .toStream((DatabaseSessionInternal) session);
-
-        MockChannel channel = new MockChannel();
-
-        PushIndexManagerRequest request = new PushIndexManagerRequest(schema);
-        request.write(null, channel);
-        channel.close();
-        session.commit();
-
-        PushIndexManagerRequest readRequest = new PushIndexManagerRequest();
-        readRequest.read(db, channel);
-        assertNotNull(readRequest.getIndexManager());
-      }
-    }
   }
 
   @Test

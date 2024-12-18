@@ -7,7 +7,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.common.comparator.DefaultComparator;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
@@ -24,7 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.UUID;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -35,7 +33,7 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
   public void testBeginTransactionEmptyWriteRead() throws IOException {
     MockChannel channel = new MockChannel();
     BeginTransactionRequest request = new BeginTransactionRequest(db, 0, false,
-        true, null, null);
+        true, null);
     request.write(db, channel, null);
     channel.close();
     BeginTransactionRequest readRequest = new BeginTransactionRequest();
@@ -49,19 +47,10 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
     List<RecordOperation> operations = new ArrayList<>();
     operations.add(new RecordOperation(new EntityImpl(db), RecordOperation.CREATED));
     Map<String, FrontendTransactionIndexChanges> changes = new HashMap<>();
-    FrontendTransactionIndexChanges change = new FrontendTransactionIndexChanges();
-    change.cleared = false;
-    change.changesPerKey = new TreeMap<>(DefaultComparator.INSTANCE);
-    FrontendTransactionIndexChangesPerKey keyChange = new FrontendTransactionIndexChangesPerKey(
-        "key");
-    keyChange.add(new RecordId(1, 2), OPERATION.PUT);
-    keyChange.add(new RecordId(2, 2), OPERATION.REMOVE);
-    change.changesPerKey.put(keyChange.key, keyChange);
-    changes.put("some", change);
 
     MockChannel channel = new MockChannel();
     BeginTransactionRequest request =
-        new BeginTransactionRequest(db, 0, true, true, operations, changes);
+        new BeginTransactionRequest(db, 0, true, true, operations);
     request.write(db, channel, null);
 
     channel.close();
@@ -71,18 +60,6 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
     assertTrue(readRequest.isUsingLog());
     assertEquals(1, readRequest.getOperations().size());
     assertEquals(0, readRequest.getTxId());
-    assertEquals(1, readRequest.getIndexChanges().size());
-    assertEquals("some", readRequest.getIndexChanges().get(0).getName());
-    FrontendTransactionIndexChanges val = readRequest.getIndexChanges().get(0).getKeyChanges();
-    assertFalse(val.cleared);
-    assertEquals(1, val.changesPerKey.size());
-    FrontendTransactionIndexChangesPerKey entryChange = val.changesPerKey.firstEntry().getValue();
-    assertEquals("key", entryChange.key);
-    assertEquals(2, entryChange.size());
-    assertEquals(new RecordId(1, 2), entryChange.getEntriesAsList().get(0).getValue());
-    assertEquals(OPERATION.PUT, entryChange.getEntriesAsList().get(0).getOperation());
-    assertEquals(new RecordId(2, 2), entryChange.getEntriesAsList().get(1).getValue());
-    assertEquals(OPERATION.REMOVE, entryChange.getEntriesAsList().get(1).getOperation());
   }
 
   @Test
@@ -90,15 +67,6 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
     List<RecordOperation> operations = new ArrayList<>();
     operations.add(new RecordOperation(new EntityImpl(db), RecordOperation.CREATED));
     Map<String, FrontendTransactionIndexChanges> changes = new HashMap<>();
-    FrontendTransactionIndexChanges change = new FrontendTransactionIndexChanges();
-    change.cleared = false;
-    change.changesPerKey = new TreeMap<>(DefaultComparator.INSTANCE);
-    FrontendTransactionIndexChangesPerKey keyChange = new FrontendTransactionIndexChangesPerKey(
-        "key");
-    keyChange.add(new RecordId(1, 2), OPERATION.PUT);
-    keyChange.add(new RecordId(2, 2), OPERATION.REMOVE);
-    change.changesPerKey.put(keyChange.key, keyChange);
-    changes.put("some", change);
 
     MockChannel channel = new MockChannel();
     Commit37Request request = new Commit37Request(db, 0, true, true, operations, changes);
@@ -112,8 +80,8 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
     assertEquals(1, readRequest.getOperations().size());
     assertEquals(0, readRequest.getTxId());
     assertEquals(1, readRequest.getIndexChanges().size());
-    assertEquals("some", readRequest.getIndexChanges().get(0).getName());
-    FrontendTransactionIndexChanges val = readRequest.getIndexChanges().get(0).getKeyChanges();
+    assertEquals("some", readRequest.getIndexChanges().getFirst().getName());
+    FrontendTransactionIndexChanges val = readRequest.getIndexChanges().getFirst().getKeyChanges();
     assertFalse(val.cleared);
     assertEquals(1, val.changesPerKey.size());
     FrontendTransactionIndexChangesPerKey entryChange = val.changesPerKey.firstEntry().getValue();
@@ -193,20 +161,9 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
     operations.add(
         new RecordOperation(docTwo, RecordOperation.DELETED));
 
-    Map<String, FrontendTransactionIndexChanges> changes = new HashMap<>();
-    FrontendTransactionIndexChanges change = new FrontendTransactionIndexChanges();
-    change.cleared = false;
-    change.changesPerKey = new TreeMap<>(DefaultComparator.INSTANCE);
-    FrontendTransactionIndexChangesPerKey keyChange = new FrontendTransactionIndexChangesPerKey(
-        "key");
-    keyChange.add(new RecordId(1, 2), OPERATION.PUT);
-    keyChange.add(new RecordId(2, 2), OPERATION.REMOVE);
-    change.changesPerKey.put(keyChange.key, keyChange);
-    changes.put("some", change);
-
     MockChannel channel = new MockChannel();
     FetchTransactionResponse response =
-        new FetchTransactionResponse(db, 10, operations, changes, new HashMap<>());
+        new FetchTransactionResponse(db, 10, operations, new HashMap<>());
     response.write(db, channel, 0, RecordSerializerNetworkV37.INSTANCE);
 
     channel.close();
@@ -222,18 +179,6 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
     assertEquals(RecordOperation.DELETED, readResponse.getOperations().get(2).getType());
     assertNotNull(readResponse.getOperations().get(2).getRecord());
     assertEquals(10, readResponse.getTxId());
-    assertEquals(1, readResponse.getIndexChanges().size());
-    assertEquals("some", readResponse.getIndexChanges().get(0).getName());
-    FrontendTransactionIndexChanges val = readResponse.getIndexChanges().get(0).getKeyChanges();
-    assertFalse(val.cleared);
-    assertEquals(1, val.changesPerKey.size());
-    FrontendTransactionIndexChangesPerKey entryChange = val.changesPerKey.firstEntry().getValue();
-    assertEquals("key", entryChange.key);
-    assertEquals(2, entryChange.size());
-    assertEquals(new RecordId(1, 2), entryChange.getEntriesAsList().get(0).getValue());
-    assertEquals(OPERATION.PUT, entryChange.getEntriesAsList().get(0).getOperation());
-    assertEquals(new RecordId(2, 2), entryChange.getEntriesAsList().get(1).getValue());
-    assertEquals(OPERATION.REMOVE, entryChange.getEntriesAsList().get(1).getOperation());
   }
 
   @Test
@@ -247,16 +192,6 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
     operations.add(
         new RecordOperation(new EntityImpl(db, new RecordId(10, 1)), RecordOperation.DELETED));
     Map<String, FrontendTransactionIndexChanges> changes = new HashMap<>();
-    FrontendTransactionIndexChanges change = new FrontendTransactionIndexChanges();
-    change.cleared = false;
-    change.changesPerKey = new TreeMap<>(DefaultComparator.INSTANCE);
-    FrontendTransactionIndexChangesPerKey keyChange = new FrontendTransactionIndexChangesPerKey(
-        "key");
-    keyChange.add(new RecordId(1, 2), OPERATION.PUT);
-    keyChange.add(new RecordId(2, 2), OPERATION.REMOVE);
-    change.changesPerKey.put(keyChange.key, keyChange);
-    changes.put("some", change);
-
     MockChannel channel = new MockChannel();
     FetchTransaction38Response response =
         new FetchTransaction38Response(db, 10, operations, changes, new HashMap<>(), null);
@@ -275,58 +210,24 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
     assertEquals(RecordOperation.DELETED, readResponse.getOperations().get(2).getType());
     assertNotNull(readResponse.getOperations().get(2).getRecord());
     assertEquals(10, readResponse.getTxId());
-    assertEquals(1, readResponse.getIndexChanges().size());
-    assertEquals("some", readResponse.getIndexChanges().get(0).getName());
-    FrontendTransactionIndexChanges val = readResponse.getIndexChanges().get(0).getKeyChanges();
-    assertFalse(val.cleared);
-    assertEquals(1, val.changesPerKey.size());
-    FrontendTransactionIndexChangesPerKey entryChange = val.changesPerKey.firstEntry().getValue();
-    assertEquals("key", entryChange.key);
-    assertEquals(2, entryChange.size());
-    assertEquals(new RecordId(1, 2), entryChange.getEntriesAsList().get(0).getValue());
-    assertEquals(OPERATION.PUT, entryChange.getEntriesAsList().get(0).getOperation());
-    assertEquals(new RecordId(2, 2), entryChange.getEntriesAsList().get(1).getValue());
-    assertEquals(OPERATION.REMOVE, entryChange.getEntriesAsList().get(1).getOperation());
   }
 
   @Test
   public void testTransactionClearIndexFetchResponseWriteRead() throws IOException {
 
     List<RecordOperation> operations = new ArrayList<>();
-    Map<String, FrontendTransactionIndexChanges> changes = new HashMap<>();
-    FrontendTransactionIndexChanges change = new FrontendTransactionIndexChanges();
-    change.cleared = true;
-    change.changesPerKey = new TreeMap<>(DefaultComparator.INSTANCE);
-    FrontendTransactionIndexChangesPerKey keyChange = new FrontendTransactionIndexChangesPerKey(
-        "key");
-    keyChange.add(new RecordId(1, 2), OPERATION.PUT);
-    keyChange.add(new RecordId(2, 2), OPERATION.REMOVE);
-    change.changesPerKey.put(keyChange.key, keyChange);
-    changes.put("some", change);
 
     MockChannel channel = new MockChannel();
     FetchTransactionResponse response =
-        new FetchTransactionResponse(db, 10, operations, changes, new HashMap<>());
+        new FetchTransactionResponse(db, 10, operations, new HashMap<>());
     response.write(db, channel, 0, RecordSerializerNetworkV37.INSTANCE);
 
     channel.close();
 
     FetchTransactionResponse readResponse =
-        new FetchTransactionResponse(db, 10, operations, changes, new HashMap<>());
+        new FetchTransactionResponse(db, 10, operations, new HashMap<>());
     readResponse.read(db, channel, null);
 
     assertEquals(10, readResponse.getTxId());
-    assertEquals(1, readResponse.getIndexChanges().size());
-    assertEquals("some", readResponse.getIndexChanges().get(0).getName());
-    FrontendTransactionIndexChanges val = readResponse.getIndexChanges().get(0).getKeyChanges();
-    assertTrue(val.cleared);
-    assertEquals(1, val.changesPerKey.size());
-    FrontendTransactionIndexChangesPerKey entryChange = val.changesPerKey.firstEntry().getValue();
-    assertEquals("key", entryChange.key);
-    assertEquals(2, entryChange.size());
-    assertEquals(new RecordId(1, 2), entryChange.getEntriesAsList().get(0).getValue());
-    assertEquals(OPERATION.PUT, entryChange.getEntriesAsList().get(0).getOperation());
-    assertEquals(new RecordId(2, 2), entryChange.getEntriesAsList().get(1).getValue());
-    assertEquals(OPERATION.REMOVE, entryChange.getEntriesAsList().get(1).getOperation());
   }
 }

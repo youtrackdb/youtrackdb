@@ -3,7 +3,6 @@ package com.jetbrains.youtrack.db.internal.server;
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.MetadataUpdateListener;
-import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 
 class QueryMetadataUpdateListener implements MetadataUpdateListener {
@@ -13,12 +12,6 @@ class QueryMetadataUpdateListener implements MetadataUpdateListener {
   @Override
   public void onSchemaUpdate(DatabaseSessionInternal db, String database,
       SchemaShared schema) {
-    updated = true;
-  }
-
-  @Override
-  public void onIndexManagerUpdate(DatabaseSessionInternal session, String database,
-      IndexManagerAbstract indexManager) {
     updated = true;
   }
 

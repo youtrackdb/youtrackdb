@@ -174,7 +174,7 @@ public class RemoteIndexEngine implements IndexEngine {
   }
 
   @Override
-  public boolean acquireAtomicExclusiveLock(Object key) {
+  public boolean acquireAtomicExclusiveLock() {
     throw new UnsupportedOperationException(
         "atomic locking is not supported by remote index engine");
   }

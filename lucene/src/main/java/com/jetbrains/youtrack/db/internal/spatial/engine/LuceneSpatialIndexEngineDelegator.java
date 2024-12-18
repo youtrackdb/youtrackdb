@@ -333,7 +333,7 @@ public class LuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public boolean acquireAtomicExclusiveLock(Object key) {
+  public boolean acquireAtomicExclusiveLock() {
     return true; // do nothing
   }
 

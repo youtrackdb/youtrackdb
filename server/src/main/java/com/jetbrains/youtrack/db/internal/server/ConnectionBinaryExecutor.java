@@ -1464,12 +1464,6 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
     var tx = database.getTransaction();
 
     var recordOperations = request.getOperations();
-    var indexChanges = request.getIndexChanges();
-
-    if (!indexChanges.isEmpty()) {
-      throw new DatabaseException("Manual indexes are not supported.");
-    }
-
     if (tx.isActive()) {
       if (!(tx instanceof TransactionOptimisticServer serverTransaction)) {
         throw new DatabaseException("Non-server based transaction is active");
@@ -1510,11 +1504,6 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
   public BinaryResponse executeBeginTransaction38(BeginTransaction38Request request) {
     var database = connection.getDatabase();
     var recordOperations = request.getOperations();
-
-    var indexChanges = request.getIndexChanges();
-    if (!indexChanges.isEmpty()) {
-      throw new DatabaseException("Manual indexes are not supported");
-    }
 
     var tx = database.getTransaction();
 
@@ -1757,7 +1746,6 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
     return new FetchTransactionResponse(database,
         tx.getId(),
         tx.getRecordOperations(),
-        tx.getIndexOperations(),
         tx.getTxGeneratedRealRecordIdMap());
   }
 

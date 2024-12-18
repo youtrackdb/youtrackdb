@@ -65,17 +65,8 @@ public interface BaseIndexEngine {
   /**
    * Acquires exclusive lock in the active atomic operation running on the current thread for this
    * index engine.
-   *
-   * <p>
-   *
-   * <p>If this index engine supports a more narrow locking, for example key-based sharding, it may
-   * use the provided {@code key} to infer a more narrow lock scope, but that is not a requirement.
-   *
-   * @param key the index key to lock.
-   * @return {@code true} if this index was locked entirely, {@code false} if this index locking is
-   * sensitive to the provided {@code key} and only some subset of this index was locked.
    */
-  boolean acquireAtomicExclusiveLock(Object key);
+  boolean acquireAtomicExclusiveLock();
 
   String getIndexNameByKey(Object key);
 }

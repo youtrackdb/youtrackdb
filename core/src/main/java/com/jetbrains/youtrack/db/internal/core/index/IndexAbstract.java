@@ -893,22 +893,7 @@ public abstract class IndexAbstract implements IndexInternal {
   }
 
   @Override
-  public String getIndexNameByKey(final Object key) {
-    BaseIndexEngine engine;
-
-    while (true) {
-      try {
-        engine = storage.getIndexEngine(indexId);
-        break;
-      } catch (InvalidIndexEngineIdException ignore) {
-        doReloadIndexEngine();
-      }
-    }
-    return engine.getIndexNameByKey(key);
-  }
-
-  @Override
-  public boolean acquireAtomicExclusiveLock(Object key) {
+  public boolean acquireAtomicExclusiveLock() {
     BaseIndexEngine engine;
 
     while (true) {
@@ -920,7 +905,7 @@ public abstract class IndexAbstract implements IndexInternal {
       }
     }
 
-    return engine.acquireAtomicExclusiveLock(key);
+    return engine.acquireAtomicExclusiveLock();
   }
 
   private long[] indexCluster(

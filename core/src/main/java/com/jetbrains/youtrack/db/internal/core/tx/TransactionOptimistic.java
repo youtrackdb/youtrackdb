@@ -42,6 +42,7 @@ import com.jetbrains.youtrack.db.internal.core.index.ClassIndexManager;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceLibraryProxy;
@@ -309,10 +310,11 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
     return getIndexChanges(indexName);
   }
 
+  @Override
   public void addIndexEntry(
-      final Index delegate,
+      final IndexInternal index,
       final String iIndexName,
-      final FrontendTransactionIndexChanges.OPERATION iOperation,
+      final OPERATION iOperation,
       final Object key,
       final Identifiable iValue) {
     // index changes are tracked on server in case of client-server deployment
@@ -323,7 +325,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
     try {
       FrontendTransactionIndexChanges indexEntry = indexEntries.get(iIndexName);
       if (indexEntry == null) {
-        indexEntry = new FrontendTransactionIndexChanges();
+        indexEntry = new FrontendTransactionIndexChanges(index);
         indexEntries.put(iIndexName, indexEntry);
       }
 
@@ -645,7 +647,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
     }
 
     try {
-      final RecordId rid = (RecordId) record.getIdentity();
+      final RecordId rid = record.getIdentity();
       RecordOperation txEntry = getRecordEntry(rid);
 
       if (txEntry != null) {
@@ -877,7 +879,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
       txGeneratedRealRecordIdMap.put(newRid.copy(), oldRid.copy());
 
       if (!rec.record.getIdentity().equals(newRid)) {
-        final RecordId recordId = (RecordId) rec.record.getIdentity();
+        final RecordId recordId = rec.record.getIdentity();
         if (recordId == null) {
           RecordInternal.setIdentity(rec.record, new RecordId(newRid));
         } else {

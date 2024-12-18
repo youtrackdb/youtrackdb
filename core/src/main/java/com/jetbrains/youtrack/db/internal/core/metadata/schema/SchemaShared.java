@@ -610,10 +610,10 @@ public abstract class SchemaShared implements CloseableInStorage {
 
       entity.field("classes", cc, PropertyType.EMBEDDEDSET);
 
-      List<EntityImpl> globalProperties = new ArrayList<EntityImpl>();
+      List<EntityImpl> globalProperties = new ArrayList<>();
       for (GlobalProperty globalProperty : properties) {
         if (globalProperty != null) {
-          globalProperties.add(((GlobalPropertyImpl) globalProperty).toEntity());
+          globalProperties.add(((GlobalPropertyImpl) globalProperty).toEntity(db));
         }
       }
       entity.field("globalProperties", globalProperties, PropertyType.EMBEDDEDLIST);
@@ -634,21 +634,21 @@ public abstract class SchemaShared implements CloseableInStorage {
       entity.field("schemaVersion", CURRENT_VERSION_NUMBER);
 
       // This steps is needed because in classes there are duplicate due to aliases
-      Set<SchemaClassImpl> realClases = new HashSet<SchemaClassImpl>();
+      Set<SchemaClassImpl> realClases = new HashSet<>();
       for (SchemaClass c : classes.values()) {
         realClases.add(((SchemaClassImpl) c));
       }
 
-      Set<EntityImpl> classesEntities = new HashSet<EntityImpl>();
+      Set<EntityImpl> classesEntities = new HashSet<>();
       for (SchemaClassImpl c : realClases) {
         classesEntities.add(c.toStream(db));
       }
       entity.field("classes", classesEntities, PropertyType.EMBEDDEDSET);
 
-      List<EntityImpl> globalProperties = new ArrayList<EntityImpl>();
+      List<EntityImpl> globalProperties = new ArrayList<>();
       for (GlobalProperty globalProperty : properties) {
         if (globalProperty != null) {
-          globalProperties.add(((GlobalPropertyImpl) globalProperty).toEntity());
+          globalProperties.add(((GlobalPropertyImpl) globalProperty).toEntity(db));
         }
       }
       entity.field("globalProperties", globalProperties, PropertyType.EMBEDDEDLIST);

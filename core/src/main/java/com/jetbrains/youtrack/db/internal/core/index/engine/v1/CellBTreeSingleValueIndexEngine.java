@@ -233,7 +233,7 @@ public final class CellBTreeSingleValueIndexEngine
   }
 
   @Override
-  public boolean acquireAtomicExclusiveLock(Object key) {
+  public boolean acquireAtomicExclusiveLock() {
     sbTree.acquireAtomicExclusiveLock();
     return true;
   }

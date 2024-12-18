@@ -572,7 +572,7 @@ public final class CellBTreeMultiValueIndexEngine
   }
 
   @Override
-  public boolean acquireAtomicExclusiveLock(Object key) {
+  public boolean acquireAtomicExclusiveLock() {
     if (mvTree != null) {
       mvTree.acquireAtomicExclusiveLock();
     } else {

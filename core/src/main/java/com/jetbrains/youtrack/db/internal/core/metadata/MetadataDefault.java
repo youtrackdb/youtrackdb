@@ -23,6 +23,7 @@ import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
+import com.jetbrains.youtrack.db.internal.core.db.SharedContextEmbedded;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManager;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerProxy;
@@ -138,7 +139,10 @@ public class MetadataDefault implements MetadataInternal {
     schemaClusterId = database.getClusterIdByName(CLUSTER_INTERNAL_NAME);
 
     schema = new SchemaProxy(shared.getSchema(), database);
-    indexManager = new IndexManagerProxy(shared.getIndexManager(), database);
+    if (shared instanceof SharedContextEmbedded embedded) {
+      indexManager = new IndexManagerProxy(embedded.getIndexManager(), database);
+    }
+
     security = new SecurityProxy(shared.getSecurity(), database);
     functionLibrary = new FunctionLibraryProxy(shared.getFunctionLibrary(), database);
     sequenceLibrary = new SequenceLibraryProxy(shared.getSequenceLibrary(), database);

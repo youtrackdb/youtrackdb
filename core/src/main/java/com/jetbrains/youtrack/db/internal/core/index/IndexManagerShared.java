@@ -29,7 +29,6 @@ import com.jetbrains.youtrack.db.internal.common.util.MultiKey;
 import com.jetbrains.youtrack.db.internal.common.util.UncaughtExceptionHandler;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.MetadataUpdateListener;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.Metadata;
@@ -394,10 +393,6 @@ public class IndexManagerShared implements IndexManagerAbstract {
           .getSharedContext()
           .getSchema()
           .forceSnapshot(DatabaseRecordThreadLocal.instance().get());
-
-      for (MetadataUpdateListener listener : session.getSharedContext().browseListeners()) {
-        listener.onIndexManagerUpdate(session, session.getName(), this);
-      }
     }
   }
 
@@ -581,7 +576,6 @@ public class IndexManagerShared implements IndexManagerAbstract {
     if (algorithm == null) {
       algorithm = Indexes.chooseDefaultIndexAlgorithm(type);
     }
-
 
     final IndexInternal index;
     acquireExclusiveLock();

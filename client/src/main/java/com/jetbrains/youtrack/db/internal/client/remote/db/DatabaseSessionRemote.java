@@ -55,7 +55,6 @@ import com.jetbrains.youtrack.db.internal.core.db.HookReplacedRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigImpl;
 import com.jetbrains.youtrack.db.internal.core.index.ClassIndexManager;
-import com.jetbrains.youtrack.db.internal.core.index.IndexManagerRemote;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
@@ -505,13 +504,6 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     SharedContext shared = storage.getSharedContext();
     if (shared != null) {
       ((SchemaRemote) shared.getSchema()).update(null, schema);
-    }
-  }
-
-  public static void updateIndexManager(StorageRemote storage, EntityImpl indexManager) {
-    SharedContext shared = storage.getSharedContext();
-    if (shared != null) {
-      ((IndexManagerRemote) shared.getIndexManager()).update(indexManager);
     }
   }
 
