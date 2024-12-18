@@ -72,7 +72,7 @@ public class YouTrackDBRemoteTest {
     DatabaseSessionInternal db = (DatabaseSessionInternal) factory.open("test", "admin",
         "admin");
     db.begin();
-    db.save(new EntityImpl(), db.getClusterNameById(db.getDefaultClusterId()));
+    db.save(((EntityImpl) db.newEntity()), db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
     db.close();
   }
@@ -102,7 +102,7 @@ public class YouTrackDBRemoteTest {
     SessionPool pool = new SessionPoolImpl(factory, "test", "admin", "admin");
     DatabaseSessionInternal db = (DatabaseSessionInternal) pool.acquire();
     db.begin();
-    db.save(new EntityImpl(), db.getClusterNameById(db.getDefaultClusterId()));
+    db.save(((EntityImpl) db.newEntity()), db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
     db.close();
     pool.close();

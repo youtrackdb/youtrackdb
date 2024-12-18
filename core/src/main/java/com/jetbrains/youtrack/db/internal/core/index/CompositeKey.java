@@ -19,6 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.index;
 
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.comparator.DefaultComparator;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
@@ -26,9 +27,8 @@ import com.jetbrains.youtrack.db.internal.core.id.ChangeableIdentity;
 import com.jetbrains.youtrack.db.internal.core.id.IdentityChangeListener;
 import com.jetbrains.youtrack.db.internal.core.index.comparator.AlwaysGreaterKey;
 import com.jetbrains.youtrack.db.internal.core.index.comparator.AlwaysLessKey;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.DocumentSerializable;
+import com.jetbrains.youtrack.db.internal.core.serialization.EntitySerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -50,12 +50,11 @@ import java.util.WeakHashMap;
 public class CompositeKey
     implements Comparable<CompositeKey>,
     Serializable,
-    DocumentSerializable,
+    EntitySerializable,
     ChangeableIdentity,
     IdentityChangeListener {
 
   private boolean canChangeIdentity;
-  private static final long serialVersionUID = 1L;
 
   private Set<IdentityChangeListener> identityChangeListeners;
 
@@ -208,8 +207,8 @@ public class CompositeKey
   }
 
   @Override
-  public EntityImpl toDocument() {
-    final EntityImpl entity = new EntityImpl();
+  public EntityImpl toEntity(DatabaseSessionInternal db) {
+    final EntityImpl entity = new EntityImpl(db);
     for (int i = 0; i < keys.size(); i++) {
       entity.field("key" + i, keys.get(i));
     }
@@ -237,7 +236,8 @@ public class CompositeKey
   }
 
   // Alternative (de)serialization methods that avoid converting the CompositeKey to a entity.
-  public void toStream(RecordSerializerNetworkV37 serializer, DataOutput out) throws IOException {
+  public void toStream(DatabaseSessionInternal db, RecordSerializerNetworkV37 serializer,
+      DataOutput out) throws IOException {
     int l = keys.size();
     out.writeInt(l);
     for (Object key : keys) {
@@ -248,7 +248,7 @@ public class CompositeKey
         out.writeByte((byte) -1);
       } else {
         PropertyType type = PropertyType.getTypeByValue(key);
-        byte[] bytes = serializer.serializeValue(key, type);
+        byte[] bytes = serializer.serializeValue(db, key, type);
         out.writeByte((byte) type.getId());
         out.writeInt(bytes.length);
         out.write(bytes);

@@ -47,7 +47,8 @@ public class CommandExecutorSQLDropClass extends CommandExecutorSQLAbstract
   private boolean unsafe;
   private boolean ifExists = false;
 
-  public CommandExecutorSQLDropClass parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLDropClass parse(DatabaseSessionInternal db,
+      final CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
 
     String queryText = textRequest.getText();
@@ -126,7 +127,7 @@ public class CommandExecutorSQLDropClass extends CommandExecutorSQLAbstract
   /**
    * Execute the DROP CLASS.
    */
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     if (className == null) {
       throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");

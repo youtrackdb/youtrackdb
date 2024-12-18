@@ -1,6 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent.ChangeType;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -21,7 +22,7 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testPutOne() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
 
     final TrackedMap<String> map = new TrackedMap<String>(doc);
     RecordInternal.unsetDirty(doc);
@@ -40,7 +41,7 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testPutTwo() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
 
     final TrackedMap<String> map = new TrackedMap<String>(doc);
     RecordInternal.unsetDirty(doc);
@@ -64,7 +65,7 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testPutThree() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
 
     final TrackedMap<String> map = new TrackedMap<String>(doc);
     RecordInternal.unsetDirty(doc);
@@ -84,7 +85,7 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testPutFour() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
 
     final TrackedMap<String> map = new TrackedMap<String>(doc);
     RecordInternal.unsetDirty(doc);
@@ -105,7 +106,7 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testPutFive() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
 
     final TrackedMap<String> map = new TrackedMap<String>(doc);
 
@@ -121,7 +122,7 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testRemoveOne() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
 
     final TrackedMap<String> map = new TrackedMap<String>(doc);
 
@@ -143,7 +144,7 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testRemoveTwo() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
 
     final TrackedMap<String> map = new TrackedMap<String>(doc);
 
@@ -162,7 +163,7 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testClearOne() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
 
     final TrackedMap<String> trackedMap = new TrackedMap<String>(doc);
 
@@ -194,7 +195,7 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testClearThree() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
 
     final TrackedMap<String> trackedMap = new TrackedMap<String>(doc);
 
@@ -212,7 +213,7 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testReturnOriginalStateOne() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
 
     final TrackedMap<String> trackedMap = new TrackedMap<String>(doc);
     trackedMap.put("key1", "value1");
@@ -243,7 +244,7 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testReturnOriginalStateTwo() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
 
     final TrackedMap<String> trackedMap = new TrackedMap<String>(doc);
     trackedMap.put("key1", "value1");
@@ -283,13 +284,18 @@ public class TrackedMapTest extends DbTestBase {
 
       private static final long serialVersionUID = 1L;
 
+      public NotSerializableEntityImpl(
+          DatabaseSessionInternal database) {
+        super(database);
+      }
+
       private void writeObject(ObjectOutputStream oos) throws IOException {
         throw new NotSerializableException();
       }
     }
 
     final TrackedMap<String> beforeSerialization =
-        new TrackedMap<String>(new NotSerializableEntityImpl());
+        new TrackedMap<String>(new NotSerializableEntityImpl(db));
     beforeSerialization.put(0, "firstVal");
     beforeSerialization.put(1, "secondVal");
 

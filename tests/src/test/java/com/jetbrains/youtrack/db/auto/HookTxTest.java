@@ -15,11 +15,13 @@
  */
 package com.jetbrains.youtrack.db.auto;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.RecordHookAbstract;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.testng.Assert;
@@ -58,7 +60,7 @@ public class HookTxTest extends BaseDBTest {
 
     @Override
     @Test(enabled = false)
-    public void onRecordAfterCreate(Record iRecord) {
+    public void onRecordAfterCreate(DatabaseSession db, Record iRecord) {
       if (iRecord instanceof EntityImpl
           && ((EntityImpl) iRecord).getClassName() != null
           && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
@@ -79,7 +81,7 @@ public class HookTxTest extends BaseDBTest {
 
     @Override
     @Test(enabled = false)
-    public void onRecordAfterRead(Record iRecord) {
+    public void onRecordAfterRead(DatabaseSession db, Record iRecord) {
       if (iRecord instanceof EntityImpl
           && ((EntityImpl) iRecord).getClassName() != null
           && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
@@ -100,7 +102,7 @@ public class HookTxTest extends BaseDBTest {
 
     @Override
     @Test(enabled = false)
-    public void onRecordAfterUpdate(Record iRecord) {
+    public void onRecordAfterUpdate(DatabaseSession db, Record iRecord) {
       if (iRecord instanceof EntityImpl
           && ((EntityImpl) iRecord).getClassName() != null
           && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
@@ -121,7 +123,7 @@ public class HookTxTest extends BaseDBTest {
 
     @Override
     @Test(enabled = false)
-    public void onRecordAfterDelete(Record iRecord) {
+    public void onRecordAfterDelete(DatabaseSession db, Record iRecord) {
       if (iRecord instanceof EntityImpl
           && ((EntityImpl) iRecord).getClassName() != null
           && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
@@ -150,13 +152,13 @@ public class HookTxTest extends BaseDBTest {
 
   @Test
   public void testRegisterHook() {
-    database.registerHook(new RecordHook());
+    db.registerHook(new RecordHook());
   }
 
   @Test(dependsOnMethods = "testRegisterHook")
   public void testHookCallsCreate() {
-    database.registerHook(new RecordHook());
-    profile = database.newInstance("Profile");
+    db.registerHook(new RecordHook());
+    profile = db.newInstance("Profile");
     profile.setProperty("nick", "HookTxTest");
     profile.setProperty("value", 0);
 
@@ -164,9 +166,9 @@ public class HookTxTest extends BaseDBTest {
 
     // TEST HOOKS ON CREATE
     Assert.assertEquals(callbackCount, 0);
-    database.begin();
-    database.save(profile);
-    database.commit();
+    db.begin();
+    db.save(profile);
+    db.commit();
 
     expectedHookState += RECORD_BEFORE_CREATE + RECORD_AFTER_CREATE;
     Assert.assertEquals(callbackCount, expectedHookState);
@@ -174,29 +176,29 @@ public class HookTxTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "testHookCallsCreate")
   public void testHookCallsRead() {
-    database.registerHook(new RecordHook());
+    db.registerHook(new RecordHook());
     // TEST HOOKS ON READ
-    database.begin();
+    db.begin();
 
     expectedHookState += RECORD_BEFORE_READ + RECORD_AFTER_READ;
 
-    this.profile = database.load(profile.getIdentity());
+    this.profile = db.load(profile.getIdentity());
     Assert.assertEquals(callbackCount, expectedHookState);
 
     Assert.assertEquals(callbackCount, expectedHookState);
-    database.commit();
+    db.commit();
   }
 
   @Test(dependsOnMethods = "testHookCallsRead")
   public void testHookCallsUpdate() {
-    database.registerHook(new RecordHook());
-    database.begin();
-    profile = database.load(profile.getIdentity());
+    db.registerHook(new RecordHook());
+    db.begin();
+    profile = db.load(profile.getIdentity());
     // TEST HOOKS ON UPDATE
     profile.setProperty("value", profile.<Integer>getProperty("value") + 1000);
-    database.save(profile);
+    db.save(profile);
 
-    database.commit();
+    db.commit();
 
     expectedHookState +=
         RECORD_BEFORE_UPDATE + RECORD_AFTER_UPDATE + RECORD_BEFORE_READ + RECORD_AFTER_READ;
@@ -205,16 +207,16 @@ public class HookTxTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "testHookCallsUpdate")
   public void testHookCallsDelete() {
-    database.registerHook(new RecordHook());
+    db.registerHook(new RecordHook());
     // TEST HOOKS ON DELETE
-    database.begin();
-    database.delete(database.bindToSession(profile));
-    database.commit();
+    db.begin();
+    db.delete(db.bindToSession(profile));
+    db.commit();
 
     expectedHookState +=
         RECORD_BEFORE_DELETE + RECORD_AFTER_DELETE + RECORD_BEFORE_READ + RECORD_AFTER_READ;
     Assert.assertEquals(callbackCount, expectedHookState);
 
-    database.unregisterHook(new RecordHook());
+    db.unregisterHook(new RecordHook());
   }
 }

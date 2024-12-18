@@ -21,6 +21,7 @@ package com.jetbrains.youtrack.db.internal.lucene.tx;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.lucene.engine.LuceneIndexEngine;
 import com.jetbrains.youtrack.db.internal.lucene.exception.LuceneIndexException;
 import java.io.IOException;
@@ -59,16 +60,16 @@ public class LuceneTxChangesMultiRid extends LuceneTxChangesAbstract {
     }
   }
 
-  public void remove(DatabaseSessionInternal session, final Object key,
+  public void remove(DatabaseSessionInternal db, final Object key,
       final Identifiable value) {
     try {
       if (value.getIdentity().isTemporary()) {
-        writer.deleteDocuments(engine.deleteQuery(key, value));
+        writer.deleteDocuments(engine.deleteQuery(db.getStorage(), key, value));
       } else {
         deleted.putIfAbsent(value.getIdentity().toString(), new ArrayList<>());
         deleted.get(value.getIdentity().toString()).add(key.toString());
 
-        final Document doc = engine.buildDocument(session, key, value);
+        final Document doc = engine.buildDocument(db, key, value);
         deletedDocs.add(doc);
         deletedIdx.addDocument(doc);
       }
@@ -88,13 +89,14 @@ public class LuceneTxChangesMultiRid extends LuceneTxChangesAbstract {
     return deletedDocs;
   }
 
-  public boolean isDeleted(final Document document, final Object key, final Identifiable value) {
+  public boolean isDeleted(Storage storage, final Document document, final Object key,
+      final Identifiable value) {
     boolean match = false;
     final List<String> strings = deleted.get(value.getIdentity().toString());
     if (strings != null) {
       final MemoryIndex memoryIndex = new MemoryIndex();
       for (final String string : strings) {
-        final Query q = engine.deleteQuery(string, value);
+        final Query q = engine.deleteQuery(storage, string, value);
         memoryIndex.reset();
         for (final IndexableField field : document.getFields()) {
           memoryIndex.addField(field.name(), field.stringValue(), new KeywordAnalyzer());

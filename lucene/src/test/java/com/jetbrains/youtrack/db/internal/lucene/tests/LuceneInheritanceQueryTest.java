@@ -43,7 +43,7 @@ public class LuceneInheritanceQueryTest extends LuceneBaseTest {
 
   @Test
   public void testQuery() {
-    EntityImpl doc = new EntityImpl("C2");
+    EntityImpl doc = ((EntityImpl) db.newEntity("C2"));
     doc.field("name", "abc");
 
     db.begin();

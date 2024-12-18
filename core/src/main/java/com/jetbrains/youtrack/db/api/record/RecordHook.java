@@ -19,6 +19,9 @@
  */
 package com.jetbrains.youtrack.db.api.record;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+
 /**
  * Hook interface to catch all events regarding records.
  *
@@ -154,7 +157,7 @@ public interface RecordHook {
 
   void onUnregister();
 
-  RESULT onTrigger(TYPE iType, Record iRecord);
+  RESULT onTrigger(DatabaseSession db, TYPE iType, Record iRecord);
 
   DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode();
 
@@ -164,8 +167,8 @@ public interface RecordHook {
    * the number of useless invocations of this hook.
    *
    * <p>Limiting the hook to proper scopes may give huge performance boost, especially if the
-   * hook's {@link #onTrigger(TYPE, Record)} dispatcher implementation is heavy. In extreme cases,
-   * you may override the {@link #onTrigger(TYPE, Record)} to act directly on event's
+   * hook's {@link #onTrigger(DatabaseSessionInternal, TYPE, Record)} dispatcher implementation is heavy. In extreme cases,
+   * you may override the {@link #onTrigger(DatabaseSessionInternal, TYPE, Record)} to act directly on event's
    * {@link RecordHook.TYPE} and exit early, scopes are just a more handy alternative to this.
    *
    * @return the scopes of this hook.

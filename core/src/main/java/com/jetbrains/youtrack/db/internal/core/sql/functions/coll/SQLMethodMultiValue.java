@@ -16,10 +16,10 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.coll;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.method.misc.AbstractSQLMethod;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +52,7 @@ public class SQLMethodMultiValue extends AbstractSQLMethod {
     }
 
     if (iParams.length == 1 && !MultiValue.isMultiValue(iParams[0])) {
-      return DocumentHelper.getFieldValue(iContext.getDatabase(), iThis, iParams[0].toString(),
+      return EntityHelper.getFieldValue(iContext.getDatabase(), iThis, iParams[0].toString(),
           iContext);
     }
 
@@ -62,10 +62,10 @@ public class SQLMethodMultiValue extends AbstractSQLMethod {
     for (Object iParam : iParams) {
       if (MultiValue.isMultiValue(iParam)) {
         for (Object o : MultiValue.getMultiValueIterable(iParam)) {
-          list.add(DocumentHelper.getFieldValue(database, iThis, o.toString(), iContext));
+          list.add(EntityHelper.getFieldValue(database, iThis, o.toString(), iContext));
         }
       } else {
-        list.add(DocumentHelper.getFieldValue(database, iThis, iParam.toString(), iContext));
+        list.add(EntityHelper.getFieldValue(database, iThis, iParam.toString(), iContext));
       }
     }
 

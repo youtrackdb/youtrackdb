@@ -19,12 +19,12 @@
  */
 package com.jetbrains.youtrack.db.internal.core.iterator;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import java.util.Arrays;
@@ -88,7 +88,7 @@ public class RecordIteratorClass<REC extends Record> extends RecordIteratorClust
     if (rec == null) {
       return null;
     }
-    return rec.getRecord();
+    return rec.getRecord(database);
   }
 
   @Override
@@ -98,7 +98,7 @@ public class RecordIteratorClass<REC extends Record> extends RecordIteratorClust
       return null;
     }
 
-    return rec.getRecord();
+    return rec.getRecord(database);
   }
 
   public boolean isPolymorphic() {

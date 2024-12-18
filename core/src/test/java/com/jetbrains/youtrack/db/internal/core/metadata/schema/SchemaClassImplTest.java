@@ -84,7 +84,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
 
     db.executeInTx(
         () -> {
-          EntityImpl document = new EntityImpl("Test3");
+          EntityImpl document = (EntityImpl) db.newEntity("Test3");
           document.field("some", "String");
           db.save(document);
         });
@@ -99,9 +99,9 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
 
     db.executeInTx(
         () -> {
-          EntityImpl document = new EntityImpl("Test4");
+          EntityImpl document = (EntityImpl) db.newEntity("Test4");
           ArrayList<EntityImpl> list = new ArrayList<EntityImpl>();
-          list.add(new EntityImpl("Test4"));
+          list.add((EntityImpl) db.newEntity("Test4"));
           document.field("some", list);
           db.save(document);
         });
@@ -116,9 +116,9 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
 
     db.executeInTx(
         () -> {
-          EntityImpl document = new EntityImpl("Test5");
+          EntityImpl document = (EntityImpl) db.newEntity("Test5");
           Set<EntityImpl> set = new HashSet<EntityImpl>();
-          set.add(new EntityImpl("Test5"));
+          set.add((EntityImpl) db.newEntity("Test5"));
           document.field("somelinkset", set);
           db.save(document);
         });
@@ -133,9 +133,9 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
 
     db.executeInTx(
         () -> {
-          EntityImpl document = new EntityImpl("Test6");
+          EntityImpl document = (EntityImpl) db.newEntity("Test6");
           Set<EntityImpl> list = new HashSet<EntityImpl>();
-          list.add(new EntityImpl("Test6"));
+          list.add((EntityImpl) db.newEntity("Test6"));
           document.field("someembededset", list, PropertyType.EMBEDDEDSET);
           db.save(document);
         });
@@ -150,9 +150,9 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
 
     db.executeInTx(
         () -> {
-          EntityImpl document = new EntityImpl("Test7");
+          EntityImpl document = (EntityImpl) db.newEntity("Test7");
           List<EntityImpl> list = new ArrayList<EntityImpl>();
-          list.add(new EntityImpl("Test7"));
+          list.add((EntityImpl) db.newEntity("Test7"));
           document.field("someembeddedlist", list, PropertyType.EMBEDDEDLIST);
           db.save(document);
         });
@@ -167,9 +167,9 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
 
     db.executeInTx(
         () -> {
-          EntityImpl document = new EntityImpl("Test8");
+          EntityImpl document = (EntityImpl) db.newEntity("Test8");
           Map<String, EntityImpl> map = new HashMap<>();
-          map.put("test", new EntityImpl("Test8"));
+          map.put("test", (EntityImpl) db.newEntity("Test8"));
           document.field("someembededmap", map, PropertyType.EMBEDDEDMAP);
           db.save(document);
         });
@@ -185,9 +185,9 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
 
     db.executeInTx(
         () -> {
-          EntityImpl document = new EntityImpl("Test9");
+          EntityImpl document = (EntityImpl) db.newEntity("Test9");
           Map<String, EntityImpl> map = new HashMap<String, EntityImpl>();
-          map.put("test", new EntityImpl("Test8"));
+          map.put("test", (EntityImpl) db.newEntity("Test8"));
           document.field("somelinkmap", map, PropertyType.LINKMAP);
           db.save(document);
         });
@@ -203,7 +203,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
     var rid =
         db.computeInTx(
             () -> {
-              EntityImpl document = new EntityImpl("Test10");
+              EntityImpl document = (EntityImpl) db.newEntity("Test10");
               // TODO add boolan and byte
               document.field("test1", (short) 1);
               document.field("test2", 1);
@@ -245,7 +245,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
     var rid =
         db.computeInTx(
             () -> {
-              EntityImpl document = new EntityImpl("Test11");
+              EntityImpl document = (EntityImpl) db.newEntity("Test11");
               document.field("test1", new ArrayList<EntityImpl>(), PropertyType.EMBEDDEDLIST);
               document.field("test2", new ArrayList<EntityImpl>(), PropertyType.LINKLIST);
               document.field("test3", new HashSet<EntityImpl>(), PropertyType.EMBEDDEDSET);
@@ -364,7 +364,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
     var rid =
         db.computeInTx(
             () -> {
-              EntityImpl document = new EntityImpl("Test19");
+              EntityImpl document = (EntityImpl) db.newEntity("Test19");
               // TODO add boolean and byte
               document.field("test1", (short) 1);
               document.field("test2", 1);
@@ -413,7 +413,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
     var rid =
         db.computeInTx(
             () -> {
-              EntityImpl document = new EntityImpl("Test20");
+              EntityImpl document = (EntityImpl) db.newEntity("Test20");
               // TODO add boolan and byte
               document.field("test1", (short) 1);
               document.field("test2", 1);
@@ -455,7 +455,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
     var rid =
         db.computeInTx(
             () -> {
-              final EntityImpl document = new EntityImpl("Test11bis");
+              final EntityImpl document = (EntityImpl) db.newEntity("Test11bis");
               document.field("test1", new ArrayList<EntityImpl>(), PropertyType.EMBEDDEDLIST);
               document.field("test2", new ArrayList<EntityImpl>(), PropertyType.LINKLIST);
 

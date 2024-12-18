@@ -29,12 +29,12 @@ public class RidBagBasicTest extends DbTestBase {
     bag.convertRecords2Links();
     byte[] bytes = new byte[1024];
     UUID id = UUID.randomUUID();
-    bag.serialize(bytes, 0, id);
+    bag.serialize(db, bytes, 0, id);
 
     EmbeddedRidBag bag1 = new EmbeddedRidBag();
-    bag1.deserialize(bytes, 0);
+    bag1.deserialize(db, bytes, 0);
 
-    assertEquals(bag.size(), 1);
+    assertEquals(1, bag.size());
 
     assertEquals(new RecordId(3, 1000), bag1.iterator().next());
   }

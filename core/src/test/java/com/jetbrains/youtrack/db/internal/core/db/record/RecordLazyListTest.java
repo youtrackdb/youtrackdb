@@ -3,12 +3,12 @@ package com.jetbrains.youtrack.db.internal.core.db.record;
 import static org.junit.Assert.assertNotNull;
 
 import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,14 +22,14 @@ import org.junit.Test;
 public class RecordLazyListTest {
 
   private YouTrackDB youTrackDb;
-  private DatabaseSessionInternal dbSession;
+  private DatabaseSessionInternal db;
 
   @Before
   public void init() throws Exception {
     youTrackDb =
         CreateDatabaseUtil.createDatabase(
             RecordLazyListTest.class.getSimpleName(), "memory:", CreateDatabaseUtil.TYPE_MEMORY);
-    dbSession =
+    db =
         (DatabaseSessionInternal) youTrackDb.open(
             RecordLazyListTest.class.getSimpleName(),
             "admin",
@@ -38,30 +38,30 @@ public class RecordLazyListTest {
 
   @Test
   public void test() {
-    Schema schema = dbSession.getMetadata().getSchema();
+    Schema schema = db.getMetadata().getSchema();
     SchemaClass mainClass = schema.createClass("MainClass");
-    mainClass.createProperty(dbSession, "name", PropertyType.STRING);
-    Property itemsProp = mainClass.createProperty(dbSession, "items", PropertyType.LINKLIST);
+    mainClass.createProperty(db, "name", PropertyType.STRING);
+    Property itemsProp = mainClass.createProperty(db, "items", PropertyType.LINKLIST);
     SchemaClass itemClass = schema.createClass("ItemClass");
-    itemClass.createProperty(dbSession, "name", PropertyType.STRING);
-    itemsProp.setLinkedClass(dbSession, itemClass);
+    itemClass.createProperty(db, "name", PropertyType.STRING);
+    itemsProp.setLinkedClass(db, itemClass);
 
-    dbSession.begin();
-    EntityImpl doc1 = new EntityImpl(itemClass).field("name", "Doc1");
+    db.begin();
+    EntityImpl doc1 = ((EntityImpl) db.newEntity(itemClass)).field("name", "Doc1");
     doc1.save();
-    EntityImpl doc2 = new EntityImpl(itemClass).field("name", "Doc2");
+    EntityImpl doc2 = ((EntityImpl) db.newEntity(itemClass)).field("name", "Doc2");
     doc2.save();
-    EntityImpl doc3 = new EntityImpl(itemClass).field("name", "Doc3");
+    EntityImpl doc3 = ((EntityImpl) db.newEntity(itemClass)).field("name", "Doc3");
     doc3.save();
 
-    EntityImpl mainDoc = new EntityImpl(mainClass).field("name", "Main Doc");
+    EntityImpl mainDoc = ((EntityImpl) db.newEntity(mainClass)).field("name", "Main Doc");
     mainDoc.field("items", Arrays.asList(doc1, doc2, doc3));
     mainDoc.save();
-    dbSession.commit();
+    db.commit();
 
-    dbSession.begin();
+    db.begin();
 
-    mainDoc = dbSession.bindToSession(mainDoc);
+    mainDoc = db.bindToSession(mainDoc);
     Collection<EntityImpl> origItems = mainDoc.field("items");
     Iterator<EntityImpl> it = origItems.iterator();
     assertNotNull(it.next());
@@ -71,15 +71,15 @@ public class RecordLazyListTest {
     assertNotNull(items.get(0));
     assertNotNull(items.get(1));
     assertNotNull(items.get(2));
-    dbSession.rollback();
+    db.rollback();
   }
 
   @After
   public void close() {
-    if (dbSession != null) {
-      dbSession.close();
+    if (db != null) {
+      db.close();
     }
-    if (youTrackDb != null && dbSession != null) {
+    if (youTrackDb != null && db != null) {
       youTrackDb.drop(RecordLazyListTest.class.getSimpleName());
     }
   }

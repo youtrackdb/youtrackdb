@@ -19,10 +19,10 @@
  */
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import java.util.Arrays;
@@ -84,14 +84,14 @@ public class RuntimeKeyIndexDefinition<T> extends AbstractIndexDefinition {
   }
 
   @Override
-  public @Nonnull EntityImpl toStream(@Nonnull EntityImpl entity) {
-    serializeToStream(entity);
+  public @Nonnull EntityImpl toStream(DatabaseSessionInternal db, @Nonnull EntityImpl entity) {
+    serializeToStream(db, entity);
     return entity;
   }
 
   @Override
-  protected void serializeToStream(EntityImpl entity) {
-    super.serializeToStream(entity);
+  protected void serializeToStream(DatabaseSessionInternal db, EntityImpl entity) {
+    super.serializeToStream(db, entity);
 
     entity.setProperty("keySerializerId", serializer.getId());
     entity.setProperty("collate", collate.getName());

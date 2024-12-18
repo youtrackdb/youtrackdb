@@ -19,13 +19,13 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import java.util.Map;
 
@@ -41,7 +41,8 @@ public class CommandExecutorSQLDropIndex extends CommandExecutorSQLAbstract
 
   private String name;
 
-  public CommandExecutorSQLDropIndex parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLDropIndex parse(DatabaseSessionInternal db,
+      final CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
 
     String queryText = textRequest.getText();
@@ -86,7 +87,7 @@ public class CommandExecutorSQLDropIndex extends CommandExecutorSQLAbstract
   /**
    * Execute the REMOVE INDEX.
    */
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     if (name == null) {
       throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");

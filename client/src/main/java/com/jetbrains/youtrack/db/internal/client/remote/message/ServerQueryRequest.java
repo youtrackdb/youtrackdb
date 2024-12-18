@@ -19,14 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryRequest;
+import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
@@ -61,7 +61,7 @@ public final class ServerQueryRequest implements BinaryRequest<ServerQueryRespon
     namedParams = false;
     this.serializer = serializer;
     this.operationType = operationType;
-    EntityImpl parms = new EntityImpl();
+    EntityImpl parms = new EntityImpl(null);
     parms.field("params", this.params);
 
     paramsBytes = MessageHelper.getRecordBytes(null, parms, serializer);
@@ -76,7 +76,7 @@ public final class ServerQueryRequest implements BinaryRequest<ServerQueryRespon
     this.language = language;
     this.statement = iCommand;
     this.params = namedParams;
-    EntityImpl parms = new EntityImpl();
+    EntityImpl parms = new EntityImpl(null);
     parms.field("params", this.params);
 
     paramsBytes = MessageHelper.getRecordBytes(null, parms, serializer);
@@ -149,7 +149,7 @@ public final class ServerQueryRequest implements BinaryRequest<ServerQueryRespon
   public Map<String, Object> getParams() {
     if (params == null && this.paramsBytes != null) {
       // params
-      EntityImpl paramsEntity = new EntityImpl();
+      EntityImpl paramsEntity = new EntityImpl(null);
       paramsEntity.setTrackingChanges(false);
       serializer.fromStream(null, this.paramsBytes, paramsEntity, null);
       this.params = paramsEntity.field("params");

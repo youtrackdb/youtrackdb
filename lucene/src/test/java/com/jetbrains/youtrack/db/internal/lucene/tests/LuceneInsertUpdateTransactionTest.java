@@ -55,7 +55,7 @@ public class LuceneInsertUpdateTransactionTest extends LuceneBaseTest {
 
     var schema = db.getMetadata().getSchema();
     db.begin();
-    EntityImpl doc = new EntityImpl("City");
+    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "Rome");
     db.save(doc);
 
@@ -72,7 +72,7 @@ public class LuceneInsertUpdateTransactionTest extends LuceneBaseTest {
     }
     Assert.assertEquals(0, coll.size());
     db.begin();
-    doc = new EntityImpl("City");
+    doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "Rome");
     db.save(doc);
 

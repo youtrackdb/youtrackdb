@@ -19,10 +19,10 @@
  */
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import java.util.Map;
@@ -57,12 +57,12 @@ public interface Index extends Comparable<Index> {
   /**
    * Inserts a new entry in the index. The behaviour depends by the index implementation.
    *
-   * @param session
-   * @param key     Entry's key
-   * @param value   Entry's value as Identifiable instance
+   * @param db
+   * @param key   Entry's key
+   * @param value Entry's value as Identifiable instance
    * @return The index instance itself to allow in chain calls
    */
-  Index put(DatabaseSessionInternal session, Object key, Identifiable value);
+  Index put(DatabaseSessionInternal db, Object key, Identifiable value);
 
   /**
    * Removes an entry by its key.

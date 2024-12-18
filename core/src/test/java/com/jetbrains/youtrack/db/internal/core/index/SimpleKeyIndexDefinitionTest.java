@@ -1,10 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Arrays;
 import java.util.Collections;
@@ -141,7 +139,8 @@ public class SimpleKeyIndexDefinitionTest extends DbTestBase {
   @Test
   public void testReload() {
     db.begin();
-    final EntityImpl storeDocument = simpleKeyIndexDefinition.toStream(new EntityImpl());
+    final EntityImpl storeDocument = simpleKeyIndexDefinition.toStream(db,
+        (EntityImpl) db.newEntity());
     storeDocument.save();
     db.commit();
 
@@ -154,6 +153,6 @@ public class SimpleKeyIndexDefinitionTest extends DbTestBase {
 
   @Test(expected = IndexException.class)
   public void testGetDocumentValueToIndex() {
-    simpleKeyIndexDefinition.getDocumentValueToIndex(db, new EntityImpl());
+    simpleKeyIndexDefinition.getDocumentValueToIndex(db, (EntityImpl) db.newEntity());
   }
 }

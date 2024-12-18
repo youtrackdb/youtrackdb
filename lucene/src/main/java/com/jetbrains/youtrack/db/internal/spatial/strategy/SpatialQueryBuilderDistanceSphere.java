@@ -13,7 +13,8 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial.strategy;
 
-import com.jetbrains.youtrack.db.internal.spatial.engine.OLuceneSpatialIndexContainer;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.spatial.engine.LuceneSpatialIndexContainer;
 import com.jetbrains.youtrack.db.internal.spatial.query.SpatialQueryContext;
 import com.jetbrains.youtrack.db.internal.spatial.shape.ShapeBuilder;
 import java.util.Arrays;
@@ -40,12 +41,13 @@ public class SpatialQueryBuilderDistanceSphere extends SpatialQueryBuilderAbstra
   public static final String NAME = "distance_sphere";
 
   public SpatialQueryBuilderDistanceSphere(
-      OLuceneSpatialIndexContainer manager, ShapeBuilder factory) {
+      LuceneSpatialIndexContainer manager, ShapeBuilder factory) {
     super(manager, factory);
   }
 
   @Override
-  public SpatialQueryContext build(Map<String, Object> query) throws Exception {
+  public SpatialQueryContext build(DatabaseSessionInternal db, Map<String, Object> query)
+      throws Exception {
     Shape shape = parseShape(query);
 
     SpatialStrategy strategy = manager.strategy();
@@ -70,7 +72,7 @@ public class SpatialQueryBuilderDistanceSphere extends SpatialQueryBuilderAbstra
 
     Query filterQuery = strategy.makeQuery(args);
 
-    IndexSearcher searcher = manager.searcher();
+    IndexSearcher searcher = manager.searcher(db.getStorage());
     DoubleValuesSource valueSource = strategy.makeDistanceValueSource((Point) shape);
     Sort distSort = new Sort(valueSource.getSortField(false)).rewrite(searcher);
 

@@ -3,6 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.method.misc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +15,7 @@ import org.junit.Test;
  * the execute() method from the SQLMethod interface that is used is the ioResult argument (the 4th
  * argument).
  */
-public class SQLMethodAsMapTest {
+public class SQLMethodAsMapTest extends DbTestBase {
 
   private SQLMethodAsMap function;
 
@@ -40,10 +41,11 @@ public class SQLMethodAsMapTest {
     assertEquals(result, new HashMap<Object, Object>());
   }
 
+  @Test
   public void testODocument() {
     // The expected behavior is to return a map that has the field names mapped
     // to the field values of the EntityImpl.
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = ((EntityImpl) db.newEntity());
     doc.field("f1", 1);
     doc.field("f2", 2);
 
@@ -90,6 +92,7 @@ public class SQLMethodAsMapTest {
     assertEquals(result, expected);
   }
 
+  @Test
   public void testOtherValue() {
     // The expected behavior is to return null.
     Object result = function.execute(null, null, null, Integer.valueOf(4), null);

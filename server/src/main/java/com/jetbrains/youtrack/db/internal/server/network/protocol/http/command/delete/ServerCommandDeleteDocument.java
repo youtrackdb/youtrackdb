@@ -27,7 +27,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandDocumentAbstract;
 
 public class ServerCommandDeleteDocument extends ServerCommandDocumentAbstract {
@@ -35,7 +35,7 @@ public class ServerCommandDeleteDocument extends ServerCommandDocumentAbstract {
   private static final String[] NAMES = {"DELETE|document/*"};
 
   @Override
-  public boolean execute(final OHttpRequest iRequest, HttpResponse iResponse) throws Exception {
+  public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
 
     try (DatabaseSession db = getProfiledDatabaseInstance(iRequest)) {
       final String[] urlParts =
@@ -54,7 +54,7 @@ public class ServerCommandDeleteDocument extends ServerCommandDocumentAbstract {
 
       db.executeInTx(
           () -> {
-            final EntityImpl entity = recordId.getRecord();
+            final EntityImpl entity = recordId.getRecord(db);
 
             // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
             if (iRequest.getContent() != null)

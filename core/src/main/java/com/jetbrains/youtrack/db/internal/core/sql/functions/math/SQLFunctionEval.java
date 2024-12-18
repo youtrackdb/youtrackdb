@@ -19,11 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.math;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
 import java.util.List;
@@ -59,7 +59,8 @@ public class SQLFunctionEval extends SQLFunctionMathAbstract {
         iCurrentResult instanceof EntityImpl ? (EntityImpl) iCurrentResult : null;
     try {
       return predicate.evaluate(
-          iRecord != null ? iRecord.getRecord() : null, currentResult, iContext);
+          iRecord != null ? iRecord.getRecord(iContext.getDatabase()) : null, currentResult,
+          iContext);
     } catch (ArithmeticException e) {
       LogManager.instance().error(this, "Division by 0", e);
       // DIVISION BY 0

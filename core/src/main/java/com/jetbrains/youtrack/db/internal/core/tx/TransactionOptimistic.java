@@ -269,12 +269,10 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
   }
 
   public EntityImpl getIndexChanges() {
-
-    final EntityImpl result = new EntityImpl().setAllowChainedAccess(false)
+    final EntityImpl result = new EntityImpl(null).setAllowChainedAccess(false)
         .setTrackingChanges(false);
-
     for (Entry<String, FrontendTransactionIndexChanges> indexEntry : indexEntries.entrySet()) {
-      final EntityImpl indexDoc = new EntityImpl().setTrackingChanges(false);
+      final EntityImpl indexDoc = new EntityImpl(null).setTrackingChanges(false);
       EntityInternalUtils.addOwner(indexDoc, result);
 
       result.field(indexEntry.getKey(), indexDoc, PropertyType.EMBEDDED);
@@ -463,20 +461,18 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
 
   public void deleteRecord(final RecordAbstract iRecord) {
     try {
-      var records = RecordInternal.getDirtyManager(iRecord).getUpdateRecords();
-      final var newRecords = RecordInternal.getDirtyManager(iRecord).getNewRecords();
+      var records = RecordInternal.getDirtyManager(database, iRecord).getUpdateRecords();
+      final var newRecords = RecordInternal.getDirtyManager(database, iRecord).getNewRecords();
       var recordsMap = new HashMap<>(16);
-
       if (records != null) {
         for (var rec : records) {
-          rec = rec.getRecord();
+          rec = rec.getRecord(database);
           var prev = recordsMap.put(rec.getIdentity(), rec);
 
           if (prev != null && prev != rec) {
-            var db = getDatabase();
             throw new IllegalStateException(
                 "Database :"
-                    + db.getName()
+                    + database.getName()
                     + " .For record "
                     + rec
                     + " second instance of record  "
@@ -490,13 +486,12 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
 
       if (newRecords != null) {
         for (var rec : newRecords) {
-          rec = rec.getRecord();
+          rec = rec.getRecord(database);
           var prev = recordsMap.put(rec.getIdentity(), rec);
           if (prev != null && prev != rec) {
-            var db = getDatabase();
             throw new IllegalStateException(
                 "Database :"
-                    + db.getName()
+                    + database.getName()
                     + " .For record "
                     + rec
                     + " second instance of record  "
@@ -528,20 +523,20 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
                 + ".bindToSession(record) before changing it");
       }
       // fetch primary record if the record is a proxy record.
-      passedRecord = passedRecord.getRecord();
+      passedRecord = passedRecord.getRecord(database);
 
       var recordsMap = new HashMap<>(16);
       recordsMap.put(passedRecord.getIdentity(), passedRecord);
 
       boolean originalSaved = false;
-      final DirtyManager dirtyManager = RecordInternal.getDirtyManager(passedRecord);
+      final DirtyManager dirtyManager = RecordInternal.getDirtyManager(database, passedRecord);
       do {
         final var newRecord = dirtyManager.getNewRecords();
         final var updatedRecord = dirtyManager.getUpdateRecords();
         dirtyManager.clear();
         if (newRecord != null) {
           for (RecordAbstract rec : newRecord) {
-            rec = rec.getRecord();
+            rec = rec.getRecord(database);
 
             var prev = recordsMap.put(rec.getIdentity(), rec);
             if (prev != null && prev != rec) {
@@ -569,7 +564,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
         }
         if (updatedRecord != null) {
           for (var rec : updatedRecord) {
-            rec = rec.getRecord();
+            rec = rec.getRecord(database);
 
             var prev = recordsMap.put(rec.getIdentity(), rec);
             if (prev != null && prev != rec) {
@@ -926,7 +921,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
       FrontendTransactionIndexChangesPerKey entry, final EntityImpl indexDoc) {
     // SERIALIZE KEY
 
-    EntityImpl keyContainer = new EntityImpl();
+    EntityImpl keyContainer = new EntityImpl(null);
     keyContainer.setTrackingChanges(false);
 
     if (entry.key != null) {
@@ -950,7 +945,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
     if (!entry.isEmpty()) {
       for (TransactionIndexEntry e : entry.getEntriesAsList()) {
 
-        final EntityImpl changeDoc = new EntityImpl().setAllowChainedAccess(false);
+        final EntityImpl changeDoc = new EntityImpl(null).setAllowChainedAccess(false);
         EntityInternalUtils.addOwner(changeDoc, indexDoc);
 
         // SERIALIZE OPERATION
@@ -970,7 +965,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
         operations.add(changeDoc);
       }
     }
-    EntityImpl res = new EntityImpl();
+    EntityImpl res = new EntityImpl(null);
     res.setTrackingChanges(false);
     EntityInternalUtils.addOwner(res, indexDoc);
     return res.setAllowChainedAccess(false)

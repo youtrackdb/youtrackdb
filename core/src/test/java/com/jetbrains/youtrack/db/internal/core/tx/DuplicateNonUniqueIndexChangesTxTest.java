@@ -47,7 +47,7 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DbTestBase {
     var indexName =
         class_
             .createProperty(db, "name", PropertyType.STRING)
-            .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX);
+            .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
     index = db.getIndex(indexName);
   }
 

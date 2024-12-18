@@ -1,15 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Direction;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.record.Direction;
-import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -127,13 +127,13 @@ public class UniqueIndexTest extends DbTestBase {
         .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
 
     db.begin();
-    EntityImpl john = new EntityImpl("User");
+    EntityImpl john = (EntityImpl) db.newEntity("User");
     john.field("MailAddress", "john@doe.com");
     db.save(john);
     db.commit();
 
     db.begin();
-    EntityImpl jane = new EntityImpl("User");
+    EntityImpl jane = (EntityImpl) db.newEntity("User");
     jane.field("MailAddress", "jane@doe.com");
     EntityImpl id = jane;
     jane.save();
@@ -162,7 +162,7 @@ public class UniqueIndexTest extends DbTestBase {
         .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
 
     db.begin();
-    EntityImpl jane = new EntityImpl("User");
+    EntityImpl jane = (EntityImpl) db.newEntity("User");
     jane.field("MailAddress", "jane@doe.com");
     jane.save();
     db.commit();
@@ -184,7 +184,7 @@ public class UniqueIndexTest extends DbTestBase {
 
     try {
       db.begin();
-      EntityImpl toUp = new EntityImpl("User");
+      EntityImpl toUp = (EntityImpl) db.newEntity("User");
       toUp.field("MailAddress", "john@doe.com");
 
       db.save(toUp);

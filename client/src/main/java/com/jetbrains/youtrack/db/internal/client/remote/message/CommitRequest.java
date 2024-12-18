@@ -80,7 +80,7 @@ public final class CommitRequest implements BinaryRequest<CommitResponse> {
       }
     } while (hasEntry == 1);
 
-    indexChanges = new EntityImpl(channel.readBytes());
+    indexChanges = new EntityImpl(db, channel.readBytes());
   }
 
   @Override

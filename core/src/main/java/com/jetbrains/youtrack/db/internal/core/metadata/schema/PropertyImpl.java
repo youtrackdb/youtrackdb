@@ -694,8 +694,8 @@ public abstract class PropertyImpl implements PropertyInternal {
     }
   }
 
-  public EntityImpl toStream() {
-    EntityImpl entity = new EntityImpl();
+  public EntityImpl toStream(DatabaseSessionInternal session) {
+    EntityImpl entity = new EntityImpl(session);
     entity.field("name", getName());
     entity.field("type", getType().getId());
     entity.field("globalId", globalRef.getId());
@@ -782,8 +782,8 @@ public abstract class PropertyImpl implements PropertyInternal {
     return globalRef.getId();
   }
 
-  public EntityImpl toNetworkStream() {
-    EntityImpl entity = new EntityImpl();
+  public EntityImpl toNetworkStream(DatabaseSessionInternal session) {
+    EntityImpl entity = new EntityImpl(session);
     entity.setTrackingChanges(false);
     entity.field("name", getName());
     entity.field("type", getType().getId());

@@ -20,14 +20,13 @@
 
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary;
 
+import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.RecordFlat;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import java.util.Base64;
 
@@ -67,11 +66,8 @@ public class RecordSerializerNetwork implements RecordSerializer {
       return iRecord;
     }
     if (iRecord == null) {
-      iRecord = new EntityImpl();
+      iRecord = new EntityImpl(db);
     } else if (iRecord instanceof Blob) {
-      iRecord.fromStream(iSource);
-      return iRecord;
-    } else if (iRecord instanceof RecordFlat) {
       iRecord.fromStream(iSource);
       return iRecord;
     }
@@ -99,10 +95,8 @@ public class RecordSerializerNetwork implements RecordSerializer {
   }
 
   @Override
-  public byte[] toStream(DatabaseSessionInternal session, RecordAbstract iSource) {
+  public byte[] toStream(DatabaseSessionInternal db, RecordAbstract iSource) {
     if (iSource instanceof Blob) {
-      return iSource.toStream();
-    } else if (iSource instanceof RecordFlat) {
       return iSource.toStream();
     } else {
       final BytesContainer container = new BytesContainer();
@@ -111,7 +105,7 @@ public class RecordSerializerNetwork implements RecordSerializer {
       int pos = container.alloc(1);
       container.bytes[pos] = CURRENT_RECORD_VERSION;
       // SERIALIZE RECORD
-      serializerByVersion[CURRENT_RECORD_VERSION].serialize(session, (EntityImpl) iSource,
+      serializerByVersion[CURRENT_RECORD_VERSION].serialize(db, (EntityImpl) iSource,
           container);
 
       return container.fitBytes();

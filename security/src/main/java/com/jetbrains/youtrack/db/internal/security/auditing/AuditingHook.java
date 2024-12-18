@@ -175,19 +175,6 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
     }
   }
 
-  /// / AuditingHook
-  public AuditingHook(final String iConfiguration) {
-    this(new EntityImpl().fromJSON(iConfiguration, "noMap"), null);
-  }
-
-  public AuditingHook(final String iConfiguration, final SecuritySystem system) {
-    this(new EntityImpl().fromJSON(iConfiguration, "noMap"), system);
-  }
-
-  public AuditingHook(final EntityImpl iConfiguration) {
-    this(iConfiguration, null);
-  }
-
   public AuditingHook(final EntityImpl iConfiguration, final SecuritySystem system) {
     this.iConfiguration = iConfiguration;
 
@@ -296,29 +283,29 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
   }
 
   @Override
-  public void onRecordAfterCreate(final Record iRecord) {
+  public void onRecordAfterCreate(DatabaseSession db, final Record iRecord) {
     if (!onGlobalCreate) {
       return;
     }
 
-    log(AuditingOperation.CREATED, iRecord);
+    log(db, AuditingOperation.CREATED, iRecord);
   }
 
   @Override
-  public void onRecordAfterRead(final Record iRecord) {
+  public void onRecordAfterRead(DatabaseSession db, final Record iRecord) {
     if (!onGlobalRead) {
       return;
     }
 
-    log(AuditingOperation.LOADED, iRecord);
+    log(db, AuditingOperation.LOADED, iRecord);
   }
 
   @Override
-  public void onRecordAfterUpdate(final Record iRecord) {
+  public void onRecordAfterUpdate(DatabaseSession db, final Record iRecord) {
 
     if (iRecord instanceof EntityImpl entity) {
-      DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().get();
-      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(db, entity);
+      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(
+          (DatabaseSessionInternal) db, entity);
 
       if (clazz.isOuser() && Arrays.asList(entity.getDirtyFields()).contains("password")) {
         String name = entity.getProperty("name");
@@ -330,16 +317,16 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
       return;
     }
 
-    log(AuditingOperation.UPDATED, iRecord);
+    log(db, AuditingOperation.UPDATED, iRecord);
   }
 
   @Override
-  public void onRecordAfterDelete(final Record iRecord) {
+  public void onRecordAfterDelete(DatabaseSession db, final Record iRecord) {
     if (!onGlobalDelete) {
       return;
     }
 
-    log(AuditingOperation.DELETED, iRecord);
+    log(db, AuditingOperation.DELETED, iRecord);
   }
 
   @Override
@@ -386,7 +373,8 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
             });
   }
 
-  protected void log(final AuditingOperation operation, final Record iRecord) {
+  protected void log(DatabaseSession db, final AuditingOperation operation,
+      final Record iRecord) {
     if (auditingQueue == null)
     // LOGGING THREAD INACTIVE, SKIP THE LOG
     {
@@ -421,10 +409,10 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
         note = cfg.onUpdateMessage;
 
         if (iRecord instanceof EntityImpl entity && cfg.onUpdateChanges) {
-          changes = new EntityImpl();
+          changes = new EntityImpl((DatabaseSessionInternal) db);
 
           for (String f : entity.getDirtyFields()) {
-            EntityImpl fieldChanges = new EntityImpl();
+            EntityImpl fieldChanges = new EntityImpl(null);
             fieldChanges.field("from", entity.getOriginalValue(f));
             fieldChanges.field("to", (Object) entity.rawField(f));
             changes.field(f, fieldChanges, PropertyType.EMBEDDED);
@@ -441,8 +429,6 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
         break;
     }
 
-    final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().get();
-
     final EntityImpl entity =
         createLogDocument(db, operation, db.getName(), db.geCurrentUser(),
             formatNote(iRecord, note));
@@ -451,7 +437,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
       entity.field("changes", changes, PropertyType.EMBEDDED);
     }
 
-    if (db.getTransaction().isActive()) {
+    if (((DatabaseSessionInternal) db).getTransaction().isActive()) {
       synchronized (operations) {
         List<EntityImpl> oDocuments = operations.get(db);
         if (oDocuments == null) {
@@ -614,7 +600,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
   }
 
   public void log(
-      DatabaseSessionInternal db, final AuditingOperation operation,
+      DatabaseSession db, final AuditingOperation operation,
       final String dbName,
       SecurityUser user,
       final String message) {
@@ -624,18 +610,18 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
   }
 
   private static EntityImpl createLogDocument(
-      DatabaseSessionInternal session, final AuditingOperation operation,
+      DatabaseSession session, final AuditingOperation operation,
       final String dbName,
       SecurityUser user,
       final String message) {
     EntityImpl entity = null;
 
-    entity = new EntityImpl();
+    entity = new EntityImpl((DatabaseSessionInternal) session);
     entity.field("date", System.currentTimeMillis());
     entity.field("operation", operation.getByte());
 
     if (user != null) {
-      entity.field("user", user.getName(session));
+      entity.field("user", user.getName((DatabaseSessionInternal) session));
       entity.field("userType", user.getUserType());
     }
 

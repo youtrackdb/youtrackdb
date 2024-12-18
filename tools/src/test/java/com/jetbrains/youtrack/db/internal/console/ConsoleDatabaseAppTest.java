@@ -47,7 +47,7 @@ public class ConsoleDatabaseAppTest {
       db.addBlobCluster("blobTest");
 
       db.begin();
-      Record record = db.save(new RecordBytes("blobContent".getBytes()), "blobTest");
+      Record record = db.save(db.newBlob("blobContent".getBytes()), "blobTest");
       db.commit();
       builder.setLength(0);
       app.select(" from " + record.getIdentity() + " limit -1 ");

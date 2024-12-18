@@ -55,7 +55,7 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.R
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.SerializationThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkFactory;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerSchemaAware2CSV;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.NetworkProtocolException;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinary;
@@ -368,7 +368,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
           } catch (RuntimeException t) {
             // This should be moved in the execution of the command that manipulate data
             if (connection.getDatabase() != null) {
-              final SBTreeCollectionManager collectionManager =
+              final BTreeCollectionManager collectionManager =
                   connection.getDatabase().getSbTreeCollectionManager();
               if (collectionManager != null) {
                 collectionManager.clearChangedIds();
@@ -955,7 +955,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
       channel.writeShort(ChannelBinaryProtocol.RECORD_RID);
       channel.writeRID((RID) o);
     } else {
-      writeRecord(channel, connection, o.getRecord());
+      writeRecord(channel, connection, o.getRecord(connection.getDatabase()));
     }
   }
 
@@ -977,12 +977,13 @@ public class NetworkProtocolBinary extends NetworkProtocol {
   public static byte[] getRecordBytes(ClientConnection connection,
       final RecordAbstract iRecord) {
     final byte[] stream;
-    String dbSerializerName = null;
-    if (DatabaseRecordThreadLocal.instance().getIfDefined() != null) {
-      dbSerializerName = (iRecord.getSession()).getSerializer().toString();
-    }
+
+    var db = connection.getDatabase();
+    assert db.assertIfNotActive();
+
+    String dbSerializerName = db.getSerializer().toString();
     String name = connection.getData().getSerializationImpl();
-    if (RecordInternal.getRecordType(iRecord) == EntityImpl.RECORD_TYPE
+    if (RecordInternal.getRecordType(db, iRecord) == EntityImpl.RECORD_TYPE
         && (dbSerializerName == null || !dbSerializerName.equals(name))) {
       ((EntityImpl) iRecord).deserializeFields();
       RecordSerializer ser = RecordSerializerFactory.instance().getFormat(name);
@@ -998,7 +999,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
       SocketChannelBinary channel, ClientConnection connection, final RecordAbstract iRecord)
       throws IOException {
     channel.writeShort((short) 0);
-    channel.writeByte(RecordInternal.getRecordType(iRecord));
+    channel.writeByte(RecordInternal.getRecordType(connection.getDatabase(), iRecord));
     channel.writeRID(iRecord.getIdentity());
     channel.writeVersion(iRecord.getVersion());
     try {

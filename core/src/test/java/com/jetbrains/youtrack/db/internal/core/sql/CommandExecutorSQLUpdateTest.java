@@ -225,7 +225,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.getMetadata().getSchema().createClass("test");
 
     db.begin();
-    EntityImpl doc = new EntityImpl("test");
+    EntityImpl doc = (EntityImpl) db.newEntity("test");
     doc.field("id", 1);
     doc.field("boolean", false);
     doc.field("integerList", Collections.EMPTY_LIST);
@@ -269,7 +269,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("CREATE class test").close();
 
     db.begin();
-    final EntityImpl test = new EntityImpl("test");
+    final EntityImpl test = (EntityImpl) db.newEntity("test");
     test.field("id", "id1");
     test.field("count", 20);
 
@@ -308,7 +308,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("CREATE class test").close();
 
     db.begin();
-    final EntityImpl test = new EntityImpl("test");
+    final EntityImpl test = (EntityImpl) db.newEntity("test");
     test.field("text", "initial value");
     db.save(test);
     db.commit();
@@ -332,7 +332,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("CREATE class test").close();
 
     db.begin();
-    final EntityImpl test = new EntityImpl("test");
+    final EntityImpl test = (EntityImpl) db.newEntity("test");
     test.field("text", "initial value");
 
     db.save(test);
@@ -497,7 +497,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("CREATE class Foo").close();
 
     db.begin();
-    EntityImpl d = new EntityImpl("Foo");
+    EntityImpl d = (EntityImpl) db.newEntity("Foo");
     d.field("name", "foo");
     d.save();
 
@@ -519,13 +519,13 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("CREATE class Foo").close();
 
     db.begin();
-    EntityImpl d = new EntityImpl("Foo");
+    EntityImpl d = (EntityImpl) db.newEntity("Foo");
     d.field("name", "foo");
     d.save();
     db.commit();
 
     db.begin();
-    d = new EntityImpl("Foo");
+    d = (EntityImpl) db.newEntity("Foo");
     d.field("name", "bar");
     d.save();
     db.commit();
@@ -546,13 +546,13 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
         .close();
 
     db.begin();
-    EntityImpl state = new EntityImpl("TestLinked");
+    EntityImpl state = (EntityImpl) db.newEntity("TestLinked");
     state.setProperty("id", "idvalue");
     db.save(state);
     db.commit();
 
     db.begin();
-    EntityImpl d = new EntityImpl("TestSource");
+    EntityImpl d = (EntityImpl) db.newEntity("TestSource");
     state = db.bindToSession(state);
     d.setProperty("name", "foo");
     d.setProperty("linked", state);

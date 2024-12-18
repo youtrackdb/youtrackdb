@@ -18,14 +18,14 @@ public class TestLinkedDocumentInMap extends DbTestBase {
     db.command("delete from PersonTest").close();
 
     db.begin();
-    EntityImpl jaimeDoc = new EntityImpl("PersonTest");
+    EntityImpl jaimeDoc = (EntityImpl) db.newEntity("PersonTest");
     jaimeDoc.field("name", "jaime");
     jaimeDoc.save();
     db.commit();
 
     db.begin();
     jaimeDoc = db.bindToSession(jaimeDoc);
-    EntityImpl tyrionDoc = new EntityImpl("PersonTest");
+    EntityImpl tyrionDoc = (EntityImpl) db.newEntity("PersonTest");
     tyrionDoc.fromJSON(
         "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":[{\"relationship\":\"brother\",\"contact\":"
             + jaimeDoc.toJSON()

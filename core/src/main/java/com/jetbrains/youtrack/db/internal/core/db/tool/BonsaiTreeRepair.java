@@ -60,8 +60,8 @@ public class BonsaiTreeRepair {
           final String outVertexName =
               VertexInternal.getEdgeLinkFieldName(Direction.OUT, label, true);
 
-          final EntityImpl inVertex = inId.getRecord();
-          final EntityImpl outVertex = outId.getRecord();
+          final EntityImpl inVertex = inId.getRecord(db);
+          final EntityImpl outVertex = outId.getRecord(db);
 
           Set<RID> inVertexes = processedVertexes.get(inVertexName);
           if (inVertexes == null) {

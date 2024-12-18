@@ -35,7 +35,7 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLTraverseStatement;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,7 +49,7 @@ public class ServerCommandPostCommand extends ServerCommandAuthenticatedDbAbstra
   private static final String[] NAMES = {"GET|command/*", "POST|command/*"};
 
   @Override
-  public boolean execute(final OHttpRequest iRequest, HttpResponse iResponse) throws Exception {
+  public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
     final String[] urlParts =
         checkSyntax(
             iRequest.getUrl(),
@@ -73,7 +73,7 @@ public class ServerCommandPostCommand extends ServerCommandAuthenticatedDbAbstra
       // CONTENT REPLACES TEXT
       if (iRequest.getContent().startsWith("{")) {
         // JSON PAYLOAD
-        final EntityImpl entity = new EntityImpl();
+        final EntityImpl entity = new EntityImpl(null);
         entity.fromJSON(iRequest.getContent());
         text = entity.field("command");
         params = entity.field("parameters");
@@ -195,9 +195,8 @@ public class ServerCommandPostCommand extends ServerCommandAuthenticatedDbAbstra
       if (fp != null) {
         return fp.toString().substring("FETCHPLAN ".length());
       }
-    } else if (statement instanceof SQLMatchStatement) {
-      return ((SQLMatchStatement) statement).getFetchPlan();
     }
+
     return null;
   }
 

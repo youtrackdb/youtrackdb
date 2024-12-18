@@ -47,7 +47,8 @@ public class CommandExecutorSQLTruncateClass extends CommandExecutorSQLAbstract
   private boolean deep = false;
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLTruncateClass parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLTruncateClass parse(DatabaseSessionInternal db,
+      final CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
 
     String queryText = textRequest.getText();
@@ -114,7 +115,7 @@ public class CommandExecutorSQLTruncateClass extends CommandExecutorSQLAbstract
   /**
    * Execute the command.
    */
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     if (schemaClass == null) {
       throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");

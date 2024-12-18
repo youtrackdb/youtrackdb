@@ -19,8 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command.script;
 
-import com.jetbrains.youtrack.db.api.exception.CommandScriptException;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandScriptException;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutorAbstract;
@@ -50,12 +50,12 @@ public class CommandExecutorFunction extends CommandExecutorAbstract {
   }
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorFunction parse(final CommandRequest iRequest) {
+  public CommandExecutorFunction parse(DatabaseSessionInternal db, final CommandRequest iRequest) {
     request = (CommandFunction) iRequest;
     return this;
   }
 
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     return executeInContext(null, iArgs);
   }
 

@@ -19,14 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.misc;
 
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.method.misc.AbstractSQLMethod;
 import java.util.ArrayList;
@@ -95,7 +95,7 @@ public class SQLMethodExclude extends AbstractSQLMethod {
     if (iThis != null) {
       if (iThis instanceof RecordId) {
         try {
-          iThis = ((RecordId) iThis).getRecord();
+          iThis = ((RecordId) iThis).getRecord(db);
         } catch (RecordNotFoundException rnf) {
           return null;
         }
@@ -118,7 +118,7 @@ public class SQLMethodExclude extends AbstractSQLMethod {
             for (Object o : MultiValue.getMultiValueIterable(iThis)) {
               if (o instanceof Identifiable) {
                 try {
-                  var rec = ((Identifiable) o).getRecord();
+                  var rec = ((Identifiable) o).getRecord(db);
                   result.add(copy(db, (EntityImpl) rec, iParams));
                 } catch (RecordNotFoundException rnf) {
                   // IGNORE IT

@@ -40,7 +40,7 @@ public class AutomaticBackupTest {
   private static String URL;
   private static String URL2;
   private final String tempDirectory;
-  private DatabaseSession database;
+  private DatabaseSession db;
   private final YouTrackDBServer server;
 
   public AutomaticBackupTest() throws IllegalArgumentException, SecurityException {
@@ -102,12 +102,12 @@ public class AutomaticBackupTest {
     server
         .getContext()
         .execute("create database ? plocal users (admin identified by 'admin' role admin)", DBNAME);
-    database = server.getDatabases().openNoAuthorization(DBNAME);
+    db = server.getDatabases().openNoAuthorization(DBNAME);
 
-    database.createClass("TestBackup");
-    database.begin();
-    new EntityImpl("TestBackup").field("name", DBNAME).save();
-    database.commit();
+    db.createClass("TestBackup");
+    db.begin();
+    ((EntityImpl) db.newEntity("TestBackup")).field("name", DBNAME).save();
+    db.commit();
   }
 
   // @After
@@ -116,7 +116,7 @@ public class AutomaticBackupTest {
 
     new File(tempDirectory + "/config/automatic-backup.json").delete();
 
-    server.dropDatabase(database.getName());
+    server.dropDatabase(db.getName());
     server.shutdown();
   }
 
@@ -131,7 +131,7 @@ public class AutomaticBackupTest {
     String jsonConfig =
         IOUtils.readStreamAsString(getClass().getResourceAsStream("automatic-backup.json"));
 
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = ((EntityImpl) db.newEntity());
     doc.fromJSON(jsonConfig);
 
     doc.field("enabled", true);
@@ -180,7 +180,7 @@ public class AutomaticBackupTest {
     String jsonConfig =
         IOUtils.readStreamAsString(getClass().getResourceAsStream("automatic-backup.json"));
 
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = ((EntityImpl) db.newEntity());
     doc.fromJSON(jsonConfig);
 
     doc.field("enabled", true);
@@ -263,7 +263,7 @@ public class AutomaticBackupTest {
     String jsonConfig =
         IOUtils.readStreamAsString(getClass().getResourceAsStream("automatic-backup.json"));
 
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = ((EntityImpl) db.newEntity());
     doc.fromJSON(jsonConfig);
 
     doc.field("enabled", false);

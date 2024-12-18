@@ -15,6 +15,7 @@
  */
 package com.jetbrains.youtrack.db.auto;
 
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.parser.StringParser;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
@@ -22,8 +23,8 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-@Test(groups = "internal")
-public class StringsTest {
+@Test
+public class StringsTest extends DbTestBase {
 
   @Test
   public void splitArray() {
@@ -93,10 +94,10 @@ public class StringsTest {
   }
 
   public void testDocumentSelfReference() {
-    EntityImpl document = new EntityImpl();
+    EntityImpl document = ((EntityImpl) db.newEntity());
     document.field("selfref", document);
 
-    EntityImpl docTwo = new EntityImpl();
+    EntityImpl docTwo = ((EntityImpl) db.newEntity());
     docTwo.field("ref", document);
     document.field("ref", docTwo);
 

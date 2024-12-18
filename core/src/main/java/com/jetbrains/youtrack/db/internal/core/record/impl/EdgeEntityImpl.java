@@ -1,12 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -17,13 +16,10 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
     super(session, cl);
   }
 
-  public EdgeEntityImpl() {
-    super();
-  }
-
   public EdgeEntityImpl(DatabaseSessionInternal session) {
     super(session);
   }
+
 
   public EdgeEntityImpl(DatabaseSessionInternal database, RecordId rid) {
     super(database, rid);
@@ -108,7 +104,7 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
 
   @Override
   @Nullable
-  public EntityImpl getBaseDocument() {
+  public EntityImpl getBaseEntity() {
     return this;
   }
 
@@ -116,7 +112,7 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
   public EdgeEntityImpl copy() {
     checkForBinding();
 
-    return (EdgeEntityImpl) super.copyTo(new EdgeEntityImpl());
+    return (EdgeEntityImpl) super.copyTo(new EdgeEntityImpl(getSession()));
   }
 
   @Override
@@ -168,11 +164,6 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
     EdgeInternal.checkPropertyName(fieldName);
 
     return removePropertyInternal(fieldName);
-  }
-
-  @Override
-  public void promoteToRegularEdge() {
-    checkForBinding();
   }
 
   public static void deleteLinks(Edge delegate) {

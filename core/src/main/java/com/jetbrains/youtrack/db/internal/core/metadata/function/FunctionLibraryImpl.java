@@ -154,14 +154,14 @@ public class FunctionLibraryImpl {
       final SchemaClass f = db.getMetadata().getSchema().getClass("OFunction");
       Property prop = f.getProperty("name");
       if (prop.getAllIndexes(db).isEmpty()) {
-        prop.createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
+        prop.createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
       }
       return;
     }
 
     var f = (SchemaClassInternal) db.getMetadata().getSchema().createClass("OFunction");
     Property prop = f.createProperty(db, "name", PropertyType.STRING, (PropertyType) null, true);
-    prop.createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
+    prop.createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
 
     f.createProperty(db, "code", PropertyType.STRING, (PropertyType) null, true);
     f.createProperty(db, "language", PropertyType.STRING, (PropertyType) null, true);

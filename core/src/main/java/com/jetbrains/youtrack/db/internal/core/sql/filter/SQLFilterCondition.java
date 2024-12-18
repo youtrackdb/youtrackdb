@@ -19,29 +19,30 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.filter;
 
-import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.Collate;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.query.QueryRuntimeValueMulti;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BytesContainer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BinaryField;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BytesContainer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerBinary;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionRuntime;
@@ -129,7 +130,7 @@ public class SQLFilterCondition {
           bytes.offset = 0;
           final Collate collate =
               r instanceof SQLFilterItemField
-                  ? ((SQLFilterItemField) r).getCollate(iCurrentRecord)
+                  ? ((SQLFilterItemField) r).getCollate(db, iCurrentRecord)
                   : null;
           r = new BinaryField(null, type, bytes, collate);
           if (!(right instanceof SQLFilterItem || right instanceof SQLFilterCondition))
@@ -159,7 +160,7 @@ public class SQLFilterCondition {
           bytes.offset = 0;
           final Collate collate =
               l instanceof SQLFilterItemField
-                  ? ((SQLFilterItemField) l).getCollate(iCurrentRecord)
+                  ? ((SQLFilterItemField) l).getCollate(db, iCurrentRecord)
                   : null;
           l = new BinaryField(null, type, bytes, collate);
           if (!(left instanceof SQLFilterItem || left instanceof SQLFilterCondition))
@@ -182,7 +183,7 @@ public class SQLFilterCondition {
     if (!binaryEvaluation) {
       // no collate for regular expressions, otherwise quotes will result in no match
       final Collate collate =
-          operator instanceof QueryOperatorMatches ? null : getCollate(iCurrentRecord);
+          operator instanceof QueryOperatorMatches ? null : getCollate(db, iCurrentRecord);
       final Object[] convertedValues = checkForConversion(db, iCurrentRecord, l, r, collate);
       if (convertedValues != null) {
         l = convertedValues[0];
@@ -223,11 +224,11 @@ public class SQLFilterCondition {
     return null;
   }
 
-  public Collate getCollate(Identifiable identifiable) {
+  public Collate getCollate(DatabaseSessionInternal db, Identifiable identifiable) {
     if (left instanceof SQLFilterItemField) {
-      return ((SQLFilterItemField) left).getCollate(identifiable);
+      return ((SQLFilterItemField) left).getCollate(db, identifiable);
     } else if (right instanceof SQLFilterItemField) {
-      return ((SQLFilterItemField) right).getCollate(identifiable);
+      return ((SQLFilterItemField) right).getCollate(db, identifiable);
     }
     return null;
   }
@@ -424,12 +425,12 @@ public class SQLFilterCondition {
       return iValue;
     }
 
+    var db = iContext.getDatabase();
     try {
       if (iCurrentRecord != null) {
-        iCurrentRecord = iCurrentRecord.getRecord();
+        iCurrentRecord = iCurrentRecord.getRecord(db);
         if (((RecordAbstract) iCurrentRecord).getInternalStatus()
             == RecordElement.STATUS.NOT_LOADED) {
-          var db = iContext.getDatabase();
           iCurrentRecord = db.bindToSession(iCurrentRecord);
         }
       }
@@ -442,7 +443,7 @@ public class SQLFilterCondition {
         && iCurrentRecord != null
         && !((EntityImpl) iCurrentRecord).isDirty()
         && !iCurrentRecord.getIdentity().isTemporary()) {
-      final BinaryField bField = ((SQLFilterItemField) iValue).getBinaryField(iCurrentRecord);
+      final BinaryField bField = ((SQLFilterItemField) iValue).getBinaryField(db, iCurrentRecord);
       if (bField != null) {
         return bField;
       }

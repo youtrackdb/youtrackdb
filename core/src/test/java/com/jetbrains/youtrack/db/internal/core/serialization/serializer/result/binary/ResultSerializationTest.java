@@ -77,7 +77,7 @@ public class ResultSerializationTest extends DbTestBase {
   private ResultInternal serializeDeserialize(DatabaseSessionInternal db,
       ResultInternal document) {
     BytesContainer bytes = new BytesContainer();
-    serializer.serialize(document, bytes);
+    serializer.serialize(db, document, bytes);
     bytes.offset = 0;
     return serializer.deserialize(db, bytes);
   }

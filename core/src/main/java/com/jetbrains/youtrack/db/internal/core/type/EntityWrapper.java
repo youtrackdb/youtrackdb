@@ -20,8 +20,8 @@
 package com.jetbrains.youtrack.db.internal.core.type;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.Serializable;
 
@@ -36,8 +36,8 @@ public class EntityWrapper implements Serializable {
   public EntityWrapper() {
   }
 
-  public EntityWrapper(final String iClassName) {
-    this(new EntityImpl(iClassName));
+  public EntityWrapper(DatabaseSessionInternal sessionInternal, final String iClassName) {
+    this(new EntityImpl(sessionInternal, iClassName));
   }
 
   public EntityWrapper(final EntityImpl entity) {

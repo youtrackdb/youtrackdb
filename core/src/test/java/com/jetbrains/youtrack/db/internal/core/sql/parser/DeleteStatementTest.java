@@ -47,9 +47,9 @@ public class DeleteStatementTest extends DbTestBase {
     db.command("create class Bar").close();
 
     db.begin();
-    final EntityImpl doc1 = new EntityImpl("Foo").field("k", "key1");
-    final EntityImpl doc2 = new EntityImpl("Foo").field("k", "key2");
-    final EntityImpl doc3 = new EntityImpl("Foo").field("k", "key3");
+    final EntityImpl doc1 = ((EntityImpl) db.newEntity("Foo")).field("k", "key1");
+    final EntityImpl doc2 = ((EntityImpl) db.newEntity("Foo")).field("k", "key2");
+    final EntityImpl doc3 = ((EntityImpl) db.newEntity("Foo")).field("k", "key3");
 
     doc1.save();
     doc2.save();
@@ -59,7 +59,7 @@ public class DeleteStatementTest extends DbTestBase {
     list.add(doc1);
     list.add(doc2);
     list.add(doc3);
-    final EntityImpl bar = new EntityImpl("Bar").field("arr", list);
+    final EntityImpl bar = ((EntityImpl) db.newEntity("Bar")).field("arr", list);
     bar.save();
     db.commit();
 

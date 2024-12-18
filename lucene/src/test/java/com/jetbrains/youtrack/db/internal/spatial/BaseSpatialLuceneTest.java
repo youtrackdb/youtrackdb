@@ -141,12 +141,12 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
     try {
       InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("italy.json");
 
-      EntityImpl doc = new EntityImpl().fromJSON(systemResourceAsStream);
+      EntityImpl doc = ((EntityImpl) db.newEntity()).fromJSON(systemResourceAsStream);
 
       Map geometry = doc.field("geometry");
 
       String type = (String) geometry.get("type");
-      EntityImpl location = new EntityImpl("O" + type);
+      EntityImpl location = ((EntityImpl) db.newEntity("O" + type));
       location.field("coordinates", geometry.get("coordinates"));
       return location;
     } catch (Exception e) {
@@ -168,7 +168,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
 
   protected EntityImpl geometryCollection() {
 
-    final EntityImpl point = new EntityImpl("OPoint");
+    final EntityImpl point = ((EntityImpl) db.newEntity("OPoint"));
     point.field(
         "coordinates",
         new ArrayList<Double>() {
@@ -178,7 +178,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
           }
         });
 
-    final EntityImpl lineString = new EntityImpl("OLineString");
+    final EntityImpl lineString = ((EntityImpl) db.newEntity("OLineString"));
     lineString.field(
         "coordinates",
         new ArrayList<List<Double>>() {
@@ -188,7 +188,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
           }
         });
 
-    EntityImpl geometryCollection = new EntityImpl("OGeometryCollection");
+    EntityImpl geometryCollection = ((EntityImpl) db.newEntity("OGeometryCollection"));
 
     geometryCollection.field(
         "geometries",
@@ -202,7 +202,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
   }
 
   protected EntityImpl lineStringDoc() {
-    EntityImpl point = new EntityImpl("OLineString");
+    EntityImpl point = ((EntityImpl) db.newEntity("OLineString"));
     point.field(
         "coordinates",
         new ArrayList<List<Double>>() {
@@ -227,7 +227,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
   }
 
   protected EntityImpl point() {
-    EntityImpl point = new EntityImpl("OPoint");
+    EntityImpl point = ((EntityImpl) db.newEntity("OPoint"));
     point.field(
         "coordinates",
         new ArrayList<Double>() {
@@ -240,7 +240,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
   }
 
   protected EntityImpl multiLineString() {
-    EntityImpl point = new EntityImpl("OMultiLineString");
+    EntityImpl point = ((EntityImpl) db.newEntity("OMultiLineString"));
     point.field(
         "coordinates",
         new ArrayList<List<List<Double>>>() {
@@ -259,7 +259,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
   }
 
   protected EntityImpl multiPoint() {
-    EntityImpl point = new EntityImpl("OMultiPoint");
+    EntityImpl point = ((EntityImpl) db.newEntity("OMultiPoint"));
     point.field(
         "coordinates",
         new ArrayList<List<Double>>() {
@@ -273,7 +273,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
   }
 
   protected EntityImpl rectangle() {
-    EntityImpl polygon = new EntityImpl("OPolygon");
+    EntityImpl polygon = ((EntityImpl) db.newEntity("OPolygon"));
     polygon.field(
         "coordinates",
         new ArrayList<List<List<Double>>>() {
@@ -294,7 +294,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
   }
 
   protected EntityImpl polygon() {
-    EntityImpl polygon = new EntityImpl("OPolygon");
+    EntityImpl polygon = ((EntityImpl) db.newEntity("OPolygon"));
     polygon.field(
         "coordinates",
         new ArrayList<List<List<Double>>>() {

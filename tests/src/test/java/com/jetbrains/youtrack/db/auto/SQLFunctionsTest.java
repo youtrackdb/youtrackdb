@@ -70,7 +70,7 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void queryMax() {
-    ResultSet result = database.command("select max(id) as max from Account");
+    ResultSet result = db.command("select max(id) as max from Account");
 
     assertNotNull(result.next().getProperty("max"));
     assertFalse(result.hasNext());
@@ -80,7 +80,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void queryMaxInline() {
     List<EntityImpl> result =
-        database.query("select max(1,2,7,0,-2,3) as max").stream()
+        db.query("select max(1,2,7,0,-2,3) as max").stream()
             .map(r -> (EntityImpl) r.toEntity())
             .toList();
 
@@ -94,7 +94,7 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void queryMin() {
-    ResultSet result = database.command("select min(id) as min from Account");
+    ResultSet result = db.command("select min(id) as min from Account");
 
     Result d = result.next();
     Assert.assertNotNull(d.getProperty("min"));
@@ -107,7 +107,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void queryMinInline() {
     List<EntityImpl> result =
-        database.query("select min(1,2,7,0,-2,3) as min").stream()
+        db.query("select min(1,2,7,0,-2,3) as min").stream()
             .map(r -> (EntityImpl) r.toEntity())
             .toList();
 
@@ -121,7 +121,7 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void querySum() {
-    ResultSet result = database.command("select sum(id) as sum from Account");
+    ResultSet result = db.command("select sum(id) as sum from Account");
     Result d = result.next();
     Assert.assertNotNull(d.getProperty("sum"));
     Assert.assertFalse(result.hasNext());
@@ -130,7 +130,7 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void queryCount() {
-    ResultSet result = database.command("select count(*) as total from Account");
+    ResultSet result = db.command("select count(*) as total from Account");
     Result d = result.next();
     Assert.assertNotNull(d.getProperty("total"));
     Assert.assertTrue(((Number) d.getProperty("total")).longValue() > 0);
@@ -139,69 +139,69 @@ public class SQLFunctionsTest extends BaseDBTest {
   }
 
   public void queryCountExtendsRestricted() {
-    SchemaClass restricted = database.getMetadata().getSchema().getClass("ORestricted");
+    SchemaClass restricted = db.getMetadata().getSchema().getClass("ORestricted");
     Assert.assertNotNull(restricted);
 
-    database.getMetadata().getSchema().createClass("QueryCountExtendsRestrictedClass", restricted);
+    db.getMetadata().getSchema().createClass("QueryCountExtendsRestrictedClass", restricted);
 
-    database.begin();
-    SecurityUserIml admin = database.getMetadata().getSecurity().getUser("admin");
-    SecurityUserIml reader = database.getMetadata().getSecurity().getUser("reader");
+    db.begin();
+    SecurityUserIml admin = db.getMetadata().getSecurity().getUser("admin");
+    SecurityUserIml reader = db.getMetadata().getSecurity().getUser("reader");
 
     @SuppressWarnings("deprecation")
     Role byPassRestrictedRole =
-        database
+        db
             .getMetadata()
             .getSecurity()
             .createRole("byPassRestrictedRole", Role.ALLOW_MODES.DENY_ALL_BUT);
-    byPassRestrictedRole.addRule(database,
+    byPassRestrictedRole.addRule(db,
         Rule.ResourceGeneric.BYPASS_RESTRICTED, null, Role.PERMISSION_READ);
     byPassRestrictedRole.save(dbName);
 
-    database
+    db
         .getMetadata()
         .getSecurity()
         .createUser("superReader", "superReader", "reader", "byPassRestrictedRole");
 
-    EntityImpl docAdmin = new EntityImpl("QueryCountExtendsRestrictedClass");
+    EntityImpl docAdmin = ((EntityImpl) db.newEntity("QueryCountExtendsRestrictedClass"));
     docAdmin.field(
         "_allowRead",
         new HashSet<Identifiable>(
-            Collections.singletonList(admin.getIdentity(database).getIdentity())));
+            Collections.singletonList(admin.getIdentity(db).getIdentity())));
 
     docAdmin.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    EntityImpl docReader = new EntityImpl("QueryCountExtendsRestrictedClass");
+    db.begin();
+    EntityImpl docReader = ((EntityImpl) db.newEntity("QueryCountExtendsRestrictedClass"));
     docReader.field("_allowRead",
-        new HashSet<>(Collections.singletonList(reader.getIdentity(database))));
+        new HashSet<>(Collections.singletonList(reader.getIdentity(db))));
     docReader.save();
-    database.commit();
+    db.commit();
 
     List<EntityImpl> result =
-        database.query("select count(*) from QueryCountExtendsRestrictedClass").stream()
+        db.query("select count(*) from QueryCountExtendsRestrictedClass").stream()
             .map(r -> (EntityImpl) r.toEntity())
             .toList();
     EntityImpl count = result.get(0);
     Assert.assertEquals(2L, count.<Object>field("count(*)"));
 
-    database.close();
+    db.close();
     //noinspection deprecation
-    database = createSessionInstance();
+    db = createSessionInstance();
 
     result =
-        database.query("select count(*) as count from QueryCountExtendsRestrictedClass").stream()
+        db.query("select count(*) as count from QueryCountExtendsRestrictedClass").stream()
             .map(r -> (EntityImpl) r.toEntity())
             .toList();
     count = result.get(0);
     Assert.assertEquals(2L, count.<Object>field("count"));
 
-    database.close();
-    database = createSessionInstance("superReader", "superReader");
+    db.close();
+    db = createSessionInstance("superReader", "superReader");
 
     result =
-        database.query("select count(*) as count from QueryCountExtendsRestrictedClass").stream()
+        db.query("select count(*) as count from QueryCountExtendsRestrictedClass").stream()
             .map(r -> (EntityImpl) r.toEntity())
             .toList();
     count = result.get(0);
@@ -210,17 +210,17 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void queryCountWithConditions() {
-    SchemaClass indexed = database.getMetadata().getSchema().getOrCreateClass("Indexed");
-    indexed.createProperty(database, "key", PropertyType.STRING);
-    indexed.createIndex(database, "keyed", SchemaClass.INDEX_TYPE.NOTUNIQUE, "key");
+    SchemaClass indexed = db.getMetadata().getSchema().getOrCreateClass("Indexed");
+    indexed.createProperty(db, "key", PropertyType.STRING);
+    indexed.createIndex(db, "keyed", SchemaClass.INDEX_TYPE.NOTUNIQUE, "key");
 
-    database.begin();
-    database.<EntityImpl>newInstance("Indexed").field("key", "one").save();
-    database.<EntityImpl>newInstance("Indexed").field("key", "two").save();
-    database.commit();
+    db.begin();
+    db.<EntityImpl>newInstance("Indexed").field("key", "one").save();
+    db.<EntityImpl>newInstance("Indexed").field("key", "two").save();
+    db.commit();
 
     List<EntityImpl> result =
-        database.query("select count(*) as total from Indexed where key > 'one'").stream()
+        db.query("select count(*) as total from Indexed where key > 'one'").stream()
             .map(r -> (EntityImpl) r.toEntity())
             .toList();
 
@@ -234,7 +234,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void queryDistinct() {
     List<EntityImpl> result =
-        database.query("select distinct(name) as name from City").stream()
+        db.query("select distinct(name) as name from City").stream()
             .map(r -> (EntityImpl) r.toEntity())
             .toList();
 
@@ -251,7 +251,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void queryFunctionRenamed() {
     List<EntityImpl> result =
-        database.query("select distinct(name) as dist from City").stream()
+        db.query("select distinct(name) as dist from City").stream()
             .map(r -> (EntityImpl) r.toEntity())
             .toList();
 
@@ -265,11 +265,11 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void queryUnionAllAsAggregationNotRemoveDuplicates() {
     List<EntityImpl> result =
-        database.query("select from City").stream().map(r -> (EntityImpl) r.toEntity()).toList();
+        db.query("select from City").stream().map(r -> (EntityImpl) r.toEntity()).toList();
     int count = result.size();
 
     result =
-        database.query("select unionAll(name) as name from City").stream()
+        db.query("select unionAll(name) as name from City").stream()
             .map(r -> (EntityImpl) r.toEntity())
             .toList();
     Collection<Object> citiesFound = result.get(0).field("name");
@@ -279,7 +279,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void querySetNotDuplicates() {
     List<EntityImpl> result =
-        database.query("select set(name) as name from City").stream()
+        db.query("select set(name) as name from City").stream()
             .map(r -> (EntityImpl) r.toEntity())
             .toList();
 
@@ -298,7 +298,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void queryList() {
     List<EntityImpl> result =
-        database.query("select list(name) as names from City").stream()
+        db.query("select list(name) as names from City").stream()
             .map(r -> (EntityImpl) r.toEntity())
             .toList();
 
@@ -312,7 +312,7 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   public void testSelectMap() {
     List<EntityImpl> result =
-        database
+        db
             .query("select list( 1, 4, 5.00, 'john', map( 'kAA', 'vAA' ) ) as myresult")
             .stream()
             .map(r -> (EntityImpl) r.toEntity())
@@ -345,7 +345,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void querySet() {
     List<EntityImpl> result =
-        database.query("select set(name) as names from City").stream()
+        db.query("select set(name) as names from City").stream()
             .map(r -> (EntityImpl) r.toEntity())
             .toList();
 
@@ -360,7 +360,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void queryMap() {
     List<EntityImpl> result =
-        database.query("select map(name, country.name) as names from City").stream()
+        db.query("select map(name, country.name) as names from City").stream()
             .map(r -> (EntityImpl) r.toEntity())
             .toList();
 
@@ -375,7 +375,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void queryUnionAllAsInline() {
     List<EntityImpl> result =
-        database.query("select unionAll(out, in) as edges from V").stream()
+        db.query("select unionAll(out, in) as edges from V").stream()
             .map(r -> (EntityImpl) r.toEntity())
             .toList();
 
@@ -389,7 +389,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void queryComposedAggregates() {
     List<EntityImpl> result =
-        database
+        db
             .query(
                 "select MIN(id) as min, max(id) as max, AVG(id) as average, sum(id) as total"
                     + " from Account")
@@ -417,7 +417,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void queryFormat() {
     List<EntityImpl> result =
-        database
+        db
             .query(
                 "select format('%d - %s (%s)', nr, street, type, dummy ) as output from"
                     + " Account")
@@ -433,7 +433,7 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void querySysdateNoFormat() {
-    ResultSet result = database.command("select sysdate() as date from Account");
+    ResultSet result = db.command("select sysdate() as date from Account");
 
     Assert.assertTrue(result.hasNext());
     while (result.hasNext()) {
@@ -445,7 +445,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void querySysdateWithFormat() {
     List<EntityImpl> result =
-        database.query("select sysdate('dd-MM-yyyy') as date from Account").stream()
+        db.query("select sysdate('dd-MM-yyyy') as date from Account").stream()
             .map(r -> (EntityImpl) r.toEntity())
             .toList();
 
@@ -457,15 +457,15 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void queryDate() {
-    ResultSet result = database.command("select count(*) as tot from Account");
+    ResultSet result = db.command("select count(*) as tot from Account");
 
     int tot = ((Number) result.next().getProperty("tot")).intValue();
     assertFalse(result.hasNext());
 
-    database.begin();
+    db.begin();
     long updated =
-        database.command("update Account set created = date()").next().getProperty("count");
-    database.commit();
+        db.command("update Account set created = date()").next().getProperty("count");
+    db.commit();
 
     Assert.assertEquals(updated, tot);
 
@@ -473,7 +473,7 @@ public class SQLFunctionsTest extends BaseDBTest {
     SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
 
     result =
-        database.query(
+        db.query(
             "select from Account where created <= date('"
                 + dateFormat.format(new Date())
                 + "', \""
@@ -482,7 +482,7 @@ public class SQLFunctionsTest extends BaseDBTest {
 
     Assert.assertEquals(result.stream().count(), tot);
     result =
-        database.query(
+        db.query(
             "select from Account where created <= date('"
                 + dateFormat.format(new Date())
                 + "', \""
@@ -497,7 +497,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test(expectedExceptions = CommandSQLParsingException.class)
   public void queryUndefinedFunction() {
     //noinspection ResultOfMethodCallIgnored
-    database.query("select blaaaa(salary) as max from Account").stream()
+    db.query("select blaaaa(salary) as max from Account").stream()
         .map(r -> (EntityImpl) r.toEntity())
         .toList();
   }
@@ -541,7 +541,7 @@ public class SQLFunctionsTest extends BaseDBTest {
             });
 
     List<EntityImpl> result =
-        database.query("select from Account where bigger(id,1000) = 1000").stream()
+        db.query("select from Account where bigger(id,1000) = 1000").stream()
             .map(r -> (EntityImpl) r.toEntity())
             .toList();
 
@@ -561,7 +561,7 @@ public class SQLFunctionsTest extends BaseDBTest {
             + moreThanInteger
             + "' as numberString from Account ) limit 1";
     List<EntityImpl> result =
-        database.query(sql).stream().map(r -> (EntityImpl) r.toEntity()).toList();
+        db.query(sql).stream().map(r -> (EntityImpl) r.toEntity()).toList();
 
     Assert.assertEquals(result.size(), 1);
     for (EntityImpl d : result) {
@@ -574,7 +574,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void testHashMethod() throws UnsupportedEncodingException, NoSuchAlgorithmException {
     List<EntityImpl> result =
-        database
+        db
             .query("select name, name.hash() as n256, name.hash('sha-512') as n512 from OUser")
             .stream()
             .map(r -> (EntityImpl) r.toEntity())
@@ -596,15 +596,16 @@ public class SQLFunctionsTest extends BaseDBTest {
       sequence.add(i);
     }
 
-    database.begin();
-    new EntityImpl("V").field("sequence", sequence, PropertyType.EMBEDDEDLIST).save();
+    db.begin();
+    ((EntityImpl) db.newEntity("V")).field("sequence", sequence, PropertyType.EMBEDDEDLIST).save();
     var newSequence = new ArrayList<>(sequence);
     newSequence.remove(0);
-    new EntityImpl("V").field("sequence", newSequence, PropertyType.EMBEDDEDLIST).save();
-    database.commit();
+    ((EntityImpl) db.newEntity("V")).field("sequence", newSequence, PropertyType.EMBEDDEDLIST)
+        .save();
+    db.commit();
 
     var result =
-        database.query(
+        db.query(
                 "select first(sequence) as first from V where sequence is not null order by first")
             .toList();
 
@@ -620,17 +621,17 @@ public class SQLFunctionsTest extends BaseDBTest {
       sequence.add(i);
     }
 
-    database.begin();
-    new EntityImpl("V").field("sequence2", sequence).save();
+    db.begin();
+    ((EntityImpl) db.newEntity("V")).field("sequence2", sequence).save();
 
     var newSequence = new ArrayList<>(sequence);
     newSequence.remove(sequence.size() - 1);
 
-    new EntityImpl("V").field("sequence2", newSequence).save();
-    database.commit();
+    ((EntityImpl) db.newEntity("V")).field("sequence2", newSequence).save();
+    db.commit();
 
     var result =
-        database.query(
+        db.query(
                 "select last(sequence2) as last from V where sequence2 is not null order by last desc")
             .toList();
 
@@ -645,7 +646,7 @@ public class SQLFunctionsTest extends BaseDBTest {
     String sql = "select v.split('-') as value from ( select '1-2-3' as v ) limit 1";
 
     List<EntityImpl> result =
-        database.query(sql).stream().map(r -> (EntityImpl) r.toEntity()).toList();
+        db.query(sql).stream().map(r -> (EntityImpl) r.toEntity()).toList();
 
     Assert.assertEquals(result.size(), 1);
     for (EntityImpl d : result) {

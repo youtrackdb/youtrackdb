@@ -21,11 +21,12 @@ package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandDocumentAbstract;
@@ -35,7 +36,7 @@ public class ServerCommandPutDocument extends ServerCommandDocumentAbstract {
   private static final String[] NAMES = {"PUT|document/*"};
 
   @Override
-  public boolean execute(final OHttpRequest iRequest, HttpResponse iResponse) throws Exception {
+  public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
     final String[] urlParts =
         checkSyntax(
             iRequest.getUrl(),
@@ -44,7 +45,7 @@ public class ServerCommandPutDocument extends ServerCommandDocumentAbstract {
 
     iRequest.getData().commandInfo = "Edit Document";
 
-    try (DatabaseSession db = getProfiledDatabaseInstance(iRequest)) {
+    try (DatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
       RecordId recordId;
       if (urlParts.length > 2) {
         // EXTRACT RID
@@ -66,7 +67,7 @@ public class ServerCommandPutDocument extends ServerCommandDocumentAbstract {
                 var txRecordId = recordId;
                 final EntityImpl entity;
                 // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
-                entity = new EntityImpl();
+                entity = new EntityImpl(db);
                 entity.fromJSON(iRequest.getContent());
                 entity.setTrackingChanges(false);
 

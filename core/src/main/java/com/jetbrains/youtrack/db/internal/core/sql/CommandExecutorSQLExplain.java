@@ -35,7 +35,7 @@ public class CommandExecutorSQLExplain extends CommandExecutorSQLDelegate {
   public static final String KEYWORD_EXPLAIN = "EXPLAIN";
 
   @Override
-  public CommandExecutorSQLExplain parse(CommandRequest iCommand) {
+  public CommandExecutorSQLExplain parse(DatabaseSessionInternal db, CommandRequest iCommand) {
     final CommandRequestText textRequest = (CommandRequestText) iCommand;
 
     String queryText = textRequest.getText();
@@ -51,7 +51,7 @@ public class CommandExecutorSQLExplain extends CommandExecutorSQLDelegate {
 
       command.setContext(context);
 
-      super.parse(command);
+      super.parse(db, command);
     } finally {
       textRequest.setText(originalQuery);
     }
@@ -59,13 +59,13 @@ public class CommandExecutorSQLExplain extends CommandExecutorSQLDelegate {
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, Map<Object, Object> iArgs) {
     delegate.getContext().setRecordingMetrics(true);
 
     final long startTime = System.nanoTime();
 
-    final Object result = super.execute(iArgs, querySession);
-    final EntityImpl report = new EntityImpl(delegate.getContext().getVariables());
+    final Object result = super.execute(db, iArgs);
+    final EntityImpl report = new EntityImpl(db, delegate.getContext().getVariables());
 
     report.field("elapsed", (System.nanoTime() - startTime) / 1000000f);
 

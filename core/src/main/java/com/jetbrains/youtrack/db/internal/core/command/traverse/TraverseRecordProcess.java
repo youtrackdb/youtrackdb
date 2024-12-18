@@ -19,13 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command.traverse;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.record.Record;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItem;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemFieldAll;
@@ -40,8 +41,9 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
   private final TraversePath path;
 
   public TraverseRecordProcess(
-      final Traverse iCommand, final Identifiable iTarget, TraversePath parentPath) {
-    super(iCommand, iTarget);
+      final Traverse iCommand, final Identifiable iTarget, TraversePath parentPath,
+      DatabaseSessionInternal db) {
+    super(iCommand, iTarget, db);
     this.path = parentPath.append(iTarget);
   }
 
@@ -74,7 +76,7 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
       // SKIP IT
       pop();
     } else {
-      final Record targetRec = target.getRecord();
+      final Record targetRec = target.getRecord(db);
       if (!(targetRec instanceof EntityImpl targeEntity))
       // SKIP IT
       {
@@ -158,7 +160,7 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
   }
 
   private void processFields(Iterator<Object> target) {
-    EntityImpl entity = this.target.getRecord();
+    EntityImpl entity = this.target.getRecord(db);
     var database = command.getContext().getDatabase();
     if (entity.isNotBound(database)) {
       entity = database.bindToSession(entity);
@@ -184,14 +186,14 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
 
           subProcess =
               new TraverseMultiValueProcess(
-                  command, (Iterator<Object>) coll, path.appendField(field.toString()));
+                  command, (Iterator<Object>) coll, path.appendField(field.toString()), db);
         } else if (fieldValue instanceof Identifiable
-            && ((Identifiable) fieldValue).getRecord() instanceof EntityImpl) {
+            && ((Identifiable) fieldValue).getRecord(db) instanceof EntityImpl) {
           subProcess =
               new TraverseRecordProcess(
                   command,
-                  ((Identifiable) fieldValue).getRecord(),
-                  path.appendField(field.toString()));
+                  ((Identifiable) fieldValue).getRecord(db),
+                  path.appendField(field.toString()), db);
         } else {
           continue;
         }

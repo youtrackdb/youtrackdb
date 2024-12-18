@@ -19,26 +19,26 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.tool;
 
-import static com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper.makeDbCall;
+import static com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper.makeDbCall;
 
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
-import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
-import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
+import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper.DbRelatedCall;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper.DbRelatedCall;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.RawBuffer;
 import java.util.Arrays;
@@ -101,7 +101,7 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
 
   public boolean compare() {
     try {
-      DocumentHelper.RIDMapper ridMapper = null;
+      EntityHelper.RIDMapper ridMapper = null;
       if (autoDetectExportImportMap) {
         listener.onMessage(
             "\n"
@@ -356,7 +356,7 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
   }
 
   @SuppressWarnings({"ObjectAllocationInLoop"})
-  private void compareIndexes(DocumentHelper.RIDMapper ridMapper) {
+  private void compareIndexes(EntityHelper.RIDMapper ridMapper) {
     listener.onMessage("\nStarting index comparison:");
 
     boolean ok = true;
@@ -568,7 +568,7 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
       final Object indexKey,
       final Stream<RID> streamOne,
       final Stream<RID> streamTwo,
-      final DocumentHelper.RIDMapper ridMapper,
+      final EntityHelper.RIDMapper ridMapper,
       final CommandOutputListener listener) {
     final Set<RID> streamTwoSet = new HashSet<>();
 
@@ -714,7 +714,7 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
   }
 
   @SuppressWarnings("ObjectAllocationInLoop")
-  private void compareRecords(DocumentHelper.RIDMapper ridMapper) {
+  private void compareRecords(EntityHelper.RIDMapper ridMapper) {
     listener.onMessage(
         "\nStarting deep comparison record by record. This may take a few minutes. Wait please...");
 
@@ -754,10 +754,12 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
             recordsCounter++;
 
             databaseOne.activateOnCurrentThread();
-            @SuppressWarnings("ObjectAllocationInLoop") final EntityImpl entity1 = new EntityImpl();
+            @SuppressWarnings("ObjectAllocationInLoop") final EntityImpl entity1 = new EntityImpl(
+                databaseOne);
             databaseTwo.activateOnCurrentThread();
 
-            @SuppressWarnings("ObjectAllocationInLoop") final EntityImpl entity2 = new EntityImpl();
+            @SuppressWarnings("ObjectAllocationInLoop") final EntityImpl entity2 = new EntityImpl(
+                databaseTwo);
 
             final long position = physicalPosition.clusterPosition;
             rid1.setClusterPosition(position);
@@ -884,7 +886,7 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
                                 });
                           }
 
-                          if (!DocumentHelper.hasSameContentOf(
+                          if (!EntityHelper.hasSameContentOf(
                               entity1, databaseOne, entity2, databaseTwo, ridMapper)) {
                             listener.onMessage(
                                 "\n- ERR: RID="

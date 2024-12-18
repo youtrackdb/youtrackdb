@@ -2,18 +2,18 @@ package com.jetbrains.youtrack.db.internal.core.metadata.index;
 
 import static org.junit.Assert.fail;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
 import org.junit.Test;
 
 public class TestImmutableIndexLoad {
@@ -48,13 +48,13 @@ public class TestImmutableIndexLoad {
             "admin",
             CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     db.begin();
-    EntityImpl doc = new EntityImpl("One");
+    EntityImpl doc = (EntityImpl) db.newEntity("One");
     doc.setProperty("one", "a");
     db.save(doc);
     db.commit();
     try {
       db.begin();
-      EntityImpl doc1 = new EntityImpl("One");
+      EntityImpl doc1 = (EntityImpl) db.newEntity("One");
       doc1.setProperty("one", "a");
       db.save(doc1);
       db.commit();

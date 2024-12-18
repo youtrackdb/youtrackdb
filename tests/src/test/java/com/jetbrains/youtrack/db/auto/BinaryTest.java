@@ -37,53 +37,53 @@ public class BinaryTest extends BaseDBTest {
 
   @Test
   public void testMixedCreateEmbedded() {
-    database.begin();
-    EntityImpl doc = new EntityImpl();
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity());
     doc.field("binary", "Binary data".getBytes());
 
-    doc.save(database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.begin();
+    doc = db.bindToSession(doc);
     Assert.assertEquals(new String((byte[]) doc.field("binary", PropertyType.BINARY)),
         "Binary data");
-    database.rollback();
+    db.rollback();
   }
 
   @Test
   public void testBasicCreateExternal() {
-    database.begin();
-    Blob record = new RecordBytes(database, "This is a test".getBytes());
+    db.begin();
+    Blob record = new RecordBytes(db, "This is a test".getBytes());
     record.save();
-    database.commit();
+    db.commit();
 
     rid = record.getIdentity();
   }
 
   @Test(dependsOnMethods = "testBasicCreateExternal")
   public void testBasicReadExternal() {
-    RecordAbstract record = database.load(rid);
+    RecordAbstract record = db.load(rid);
 
     Assert.assertEquals("This is a test", new String(record.toStream()));
   }
 
   @Test(dependsOnMethods = "testBasicReadExternal")
   public void testMixedCreateExternal() {
-    database.begin();
+    db.begin();
 
-    EntityImpl doc = new EntityImpl();
-    doc.field("binary", new RecordBytes(database, "Binary data".getBytes()));
+    EntityImpl doc = ((EntityImpl) db.newEntity());
+    doc.field("binary", new RecordBytes(db, "Binary data".getBytes()));
 
-    doc.save(database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
     rid = doc.getIdentity();
   }
 
   @Test(dependsOnMethods = "testMixedCreateExternal")
   public void testMixedReadExternal() {
-    EntityImpl doc = rid.getRecord();
+    EntityImpl doc = rid.getRecord(db);
     Assert.assertEquals("Binary data",
         new String(((RecordAbstract) doc.field("binary")).toStream()));
   }

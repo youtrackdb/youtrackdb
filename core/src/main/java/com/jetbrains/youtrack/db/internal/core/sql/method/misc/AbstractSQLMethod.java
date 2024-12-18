@@ -18,6 +18,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.method.misc;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.method.SQLMethod;
 
@@ -87,7 +88,8 @@ public abstract class AbstractSQLMethod implements SQLMethod {
     return maxparams;
   }
 
-  protected Object getParameterValue(final Identifiable iRecord, final String iValue) {
+  protected static Object getParameterValue(DatabaseSessionInternal db, final Identifiable iRecord,
+      final String iValue) {
     if (iValue == null) {
       return null;
     }
@@ -102,7 +104,7 @@ public abstract class AbstractSQLMethod implements SQLMethod {
     }
     try {
       // SEARCH FOR FIELD
-      return ((EntityImpl) iRecord.getRecord()).field(iValue);
+      return ((EntityImpl) iRecord.getRecord(db)).field(iValue);
     } catch (RecordNotFoundException rnf) {
       return null;
     }

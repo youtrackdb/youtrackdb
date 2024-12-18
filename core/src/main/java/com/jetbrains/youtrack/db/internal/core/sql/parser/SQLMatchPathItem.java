@@ -2,11 +2,12 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import java.util.Collection;
@@ -103,6 +104,7 @@ public class SQLMatchPathItem extends SimpleNode {
 
     Set<Identifiable> result = new HashSet<Identifiable>();
 
+    var db = iCommandContext.getDatabase();
     if (whileCondition == null
         && maxDepth
         == null) { // in this case starting point is not returned and only one level depth is
@@ -117,7 +119,7 @@ public class SQLMatchPathItem extends SimpleNode {
       for (Identifiable origin : queryResult) {
         Object previousMatch = iCommandContext.getVariable("$currentMatch");
         iCommandContext.setVariable("$currentMatch", origin);
-        if ((oClass == null || matchesClass(origin, oClass))
+        if ((oClass == null || matchesClass(db, origin, oClass))
             && (filter == null || filter.matchesFilters(origin, iCommandContext))) {
           result.add(origin);
         }
@@ -128,7 +130,7 @@ public class SQLMatchPathItem extends SimpleNode {
       iCommandContext.setVariable("$depth", depth);
       Object previousMatch = iCommandContext.getVariable("$currentMatch");
       iCommandContext.setVariable("$currentMatch", startingPoint);
-      if ((oClass == null || matchesClass(startingPoint, oClass))
+      if ((oClass == null || matchesClass(db, startingPoint, oClass))
           && (filter == null || filter.matchesFilters(startingPoint, iCommandContext))) {
         result.add(startingPoint);
       }
@@ -158,12 +160,13 @@ public class SQLMatchPathItem extends SimpleNode {
     return result;
   }
 
-  private boolean matchesClass(Identifiable identifiable, SchemaClass oClass) {
+  private boolean matchesClass(DatabaseSessionInternal db, Identifiable identifiable,
+      SchemaClass oClass) {
     if (identifiable == null) {
       return false;
     }
     try {
-      Record record = identifiable.getRecord();
+      Record record = identifiable.getRecord(db);
       if (record instanceof EntityImpl) {
         return EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record))
             .isSubClassOf(oClass);

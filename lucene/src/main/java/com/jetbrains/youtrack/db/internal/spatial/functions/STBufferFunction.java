@@ -48,7 +48,7 @@ public class STBufferFunction extends SQLFunctionAbstract {
       params = (Map) iParams[2];
     }
     Shape buffer = factory.buffer(shape, distance.doubleValue(), params);
-    return factory.toDoc(buffer);
+    return factory.toEntitty(buffer);
   }
 
   @Override

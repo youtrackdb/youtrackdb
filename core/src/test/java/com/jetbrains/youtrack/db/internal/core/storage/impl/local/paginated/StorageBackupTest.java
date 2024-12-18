@@ -59,7 +59,7 @@ public class StorageBackupTest {
 
       final int num = random.nextInt();
 
-      final EntityImpl document = new EntityImpl("BackupClass");
+      final EntityImpl document = ((EntityImpl) db.newEntity("BackupClass"));
       document.field("num", num);
       document.field("data", data);
 
@@ -146,7 +146,7 @@ public class StorageBackupTest {
 
       final int num = random.nextInt();
 
-      final EntityImpl document = new EntityImpl("BackupClass");
+      final EntityImpl document = ((EntityImpl) db.newEntity("BackupClass"));
       document.field("num", num);
       document.field("data", data);
 
@@ -171,7 +171,7 @@ public class StorageBackupTest {
 
         final int num = random.nextInt();
 
-        final EntityImpl document = new EntityImpl("BackupClass");
+        final EntityImpl document = ((EntityImpl) db.newEntity("BackupClass"));
         document.field("num", num);
         document.field("data", data);
 
@@ -260,7 +260,7 @@ public class StorageBackupTest {
 
       final int num = random.nextInt();
 
-      final EntityImpl document = new EntityImpl("BackupClass");
+      final EntityImpl document = ((EntityImpl) db.newEntity("BackupClass"));
       document.field("num", num);
       document.field("data", data);
 
@@ -285,7 +285,7 @@ public class StorageBackupTest {
 
         final int num = random.nextInt();
 
-        final EntityImpl document = new EntityImpl("BackupClass");
+        final EntityImpl document = ((EntityImpl) db.newEntity("BackupClass"));
         document.field("num", num);
         document.field("data", data);
 

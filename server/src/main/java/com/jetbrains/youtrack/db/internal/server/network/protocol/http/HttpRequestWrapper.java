@@ -27,15 +27,15 @@ import java.util.Map;
  */
 public class HttpRequestWrapper {
 
-  private final OHttpRequest request;
+  private final HttpRequest request;
   private final String[] args;
 
-  public HttpRequestWrapper(final OHttpRequest iRequest) {
+  public HttpRequestWrapper(final HttpRequest iRequest) {
     this.request = iRequest;
     this.args = null;
   }
 
-  public HttpRequestWrapper(final OHttpRequest iRequest, final String[] iArgs) {
+  public HttpRequestWrapper(final HttpRequest iRequest, final String[] iArgs) {
     this.request = iRequest;
     this.args = iArgs;
   }

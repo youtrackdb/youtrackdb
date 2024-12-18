@@ -35,7 +35,7 @@ public class SQLBatchTest extends BaseDBTest {
   @Test(enabled = false)
   public void createEdgeFailIfNoSourceOrTargetVertices() {
     try {
-      database.execute("sql",
+      db.execute("sql",
           "BEGIN;\n"
               + "LET credential = INSERT INTO V SET email = '123', password = '123';\n"
               + "LET order = SELECT FROM V WHERE cannotFindThisAttribute = true;\n"
@@ -58,9 +58,9 @@ public class SQLBatchTest extends BaseDBTest {
   public void testInlineArray() {
     String className1 = "SQLBatchTest_testInlineArray1";
     String className2 = "SQLBatchTest_testInlineArray2";
-    database.command("CREATE CLASS " + className1 + " EXTENDS V").close();
-    database.command("CREATE CLASS " + className2 + " EXTENDS V").close();
-    database.command("CREATE PROPERTY " + className2 + ".foos LinkList " + className1).close();
+    db.command("CREATE CLASS " + className1 + " EXTENDS V").close();
+    db.command("CREATE CLASS " + className2 + " EXTENDS V").close();
+    db.command("CREATE PROPERTY " + className2 + ".foos LinkList " + className1).close();
 
     String script =
         "BEGIN;"
@@ -78,7 +78,7 @@ public class SQLBatchTest extends BaseDBTest {
             + " SET foos=[$a,$b,$c];"
             + "COMMIT";
 
-    database.execute("sql", script);
+    db.execute("sql", script);
 
     List<EntityImpl> result = executeQuery("select from " + className2);
     Assert.assertEquals(result.size(), 1);
@@ -92,9 +92,9 @@ public class SQLBatchTest extends BaseDBTest {
   public void testInlineArray2() {
     String className1 = "SQLBatchTest_testInlineArray21";
     String className2 = "SQLBatchTest_testInlineArray22";
-    database.command("CREATE CLASS " + className1 + " EXTENDS V").close();
-    database.command("CREATE CLASS " + className2 + " EXTENDS V").close();
-    database.command("CREATE PROPERTY " + className2 + ".foos LinkList " + className1).close();
+    db.command("CREATE CLASS " + className1 + " EXTENDS V").close();
+    db.command("CREATE CLASS " + className2 + " EXTENDS V").close();
+    db.command("CREATE PROPERTY " + className2 + ".foos LinkList " + className1).close();
 
     String script =
         "BEGIN;\n"
@@ -113,7 +113,7 @@ public class SQLBatchTest extends BaseDBTest {
             + " SET foos= $foos;\n"
             + "COMMIT;";
 
-    database.execute("sql", script);
+    db.execute("sql", script);
 
     List<EntityImpl> result = executeQuery("select from " + className2);
     Assert.assertEquals(result.size(), 1);

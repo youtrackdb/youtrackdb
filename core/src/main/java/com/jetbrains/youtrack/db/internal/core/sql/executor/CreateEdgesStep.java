@@ -1,17 +1,17 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBatch;
@@ -69,9 +69,10 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     Iterator<?> fromIter = fetchFroms();
     List<Object> toList = fetchTo();
     Index uniqueIndex = findIndex(this.uniqueIndexName);
+    var db = ctx.getDatabase();
     Stream<Result> stream =
         StreamSupport.stream(Spliterators.spliteratorUnknownSize(fromIter, 0), false)
-            .map(CreateEdgesStep::asVertex)
+            .map(currentFrom1 -> asVertex(db, currentFrom1))
             .flatMap((currentFrom) -> mapTo(ctx.getDatabase(), toList, currentFrom, uniqueIndex));
     return ExecutionStream.resultIterator(stream.iterator());
   }
@@ -140,7 +141,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     return to.stream()
         .map(
             (obj) -> {
-              Vertex currentTo = asVertex(obj);
+              Vertex currentTo = asVertex(db, obj);
               if (currentTo == null) {
                 throw new CommandExecutionException("Invalid TO vertex for edge");
               }
@@ -162,7 +163,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
                         "Cannot set target cluster on lightweight edges");
                   }
 
-                  edgeToUpdate.getBaseDocument().save(targetCluster.getStringValue());
+                  edgeToUpdate.getBaseEntity().save(targetCluster.getStringValue());
                 }
               }
 
@@ -175,29 +176,29 @@ public class CreateEdgesStep extends AbstractExecutionStep {
   }
 
   private static EdgeInternal getExistingEdge(
-      DatabaseSessionInternal session,
+      DatabaseSessionInternal db,
       Vertex currentFrom,
       Vertex currentTo,
       Index uniqueIndex) {
     Object key =
         uniqueIndex
             .getDefinition()
-            .createValue(session, currentFrom.getIdentity(), currentTo.getIdentity());
+            .createValue(db, currentFrom.getIdentity(), currentTo.getIdentity());
 
     final Iterator<RID> iterator;
-    try (Stream<RID> stream = uniqueIndex.getInternal().getRids(session, key)) {
+    try (Stream<RID> stream = uniqueIndex.getInternal().getRids(db, key)) {
       iterator = stream.iterator();
       if (iterator.hasNext()) {
-        return iterator.next().getRecord();
+        return iterator.next().getRecord(db);
       }
     }
 
     return null;
   }
 
-  private static Vertex asVertex(Object currentFrom) {
+  private static Vertex asVertex(DatabaseSessionInternal db, Object currentFrom) {
     if (currentFrom instanceof RID) {
-      currentFrom = ((RID) currentFrom).getRecord();
+      currentFrom = ((RID) currentFrom).getRecord(db);
     }
     if (currentFrom instanceof Result) {
       Object from = currentFrom;

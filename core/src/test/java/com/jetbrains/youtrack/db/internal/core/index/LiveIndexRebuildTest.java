@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.db.PartitionedDatabasePool;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.PartitionedDatabasePool;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -32,16 +32,16 @@ public class LiveIndexRebuildTest {
   @Test
   @Ignore
   public void testLiveIndexRebuild() throws Exception {
-    final DatabaseDocumentTx database = new DatabaseDocumentTx(databaseURL);
-    database.create();
+    final DatabaseDocumentTx db = new DatabaseDocumentTx(databaseURL);
+    db.create();
 
-    final SchemaClass clazz = database.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(database, propertyName, PropertyType.INTEGER);
+    final SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, propertyName, PropertyType.INTEGER);
 
-    clazz.createIndex(database, indexName, SchemaClass.INDEX_TYPE.UNIQUE, propertyName);
+    clazz.createIndex(db, indexName, SchemaClass.INDEX_TYPE.UNIQUE, propertyName);
 
     for (int i = 0; i < 1000000; i++) {
-      EntityImpl document = new EntityImpl(className);
+      EntityImpl document = (EntityImpl) db.newEntity(className);
       document.field(propertyName, i);
       document.save();
     }

@@ -32,7 +32,7 @@ public class LuceneReuseTest extends LuceneBaseTest {
     for (int i = 0; i < 10; i++) {
       db.begin();
       db.save(
-          new EntityImpl("Reuse")
+          ((EntityImpl) db.newEntity("Reuse"))
               .field("name", "John")
               .field("date", new Date())
               .field("surname", "Reese")
@@ -69,7 +69,7 @@ public class LuceneReuseTest extends LuceneBaseTest {
     for (int i = 0; i < 10; i++) {
       db.begin();
       db.save(
-          new EntityImpl("Reuse")
+          ((EntityImpl) db.newEntity("Reuse"))
               .field("name", "John")
               .field("date", new Date())
               .field("surname", "Reese")
@@ -80,7 +80,7 @@ public class LuceneReuseTest extends LuceneBaseTest {
     // additional record
     db.begin();
     db.save(
-        new EntityImpl("Reuse")
+        ((EntityImpl) db.newEntity("Reuse"))
             .field("name", "John")
             .field("date", new Date())
             .field("surname", "Franklin")

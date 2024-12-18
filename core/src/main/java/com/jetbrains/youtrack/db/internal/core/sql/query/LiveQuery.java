@@ -19,16 +19,15 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.query;
 
-import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.query.LiveQueryMonitor;
 import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.Result;
 import javax.annotation.Nonnull;
 
 /**
@@ -58,19 +57,18 @@ public class LiveQuery<T> extends SQLSynchQuery<T> {
   }
 
   @Override
-  public <RET> RET execute(@Nonnull DatabaseSessionInternal querySession, Object... iArgs) {
-    DatabaseSessionInternal database = DatabaseRecordThreadLocal.instance().get();
-    if (database.isRemote()) {
+  public <RET> RET execute(@Nonnull DatabaseSessionInternal db, Object... iArgs) {
+    if (db.isRemote()) {
       BackwardLiveQueryResultListener listener = new BackwardLiveQueryResultListener();
-      LiveQueryMonitor monitor = database.live(getText(), listener, iArgs);
+      LiveQueryMonitor monitor = db.live(getText(), listener, iArgs);
       listener.token = monitor.getMonitorId();
-      EntityImpl entity = new EntityImpl();
+      EntityImpl entity = new EntityImpl(db);
       entity.setProperty("token", listener.token);
       LegacyResultSet<EntityImpl> result = new BasicLegacyResultSet<>();
       result.add(entity);
       return (RET) result;
     }
-    return super.execute(querySession, iArgs);
+    return super.execute(db, iArgs);
   }
 
   private class BackwardLiveQueryResultListener implements LiveQueryResultListener {
@@ -78,25 +76,25 @@ public class LiveQuery<T> extends SQLSynchQuery<T> {
     protected int token;
 
     @Override
-    public void onCreate(DatabaseSession database, Result data) {
+    public void onCreate(DatabaseSessionInternal database, Result data) {
       ((LocalLiveResultListener) getResultListener())
-          .onLiveResult(
+          .onLiveResult(database,
               token,
               new RecordOperation((RecordAbstract) data.toEntity(), RecordOperation.CREATED));
     }
 
     @Override
-    public void onUpdate(DatabaseSession database, Result before, Result after) {
+    public void onUpdate(DatabaseSessionInternal database, Result before, Result after) {
       ((LocalLiveResultListener) getResultListener())
-          .onLiveResult(
+          .onLiveResult(database,
               token,
               new RecordOperation((RecordAbstract) after.toEntity(), RecordOperation.UPDATED));
     }
 
     @Override
-    public void onDelete(DatabaseSession database, Result data) {
+    public void onDelete(DatabaseSessionInternal database, Result data) {
       ((LocalLiveResultListener) getResultListener())
-          .onLiveResult(
+          .onLiveResult(database,
               token,
               new RecordOperation((RecordAbstract) data.toEntity(), RecordOperation.DELETED));
     }

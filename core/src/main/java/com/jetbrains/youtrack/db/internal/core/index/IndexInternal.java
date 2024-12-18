@@ -19,15 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
-import com.jetbrains.youtrack.db.internal.common.util.RawPair;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.InvalidIndexEngineIdException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.InvalidIndexEngineIdException;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyAccess;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityResourceProperty;
@@ -52,7 +51,6 @@ public interface IndexInternal extends Index {
   String CONFIG_AUTOMATIC = "automatic";
   String CONFIG_TYPE = "type";
   String ALGORITHM = "algorithm";
-  String VALUE_CONTAINER_ALGORITHM = "valueContainerAlgorithm";
   String CONFIG_NAME = "name";
   String INDEX_DEFINITION = "indexDefinition";
   String INDEX_DEFINITION_CLASS = "indexDefinitionClass";
@@ -137,7 +135,7 @@ public interface IndexInternal extends Index {
    */
   long size(DatabaseSessionInternal session);
 
-  Stream<RID> getRids(DatabaseSessionInternal session, final Object key);
+  Stream<RID> getRids(DatabaseSessionInternal db, final Object key);
 
   Stream<RawPair<Object, RID>> stream(DatabaseSessionInternal session);
 
@@ -148,7 +146,7 @@ public interface IndexInternal extends Index {
   /**
    * Returns stream which presents subset of index data between passed in keys.
    *
-   * @param session
+   * @param db
    * @param fromKey       Lower border of index data.
    * @param fromInclusive Indicates whether lower border should be inclusive or exclusive.
    * @param toKey         Upper border of index data.
@@ -158,19 +156,19 @@ public interface IndexInternal extends Index {
    * @return Cursor which presents subset of index data between passed in keys.
    */
   Stream<RawPair<Object, RID>> streamEntriesBetween(
-      DatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
+      DatabaseSessionInternal db, Object fromKey, boolean fromInclusive, Object toKey,
       boolean toInclusive, boolean ascOrder);
 
   /**
    * Returns stream which presents data associated with passed in keys.
    *
-   * @param session
+   * @param db
    * @param keys         Keys data of which should be returned.
    * @param ascSortOrder Flag which determines whether data iterated by stream should be in
    *                     ascending or descending order.
    * @return stream which presents data associated with passed in keys.
    */
-  Stream<RawPair<Object, RID>> streamEntries(DatabaseSessionInternal session,
+  Stream<RawPair<Object, RID>> streamEntries(DatabaseSessionInternal db,
       Collection<?> keys,
       boolean ascSortOrder);
 
@@ -204,7 +202,8 @@ public interface IndexInternal extends Index {
   Stream<RawPair<Object, RID>> streamEntriesMinor(
       DatabaseSessionInternal session, Object toKey, boolean toInclusive, boolean ascOrder);
 
-  static Identifiable securityFilterOnRead(Index idx, Identifiable item) {
+  static Identifiable securityFilterOnRead(DatabaseSessionInternal db, Index idx,
+      Identifiable item) {
     if (idx.getDefinition() == null) {
       return item;
     }
@@ -212,14 +211,15 @@ public interface IndexInternal extends Index {
     if (indexClass == null) {
       return item;
     }
-    DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
+
     if (db == null) {
       return item;
     }
+
     SecurityInternal security = db.getSharedContext().getSecurity();
     if (isReadRestrictedBySecurityPolicy(indexClass, db, security)) {
       try {
-        item = item.getRecord();
+        item = item.getRecord(db);
       } catch (RecordNotFoundException e) {
         item = null;
       }
@@ -231,7 +231,7 @@ public interface IndexInternal extends Index {
       String indexProp = idx.getDefinition().getFields().get(0);
       if (isLabelSecurityDefined(db, security, indexClass, indexProp)) {
         try {
-          item = item.getRecord();
+          item = item.getRecord(db);
         } catch (RecordNotFoundException e) {
           item = null;
         }
@@ -304,7 +304,7 @@ public interface IndexInternal extends Index {
   Iterable<TransactionIndexEntry> interpretTxKeyChanges(
       FrontendTransactionIndexChangesPerKey changes);
 
-  void doPut(DatabaseSessionInternal session, AbstractPaginatedStorage storage, Object key,
+  void doPut(DatabaseSessionInternal db, AbstractPaginatedStorage storage, Object key,
       RID rid)
       throws InvalidIndexEngineIdException;
 
@@ -315,7 +315,7 @@ public interface IndexInternal extends Index {
   boolean doRemove(AbstractPaginatedStorage storage, Object key)
       throws InvalidIndexEngineIdException;
 
-  Stream<RID> getRidsIgnoreTx(DatabaseSessionInternal session, Object key);
+  Stream<RID> getRidsIgnoreTx(DatabaseSessionInternal db, Object key);
 
   Index create(DatabaseSessionInternal session, IndexMetadata metadata, boolean rebuild,
       ProgressListener progressListener);

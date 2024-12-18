@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.index.engine;
 
+import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.index.IndexUnique;
-import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
 
 public class UniqueIndexEngineValidator implements IndexEngineValidator<Object, RID> {
 
@@ -42,9 +42,7 @@ public class UniqueIndexEngineValidator implements IndexEngineValidator<Object, 
       }
     }
 
-    if (!newValue.getIdentity().isPersistent()) {
-      newValue = newValue.getRecord().getIdentity();
-    }
+    assert newValue.isPersistent();
     return newValue.getIdentity();
   }
 }

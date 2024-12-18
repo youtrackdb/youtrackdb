@@ -3,7 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.ato
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.LogSequenceNumber;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WriteAheadLog;
-import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.BonsaiBucketPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.RidBagBucketPointer;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import java.io.IOException;
 import java.util.Set;
@@ -21,9 +21,9 @@ public interface AtomicOperation {
 
   AtomicOperationMetadata<?> getMetadata(String key);
 
-  void addDeletedRidBag(BonsaiBucketPointer rootPointer);
+  void addDeletedRidBag(RidBagBucketPointer rootPointer);
 
-  Set<BonsaiBucketPointer> getDeletedBonsaiPointers();
+  Set<RidBagBucketPointer> getDeletedBonsaiPointers();
 
   CacheEntry addPage(long fileId) throws IOException;
 

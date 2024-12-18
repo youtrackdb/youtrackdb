@@ -19,24 +19,23 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.filter;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.schema.Collate;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
-import com.jetbrains.youtrack.db.api.schema.Collate;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryption;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BytesContainer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BinaryField;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BytesContainer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.EntitySerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerBinary;
 import com.jetbrains.youtrack.db.internal.core.sql.method.SQLMethodRuntime;
@@ -125,7 +124,7 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
       }
     }
 
-    final EntityImpl entity = iRecord.getRecord();
+    final EntityImpl entity = iRecord.getRecord(iContext.getDatabase());
 
     if (preLoadedFieldsArray == null
         && preLoadedFields != null
@@ -154,24 +153,23 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
     return transformValue(iRecord, iContext, v);
   }
 
-  public BinaryField getBinaryField(final Identifiable iRecord) {
+  public BinaryField getBinaryField(DatabaseSessionInternal db, final Identifiable iRecord) {
     if (iRecord == null) {
       throw new CommandExecutionException(
           "expression item '" + name + "' cannot be resolved because current record is NULL");
     }
 
-    if (operationsChain != null && operationsChain.size() > 0)
+    if (operationsChain != null && !operationsChain.isEmpty())
     // CANNOT USE BINARY FIELDS
     {
       return null;
     }
 
-    final EntityImpl rec = iRecord.getRecord();
+    final EntityImpl rec = iRecord.getRecord(db);
     PropertyEncryption encryption = EntityInternalUtils.getPropertyEncryption(rec);
     BytesContainer serialized = new BytesContainer(rec.toStream());
     byte version = serialized.bytes[serialized.offset++];
     EntitySerializer serializer = RecordSerializerBinary.INSTANCE.getSerializer(version);
-    DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().get();
 
     // check for embedded objects, they have invalid ID and they are serialized with class name
     return serializer.deserializeField(
@@ -251,10 +249,11 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
    * get the collate of this expression, based on the fully evaluated field chain starting from the
    * passed object.
    *
+   * @param db
    * @param object the root element (entity?) of this field chain
    * @return the collate, null if no collate is defined
    */
-  public Collate getCollate(Object object) {
+  public Collate getCollate(DatabaseSessionInternal db, Object object) {
     if (collate != null || operationsChain == null || !isFieldChain()) {
       return collate;
     }
@@ -263,13 +262,13 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
     }
     FieldChain chain = getFieldChain();
     try {
-      EntityImpl lastDoc = ((Identifiable) object).getRecord();
+      EntityImpl lastDoc = ((Identifiable) object).getRecord(db);
       for (int i = 0; i < chain.getItemCount() - 1; i++) {
         Object nextDoc = lastDoc.field(chain.getItemName(i));
         if (!(nextDoc instanceof Identifiable)) {
           return null;
         }
-        lastDoc = ((Identifiable) nextDoc).getRecord();
+        lastDoc = ((Identifiable) nextDoc).getRecord(db);
       }
       SchemaClass schemaClass = EntityInternalUtils.getImmutableSchemaClass(lastDoc);
       if (schemaClass == null) {

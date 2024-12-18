@@ -19,10 +19,10 @@
 package com.jetbrains.youtrack.db.internal.core.security.symmetrickey;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
-import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.BufferedWriter;
 import java.io.InputStream;
@@ -574,7 +574,7 @@ public class SymmetricKey {
       String json = new String(decoded, StandardCharsets.UTF_8);
 
       // Convert the JSON content to an EntityImpl to make parsing it easier.
-      final EntityImpl entity = new EntityImpl().fromJSON(json, "noMap");
+      final EntityImpl entity = new EntityImpl(null).fromJSON(json, "noMap");
 
       // Set a default in case the JSON document does not contain an "algorithm" property.
       String algorithm = secretKeyAlgorithm;

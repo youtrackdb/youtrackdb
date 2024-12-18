@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent.ChangeType;
-import com.jetbrains.youtrack.db.api.exception.DatabaseException;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.Arrays;
@@ -162,7 +162,7 @@ public class PropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testGetDocumentValueByKeyToIndex() {
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = (EntityImpl) db.newEntity();
 
     document.field("fOne", mapToTest);
     document.field("fTwo", 10);
@@ -179,7 +179,7 @@ public class PropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testGetDocumentValueByValueToIndex() {
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = (EntityImpl) db.newEntity();
 
     document.field("fOne", mapToTest);
     document.field("fTwo", 10);
@@ -215,7 +215,7 @@ public class PropertyMapIndexDefinitionTest extends DbTestBase {
             "tesClass", "fOne", PropertyType.STRING, PropertyMapIndexDefinition.INDEX_BY.KEY);
 
     db.begin();
-    final EntityImpl docToStore = propertyIndexByKey.toStream(new EntityImpl());
+    final EntityImpl docToStore = propertyIndexByKey.toStream(db, (EntityImpl) db.newEntity());
     db.save(docToStore);
     db.commit();
 
@@ -233,7 +233,7 @@ public class PropertyMapIndexDefinitionTest extends DbTestBase {
             "tesClass", "fOne", PropertyType.INTEGER, PropertyMapIndexDefinition.INDEX_BY.VALUE);
 
     db.begin();
-    final EntityImpl docToStore = propertyIndexByValue.toStream(new EntityImpl());
+    final EntityImpl docToStore = propertyIndexByValue.toStream(db, (EntityImpl) db.newEntity());
     db.save(docToStore);
     db.commit();
 

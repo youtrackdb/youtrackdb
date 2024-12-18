@@ -1,20 +1,21 @@
 package com.jetbrains.youtrack.db.internal.client.remote.message;
 
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.client.remote.CollectionNetworkSerializer;
 import com.jetbrains.youtrack.db.internal.client.remote.message.tx.IndexChange;
 import com.jetbrains.youtrack.db.internal.client.remote.message.tx.RecordOperationRequest;
-import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -22,10 +23,9 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.R
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37Client;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.result.binary.ResultSerializerNetwork;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChangesPerKey;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChangesPerKey.TransactionIndexEntry;
@@ -58,20 +58,20 @@ public class MessageHelper {
       channel.writeShort(ChannelBinaryProtocol.RECORD_RID);
       channel.writeRID((RID) o);
     } else {
-      writeRecord(session, channel, o.getRecord(), serializer);
+      writeRecord(session, channel, o.getRecord(session), serializer);
     }
   }
 
   public static void writeRecord(
-      DatabaseSessionInternal session, ChannelDataOutput channel, RecordAbstract iRecord,
+      DatabaseSessionInternal db, ChannelDataOutput channel, RecordAbstract iRecord,
       RecordSerializer serializer)
       throws IOException {
     channel.writeShort((short) 0);
-    channel.writeByte(RecordInternal.getRecordType(iRecord));
+    channel.writeByte(RecordInternal.getRecordType(db, iRecord));
     channel.writeRID(iRecord.getIdentity());
     channel.writeVersion(iRecord.getVersion());
     try {
-      final byte[] stream = getRecordBytes(session, iRecord, serializer);
+      final byte[] stream = getRecordBytes(db, iRecord, serializer);
       channel.writeBytes(stream);
     } catch (Exception e) {
       channel.writeBytes(null);
@@ -82,17 +82,17 @@ public class MessageHelper {
     }
   }
 
-  public static byte[] getRecordBytes(@Nullable DatabaseSessionInternal session,
+  public static byte[] getRecordBytes(@Nullable DatabaseSessionInternal db,
       final RecordAbstract iRecord, RecordSerializer serializer) {
     final byte[] stream;
     String dbSerializerName = null;
-    if (session != null) {
-      dbSerializerName = (iRecord.getSession()).getSerializer().toString();
+    if (db != null) {
+      dbSerializerName = db.getSerializer().toString();
     }
-    if (RecordInternal.getRecordType(iRecord) == EntityImpl.RECORD_TYPE
+    if (RecordInternal.getRecordType(db, iRecord) == EntityImpl.RECORD_TYPE
         && (dbSerializerName == null || !dbSerializerName.equals(serializer.toString()))) {
       ((EntityImpl) iRecord).deserializeFields();
-      stream = serializer.toStream(session, iRecord);
+      stream = serializer.toStream(db, iRecord);
     } else {
       stream = iRecord.toStream();
     }
@@ -306,7 +306,8 @@ public class MessageHelper {
   }
 
   static void writeTransactionIndexChanges(
-      ChannelDataOutput network, RecordSerializerNetworkV37 serializer, List<IndexChange> changes)
+      DatabaseSessionInternal db, ChannelDataOutput network, RecordSerializerNetworkV37 serializer,
+      List<IndexChange> changes)
       throws IOException {
     network.writeInt(changes.size());
     for (IndexChange indexChange : changes) {
@@ -330,7 +331,7 @@ public class MessageHelper {
       for (FrontendTransactionIndexChangesPerKey change :
           indexChange.getKeyChanges().changesPerKey.values()) {
         PropertyType type = PropertyType.getTypeByValue(change.key);
-        byte[] value = serializer.serializeValue(change.key, type);
+        byte[] value = serializer.serializeValue(db, change.key, type);
         network.writeByte((byte) type.getId());
         network.writeBytes(value);
         network.writeInt(change.size());
@@ -434,11 +435,12 @@ public class MessageHelper {
     return record;
   }
 
-  private static void writeProjection(Result item, ChannelDataOutput channel)
+  private static void writeProjection(DatabaseSessionInternal db, Result item,
+      ChannelDataOutput channel)
       throws IOException {
     channel.writeByte(QueryResponse.RECORD_TYPE_PROJECTION);
     ResultSerializerNetwork ser = new ResultSerializerNetwork();
-    ser.toStream(item, channel);
+    ser.toStream(db, item, channel);
   }
 
   private static void writeBlob(
@@ -450,27 +452,27 @@ public class MessageHelper {
   }
 
   private static void writeVertex(
-      DatabaseSessionInternal session, Result row, ChannelDataOutput channel,
+      DatabaseSessionInternal db, Result row, ChannelDataOutput channel,
       RecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(QueryResponse.RECORD_TYPE_VERTEX);
-    writeDocument(session, channel, row.getEntity().get().getRecord(), recordSerializer);
+    writeDocument(db, channel, row.getEntity().get().getRecord(db), recordSerializer);
   }
 
   private static void writeElement(
-      DatabaseSessionInternal session, Result row, ChannelDataOutput channel,
+      DatabaseSessionInternal db, Result row, ChannelDataOutput channel,
       RecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(QueryResponse.RECORD_TYPE_ELEMENT);
-    writeDocument(session, channel, row.getEntity().get().getRecord(), recordSerializer);
+    writeDocument(db, channel, row.getEntity().get().getRecord(db), recordSerializer);
   }
 
   private static void writeEdge(
-      DatabaseSessionInternal session, Result row, ChannelDataOutput channel,
+      DatabaseSessionInternal db, Result row, ChannelDataOutput channel,
       RecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(QueryResponse.RECORD_TYPE_EDGE);
-    writeDocument(session, channel, row.getEntity().get().getRecord(), recordSerializer);
+    writeDocument(db, channel, row.getEntity().get().getRecord(db), recordSerializer);
   }
 
   private static void writeDocument(
@@ -480,19 +482,19 @@ public class MessageHelper {
   }
 
   public static void writeResult(
-      DatabaseSessionInternal session, Result row, ChannelDataOutput channel,
+      DatabaseSessionInternal db, Result row, ChannelDataOutput channel,
       RecordSerializer recordSerializer)
       throws IOException {
     if (row.isBlob()) {
-      writeBlob(session, row, channel, recordSerializer);
+      writeBlob(db, row, channel, recordSerializer);
     } else if (row.isVertex()) {
-      writeVertex(session, row, channel, recordSerializer);
+      writeVertex(db, row, channel, recordSerializer);
     } else if (row.isEdge()) {
-      writeEdge(session, row, channel, recordSerializer);
+      writeEdge(db, row, channel, recordSerializer);
     } else if (row.isEntity()) {
-      writeElement(session, row, channel, recordSerializer);
+      writeElement(db, row, channel, recordSerializer);
     } else {
-      writeProjection(row, channel);
+      writeProjection(db, row, channel);
     }
   }
 

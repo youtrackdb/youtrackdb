@@ -20,16 +20,16 @@ public abstract class BaseHttpDatabaseTest extends BaseHttpTest {
             .getCanonicalPath();
 
     super.startServer();
-    EntityImpl pass = new EntityImpl();
+    EntityImpl pass = new EntityImpl(null);
     pass.setProperty("adminPassword", "admin");
     Assert.assertEquals(
+        200,
         post("database/" + getDatabaseName() + "/memory")
             .payload(pass.toJSON(), CONTENT.JSON)
             .setUserName("root")
             .setUserPassword("root")
             .getResponse()
-            .getCode(),
-        200);
+            .getCode());
 
     onAfterDatabaseCreated();
   }
@@ -37,12 +37,12 @@ public abstract class BaseHttpDatabaseTest extends BaseHttpTest {
   @After
   public void dropDatabase() throws Exception {
     Assert.assertEquals(
+        204,
         delete("database/" + getDatabaseName())
             .setUserName("root")
             .setUserPassword("root")
             .getResponse()
-            .getCode(),
-        204);
+            .getCode());
     super.stopServer();
 
     onAfterDatabaseDropped();

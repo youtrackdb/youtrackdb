@@ -22,8 +22,6 @@ package com.jetbrains.youtrack.db.internal.core.index;
 import com.jetbrains.youtrack.db.internal.common.concur.resource.CloseableInStorage;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import java.util.Map;
@@ -35,7 +33,6 @@ import java.util.Set;
 public interface IndexManagerAbstract extends CloseableInStorage {
 
   String CONFIG_INDEXES = "indexes";
-  String DICTIONARY_NAME = "dictionary";
 
   void recreateIndexes(DatabaseSessionInternal database);
 
@@ -89,8 +86,6 @@ public interface IndexManagerAbstract extends CloseableInStorage {
 
   void setDefaultClusterName(DatabaseSessionInternal database, String defaultClusterName2);
 
-  Dictionary<Record> getDictionary(DatabaseSessionInternal database);
-
   Set<Index> getClassInvolvedIndexes(
       DatabaseSessionInternal database, String className, Collection<String> fields);
 
@@ -109,8 +104,6 @@ public interface IndexManagerAbstract extends CloseableInStorage {
   Index getClassIndex(DatabaseSessionInternal database, String className, String indexName);
 
   IndexUnique getClassUniqueIndex(String className);
-
-  Index getClassAutoShardingIndex(DatabaseSessionInternal database, String className);
 
   void create(DatabaseSessionInternal database);
 

@@ -23,13 +23,19 @@ import static com.jetbrains.youtrack.db.internal.core.serialization.serializer.r
 import static com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.HelperClasses.writeOptimizedLink;
 import static com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.HelperClasses.writeString;
 
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.ValidationException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.DecimalSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
@@ -37,21 +43,15 @@ import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
-import com.jetbrains.youtrack.db.api.exception.ValidationException;
-import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryption;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityEntry;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImplEmbedded;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
-import com.jetbrains.youtrack.db.internal.core.serialization.DocumentSerializable;
+import com.jetbrains.youtrack.db.internal.core.serialization.EntitySerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.HelperClasses.MapRecordInfo;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.HelperClasses.RecordInfo;
@@ -662,7 +662,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
           int headerCursor = bytes.offset;
           bytes.offset = valuePos;
           try {
-            debugProperty.value = deserializeValue(db, bytes, type, new EntityImpl());
+            debugProperty.value = deserializeValue(db, bytes, type, new EntityImpl(db));
           } catch (RuntimeException ex) {
             debugProperty.faildToRead = true;
             debugProperty.readingException = ex;
@@ -782,14 +782,14 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
   }
 
   public Object deserializeValue(
-      DatabaseSessionInternal session, final BytesContainer bytes, final PropertyType type,
+      DatabaseSessionInternal db, final BytesContainer bytes, final PropertyType type,
       final RecordElement owner) {
     RecordElement entity = owner;
     while (!(entity instanceof EntityImpl) && entity != null) {
       entity = entity.getOwner();
     }
     ImmutableSchema schema = EntityInternalUtils.getImmutableSchema((EntityImpl) entity);
-    return deserializeValue(session, bytes, type, owner, true, -1, false, schema);
+    return deserializeValue(db, bytes, type, owner, true, -1, false, schema);
   }
 
   protected Object deserializeValue(
@@ -985,7 +985,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
   @SuppressWarnings("unchecked")
   @Override
   public int serializeValue(
-      DatabaseSessionInternal session, final BytesContainer bytes,
+      DatabaseSessionInternal db, final BytesContainer bytes,
       Object value,
       final PropertyType type,
       final PropertyType linkedType,
@@ -1040,23 +1040,23 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
         break;
       case EMBEDDED:
         pointer = bytes.offset;
-        if (value instanceof DocumentSerializable) {
-          EntityImpl cur = ((DocumentSerializable) value).toDocument();
-          cur.field(DocumentSerializable.CLASS_NAME, value.getClass().getName());
-          serializeWithClassName(session, cur, bytes);
+        if (value instanceof EntitySerializable) {
+          EntityImpl cur = ((EntitySerializable) value).toEntity(db);
+          cur.field(EntitySerializable.CLASS_NAME, value.getClass().getName());
+          serializeWithClassName(db, cur, bytes);
         } else {
-          serializeWithClassName(session, (EntityImpl) value, bytes);
+          serializeWithClassName(db, (EntityImpl) value, bytes);
         }
         break;
       case EMBEDDEDSET:
       case EMBEDDEDLIST:
         if (value.getClass().isArray()) {
           pointer =
-              writeEmbeddedCollection(session,
+              writeEmbeddedCollection(db,
                   bytes, Arrays.asList(MultiValue.array(value)), linkedType, schema, encryption);
         } else {
           pointer =
-              writeEmbeddedCollection(session, bytes, (Collection<?>) value, linkedType, schema,
+              writeEmbeddedCollection(db, bytes, (Collection<?>) value, linkedType, schema,
                   encryption);
         }
         break;
@@ -1071,20 +1071,20 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
       case LINKSET:
       case LINKLIST:
         Collection<Identifiable> ridCollection = (Collection<Identifiable>) value;
-        pointer = writeLinkCollection(bytes, ridCollection);
+        pointer = writeLinkCollection(db, bytes, ridCollection);
         break;
       case LINK:
         if (!(value instanceof Identifiable)) {
           throw new ValidationException("Value '" + value + "' is not a Identifiable");
         }
 
-        pointer = writeOptimizedLink(bytes, (Identifiable) value);
+        pointer = writeOptimizedLink(db, bytes, (Identifiable) value);
         break;
       case LINKMAP:
-        pointer = writeLinkMap(bytes, (Map<Object, Identifiable>) value);
+        pointer = writeLinkMap(db, bytes, (Map<Object, Identifiable>) value);
         break;
       case EMBEDDEDMAP:
-        pointer = writeEmbeddedMap(session, bytes, (Map<Object, Object>) value, schema, encryption);
+        pointer = writeEmbeddedMap(db, bytes, (Map<Object, Object>) value, schema, encryption);
         break;
       case LINKBAG:
         pointer = writeRidBag(bytes, (RidBag) value);
@@ -1186,13 +1186,13 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
 
   protected Object deserializeEmbeddedAsDocument(
       DatabaseSessionInternal db, final BytesContainer bytes, final RecordElement owner) {
-    Object value = new EntityImplEmbedded();
+    Object value = new EntityImplEmbedded(db);
     deserializeWithClassName(db, (EntityImpl) value, bytes);
-    if (((EntityImpl) value).containsField(DocumentSerializable.CLASS_NAME)) {
-      String className = ((EntityImpl) value).field(DocumentSerializable.CLASS_NAME);
+    if (((EntityImpl) value).containsField(EntitySerializable.CLASS_NAME)) {
+      String className = ((EntityImpl) value).field(EntitySerializable.CLASS_NAME);
       try {
         Class<?> clazz = Class.forName(className);
-        DocumentSerializable newValue = (DocumentSerializable) clazz.newInstance();
+        EntitySerializable newValue = (EntitySerializable) clazz.newInstance();
         newValue.fromDocument((EntityImpl) value);
         value = newValue;
       } catch (Exception e) {

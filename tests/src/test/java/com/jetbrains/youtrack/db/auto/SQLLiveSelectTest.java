@@ -16,6 +16,7 @@
 package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.query.LegacyResultSet;
@@ -46,8 +47,8 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
   @BeforeClass
   public void init() {
 
-    database.getMetadata().getSchema().getOrCreateClass("LiveClass");
-    database.getMetadata().getSchema().getOrCreateClass("LiveClassTx");
+    db.getMetadata().getSchema().getOrCreateClass("LiveClass");
+    db.getMetadata().getSchema().getOrCreateClass("LiveClassTx");
   }
 
   @Test
@@ -57,12 +58,13 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
     final CountDownLatch latch = new CountDownLatch(TOTAL_OPS);
     final List<RecordOperation> ops = Collections.synchronizedList(new ArrayList());
     LegacyResultSet<EntityImpl> tokens =
-        database.query(
+        db.query(
             new LiveQuery<Object>(
                 "live select from LiveClassTx",
                 new LiveResultListener() {
                   @Override
-                  public void onLiveResult(int iLiveToken, RecordOperation iOp)
+                  public void onLiveResult(DatabaseSessionInternal db, int iLiveToken,
+                      RecordOperation iOp)
                       throws BaseException {
                     ops.add(iOp);
                     latch.countDown();
@@ -82,15 +84,15 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
     Integer token = tokenDoc.field("token");
     Assert.assertNotNull(token);
 
-    database.begin();
-    database.command("insert into LiveClassTx set name = 'foo', surname = 'bar'").close();
-    database.command("insert into LiveClassTx set name = 'foo', surname = 'baz'").close();
-    database.command("insert into LiveClassTx set name = 'foo'").close();
-    database.commit();
+    db.begin();
+    db.command("insert into LiveClassTx set name = 'foo', surname = 'bar'").close();
+    db.command("insert into LiveClassTx set name = 'foo', surname = 'baz'").close();
+    db.command("insert into LiveClassTx set name = 'foo'").close();
+    db.commit();
 
-    database.begin();
-    database.command("update LiveClassTx set name = 'updated'").close();
-    database.commit();
+    db.begin();
+    db.command("update LiveClassTx set name = 'updated'").close();
+    db.commit();
 
     latch.await();
 
@@ -112,12 +114,13 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
     final CountDownLatch latch = new CountDownLatch(6);
     final List<RecordOperation> ops = Collections.synchronizedList(new ArrayList());
     LegacyResultSet<EntityImpl> tokens =
-        database.query(
+        db.query(
             new LiveQuery<Object>(
                 "live select from LiveClass",
                 new LiveResultListener() {
                   @Override
-                  public void onLiveResult(int iLiveToken, RecordOperation iOp)
+                  public void onLiveResult(DatabaseSessionInternal db, int iLiveToken,
+                      RecordOperation iOp)
                       throws BaseException {
                     ops.add(iOp);
                     latch.countDown();
@@ -137,11 +140,11 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
     Integer token = tokenDoc.field("token");
     Assert.assertNotNull(token);
 
-    database.command("insert into liveclass set name = 'foo', surname = 'bar'").close();
-    database.command("insert into liveclass set name = 'foo', surname = 'baz'").close();
-    database.command("insert into liveclass set name = 'foo'").close();
+    db.command("insert into liveclass set name = 'foo', surname = 'bar'").close();
+    db.command("insert into liveclass set name = 'foo', surname = 'baz'").close();
+    db.command("insert into liveclass set name = 'foo'").close();
 
-    database.command("update liveclass set name = 'updated'").close();
+    db.command("update liveclass set name = 'updated'").close();
 
     latch.await();
 

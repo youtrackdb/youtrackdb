@@ -22,7 +22,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseImport;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.multipart.HttpMultipartContentBaseParser;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.multipart.HttpMultipartDatabaseImportContentParser;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.multipart.HttpMultipartRequestCommand;
@@ -45,7 +45,7 @@ public class ServerCommandPostImportDatabase
   protected DatabaseSessionInternal database;
 
   @Override
-  public boolean execute(final OHttpRequest iRequest, HttpResponse iResponse) throws Exception {
+  public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
     if (!iRequest.isMultipart()) {
       database = getProfiledDatabaseInstance(iRequest);
       try {
@@ -141,7 +141,7 @@ public class ServerCommandPostImportDatabase
 
   @Override
   protected void processBaseContent(
-      final OHttpRequest iRequest,
+      final HttpRequest iRequest,
       final String iContentResult,
       final HashMap<String, String> headers)
       throws Exception {
@@ -149,7 +149,7 @@ public class ServerCommandPostImportDatabase
 
   @Override
   protected void processFileContent(
-      final OHttpRequest iRequest,
+      final HttpRequest iRequest,
       final InputStream iContentResult,
       final HashMap<String, String> headers)
       throws Exception {

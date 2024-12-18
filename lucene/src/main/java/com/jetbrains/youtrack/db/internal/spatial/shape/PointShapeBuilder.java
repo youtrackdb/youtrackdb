@@ -14,11 +14,11 @@
 package com.jetbrains.youtrack.db.internal.spatial.shape;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,9 +74,9 @@ public class PointShapeBuilder extends ShapeBuilder<Point> {
   }
 
   @Override
-  public EntityImpl toDoc(final Point shape) {
+  public EntityImpl toEntitty(final Point shape) {
 
-    EntityImpl doc = new EntityImpl(NAME);
+    EntityImpl doc = new EntityImpl(null, NAME);
     doc.field(
         COORDINATES,
         new ArrayList<Double>() {
@@ -89,12 +89,12 @@ public class PointShapeBuilder extends ShapeBuilder<Point> {
   }
 
   @Override
-  protected EntityImpl toDoc(Point parsed, Geometry geometry) {
+  protected EntityImpl toEntitty(Point parsed, Geometry geometry) {
     if (geometry == null || Double.isNaN(geometry.getCoordinate().getZ())) {
-      return toDoc(parsed);
+      return toEntitty(parsed);
     }
 
-    EntityImpl doc = new EntityImpl(NAME + "Z");
+    EntityImpl doc = new EntityImpl(null, NAME + "Z");
     doc.field(
         COORDINATES,
         new ArrayList<Double>() {

@@ -29,60 +29,60 @@ public class SQLAlterClusterNotSupportedCommandTest extends BaseDBTest {
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testAlterClusterEncryption() {
     try {
-      database.command("create cluster europe");
-      database.command("ALTER CLUSTER europe encryption aes");
+      db.command("create cluster europe");
+      db.command("ALTER CLUSTER europe encryption aes");
     } finally {
-      database.command("drop cluster europe");
+      db.command("drop cluster europe");
     }
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testClusterCompression_lowercase() {
     try {
-      database.command("create cluster europe");
-      database.command("alter cluster europe compression gzip");
+      db.command("create cluster europe");
+      db.command("alter cluster europe compression gzip");
     } finally {
-      database.command("drop cluster europe");
+      db.command("drop cluster europe");
     }
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testClusterCompression_uppercase() {
     try {
-      database.command("create cluster europe");
-      database.command("alter cluster europe COMPRESSION gzip");
+      db.command("create cluster europe");
+      db.command("alter cluster europe COMPRESSION gzip");
     } finally {
-      database.command("drop cluster europe");
+      db.command("drop cluster europe");
     }
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testClusterRecordOverflowGrowFactor() {
     try {
-      database.command("create cluster europe");
-      database.command("alter cluster europe RECORD_OVERFLOW_GROW_FACTOR 3");
+      db.command("create cluster europe");
+      db.command("alter cluster europe RECORD_OVERFLOW_GROW_FACTOR 3");
     } finally {
-      database.command("drop cluster europe");
+      db.command("drop cluster europe");
     }
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testClusterWAL() {
     try {
-      database.command("create cluster europe");
-      database.command("alter cluster europe USE_WAL true");
+      db.command("create cluster europe");
+      db.command("alter cluster europe USE_WAL true");
     } finally {
-      database.command("drop cluster europe");
+      db.command("drop cluster europe");
     }
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testClusterRecordGrowFactor() {
     try {
-      database.command("create cluster europe");
-      database.command("alter cluster europe RECORD_GROW_FACTOR 3");
+      db.command("create cluster europe");
+      db.command("alter cluster europe RECORD_GROW_FACTOR 3");
     } finally {
-      database.command("drop cluster europe");
+      db.command("drop cluster europe");
     }
   }
 }

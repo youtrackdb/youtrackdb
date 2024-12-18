@@ -88,19 +88,19 @@ public class LiveQueryRemoteTest {
     public List<Result> ops = new ArrayList<Result>();
 
     @Override
-    public void onCreate(DatabaseSession database, Result data) {
+    public void onCreate(DatabaseSessionInternal database, Result data) {
       ops.add(data);
       latch.countDown();
     }
 
     @Override
-    public void onUpdate(DatabaseSession database, Result before, Result after) {
+    public void onUpdate(DatabaseSessionInternal database, Result before, Result after) {
       ops.add(after);
       latch.countDown();
     }
 
     @Override
-    public void onDelete(DatabaseSession database, Result data) {
+    public void onDelete(DatabaseSessionInternal database, Result data) {
       ops.add(data);
       latch.countDown();
     }
@@ -201,20 +201,20 @@ public class LiveQueryRemoteTest {
                     new LiveQueryResultListener() {
 
                       @Override
-                      public void onCreate(DatabaseSession database, Result data) {
+                      public void onCreate(DatabaseSessionInternal database, Result data) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
                       public void onUpdate(
-                          DatabaseSession database, Result before, Result after) {
+                          DatabaseSessionInternal database, Result before, Result after) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
-                      public void onDelete(DatabaseSession database, Result data) {
+                      public void onDelete(DatabaseSessionInternal database, Result data) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }

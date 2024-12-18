@@ -20,21 +20,21 @@
 package com.jetbrains.youtrack.db.internal.core.sql.filter;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLAbstract;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLResultsetDelegate;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
-import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLResultset;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -194,7 +194,7 @@ public class SQLTarget extends BaseParser {
 
       subCommand.setContext(commandContext);
       executor.setProgressListener(subCommand.getProgressListener());
-      executor.parse(subCommand);
+      executor.parse(db, subCommand);
       CommandContext childContext = executor.getContext();
       if (childContext != null) {
         childContext.setParent(context);
@@ -287,18 +287,6 @@ public class SQLTarget extends BaseParser {
                             .getIndexMgrRecordId()));
           } else {
             throw new QueryParsingException("Metadata entity not supported: " + metadataTarget);
-          }
-
-        } else if (subjectToMatch.startsWith(CommandExecutorSQLAbstract.DICTIONARY_PREFIX)) {
-          // DICTIONARY
-          final String key =
-              originalSubjectName.substring(CommandExecutorSQLAbstract.DICTIONARY_PREFIX.length());
-          targetRecords = new ArrayList<Identifiable>();
-
-          final Identifiable value =
-              DatabaseRecordThreadLocal.instance().get().getDictionary().get(key);
-          if (value != null) {
-            ((List<Identifiable>) targetRecords).add(value);
           }
 
         } else if (subjectToMatch.startsWith(CommandExecutorSQLAbstract.INDEX_VALUES_PREFIX)) {

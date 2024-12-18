@@ -30,20 +30,20 @@ public class IndexTxTest extends BaseDBTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     final SchemaClass cls = schema.createClass("IndexTxTestClass");
-    cls.createProperty(database, "name", PropertyType.STRING);
-    cls.createIndex(database, "IndexTxTestIndex", SchemaClass.INDEX_TYPE.UNIQUE, "name");
+    cls.createProperty(db, "name", PropertyType.STRING);
+    cls.createIndex(db, "IndexTxTestIndex", SchemaClass.INDEX_TYPE.UNIQUE, "name");
   }
 
   @BeforeMethod
   public void beforeMethod() throws Exception {
     super.beforeMethod();
 
-    var schema = database.getMetadata().getSchema();
+    var schema = db.getMetadata().getSchema();
     var cls = schema.getClassInternal("IndexTxTestClass");
     if (cls != null) {
-      cls.truncate(database);
+      cls.truncate(db);
     }
   }
 
@@ -51,10 +51,10 @@ public class IndexTxTest extends BaseDBTest {
   public void testIndexCrossReferencedDocuments() {
     checkEmbeddedDB();
 
-    database.begin();
+    db.begin();
 
-    final EntityImpl doc1 = new EntityImpl("IndexTxTestClass");
-    final EntityImpl doc2 = new EntityImpl("IndexTxTestClass");
+    final EntityImpl doc1 = ((EntityImpl) db.newEntity("IndexTxTestClass"));
+    final EntityImpl doc2 = ((EntityImpl) db.newEntity("IndexTxTestClass"));
 
     doc1.save();
     doc2.save();
@@ -67,7 +67,7 @@ public class IndexTxTest extends BaseDBTest {
     doc1.save();
     doc2.save();
 
-    database.commit();
+    db.commit();
 
     Map<String, RID> expectedResult = new HashMap<>();
     expectedResult.put("doc1", doc1.getIdentity());
@@ -83,7 +83,7 @@ public class IndexTxTest extends BaseDBTest {
 
         final RID expectedValue = expectedResult.get(key);
         final RID value;
-        try (Stream<RID> stream = index.getInternal().getRids(database, key)) {
+        try (Stream<RID> stream = index.getInternal().getRids(db, key)) {
           value = stream.findAny().orElse(null);
         }
 

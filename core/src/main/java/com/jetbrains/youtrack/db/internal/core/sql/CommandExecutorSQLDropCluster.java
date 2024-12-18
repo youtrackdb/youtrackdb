@@ -19,14 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import java.util.Map;
 
 /**
@@ -41,7 +41,8 @@ public class CommandExecutorSQLDropCluster extends CommandExecutorSQLAbstract
 
   private String clusterName;
 
-  public CommandExecutorSQLDropCluster parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLDropCluster parse(DatabaseSessionInternal db,
+      final CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
 
     String queryText = textRequest.getText();
@@ -90,7 +91,7 @@ public class CommandExecutorSQLDropCluster extends CommandExecutorSQLAbstract
   /**
    * Execute the DROP CLUSTER.
    */
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     if (clusterName == null) {
       throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");

@@ -32,7 +32,7 @@ public class BeginTransaction38Request implements BinaryRequest<BeginTransaction
   private List<IndexChange> indexChanges;
 
   public BeginTransaction38Request(
-      DatabaseSessionInternal session, long txId,
+      DatabaseSessionInternal db, long txId,
       boolean hasContent,
       boolean usingLog,
       Iterable<RecordOperation> operations,
@@ -50,21 +50,21 @@ public class BeginTransaction38Request implements BinaryRequest<BeginTransaction
         request.setType(txEntry.type);
         request.setVersion(txEntry.record.getVersion());
         request.setId(txEntry.record.getIdentity());
-        request.setRecordType(RecordInternal.getRecordType(txEntry.record));
+        request.setRecordType(RecordInternal.getRecordType(db, txEntry.record));
         switch (txEntry.type) {
           case RecordOperation.CREATED:
             request.setRecord(
-                RecordSerializerNetworkV37Client.INSTANCE.toStream(session, txEntry.record));
+                RecordSerializerNetworkV37Client.INSTANCE.toStream(db, txEntry.record));
             request.setContentChanged(RecordInternal.isContentChanged(txEntry.record));
             break;
           case RecordOperation.UPDATED:
-            if (EntityImpl.RECORD_TYPE == RecordInternal.getRecordType(txEntry.record)) {
+            if (EntityImpl.RECORD_TYPE == RecordInternal.getRecordType(db, txEntry.record)) {
               request.setRecordType(DocumentSerializerDelta.DELTA_RECORD_TYPE);
               DocumentSerializerDelta delta = DocumentSerializerDelta.instance();
-              request.setRecord(delta.serializeDelta((EntityImpl) txEntry.record));
+              request.setRecord(delta.serializeDelta(db, (EntityImpl) txEntry.record));
             } else {
               request.setRecord(
-                  RecordSerializerNetworkV37.INSTANCE.toStream(session, txEntry.record));
+                  RecordSerializerNetworkV37.INSTANCE.toStream(db, txEntry.record));
             }
             request.setContentChanged(RecordInternal.isContentChanged(txEntry.record));
             break;
@@ -82,7 +82,7 @@ public class BeginTransaction38Request implements BinaryRequest<BeginTransaction
   }
 
   @Override
-  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
+  public void write(DatabaseSessionInternal db, ChannelDataOutput network,
       StorageRemoteSession session) throws IOException {
     // from 3.0 the the serializer is bound to the protocol
     RecordSerializerNetworkV37Client serializer = RecordSerializerNetworkV37Client.INSTANCE;
@@ -99,7 +99,7 @@ public class BeginTransaction38Request implements BinaryRequest<BeginTransaction
       network.writeByte((byte) 0);
 
       // SEND MANUAL INDEX CHANGES
-      MessageHelper.writeTransactionIndexChanges(network, serializer, indexChanges);
+      MessageHelper.writeTransactionIndexChanges(db, network, serializer, indexChanges);
     }
   }
 

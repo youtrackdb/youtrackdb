@@ -49,7 +49,8 @@ public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
   private boolean ifExists;
   private boolean force = false;
 
-  public CommandExecutorSQLDropProperty parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLDropProperty parse(DatabaseSessionInternal db,
+      final CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
 
     String queryText = textRequest.getText();
@@ -120,7 +121,7 @@ public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
   /**
    * Execute the CREATE PROPERTY.
    */
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     if (fieldName == null) {
       throw new CommandExecutionException(
           "Cannot execute the command because it has not yet been parsed");

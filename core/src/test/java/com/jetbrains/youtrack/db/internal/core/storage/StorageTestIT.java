@@ -69,7 +69,7 @@ public class StorageTestIT {
     schema.createClass("PageBreak");
 
     for (int i = 0; i < 10; i++) {
-      EntityImpl document = new EntityImpl("PageBreak");
+      EntityImpl document = ((EntityImpl) session.newEntity("PageBreak"));
       document.field("value", "value");
       document.save();
     }
@@ -127,24 +127,24 @@ public class StorageTestIT {
             + StorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
-    var session =
+    var db =
         (DatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(), "admin",
             "admin", config);
-    Metadata metadata = session.getMetadata();
+    Metadata metadata = db.getMetadata();
     Schema schema = metadata.getSchema();
     schema.createClass("PageBreak");
 
     for (int i = 0; i < 10; i++) {
-      EntityImpl document = new EntityImpl("PageBreak");
+      EntityImpl document = ((EntityImpl) db.newEntity("PageBreak"));
       document.field("value", "value");
       document.save();
     }
 
     LocalPaginatedStorage storage =
-        (LocalPaginatedStorage) session.getStorage();
+        (LocalPaginatedStorage) db.getStorage();
     WriteCache wowCache = storage.getWriteCache();
-    SharedContext ctx = session.getSharedContext();
-    session.close();
+    SharedContext ctx = db.getSharedContext();
+    db.close();
 
     final Path storagePath = storage.getStoragePath();
 
@@ -162,10 +162,10 @@ public class StorageTestIT {
     file.write(1);
     file.close();
 
-    session = (DatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(),
+    db = (DatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(),
         "admin", "admin");
     try {
-      session.query("select from PageBreak").close();
+      db.query("select from PageBreak").close();
       Assert.fail();
     } catch (StorageException e) {
       youTrackDB.close();
@@ -190,24 +190,24 @@ public class StorageTestIT {
             + StorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
-    var session =
+    var db =
         (DatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(), "admin",
             "admin", config);
-    Metadata metadata = session.getMetadata();
+    Metadata metadata = db.getMetadata();
     Schema schema = metadata.getSchema();
     schema.createClass("PageBreak");
 
     for (int i = 0; i < 10; i++) {
-      EntityImpl document = new EntityImpl("PageBreak");
+      EntityImpl document = ((EntityImpl) db.newEntity("PageBreak"));
       document.field("value", "value");
       document.save();
     }
 
     LocalPaginatedStorage storage =
-        (LocalPaginatedStorage) session.getStorage();
+        (LocalPaginatedStorage) db.getStorage();
     WriteCache wowCache = storage.getWriteCache();
-    SharedContext ctx = session.getSharedContext();
-    session.close();
+    SharedContext ctx = db.getSharedContext();
+    db.close();
 
     final Path storagePath = storage.getStoragePath();
 
@@ -225,18 +225,18 @@ public class StorageTestIT {
     file.write(1);
     file.close();
 
-    session = (DatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(),
+    db = (DatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(),
         "admin", "admin");
-    session.query("select from PageBreak").close();
+    db.query("select from PageBreak").close();
 
     Thread.sleep(100); // lets wait till event will be propagated
 
-    EntityImpl document = new EntityImpl("PageBreak");
+    EntityImpl document = ((EntityImpl) db.newEntity("PageBreak"));
     document.field("value", "value");
 
     document.save();
 
-    session.close();
+    db.close();
   }
 
   @Test
@@ -255,24 +255,24 @@ public class StorageTestIT {
             + StorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
-    var session =
+    var db =
         (DatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(), "admin",
             "admin", config);
-    Metadata metadata = session.getMetadata();
+    Metadata metadata = db.getMetadata();
     Schema schema = metadata.getSchema();
     schema.createClass("PageBreak");
 
     for (int i = 0; i < 10; i++) {
-      EntityImpl document = new EntityImpl("PageBreak");
+      EntityImpl document = ((EntityImpl) db.newEntity("PageBreak"));
       document.field("value", "value");
       document.save();
     }
 
     LocalPaginatedStorage storage =
-        (LocalPaginatedStorage) session.getStorage();
+        (LocalPaginatedStorage) db.getStorage();
     WriteCache wowCache = storage.getWriteCache();
-    SharedContext ctx = session.getSharedContext();
-    session.close();
+    SharedContext ctx = db.getSharedContext();
+    db.close();
 
     final Path storagePath = storage.getStoragePath();
 
@@ -293,18 +293,18 @@ public class StorageTestIT {
     file.write(bt + 1);
     file.close();
 
-    session = (DatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(),
+    db = (DatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(),
         "admin", "admin");
-    session.query("select from PageBreak").close();
+    db.query("select from PageBreak").close();
 
     Thread.sleep(100); // lets wait till event will be propagated
 
-    EntityImpl document = new EntityImpl("PageBreak");
+    EntityImpl document = ((EntityImpl) db.newEntity("PageBreak"));
     document.field("value", "value");
 
     document.save();
 
-    session.close();
+    db.close();
   }
 
   @Test

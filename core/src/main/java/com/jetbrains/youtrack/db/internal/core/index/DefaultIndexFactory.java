@@ -15,18 +15,17 @@
  */
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
 import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
+import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
 import com.jetbrains.youtrack.db.internal.core.index.engine.BaseIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.index.engine.v1.CellBTreeIndexEngine;
-import com.jetbrains.youtrack.db.internal.core.index.engine.v1.CellBTreeSingleValueIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.index.engine.v1.CellBTreeMultiValueIndexEngine;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.index.engine.v1.CellBTreeSingleValueIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.index.engine.RemoteIndexEngine;
-import com.jetbrains.youtrack.db.internal.core.storage.index.engine.SBTreeIndexEngine;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -55,8 +54,6 @@ public class DefaultIndexFactory implements IndexFactory {
     final Set<String> types = new HashSet<>();
     types.add(SchemaClass.INDEX_TYPE.UNIQUE.toString());
     types.add(SchemaClass.INDEX_TYPE.NOTUNIQUE.toString());
-    types.add(SchemaClass.INDEX_TYPE.FULLTEXT.toString());
-    types.add(SchemaClass.INDEX_TYPE.DICTIONARY.toString());
     TYPES = Collections.unmodifiableSet(types);
   }
 
@@ -69,15 +66,7 @@ public class DefaultIndexFactory implements IndexFactory {
   }
 
   static boolean isMultiValueIndex(final String indexType) {
-    switch (SchemaClass.INDEX_TYPE.valueOf(indexType)) {
-      case UNIQUE:
-      case UNIQUE_HASH_INDEX:
-      case DICTIONARY:
-      case DICTIONARY_HASH_INDEX:
-        return false;
-    }
-
-    return true;
+    return INDEX_TYPE.valueOf(indexType) != INDEX_TYPE.UNIQUE;
   }
 
   /**
@@ -113,15 +102,6 @@ public class DefaultIndexFactory implements IndexFactory {
       return new IndexUnique(im, storage);
     } else if (SchemaClass.INDEX_TYPE.NOTUNIQUE.toString().equals(indexType)) {
       return new IndexNotUnique(im, storage);
-    } else if (SchemaClass.INDEX_TYPE.FULLTEXT.toString().equals(indexType)) {
-      LogManager.instance()
-          .warn(
-              DefaultIndexFactory.class,
-              "You are creating native full text index instance. That is unsafe because this type"
-                  + " of index is deprecated and will be removed in future.");
-      return new IndexFullText(im, storage);
-    } else if (SchemaClass.INDEX_TYPE.DICTIONARY.toString().equals(indexType)) {
-      return new IndexDictionary(im, storage);
     }
 
     throw new ConfigurationException("Unsupported type: " + indexType);
@@ -129,14 +109,13 @@ public class DefaultIndexFactory implements IndexFactory {
 
   @Override
   public int getLastVersion(final String algorithm) {
-    switch (algorithm) {
-      case SBTREE_ALGORITHM:
-        return SBTreeIndexEngine.VERSION;
-      case CELL_BTREE_ALGORITHM:
-        return CellBTreeIndexEngine.VERSION;
-    }
+    return switch (algorithm) {
+      case SBTREE_ALGORITHM ->
+          throw new UnsupportedOperationException("SBTree index is not supported");
+      case CELL_BTREE_ALGORITHM -> CellBTreeIndexEngine.VERSION;
+      default -> throw new IllegalStateException("Invalid algorithm name " + algorithm);
+    };
 
-    throw new IllegalStateException("Invalid algorithm name " + algorithm);
   }
 
   @Override
@@ -158,10 +137,7 @@ public class DefaultIndexFactory implements IndexFactory {
         AbstractPaginatedStorage realStorage = (AbstractPaginatedStorage) storage;
         switch (data.getAlgorithm()) {
           case SBTREE_ALGORITHM:
-            indexEngine =
-                new SBTreeIndexEngine(
-                    data.getIndexId(), data.getName(), realStorage, data.getVersion());
-            break;
+            throw new UnsupportedOperationException("SBTree index is not supported");
           case CELL_BTREE_ALGORITHM:
             if (data.isMultivalue()) {
               indexEngine =

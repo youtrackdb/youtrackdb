@@ -29,10 +29,10 @@ public class CommandExecutorSQLCreateEdgeTest extends DbTestBase {
     schema.createClass("link", schema.getClass("E"));
 
     db.begin();
-    owner1 = new EntityImpl("Owner");
+    owner1 = (EntityImpl) db.newEntity("Owner");
     owner1.field("id", 1);
     owner1.save();
-    owner2 = new EntityImpl("Owner");
+    owner2 = (EntityImpl) db.newEntity("Owner");
     owner2.field("id", 2);
     owner2.save();
     db.commit();

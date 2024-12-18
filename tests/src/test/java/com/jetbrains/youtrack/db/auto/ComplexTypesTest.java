@@ -46,21 +46,21 @@ public class ComplexTypesTest extends BaseDBTest {
 
   @Test
   public void testBigDecimal() {
-    EntityImpl newDoc = new EntityImpl();
+    EntityImpl newDoc = ((EntityImpl) db.newEntity());
     newDoc.field("integer", new BigInteger("10"));
     newDoc.field("decimal_integer", new BigDecimal(10));
     newDoc.field("decimal_float", new BigDecimal("10.34"));
 
-    database.begin();
-    database.save(newDoc, database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    db.begin();
+    db.save(newDoc, db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
     final RID rid = newDoc.getIdentity();
 
-    database.close();
-    database = acquireSession();
+    db.close();
+    db = acquireSession();
 
-    EntityImpl loadedDoc = database.load(rid);
+    EntityImpl loadedDoc = db.load(rid);
     Assert.assertEquals(((Number) loadedDoc.field("integer")).intValue(), 10);
     Assert.assertEquals(loadedDoc.field("decimal_integer"), new BigDecimal(10));
     Assert.assertEquals(loadedDoc.field("decimal_float"), new BigDecimal("10.34"));
@@ -68,23 +68,23 @@ public class ComplexTypesTest extends BaseDBTest {
 
   @Test
   public void testEmbeddedList() {
-    EntityImpl newDoc = new EntityImpl();
+    EntityImpl newDoc = ((EntityImpl) db.newEntity());
 
     final ArrayList<EntityImpl> list = new ArrayList<EntityImpl>();
     newDoc.field("embeddedList", list, PropertyType.EMBEDDEDLIST);
-    list.add(new EntityImpl().field("name", "Luca"));
-    list.add(new EntityImpl("Account").field("name", "Marcus"));
+    list.add(((EntityImpl) db.newEntity()).field("name", "Luca"));
+    list.add(((EntityImpl) db.newEntity("Account")).field("name", "Marcus"));
 
-    database.begin();
-    database.save(newDoc, database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    db.begin();
+    db.save(newDoc, db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
     final RID rid = newDoc.getIdentity();
 
-    database.close();
-    database = acquireSession();
+    db.close();
+    db = acquireSession();
 
-    EntityImpl loadedDoc = database.load(rid);
+    EntityImpl loadedDoc = db.load(rid);
     Assert.assertTrue(loadedDoc.containsField("embeddedList"));
     Assert.assertTrue(loadedDoc.field("embeddedList") instanceof List<?>);
     Assert.assertTrue(
@@ -99,60 +99,60 @@ public class ComplexTypesTest extends BaseDBTest {
 
   @Test
   public void testLinkList() {
-    EntityImpl newDoc = new EntityImpl();
+    EntityImpl newDoc = ((EntityImpl) db.newEntity());
 
     final ArrayList<EntityImpl> list = new ArrayList<EntityImpl>();
     newDoc.field("linkedList", list, PropertyType.LINKLIST);
-    database.begin();
+    db.begin();
 
-    var doc = new EntityImpl();
+    var doc = ((EntityImpl) db.newEntity());
     doc.field("name", "Luca")
-        .save(database.getClusterNameById(database.getDefaultClusterId()));
+        .save(db.getClusterNameById(db.getDefaultClusterId()));
     list.add(doc);
 
-    list.add(new EntityImpl("Account").field("name", "Marcus"));
+    list.add(((EntityImpl) db.newEntity("Account")).field("name", "Marcus"));
 
-    database.save(newDoc, database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    db.save(newDoc, db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
     final RID rid = newDoc.getIdentity();
 
-    database.close();
-    database = acquireSession();
+    db.close();
+    db = acquireSession();
 
-    EntityImpl loadedDoc = database.load(rid);
+    EntityImpl loadedDoc = db.load(rid);
     Assert.assertTrue(loadedDoc.containsField("linkedList"));
     Assert.assertTrue(loadedDoc.field("linkedList") instanceof List<?>);
     Assert.assertTrue(
         ((List<Identifiable>) loadedDoc.field("linkedList")).get(0) instanceof Identifiable);
 
-    EntityImpl d = ((List<Identifiable>) loadedDoc.field("linkedList")).get(0).getRecord();
+    EntityImpl d = ((List<Identifiable>) loadedDoc.field("linkedList")).get(0).getRecord(db);
     Assert.assertTrue(d.getIdentity().isValid());
     Assert.assertEquals(d.field("name"), "Luca");
-    d = ((List<Identifiable>) loadedDoc.field("linkedList")).get(1).getRecord();
+    d = ((List<Identifiable>) loadedDoc.field("linkedList")).get(1).getRecord(db);
     Assert.assertEquals(d.getClassName(), "Account");
     Assert.assertEquals(d.field("name"), "Marcus");
   }
 
   @Test
   public void testEmbeddedSet() {
-    EntityImpl newDoc = new EntityImpl();
+    EntityImpl newDoc = ((EntityImpl) db.newEntity());
 
     final Set<EntityImpl> set = new HashSet<EntityImpl>();
     newDoc.field("embeddedSet", set, PropertyType.EMBEDDEDSET);
-    set.add(new EntityImpl().field("name", "Luca"));
-    set.add(new EntityImpl("Account").field("name", "Marcus"));
+    set.add(((EntityImpl) db.newEntity()).field("name", "Luca"));
+    set.add(((EntityImpl) db.newEntity("Account")).field("name", "Marcus"));
 
-    database.begin();
-    database.save(newDoc, database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    db.begin();
+    db.save(newDoc, db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
     final RID rid = newDoc.getIdentity();
 
-    database.close();
-    database = acquireSession();
+    db.close();
+    db = acquireSession();
 
-    EntityImpl loadedDoc = database.load(rid);
+    EntityImpl loadedDoc = db.load(rid);
     Assert.assertTrue(loadedDoc.containsField("embeddedSet"));
     Assert.assertTrue(loadedDoc.field("embeddedSet", Set.class) instanceof Set<?>);
 
@@ -176,27 +176,27 @@ public class ComplexTypesTest extends BaseDBTest {
 
   @Test
   public void testLinkSet() {
-    EntityImpl newDoc = new EntityImpl();
+    EntityImpl newDoc = ((EntityImpl) db.newEntity());
 
     final Set<EntityImpl> set = new HashSet<EntityImpl>();
     newDoc.field("linkedSet", set, PropertyType.LINKSET);
-    database.begin();
-    var doc = new EntityImpl();
+    db.begin();
+    var doc = ((EntityImpl) db.newEntity());
     doc.field("name", "Luca")
-        .save(database.getClusterNameById(database.getDefaultClusterId()));
+        .save(db.getClusterNameById(db.getDefaultClusterId()));
     set.add(doc);
 
-    set.add(new EntityImpl("Account").field("name", "Marcus"));
+    set.add(((EntityImpl) db.newEntity("Account")).field("name", "Marcus"));
 
-    database.save(newDoc, database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    db.save(newDoc, db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
     final RID rid = newDoc.getIdentity();
 
-    database.close();
-    database = acquireSession();
+    db.close();
+    db = acquireSession();
 
-    EntityImpl loadedDoc = database.load(rid);
+    EntityImpl loadedDoc = db.load(rid);
     Assert.assertTrue(loadedDoc.containsField("linkedSet"));
     Assert.assertTrue(loadedDoc.field("linkedSet", Set.class) instanceof Set<?>);
 
@@ -205,7 +205,7 @@ public class ComplexTypesTest extends BaseDBTest {
 
     int tot = 0;
     while (it.hasNext()) {
-      var d = it.next().getEntity();
+      var d = it.next().getEntity(db);
 
       if (Objects.equals(d.getProperty("name"), "Marcus")) {
         Assert.assertEquals(d.getClassName(), "Account");
@@ -219,24 +219,24 @@ public class ComplexTypesTest extends BaseDBTest {
 
   @Test
   public void testEmbeddedMap() {
-    EntityImpl newDoc = new EntityImpl();
+    EntityImpl newDoc = ((EntityImpl) db.newEntity());
 
     final Map<String, EntityImpl> map = new HashMap<String, EntityImpl>();
     newDoc.field("embeddedMap", map, PropertyType.EMBEDDEDMAP);
-    map.put("Luca", new EntityImpl().field("name", "Luca"));
-    map.put("Marcus", new EntityImpl().field("name", "Marcus"));
-    map.put("Cesare", new EntityImpl("Account").field("name", "Cesare"));
+    map.put("Luca", ((EntityImpl) db.newEntity()).field("name", "Luca"));
+    map.put("Marcus", ((EntityImpl) db.newEntity()).field("name", "Marcus"));
+    map.put("Cesare", ((EntityImpl) db.newEntity("Account")).field("name", "Cesare"));
 
-    database.begin();
-    database.save(newDoc, database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    db.begin();
+    db.save(newDoc, db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
     final RID rid = newDoc.getIdentity();
 
-    database.close();
-    database = acquireSession();
+    db.close();
+    db = acquireSession();
 
-    EntityImpl loadedDoc = database.load(rid);
+    EntityImpl loadedDoc = db.load(rid);
     Assert.assertTrue(loadedDoc.containsField("embeddedMap"));
     Assert.assertTrue(loadedDoc.field("embeddedMap") instanceof Map<?, ?>);
     Assert.assertTrue(
@@ -256,21 +256,21 @@ public class ComplexTypesTest extends BaseDBTest {
 
   @Test
   public void testEmptyEmbeddedMap() {
-    EntityImpl newDoc = new EntityImpl();
+    EntityImpl newDoc = ((EntityImpl) db.newEntity());
 
     final Map<String, EntityImpl> map = new HashMap<String, EntityImpl>();
     newDoc.field("embeddedMap", map, PropertyType.EMBEDDEDMAP);
 
-    database.begin();
-    database.save(newDoc, database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    db.begin();
+    db.save(newDoc, db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
     final RID rid = newDoc.getIdentity();
 
-    database.close();
-    database = acquireSession();
+    db.close();
+    db = acquireSession();
 
-    EntityImpl loadedDoc = database.load(rid);
+    EntityImpl loadedDoc = db.load(rid);
 
     Assert.assertTrue(loadedDoc.containsField("embeddedMap"));
     Assert.assertTrue(loadedDoc.field("embeddedMap") instanceof Map<?, ?>);
@@ -281,33 +281,33 @@ public class ComplexTypesTest extends BaseDBTest {
 
   @Test
   public void testLinkMap() {
-    EntityImpl newDoc = new EntityImpl();
+    EntityImpl newDoc = ((EntityImpl) db.newEntity());
 
     final Map<String, EntityImpl> map = new HashMap<String, EntityImpl>();
     newDoc.field("linkedMap", map, PropertyType.LINKMAP);
-    database.begin();
-    var doc1 = new EntityImpl();
+    db.begin();
+    var doc1 = ((EntityImpl) db.newEntity());
     doc1.field("name", "Luca")
-        .save(database.getClusterNameById(database.getDefaultClusterId()));
+        .save(db.getClusterNameById(db.getDefaultClusterId()));
     map.put("Luca", doc1);
-    var doc2 = new EntityImpl();
+    var doc2 = ((EntityImpl) db.newEntity());
     doc2.field("name", "Marcus")
-        .save(database.getClusterNameById(database.getDefaultClusterId()));
+        .save(db.getClusterNameById(db.getDefaultClusterId()));
     map.put("Marcus", doc2);
 
-    var doc3 = new EntityImpl("Account");
+    var doc3 = ((EntityImpl) db.newEntity("Account"));
     doc3.field("name", "Cesare").save();
     map.put("Cesare", doc3);
 
-    database.save(newDoc, database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    db.save(newDoc, db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
     final RID rid = newDoc.getIdentity();
 
-    database.close();
-    database = acquireSession();
+    db.close();
+    db = acquireSession();
 
-    EntityImpl loadedDoc = database.load(rid);
+    EntityImpl loadedDoc = db.load(rid);
     Assert.assertNotNull(loadedDoc.field("linkedMap", PropertyType.LINKMAP));
     Assert.assertTrue(loadedDoc.field("linkedMap") instanceof Map<?, ?>);
     Assert.assertTrue(
@@ -315,13 +315,13 @@ public class ComplexTypesTest extends BaseDBTest {
             instanceof Identifiable);
 
     EntityImpl d =
-        ((Map<String, Identifiable>) loadedDoc.field("linkedMap")).get("Luca").getRecord();
+        ((Map<String, Identifiable>) loadedDoc.field("linkedMap")).get("Luca").getRecord(db);
     Assert.assertEquals(d.field("name"), "Luca");
 
-    d = ((Map<String, Identifiable>) loadedDoc.field("linkedMap")).get("Marcus").getRecord();
+    d = ((Map<String, Identifiable>) loadedDoc.field("linkedMap")).get("Marcus").getRecord(db);
     Assert.assertEquals(d.field("name"), "Marcus");
 
-    d = ((Map<String, Identifiable>) loadedDoc.field("linkedMap")).get("Cesare").getRecord();
+    d = ((Map<String, Identifiable>) loadedDoc.field("linkedMap")).get("Cesare").getRecord(db);
     Assert.assertEquals(d.field("name"), "Cesare");
     Assert.assertEquals(d.getClassName(), "Account");
   }

@@ -55,7 +55,7 @@ public class LuceneInsertUpdateTest extends LuceneBaseTest {
   public void testInsertUpdateWithIndex() {
     var schema = db.getMetadata().getSchema();
 
-    EntityImpl doc = new EntityImpl("City");
+    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "Rome");
 
     db.begin();

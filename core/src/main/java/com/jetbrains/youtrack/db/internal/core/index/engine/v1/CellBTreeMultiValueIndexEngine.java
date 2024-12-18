@@ -17,6 +17,7 @@ import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValuesTra
 import com.jetbrains.youtrack.db.internal.core.index.engine.MultiValueIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.CompactedLinkSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index.IndexMultiValuKeySerializer;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.multivalue.CellBTreeMultiValue;
@@ -87,7 +88,7 @@ public final class CellBTreeMultiValueIndexEngine
   }
 
   @Override
-  public void init(IndexMetadata metadata) {
+  public void init(DatabaseSessionInternal db, IndexMetadata metadata) {
   }
 
   @Override
@@ -295,7 +296,7 @@ public final class CellBTreeMultiValueIndexEngine
   }
 
   @Override
-  public void clear(AtomicOperation atomicOperation) {
+  public void clear(Storage storage, AtomicOperation atomicOperation) {
     if (mvTree != null) {
       doClearMVTree(atomicOperation);
     } else {
@@ -439,7 +440,7 @@ public final class CellBTreeMultiValueIndexEngine
 
   @Override
   public Stream<RawPair<Object, RID>> iterateEntriesBetween(
-      DatabaseSessionInternal session, Object rangeFrom,
+      DatabaseSessionInternal db, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
       boolean toInclusive,
@@ -511,7 +512,7 @@ public final class CellBTreeMultiValueIndexEngine
   }
 
   @Override
-  public long size(final IndexEngineValuesTransformer transformer) {
+  public long size(Storage storage, final IndexEngineValuesTransformer transformer) {
     if (mvTree != null) {
       return mvTreeSize(transformer);
     }
@@ -588,16 +589,6 @@ public final class CellBTreeMultiValueIndexEngine
   @Override
   public String getIndexNameByKey(Object key) {
     return name;
-  }
-
-  @Override
-  public void updateUniqueIndexVersion(final Object key) {
-    // not implemented
-  }
-
-  @Override
-  public int getUniqueIndexVersion(final Object key) {
-    return 0; // not implemented
   }
 
   private static PropertyType[] calculateTypes(final PropertyType[] keyTypes) {

@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
-import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.util.Map;
 
 /**
@@ -21,7 +21,7 @@ public class CommandExecutorSQLDropSequence extends CommandExecutorSQLAbstract
   private String sequenceName;
 
   @Override
-  public CommandExecutorSQLDropSequence parse(CommandRequest iRequest) {
+  public CommandExecutorSQLDropSequence parse(DatabaseSessionInternal db, CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
 
     String queryText = textRequest.getText();
@@ -46,7 +46,7 @@ public class CommandExecutorSQLDropSequence extends CommandExecutorSQLAbstract
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, Map<Object, Object> iArgs) {
     if (this.sequenceName == null) {
       throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");

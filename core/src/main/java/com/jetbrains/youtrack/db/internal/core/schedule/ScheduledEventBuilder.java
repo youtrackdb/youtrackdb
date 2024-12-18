@@ -16,8 +16,8 @@
 
 package com.jetbrains.youtrack.db.internal.core.schedule;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -32,8 +32,8 @@ import java.util.Map;
  */
 public class ScheduledEventBuilder extends EntityWrapper {
 
-  public ScheduledEventBuilder() {
-    super(new EntityImpl(ScheduledEvent.CLASS_NAME));
+  public ScheduledEventBuilder(DatabaseSessionInternal db) {
+    super(new EntityImpl(db, ScheduledEvent.CLASS_NAME));
   }
 
   /**

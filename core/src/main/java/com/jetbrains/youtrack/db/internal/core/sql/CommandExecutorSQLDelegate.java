@@ -19,14 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
+import com.jetbrains.youtrack.db.internal.core.command.CommandExecutorNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.command.CommandExecutorNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
 import java.util.Map;
 import java.util.Set;
@@ -40,7 +40,8 @@ public class CommandExecutorSQLDelegate extends CommandExecutorSQLAbstract
   protected CommandExecutor delegate;
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLDelegate parse(final CommandRequest iCommand) {
+  public CommandExecutorSQLDelegate parse(DatabaseSessionInternal db,
+      final CommandRequest iCommand) {
     if (iCommand instanceof CommandRequestText textRequest) {
       final String text = textRequest.getText();
       if (text == null) {
@@ -57,7 +58,7 @@ public class CommandExecutorSQLDelegate extends CommandExecutorSQLAbstract
 
       delegate.setContext(context);
       delegate.setLimit(iCommand.getLimit());
-      delegate.parse(iCommand);
+      delegate.parse(db, iCommand);
       delegate.setProgressListener(progressListener);
       if (delegate.getFetchPlan() != null) {
         textRequest.setFetchPlan(delegate.getFetchPlan());
@@ -75,8 +76,8 @@ public class CommandExecutorSQLDelegate extends CommandExecutorSQLAbstract
     return delegate.getDistributedTimeout();
   }
 
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
-    return delegate.execute(iArgs, querySession);
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+    return delegate.execute(db, iArgs);
   }
 
   @Override

@@ -266,7 +266,7 @@ public class SQLCreateIndexStatement extends DDLStatement {
     if (metadata == null) {
       return null;
     }
-    return metadata.toDocument(null, ctx);
+    return metadata.toEntity(null, ctx);
   }
 
   private PropertyType[] calculateKeyTypes(CommandContext ctx) {

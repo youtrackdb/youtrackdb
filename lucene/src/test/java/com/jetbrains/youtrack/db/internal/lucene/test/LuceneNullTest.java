@@ -20,7 +20,7 @@ public class LuceneNullTest extends BaseLuceneTest {
     db.command("create index Test.names on Test (names) fulltext engine lucene").close();
 
     db.begin();
-    EntityImpl doc = new EntityImpl("Test");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Test"));
     db.save(doc);
     db.commit();
 
@@ -43,7 +43,7 @@ public class LuceneNullTest extends BaseLuceneTest {
     db.command("create property Test.names EMBEDDEDLIST STRING").close();
     db.command("create index Test.names on Test (names) fulltext engine lucene").close();
 
-    EntityImpl doc = new EntityImpl("Test");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Test"));
 
     db.begin();
     doc.field("names", new String[]{"foo"});

@@ -19,12 +19,12 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command.traverse;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.command.Command;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutorAbstract;
 import com.jetbrains.youtrack.db.internal.core.command.CommandPredicate;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -153,7 +153,8 @@ public class Traverse implements Command, Iterable<Identifiable>, Iterator<Ident
   public Traverse target(final Iterator<? extends Identifiable> iTarget) {
     target = iTarget;
     context.reset();
-    new TraverseRecordSetProcess(this, (Iterator<Identifiable>) target, TraversePath.empty());
+    new TraverseRecordSetProcess(this, (Iterator<Identifiable>) target, TraversePath.empty(),
+        context.getDatabase());
     return this;
   }
 

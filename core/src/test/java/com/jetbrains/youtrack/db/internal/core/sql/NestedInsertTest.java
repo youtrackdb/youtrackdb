@@ -25,13 +25,13 @@ public class NestedInsertTest extends DbTestBase {
                 + " \"date\":\"2013-01-01\",\"@fieldTypes\":\"date=a\"}) return @this");
     db.commit();
 
-    final EntityImpl res = ((Identifiable) result.next().getProperty("@this")).getRecord();
+    final EntityImpl res = ((Identifiable) result.next().getProperty("@this")).getRecord(db);
     final EntityImpl embedded = res.field("meta");
     Assert.assertNotNull(embedded);
 
-    Assert.assertEquals(embedded.fields(), 2);
-    Assert.assertEquals(embedded.field("country"), "italy");
-    Assert.assertEquals(embedded.field("date").getClass(), java.util.Date.class);
+    Assert.assertEquals(2, embedded.fields());
+    Assert.assertEquals("italy", embedded.field("country"));
+    Assert.assertEquals(java.util.Date.class, embedded.field("date").getClass());
   }
 
   @Test
@@ -48,11 +48,11 @@ public class NestedInsertTest extends DbTestBase {
                 + " name\"} return @this");
     db.commit();
 
-    final EntityImpl res = ((Identifiable) result.next().getProperty("@this")).getRecord();
+    final EntityImpl res = ((Identifiable) result.next().getProperty("@this")).getRecord(db);
     final EntityImpl ln = res.field("some");
     Assert.assertNotNull(ln);
     Assert.assertTrue(ln.getIdentity().isPersistent());
-    Assert.assertEquals(ln.fields(), 1);
-    Assert.assertEquals(ln.field("name"), "a name");
+    Assert.assertEquals(1, ln.fields());
+    Assert.assertEquals("a name", ln.field("name"));
   }
 }

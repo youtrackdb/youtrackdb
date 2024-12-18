@@ -35,7 +35,7 @@ public class RecordSerializerBinaryDebugTest extends DbTestBase {
   @Test
   public void testSimpleDocumentDebug() {
 
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.field("test", "test");
     doc.field("anInt", 2);
     doc.field("anDouble", 2D);
@@ -64,7 +64,7 @@ public class RecordSerializerBinaryDebugTest extends DbTestBase {
     SchemaClass clazz = db.getMetadata().getSchema().createClass("some");
     clazz.createProperty(db, "testP", PropertyType.STRING);
     clazz.createProperty(db, "theInt", PropertyType.INTEGER);
-    EntityImpl doc = new EntityImpl("some");
+    EntityImpl doc = (EntityImpl) db.newEntity("some");
     doc.field("testP", "test");
     doc.field("theInt", 2);
     doc.field("anDouble", 2D);
@@ -90,7 +90,7 @@ public class RecordSerializerBinaryDebugTest extends DbTestBase {
 
   @Test
   public void testSimpleBrokenDocumentDebug() {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.field("test", "test");
     doc.field("anInt", 2);
     doc.field("anDouble", 2D);
@@ -124,7 +124,7 @@ public class RecordSerializerBinaryDebugTest extends DbTestBase {
     SchemaClass clazz = db.getMetadata().getSchema().createClass("some");
     clazz.createProperty(db, "testP", PropertyType.STRING);
     clazz.createProperty(db, "theInt", PropertyType.INTEGER);
-    EntityImpl doc = new EntityImpl("some");
+    EntityImpl doc = (EntityImpl) db.newEntity("some");
     doc.field("testP", "test");
     doc.field("theInt", 2);
     doc.field("anDouble", 2D);

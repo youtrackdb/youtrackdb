@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
@@ -44,9 +44,10 @@ public class UpsertStep extends AbstractExecutionStep {
 
   private Result createNewRecord(
       CommandContext ctx, SQLFromClause commandTarget, SQLWhereClause initialFilter) {
+    var db = ctx.getDatabase();
     EntityImpl entity;
     if (commandTarget.getItem().getIdentifier() != null) {
-      entity = new EntityImpl(commandTarget.getItem().getIdentifier().getStringValue());
+      entity = new EntityImpl(db, commandTarget.getItem().getIdentifier().getStringValue());
     } else if (commandTarget.getItem().getCluster() != null) {
       SQLCluster cluster = commandTarget.getItem().getCluster();
       Integer clusterId = cluster.getClusterNumber();
@@ -58,7 +59,7 @@ public class UpsertStep extends AbstractExecutionStep {
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClassByClusterId(clusterId);
-      entity = new EntityImpl(clazz);
+      entity = new EntityImpl(db, clazz);
     } else {
       throw new CommandExecutionException(
           "Cannot execute UPSERT on target '" + commandTarget + "'");

@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent.ChangeType;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.Arrays;
@@ -98,7 +98,7 @@ public class PropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testGetDocumentValueToIndex() {
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = (EntityImpl) db.newEntity();
 
     document.field("fOne", Arrays.asList("12", "23"));
     document.field("fTwo", 10);

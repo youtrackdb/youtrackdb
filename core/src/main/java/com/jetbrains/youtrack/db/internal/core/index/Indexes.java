@@ -17,13 +17,12 @@ package com.jetbrains.youtrack.db.internal.core.index;
 
 import static com.jetbrains.youtrack.db.internal.common.util.ClassLoaderHelper.lookupProviderWithYouTrackDBClassLoader;
 
+import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.util.Collections;
 import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
-import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.index.engine.BaseIndexEngine;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
-import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.HashIndexFactory;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
@@ -183,17 +182,11 @@ public final class Indexes {
 
   public static String chooseDefaultIndexAlgorithm(String type) {
     String algorithm = null;
-
-    if (SchemaClass.INDEX_TYPE.DICTIONARY.name().equalsIgnoreCase(type)
-        || SchemaClass.INDEX_TYPE.FULLTEXT.name().equalsIgnoreCase(type)
-        || SchemaClass.INDEX_TYPE.NOTUNIQUE.name().equalsIgnoreCase(type)
+    if (SchemaClass.INDEX_TYPE.NOTUNIQUE.name().equalsIgnoreCase(type)
         || SchemaClass.INDEX_TYPE.UNIQUE.name().equalsIgnoreCase(type)) {
       algorithm = DefaultIndexFactory.CELL_BTREE_ALGORITHM;
-    } else if (SchemaClass.INDEX_TYPE.DICTIONARY_HASH_INDEX.name().equalsIgnoreCase(type)
-        || SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.name().equalsIgnoreCase(type)
-        || SchemaClass.INDEX_TYPE.UNIQUE_HASH_INDEX.name().equalsIgnoreCase(type)) {
-      algorithm = HashIndexFactory.HASH_INDEX_ALGORITHM;
     }
+
     return algorithm;
   }
 

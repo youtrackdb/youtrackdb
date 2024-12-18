@@ -38,41 +38,41 @@ public class SQLDropClassIndexTest extends BaseDBTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     final SchemaClass oClass = schema.createClass("SQLDropClassTestClass");
-    oClass.createProperty(database, "prop1", EXPECTED_PROP1_TYPE);
-    oClass.createProperty(database, "prop2", EXPECTED_PROP2_TYPE);
+    oClass.createProperty(db, "prop1", EXPECTED_PROP1_TYPE);
+    oClass.createProperty(db, "prop2", EXPECTED_PROP2_TYPE);
   }
 
   @Test
   public void testIndexDeletion() throws Exception {
-    database
+    db
         .command(
             "CREATE INDEX SQLDropClassCompositeIndex ON SQLDropClassTestClass (prop1, prop2)"
                 + " UNIQUE")
         .close();
 
     Assert.assertNotNull(
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "SQLDropClassCompositeIndex"));
+            .getIndex(db, "SQLDropClassCompositeIndex"));
 
-    database.command("DROP CLASS SQLDropClassTestClass").close();
+    db.command("DROP CLASS SQLDropClassTestClass").close();
 
-    Assert.assertNull(database.getMetadata().getSchema().getClass("SQLDropClassTestClass"));
+    Assert.assertNull(db.getMetadata().getSchema().getClass("SQLDropClassTestClass"));
     Assert.assertNull(
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "SQLDropClassCompositeIndex"));
-    database.close();
-    database = createSessionInstance();
-    Assert.assertNull(database.getMetadata().getSchema().getClass("SQLDropClassTestClass"));
+            .getIndex(db, "SQLDropClassCompositeIndex"));
+    db.close();
+    db = createSessionInstance();
+    Assert.assertNull(db.getMetadata().getSchema().getClass("SQLDropClassTestClass"));
     Assert.assertNull(
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "SQLDropClassCompositeIndex"));
+            .getIndex(db, "SQLDropClassCompositeIndex"));
   }
 }

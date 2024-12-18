@@ -389,7 +389,7 @@ public class ServerPluginManager implements Service {
                   "Error on loading 'plugin.json' file for dynamic plugin '%s'", pluginName));
         }
 
-        final EntityImpl properties = new EntityImpl().fromJSON(pluginConfigFile);
+        final EntityImpl properties = new EntityImpl(null).fromJSON(pluginConfigFile);
 
         if (properties.containsField("name"))
         // OVERWRITE PLUGIN NAME

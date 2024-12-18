@@ -18,7 +18,7 @@ public class TestNullFieldQuery extends DbTestBase {
   public void testQueryNullValue() {
     db.getMetadata().getSchema().createClass("Test");
     db.begin();
-    EntityImpl doc = new EntityImpl("Test");
+    EntityImpl doc = (EntityImpl) db.newEntity("Test");
     doc.field("name", (Object) null);
     db.save(doc);
     db.commit();
@@ -33,7 +33,7 @@ public class TestNullFieldQuery extends DbTestBase {
     clazz.createProperty(db, "name", PropertyType.ANY);
 
     db.begin();
-    EntityImpl doc = new EntityImpl("Test");
+    EntityImpl doc = (EntityImpl) db.newEntity("Test");
     doc.field("name", (Object) null);
     db.save(doc);
     db.commit();

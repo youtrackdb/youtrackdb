@@ -60,34 +60,34 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test
   public void insertOperator() {
-    if (!database.getMetadata().getSchema().existsClass("Account")) {
-      database.getMetadata().getSchema().createClass("Account");
+    if (!db.getMetadata().getSchema().existsClass("Account")) {
+      db.getMetadata().getSchema().createClass("Account");
     }
 
-    final int clId = database.addCluster("anotherdefault");
-    final SchemaClass profileClass = database.getMetadata().getSchema().getClass("Account");
-    profileClass.addClusterId(database, clId);
+    final int clId = db.addCluster("anotherdefault");
+    final SchemaClass profileClass = db.getMetadata().getSchema().getClass("Account");
+    profileClass.addClusterId(db, clId);
 
-    if (!database.getMetadata().getSchema().existsClass("Address")) {
-      database.getMetadata().getSchema().createClass("Address");
+    if (!db.getMetadata().getSchema().existsClass("Address")) {
+      db.getMetadata().getSchema().createClass("Address");
     }
 
-    int addressId = database.getMetadata().getSchema().getClass("Address").getClusterIds()[0];
+    int addressId = db.getMetadata().getSchema().getClass("Address").getClusterIds()[0];
 
     for (int i = 0; i < 30; i++) {
-      database.begin();
-      new EntityImpl("Address").save();
-      database.commit();
+      db.begin();
+      ((EntityImpl) db.newEntity("Address")).save();
+      db.commit();
     }
     List<Long> positions = getValidPositions(addressId);
 
-    if (!database.getMetadata().getSchema().existsClass("Profile")) {
-      database.getMetadata().getSchema().createClass("Profile");
+    if (!db.getMetadata().getSchema().existsClass("Profile")) {
+      db.getMetadata().getSchema().createClass("Profile");
     }
 
-    database.begin();
+    db.begin();
     Entity doc =
-        database
+        db
             .command(
                 "insert into Profile (name, surname, salary, location, dummy) values"
                     + " ('Luca','Smith', 109.9, #"
@@ -98,9 +98,9 @@ public class SQLInsertTest extends BaseDBTest {
             .next()
             .getEntity()
             .get();
-    database.commit();
+    db.commit();
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getProperty("name"), "Luca");
     Assert.assertEquals(doc.getProperty("surname"), "Smith");
@@ -108,9 +108,9 @@ public class SQLInsertTest extends BaseDBTest {
     Assert.assertEquals(doc.getProperty("location"), new RecordId(addressId, positions.get(3)));
     Assert.assertEquals(doc.getProperty("dummy"), "hooray");
 
-    database.begin();
+    db.begin();
     doc =
-        database
+        db
             .command(
                 "insert into Profile SET name = 'Luca', surname = 'Smith', salary = 109.9,"
                     + " location = #"
@@ -121,9 +121,9 @@ public class SQLInsertTest extends BaseDBTest {
             .next()
             .getEntity()
             .get();
-    database.commit();
+    db.commit();
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getProperty("name"), "Luca");
     Assert.assertEquals(doc.getProperty("surname"), "Smith");
@@ -136,13 +136,13 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test
   public void insertWithWildcards() {
-    int addressId = database.getMetadata().getSchema().getClass("Address").getClusterIds()[0];
+    int addressId = db.getMetadata().getSchema().getClass("Address").getClusterIds()[0];
 
     List<Long> positions = getValidPositions(addressId);
 
-    database.begin();
+    db.begin();
     Entity doc =
-        database
+        db
             .command(
                 "insert into Profile (name, surname, salary, location, dummy) values"
                     + " (?,?,?,?,?)",
@@ -154,9 +154,9 @@ public class SQLInsertTest extends BaseDBTest {
             .next()
             .getEntity()
             .get();
-    database.commit();
+    db.commit();
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getProperty("name"), "Marc");
     Assert.assertEquals(doc.getProperty("surname"), "Smith");
@@ -164,13 +164,13 @@ public class SQLInsertTest extends BaseDBTest {
     Assert.assertEquals(doc.getProperty("location"), new RecordId(addressId, positions.get(3)));
     Assert.assertEquals(doc.getProperty("dummy"), "hooray");
 
-    database.begin();
-    database.delete(database.bindToSession(doc));
-    database.commit();
+    db.begin();
+    db.delete(db.bindToSession(doc));
+    db.commit();
 
-    database.begin();
+    db.begin();
     doc =
-        database
+        db
             .command(
                 "insert into Profile SET name = ?, surname = ?, salary = ?, location = ?,"
                     + " dummy = ?",
@@ -182,9 +182,9 @@ public class SQLInsertTest extends BaseDBTest {
             .next()
             .getEntity()
             .get();
-    database.commit();
+    db.commit();
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getProperty("name"), "Marc");
     Assert.assertEquals(doc.getProperty("surname"), "Smith");
@@ -198,20 +198,20 @@ public class SQLInsertTest extends BaseDBTest {
   @Test
   @SuppressWarnings("unchecked")
   public void insertMap() {
-    database.begin();
+    db.begin();
     Entity doc =
-        database
+        db
             .command(
                 "insert into O (equaledges, name, properties) values ('no',"
                     + " 'circle', {'round':'eeee', 'blaaa':'zigzag'} )")
             .next()
             .getEntity()
             .get();
-    database.commit();
+    db.commit();
 
     Assert.assertNotNull(doc);
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     Assert.assertEquals(doc.getProperty("equaledges"), "no");
     Assert.assertEquals(doc.getProperty("name"), "circle");
     Assert.assertTrue(doc.getProperty("properties") instanceof Map);
@@ -222,22 +222,22 @@ public class SQLInsertTest extends BaseDBTest {
     Assert.assertEquals(entries.get("round"), "eeee");
     Assert.assertEquals(entries.get("blaaa"), "zigzag");
 
-    database.begin();
-    database.delete(database.bindToSession(doc));
-    database.commit();
+    db.begin();
+    db.delete(db.bindToSession(doc));
+    db.commit();
 
-    database.begin();
+    db.begin();
     doc =
-        database
+        db
             .command(
                 "insert into O SET equaledges = 'no', name = 'circle',"
                     + " properties = {'round':'eeee', 'blaaa':'zigzag'} ")
             .next()
             .getEntity()
             .get();
-    database.commit();
+    db.commit();
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     Assert.assertNotNull(doc);
 
     Assert.assertEquals(doc.getProperty("equaledges"), "no");
@@ -254,20 +254,20 @@ public class SQLInsertTest extends BaseDBTest {
   @Test
   @SuppressWarnings("unchecked")
   public void insertList() {
-    database.begin();
+    db.begin();
     Entity doc =
-        database
+        db
             .command(
                 "insert into O (equaledges, name, list) values ('yes',"
                     + " 'square', ['bottom', 'top','left','right'] )")
             .next()
             .getEntity()
             .get();
-    database.commit();
+    db.commit();
 
     Assert.assertNotNull(doc);
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     Assert.assertEquals(doc.getProperty("equaledges"), "yes");
     Assert.assertEquals(doc.getProperty("name"), "square");
     Assert.assertTrue(doc.getProperty("list") instanceof List);
@@ -280,22 +280,22 @@ public class SQLInsertTest extends BaseDBTest {
     Assert.assertEquals(entries.get(2), "left");
     Assert.assertEquals(entries.get(3), "right");
 
-    database.begin();
-    database.delete(database.bindToSession(doc));
-    database.commit();
+    db.begin();
+    db.delete(db.bindToSession(doc));
+    db.commit();
 
-    database.begin();
+    db.begin();
     doc =
-        database
+        db
             .command(
                 "insert into O SET equaledges = 'yes', name = 'square', list"
                     + " = ['bottom', 'top','left','right'] ")
             .next()
             .getEntity()
             .get();
-    database.commit();
+    db.commit();
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     Assert.assertNotNull(doc);
 
     Assert.assertEquals(doc.getProperty("equaledges"), "yes");
@@ -313,24 +313,24 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test
   public void insertWithNoSpaces() {
-    database.begin();
+    db.begin();
     ResultSet res =
-        database.command("insert into O (id, title)values(10, 'NoSQL movement')");
-    database.commit();
+        db.command("insert into O (id, title)values(10, 'NoSQL movement')");
+    db.commit();
 
     Assert.assertTrue(res.hasNext());
   }
 
   @Test
   public void insertAvoidingSubQuery() {
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     if (schema.getClass("test") == null) {
       schema.createClass("test");
     }
 
-    database.begin();
-    Result doc = database.command("INSERT INTO test(text) VALUES ('(Hello World)')").next();
-    database.commit();
+    db.begin();
+    Result doc = db.command("INSERT INTO test(text) VALUES ('(Hello World)')").next();
+    db.commit();
 
     Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getProperty("text"), "(Hello World)");
@@ -338,25 +338,25 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test
   public void insertSubQuery() {
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     if (schema.getClass("test") == null) {
       schema.createClass("test");
     }
 
-    final ResultSet usersCount = database.query("select count(*) as count from OUser");
+    final ResultSet usersCount = db.query("select count(*) as count from OUser");
     final long uCount = usersCount.next().getProperty("count");
     usersCount.close();
 
-    database.begin();
+    db.begin();
     Entity doc =
-        database
+        db
             .command("INSERT INTO test SET names = (select name from OUser)")
             .next()
             .getEntity()
             .get();
-    database.commit();
+    db.commit();
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     Assert.assertNotNull(doc);
     Assert.assertNotNull(doc.getProperty("names"));
     Assert.assertTrue(doc.getProperty("names") instanceof Collection);
@@ -365,36 +365,36 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "insertOperator")
   public void insertCluster() {
-    database.begin();
+    db.begin();
     var doc =
-        database
+        db
             .command(
                 "insert into Account cluster anotherdefault (id, title) values (10, 'NoSQL"
                     + " movement')").stream().findFirst().orElseThrow().toEntity();
-    database.commit();
+    db.commit();
 
     Assert.assertNotNull(doc);
     Assert.assertEquals(
-        doc.getIdentity().getClusterId(), database.getClusterIdByName("anotherdefault"));
+        doc.getIdentity().getClusterId(), db.getClusterIdByName("anotherdefault"));
     Assert.assertEquals(doc.getClassName(), "Account");
   }
 
   public void updateMultipleFields() {
-    if (!database.getMetadata().getSchema().existsClass("Account")) {
-      database.getMetadata().getSchema().createClass("Account");
+    if (!db.getMetadata().getSchema().existsClass("Account")) {
+      db.getMetadata().getSchema().createClass("Account");
     }
 
-    database.begin();
+    db.begin();
     for (int i = 0; i < 30; i++) {
-      database.command("insert into O set name = 'foo" + i + "'");
+      db.command("insert into O set name = 'foo" + i + "'");
     }
-    database.commit();
+    db.commit();
 
     List<Long> positions = getValidPositions(3);
 
-    database.begin();
+    db.begin();
     Identifiable result =
-        database
+        db
             .command(
                 "  INSERT INTO Account SET id= 3232,name= 'my name',map="
                     + " {\"key\":\"value\"},dir= '',user= #3:"
@@ -402,12 +402,12 @@ public class SQLInsertTest extends BaseDBTest {
             .next()
             .getEntity()
             .get();
-    database.commit();
+    db.commit();
     Assert.assertNotNull(result);
 
-    EntityImpl record = result.getRecord();
+    EntityImpl record = result.getRecord(db);
 
-    record = database.bindToSession(record);
+    record = db.bindToSession(record);
     Assert.assertEquals(record.<Object>field("id"), 3232);
     Assert.assertEquals(record.field("name"), "my name");
     Map<String, String> map = record.field("map");
@@ -418,60 +418,60 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test
   public void insertSelect() {
-    database.command("CREATE CLASS UserCopy").close();
+    db.command("CREATE CLASS UserCopy").close();
 
-    database.begin();
+    db.begin();
     long inserted =
-        database
+        db
             .command("INSERT INTO UserCopy FROM select from ouser where name <> 'admin' limit 2")
             .stream()
             .count();
-    database.commit();
+    db.commit();
 
     Assert.assertEquals(inserted, 2);
 
     List<Identifiable> result =
-        database.query(new SQLSynchQuery<Identifiable>("select from UserCopy"));
+        db.query(new SQLSynchQuery<Identifiable>("select from UserCopy"));
     Assert.assertEquals(result.size(), 2);
     for (Identifiable r : result) {
-      Assert.assertEquals(((EntityImpl) r.getRecord()).getClassName(), "UserCopy");
-      Assert.assertNotSame(((EntityImpl) r.getRecord()).field("name"), "admin");
+      Assert.assertEquals(((EntityImpl) r.getRecord(db)).getClassName(), "UserCopy");
+      Assert.assertNotSame(((EntityImpl) r.getRecord(db)).field("name"), "admin");
     }
   }
 
   @Test(expectedExceptions = ValidationException.class)
   public void insertSelectFromProjection() {
-    database.command("CREATE CLASS ProjectedInsert").close();
-    database.command("CREATE property ProjectedInsert.a Integer (max 3)").close();
+    db.command("CREATE CLASS ProjectedInsert").close();
+    db.command("CREATE property ProjectedInsert.a Integer (max 3)").close();
 
-    database.begin();
-    database.command("INSERT INTO ProjectedInsert FROM select 10 as a ").close();
-    database.commit();
+    db.begin();
+    db.command("INSERT INTO ProjectedInsert FROM select 10 as a ").close();
+    db.commit();
   }
 
   @Test
   @Ignore
   public void insertWithReturn() {
-    if (!database.getMetadata().getSchema().existsClass("actor2")) {
-      database.command("CREATE CLASS Actor2").close();
+    if (!db.getMetadata().getSchema().existsClass("actor2")) {
+      db.command("CREATE CLASS Actor2").close();
     }
 
     // RETURN with $current.
     EntityImpl doc =
-        database
+        db
             .command(new CommandSQL("INSERT INTO Actor2 SET FirstName=\"FFFF\" RETURN $current"))
-            .execute(database);
+            .execute(db);
     Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getClassName(), "Actor2");
     // RETURN with @rid
     try (ResultSet resultSet1 =
-        database.command("INSERT INTO Actor2 SET FirstName=\"Butch 1\" RETURN @rid")) {
+        db.command("INSERT INTO Actor2 SET FirstName=\"Butch 1\" RETURN @rid")) {
       Object res1 = resultSet1.next().getProperty("@rid");
       Assert.assertTrue(res1 instanceof RecordId);
       Assert.assertTrue(((RecordId) ((Identifiable) res1).getIdentity()).isValid());
       // Create many records and return @rid
       try (ResultSet resultSet2 =
-          database.command(
+          db.command(
               "INSERT INTO Actor2(FirstName,LastName) VALUES"
                   + " ('Jay','Miner'),('Frank','Hermier'),('Emily','Saut')  RETURN @rid")) {
 
@@ -486,7 +486,7 @@ public class SQLInsertTest extends BaseDBTest {
                 + ","
                 + another.toString()
                 + "]";
-        List res3 = database.command(new CommandSQL(sql)).execute(database);
+        List res3 = db.command(new CommandSQL(sql)).execute(db);
         Assert.assertEquals(res3.size(), 2);
         Assert.assertTrue(((List<?>) res3).get(0) instanceof EntityImpl);
         final EntityImpl res3doc = (EntityImpl) res3.get(0);
@@ -505,7 +505,7 @@ public class SQLInsertTest extends BaseDBTest {
         "let var1 = (INSERT INTO Actor2 CONTENT {Name:\"content\"} RETURN $current.@rid) "
             + "; let var2 = (UPDATE $var1 SET Bingo=1 RETURN AFTER @rid) "
             + " return $var2";
-    try (var resSql2ResultSet = database.command(sql2)) {
+    try (var resSql2ResultSet = db.command(sql2)) {
       var res_sql2 = resSql2ResultSet.next().getProperty("$var2");
       Assert.assertTrue(res_sql2 instanceof RecordId);
 
@@ -515,9 +515,9 @@ public class SQLInsertTest extends BaseDBTest {
           "let var1 = (INSERT INTO Actor2 CONTENT {Name:\"Bingo owner\"} RETURN @this) "
               + "; let var2 = (UPDATE $var1 SET Bingo=1 RETURN AFTER) "
               + "return $var2";
-      try (var resSql3ResultSet = database.command(sql3)) {
+      try (var resSql3ResultSet = db.command(sql3)) {
         var res_sql3 = resSql3ResultSet.next().<Identifiable>getProperty("$var2");
-        final EntityImpl sql3doc = res_sql3.getRecord();
+        final EntityImpl sql3doc = res_sql3.getRecord(db);
         Assert.assertEquals(sql3doc.<Object>field("Bingo"), 1);
         Assert.assertEquals(sql3doc.field("Name"), "Bingo owner");
       }
@@ -526,21 +526,21 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test
   public void testAutoConversionOfEmbeddededSetNoLinkedClass() {
-    SchemaClass c = database.getMetadata().getSchema().getOrCreateClass("TestConvert");
-    c.createProperty(database, "embeddedSetNoLinkedClass", PropertyType.EMBEDDEDSET);
+    SchemaClass c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
+    c.createProperty(db, "embeddedSetNoLinkedClass", PropertyType.EMBEDDEDSET);
 
-    database.begin();
+    db.begin();
     Entity doc =
-        database
+        db
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedSetNoLinkedClass',"
                     + " embeddedSetNoLinkedClass = [{'line1':'123 Fake Street'}]")
             .next()
             .getEntity()
             .get();
-    database.commit();
+    db.commit();
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("embeddedSetNoLinkedClass") instanceof Set);
 
     Set addr = doc.getProperty("embeddedSetNoLinkedClass");
@@ -551,24 +551,24 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test
   public void testAutoConversionOfEmbeddededSetWithLinkedClass() {
-    SchemaClass c = database.getMetadata().getSchema().getOrCreateClass("TestConvert");
-    c.createProperty(database,
+    SchemaClass c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
+    c.createProperty(db,
         "embeddedSetWithLinkedClass",
         PropertyType.EMBEDDEDSET,
-        database.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
+        db.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
 
-    database.begin();
+    db.begin();
     Entity doc =
-        database
+        db
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedSetWithLinkedClass',"
                     + " embeddedSetWithLinkedClass = [{'line1':'123 Fake Street'}]")
             .next()
             .getEntity()
             .get();
-    database.commit();
+    db.commit();
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("embeddedSetWithLinkedClass") instanceof Set);
 
     Set addr = doc.getProperty("embeddedSetWithLinkedClass");
@@ -580,21 +580,21 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test
   public void testAutoConversionOfEmbeddededListNoLinkedClass() {
-    SchemaClass c = database.getMetadata().getSchema().getOrCreateClass("TestConvert");
-    c.createProperty(database, "embeddedListNoLinkedClass", PropertyType.EMBEDDEDLIST);
+    SchemaClass c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
+    c.createProperty(db, "embeddedListNoLinkedClass", PropertyType.EMBEDDEDLIST);
 
-    database.begin();
+    db.begin();
     Entity doc =
-        database
+        db
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedListNoLinkedClass',"
                     + " embeddedListNoLinkedClass = [{'line1':'123 Fake Street'}]")
             .next()
             .getEntity()
             .get();
-    database.commit();
+    db.commit();
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("embeddedListNoLinkedClass") instanceof List);
 
     List addr = doc.getProperty("embeddedListNoLinkedClass");
@@ -605,54 +605,54 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test
   public void testAutoConversionOfEmbeddededListWithLinkedClass() {
-    SchemaClass c = database.getMetadata().getSchema().getOrCreateClass("TestConvert");
+    SchemaClass c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
     if (!c.existsProperty("embeddedListWithLinkedClass")) {
-      c.createProperty(database,
+      c.createProperty(db,
           "embeddedListWithLinkedClass",
           PropertyType.EMBEDDEDLIST,
-          database.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
+          db.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
     }
 
-    database.begin();
+    db.begin();
     Entity doc =
-        database
+        db
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedListWithLinkedClass',"
                     + " embeddedListWithLinkedClass = [{'line1':'123 Fake Street'}]")
             .next()
             .getEntity()
             .get();
-    database.commit();
+    db.commit();
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("embeddedListWithLinkedClass") instanceof List);
 
     List addr = doc.getProperty("embeddedListWithLinkedClass");
     for (Object o : addr) {
-      database.begin();
+      db.begin();
       Assert.assertTrue(o instanceof EntityImpl);
       Assert.assertEquals(((EntityImpl) o).getClassName(), "TestConvertLinkedClass");
-      database.commit();
+      db.commit();
     }
   }
 
   @Test
   public void testAutoConversionOfEmbeddededMapNoLinkedClass() {
-    SchemaClass c = database.getMetadata().getSchema().getOrCreateClass("TestConvert");
-    c.createProperty(database, "embeddedMapNoLinkedClass", PropertyType.EMBEDDEDMAP);
+    SchemaClass c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
+    c.createProperty(db, "embeddedMapNoLinkedClass", PropertyType.EMBEDDEDMAP);
 
-    database.begin();
+    db.begin();
     Entity doc =
-        database
+        db
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedMapNoLinkedClass',"
                     + " embeddedMapNoLinkedClass = {test:{'line1':'123 Fake Street'}}")
             .next()
             .getEntity()
             .get();
-    database.commit();
+    db.commit();
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("embeddedMapNoLinkedClass") instanceof Map);
 
     Map addr = doc.getProperty("embeddedMapNoLinkedClass");
@@ -663,24 +663,24 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test(enabled = false)
   public void testAutoConversionOfEmbeddededMapWithLinkedClass() {
-    SchemaClass c = database.getMetadata().getSchema().getOrCreateClass("TestConvert");
-    c.createProperty(database,
+    SchemaClass c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
+    c.createProperty(db,
         "embeddedMapWithLinkedClass",
         PropertyType.EMBEDDEDMAP,
-        database.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
+        db.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
 
-    database.begin();
+    db.begin();
     var doc =
-        database
+        db
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedMapWithLinkedClass',"
                     + " embeddedMapWithLinkedClass = {test:{'line1':'123 Fake Street'}}")
             .next()
             .getEntity()
             .orElseThrow();
-    database.commit();
+    db.commit();
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("embeddedMapWithLinkedClass") instanceof Map);
 
     Map addr = doc.getProperty("embeddedMapWithLinkedClass");
@@ -692,38 +692,38 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test(enabled = false)
   public void testAutoConversionOfEmbeddededNoLinkedClass() {
-    SchemaClass c = database.getMetadata().getSchema().getOrCreateClass("TestConvert");
-    c.createProperty(database, "embeddedNoLinkedClass", PropertyType.EMBEDDED);
+    SchemaClass c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
+    c.createProperty(db, "embeddedNoLinkedClass", PropertyType.EMBEDDED);
 
-    database.begin();
+    db.begin();
     var doc =
-        database
+        db
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedNoLinkedClass',"
                     + " embeddedNoLinkedClass = {'line1':'123 Fake Street'}")
             .next()
             .getEntity()
             .orElseThrow();
-    database.commit();
+    db.commit();
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("embeddedNoLinkedClass") instanceof EntityImpl);
   }
 
   @Test
   public void testEmbeddedDates() {
-    SchemaClass c = database.getMetadata().getSchema().getOrCreateClass("TestEmbeddedDates");
+    SchemaClass c = db.getMetadata().getSchema().getOrCreateClass("TestEmbeddedDates");
 
-    database.begin();
-    database
+    db.begin();
+    db
         .command(
             "insert into TestEmbeddedDates set events = [{\"on\": date(\"2005-09-08 04:00:00\","
                 + " \"yyyy-MM-dd HH:mm:ss\", \"UTC\")}]\n")
         .close();
-    database.commit();
+    db.commit();
 
     List<Result> result =
-        database.query("select from TestEmbeddedDates").stream().collect(Collectors.toList());
+        db.query("select from TestEmbeddedDates").stream().collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 1);
     boolean found = false;
@@ -739,33 +739,33 @@ public class SQLInsertTest extends BaseDBTest {
       found = true;
     }
 
-    database.begin();
-    database.delete(doc.getIdentity().get());
-    database.commit();
+    db.begin();
+    db.delete(doc.getIdentity().get());
+    db.commit();
 
     Assert.assertTrue(found);
   }
 
   @Test
   public void testAutoConversionOfEmbeddededWithLinkedClass() {
-    SchemaClass c = database.getMetadata().getSchema().getOrCreateClass("TestConvert");
-    c.createProperty(database,
+    SchemaClass c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
+    c.createProperty(db,
         "embeddedWithLinkedClass",
         PropertyType.EMBEDDED,
-        database.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
+        db.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
 
-    database.begin();
+    db.begin();
     Entity doc =
-        database
+        db
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedWithLinkedClass',"
                     + " embeddedWithLinkedClass = {'line1':'123 Fake Street'}")
             .next()
             .getEntity()
             .get();
-    database.commit();
+    db.commit();
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("embeddedWithLinkedClass") instanceof EntityImpl);
     Assert.assertEquals(
         ((EntityImpl) doc.getProperty("embeddedWithLinkedClass")).getClassName(),
@@ -774,16 +774,16 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test
   public void testInsertEmbeddedWithRecordAttributes() {
-    SchemaClass c = database.getMetadata().getSchema()
+    SchemaClass c = db.getMetadata().getSchema()
         .getOrCreateClass("EmbeddedWithRecordAttributes");
-    c.createProperty(database,
+    c.createProperty(db,
         "like",
         PropertyType.EMBEDDED,
-        database.getMetadata().getSchema().getOrCreateClass("EmbeddedWithRecordAttributes_Like"));
+        db.getMetadata().getSchema().getOrCreateClass("EmbeddedWithRecordAttributes_Like"));
 
-    database.begin();
+    db.begin();
     Entity doc =
-        database
+        db
             .command(
                 "INSERT INTO EmbeddedWithRecordAttributes SET `like` = { \n"
                     + "      count: 0, \n"
@@ -794,9 +794,9 @@ public class SQLInsertTest extends BaseDBTest {
             .next()
             .getEntity()
             .get();
-    database.commit();
+    db.commit();
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("like") instanceof Identifiable);
     Assert.assertEquals(
         ((EntityImpl) doc.getProperty("like")).getClassName(),
@@ -806,16 +806,16 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test
   public void testInsertEmbeddedWithRecordAttributes2() {
-    SchemaClass c = database.getMetadata().getSchema()
+    SchemaClass c = db.getMetadata().getSchema()
         .getOrCreateClass("EmbeddedWithRecordAttributes2");
-    c.createProperty(database,
+    c.createProperty(db,
         "like",
         PropertyType.EMBEDDED,
-        database.getMetadata().getSchema().getOrCreateClass("EmbeddedWithRecordAttributes2_Like"));
+        db.getMetadata().getSchema().getOrCreateClass("EmbeddedWithRecordAttributes2_Like"));
 
-    database.begin();
+    db.begin();
     Entity doc =
-        database
+        db
             .command(
                 "INSERT INTO EmbeddedWithRecordAttributes2 SET `like` = { \n"
                     + "      count: 0, \n"
@@ -826,9 +826,9 @@ public class SQLInsertTest extends BaseDBTest {
             .next()
             .getEntity()
             .get();
-    database.commit();
+    db.commit();
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("like") instanceof Identifiable);
     Assert.assertEquals(
         ((EntityImpl) doc.getProperty("like")).getClassName(),
@@ -838,17 +838,17 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test
   public void testInsertWithClusterAsFieldName() {
-    SchemaClass c = database.getMetadata().getSchema()
+    SchemaClass c = db.getMetadata().getSchema()
         .getOrCreateClass("InsertWithClusterAsFieldName");
 
-    database.begin();
-    database
+    db.begin();
+    db
         .command("INSERT INTO InsertWithClusterAsFieldName ( `cluster` ) values ( 'foo' )")
         .close();
-    database.commit();
+    db.commit();
 
     List<Result> result =
-        database.query("SELECT FROM InsertWithClusterAsFieldName").stream()
+        db.query("SELECT FROM InsertWithClusterAsFieldName").stream()
             .collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 1);
@@ -858,19 +858,19 @@ public class SQLInsertTest extends BaseDBTest {
   @Test
   public void testInsertEmbeddedBigDecimal() {
     // issue #6670
-    database.getMetadata().getSchema().getOrCreateClass("TestInsertEmbeddedBigDecimal");
-    database
+    db.getMetadata().getSchema().getOrCreateClass("TestInsertEmbeddedBigDecimal");
+    db
         .command("create property TestInsertEmbeddedBigDecimal.ed embeddedlist decimal")
         .close();
 
-    database.begin();
-    database
+    db.begin();
+    db
         .command("INSERT INTO TestInsertEmbeddedBigDecimal CONTENT {\"ed\": [5,null,5]}")
         .close();
-    database.commit();
+    db.commit();
 
     List<Result> result =
-        database.query("SELECT FROM TestInsertEmbeddedBigDecimal").stream()
+        db.query("SELECT FROM TestInsertEmbeddedBigDecimal").stream()
             .collect(Collectors.toList());
     Assert.assertEquals(result.size(), 1);
     Iterable ed = result.get(0).getProperty("ed");
@@ -883,7 +883,7 @@ public class SQLInsertTest extends BaseDBTest {
     final List<Long> positions = new ArrayList<Long>();
 
     final RecordIteratorCluster<?> iteratorCluster =
-        database.browseCluster(database.getClusterNameById(clusterId));
+        db.browseCluster(db.getClusterNameById(clusterId));
 
     for (int i = 0; i < 100; i++) {
       if (!iteratorCluster.hasNext()) {

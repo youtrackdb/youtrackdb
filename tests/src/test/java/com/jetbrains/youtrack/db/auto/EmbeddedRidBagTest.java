@@ -31,8 +31,8 @@ public class EmbeddedRidBagTest extends RidBagTest {
     GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(Integer.MAX_VALUE);
     GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(Integer.MAX_VALUE);
 
-    if (database.isRemote()) {
-      ServerAdmin server = new ServerAdmin(database.getURL()).connect("root", SERVER_PASSWORD);
+    if (db.isRemote()) {
+      ServerAdmin server = new ServerAdmin(db.getURL()).connect("root", SERVER_PASSWORD);
       server.setGlobalConfiguration(
           GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, Integer.MAX_VALUE);
       server.setGlobalConfiguration(
@@ -46,8 +46,8 @@ public class EmbeddedRidBagTest extends RidBagTest {
     GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(topThreshold);
     GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(bottomThreshold);
 
-    if (database.isRemote()) {
-      ServerAdmin server = new ServerAdmin(database.getURL()).connect("root", SERVER_PASSWORD);
+    if (db.isRemote()) {
+      ServerAdmin server = new ServerAdmin(db.getURL()).connect("root", SERVER_PASSWORD);
       server.setGlobalConfiguration(
           GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, topThreshold);
       server.setGlobalConfiguration(

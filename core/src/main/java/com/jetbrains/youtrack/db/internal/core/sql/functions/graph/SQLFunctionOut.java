@@ -1,6 +1,5 @@
 package com.jetbrains.youtrack.db.internal.core.sql.functions.graph;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Direction;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
@@ -30,12 +29,12 @@ public class SQLFunctionOut extends SQLFunctionMoveFiltered {
 
   @Override
   protected Object move(
-      final DatabaseSession graph, final Identifiable iRecord, final String[] iLabels) {
+      final DatabaseSessionInternal graph, final Identifiable iRecord, final String[] iLabels) {
     return v2v(graph, iRecord, Direction.OUT, iLabels);
   }
 
   protected Object move(
-      final DatabaseSession graph,
+      final DatabaseSessionInternal graph,
       final Identifiable iRecord,
       final String[] iLabels,
       Iterable<Identifiable> iPossibleResults) {
@@ -61,8 +60,8 @@ public class SQLFunctionOut extends SQLFunctionMoveFiltered {
     return v2v(graph, iRecord, Direction.OUT, iLabels);
   }
 
-  private Object fetchFromIndex(
-      DatabaseSession graph,
+  private static Object fetchFromIndex(
+      DatabaseSessionInternal graph,
       Identifiable iFrom,
       Iterable<Identifiable> iTo,
       String[] iEdgeTypes) {
@@ -92,10 +91,10 @@ public class SQLFunctionOut extends SQLFunctionMoveFiltered {
     for (Identifiable to : iTo) {
       final CompositeKey key = new CompositeKey(iFrom, to);
       try (Stream<RID> stream = index.getInternal()
-          .getRids((DatabaseSessionInternal) graph, key)) {
+          .getRids(graph, key)) {
         result.add(
             stream
-                .map((rid) -> ((EntityImpl) rid.getRecord()).rawField("in"))
+                .map((rid) -> ((EntityImpl) rid.getRecord(graph)).rawField("in"))
                 .collect(Collectors.toSet()));
       }
     }

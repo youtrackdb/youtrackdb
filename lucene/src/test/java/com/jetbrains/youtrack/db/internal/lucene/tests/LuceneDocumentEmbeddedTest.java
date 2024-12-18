@@ -42,14 +42,14 @@ public class LuceneDocumentEmbeddedTest extends LuceneBaseTest {
   @Test
   public void embeddedNoTx() {
 
-    EntityImpl doc = new EntityImpl("City");
+    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
 
     doc.field("name", "London");
     db.begin();
     db.save(doc);
     db.commit();
 
-    doc = new EntityImpl("City");
+    doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "Rome");
 
     db.begin();
@@ -65,7 +65,7 @@ public class LuceneDocumentEmbeddedTest extends LuceneBaseTest {
   @Test
   public void embeddedTx() {
 
-    EntityImpl doc = new EntityImpl("City");
+    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
 
     db.begin();
     doc.field("name", "Berlin");

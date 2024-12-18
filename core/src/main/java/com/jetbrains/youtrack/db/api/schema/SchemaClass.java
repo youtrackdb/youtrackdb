@@ -52,16 +52,6 @@ public interface SchemaClass extends Comparable<SchemaClass> {
     UNIQUE(true),
     NOTUNIQUE(true),
     FULLTEXT(true),
-    /**
-     * @deprecated can be used only as manual index and manual indexes are deprecated and will be
-     * removed
-     */
-    @Deprecated
-    DICTIONARY(false),
-    PROXY(true),
-    UNIQUE_HASH_INDEX(true),
-    NOTUNIQUE_HASH_INDEX(true),
-    DICTIONARY_HASH_INDEX(false),
     SPATIAL(true);
 
     private final boolean automaticIndexable;

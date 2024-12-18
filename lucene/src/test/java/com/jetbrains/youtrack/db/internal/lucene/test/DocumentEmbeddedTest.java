@@ -45,14 +45,14 @@ public class DocumentEmbeddedTest extends BaseLuceneTest {
   @Test
   public void embeddedNoTx() {
 
-    EntityImpl doc = new EntityImpl("City");
+    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
 
     doc.field("name", "London");
     db.begin();
     db.save(doc);
     db.commit();
 
-    doc = new EntityImpl("City");
+    doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "Rome");
 
     db.begin();
@@ -61,13 +61,13 @@ public class DocumentEmbeddedTest extends BaseLuceneTest {
 
     ResultSet results = db.query("select from City where name lucene 'London'");
 
-    Assert.assertEquals(results.stream().count(), 1);
+    Assert.assertEquals(1, results.stream().count());
   }
 
   @Test
   public void embeddedTx() {
 
-    EntityImpl doc = new EntityImpl("City");
+    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
 
     db.begin();
     doc.field("name", "Berlin");
@@ -78,6 +78,6 @@ public class DocumentEmbeddedTest extends BaseLuceneTest {
 
     ResultSet results = db.query("select from City where name lucene 'Berlin'");
 
-    Assert.assertEquals(results.stream().count(), 1);
+    Assert.assertEquals(1, results.stream().count());
   }
 }

@@ -19,7 +19,16 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Direction;
+import com.jetbrains.youtrack.db.api.record.Edge;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.types.ModifiableBoolean;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
@@ -29,17 +38,8 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
-import com.jetbrains.youtrack.db.api.record.Direction;
-import com.jetbrains.youtrack.db.api.record.Edge;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilter;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
@@ -70,7 +70,8 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
   private int batch = 100;
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLDeleteEdge parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLDeleteEdge parse(DatabaseSessionInternal db,
+      final CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
 
     String queryText = textRequest.getText();
@@ -214,7 +215,7 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
   /**
    * Execute the command and return the EntityImpl object created.
    */
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     if (fromExpr == null
         && toExpr == null
         && rids == null
@@ -223,7 +224,6 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
       throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
-    DatabaseSessionInternal db = getDatabase();
     txAlreadyBegun = db.getTransaction().isActive();
 
     if (rids != null) {
@@ -325,7 +325,7 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
           // ADDITIONAL FILTERING
           for (Iterator<Edge> it = edges.iterator(); it.hasNext(); ) {
             final Edge edge = it.next();
-            if (!(Boolean) compiledFilter.evaluate(edge.getRecord(), null, context)) {
+            if (!(Boolean) compiledFilter.evaluate(edge.getRecord(db), null, context)) {
               it.remove();
             }
           }
@@ -344,7 +344,7 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
         db.begin();
         // TARGET IS A CLASS + OPTIONAL CONDITION
         query.setContext(getContext());
-        query.execute(querySession, iArgs);
+        query.execute(db, iArgs);
         db.commit();
         return removed;
       }
@@ -362,12 +362,12 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
   /**
    * Delete the current edge.
    */
-  public boolean result(DatabaseSessionInternal querySession, final Object iRecord) {
+  public boolean result(DatabaseSessionInternal db, final Object iRecord) {
     final Identifiable id = (Identifiable) iRecord;
 
     if (compiledFilter != null) {
       // ADDITIONAL FILTERING
-      if (!(Boolean) compiledFilter.evaluate(id.getRecord(), null, context)) {
+      if (!(Boolean) compiledFilter.evaluate(id.getRecord(db), null, context)) {
         return true;
       }
     }
@@ -476,10 +476,10 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
   @Override
   public Set<String> getInvolvedClusters() {
     final HashSet<String> result = new HashSet<String>();
+    final DatabaseSessionInternal db = getDatabase();
     if (rids != null) {
-      final DatabaseSessionInternal database = getDatabase();
       for (RecordId rid : rids) {
-        result.add(database.getClusterNameById(rid.getClusterId()));
+        result.add(db.getClusterNameById(rid.getClusterId()));
       }
     } else if (query != null) {
 
@@ -492,7 +492,7 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
               .getExecutor((CommandRequestInternal) query);
       // COPY THE CONTEXT FROM THE REQUEST
       executor.setContext(context);
-      executor.parse(query);
+      executor.parse(db, query);
       return executor.getInvolvedClusters();
     }
     return result;

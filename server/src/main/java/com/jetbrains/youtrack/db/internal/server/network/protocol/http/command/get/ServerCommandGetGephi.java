@@ -25,11 +25,12 @@ import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Direction;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import com.jetbrains.youtrack.db.internal.server.config.ServerCommandConfiguration;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -49,7 +50,7 @@ public class ServerCommandGetGephi extends ServerCommandAuthenticatedDbAbstract 
   }
 
   @Override
-  public boolean execute(final OHttpRequest iRequest, HttpResponse iResponse) throws Exception {
+  public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
     String[] urlParts =
         checkSyntax(
             iRequest.getUrl(),
@@ -66,44 +67,23 @@ public class ServerCommandGetGephi extends ServerCommandAuthenticatedDbAbstract 
     iRequest.getData().commandInfo = "Gephi";
     iRequest.getData().commandDetail = text;
 
-    var db = getProfiledDatabaseInstance(iRequest);
-
-    try {
-
+    try (var db = getProfiledDatabaseInstance(iRequest)) {
       final ResultSet resultSet;
       if (language.equals("sql")) {
         resultSet = executeStatement(language, text, new HashMap<>(), db);
-      } else if (language.equals("gremlin")) {
-        // TODO use TP3
-
-        // EMPTY
-        resultSet = null;
-        //        List<Object> result = new ArrayList<Object>();
-        //        OGremlinHelper.execute(graph, text, null, null, result, null, null);
-        //
-        //        resultSet = new ArrayList<Entity>(result.size());
-        //
-        //        for (Object o : result) {
-        //          ((ArrayList<Entity>) resultSet).add(db.getVertex(o));
-        //        }
       } else {
         throw new IllegalArgumentException(
             "Language '" + language + "' is not supported. Use 'sql' or 'gremlin'");
       }
 
-      sendRecordsContent(iRequest, iResponse, resultSet, fetchPlan, limit);
-
-    } finally {
-      if (db != null) {
-        db.close();
-      }
+      sendRecordsContent(db, iRequest, iResponse, resultSet, fetchPlan, limit);
     }
 
     return false;
   }
 
   protected void sendRecordsContent(
-      final OHttpRequest iRequest,
+      DatabaseSessionInternal db, final HttpRequest iRequest,
       final HttpResponse iResponse,
       ResultSet resultSet,
       String iFetchPlan,
@@ -114,7 +94,7 @@ public class ServerCommandGetGephi extends ServerCommandAuthenticatedDbAbstract 
     final JSONWriter json = new JSONWriter(buffer, HttpResponse.JSON_FORMAT);
     json.setPrettyPrint(true);
 
-    generateGraphDbOutput(resultSet, limit, json);
+    generateGraphDbOutput(db, resultSet, limit, json);
 
     iResponse.send(
         HttpUtils.STATUS_OK_CODE,
@@ -125,7 +105,8 @@ public class ServerCommandGetGephi extends ServerCommandAuthenticatedDbAbstract 
   }
 
   protected void generateGraphDbOutput(
-      final ResultSet resultSet, int limit, final JSONWriter json) throws IOException {
+      DatabaseSessionInternal db, final ResultSet resultSet, int limit, final JSONWriter json)
+      throws IOException {
     if (resultSet == null) {
       return;
     }
@@ -162,7 +143,7 @@ public class ServerCommandGetGephi extends ServerCommandAuthenticatedDbAbstract 
       for (String field : vertex.getPropertyNames()) {
         final Object v = vertex.getProperty(field);
         if (v != null) {
-          json.writeAttribute(3, false, field, v);
+          json.writeAttribute(db, 3, false, field, v);
         }
       }
       json.endObject(2, false);
@@ -177,16 +158,16 @@ public class ServerCommandGetGephi extends ServerCommandAuthenticatedDbAbstract 
       json.beginObject();
       json.beginObject(1, false, "ae");
       json.beginObject(2, false, edge.getIdentity());
-      json.writeAttribute(3, false, "directed", false);
+      json.writeAttribute(db, 3, false, "directed", false);
 
-      json.writeAttribute(3, false, "source", edge.getToIdentifiable());
-      json.writeAttribute(3, false, "target", edge.getFromIdentifiable());
+      json.writeAttribute(db, 3, false, "source", edge.getToIdentifiable());
+      json.writeAttribute(db, 3, false, "target", edge.getFromIdentifiable());
 
       for (String field : edge.getPropertyNames()) {
         final Object v = edge.getProperty(field);
 
         if (v != null) {
-          json.writeAttribute(3, false, field, v);
+          json.writeAttribute(db, 3, false, field, v);
         }
       }
 

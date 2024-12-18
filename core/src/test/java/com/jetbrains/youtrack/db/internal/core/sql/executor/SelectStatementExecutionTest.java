@@ -523,7 +523,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
     for (int i = 0; i < 7; i++) {
       db.begin();
-      EntityImpl doc = new EntityImpl(className);
+      EntityImpl doc = (EntityImpl) db.newEntity(className);
       doc.save();
       db.commit();
     }
@@ -551,7 +551,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      EntityImpl doc = new EntityImpl(className);
+      EntityImpl doc = (EntityImpl) db.newEntity(className);
       doc.setProperty("name", "name" + (i % 5));
       doc.save();
       db.commit();
@@ -1120,7 +1120,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
   @Test
   public void testFetchFromSingleRid3() {
     db.begin();
-    EntityImpl document = new EntityImpl();
+    EntityImpl document = (EntityImpl) db.newEntity();
     document.save(db.getClusterNameById(0));
     db.commit();
 
@@ -1137,7 +1137,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
   @Test
   public void testFetchFromSingleRid4() {
     db.begin();
-    EntityImpl document = new EntityImpl();
+    EntityImpl document = (EntityImpl) db.newEntity();
     document.save(db.getClusterNameById(0));
     db.commit();
 
@@ -1762,7 +1762,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createIndex(db,
-        className + ".name_surname", SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "name",
+        className + ".name_surname", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
     for (int i = 0; i < 10; i++) {
@@ -1798,7 +1798,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createIndex(db,
-        className + ".name_surname", SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "name",
+        className + ".name_surname", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
     for (int i = 0; i < 10; i++) {
@@ -1843,7 +1843,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.setProperty("foo", i);
       doc.save();
 
-      EntityImpl parent = new EntityImpl(parentClassName);
+      EntityImpl parent = (EntityImpl) db.newEntity(parentClassName);
       parent.setProperty("linked", doc);
       parent.save();
       db.commit();
@@ -1880,7 +1880,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
         coll.add(doc);
       }
 
-      EntityImpl parent = new EntityImpl(parentClassName);
+      EntityImpl parent = (EntityImpl) db.newEntity(parentClassName);
       parent.setProperty("linked", coll);
       parent.save();
     }
@@ -1917,7 +1917,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
         coll.add(doc);
       }
 
-      EntityImpl parent = new EntityImpl(parentClassName);
+      EntityImpl parent = (EntityImpl) db.newEntity(parentClassName);
       parent.setProperty("linked", coll);
       parent.save();
     }
@@ -4555,7 +4555,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     final SchemaClass clazz = db.getMetadata().getSchema().getOrCreateClass(className);
     final Property prop = clazz.createProperty(db, "name", PropertyType.STRING);
     // Hash Index skipped for range query
-    prop.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX);
+    prop.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     for (int i = 0; i < 10; i++) {
       db.begin();

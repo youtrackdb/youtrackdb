@@ -46,7 +46,7 @@ public class SyncCommandResultListener extends AbstractCommandResultListener
   }
 
   @Override
-  public boolean result(DatabaseSessionInternal querySession, final Object iRecord) {
+  public boolean result(DatabaseSessionInternal db, final Object iRecord) {
     if (iRecord instanceof Record) {
       alreadySent.add((Record) iRecord);
       fetchedRecordsToSend.remove(iRecord);
@@ -55,12 +55,11 @@ public class SyncCommandResultListener extends AbstractCommandResultListener
     if (wrappedResultListener != null)
     // NOTIFY THE WRAPPED LISTENER
     {
-      wrappedResultListener.result(querySession, iRecord);
+      wrappedResultListener.result(db, iRecord);
     }
 
-    fetchRecord(
-        iRecord,
-        new RemoteFetchListener() {
+    fetchRecord(db,
+        iRecord, new RemoteFetchListener() {
           @Override
           protected void sendRecord(RecordAbstract iLinked) {
             if (!alreadySent.contains(iLinked)) {
@@ -80,7 +79,7 @@ public class SyncCommandResultListener extends AbstractCommandResultListener
   }
 
   @Override
-  public void linkdedBySimpleValue(EntityImpl entity) {
+  public void linkdedBySimpleValue(DatabaseSessionInternal db, EntityImpl entity) {
 
     RemoteFetchListener listener =
         new RemoteFetchListener() {
@@ -93,20 +92,20 @@ public class SyncCommandResultListener extends AbstractCommandResultListener
 
           @Override
           public void parseLinked(
-              EntityImpl iRootRecord,
+              DatabaseSessionInternal db, EntityImpl iRootRecord,
               Identifiable iLinked,
               Object iUserObject,
               String iFieldName,
               FetchContext iContext)
               throws FetchException {
             if (!(iLinked instanceof RecordId)) {
-              sendRecord(iLinked.getRecord());
+              sendRecord(iLinked.getRecord(db));
             }
           }
 
           @Override
           public void parseLinkedCollectionValue(
-              EntityImpl iRootRecord,
+              DatabaseSessionInternal db, EntityImpl iRootRecord,
               Identifiable iLinked,
               Object iUserObject,
               String iFieldName,
@@ -114,11 +113,11 @@ public class SyncCommandResultListener extends AbstractCommandResultListener
               throws FetchException {
 
             if (!(iLinked instanceof RecordId)) {
-              sendRecord(iLinked.getRecord());
+              sendRecord(iLinked.getRecord(db));
             }
           }
         };
     final FetchContext context = new RemoteFetchContext();
-    FetchHelper.fetch(entity, entity, FetchHelper.buildFetchPlan(""), listener, context, "");
+    FetchHelper.fetch(db, entity, entity, FetchHelper.buildFetchPlan(""), listener, context, "");
   }
 }

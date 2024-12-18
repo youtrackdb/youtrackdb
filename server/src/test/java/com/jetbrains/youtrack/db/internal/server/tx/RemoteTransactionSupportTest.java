@@ -47,7 +47,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryUpdateUpdatedInTxTransaction() {
     db.begin();
-    EntityImpl doc = new EntityImpl("SomeTx");
+    EntityImpl doc = ((EntityImpl) db.newEntity("SomeTx"));
     doc.setProperty("name", "Joe");
     Identifiable id = db.save(doc);
     db.commit();
@@ -67,10 +67,10 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   public void testResetUpdatedInTxTransaction() {
     db.begin();
 
-    EntityImpl doc1 = new EntityImpl();
+    EntityImpl doc1 = ((EntityImpl) db.newEntity());
     doc1.setProperty("name", "Jane");
     db.save(doc1);
-    EntityImpl doc2 = new EntityImpl("SomeTx");
+    EntityImpl doc2 = ((EntityImpl) db.newEntity("SomeTx"));
     doc2.setProperty("name", "Jane");
     db.save(doc2);
     ResultSet result = db.command("update SomeTx set name='July' where name = 'Jane' ");
@@ -82,11 +82,11 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryUpdateCreatedInTxTransaction() throws InterruptedException {
     db.begin();
-    EntityImpl doc1 = new EntityImpl("SomeTx");
+    EntityImpl doc1 = ((EntityImpl) db.newEntity("SomeTx"));
     doc1.setProperty("name", "Jane");
     Identifiable id = db.save(doc1);
 
-    EntityImpl docx = new EntityImpl("SomeTx2");
+    EntityImpl docx = ((EntityImpl) db.newEntity("SomeTx2"));
     docx.setProperty("name", "Jane");
     db.save(docx);
 
@@ -102,13 +102,13 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testRollbackTxTransaction() {
     db.begin();
-    EntityImpl doc = new EntityImpl("SomeTx");
+    EntityImpl doc = ((EntityImpl) db.newEntity("SomeTx"));
     doc.setProperty("name", "Jane");
     db.save(doc);
     db.commit();
 
     db.begin();
-    EntityImpl doc1 = new EntityImpl("SomeTx");
+    EntityImpl doc1 = ((EntityImpl) db.newEntity("SomeTx"));
     doc1.setProperty("name", "Jane");
     db.save(doc1);
 
@@ -127,13 +127,13 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testRollbackTxCheckStatusTransaction() {
     db.begin();
-    EntityImpl doc = new EntityImpl("SomeTx");
+    EntityImpl doc = ((EntityImpl) db.newEntity("SomeTx"));
     doc.setProperty("name", "Jane");
     db.save(doc);
     db.commit();
 
     db.begin();
-    EntityImpl doc1 = new EntityImpl("SomeTx");
+    EntityImpl doc1 = ((EntityImpl) db.newEntity("SomeTx"));
     doc1.setProperty("name", "Jane");
     db.save(doc1);
 
@@ -295,18 +295,18 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   public void testGenerateIdCounterTransaction() {
     db.begin();
 
-    EntityImpl doc = new EntityImpl("SomeTx");
+    EntityImpl doc = ((EntityImpl) db.newEntity("SomeTx"));
     doc.setProperty("name", "Jane");
     db.save(doc);
 
     db.command("insert into SomeTx set name ='Jane1' ").close();
     db.command("insert into SomeTx set name ='Jane2' ").close();
 
-    EntityImpl doc1 = new EntityImpl("SomeTx");
+    EntityImpl doc1 = ((EntityImpl) db.newEntity("SomeTx"));
     doc1.setProperty("name", "Jane3");
     db.save(doc1);
 
-    doc1 = new EntityImpl("SomeTx");
+    doc1 = ((EntityImpl) db.newEntity("SomeTx"));
     doc1.setProperty("name", "Jane4");
     db.save(doc1);
     db.command("insert into SomeTx set name ='Jane2' ").close();

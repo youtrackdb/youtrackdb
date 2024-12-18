@@ -36,7 +36,7 @@ public class ConvertToUpdatableResultStepTest extends TestUtilsFixture {
             List<Result> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
-                EntityImpl document = new EntityImpl();
+                EntityImpl document = (EntityImpl) db.newEntity();
                 document.setProperty(STRING_PROPERTY, RandomStringUtils.randomAlphanumeric(10));
                 document.setProperty(INTEGER_PROPERTY, new Random().nextInt());
                 documents.add(document);

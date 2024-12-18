@@ -67,7 +67,8 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
   private int batch = 100;
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLDeleteVertex parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLDeleteVertex parse(DatabaseSessionInternal db,
+      final CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
 
     String queryText = textRequest.getText();
@@ -181,7 +182,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
   /**
    * Execute the command and return the EntityImpl object created.
    */
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     if (rid == null && query == null) {
       throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -193,7 +194,6 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
 
     txAlreadyBegun = getDatabase().getTransaction().isActive();
 
-    DatabaseSessionInternal db = getDatabase();
     if (rid != null) {
       // REMOVE PUNCTUAL RID
       db.begin();
@@ -231,12 +231,10 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
   /**
    * Delete the current vertex.
    */
-  public boolean result(DatabaseSessionInternal querySession, final Object iRecord) {
+  public boolean result(DatabaseSessionInternal db, final Object iRecord) {
     final Identifiable id = (Identifiable) iRecord;
     if (((RecordId) id.getIdentity()).isValid()) {
-      final EntityImpl record = id.getRecord();
-      DatabaseSessionInternal db = getDatabase();
-
+      final EntityImpl record = id.getRecord(db);
       final Vertex v = toVertex(record);
       if (v != null) {
         v.delete();
@@ -329,7 +327,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
               .getExecutor((CommandRequestInternal) query);
       // COPY THE CONTEXT FROM THE REQUEST
       executor.setContext(context);
-      executor.parse(query);
+      executor.parse(database, query);
       return executor.getInvolvedClusters();
     }
     return result;

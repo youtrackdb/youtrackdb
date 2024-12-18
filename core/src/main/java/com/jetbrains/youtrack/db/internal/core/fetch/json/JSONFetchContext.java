@@ -21,13 +21,14 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.FetchException;
 import com.jetbrains.youtrack.db.internal.core.fetch.FetchContext;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.FieldTypesString;
@@ -57,15 +58,14 @@ public class JSONFetchContext implements FetchContext {
     typesStack.add(new StringBuilder());
   }
 
-  public void onAfterFetch(final EntityImpl rootRecord) {
+  public void onAfterFetch(DatabaseSessionInternal db, final EntityImpl rootRecord) {
     final StringBuilder sb = typesStack.pop();
-    if (settings.keepTypes && sb.length() > 0) {
+    if (settings.keepTypes && !sb.isEmpty()) {
       try {
-        jsonWriter.writeAttribute(
+        jsonWriter.writeAttribute(db,
             settings.indentLevel > -1 ? settings.indentLevel : 1,
             true,
-            FieldTypesString.ATTRIBUTE_FIELD_TYPES,
-            sb.toString());
+            FieldTypesString.ATTRIBUTE_FIELD_TYPES, sb.toString());
       } catch (final IOException e) {
         throw BaseException.wrapException(new FetchException("Error writing field types"), e);
       }
@@ -85,11 +85,11 @@ public class JSONFetchContext implements FetchContext {
   }
 
   public void onBeforeArray(
-      final EntityImpl iRootRecord,
+      DatabaseSessionInternal db, final EntityImpl iRootRecord,
       final String iFieldName,
       final Object iUserObject,
       final Identifiable[] iArray) {
-    onBeforeCollection(iRootRecord, iFieldName, iUserObject, null);
+    onBeforeCollection(db, iRootRecord, iFieldName, iUserObject, null);
   }
 
   public void onAfterArray(
@@ -98,13 +98,13 @@ public class JSONFetchContext implements FetchContext {
   }
 
   public void onBeforeCollection(
-      final EntityImpl rootRecord,
+      DatabaseSessionInternal db, final EntityImpl rootRecord,
       final String fieldName,
       final Object userObject,
       final Iterable<?> iterable) {
     try {
       manageTypes(fieldName, iterable, null);
-      jsonWriter.beginCollection(++settings.indentLevel, true, fieldName);
+      jsonWriter.beginCollection(db, ++settings.indentLevel, true, fieldName);
       collectionStack.add(rootRecord);
     } catch (final IOException e) {
       throw BaseException.wrapException(
@@ -139,7 +139,7 @@ public class JSONFetchContext implements FetchContext {
       jsonWriter.beginObject(++settings.indentLevel, true, iFieldName);
       if (!(iUserObject instanceof EntityImpl)) {
         collectionStack.add(
-            new EntityImpl()); // <-- sorry for this... fixes #2845 but this mess should be
+            new EntityImpl(null)); // <-- sorry for this... fixes #2845 but this mess should be
         // rewritten...
       }
     } catch (IOException e) {
@@ -166,7 +166,7 @@ public class JSONFetchContext implements FetchContext {
   }
 
   public void onBeforeDocument(
-      final EntityImpl iRootRecord,
+      DatabaseSessionInternal db, final EntityImpl iRootRecord,
       final EntityImpl entity,
       final String iFieldName,
       final Object iUserObject) {
@@ -178,7 +178,7 @@ public class JSONFetchContext implements FetchContext {
         fieldName = iFieldName;
       }
       jsonWriter.beginObject(++settings.indentLevel, true, fieldName);
-      writeSignature(jsonWriter, entity);
+      writeSignature(db, jsonWriter, entity);
     } catch (IOException e) {
       throw BaseException.wrapException(
           new FetchException(
@@ -202,17 +202,18 @@ public class JSONFetchContext implements FetchContext {
     }
   }
 
-  public void writeLinkedValue(final Identifiable iRecord, final String iFieldName)
+  public void writeLinkedValue(DatabaseSessionInternal db, final Identifiable iRecord)
       throws IOException {
-    jsonWriter.writeValue(settings.indentLevel, true, JSONWriter.encode(iRecord.getIdentity()));
+    jsonWriter.writeValue(db, settings.indentLevel, true, JSONWriter.encode(iRecord.getIdentity()));
   }
 
-  public void writeLinkedAttribute(final Identifiable iRecord, final String iFieldName)
+  public void writeLinkedAttribute(DatabaseSessionInternal db, final Identifiable iRecord,
+      final String iFieldName)
       throws IOException {
     final Object link =
         ((RecordId) iRecord.getIdentity()).isValid() ? JSONWriter.encode(iRecord.getIdentity())
             : null;
-    jsonWriter.writeAttribute(settings.indentLevel, true, iFieldName, link);
+    jsonWriter.writeAttribute(db, settings.indentLevel, true, iFieldName, link);
   }
 
   public boolean isInCollection(EntityImpl record) {
@@ -227,7 +228,8 @@ public class JSONFetchContext implements FetchContext {
     return settings.indentLevel;
   }
 
-  public void writeSignature(final JSONWriter json, final Record record) throws IOException {
+  public void writeSignature(DatabaseSessionInternal db, final JSONWriter json, final Record record)
+      throws IOException {
     if (record == null) {
       json.write("null");
       return;
@@ -235,32 +237,29 @@ public class JSONFetchContext implements FetchContext {
     boolean firstAttribute = true;
 
     if (settings.includeType) {
-      json.writeAttribute(
+      json.writeAttribute(db,
           firstAttribute ? settings.indentLevel : 1,
           firstAttribute,
-          DocumentHelper.ATTRIBUTE_TYPE,
-          "" + (char) RecordInternal.getRecordType(record));
+          EntityHelper.ATTRIBUTE_TYPE, "" + (char) RecordInternal.getRecordType(db, record));
       if (settings.attribSameRow) {
         firstAttribute = false;
       }
     }
     if (settings.includeId && record.getIdentity() != null
         && ((RecordId) record.getIdentity()).isValid()) {
-      json.writeAttribute(
+      json.writeAttribute(db,
           !firstAttribute ? settings.indentLevel : 1,
           firstAttribute,
-          DocumentHelper.ATTRIBUTE_RID,
-          record.getIdentity().toString());
+          EntityHelper.ATTRIBUTE_RID, record.getIdentity().toString());
       if (settings.attribSameRow) {
         firstAttribute = false;
       }
     }
     if (settings.includeVer) {
-      json.writeAttribute(
+      json.writeAttribute(db,
           firstAttribute ? settings.indentLevel : 1,
           firstAttribute,
-          DocumentHelper.ATTRIBUTE_VERSION,
-          record.getVersion());
+          EntityHelper.ATTRIBUTE_VERSION, record.getVersion());
       if (settings.attribSameRow) {
         firstAttribute = false;
       }
@@ -268,11 +267,10 @@ public class JSONFetchContext implements FetchContext {
     if (settings.includeClazz
         && record instanceof EntityImpl
         && ((EntityImpl) record).getClassName() != null) {
-      json.writeAttribute(
+      json.writeAttribute(db,
           firstAttribute ? settings.indentLevel : 1,
           firstAttribute,
-          DocumentHelper.ATTRIBUTE_CLASS,
-          ((EntityImpl) record).getClassName());
+          EntityHelper.ATTRIBUTE_CLASS, ((EntityImpl) record).getClassName());
       if (settings.attribSameRow) {
         firstAttribute = false;
       }

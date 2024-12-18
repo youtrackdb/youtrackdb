@@ -19,10 +19,10 @@ public class FunctionSqlTest extends DbTestBase {
     db.getMetadata().getSchema().createClass("Test");
 
     db.begin();
-    EntityImpl doc1 = new EntityImpl("Test");
+    EntityImpl doc1 = ((EntityImpl) db.newEntity("Test"));
     doc1.field("name", "Enrico");
     db.save(doc1);
-    doc1 = new EntityImpl("Test");
+    doc1 = ((EntityImpl) db.newEntity("Test"));
     doc1.setClassName("Test");
     doc1.field("name", "Luca");
     db.save(doc1);
@@ -54,10 +54,10 @@ public class FunctionSqlTest extends DbTestBase {
 
     db.getMetadata().getSchema().createClass("Test");
     db.begin();
-    EntityImpl doc1 = new EntityImpl("Test");
+    EntityImpl doc1 = ((EntityImpl) db.newEntity("Test"));
     doc1.field("name", "Enrico");
     db.save(doc1);
-    doc1 = new EntityImpl("Test");
+    doc1 = ((EntityImpl) db.newEntity("Test"));
     doc1.setClassName("Test");
     doc1.field("name", "Luca");
     db.save(doc1);

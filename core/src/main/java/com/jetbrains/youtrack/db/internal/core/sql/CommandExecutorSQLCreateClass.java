@@ -19,16 +19,16 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
-import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
-import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.ClusterDoesNotExistException;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCreateClassStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import java.util.ArrayList;
@@ -58,7 +58,8 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
   private Integer clusters = null;
   private boolean ifNotExists = false;
 
-  public CommandExecutorSQLCreateClass parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLCreateClass parse(DatabaseSessionInternal db,
+      final CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
 
     String queryText = textRequest.getText();
@@ -286,7 +287,7 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
   /**
    * Execute the CREATE CLASS.
    */
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     if (className == null) {
       throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");

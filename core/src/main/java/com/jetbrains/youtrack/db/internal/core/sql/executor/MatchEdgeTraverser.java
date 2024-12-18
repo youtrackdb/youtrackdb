@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchPathItem;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLRid;
@@ -243,15 +243,17 @@ public class MatchEdgeTraverser {
   }
 
   private boolean matchesClass(
-      CommandContext iCommandContext, String className, Identifiable origin) {
+      CommandContext context, String className, Identifiable origin) {
     if (className == null) {
       return true;
     }
+
+    var db = context.getDatabase();
     Entity element = null;
     if (origin instanceof Entity) {
       element = (Entity) origin;
     } else if (origin != null) {
-      Object record = origin.getRecord();
+      Object record = origin.getRecord(db);
       if (record instanceof Entity) {
         element = (Entity) record;
       }

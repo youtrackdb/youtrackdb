@@ -13,10 +13,10 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial.shape;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,9 +63,9 @@ public class MultiPolygonShapeBuilder extends PolygonShapeBuilder {
   }
 
   @Override
-  public EntityImpl toDoc(JtsGeometry shape) {
+  public EntityImpl toEntitty(JtsGeometry shape) {
 
-    EntityImpl doc = new EntityImpl(getName());
+    EntityImpl doc = new EntityImpl(null, getName());
     MultiPolygon multiPolygon = (MultiPolygon) shape.getGeom();
     List<List<List<List<Double>>>> polyCoordinates = new ArrayList<List<List<List<Double>>>>();
     int n = multiPolygon.getNumGeometries();

@@ -40,7 +40,6 @@ import javax.annotation.Nonnull;
  * @since 8/27/13
  */
 public abstract class DurableComponent extends SharedResourceAbstract {
-
   protected final AtomicOperationsManager atomicOperationsManager;
   protected final AbstractPaginatedStorage storage;
   protected final ReadCache readCache;

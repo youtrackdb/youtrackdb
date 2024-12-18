@@ -25,9 +25,9 @@ public class TestOrderBy extends DbTestBase {
     db.getMetadata().getSchema().createClass("test");
 
     db.begin();
-    Record res1 = db.save(new EntityImpl("test").field("name", "Ähhhh"));
-    Record res2 = db.save(new EntityImpl("test").field("name", "Ahhhh"));
-    Record res3 = db.save(new EntityImpl("test").field("name", "Zebra"));
+    Record res1 = db.save(((EntityImpl) db.newEntity("test")).field("name", "Ähhhh"));
+    Record res2 = db.save(((EntityImpl) db.newEntity("test")).field("name", "Ahhhh"));
+    Record res3 = db.save(((EntityImpl) db.newEntity("test")).field("name", "Zebra"));
     db.commit();
 
     List<Result> queryRes =
@@ -50,9 +50,9 @@ public class TestOrderBy extends DbTestBase {
     db.set(DatabaseSession.ATTRIBUTES.LOCALE_LANGUAGE, Locale.GERMANY.getLanguage());
     SchemaClass clazz = db.getMetadata().getSchema().createClass("test");
     clazz.createProperty(db, "name", PropertyType.STRING).createIndex(db, INDEX_TYPE.NOTUNIQUE);
-    Record res1 = db.save(new EntityImpl("test").field("name", "Ähhhh"));
-    Record res2 = db.save(new EntityImpl("test").field("name", "Ahhhh"));
-    Record res3 = db.save(new EntityImpl("test").field("name", "Zebra"));
+    Record res1 = db.save(((EntityImpl) db.newEntity("test")).field("name", "Ähhhh"));
+    Record res2 = db.save(((EntityImpl) db.newEntity("test")).field("name", "Ahhhh"));
+    Record res3 = db.save(((EntityImpl) db.newEntity("test")).field("name", "Zebra"));
     List<Result> queryRes =
         db.query("select from test order by name").stream().collect(Collectors.toList());
     assertEquals(queryRes.get(0).getIdentity().get(), res2.getIdentity());

@@ -42,7 +42,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   public void testQuery() {
     for (int i = 0; i < 150; i++) {
       db.begin();
-      EntityImpl doc = new EntityImpl("Some");
+      EntityImpl doc = ((EntityImpl) db.newEntity("Some"));
       doc.setProperty("prop", "value");
       db.save(doc);
       db.commit();
@@ -60,7 +60,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   public void testCommandSelect() {
     for (int i = 0; i < 150; i++) {
       db.begin();
-      EntityImpl doc = new EntityImpl("Some");
+      EntityImpl doc = ((EntityImpl) db.newEntity("Some"));
       doc.setProperty("prop", "value");
       db.save(doc);
       db.commit();
@@ -78,7 +78,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   public void testCommandInsertWithPageOverflow() {
     for (int i = 0; i < 150; i++) {
       db.begin();
-      EntityImpl doc = new EntityImpl("Some");
+      EntityImpl doc = ((EntityImpl) db.newEntity("Some"));
       doc.setProperty("prop", "value");
       db.save(doc);
       db.commit();
@@ -97,7 +97,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test(expected = DatabaseException.class)
   public void testQueryKilledSession() {
     for (int i = 0; i < 150; i++) {
-      EntityImpl doc = new EntityImpl("Some");
+      EntityImpl doc = ((EntityImpl) db.newEntity("Some"));
       doc.setProperty("prop", "value");
       db.save(doc);
     }
@@ -118,9 +118,9 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryEmbedded() {
     db.begin();
-    EntityImpl doc = new EntityImpl("Some");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Some"));
     doc.setProperty("prop", "value");
-    EntityImpl emb = new EntityImpl();
+    EntityImpl emb = ((EntityImpl) db.newEntity());
     emb.setProperty("one", "value");
     doc.setProperty("emb", emb, PropertyType.EMBEDDED);
     db.save(doc);
@@ -136,11 +136,11 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryDoubleEmbedded() {
     db.begin();
-    EntityImpl doc = new EntityImpl("Some");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Some"));
     doc.setProperty("prop", "value");
-    EntityImpl emb1 = new EntityImpl();
+    EntityImpl emb1 = ((EntityImpl) db.newEntity());
     emb1.setProperty("two", "value");
-    EntityImpl emb = new EntityImpl();
+    EntityImpl emb = ((EntityImpl) db.newEntity());
     emb.setProperty("one", "value");
     emb.setProperty("secEmb", emb1, PropertyType.EMBEDDED);
 
@@ -160,9 +160,9 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryEmbeddedList() {
     db.begin();
-    EntityImpl doc = new EntityImpl("Some");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Some"));
     doc.setProperty("prop", "value");
-    EntityImpl emb = new EntityImpl();
+    EntityImpl emb = ((EntityImpl) db.newEntity());
     emb.setProperty("one", "value");
     List<Object> list = new ArrayList<>();
     list.add(emb);
@@ -181,9 +181,9 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryEmbeddedSet() {
     db.begin();
-    EntityImpl doc = new EntityImpl("Some");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Some"));
     doc.setProperty("prop", "value");
-    EntityImpl emb = new EntityImpl();
+    EntityImpl emb = ((EntityImpl) db.newEntity());
     emb.setProperty("one", "value");
     Set<EntityImpl> set = new HashSet<>();
     set.add(emb);
@@ -203,9 +203,9 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryEmbeddedMap() {
     db.begin();
-    EntityImpl doc = new EntityImpl("Some");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Some"));
     doc.setProperty("prop", "value");
-    EntityImpl emb = new EntityImpl();
+    EntityImpl emb = ((EntityImpl) db.newEntity());
     emb.setProperty("one", "value");
     Map<String, EntityImpl> map = new HashMap<>();
     map.put("key", emb);

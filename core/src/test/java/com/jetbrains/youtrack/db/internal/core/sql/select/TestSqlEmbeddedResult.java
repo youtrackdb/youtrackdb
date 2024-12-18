@@ -3,7 +3,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.select;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.Result;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,8 +17,8 @@ public class TestSqlEmbeddedResult extends DbTestBase {
     db.getMetadata().getSchema().createClass("Test");
 
     db.begin();
-    EntityImpl doc = new EntityImpl("Test");
-    EntityImpl doc1 = new EntityImpl();
+    EntityImpl doc = ((EntityImpl) db.newEntity("Test"));
+    EntityImpl doc1 = ((EntityImpl) db.newEntity());
     doc1.setProperty("format", 1);
     Set<EntityImpl> docs = new HashSet<EntityImpl>();
     docs.add(doc1);
@@ -33,7 +32,7 @@ public class TestSqlEmbeddedResult extends DbTestBase {
             .query(
                 "select $current as el " + " from (select expand(rel.include('format')) from Test)")
             .stream()
-            .map(Result::toEntity)
+            .map(result -> result.toEntity())
             .collect(Collectors.toList());
     Assert.assertEquals(res.size(), 1);
     Entity ele = res.get(0);
@@ -41,7 +40,7 @@ public class TestSqlEmbeddedResult extends DbTestBase {
 
     res =
         db.query("select rel as el " + " from (select rel from Test)").stream()
-            .map(Result::toEntity)
+            .map(result -> result.toEntity())
             .toList();
 
     Assert.assertEquals(res.size(), 1);

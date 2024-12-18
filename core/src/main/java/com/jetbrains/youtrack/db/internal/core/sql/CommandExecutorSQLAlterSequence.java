@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
-import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
 import java.util.Map;
 
@@ -26,7 +26,8 @@ public class CommandExecutorSQLAlterSequence extends CommandExecutorSQLAbstract
   private Sequence.CreateParams params;
 
   @Override
-  public CommandExecutorSQLAlterSequence parse(CommandRequest iRequest) {
+  public CommandExecutorSQLAlterSequence parse(DatabaseSessionInternal db,
+      CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
 
     String queryText = textRequest.getText();
@@ -69,19 +70,18 @@ public class CommandExecutorSQLAlterSequence extends CommandExecutorSQLAbstract
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, Map<Object, Object> iArgs) {
     if (this.sequenceName == null) {
       throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final var database = getDatabase();
-    Sequence sequence = database.getMetadata().getSequenceLibrary()
+    Sequence sequence = db.getMetadata().getSequenceLibrary()
         .getSequence(this.sequenceName);
 
     boolean result;
     try {
-      result = sequence.updateParams(this.params);
+      result = sequence.updateParams(db, this.params);
       // TODO check, but reset should not be here
       //      sequence.reset();
     } catch (DatabaseException exc) {

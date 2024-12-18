@@ -56,7 +56,7 @@ public class LuceneBooleanIndexTest extends BaseLuceneTest {
   public void insertPerson() {
 
     for (int i = 0; i < 1000; i++) {
-      EntityImpl doc = new EntityImpl("Person");
+      EntityImpl doc = ((EntityImpl) db.newEntity("Person"));
       doc.field("isDeleted", i % 2 == 0);
       db.begin();
       db.save(doc);

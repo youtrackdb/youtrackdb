@@ -69,7 +69,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
     String qResult = db.command(new CommandScript("sql", script.toString())).execute(db);
     Assert.assertNotNull(qResult);
 
-    new EntityImpl().fromJSON(qResult);
+    db.newEntity().fromJSON(qResult);
 
     script = new StringBuilder();
     script.append("let $a = select from V limit 2\n");
@@ -80,7 +80,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
     result = result.trim();
     Assert.assertTrue(result.startsWith("["));
     Assert.assertTrue(result.endsWith("]"));
-    new EntityImpl().fromJSON(result.substring(1, result.length() - 1));
+    db.newEntity().fromJSON(result.substring(1, result.length() - 1));
   }
 
   @Test

@@ -76,7 +76,7 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.b
 import com.jetbrains.youtrack.db.internal.core.storage.RecordMetadata;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageInfo;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx;
@@ -182,6 +182,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   public void set(ATTRIBUTES iAttribute, Object iValue) {
+    assert assertIfNotActive();
     String query = "alter database " + iAttribute.name() + " ? ";
     // Bypass the database command for avoid transaction management
     RemoteQueryResult result = storage.command(this, query, new Object[]{iValue});
@@ -191,6 +192,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   public void set(ATTRIBUTES_INTERNAL attribute, Object value) {
+    assert assertIfNotActive();
     String query = "alter database " + attribute.name() + " ? ";
     // Bypass the database command for avoid transaction management
     RemoteQueryResult result = storage.command(this, query, new Object[]{value});
@@ -200,6 +202,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   public DatabaseSession setCustom(String name, Object iValue) {
+    assert assertIfNotActive();
     if ("clear".equals(name) && iValue == null) {
       String query = "alter database CUSTOM 'clear'";
       // Bypass the database command for avoid transaction management
@@ -300,24 +303,29 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   }
 
   public StorageRemoteSession getSessionMetadata() {
+    assert assertIfNotActive();
     return sessionMetadata;
   }
 
   public void setSessionMetadata(StorageRemoteSession sessionMetadata) {
+    assert assertIfNotActive();
     this.sessionMetadata = sessionMetadata;
   }
 
   @Override
   public Storage getStorage() {
+    assert assertIfNotActive();
     return storage;
   }
 
   public StorageRemote getStorageRemote() {
+    assert assertIfNotActive();
     return storage;
   }
 
   @Override
   public StorageInfo getStorageInfo() {
+    assert assertIfNotActive();
     return storage;
   }
 
@@ -345,6 +353,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   @Override
   public ResultSet query(String query, Object... args) {
     checkOpenness();
+    assert assertIfNotActive();
     checkAndSendTransaction();
 
     RemoteQueryResult result = storage.query(this, query, args);
@@ -358,6 +367,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   @Override
   public ResultSet query(String query, Map args) {
     checkOpenness();
+    assert assertIfNotActive();
     checkAndSendTransaction();
 
     RemoteQueryResult result = storage.query(this, query, args);
@@ -372,6 +382,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   public ResultSet indexQuery(String indexName, String query, Object... args) {
     checkOpenness();
 
+    assert assertIfNotActive();
     if (getTransaction().isActive()) {
       FrontendTransactionIndexChanges changes = getTransaction().getIndexChanges(indexName);
       Set<String> changedIndexes =
@@ -392,6 +403,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   @Override
   public ResultSet command(String query, Object... args) {
     checkOpenness();
+    assert assertIfNotActive();
     checkAndSendTransaction();
 
     RemoteQueryResult result = storage.command(this, query, args);
@@ -405,8 +417,9 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   @Override
   public ResultSet command(String query, Map args) {
     checkOpenness();
-    checkAndSendTransaction();
+    assert assertIfNotActive();
 
+    checkAndSendTransaction();
     RemoteQueryResult result = storage.command(this, query, args);
 
     if (result.isReloadMetadata()) {
@@ -418,6 +431,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   protected TransactionOptimistic newTxInstance() {
+    assert assertIfNotActive();
     return new TransactionOptimisticClient(this);
   }
 
@@ -425,6 +439,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   public ResultSet execute(String language, String script, Object... args)
       throws CommandExecutionException, CommandScriptException {
     checkOpenness();
+    assert assertIfNotActive();
     checkAndSendTransaction();
     RemoteQueryResult result = storage.execute(this, language, script, args);
 
@@ -439,6 +454,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   public ResultSet execute(String language, String script, Map<String, ?> args)
       throws CommandExecutionException, CommandScriptException {
     checkOpenness();
+    assert assertIfNotActive();
     checkAndSendTransaction();
 
     RemoteQueryResult result = storage.execute(this, language, script, args);
@@ -451,18 +467,21 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   }
 
   public void closeQuery(String queryId) {
+    assert assertIfNotActive();
     storage.closeQuery(this, queryId);
     queryClosed(queryId);
   }
 
   public void fetchNextPage(RemoteResultSet rs) {
     checkOpenness();
+    assert assertIfNotActive();
     checkAndSendTransaction();
     storage.fetchNextPage(this, rs);
   }
 
   @Override
   public LiveQueryMonitor live(String query, LiveQueryResultListener listener, Object... args) {
+    assert assertIfNotActive();
     return storage.liveQuery(
         this, query, new LiveQueryClientListener(this.copy(), listener), args);
   }
@@ -470,6 +489,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   @Override
   public LiveQueryMonitor live(
       String query, LiveQueryResultListener listener, Map<String, ?> args) {
+    assert assertIfNotActive();
     return storage.liveQuery(
         this, query, new LiveQueryClientListener(this.copy(), listener), args);
   }
@@ -512,6 +532,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   @Override
   public int addBlobCluster(final String iClusterName, final Object... iParameters) {
     int id;
+    assert assertIfNotActive();
     try (ResultSet resultSet = command("create blob cluster :1", iClusterName)) {
       assert resultSet.hasNext();
       Result result = resultSet.next();
@@ -523,6 +544,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   public Identifiable beforeCreateOperations(Identifiable id, String iClusterName) {
+    assert assertIfNotActive();
     checkSecurity(Role.PERMISSION_CREATE, id, iClusterName);
     RecordHook.RESULT res = callbackHooks(RecordHook.TYPE.BEFORE_CREATE, id);
     if (res == RecordHook.RESULT.RECORD_CHANGED) {
@@ -544,6 +566,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   public Identifiable beforeUpdateOperations(Identifiable id, String iClusterName) {
+    assert assertIfNotActive();
     checkSecurity(Role.PERMISSION_UPDATE, id, iClusterName);
     RecordHook.RESULT res = callbackHooks(RecordHook.TYPE.BEFORE_UPDATE, id);
     if (res == RecordHook.RESULT.RECORD_CHANGED) {
@@ -565,11 +588,13 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   public void beforeDeleteOperations(Identifiable id, String iClusterName) {
+    assert assertIfNotActive();
     checkSecurity(Role.PERMISSION_DELETE, id, iClusterName);
     callbackHooks(RecordHook.TYPE.BEFORE_DELETE, id);
   }
 
   public void afterUpdateOperations(final Identifiable id) {
+    assert assertIfNotActive();
     callbackHooks(RecordHook.TYPE.AFTER_UPDATE, id);
     if (id instanceof EntityImpl entity) {
       SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
@@ -580,6 +605,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   }
 
   public void afterCreateOperations(final Identifiable id) {
+    assert assertIfNotActive();
     callbackHooks(RecordHook.TYPE.AFTER_CREATE, id);
     if (id instanceof EntityImpl entity) {
       SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
@@ -590,6 +616,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   }
 
   public void afterDeleteOperations(final Identifiable id) {
+    assert assertIfNotActive();
     callbackHooks(RecordHook.TYPE.AFTER_DELETE, id);
     if (id instanceof EntityImpl entity) {
       SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
@@ -601,18 +628,20 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   public boolean beforeReadOperations(Identifiable identifiable) {
+    assert assertIfNotActive();
     return callbackHooks(RecordHook.TYPE.BEFORE_READ, identifiable) == RecordHook.RESULT.SKIP;
   }
 
   @Override
   public void afterReadOperations(Identifiable identifiable) {
+    assert assertIfNotActive();
     callbackHooks(RecordHook.TYPE.AFTER_READ, identifiable);
   }
 
   @Override
   public boolean executeExists(RID rid) {
     checkOpenness();
-    checkIfActive();
+    assert assertIfNotActive();
 
     try {
       Record record = getTransaction().getRecord(rid);
@@ -658,6 +687,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   public void delete(final Record record) {
     checkOpenness();
+    assert assertIfNotActive();
     if (record == null) {
       throw new DatabaseException("Cannot delete null entity");
     }
@@ -692,30 +722,30 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   public int addCluster(final String iClusterName, final Object... iParameters) {
-    checkIfActive();
+    assert assertIfNotActive();
     return storage.addCluster(this, iClusterName, iParameters);
   }
 
   @Override
   public int addCluster(final String iClusterName, final int iRequestedId) {
-    checkIfActive();
+    assert assertIfNotActive();
     return storage.addCluster(this, iClusterName, iRequestedId);
   }
 
   public RecordConflictStrategy getConflictStrategy() {
-    checkIfActive();
+    assert assertIfNotActive();
     return getStorageInfo().getRecordConflictStrategy();
   }
 
   public DatabaseSessionAbstract setConflictStrategy(final String iStrategyName) {
-    checkIfActive();
+    assert assertIfNotActive();
     storage.setConflictStrategy(
         YouTrackDBEnginesManager.instance().getRecordConflictStrategy().getStrategy(iStrategyName));
     return this;
   }
 
   public DatabaseSessionAbstract setConflictStrategy(final RecordConflictStrategy iResolver) {
-    checkIfActive();
+    assert assertIfNotActive();
     storage.setConflictStrategy(iResolver);
     return this;
   }
@@ -725,7 +755,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
    */
   @Override
   public long countClusterElements(int iClusterId, boolean countTombstones) {
-    checkIfActive();
+    assert assertIfNotActive();
     return storage.count(this, iClusterId, countTombstones);
   }
 
@@ -734,7 +764,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
    */
   @Override
   public long countClusterElements(int[] iClusterIds, boolean countTombstones) {
-    checkIfActive();
+    assert assertIfNotActive();
     return storage.count(this, iClusterIds, countTombstones);
   }
 
@@ -743,7 +773,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
    */
   @Override
   public long countClusterElements(final String iClusterName) {
-    checkIfActive();
+    assert assertIfNotActive();
 
     final int clusterId = getClusterIdByName(iClusterName);
     if (clusterId < 0) {
@@ -754,7 +784,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   public long getClusterRecordSizeByName(final String clusterName) {
-    checkIfActive();
+    assert assertIfNotActive();
     try {
       return storage.getClusterRecordsSizeByName(clusterName);
     } catch (Exception e) {
@@ -767,7 +797,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   public boolean dropCluster(final String iClusterName) {
-    checkIfActive();
+    assert assertIfNotActive();
     final int clusterId = getClusterIdByName(iClusterName);
     SchemaProxy schema = metadata.getSchema();
     SchemaClass clazz = schema.getClassByClusterId(clusterId);
@@ -784,7 +814,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   public boolean dropCluster(final int clusterId) {
-    checkIfActive();
+    assert assertIfNotActive();
 
     SchemaProxy schema = metadata.getSchema();
     final SchemaClass clazz = schema.getClassByClusterId(clusterId);
@@ -815,12 +845,13 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   }
 
   public boolean dropClusterInternal(int clusterId) {
+    assert assertIfNotActive();
     return storage.dropCluster(this, clusterId);
   }
 
   @Override
   public long getClusterRecordSizeById(final int clusterId) {
-    checkIfActive();
+    assert assertIfNotActive();
     try {
       return storage.getClusterRecordsSizeById(clusterId);
     } catch (Exception e) {
@@ -833,7 +864,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   public long getSize() {
-    checkIfActive();
+    assert assertIfNotActive();
     return storage.getSize(this);
   }
 
@@ -873,7 +904,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   @Override
   public String incrementalBackup(final Path path) throws UnsupportedOperationException {
     checkOpenness();
-    checkIfActive();
+    assert assertIfNotActive();
     checkSecurity(Rule.ResourceGeneric.DATABASE, "backup", Role.PERMISSION_EXECUTE);
 
     return storage.incrementalBackup(this, path.toAbsolutePath().toString(), null);
@@ -881,7 +912,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   public RecordMetadata getRecordMetadata(final RID rid) {
-    checkIfActive();
+    assert assertIfNotActive();
     return storage.getRecordMetadata(this, rid);
   }
 
@@ -924,28 +955,32 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   /**
    * {@inheritDoc}
    */
-  public SBTreeCollectionManager getSbTreeCollectionManager() {
+  public BTreeCollectionManager getSbTreeCollectionManager() {
+    assert assertIfNotActive();
     return storage.getSBtreeCollectionManager();
   }
 
   @Override
   public void reload() {
-    checkIfActive();
+    assert assertIfNotActive();
 
     if (this.isClosed()) {
       throw new DatabaseException("Cannot reload a closed db");
     }
+
     metadata.reload();
     storage.reload(this);
   }
 
   @Override
   public void internalCommit(TransactionOptimistic transaction) {
+    assert assertIfNotActive();
     this.storage.commit(transaction);
   }
 
   @Override
   public boolean isClosed() {
+    assert assertIfNotActive();
     return status == STATUS.CLOSED || storage.isClosed(this);
   }
 
@@ -954,7 +989,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
       return;
     }
 
-    checkIfActive();
+    assert assertIfNotActive();
 
     try {
       closeActiveQueries();
@@ -990,11 +1025,13 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   public long[] getClusterDataRange(int currentClusterId) {
+    assert assertIfNotActive();
     return storage.getClusterDataRange(this, currentClusterId);
   }
 
   @Override
   public void setDefaultClusterId(int addCluster) {
+    assert assertIfNotActive();
     storage.setDefaultClusterId(addCluster);
   }
 
@@ -1009,6 +1046,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   }
 
   public TransactionOptimisticClient getActiveTx() {
+    assert assertIfNotActive();
     if (currentTx.isActive()) {
       return (TransactionOptimisticClient) currentTx;
     } else {
@@ -1018,7 +1056,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   public int[] getClustersIds(Set<String> filterClusters) {
-    checkIfActive();
+    assert assertIfNotActive();
     return filterClusters.stream().map((c) -> getClusterIdByName(c)).mapToInt(i -> i).toArray();
   }
 
@@ -1027,11 +1065,13 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
    */
   @Override
   public void truncateCluster(String clusterName) {
+    assert assertIfNotActive();
     command("truncate cluster " + clusterName).close();
   }
 
   @Override
   public void truncateClass(String name) {
+    assert assertIfNotActive();
     command("truncate class " + name).close();
   }
 
@@ -1042,6 +1082,8 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   public long truncateClass(String name, boolean polimorfic) {
+    assert assertIfNotActive();
+
     long count = 0;
     if (polimorfic) {
       try (ResultSet result = command("truncate class " + name + " polymorphic ")) {
@@ -1061,6 +1103,8 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   public NonTxReadMode getNonTxReadMode() {
+    assert assertIfNotActive();
+
     return nonTxReadMode;
   }
 }

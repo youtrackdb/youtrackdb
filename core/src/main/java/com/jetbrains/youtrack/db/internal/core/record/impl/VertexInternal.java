@@ -3,8 +3,10 @@ package com.jetbrains.youtrack.db.internal.core.record.impl;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.Direction;
 import com.jetbrains.youtrack.db.api.record.Edge;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
@@ -37,16 +39,16 @@ import org.apache.commons.collections4.IterableUtils;
 public interface VertexInternal extends Vertex, EntityInternal {
 
   @Nonnull
-  EntityImpl getBaseDocument();
+  EntityImpl getBaseEntity();
 
   @Override
   default Set<String> getPropertyNames() {
-    return filterPropertyNames(getBaseDocument().getPropertyNamesInternal());
+    return filterPropertyNames(getBaseEntity().getPropertyNamesInternal());
   }
 
   @Override
   default Set<String> getPropertyNamesInternal() {
-    return getBaseDocument().getPropertyNamesInternal();
+    return getBaseEntity().getPropertyNamesInternal();
   }
 
   static Set<String> filterPropertyNames(Set<String> propertyNames) {
@@ -74,28 +76,46 @@ public interface VertexInternal extends Vertex, EntityInternal {
   default <RET> RET getProperty(String name) {
     checkPropertyName(name);
 
-    return getBaseDocument().getPropertyInternal(name);
+    return getBaseEntity().getPropertyInternal(name);
+  }
+
+  @Nullable
+  @Override
+  default Entity getElementProperty(String name) {
+    checkPropertyName(name);
+
+    var baseEntity = getBaseEntity();
+    return baseEntity.getElementProperty(name);
+  }
+
+  @Nullable
+  @Override
+  default Blob getBlobProperty(String propertyName) {
+    checkPropertyName(propertyName);
+
+    var baseEntity = getBaseEntity();
+    return baseEntity.getBlobProperty(propertyName);
   }
 
   @Override
   default <RET> RET getPropertyInternal(String name, boolean lazyLoading) {
-    return getBaseDocument().getPropertyInternal(name, lazyLoading);
+    return getBaseEntity().getPropertyInternal(name, lazyLoading);
   }
 
   @Override
   default <RET> RET getPropertyInternal(String name) {
-    return getBaseDocument().getPropertyInternal(name);
+    return getBaseEntity().getPropertyInternal(name);
   }
 
   @Override
   default <RET> RET getPropertyOnLoadValue(String name) {
-    return getBaseDocument().getPropertyOnLoadValue(name);
+    return getBaseEntity().getPropertyOnLoadValue(name);
   }
 
   @Nullable
   @Override
   default Identifiable getLinkPropertyInternal(String name) {
-    return getBaseDocument().getLinkPropertyInternal(name);
+    return getBaseEntity().getLinkPropertyInternal(name);
   }
 
   @Nullable
@@ -103,7 +123,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
   default Identifiable getLinkProperty(String name) {
     checkPropertyName(name);
 
-    return getBaseDocument().getLinkProperty(name);
+    return getBaseEntity().getLinkProperty(name);
   }
 
   static void checkPropertyName(String name) {
@@ -117,43 +137,43 @@ public interface VertexInternal extends Vertex, EntityInternal {
   default void setProperty(String name, Object value) {
     checkPropertyName(name);
 
-    getBaseDocument().setPropertyInternal(name, value);
+    getBaseEntity().setPropertyInternal(name, value);
   }
 
   @Override
   default void setPropertyInternal(String name, Object value) {
-    getBaseDocument().setPropertyInternal(name, value);
+    getBaseEntity().setPropertyInternal(name, value);
   }
 
   @Override
   default boolean hasProperty(final String propertyName) {
     checkPropertyName(propertyName);
 
-    return getBaseDocument().hasProperty(propertyName);
+    return getBaseEntity().hasProperty(propertyName);
   }
 
   @Override
   default void setProperty(String name, Object value, PropertyType... fieldType) {
     checkPropertyName(name);
 
-    getBaseDocument().setPropertyInternal(name, value, fieldType);
+    getBaseEntity().setPropertyInternal(name, value, fieldType);
   }
 
   @Override
   default void setPropertyInternal(String name, Object value, PropertyType... type) {
-    getBaseDocument().setPropertyInternal(name, value, type);
+    getBaseEntity().setPropertyInternal(name, value, type);
   }
 
   @Override
   default <RET> RET removeProperty(String name) {
     checkPropertyName(name);
 
-    return getBaseDocument().removePropertyInternal(name);
+    return getBaseEntity().removePropertyInternal(name);
   }
 
   @Override
   default <RET> RET removePropertyInternal(String name) {
-    return getBaseDocument().removePropertyInternal(name);
+    return getBaseEntity().removePropertyInternal(name);
   }
 
   @Override
@@ -168,7 +188,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
   @Override
   default Set<String> getEdgeNames(Direction direction) {
-    var propertyNames = getBaseDocument().getPropertyNamesInternal();
+    var propertyNames = getBaseEntity().getPropertyNamesInternal();
     var edgeNames = new HashSet<String>();
 
     for (var propertyName : propertyNames) {
@@ -219,7 +239,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
   @Override
   default Edge addEdge(Vertex to, String type) {
-    var db = getBaseDocument().getSession();
+    var db = getBaseEntity().getSession();
     if (type == null) {
       return db.newRegularEdge(this, to, EdgeInternal.CLASS_NAME);
     }
@@ -237,14 +257,14 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
   @Override
   default Edge addRegularEdge(Vertex to, String label) {
-    var db = getBaseDocument().getSession();
+    var db = getBaseEntity().getSession();
 
     return db.newRegularEdge(this, to, label == null ? EdgeInternal.CLASS_NAME : label);
   }
 
   @Override
   default Edge addLightWeightEdge(Vertex to, String label) {
-    var db = getBaseDocument().getSession();
+    var db = getBaseEntity().getSession();
 
     return db.newLightweightEdge(this, to, label);
   }
@@ -300,11 +320,11 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
   @Override
   default boolean isUnloaded() {
-    return getBaseDocument().isUnloaded();
+    return getBaseEntity().isUnloaded();
   }
 
   default boolean isNotBound(DatabaseSession session) {
-    return getBaseDocument().isNotBound(session);
+    return getBaseEntity().isNotBound(session);
   }
 
   @Override
@@ -318,7 +338,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
     Set<String> candidateClasses = new HashSet<>();
 
-    var entity = getBaseDocument();
+    var entity = getBaseEntity();
     for (var prefix : prefixes) {
       for (String fieldName : entity.calculatePropertyNames()) {
         if (fieldName.startsWith(prefix)) {
@@ -336,7 +356,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
   @Override
   default boolean exists() {
-    return getBaseDocument().exists();
+    return getBaseEntity().exists();
   }
 
   @Override
@@ -345,12 +365,12 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   private Iterable<Edge> getEdgesInternal(Direction direction, String[] labels) {
-    var db = getBaseDocument().getSession();
+    var db = getBaseEntity().getSession();
     var schema = db.getMetadata().getImmutableSchemaSnapshot();
 
     labels = resolveAliases(schema, labels);
     Collection<String> fieldNames = null;
-    var entity = getBaseDocument();
+    var entity = getBaseEntity();
     if (labels != null && labels.length > 0) {
       // EDGE LABELS: CREATE FIELD NAME TABLE (FASTER THAN EXTRACT FIELD NAMES FROM THE DOCUMENT)
       var toLoadFieldNames = getEdgeFieldNames(schema, direction, labels);
@@ -383,10 +403,10 @@ public interface VertexInternal extends Vertex, EntityInternal {
       if (fieldValue != null) {
         if (fieldValue instanceof Identifiable) {
           var coll = Collections.singleton(fieldValue);
-          iterables.add(new EdgeIterator(this, coll, coll.iterator(), connection, labels, 1));
+          iterables.add(new EdgeIterator(this, coll, coll.iterator(), connection, labels, 1, db));
         } else if (fieldValue instanceof Collection<?> coll) {
           // CREATE LAZY Iterable AGAINST COLLECTION FIELD
-          iterables.add(new EdgeIterator(this, coll, coll.iterator(), connection, labels, -1));
+          iterables.add(new EdgeIterator(this, coll, coll.iterator(), connection, labels, -1, db));
         } else if (fieldValue instanceof RidBag) {
           iterables.add(
               new EdgeIterator(
@@ -395,7 +415,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
                   ((RidBag) fieldValue).iterator(),
                   connection,
                   labels,
-                  ((RidBag) fieldValue).size()));
+                  ((RidBag) fieldValue).size(), db));
         }
       }
     }
@@ -598,7 +618,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
   @Override
   default RID moveTo(final String className, final String clusterName) {
 
-    final EntityImpl baseEntity = getBaseDocument();
+    final EntityImpl baseEntity = getBaseEntity();
     var db = baseEntity.getSession();
     if (!db.getTransaction().isActive()) {
       throw new DatabaseException("This operation is allowed only inside a transaction");
@@ -610,7 +630,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
     var oldIdentity = ((RecordId) getIdentity()).copy();
 
-    final Record oldRecord = oldIdentity.getRecord();
+    final Record oldRecord = oldIdentity.getRecord(db);
     var entity = baseEntity.copy();
     RecordInternal.setIdentity(entity, new ChangeableRecordId());
 
@@ -657,7 +677,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
       if (inVLink.equals(oldIdentity)) {
         inRecord = entity;
       } else {
-        inRecord = inVLink.getRecord();
+        inRecord = inVLink.getRecord(db);
       }
       //noinspection deprecation
       if (oe.isLightweight()) {
@@ -690,7 +710,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
       if (outVLink.equals(oldIdentity)) {
         outRecord = entity;
       } else {
-        outRecord = outVLink.getRecord();
+        outRecord = outVLink.getRecord(db);
       }
       //noinspection deprecation
       if (ine.isLightweight()) {
@@ -806,7 +826,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
    * updates old and new vertices connected to an edge after out/in update on the edge itself
    */
   static void changeVertexEdgePointers(
-      EntityImpl edge,
+      DatabaseSessionInternal db, EntityImpl edge,
       Identifiable prevInVertex,
       Identifiable currentInVertex,
       Identifiable prevOutVertex,
@@ -814,32 +834,32 @@ public interface VertexInternal extends Vertex, EntityInternal {
     var edgeClass = edge.getClassName();
 
     if (currentInVertex != prevInVertex) {
-      changeVertexEdgePointersOneDirection(
+      changeVertexEdgePointersOneDirection(db,
           edge, prevInVertex, currentInVertex, edgeClass, Direction.IN);
     }
     if (currentOutVertex != prevOutVertex) {
-      changeVertexEdgePointersOneDirection(
+      changeVertexEdgePointersOneDirection(db,
           edge, prevOutVertex, currentOutVertex, edgeClass, Direction.OUT);
     }
   }
 
   private static void changeVertexEdgePointersOneDirection(
-      EntityImpl edge,
+      DatabaseSessionInternal db, EntityImpl edge,
       Identifiable prevInVertex,
       Identifiable currentInVertex,
       String edgeClass,
       Direction direction) {
     if (prevInVertex != null) {
       var inFieldName = Vertex.getEdgeLinkFieldName(direction, edgeClass);
-      var prevRecord = prevInVertex.<EntityImpl>getRecord();
+      var prevRecord = prevInVertex.<EntityImpl>getRecord(db);
 
       var prevLink = prevRecord.getPropertyInternal(inFieldName);
       if (prevLink != null) {
         removeVertexLink(prevRecord, inFieldName, prevLink, edgeClass, edge);
       }
 
-      var currentRecord = currentInVertex.<EntityImpl>getRecord();
-      createLink(currentRecord, edge, inFieldName);
+      var currentRecord = currentInVertex.<EntityImpl>getRecord(db);
+      createLink(db, currentRecord, edge, inFieldName);
 
       prevRecord.save();
       currentRecord.save();
@@ -891,7 +911,8 @@ public interface VertexInternal extends Vertex, EntityInternal {
    * Creates a link between a vertices and a Graph Element.
    */
   static void createLink(
-      final EntityImpl fromVertex, final Identifiable to, final String fieldName) {
+      DatabaseSessionInternal db, final EntityImpl fromVertex, final Identifiable to,
+      final String fieldName) {
     final Object out;
     PropertyType outType = fromVertex.fieldType(fieldName);
     Object found = fromVertex.getPropertyInternal(fieldName);
@@ -953,7 +974,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
       // ADD THE LINK TO THE COLLECTION
       out = null;
 
-      ((RidBag) found).add(to.getRecord());
+      ((RidBag) found).add(to.getRecord(db));
 
     } else if (found instanceof Collection<?>) {
       // USE THE FOUND COLLECTION
@@ -1031,10 +1052,10 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   static void removeIncomingEdge(Vertex vertex, Edge edge) {
-    removeLinkFromEdge(((VertexInternal) vertex).getBaseDocument(), edge, Direction.IN);
+    removeLinkFromEdge(((VertexInternal) vertex).getBaseEntity(), edge, Direction.IN);
   }
 
   static void removeOutgoingEdge(Vertex vertex, Edge edge) {
-    removeLinkFromEdge(((VertexInternal) vertex).getBaseDocument(), edge, Direction.OUT);
+    removeLinkFromEdge(((VertexInternal) vertex).getBaseEntity(), edge, Direction.OUT);
   }
 }

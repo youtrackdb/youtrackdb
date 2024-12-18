@@ -1,17 +1,17 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceHelper;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence.SEQUENCE_TYPE;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceHelper;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -33,7 +33,8 @@ public class CommandExecutorSQLCreateSequence extends CommandExecutorSQLAbstract
   private Sequence.CreateParams params;
 
   @Override
-  public CommandExecutorSQLCreateSequence parse(CommandRequest iRequest) {
+  public CommandExecutorSQLCreateSequence parse(DatabaseSessionInternal db,
+      CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
 
     String queryText = textRequest.getText();
@@ -90,7 +91,7 @@ public class CommandExecutorSQLCreateSequence extends CommandExecutorSQLAbstract
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, Map<Object, Object> iArgs) {
     if (this.sequenceName == null) {
       throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");

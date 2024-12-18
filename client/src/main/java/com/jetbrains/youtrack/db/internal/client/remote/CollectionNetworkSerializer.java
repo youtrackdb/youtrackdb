@@ -20,8 +20,8 @@
 
 package com.jetbrains.youtrack.db.internal.client.remote;
 
-import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.BonsaiBucketPointer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.RidBagBucketPointer;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
@@ -36,15 +36,15 @@ public class CollectionNetworkSerializer {
   public BonsaiCollectionPointer readCollectionPointer(ChannelDataInput client)
       throws IOException {
     final long fileId = client.readLong();
-    final BonsaiBucketPointer rootPointer = readBonsaiBucketPointer(client);
+    final RidBagBucketPointer rootPointer = readBonsaiBucketPointer(client);
     return new BonsaiCollectionPointer(fileId, rootPointer);
   }
 
-  private BonsaiBucketPointer readBonsaiBucketPointer(ChannelDataInput client)
+  private RidBagBucketPointer readBonsaiBucketPointer(ChannelDataInput client)
       throws IOException {
     long pageIndex = client.readLong();
     int pageOffset = client.readInt();
-    return new BonsaiBucketPointer(pageIndex, pageOffset);
+    return new RidBagBucketPointer(pageIndex, pageOffset);
   }
 
   public void writeCollectionPointer(

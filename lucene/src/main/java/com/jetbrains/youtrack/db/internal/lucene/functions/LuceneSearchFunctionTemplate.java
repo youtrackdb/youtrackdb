@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.lucene.functions;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.IndexableSQLFunction;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionAbstract;
@@ -80,11 +80,11 @@ public abstract class LuceneSearchFunctionTemplate extends SQLFunctionAbstract
     } else if (md instanceof Map map) {
       return map;
     } else if (md instanceof String) {
-      var doc = new EntityImpl();
+      var doc = new EntityImpl(ctx.getDatabase());
       doc.fromJSON((String) md);
       return doc.toMap();
     } else {
-      var doc = new EntityImpl();
+      var doc = new EntityImpl(ctx.getDatabase());
       doc.fromJSON(metadata.toString());
       return doc.toMap();
     }

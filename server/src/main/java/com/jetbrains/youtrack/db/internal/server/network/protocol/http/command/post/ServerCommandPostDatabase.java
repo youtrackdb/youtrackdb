@@ -39,7 +39,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedServerAbstract;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -58,7 +58,7 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
   }
 
   @Override
-  public boolean execute(final OHttpRequest iRequest, HttpResponse iResponse) throws Exception {
+  public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
     String[] urlParts = checkSyntax(iRequest.getUrl(), 3, "Syntax error: database/<db>/<type>");
 
     iRequest.getData().commandInfo = "Create database";
@@ -138,7 +138,7 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
   }
 
   protected void sendDatabaseInfo(
-      final OHttpRequest iRequest, final HttpResponse iResponse,
+      final HttpRequest iRequest, final HttpResponse iResponse,
       final DatabaseSessionInternal db)
       throws IOException {
     final StringWriter buffer = new StringWriter();
@@ -147,7 +147,7 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
     json.beginObject();
 
     if (db.getMetadata().getSchema().getClasses() != null) {
-      json.beginCollection(1, false, "classes");
+      json.beginCollection(db, 1, false, "classes");
       Set<String> exportedNames = new HashSet<String>();
       for (SchemaClass cls : db.getMetadata().getSchema().getClasses()) {
         if (!exportedNames.contains(cls.getName())) {
@@ -163,7 +163,7 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
     }
 
     if (db.getClusterNames() != null) {
-      json.beginCollection(1, false, "clusters");
+      json.beginCollection(db, 1, false, "clusters");
       for (String clusterName : db.getClusterNames()) {
         final int clusterId = db.getClusterIdByName(clusterName);
         if (clusterId < 0) {
@@ -172,15 +172,15 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
 
         try {
           json.beginObject(2, true, null);
-          json.writeAttribute(3, false, "id", clusterId);
-          json.writeAttribute(3, false, "name", clusterName);
-          json.writeAttribute(3, false, "records", db.countClusterElements(clusterId));
-          json.writeAttribute(3, false, "size", "-");
-          json.writeAttribute(3, false, "filled", "-");
-          json.writeAttribute(3, false, "maxSize", "-");
-          json.writeAttribute(3, false, "files", "-");
+          json.writeAttribute(db, 3, false, "id", clusterId);
+          json.writeAttribute(db, 3, false, "name", clusterName);
+          json.writeAttribute(db, 3, false, "records", db.countClusterElements(clusterId));
+          json.writeAttribute(db, 3, false, "size", "-");
+          json.writeAttribute(db, 3, false, "filled", "-");
+          json.writeAttribute(db, 3, false, "maxSize", "-");
+          json.writeAttribute(db, 3, false, "files", "-");
         } catch (Exception e) {
-          json.writeAttribute(3, false, "records", "? (Unauthorized)");
+          json.writeAttribute(db, 3, false, "records", "? (Unauthorized)");
         }
         json.endObject(2, false);
       }
@@ -188,40 +188,42 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
     }
 
     if (db.geCurrentUser() != null) {
-      json.writeAttribute(1, false, "currentUser", db.geCurrentUser().getName(db));
+      json.writeAttribute(db, 1, false, "currentUser", db.geCurrentUser().getName(db));
     }
 
-    json.beginCollection(1, false, "users");
+    json.beginCollection(db, 1, false, "users");
     SecurityUserIml user;
     for (EntityImpl entity : db.getMetadata().getSecurity().getAllUsers()) {
       user = new SecurityUserIml(db, entity);
       json.beginObject(2, true, null);
-      json.writeAttribute(3, false, "name", user.getName(db));
-      json.writeAttribute(
+      json.writeAttribute(db, 3, false, "name", user.getName(db));
+      json.writeAttribute(db,
           3,
           false,
-          "roles",
-          user.getRoles() != null ? Arrays.toString(user.getRoles().toArray()) : "null");
+          "roles", user.getRoles() != null ? Arrays.toString(user.getRoles().toArray()) : "null");
       json.endObject(2, false);
     }
     json.endCollection(1, true);
 
-    json.beginCollection(1, true, "roles");
+    json.beginCollection(db, 1, true, "roles");
     Role role;
     for (EntityImpl entity : db.getMetadata().getSecurity().getAllRoles()) {
       role = new Role(db, entity);
       json.beginObject(2, true, null);
-      json.writeAttribute(3, false, "name", role.getName(db));
-      json.writeAttribute(3, false, "mode", role.getMode().toString());
+      json.writeAttribute(db, 3, false, "name", role.getName(db));
+      json.writeAttribute(db, 3, false, "mode", role.getMode().toString());
 
-      json.beginCollection(3, true, "rules");
+      json.beginCollection(db, 3, true, "rules");
       for (Map.Entry<String, Byte> rule : role.getRules().entrySet()) {
         json.beginObject(4);
-        json.writeAttribute(4, true, "name", rule.getKey());
-        json.writeAttribute(4, false, "create", role.allow(rule.getKey(), Role.PERMISSION_CREATE));
-        json.writeAttribute(4, false, "read", role.allow(rule.getKey(), Role.PERMISSION_READ));
-        json.writeAttribute(4, false, "update", role.allow(rule.getKey(), Role.PERMISSION_UPDATE));
-        json.writeAttribute(4, false, "delete", role.allow(rule.getKey(), Role.PERMISSION_DELETE));
+        json.writeAttribute(db, 4, true, "name", rule.getKey());
+        json.writeAttribute(db, 4, false, "create",
+            role.allow(rule.getKey(), Role.PERMISSION_CREATE));
+        json.writeAttribute(db, 4, false, "read", role.allow(rule.getKey(), Role.PERMISSION_READ));
+        json.writeAttribute(db, 4, false, "update",
+            role.allow(rule.getKey(), Role.PERMISSION_UPDATE));
+        json.writeAttribute(db, 4, false, "delete",
+            role.allow(rule.getKey(), Role.PERMISSION_DELETE));
         json.endObject(4, true);
       }
       json.endCollection(3, false);
@@ -232,8 +234,8 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
 
     json.beginObject(1, true, "config");
 
-    json.beginCollection(2, true, "values");
-    json.writeObjects(
+    json.beginCollection(db, 2, true, "values");
+    json.writeObjects(db,
         3,
         true,
         null,
@@ -250,19 +252,18 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
         new Object[]{
             "name", "localeLanguage", "value",
             db.getStorage().getConfiguration().getLocaleLanguage()
-        },
-        new Object[]{
+        }, new Object[]{
             "name", "definitionVersion", "value", db.getStorage().getConfiguration().getVersion()
         });
     json.endCollection(2, true);
 
-    json.beginCollection(2, true, "properties");
+    json.beginCollection(db, 2, true, "properties");
     if (db.getStorage().getConfiguration().getProperties() != null) {
       for (StorageEntryConfiguration entry : db.getStorage().getConfiguration().getProperties()) {
         if (entry != null) {
           json.beginObject(3, true, null);
-          json.writeAttribute(4, false, "name", entry.name);
-          json.writeAttribute(4, false, "value", entry.value);
+          json.writeAttribute(db, 4, false, "name", entry.name);
+          json.writeAttribute(db, 4, false, "value", entry.value);
           json.endObject(3, true);
         }
       }
@@ -285,35 +286,35 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
       final DatabaseSessionInternal db, final JSONWriter json, final SchemaClassInternal cls)
       throws IOException {
     json.beginObject(2, true, null);
-    json.writeAttribute(3, true, "name", cls.getName());
-    json.writeAttribute(
+    json.writeAttribute(db, 3, true, "name", cls.getName());
+    json.writeAttribute(db,
         3, true, "superClass", cls.getSuperClass() != null ? cls.getSuperClass().getName() : "");
-    json.writeAttribute(3, true, "alias", cls.getShortName());
-    json.writeAttribute(3, true, "clusters", cls.getClusterIds());
-    json.writeAttribute(3, true, "clusterSelection", cls.getClusterSelectionStrategyName());
+    json.writeAttribute(db, 3, true, "alias", cls.getShortName());
+    json.writeAttribute(db, 3, true, "clusters", cls.getClusterIds());
+    json.writeAttribute(db, 3, true, "clusterSelection", cls.getClusterSelectionStrategyName());
     try {
-      json.writeAttribute(3, false, "records", db.countClass(cls.getName()));
+      json.writeAttribute(db, 3, false, "records", db.countClass(cls.getName()));
     } catch (SecurityAccessException e) {
-      json.writeAttribute(3, false, "records", "? (Unauthorized)");
+      json.writeAttribute(db, 3, false, "records", "? (Unauthorized)");
     }
 
     if (cls.properties(db) != null && cls.properties(db).size() > 0) {
-      json.beginCollection(3, true, "properties");
+      json.beginCollection(db, 3, true, "properties");
       for (final Property prop : cls.properties(db)) {
         json.beginObject(4, true, null);
-        json.writeAttribute(4, true, "name", prop.getName());
+        json.writeAttribute(db, 4, true, "name", prop.getName());
         if (prop.getLinkedClass() != null) {
-          json.writeAttribute(4, true, "linkedClass", prop.getLinkedClass().getName());
+          json.writeAttribute(db, 4, true, "linkedClass", prop.getLinkedClass().getName());
         }
         if (prop.getLinkedType() != null) {
-          json.writeAttribute(4, true, "linkedType", prop.getLinkedType().toString());
+          json.writeAttribute(db, 4, true, "linkedType", prop.getLinkedType().toString());
         }
-        json.writeAttribute(4, true, "type", prop.getType().toString());
-        json.writeAttribute(4, true, "mandatory", prop.isMandatory());
-        json.writeAttribute(4, true, "readonly", prop.isReadonly());
-        json.writeAttribute(4, true, "notNull", prop.isNotNull());
-        json.writeAttribute(4, true, "min", prop.getMin());
-        json.writeAttribute(4, true, "max", prop.getMax());
+        json.writeAttribute(db, 4, true, "type", prop.getType().toString());
+        json.writeAttribute(db, 4, true, "mandatory", prop.isMandatory());
+        json.writeAttribute(db, 4, true, "readonly", prop.isReadonly());
+        json.writeAttribute(db, 4, true, "notNull", prop.isNotNull());
+        json.writeAttribute(db, 4, true, "min", prop.getMin());
+        json.writeAttribute(db, 4, true, "max", prop.getMax());
         json.endObject(3, true);
       }
       json.endCollection(1, true);
@@ -321,15 +322,15 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
 
     final Set<Index> indexes = cls.getIndexesInternal(db);
     if (!indexes.isEmpty()) {
-      json.beginCollection(3, true, "indexes");
+      json.beginCollection(db, 3, true, "indexes");
       for (final Index index : indexes) {
         json.beginObject(4, true, null);
-        json.writeAttribute(4, true, "name", index.getName());
-        json.writeAttribute(4, true, "type", index.getType());
+        json.writeAttribute(db, 4, true, "name", index.getName());
+        json.writeAttribute(db, 4, true, "type", index.getType());
 
         final IndexDefinition indexDefinition = index.getDefinition();
         if (indexDefinition != null && !indexDefinition.getFields().isEmpty()) {
-          json.writeAttribute(4, true, "fields", indexDefinition.getFields());
+          json.writeAttribute(db, 4, true, "fields", indexDefinition.getFields());
         }
         json.endObject(3, true);
       }

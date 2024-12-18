@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Iterator;
 
@@ -39,29 +39,38 @@ public class ExpandStep extends AbstractExecutionStep {
 
     String propName = nextAggregateItem.getPropertyNames().iterator().next();
     Object projValue = nextAggregateItem.getProperty(propName);
-    if (projValue == null) {
-      return ExecutionStream.empty();
-    }
-    if (projValue instanceof Identifiable) {
-      Record rec;
-      try {
-        rec = ((Identifiable) projValue).getRecord();
-      } catch (RecordNotFoundException rnf) {
+    var db = ctx.getDatabase();
+    switch (projValue) {
+      case null -> {
         return ExecutionStream.empty();
       }
+      case Identifiable identifiable -> {
+        Record rec;
+        try {
+          rec = ((Identifiable) projValue).getRecord(db);
+        } catch (RecordNotFoundException rnf) {
+          return ExecutionStream.empty();
+        }
 
-      ResultInternal res = new ResultInternal(ctx.getDatabase(), rec);
-      return ExecutionStream.singleton(res);
-    } else if (projValue instanceof Result) {
-      return ExecutionStream.singleton((Result) projValue);
-    } else if (projValue instanceof Iterator) {
-      //noinspection unchecked
-      return ExecutionStream.iterator((Iterator<Object>) projValue);
-    } else if (projValue instanceof Iterable) {
-      //noinspection unchecked
-      return ExecutionStream.iterator(((Iterable<Object>) projValue).iterator());
-    } else {
-      return ExecutionStream.empty();
+        ResultInternal res = new ResultInternal(ctx.getDatabase(), rec);
+        return ExecutionStream.singleton(res);
+      }
+      case Result result -> {
+        return ExecutionStream.singleton(result);
+      }
+      case Iterator iterator -> {
+        //noinspection unchecked
+        return ExecutionStream.iterator((Iterator<Object>) projValue);
+        //noinspection unchecked
+      }
+      case Iterable iterable -> {
+        //noinspection unchecked
+        return ExecutionStream.iterator(((Iterable<Object>) projValue).iterator());
+        //noinspection unchecked
+      }
+      default -> {
+        return ExecutionStream.empty();
+      }
     }
   }
 

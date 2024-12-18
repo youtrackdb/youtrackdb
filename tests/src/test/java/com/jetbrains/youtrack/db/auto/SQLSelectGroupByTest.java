@@ -101,14 +101,14 @@ public class SQLSelectGroupByTest extends BaseDBTest {
   @Test
   public void queryGroupByAndWithNulls() {
     // INSERT WITH NO LOCATION (AS NULL)
-    database.command("create class GroupByTest extends V").close();
+    db.command("create class GroupByTest extends V").close();
     try {
-      database.begin();
-      database.command("insert into GroupByTest set testNull = true").close();
-      database.command("insert into GroupByTest set location = 'Rome'").close();
-      database.command("insert into GroupByTest set location = 'Austin'").close();
-      database.command("insert into GroupByTest set location = 'Austin'").close();
-      database.commit();
+      db.begin();
+      db.command("insert into GroupByTest set testNull = true").close();
+      db.command("insert into GroupByTest set location = 'Rome'").close();
+      db.command("insert into GroupByTest set location = 'Austin'").close();
+      db.command("insert into GroupByTest set location = 'Austin'").close();
+      db.commit();
 
       final List<EntityImpl> result =
           executeQuery(
@@ -126,23 +126,23 @@ public class SQLSelectGroupByTest extends BaseDBTest {
 
       Assert.assertTrue(foundNullGroup);
     } finally {
-      database.begin();
-      database.command("delete vertex GroupByTest").close();
-      database.commit();
+      db.begin();
+      db.command("delete vertex GroupByTest").close();
+      db.commit();
 
-      database.command("drop class GroupByTest UNSAFE").close();
+      db.command("drop class GroupByTest UNSAFE").close();
     }
   }
 
   @Test
   public void queryGroupByNoNulls() {
-    database.command("create class GroupByTest extends V").close();
+    db.command("create class GroupByTest extends V").close();
     try {
-      database.begin();
-      database.command("insert into GroupByTest set location = 'Rome'").close();
-      database.command("insert into GroupByTest set location = 'Austin'").close();
-      database.command("insert into GroupByTest set location = 'Austin'").close();
-      database.commit();
+      db.begin();
+      db.command("insert into GroupByTest set location = 'Rome'").close();
+      db.command("insert into GroupByTest set location = 'Austin'").close();
+      db.command("insert into GroupByTest set location = 'Austin'").close();
+      db.commit();
 
       final List<EntityImpl> result = executeQuery(
           "select location, count(*) from GroupByTest group by location");
@@ -154,11 +154,11 @@ public class SQLSelectGroupByTest extends BaseDBTest {
       }
 
     } finally {
-      database.begin();
-      database.command("delete vertex GroupByTest").close();
-      database.commit();
+      db.begin();
+      db.command("delete vertex GroupByTest").close();
+      db.commit();
 
-      database.command("drop class GroupByTest UNSAFE").close();
+      db.command("drop class GroupByTest UNSAFE").close();
     }
   }
 }

@@ -34,11 +34,11 @@ public class SQLSequenceTest extends BaseDBTest {
 
   private void testSequence(String sequenceName, Sequence.SEQUENCE_TYPE sequenceType) {
 
-    database.command("CREATE SEQUENCE " + sequenceName + " TYPE " + sequenceType).close();
+    db.command("CREATE SEQUENCE " + sequenceName + " TYPE " + sequenceType).close();
 
     CommandExecutionException err = null;
     try {
-      database.command("CREATE SEQUENCE " + sequenceName + " TYPE " + sequenceType).close();
+      db.command("CREATE SEQUENCE " + sequenceName + " TYPE " + sequenceType).close();
     } catch (CommandExecutionException se) {
       err = se;
     }
@@ -75,14 +75,14 @@ public class SQLSequenceTest extends BaseDBTest {
 
   private long sequenceSql(String sequenceName, String cmd) {
     try (ResultSet ret =
-        database.command("SELECT sequence('" + sequenceName + "')." + cmd + " as value")) {
+        db.command("SELECT sequence('" + sequenceName + "')." + cmd + " as value")) {
       return ret.next().getProperty("value");
     }
   }
 
   @Test
   public void testFree() throws ExecutionException, InterruptedException {
-    SequenceLibrary sequenceManager = database.getMetadata().getSequenceLibrary();
+    SequenceLibrary sequenceManager = db.getMetadata().getSequenceLibrary();
 
     Sequence seq = null;
     try {
@@ -111,9 +111,9 @@ public class SQLSequenceTest extends BaseDBTest {
 
     //
     try {
-      database.begin();
-      seq.updateParams(new Sequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
-      database.commit();
+      db.begin();
+      seq.updateParams(db, new Sequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
+      db.commit();
     } catch (DatabaseException exc) {
       Assert.fail("Unable to update paramas");
     }
@@ -123,15 +123,15 @@ public class SQLSequenceTest extends BaseDBTest {
   private void testUsage(Sequence seq, long reset)
       throws ExecutionException, InterruptedException {
     for (int i = 0; i < 2; ++i) {
-      Assert.assertEquals(seq.reset(), reset);
-      Assert.assertEquals(seq.current(), reset);
-      Assert.assertEquals(seq.next(), reset + 1L);
-      Assert.assertEquals(seq.current(), reset + 1L);
-      Assert.assertEquals(seq.next(), reset + 2L);
-      Assert.assertEquals(seq.next(), reset + 3L);
-      Assert.assertEquals(seq.next(), reset + 4L);
-      Assert.assertEquals(seq.current(), reset + 4L);
-      Assert.assertEquals(seq.reset(), reset);
+      Assert.assertEquals(seq.reset(db), reset);
+      Assert.assertEquals(seq.current(db), reset);
+      Assert.assertEquals(seq.next(db), reset + 1L);
+      Assert.assertEquals(seq.current(db), reset + 1L);
+      Assert.assertEquals(seq.next(db), reset + 2L);
+      Assert.assertEquals(seq.next(db), reset + 3L);
+      Assert.assertEquals(seq.next(db), reset + 4L);
+      Assert.assertEquals(seq.current(db), reset + 4L);
+      Assert.assertEquals(seq.reset(db), reset);
     }
   }
 }

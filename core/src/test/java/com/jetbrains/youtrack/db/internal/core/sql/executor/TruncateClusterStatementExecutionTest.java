@@ -32,27 +32,27 @@ public class TruncateClusterStatementExecutionTest extends DbTestBase {
     clazz.createIndex(db, "TruncateClusterIndex", SchemaClass.INDEX_TYPE.UNIQUE, "value");
 
     db.begin();
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = ((EntityImpl) db.newEntity());
     document.field("value", "val");
 
     document.save(clusterName);
     db.commit();
 
-    Assert.assertEquals(db.countClass(className), 1);
-    Assert.assertEquals(db.countClusterElements(clusterId), 1);
+    Assert.assertEquals(1, db.countClass(className));
+    Assert.assertEquals(1, db.countClusterElements(clusterId));
 
     ResultSet indexQuery = db.query("select from TruncateClusterClass where value='val'");
-    Assert.assertEquals(toList(indexQuery).size(), 1);
+    Assert.assertEquals(1, toList(indexQuery).size());
     indexQuery.close();
 
     db.command("truncate cluster " + clusterName);
 
-    Assert.assertEquals(db.countClass(className), 0);
-    Assert.assertEquals(db.countClusterElements(clusterId), 0);
+    Assert.assertEquals(0, db.countClass(className));
+    Assert.assertEquals(0, db.countClusterElements(clusterId));
 
     indexQuery = db.query("select from TruncateClusterClass where value='val'");
 
-    Assert.assertEquals(toList(indexQuery).size(), 0);
+    Assert.assertEquals(0, toList(indexQuery).size());
     indexQuery.close();
   }
 

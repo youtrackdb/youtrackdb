@@ -66,10 +66,10 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
   @Test
   public void testDbExport() throws IOException {
     // ADD A CUSTOM TO THE CLASS
-    database.command("alter class V custom onBeforeCreate=onBeforeCreateItem").close();
+    db.command("alter class V custom onBeforeCreate=onBeforeCreateItem").close();
 
     final DatabaseExport export =
-        new DatabaseExport(database, testPath + "/" + exportFilePath, this);
+        new DatabaseExport(db, testPath + "/" + exportFilePath, this);
     export.exportDatabase();
     export.close();
   }
@@ -95,8 +95,8 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
             new DatabaseImport(
                 (DatabaseSessionInternal) importDB, testPath + "/" + exportFilePath, this);
         // UNREGISTER ALL THE HOOKS
-        for (final RecordHook hook : new ArrayList<>(database.getHooks().keySet())) {
-          database.unregisterHook(hook);
+        for (final RecordHook hook : new ArrayList<>(db.getHooks().keySet())) {
+          db.unregisterHook(hook);
         }
         dbImport.setDeleteRIDMapping(false);
         dbImport.importDatabase();
@@ -119,7 +119,7 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
             testPath + File.separator + IMPORT_DB_PATH, YouTrackDBConfig.defaultConfig())) {
       try (var importDB = youTrackDBImport.open(IMPORT_DB_NAME, "admin", "admin")) {
         final DatabaseCompare databaseCompare =
-            new DatabaseCompare(database, (DatabaseSessionInternal) importDB, this);
+            new DatabaseCompare(db, (DatabaseSessionInternal) importDB, this);
         databaseCompare.setCompareEntriesForAutomaticIndexes(true);
         databaseCompare.setCompareIndexMetadata(true);
         Assert.assertTrue(databaseCompare.compare());
@@ -160,7 +160,7 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
         final List<RID> ridsToDelete = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
           session.begin();
-          final EntityImpl document = new EntityImpl(childCls);
+          final EntityImpl document = ((EntityImpl) db.newEntity(childCls));
           document.save();
           session.commit();
 
@@ -169,18 +169,18 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
 
         for (final RID rid : ridsToDelete) {
           session.begin();
-          rid.getRecord().delete();
+          rid.getRecord(db).delete();
           session.commit();
         }
 
-        final EntityImpl rootDocument = new EntityImpl(rootCls);
+        final EntityImpl rootDocument = ((EntityImpl) db.newEntity(rootCls));
         final ArrayList<EntityImpl> documents = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
           session.begin();
-          final EntityImpl embeddedDocument = new EntityImpl();
+          final EntityImpl embeddedDocument = ((EntityImpl) db.newEntity());
 
-          final EntityImpl doc = new EntityImpl(childCls);
+          final EntityImpl doc = ((EntityImpl) db.newEntity(childCls));
           doc.save();
           session.commit();
 
@@ -217,7 +217,7 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
           final RecordId link = embeddedDocument.getProperty("link");
 
           Assert.assertNotNull(link);
-          Assert.assertNotNull(link.getRecord());
+          Assert.assertNotNull(link.getRecord(db));
         }
       }
     }

@@ -39,7 +39,7 @@ import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.config.ClusterBasedStorageConfiguration;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -216,7 +216,7 @@ public class PostponedEngineStartTest {
 
         @Override
         public List<String> backup(
-            OutputStream out,
+            DatabaseSessionInternal db, OutputStream out,
             Map<String, Object> options,
             Callable<Object> callable,
             CommandOutputListener iListener,
@@ -474,7 +474,7 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public Object command(DatabaseSessionInternal database, CommandRequestText iCommand) {
+        public Object command(DatabaseSessionInternal db, CommandRequestText iCommand) {
           return null;
         }
 
@@ -538,7 +538,7 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public SBTreeCollectionManager getSBtreeCollectionManager() {
+        public BTreeCollectionManager getSBtreeCollectionManager() {
           return null;
         }
 

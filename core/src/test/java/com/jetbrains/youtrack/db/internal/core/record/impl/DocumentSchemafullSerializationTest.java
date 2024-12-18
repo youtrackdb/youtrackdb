@@ -3,14 +3,14 @@ package com.jetbrains.youtrack.db.internal.core.record.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionAbstract;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionAbstract;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
@@ -129,7 +129,7 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
   @Test
   public void testSimpleSerialization() {
     DatabaseRecordThreadLocal.instance().set(db);
-    EntityImpl document = new EntityImpl(simple);
+    EntityImpl document = (EntityImpl) db.newEntity(simple);
 
     document.field(STRING_FIELD, NAME);
     document.field(INT_FIELD, 20);
@@ -143,7 +143,7 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
     document.field(RECORDID_FIELD, new RecordId(10, 0));
 
     byte[] res = serializer.toStream(db, document);
-    EntityImpl extr = (EntityImpl) serializer.fromStream(db, res, new EntityImpl(),
+    EntityImpl extr = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
         new String[]{});
 
     assertEquals(extr.fields(), document.fields());
@@ -163,7 +163,7 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
   @Test
   public void testSimpleLiteralList() {
     DatabaseRecordThreadLocal.instance().set(db);
-    EntityImpl document = new EntityImpl(embSimp);
+    EntityImpl document = (EntityImpl) db.newEntity(embSimp);
     List<String> strings = new ArrayList<String>();
     strings.add("a");
     strings.add("b");
@@ -238,7 +238,7 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
     document.field(LIST_MIXED, listMixed);
 
     byte[] res = serializer.toStream(db, document);
-    EntityImpl extr = (EntityImpl) serializer.fromStream(db, res, new EntityImpl(),
+    EntityImpl extr = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
         new String[]{});
 
     assertEquals(extr.fields(), document.fields());
@@ -254,7 +254,7 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
   @Test
   public void testSimpleMapStringLiteral() {
     DatabaseRecordThreadLocal.instance().set(db);
-    EntityImpl document = new EntityImpl(embMapSimple);
+    EntityImpl document = (EntityImpl) db.newEntity(embMapSimple);
 
     Map<String, String> mapString = new HashMap<String, String>();
     mapString.put("key", "value");
@@ -297,7 +297,7 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
     document.field(MAP_BYTES, bytesMap);
 
     byte[] res = serializer.toStream(db, document);
-    EntityImpl extr = (EntityImpl) serializer.fromStream(db, res, new EntityImpl(),
+    EntityImpl extr = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
         new String[]{});
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field(MAP_STRING), document.field(MAP_STRING));
@@ -311,15 +311,15 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
   @Test
   public void testSimpleEmbeddedDoc() {
     DatabaseRecordThreadLocal.instance().set(db);
-    EntityImpl document = new EntityImpl(simple);
-    EntityImpl embedded = new EntityImpl(address);
+    EntityImpl document = (EntityImpl) db.newEntity(simple);
+    EntityImpl embedded = (EntityImpl) db.newEntity(address);
     embedded.field(NAME, "test");
     embedded.field(NUMBER, 1);
     embedded.field(CITY, "aaa");
     document.field(EMBEDDED_FIELD, embedded);
 
     byte[] res = serializer.toStream(db, document);
-    EntityImpl extr = (EntityImpl) serializer.fromStream(db, res, new EntityImpl(),
+    EntityImpl extr = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
         new String[]{});
     assertEquals(document.fields(), extr.fields());
     EntityImpl emb = extr.field(EMBEDDED_FIELD);
@@ -332,11 +332,11 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
   @Test
   public void testUpdateBooleanWithPropertyTypeAny() {
     DatabaseRecordThreadLocal.instance().set(db);
-    EntityImpl document = new EntityImpl(simple);
+    EntityImpl document = (EntityImpl) db.newEntity(simple);
     document.field(ANY_FIELD, false);
 
     byte[] res = serializer.toStream(db, document);
-    EntityImpl extr = (EntityImpl) serializer.fromStream(db, res, new EntityImpl(),
+    EntityImpl extr = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
         new String[]{});
     assertEquals(document.fields(), extr.fields());
     assertEquals(extr.field(ANY_FIELD), false);
@@ -344,7 +344,7 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
     extr.field(ANY_FIELD, false);
 
     res = serializer.toStream(db, extr);
-    EntityImpl extr2 = (EntityImpl) serializer.fromStream(db, res, new EntityImpl(),
+    EntityImpl extr2 = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
         new String[]{});
     assertEquals(extr.fields(), extr2.fields());
     assertEquals(extr2.field(ANY_FIELD), false);
@@ -353,11 +353,11 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
   @Test
   public void simpleTypeKeepingTest() {
     DatabaseRecordThreadLocal.instance().set(db);
-    EntityImpl document = new EntityImpl();
+    EntityImpl document = (EntityImpl) db.newEntity();
     document.field("name", "test");
 
     byte[] res = serializer.toStream(db, document);
-    EntityImpl extr = new EntityImpl();
+    EntityImpl extr = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(extr);
     extr.fromStream(res);
     assertEquals(PropertyType.STRING, extr.fieldType("name"));

@@ -43,7 +43,7 @@ public class STGeomFromTextFunction extends SQLFunctionAbstract {
       CommandContext iContext) {
     String geom = (String) iParams[0];
     try {
-      return factory.toDoc(geom);
+      return factory.toEntitty(geom);
     } catch (Exception e) {
       e.printStackTrace();
       throw BaseException.wrapException(

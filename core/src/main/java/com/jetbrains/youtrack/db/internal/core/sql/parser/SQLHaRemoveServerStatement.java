@@ -2,11 +2,11 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.Map;
 
 public class SQLHaRemoveServerStatement extends SQLStatement {
@@ -50,7 +50,8 @@ public class SQLHaRemoveServerStatement extends SQLStatement {
 
   @Override
   public ResultSet execute(
-      DatabaseSessionInternal db, Map args, CommandContext parentContext, boolean usePlanCache) {
+      DatabaseSessionInternal db, Map<Object, Object> args, CommandContext parentContext,
+      boolean usePlanCache) {
     DatabaseSessionInternal internalDb = db;
     boolean res = internalDb.removeHaServer(serverName.getStringValue());
     ResultInternal r = new ResultInternal(internalDb);

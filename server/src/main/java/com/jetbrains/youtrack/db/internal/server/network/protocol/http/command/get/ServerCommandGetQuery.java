@@ -23,7 +23,7 @@ import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.post.ServerCommandPostCommand;
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public class ServerCommandGetQuery extends ServerCommandAuthenticatedDbAbstract 
 
   @Override
   @SuppressWarnings("unchecked")
-  public boolean execute(final OHttpRequest iRequest, HttpResponse iResponse) throws Exception {
+  public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
     String[] urlParts =
         checkSyntax(
             iRequest.getUrl(),

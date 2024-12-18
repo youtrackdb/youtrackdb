@@ -469,7 +469,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
     final List<Map<String, Object>> connections = serverInfo.field("connections");
     for (Map<String, Object> conn : connections) {
-      final EntityImpl row = new EntityImpl();
+      final EntityImpl row = new EntityImpl(currentDatabase);
 
       String commandDetail = (String) conn.get("commandInfo");
 
@@ -512,7 +512,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     formatter.setMaxWidthSize(getConsoleWidth());
     formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-    formatter.writeRecords(resultSet, -1);
+    formatter.writeRecords(currentDatabase, resultSet, -1);
 
     out.println();
   }
@@ -1286,22 +1286,25 @@ public class ConsoleDatabaseApp extends ConsoleApplication
         null);
 
     if (result != null) {
-      if (result instanceof Identifiable) {
-        setResultset(new ArrayList<Identifiable>());
-        currentRecord = ((Identifiable) result).getRecord();
-        dumpRecordDetails();
-      } else if (result instanceof List<?>) {
-        setResultset((List<Identifiable>) result);
-        dumpResultSet(-1);
-      } else if (result instanceof Iterator<?>) {
-        final List<Identifiable> list = new ArrayList<Identifiable>();
-        while (((Iterator) result).hasNext()) {
-          list.add(((Iterator<Identifiable>) result).next());
+      switch (result) {
+        case Identifiable identifiable -> {
+          setResultset(new ArrayList<>());
+          currentRecord = identifiable.getRecord(currentDatabase);
+          dumpRecordDetails();
         }
-        setResultset(list);
-        dumpResultSet(-1);
-      } else {
-        setResultset(new ArrayList<Identifiable>());
+        case List<?> objects -> {
+          setResultset((List<Identifiable>) result);
+          dumpResultSet(-1);
+        }
+        case Iterator<?> iterator -> {
+          final List<Identifiable> list = new ArrayList<Identifiable>();
+          while (((Iterator) result).hasNext()) {
+            list.add(((Iterator<Identifiable>) result).next());
+          }
+          setResultset(list);
+          dumpResultSet(-1);
+        }
+        default -> setResultset(new ArrayList<>());
       }
     }
   }
@@ -1365,9 +1368,9 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     while (true) {
       try {
         final CommandExecutorScript cmd = new CommandExecutorScript();
-        cmd.parse(new CommandScript("Javascript", iText));
+        cmd.parse(currentDatabase, new CommandScript("Javascript", iText));
 
-        currentResult = cmd.execute(null, currentDatabase);
+        currentResult = cmd.execute(currentDatabase, null);
         break;
       } catch (RetryQueryException e) {
         continue;
@@ -1730,36 +1733,41 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
       if (dbCfg.getName() != null) {
-        resultSet.add(new EntityImpl().field("NAME", "Name").field("VALUE", dbCfg.getName()));
+        resultSet.add(
+            new EntityImpl(currentDatabase).field("NAME", "Name").field("VALUE", dbCfg.getName()));
       }
 
-      resultSet.add(new EntityImpl().field("NAME", "Version").field("VALUE", dbCfg.getVersion()));
+      resultSet.add(new EntityImpl(currentDatabase).field("NAME", "Version")
+          .field("VALUE", dbCfg.getVersion()));
       resultSet.add(
-          new EntityImpl()
+          new EntityImpl(currentDatabase)
               .field("NAME", "Conflict-Strategy")
               .field("VALUE", dbCfg.getConflictStrategy()));
       resultSet.add(
-          new EntityImpl().field("NAME", "Date-Format").field("VALUE", dbCfg.getDateFormat()));
+          new EntityImpl(currentDatabase).field("NAME", "Date-Format")
+              .field("VALUE", dbCfg.getDateFormat()));
       resultSet.add(
-          new EntityImpl()
+          new EntityImpl(currentDatabase)
               .field("NAME", "Datetime-Format")
               .field("VALUE", dbCfg.getDateTimeFormat()));
       resultSet.add(
-          new EntityImpl().field("NAME", "Timezone").field("VALUE", dbCfg.getTimeZone().getID()));
+          new EntityImpl(currentDatabase).field("NAME", "Timezone")
+              .field("VALUE", dbCfg.getTimeZone().getID()));
       resultSet.add(
-          new EntityImpl().field("NAME", "Locale-Country")
+          new EntityImpl(currentDatabase).field("NAME", "Locale-Country")
               .field("VALUE", dbCfg.getLocaleCountry()));
       resultSet.add(
-          new EntityImpl()
+          new EntityImpl(currentDatabase)
               .field("NAME", "Locale-Language")
               .field("VALUE", dbCfg.getLocaleLanguage()));
-      resultSet.add(new EntityImpl().field("NAME", "Charset").field("VALUE", dbCfg.getCharset()));
+      resultSet.add(new EntityImpl(currentDatabase).field("NAME", "Charset")
+          .field("VALUE", dbCfg.getCharset()));
       resultSet.add(
-          new EntityImpl()
+          new EntityImpl(currentDatabase)
               .field("NAME", "Schema-RID")
               .field("VALUE", dbCfg.getSchemaRecordId(), PropertyType.LINK));
       resultSet.add(
-          new EntityImpl()
+          new EntityImpl(currentDatabase)
               .field("NAME", "Index-Manager-RID")
               .field("VALUE", dbCfg.getIndexMgrRecordId(), PropertyType.LINK));
 
@@ -1767,7 +1775,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(currentDatabase, resultSet, -1);
 
       message("\n");
 
@@ -1777,14 +1785,15 @@ public class ConsoleDatabaseApp extends ConsoleApplication
         final List<EntityImpl> dbResultSet = new ArrayList<EntityImpl>();
 
         for (StorageEntryConfiguration cfg : dbCfg.getProperties()) {
-          dbResultSet.add(new EntityImpl().field("NAME", cfg.name).field("VALUE", cfg.value));
+          dbResultSet.add(
+              new EntityImpl(currentDatabase).field("NAME", cfg.name).field("VALUE", cfg.value));
         }
 
         final TableFormatter dbFormatter = new TableFormatter(this);
         formatter.setMaxWidthSize(getConsoleWidth());
         formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-        dbFormatter.writeRecords(dbResultSet, -1);
+        dbFormatter.writeRecords(currentDatabase, dbResultSet, -1);
       }
     }
   }
@@ -1866,7 +1875,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
       for (final Property p : cls.properties(currentDatabase)) {
         try {
-          final EntityImpl row = new EntityImpl();
+          final EntityImpl row = new EntityImpl(currentDatabase);
           resultSet.add(row);
 
           row.field("NAME", p.getName());
@@ -1890,7 +1899,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(currentDatabase, resultSet, -1);
     }
 
     final Set<String> indexes = cls.getClassIndexes(currentDatabase);
@@ -1900,7 +1909,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
       for (final String index : indexes) {
-        final EntityImpl row = new EntityImpl();
+        final EntityImpl row = new EntityImpl(currentDatabase);
         resultSet.add(row);
 
         row.field("NAME", index);
@@ -1910,17 +1919,17 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(currentDatabase, resultSet, -1);
     }
 
-    if (cls.getCustomKeys().size() > 0) {
+    if (!cls.getCustomKeys().isEmpty()) {
       message("\n\nCUSTOM ATTRIBUTES");
 
       final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
       for (final String k : cls.getCustomKeys()) {
         try {
-          final EntityImpl row = new EntityImpl();
+          final EntityImpl row = new EntityImpl(currentDatabase);
           resultSet.add(row);
 
           row.field("NAME", k);
@@ -1935,7 +1944,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(currentDatabase, resultSet, -1);
     }
   }
 
@@ -1994,7 +2003,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
       for (final String k : prop.getCustomKeys()) {
         try {
-          final EntityImpl row = new EntityImpl();
+          final EntityImpl row = new EntityImpl(currentDatabase);
           resultSet.add(row);
 
           row.field("NAME", k);
@@ -2008,7 +2017,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(currentDatabase, resultSet, -1);
     }
 
     final Collection<String> indexes = prop.getAllIndexes(currentDatabase);
@@ -2018,7 +2027,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
       for (final String index : indexes) {
-        final EntityImpl row = new EntityImpl();
+        final EntityImpl row = new EntityImpl(currentDatabase);
         resultSet.add(row);
 
         row.field("NAME", index);
@@ -2027,7 +2036,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(currentDatabase, resultSet, -1);
     }
   }
 
@@ -2052,7 +2061,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       long totalIndexedRecords = 0;
 
       for (final Index index : indexes) {
-        final EntityImpl row = new EntityImpl();
+        final EntityImpl row = new EntityImpl(currentDatabase);
         resultSet.add(row);
 
         final long indexSize = index.getSize(
@@ -2073,7 +2082,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
             final List<String> fields = indexDefinition.getFields();
             final StringBuilder buffer = new StringBuilder();
             for (int i = 0; i < fields.size(); ++i) {
-              if (buffer.length() > 0) {
+              if (!buffer.isEmpty()) {
                 buffer.append(",");
               }
 
@@ -2098,12 +2107,12 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
       formatter.setColumnAlignment("RECORDS", TableFormatter.ALIGNMENT.RIGHT);
 
-      final EntityImpl footer = new EntityImpl();
+      final EntityImpl footer = new EntityImpl(currentDatabase);
       footer.field("NAME", "TOTAL");
       footer.field("RECORDS", totalIndexedRecords);
       formatter.setFooter(footer);
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(currentDatabase, resultSet, -1);
 
     } else {
       message("\nNo database selected yet.");
@@ -2148,7 +2157,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
       for (String clusterName : clusters) {
         try {
-          final EntityImpl row = new EntityImpl();
+          final EntityImpl row = new EntityImpl(currentDatabase);
           resultSet.add(row);
 
           clusterId = currentDatabase.getClusterIdByName(clusterName);
@@ -2220,7 +2229,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
         }
       }
 
-      final EntityImpl footer = new EntityImpl();
+      final EntityImpl footer = new EntityImpl(currentDatabase);
       footer.field("NAME", "TOTAL");
       footer.field("COUNT", totalElements);
       if (!isRemote) {
@@ -2231,7 +2240,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       }
       formatter.setFooter(footer);
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(currentDatabase, resultSet, -1);
 
       message("\n");
 
@@ -2267,7 +2276,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
       for (SchemaClass cls : classes) {
         try {
-          final EntityImpl row = new EntityImpl();
+          final EntityImpl row = new EntityImpl(currentDatabase);
           resultSet.add(row);
 
           final StringBuilder clusters = new StringBuilder(1024);
@@ -2310,13 +2319,13 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
       formatter.setColumnAlignment("COUNT", TableFormatter.ALIGNMENT.RIGHT);
 
-      final EntityImpl footer = new EntityImpl();
+      final EntityImpl footer = new EntityImpl(currentDatabase);
       footer.field("NAME", "TOTAL");
       footer.field("COUNT", totalElements);
 
       formatter.setFooter(footer);
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(currentDatabase, resultSet, -1);
 
       message("\n");
 
@@ -2344,7 +2353,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       message("\n\nCONFIGURED SERVERS");
 
       for (EntityImpl m : members) {
-        final EntityImpl server = new EntityImpl();
+        final EntityImpl server = new EntityImpl(currentDatabase);
 
         server.field("Name", m.<Object>field("name"));
         server.field("Status", m.<Object>field("status"));
@@ -2383,7 +2392,8 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       }
     }
     currentResultSet = servers;
-    new TableFormatter(this).setMaxWidthSize(getConsoleWidth()).writeRecords(servers, -1);
+    new TableFormatter(this).setMaxWidthSize(getConsoleWidth())
+        .writeRecords(currentDatabase, servers, -1);
   }
 
   @ConsoleCommand(description = "Displays the status of the cluster nodes")
@@ -2452,7 +2462,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       // REPAIR DATABASE AT LOW LEVEL
       boolean verbose = iOptions != null && iOptions.contains("-v");
 
-      new DatabaseRepair()
+      new DatabaseRepair(currentDatabase)
           .setDatabase(currentDatabase)
           .setOutputListener(
               new CommandOutputListener() {
@@ -2735,7 +2745,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
     for (Entry<String, String> p : properties.entrySet()) {
-      final EntityImpl row = new EntityImpl();
+      final EntityImpl row = new EntityImpl(currentDatabase);
       resultSet.add(row);
 
       row.field("NAME", p.getKey());
@@ -2746,7 +2756,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     formatter.setMaxWidthSize(getConsoleWidth());
     formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-    formatter.writeRecords(resultSet, -1);
+    formatter.writeRecords(currentDatabase, resultSet, -1);
 
     message("\n");
   }
@@ -2873,7 +2883,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
       for (Entry<String, String> p : values.entrySet()) {
-        final EntityImpl row = new EntityImpl();
+        final EntityImpl row = new EntityImpl(currentDatabase);
         resultSet.add(row);
 
         row.field("NAME", p.getKey());
@@ -2884,7 +2894,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(currentDatabase, resultSet, -1);
 
     } else {
       // LOCAL STORAGE
@@ -2893,7 +2903,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
       for (GlobalConfiguration cfg : GlobalConfiguration.values()) {
-        final EntityImpl row = new EntityImpl();
+        final EntityImpl row = new EntityImpl(currentDatabase);
         resultSet.add(row);
 
         row.field("NAME", cfg.getKey());
@@ -2904,7 +2914,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(currentDatabase, resultSet, -1);
     }
 
     message("\n");
@@ -3288,7 +3298,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     new TableFormatter(this)
         .setMaxWidthSize(getConsoleWidth())
         .setMaxMultiValueEntries(getMaxMultiValueEntries())
-        .writeRecords(currentResultSet, limit);
+        .writeRecords(currentDatabase, currentResultSet, limit);
   }
 
   protected float getElapsedSecs(final long start) {
@@ -3387,7 +3397,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     currentRecord =
         iResultset == null || iResultset.isEmpty()
             ? null
-            : (RecordAbstract) iResultset.get(0).getRecord();
+            : (RecordAbstract) iResultset.get(0).getRecord(currentDatabase);
   }
 
   protected void resetResultSet() {
@@ -3482,7 +3492,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
                   MultiValue.getMultiValueIterator(value), getMaxMultiValueEntries());
         }
 
-        final EntityImpl row = new EntityImpl();
+        final EntityImpl row = new EntityImpl(currentDatabase);
         resultSet.add(row);
 
         row.field("NAME", fieldName);
@@ -3493,7 +3503,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(currentDatabase, resultSet, -1);
 
     } else if (currentRecord instanceof Blob rec) {
       message(
@@ -3559,7 +3569,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       currentResultSet.add(it.next());
     }
 
-    tableFormatter.writeRecords(currentResultSet, limit);
+    tableFormatter.writeRecords(currentDatabase, currentResultSet, limit);
   }
 
   private Object sqlCommand(

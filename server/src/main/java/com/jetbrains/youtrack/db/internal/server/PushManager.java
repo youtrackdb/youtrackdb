@@ -134,12 +134,12 @@ public class PushManager implements MetadataUpdateListener {
   }
 
   @Override
-  public void onSchemaUpdate(DatabaseSessionInternal session, String database,
+  public void onSchemaUpdate(DatabaseSessionInternal db, String database,
       SchemaShared schema) {
-    var entity = schema.toNetworkStream();
+    var entity = schema.toNetworkStream(db);
     entity.setup(null);
     PushSchemaRequest request = new PushSchemaRequest(entity);
-    this.schema.send(session, database, request, this);
+    this.schema.send(db, database, request, this);
   }
 
   @Override

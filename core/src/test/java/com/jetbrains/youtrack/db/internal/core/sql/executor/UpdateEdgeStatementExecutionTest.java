@@ -27,7 +27,7 @@ public class UpdateEdgeStatementExecutionTest extends DbTestBase {
     Entity v1;
     try (ResultSet res1 = db.command("create vertex")) {
       Result r = res1.next();
-      Assert.assertEquals(r.getProperty("@class"), "V");
+      Assert.assertEquals("V", r.getProperty("@class"));
       v1 = r.toEntity();
     }
     db.commit();
@@ -36,7 +36,7 @@ public class UpdateEdgeStatementExecutionTest extends DbTestBase {
     Entity v2;
     try (ResultSet res2 = db.command("create vertex V1")) {
       Result r = res2.next();
-      Assert.assertEquals(r.getProperty("@class"), "V1");
+      Assert.assertEquals("V1", r.getProperty("@class"));
       v2 = r.toEntity();
     }
     db.commit();
@@ -45,8 +45,8 @@ public class UpdateEdgeStatementExecutionTest extends DbTestBase {
     Entity v3;
     try (ResultSet res3 = db.command("create vertex set vid = 'v3', brand = 'fiat'")) {
       Result r = res3.next();
-      Assert.assertEquals(r.getProperty("@class"), "V");
-      Assert.assertEquals(r.getProperty("brand"), "fiat");
+      Assert.assertEquals("V", r.getProperty("@class"));
+      Assert.assertEquals("fiat", r.getProperty("brand"));
       v3 = r.toEntity();
     }
     db.commit();
@@ -56,9 +56,9 @@ public class UpdateEdgeStatementExecutionTest extends DbTestBase {
     try (ResultSet res4 =
         db.command("create vertex V1 set vid = 'v4',  brand = 'fiat',name = 'wow'")) {
       Result r = res4.next();
-      Assert.assertEquals(r.getProperty("@class"), "V1");
-      Assert.assertEquals(r.getProperty("brand"), "fiat");
-      Assert.assertEquals(r.getProperty("name"), "wow");
+      Assert.assertEquals("V1", r.getProperty("@class"));
+      Assert.assertEquals("fiat", r.getProperty("brand"));
+      Assert.assertEquals("wow", r.getProperty("name"));
       v4 = r.toEntity();
     }
     db.commit();
@@ -71,7 +71,7 @@ public class UpdateEdgeStatementExecutionTest extends DbTestBase {
     Assert.assertTrue(edges.hasNext());
     Result edge = edges.next();
     Assert.assertFalse(edges.hasNext());
-    Assert.assertEquals(((EntityImpl) edge.toEntity().getRecord()).getClassName(), "E1");
+    Assert.assertEquals("E1", ((EntityImpl) edge.toEntity().getRecord(db)).getClassName());
     edges.close();
 
     db.begin();
@@ -87,14 +87,14 @@ public class UpdateEdgeStatementExecutionTest extends DbTestBase {
     ResultSet result = db.query("select expand(out('E1')) from " + v3.getIdentity());
     Assert.assertTrue(result.hasNext());
     Result vertex4 = result.next();
-    Assert.assertEquals(vertex4.getProperty("vid"), "v4");
+    Assert.assertEquals("v4", vertex4.getProperty("vid"));
     Assert.assertFalse(result.hasNext());
     result.close();
 
     result = db.query("select expand(in('E1')) from " + v4.getIdentity());
     Assert.assertTrue(result.hasNext());
     Result vertex3 = result.next();
-    Assert.assertEquals(vertex3.getProperty("vid"), "v3");
+    Assert.assertEquals("v3", vertex3.getProperty("vid"));
     Assert.assertFalse(result.hasNext());
     result.close();
 

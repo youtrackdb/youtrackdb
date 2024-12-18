@@ -81,7 +81,7 @@ public class TransactionOptimisticServer extends TransactionOptimistic {
               try {
                 updated = database.load(rid);
               } catch (RecordNotFoundException rnf) {
-                updated = new EntityImpl();
+                updated = new EntityImpl(database);
               }
 
               updated.deserializeFields();
@@ -118,7 +118,7 @@ public class TransactionOptimisticServer extends TransactionOptimistic {
               continue;
             }
 
-            RecordAbstract rec = rid.getRecord();
+            RecordAbstract rec = rid.getRecord(database);
             entry = new RecordOperation(rec, RecordOperation.DELETED);
             int deleteVersion = operation.getVersion();
             RecordInternal.setVersion(rec, deleteVersion);
@@ -135,13 +135,13 @@ public class TransactionOptimisticServer extends TransactionOptimistic {
       for (RecordOperation update : toMergeUpdates) {
         // SPECIAL CASE FOR UPDATE: WE NEED TO LOAD THE RECORD AND APPLY CHANGES TO GET WORKING
         // HOOKS (LIKE INDEXES)
-        var record = update.record.getRecord();
+        var record = update.record.getRecord(database);
         final boolean contentChanged = RecordInternal.isContentChanged(record);
 
-        final RecordAbstract loadedRecord = record.getIdentity().copy().getRecord();
-        if (RecordInternal.getRecordType(loadedRecord) == EntityImpl.RECORD_TYPE
-            && RecordInternal.getRecordType(loadedRecord)
-            == RecordInternal.getRecordType(record)) {
+        final RecordAbstract loadedRecord = record.getIdentity().copy().getRecord(database);
+        if (RecordInternal.getRecordType(database, loadedRecord) == EntityImpl.RECORD_TYPE
+            && RecordInternal.getRecordType(database, loadedRecord)
+            == RecordInternal.getRecordType(database, record)) {
           ((EntityImpl) loadedRecord).merge((EntityImpl) record, false, false);
 
           loadedRecord.setDirty();
@@ -164,7 +164,7 @@ public class TransactionOptimisticServer extends TransactionOptimistic {
             if (cachedRecord != null) {
               rec.copyTo(cachedRecord);
             } else {
-              database.getLocalCache().updateRecord(rec.getRecord());
+              database.getLocalCache().updateRecord(rec.getRecord(database));
             }
           }
 

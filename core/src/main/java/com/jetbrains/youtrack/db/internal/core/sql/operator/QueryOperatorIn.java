@@ -19,18 +19,18 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.operator;
 
-import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
-import com.jetbrains.youtrack.db.internal.common.util.RawPair;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionMultiValue;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
@@ -181,7 +181,7 @@ public class QueryOperatorIn extends QueryOperatorEqualityNotNulls {
     final Iterable<?> ridCollection;
     final int ridSize;
     if (iRight instanceof SQLFilterItemField
-        && DocumentHelper.ATTRIBUTE_RID.equals(((SQLFilterItemField) iRight).getRoot(session))) {
+        && EntityHelper.ATTRIBUTE_RID.equals(((SQLFilterItemField) iRight).getRoot(session))) {
       if (iLeft instanceof SQLFilterItem) {
         iLeft = ((SQLFilterItem) iLeft).getValue(null, null, null);
       }
@@ -189,7 +189,7 @@ public class QueryOperatorIn extends QueryOperatorEqualityNotNulls {
       ridCollection = MultiValue.getMultiValueIterable(iLeft);
       ridSize = MultiValue.getSize(iLeft);
     } else if (iLeft instanceof SQLFilterItemField
-        && DocumentHelper.ATTRIBUTE_RID.equals(((SQLFilterItemField) iLeft).getRoot(session))) {
+        && EntityHelper.ATTRIBUTE_RID.equals(((SQLFilterItemField) iLeft).getRoot(session))) {
       if (iRight instanceof SQLFilterItem) {
         iRight = ((SQLFilterItem) iRight).getValue(null, null, null);
       }
@@ -209,7 +209,7 @@ public class QueryOperatorIn extends QueryOperatorEqualityNotNulls {
     final Iterable<?> ridCollection;
     final int ridSize;
     if (iRight instanceof SQLFilterItemField
-        && DocumentHelper.ATTRIBUTE_RID.equals(((SQLFilterItemField) iRight).getRoot(session))) {
+        && EntityHelper.ATTRIBUTE_RID.equals(((SQLFilterItemField) iRight).getRoot(session))) {
       if (iLeft instanceof SQLFilterItem) {
         iLeft = ((SQLFilterItem) iLeft).getValue(null, null, null);
       }
@@ -217,7 +217,7 @@ public class QueryOperatorIn extends QueryOperatorEqualityNotNulls {
       ridCollection = MultiValue.getMultiValueIterable(iLeft);
       ridSize = MultiValue.getSize(iLeft);
     } else if (iLeft instanceof SQLFilterItemField
-        && DocumentHelper.ATTRIBUTE_RID.equals(((SQLFilterItemField) iLeft).getRoot(session))) {
+        && EntityHelper.ATTRIBUTE_RID.equals(((SQLFilterItemField) iLeft).getRoot(session))) {
       if (iRight instanceof SQLFilterItem) {
         iRight = ((SQLFilterItem) iRight).getValue(null, null, null);
       }

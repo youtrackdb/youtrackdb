@@ -53,7 +53,7 @@ public class AlterSequenceStatementExecutionTest extends DbTestBase {
           Sequence seq = db.getMetadata().getSequenceLibrary().getSequence(sequenceName);
           Assert.assertNotNull(seq);
           try {
-            Assert.assertEquals(20, seq.next());
+            Assert.assertEquals(20, seq.next(db));
           } catch (DatabaseException exc) {
             Assert.fail("Failed to call next");
           }

@@ -123,7 +123,7 @@ public class LuceneAutomaticBackupRestoreTest {
     db.command("create property City.name string");
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
 
-    EntityImpl doc = new EntityImpl("City");
+    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "Rome");
 
     db.begin();
@@ -169,7 +169,7 @@ public class LuceneAutomaticBackupRestoreTest {
         IOUtils.readStreamAsString(
             getClass().getClassLoader().getResourceAsStream("automatic-backup.json"));
 
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = ((EntityImpl) db.newEntity());
     doc.fromJSON(jsonConfig);
 
     doc.field("enabled", true);

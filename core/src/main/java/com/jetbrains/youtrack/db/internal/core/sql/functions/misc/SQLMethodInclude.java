@@ -19,21 +19,22 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.misc;
 
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.method.misc.AbstractSQLMethod;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Filter the content by including only some fields. If the content is a entity, then creates a
- * copy with only the included fields. If it's a collection of documents it acts against on each
- * single entry.
+ * Filter the content by including only some fields. If the content is a entity, then creates a copy
+ * with only the included fields. If it's a collection of documents it acts against on each single
+ * entry.
  *
  * <p>
  *
@@ -88,10 +89,11 @@ public class SQLMethodInclude extends AbstractSQLMethod {
       Object ioResult,
       Object[] iParams) {
 
+    var db = iContext.getDatabase();
     if (iParams[0] != null) {
       if (iThis instanceof Identifiable) {
         try {
-          iThis = ((Identifiable) iThis).getRecord();
+          iThis = ((Identifiable) iThis).getRecord(db);
         } catch (RecordNotFoundException rnf) {
           return null;
         }
@@ -100,18 +102,18 @@ public class SQLMethodInclude extends AbstractSQLMethod {
       }
       if (iThis instanceof EntityImpl) {
         // ACT ON SINGLE ENTITY
-        return copy((EntityImpl) iThis, iParams);
+        return copy(db, (EntityImpl) iThis, iParams);
       } else if (iThis instanceof Map) {
         // ACT ON MAP
-        return copy((Map) iThis, iParams);
+        return copy(db, (Map) iThis, iParams);
       } else if (MultiValue.isMultiValue(iThis)) {
         // ACT ON MULTIPLE DOCUMENTS
         final List<Object> result = new ArrayList<Object>(MultiValue.getSize(iThis));
         for (Object o : MultiValue.getMultiValueIterable(iThis)) {
           if (o instanceof Identifiable) {
             try {
-              var record = ((Identifiable) o).getRecord();
-              result.add(copy((EntityImpl) record, iParams));
+              var record = ((Identifiable) o).getRecord(db);
+              result.add(copy(db, (EntityImpl) record, iParams));
             } catch (RecordNotFoundException rnf) {
               // IGNORE IT
             }
@@ -125,14 +127,15 @@ public class SQLMethodInclude extends AbstractSQLMethod {
     return null;
   }
 
-  private Object copy(final EntityImpl entity, final Object[] iFieldNames) {
-    final EntityImpl ent = new EntityImpl();
-    for (int i = 0; i < iFieldNames.length; ++i) {
-      if (iFieldNames[i] != null) {
+  private Object copy(DatabaseSessionInternal db, final EntityImpl entity,
+      final Object[] iFieldNames) {
+    final EntityImpl ent = new EntityImpl(db);
+    for (Object iFieldName : iFieldNames) {
+      if (iFieldName != null) {
 
-        final String fieldName = iFieldNames[i].toString();
+        final String fieldName = iFieldName.toString();
 
-        if (fieldName.endsWith("*")) {
+        if (!fieldName.isEmpty() && fieldName.charAt(fieldName.length() - 1) == '*') {
           final String fieldPart = fieldName.substring(0, fieldName.length() - 1);
           final List<String> toInclude = new ArrayList<String>();
           for (String f : entity.fieldNames()) {
@@ -153,8 +156,8 @@ public class SQLMethodInclude extends AbstractSQLMethod {
     return ent;
   }
 
-  private Object copy(final Map map, final Object[] iFieldNames) {
-    final EntityImpl entity = new EntityImpl();
+  private Object copy(DatabaseSessionInternal db, final Map map, final Object[] iFieldNames) {
+    final EntityImpl entity = new EntityImpl(db);
     for (int i = 0; i < iFieldNames.length; ++i) {
       if (iFieldNames[i] != null) {
         final String fieldName = iFieldNames[i].toString();

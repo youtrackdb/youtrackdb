@@ -21,12 +21,12 @@ package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandDocumentAbstract;
 
 public class ServerCommandPostDocument extends ServerCommandDocumentAbstract {
@@ -34,22 +34,17 @@ public class ServerCommandPostDocument extends ServerCommandDocumentAbstract {
   private static final String[] NAMES = {"POST|document/*"};
 
   @Override
-  public boolean execute(final OHttpRequest iRequest, HttpResponse iResponse) throws Exception {
+  public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
     checkSyntax(iRequest.getUrl(), 2, "Syntax error: document/<database>");
 
     iRequest.getData().commandInfo = "Create document";
 
-    DatabaseSession db = null;
-
     EntityImpl d;
-
-    try {
-      db = getProfiledDatabaseInstance(iRequest);
-
+    try (DatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
       d =
           db.computeInTx(
               () -> {
-                EntityImpl entity = new EntityImpl();
+                EntityImpl entity = new EntityImpl(db);
                 entity.fromJSON(iRequest.getContent());
                 RecordInternal.setVersion(entity, 0);
 
@@ -68,10 +63,6 @@ public class ServerCommandPostDocument extends ServerCommandDocumentAbstract {
           d.toJSON(),
           HttpUtils.HEADER_ETAG + d.getVersion());
 
-    } finally {
-      if (db != null) {
-        db.close();
-      }
     }
     return false;
   }

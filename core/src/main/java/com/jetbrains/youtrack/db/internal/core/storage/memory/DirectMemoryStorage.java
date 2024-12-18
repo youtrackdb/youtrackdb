@@ -20,9 +20,10 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.memory;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.engine.memory.EngineMemory;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster;
@@ -119,7 +120,7 @@ public class DirectMemoryStorage extends AbstractPaginatedStorage {
 
   @Override
   public List<String> backup(
-      final OutputStream out,
+      DatabaseSessionInternal db, final OutputStream out,
       final Map<String, Object> options,
       final Callable<Object> callable,
       final CommandOutputListener iListener,

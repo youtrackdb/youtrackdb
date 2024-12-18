@@ -22,7 +22,7 @@ import com.jetbrains.youtrack.db.internal.server.ClientConnection;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.NetworkProtocolHttpAbstract;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
 import java.io.IOException;
 import java.util.List;
@@ -32,7 +32,7 @@ public class ServerCommandPostKillDbConnection extends ServerCommandAuthenticate
   private static final String[] NAMES = {"POST|dbconnection/*"};
 
   @Override
-  public boolean execute(OHttpRequest iRequest, HttpResponse iResponse) throws Exception {
+  public boolean execute(HttpRequest iRequest, HttpResponse iResponse) throws Exception {
     final String[] urlParts =
         checkSyntax(iRequest.getUrl(), 2, "Syntax error: dbconnection/<database>");
 
@@ -41,14 +41,14 @@ public class ServerCommandPostKillDbConnection extends ServerCommandAuthenticate
     return false;
   }
 
-  private void doPost(OHttpRequest iRequest, HttpResponse iResponse, String db, String command)
+  private void doPost(HttpRequest iRequest, HttpResponse iResponse, String db, String command)
       throws IOException {
 
     final List<ClientConnection> connections =
         server.getClientConnectionManager().getConnections();
     for (ClientConnection connection : connections) {
       if (connection.getProtocol() instanceof NetworkProtocolHttpAbstract http) {
-        final OHttpRequest req = http.getRequest();
+        final HttpRequest req = http.getRequest();
 
         if (req != null && req != iRequest && req.getSessionId().equals(iRequest.getSessionId())) {
           server.getClientConnectionManager().interrupt(connection.getId());

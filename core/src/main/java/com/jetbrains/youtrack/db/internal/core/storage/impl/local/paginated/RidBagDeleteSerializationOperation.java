@@ -22,13 +22,13 @@ package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeRidBag;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeBasedRidBag;
 
 public class RidBagDeleteSerializationOperation implements RecordSerializationOperation {
 
-  private final SBTreeRidBag ridBag;
+  private final BTreeBasedRidBag ridBag;
 
-  public RidBagDeleteSerializationOperation(SBTreeRidBag ridBag) {
+  public RidBagDeleteSerializationOperation(BTreeBasedRidBag ridBag) {
     this.ridBag = ridBag;
   }
 

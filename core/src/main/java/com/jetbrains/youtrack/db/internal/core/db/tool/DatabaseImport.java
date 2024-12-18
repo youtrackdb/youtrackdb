@@ -459,7 +459,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     // Starting from v4 schema has been moved to internal cluster.
     // Create a stub at #2:0 to prevent cluster position shifting.
     database.begin();
-    new EntityImpl().save(Storage.CLUSTER_DEFAULT_NAME);
+    new EntityImpl(database).save(Storage.CLUSTER_DEFAULT_NAME);
     database.commit();
 
     database.getSharedContext().getSecurity().create(database);
@@ -562,7 +562,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
   private void importManualIndexes() throws IOException, ParseException {
     listener.onMessage("\nImporting manual index entries...");
 
-    EntityImpl entity = new EntityImpl();
+    EntityImpl entity = new EntityImpl(database);
 
     IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
     // FORCE RELOADING
@@ -1216,7 +1216,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     database.begin();
     if (!database.exists(
         new RecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId()))) {
-      EntityImpl indexEntity = new EntityImpl();
+      EntityImpl indexEntity = new EntityImpl(database);
       indexEntity.save(MetadataDefault.CLUSTER_INTERNAL_NAME);
       database.getStorage().setIndexMgrRecordId(indexEntity.getIdentity().toString());
     }
@@ -1420,7 +1420,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
           var recordRid = record.getIdentity();
           database.executeInTx(
               () ->
-                  new EntityImpl(EXPORT_IMPORT_CLASS_NAME)
+                  new EntityImpl(database, EXPORT_IMPORT_CLASS_NAME)
                       .field("key", rid.toString())
                       .field("value", recordRid.toString())
                       .save());
@@ -1479,7 +1479,6 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     final SchemaClass cls = schema.createClass(EXPORT_IMPORT_CLASS_NAME);
     cls.createProperty(database, "key", PropertyType.STRING);
     cls.createProperty(database, "value", PropertyType.STRING);
-    cls.createIndex(database, EXPORT_IMPORT_INDEX_NAME, SchemaClass.INDEX_TYPE.DICTIONARY, "key");
 
     jsonReader.readNext(JSONReader.BEGIN_COLLECTION);
 
@@ -1677,14 +1676,14 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
                 } else {
                   if (fieldName.equals("metadata")) {
                     final String jsonMetadata = jsonReader.readString(JSONReader.END_OBJECT, true);
-                    metadata = new EntityImpl();
+                    metadata = new EntityImpl(database);
                     metadata.fromJSON(jsonMetadata);
                     jsonReader.readNext(JSONReader.NEXT_IN_OBJECT);
                   } else {
                     if (fieldName.equals("engineProperties")) {
                       final String jsonEngineProperties =
                           jsonReader.readString(JSONReader.END_OBJECT, true);
-                      var entity = new EntityImpl();
+                      var entity = new EntityImpl(database);
                       entity.fromJSON(jsonEngineProperties);
                       Map<String, ?> map = entity.toMap();
                       if (map != null) {

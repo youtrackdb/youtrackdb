@@ -20,9 +20,9 @@
 
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Map;
 import org.junit.Assert;
@@ -32,33 +32,33 @@ public class DocumentTest extends DbTestBase {
 
   @Test
   public void testFromMapNotSaved() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
     doc.field("name", "Jay");
     doc.field("surname", "Miner");
     Map<String, Object> map = doc.toMap();
 
-    Assert.assertEquals(map.size(), 2);
-    Assert.assertEquals(map.get("name"), "Jay");
-    Assert.assertEquals(map.get("surname"), "Miner");
+    Assert.assertEquals(2, map.size());
+    Assert.assertEquals("Jay", map.get("name"));
+    Assert.assertEquals("Miner", map.get("surname"));
   }
 
   @Test
   public void testFromMapWithClass() {
-    final EntityImpl doc = new EntityImpl("OUser");
+    final EntityImpl doc = (EntityImpl) db.newEntity("OUser");
     doc.field("name", "Jay");
     doc.field("surname", "Miner");
     Map<String, Object> map = doc.toMap();
 
-    Assert.assertEquals(map.size(), 3);
-    Assert.assertEquals(map.get("name"), "Jay");
-    Assert.assertEquals(map.get("surname"), "Miner");
-    Assert.assertEquals(map.get("@class"), "OUser");
+    Assert.assertEquals(3, map.size());
+    Assert.assertEquals("Jay", map.get("name"));
+    Assert.assertEquals("Miner", map.get("surname"));
+    Assert.assertEquals("OUser", map.get("@class"));
   }
 
   @Test
   public void testFromMapWithClassAndRid() {
     db.begin();
-    final EntityImpl doc = new EntityImpl("V");
+    final EntityImpl doc = (EntityImpl) db.newEntity("V");
     doc.field("name", "Jay");
     doc.field("surname", "Miner");
     doc.save();
@@ -66,37 +66,37 @@ public class DocumentTest extends DbTestBase {
 
     Map<String, Object> map = db.bindToSession(doc).toMap();
 
-    Assert.assertEquals(map.size(), 4);
-    Assert.assertEquals(map.get("name"), "Jay");
-    Assert.assertEquals(map.get("surname"), "Miner");
-    Assert.assertEquals(map.get("@class"), "V");
+    Assert.assertEquals(4, map.size());
+    Assert.assertEquals("Jay", map.get("name"));
+    Assert.assertEquals("Miner", map.get("surname"));
+    Assert.assertEquals("V", map.get("@class"));
     Assert.assertTrue(map.containsKey("@rid"));
   }
 
   @Test
   public void testConversionOnTypeSet() {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
 
     doc.field("some", 3);
     doc.setFieldType("some", PropertyType.STRING);
-    Assert.assertEquals(doc.fieldType("some"), PropertyType.STRING);
-    Assert.assertEquals(doc.field("some"), "3");
+    Assert.assertEquals(PropertyType.STRING, doc.fieldType("some"));
+    Assert.assertEquals("3", doc.field("some"));
   }
 
   @Test
   public void testEval() {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
 
     doc.field("amount", 300);
 
     Number amountPlusVat = (Number) doc.eval("amount * 120 / 100");
 
-    Assert.assertEquals(amountPlusVat.longValue(), 360L);
+    Assert.assertEquals(360L, amountPlusVat.longValue());
   }
 
   @Test
   public void testEvalInContext() {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
 
     doc.field("amount", 300);
 
@@ -105,6 +105,6 @@ public class DocumentTest extends DbTestBase {
     context.setDatabase(db);
     Number amountPlusVat = (Number) doc.eval("amount * (100 + $vat) / 100", context);
 
-    Assert.assertEquals(amountPlusVat.longValue(), 360L);
+    Assert.assertEquals(360L, amountPlusVat.longValue());
   }
 }

@@ -22,7 +22,7 @@ package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.
 import com.jetbrains.youtrack.db.internal.server.config.ServerCommandConfiguration;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpGraphResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 
 public class ServerCommandPostCommandGraph extends ServerCommandPostCommand {
 
@@ -33,7 +33,7 @@ public class ServerCommandPostCommandGraph extends ServerCommandPostCommand {
   }
 
   @Override
-  public boolean execute(final OHttpRequest iRequest, HttpResponse iResponse) throws Exception {
+  public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
     return super.execute(iRequest, new HttpGraphResponse(iResponse));
   }
 }

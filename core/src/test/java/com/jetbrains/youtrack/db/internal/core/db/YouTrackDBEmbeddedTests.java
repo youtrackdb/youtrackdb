@@ -72,7 +72,8 @@ public class YouTrackDBEmbeddedTests {
               youTrackDb.open(
                   "createAndUseEmbeddedDatabase", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       db.executeInTx(
-          () -> db.save(new EntityImpl(), db.getClusterNameById(db.getDefaultClusterId())));
+          () -> db.save((EntityImpl) db.newEntity(),
+              db.getClusterNameById(db.getDefaultClusterId())));
       db.close();
     }
   }
@@ -551,7 +552,8 @@ public class YouTrackDBEmbeddedTests {
         (DatabaseSessionInternal)
             youTrackDb.open("test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     db.executeInTx(
-        () -> db.save(new EntityImpl(), db.getClusterNameById(db.getDefaultClusterId())));
+        () -> db.save((EntityImpl) db.newEntity(),
+            db.getClusterNameById(db.getDefaultClusterId())));
     db.close();
     youTrackDb.close();
   }

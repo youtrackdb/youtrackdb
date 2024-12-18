@@ -19,7 +19,12 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
@@ -27,17 +32,12 @@ import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
-import com.jetbrains.youtrack.db.api.record.Record;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerCSVAbstract;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItem;
@@ -157,11 +157,11 @@ public class SQLHelper {
         map.put(key, value);
       }
 
-      if (map.containsKey(DocumentHelper.ATTRIBUTE_TYPE))
+      if (map.containsKey(EntityHelper.ATTRIBUTE_TYPE))
       // IT'S A DOCUMENT
       // TODO: IMPROVE THIS CASE AVOIDING DOUBLE PARSING
       {
-        var entity = new EntityImpl();
+        var entity = new EntityImpl(iContext.getDatabase());
         entity.fromJSON(iValue);
         fieldValue = entity;
       } else {
@@ -344,7 +344,7 @@ public class SQLHelper {
           && !Character.isDigit(s.charAt(0)))
       // INTERPRETS IT
       {
-        return DocumentHelper.getFieldValue(iContext.getDatabase(), iRecord, s, iContext);
+        return EntityHelper.getFieldValue(iContext.getDatabase(), iRecord, s, iContext);
       }
     }
 
@@ -457,11 +457,12 @@ public class SQLHelper {
             final List<Object> tempColl = new ArrayList<Object>(MultiValue.getSize(fieldValue));
 
             String singleFieldName = null;
+            var db = iContext.getDatabase();
             for (Object o : MultiValue.getMultiValueIterable(fieldValue)) {
               if (o instanceof Identifiable && !((Identifiable) o).getIdentity()
                   .isPersistent()) {
                 // TEMPORARY / EMBEDDED
-                final Record rec = ((Identifiable) o).getRecord();
+                final Record rec = ((Identifiable) o).getRecord(db);
                 if (rec != null && rec instanceof EntityImpl entity) {
                   // CHECK FOR ONE FIELD ONLY
                   if (entity.fields() == 1) {

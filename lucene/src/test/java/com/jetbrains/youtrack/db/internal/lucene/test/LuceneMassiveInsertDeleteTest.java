@@ -52,7 +52,7 @@ public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
 
     int size = 1000;
     for (int i = 0; i < size; i++) {
-      EntityImpl city = new EntityImpl("City");
+      EntityImpl city = ((EntityImpl) db.newEntity("City"));
       city.field("name", "Rome " + i);
 
       db.begin();

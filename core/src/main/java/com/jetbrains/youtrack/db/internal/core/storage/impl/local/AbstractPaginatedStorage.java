@@ -38,13 +38,10 @@ import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.exception.StorageDoesNotExistException;
 import com.jetbrains.youtrack.db.api.exception.StorageExistsException;
 import com.jetbrains.youtrack.db.api.record.Blob;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
-import com.jetbrains.youtrack.db.api.session.SessionListener;
 import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.ScalableRWLock;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.ThreadInterruptedException;
@@ -88,8 +85,6 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
-import com.jetbrains.youtrack.db.internal.core.index.IndexKeyUpdater;
-import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
 import com.jetbrains.youtrack.db.internal.core.index.Indexes;
 import com.jetbrains.youtrack.db.internal.core.index.RuntimeKeyIndexDefinition;
@@ -112,7 +107,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index.CompositeKeySerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.sharding.auto.AutoShardingIndexEngine;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.stream.StreamSerializerRID;
 import com.jetbrains.youtrack.db.internal.core.storage.IdentifiableStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.RawBuffer;
@@ -154,18 +149,10 @@ import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WriteAheadLog;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.common.EmptyWALRecord;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.common.WriteableWALRecord;
-import com.jetbrains.youtrack.db.internal.core.storage.index.engine.HashTableIndexEngine;
-import com.jetbrains.youtrack.db.internal.core.storage.index.engine.SBTreeIndexEngine;
-import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.SBTreeBonsaiLocal;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.IndexRIDContainerSBTree;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManagerShared;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeRidBag;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransacationMetadataHolder;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransacationMetadataHolderImpl;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionData;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionId;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeBasedRidBag;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManagerShared;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChangesPerKey;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChangesPerKey.TransactionIndexEntry;
@@ -191,7 +178,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
@@ -233,9 +219,7 @@ public abstract class AbstractPaginatedStorage
 
   private static final Comparator<RecordOperation> COMMIT_RECORD_OPERATION_COMPARATOR =
       Comparator.comparing(
-          o -> {
-            return o.record.getIdentity();
-          });
+          o -> o.record.getIdentity());
   public static final ThreadGroup storageThreadGroup;
 
   protected static final ScheduledExecutorService fuzzyCheckpointExecutor;
@@ -267,7 +251,7 @@ public abstract class AbstractPaginatedStorage
         ThreadPoolExecutors.newSingleThreadScheduledPool("Fuzzy Checkpoint", storageThreadGroup);
   }
 
-  protected volatile SBTreeCollectionManagerShared sbTreeCollectionManager;
+  protected volatile BTreeCollectionManagerShared sbTreeCollectionManager;
 
   /**
    * Lock is used to atomically update record versions.
@@ -351,7 +335,7 @@ public abstract class AbstractPaginatedStorage
     stateLock = new ScalableRWLock();
 
     this.id = id;
-    sbTreeCollectionManager = new SBTreeCollectionManagerShared(this);
+    sbTreeCollectionManager = new BTreeCollectionManagerShared(this);
 
     registerProfilerHooks();
   }
@@ -486,7 +470,7 @@ public abstract class AbstractPaginatedStorage
   }
 
   private static void checkPageSizeAndRelatedParametersInGlobalConfiguration() {
-    final int pageSize = GlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024;
+    final int pageSize = GlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() << 10;
     int maxKeySize = GlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
     var bTreeMaxKeySize = (int) (pageSize * 0.3);
 
@@ -664,7 +648,7 @@ public abstract class AbstractPaginatedStorage
             return;
           }
 
-          sbTreeCollectionManager.migrate();
+          //migration goes here, for future use
         } finally {
           stateLock.readLock().unlock();
         }
@@ -681,8 +665,6 @@ public abstract class AbstractPaginatedStorage
             return;
           }
 
-          // we need to check presence of ridbags for backward compatibility with previous
-          // versions
           atomicOperationsManager.executeInsideAtomicOperation(null, this::checkRidBagsPresence);
           status = STATUS.OPEN;
           migration.countDown();
@@ -828,7 +810,7 @@ public abstract class AbstractPaginatedStorage
       if (cluster != null) {
         final int clusterId = cluster.getId();
 
-        if (!sbTreeCollectionManager.isComponentPresent(operation, clusterId)) {
+        if (!BTreeCollectionManagerShared.isComponentPresent(operation, clusterId)) {
           LogManager.instance()
               .info(
                   this,
@@ -892,7 +874,7 @@ public abstract class AbstractPaginatedStorage
       throw new InvalidDatabaseNameException("Database name can not be empty");
     }
 
-    final Pattern namePattern = Pattern.compile("[^\\w\\d$_-]+");
+    final Pattern namePattern = Pattern.compile("[^\\w$_-]+");
     final Matcher matcher = namePattern.matcher(name);
     if (matcher.find()) {
       throw new InvalidDatabaseNameException(
@@ -941,7 +923,7 @@ public abstract class AbstractPaginatedStorage
 
           status = STATUS.OPEN;
 
-          sbTreeCollectionManager = new SBTreeCollectionManagerShared(this);
+          sbTreeCollectionManager = new BTreeCollectionManagerShared(this);
 
           // ADD THE METADATA CLUSTER TO STORE INTERNAL STUFF
           doAddCluster(atomicOperation, MetadataDefault.CLUSTER_INTERNAL_NAME);
@@ -951,7 +933,7 @@ public abstract class AbstractPaginatedStorage
           ((ClusterBasedStorageConfiguration) configuration)
               .setPageSize(
                   atomicOperation,
-                  GlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024);
+                  GlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() << 10);
           ((ClusterBasedStorageConfiguration) configuration)
               .setMaxKeySize(
                   atomicOperation, GlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger());
@@ -1021,7 +1003,7 @@ public abstract class AbstractPaginatedStorage
   protected abstract void initIv() throws IOException;
 
   private void checkPageSizeAndRelatedParameters() {
-    final int pageSize = GlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024;
+    final int pageSize = GlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() << 10;
     final int maxKeySize = GlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
 
     if (configuration.getPageSize() != -1 && configuration.getPageSize() != pageSize) {
@@ -1582,7 +1564,7 @@ public abstract class AbstractPaginatedStorage
   }
 
   @Override
-  public final SBTreeCollectionManager getSBtreeCollectionManager() {
+  public final BTreeCollectionManager getSBtreeCollectionManager() {
     return sbTreeCollectionManager;
   }
 
@@ -1996,9 +1978,7 @@ public abstract class AbstractPaginatedStorage
 
   private StorageOperationResult<Boolean> deleteRecord(
       final RecordId rid,
-      final int version,
-      final int mode,
-      final RecordCallback<Boolean> callback) {
+      final int version) {
     try {
       assert transaction.get() == null;
 
@@ -2114,6 +2094,7 @@ public abstract class AbstractPaginatedStorage
             atomicOperation -> {
               lockClusters(clustersToLock);
 
+              var db = clientTx.getDatabase();
               for (final RecordOperation txEntry : newRecords) {
                 final Record rec = txEntry.record;
                 if (!rec.getIdentity().isPersistent()) {
@@ -2124,7 +2105,7 @@ public abstract class AbstractPaginatedStorage
                     final StorageCluster cluster = doGetAndCheckCluster(rid.getClusterId());
                     final PhysicalPosition ppos =
                         cluster.allocatePosition(
-                            RecordInternal.getRecordType(rec), atomicOperation);
+                            RecordInternal.getRecordType(db, rec), atomicOperation);
                     rid.setClusterPosition(ppos.clusterPosition);
                     clientTx.updateIdentityAfterCommit(oldRID, rid);
                   }
@@ -2138,11 +2119,11 @@ public abstract class AbstractPaginatedStorage
                   if (recordStatus == RECORD_STATUS.NOT_EXISTENT) {
                     PhysicalPosition ppos =
                         cluster.allocatePosition(
-                            RecordInternal.getRecordType(rec), atomicOperation);
+                            RecordInternal.getRecordType(db, rec), atomicOperation);
                     while (ppos.clusterPosition < rid.getClusterPosition()) {
                       ppos =
                           cluster.allocatePosition(
-                              RecordInternal.getRecordType(rec), atomicOperation);
+                              RecordInternal.getRecordType(db, rec), atomicOperation);
                     }
                     if (ppos.clusterPosition != rid.getClusterPosition()) {
                       throw new ConcurrentCreateException(
@@ -2152,7 +2133,7 @@ public abstract class AbstractPaginatedStorage
                       || recordStatus == RECORD_STATUS.REMOVED) {
                     final PhysicalPosition ppos =
                         cluster.allocatePosition(
-                            RecordInternal.getRecordType(rec), atomicOperation);
+                            RecordInternal.getRecordType(db, rec), atomicOperation);
                     throw new ConcurrentCreateException(
                         rid, new RecordId(rid.getClusterId(), ppos.clusterPosition));
                   }
@@ -2222,7 +2203,6 @@ public abstract class AbstractPaginatedStorage
       txBegun.increment();
 
       final DatabaseSessionInternal database = transaction.getDatabase();
-      final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
       final TreeMap<String, FrontendTransactionIndexChanges> indexOperations =
           getSortedIndexOperations(transaction);
 
@@ -2314,7 +2294,9 @@ public abstract class AbstractPaginatedStorage
                 final StorageCluster cluster = doGetAndCheckCluster(clusterId);
 
                 PhysicalPosition physicalPosition =
-                    cluster.allocatePosition(RecordInternal.getRecordType(rec), atomicOperation);
+                    cluster.allocatePosition(
+                        RecordInternal.getRecordType(transaction.getDatabase(), rec),
+                        atomicOperation);
                 rid.setClusterId(cluster.getId());
 
                 if (rid.getClusterPosition() > -1) {
@@ -2326,7 +2308,8 @@ public abstract class AbstractPaginatedStorage
                   while (rid.getClusterPosition() > physicalPosition.clusterPosition) {
                     physicalPosition =
                         cluster.allocatePosition(
-                            RecordInternal.getRecordType(rec), atomicOperation);
+                            RecordInternal.getRecordType(transaction.getDatabase(), rec),
+                            atomicOperation);
                   }
 
                   if (rid.getClusterPosition() != physicalPosition.clusterPosition) {
@@ -2339,7 +2322,7 @@ public abstract class AbstractPaginatedStorage
                 transaction.updateIdentityAfterCommit(oldRID, rid);
               }
             }
-            lockRidBags(clustersToLock, indexOperations, indexManager, database);
+            lockRidBags(clustersToLock);
 
             for (final RecordOperation recordOperation : recordOperations) {
               commitEntry(
@@ -2398,7 +2381,7 @@ public abstract class AbstractPaginatedStorage
     }
   }
 
-  private void commitIndexes(DatabaseSessionInternal session,
+  private void commitIndexes(DatabaseSessionInternal db,
       final Map<String, FrontendTransactionIndexChanges> indexesToCommit) {
     for (final FrontendTransactionIndexChanges changes : indexesToCommit.values()) {
       final IndexInternal index = changes.getAssociatedIndex();
@@ -2409,9 +2392,9 @@ public abstract class AbstractPaginatedStorage
           clearIndex(indexId);
         }
         for (final FrontendTransactionIndexChangesPerKey changesPerKey : changes.changesPerKey.values()) {
-          applyTxChanges(session, changesPerKey, index);
+          applyTxChanges(db, changesPerKey, index);
         }
-        applyTxChanges(session, changes.nullKeyChanges, index);
+        applyTxChanges(db, changes.nullKeyChanges, index);
       } catch (final InvalidIndexEngineIdException e) {
         throw BaseException.wrapException(new StorageException("Error during index commit"), e);
       }
@@ -2438,7 +2421,6 @@ public abstract class AbstractPaginatedStorage
           // SHOULD NEVER BE THE CASE HANDLE BY cleared FLAG
           break;
       }
-      applyUniqueIndexChange(index.getName(), changes.key);
     }
   }
 
@@ -2487,8 +2469,7 @@ public abstract class AbstractPaginatedStorage
         }
         makeStorageDirty();
 
-        final int binaryFormatVersion = configuration.getBinaryFormatVersion();
-        final byte valueSerializerId = indexMetadata.getValueSerializerId(binaryFormatVersion);
+        final byte valueSerializerId = StreamSerializerRID.INSTANCE.getId();
 
         final BinarySerializer<?> keySerializer = determineKeySerializer(indexDefinition);
         if (keySerializer == null) {
@@ -2542,7 +2523,8 @@ public abstract class AbstractPaginatedStorage
   }
 
   public int addIndexEngine(
-      final IndexMetadata indexMetadata, final Map<String, String> engineProperties) {
+      final IndexMetadata indexMetadata,
+      final Map<String, String> engineProperties) {
     final IndexDefinition indexDefinition = indexMetadata.getIndexDefinition();
 
     try {
@@ -2587,9 +2569,8 @@ public abstract class AbstractPaginatedStorage
                       .deleteIndexEngine(atomicOperation, indexMetadata.getName());
                 }
               }
-              final int binaryFormatVersion = configuration.getBinaryFormatVersion();
               final byte valueSerializerId =
-                  indexMetadata.getValueSerializerId(binaryFormatVersion);
+                  StreamSerializerRID.INSTANCE.getId();
               final ContextConfiguration ctxCfg = configuration.getContextConfiguration();
               final String cfgEncryptionKey =
                   ctxCfg.getValueAsString(GlobalConfiguration.STORAGE_ENCRYPTION_KEY);
@@ -2616,14 +2597,6 @@ public abstract class AbstractPaginatedStorage
               ((ClusterBasedStorageConfiguration) configuration)
                   .addIndexEngine(atomicOperation, indexMetadata.getName(), engineData);
 
-              if (indexMetadata.isMultivalue() && engine.hasRidBagTreesSupport()) {
-                final SBTreeBonsaiLocal<Identifiable, Boolean> tree =
-                    new SBTreeBonsaiLocal<>(
-                        indexMetadata.getName(),
-                        IndexRIDContainerSBTree.INDEX_FILE_EXTENSION,
-                        this);
-                tree.createComponent(atomicOperation);
-              }
               return generateIndexId(engineData.getIndexId(), engine);
             });
       } catch (final IOException e) {
@@ -2649,7 +2622,8 @@ public abstract class AbstractPaginatedStorage
 
 
   private static int generateIndexId(final int internalId, final BaseIndexEngine indexEngine) {
-    return indexEngine.getEngineAPIVersion() << (IntegerSerializer.INT_SIZE * 8 - 5) | internalId;
+    return indexEngine.getEngineAPIVersion() << ((IntegerSerializer.INT_SIZE << 3) - 5)
+        | internalId;
   }
 
   private static int extractInternalId(final int externalId) {
@@ -2661,7 +2635,7 @@ public abstract class AbstractPaginatedStorage
   }
 
   public static int extractEngineAPIVersion(final int externalId) {
-    return externalId >>> (IntegerSerializer.INT_SIZE * 8 - 5);
+    return externalId >>> ((IntegerSerializer.INT_SIZE << 3) - 5);
   }
 
   private static int determineKeySize(final IndexDefinition indexDefinition) {
@@ -2713,7 +2687,8 @@ public abstract class AbstractPaginatedStorage
     return keySerializer;
   }
 
-  public void deleteIndexEngine(int indexId) throws InvalidIndexEngineIdException {
+  public void deleteIndexEngine(int indexId)
+      throws InvalidIndexEngineIdException {
     final int internalIndexId = extractInternalId(indexId);
 
     try {
@@ -2733,18 +2708,8 @@ public abstract class AbstractPaginatedStorage
               final BaseIndexEngine engine =
                   deleteIndexEngineInternal(atomicOperation, internalIndexId);
               final String engineName = engine.getName();
-
-              final IndexEngineData engineData =
-                  configuration.getIndexEngine(engineName, internalIndexId);
               ((ClusterBasedStorageConfiguration) configuration)
                   .deleteIndexEngine(atomicOperation, engineName);
-
-              if (engineData.isMultivalue() && engine.hasRidBagTreesSupport()) {
-                final SBTreeBonsaiLocal<Identifiable, Boolean> tree =
-                    new SBTreeBonsaiLocal<>(
-                        engineName, IndexRIDContainerSBTree.INDEX_FILE_EXTENSION, this);
-                tree.deleteComponent(atomicOperation);
-              }
             });
 
       } catch (final IOException e) {
@@ -2764,7 +2729,8 @@ public abstract class AbstractPaginatedStorage
   }
 
   private BaseIndexEngine deleteIndexEngineInternal(
-      final AtomicOperation atomicOperation, final int indexId) throws IOException {
+      final AtomicOperation atomicOperation, final int indexId)
+      throws IOException {
     final BaseIndexEngine engine = indexEngines.get(indexId);
     assert indexId == engine.getId();
     indexEngines.set(indexId, null);
@@ -2809,7 +2775,7 @@ public abstract class AbstractPaginatedStorage
 
       final BaseIndexEngine engine = indexEngines.get(indexId);
       if (engine.getEngineAPIVersion() == IndexEngine.VERSION) {
-        return ((IndexEngine) engine).remove(atomicOperation, key);
+        return ((IndexEngine) engine).remove(this, atomicOperation, key);
       } else {
         final V1IndexEngine v1IndexEngine = (V1IndexEngine) engine;
         if (!v1IndexEngine.isMultiValue()) {
@@ -2827,7 +2793,8 @@ public abstract class AbstractPaginatedStorage
     }
   }
 
-  public void clearIndex(final int indexId) throws InvalidIndexEngineIdException {
+  public void clearIndex(final int indexId)
+      throws InvalidIndexEngineIdException {
     try {
       if (transaction.get() != null) {
         final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
@@ -2859,7 +2826,8 @@ public abstract class AbstractPaginatedStorage
     }
   }
 
-  private void doClearIndex(final AtomicOperation atomicOperation, final int indexId)
+  private void doClearIndex(final AtomicOperation atomicOperation,
+      final int indexId)
       throws InvalidIndexEngineIdException {
     try {
       checkIndexId(indexId);
@@ -2867,27 +2835,23 @@ public abstract class AbstractPaginatedStorage
       final BaseIndexEngine engine = indexEngines.get(indexId);
       assert indexId == engine.getId();
 
-      engine.clear(atomicOperation);
+      engine.clear(this, atomicOperation);
     } catch (final IOException e) {
       throw BaseException.wrapException(new StorageException("Error during clearing of index"), e);
     }
   }
 
-  public Object getIndexValue(DatabaseSessionInternal session, int indexId, final Object key)
+  public Object getIndexValue(DatabaseSessionInternal db, int indexId, final Object key)
       throws InvalidIndexEngineIdException {
     indexId = extractInternalId(indexId);
-
     try {
       if (transaction.get() != null) {
-        return doGetIndexValue(session, indexId, key);
+        return doGetIndexValue(db, indexId, key);
       }
-
       stateLock.readLock().lock();
       try {
-
         checkOpennessAndMigration();
-
-        return doGetIndexValue(session, indexId, key);
+        return doGetIndexValue(db, indexId, key);
       } finally {
         stateLock.readLock().unlock();
       }
@@ -2902,7 +2866,7 @@ public abstract class AbstractPaginatedStorage
     }
   }
 
-  private Object doGetIndexValue(DatabaseSessionInternal session, final int indexId,
+  private Object doGetIndexValue(DatabaseSessionInternal db, final int indexId,
       final Object key)
       throws InvalidIndexEngineIdException {
     final int engineAPIVersion = extractEngineAPIVersion(indexId);
@@ -2913,7 +2877,7 @@ public abstract class AbstractPaginatedStorage
     checkIndexId(indexId);
     final BaseIndexEngine engine = indexEngines.get(indexId);
     assert indexId == engine.getId();
-    return ((IndexEngine) engine).get(session, key);
+    return ((IndexEngine) engine).get(db, key);
   }
 
   public Stream<RID> getIndexValues(int indexId, final Object key)
@@ -2989,33 +2953,6 @@ public abstract class AbstractPaginatedStorage
     }
   }
 
-  public void updateIndexEntry(
-      DatabaseSessionInternal session, int indexId, final Object key,
-      final IndexKeyUpdater<Object> valueCreator)
-      throws InvalidIndexEngineIdException {
-    final int engineAPIVersion = extractEngineAPIVersion(indexId);
-
-    if (engineAPIVersion != 0) {
-      throw new IllegalStateException(
-          "Unsupported version of index engine API. Required 0 but found " + engineAPIVersion);
-    }
-
-    try {
-      assert transaction.get() != null;
-      final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
-      assert atomicOperation != null;
-      doUpdateIndexEntry(session, atomicOperation, indexId, key, valueCreator);
-    } catch (final InvalidIndexEngineIdException ie) {
-      throw logAndPrepareForRethrow(ie);
-    } catch (final RuntimeException ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Error ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Throwable t) {
-      throw logAndPrepareForRethrow(t);
-    }
-  }
-
   public <T> T callIndexEngine(
       final boolean readOperation, int indexId, final IndexEngineCallback<T> callback)
       throws InvalidIndexEngineIdException {
@@ -3053,20 +2990,6 @@ public abstract class AbstractPaginatedStorage
     final BaseIndexEngine engine = indexEngines.get(indexId);
 
     return callback.callEngine(engine);
-  }
-
-  private void doUpdateIndexEntry(
-      DatabaseSessionInternal session, final AtomicOperation atomicOperation,
-      final int indexId,
-      final Object key,
-      final IndexKeyUpdater<Object> valueCreator)
-      throws InvalidIndexEngineIdException, IOException {
-    checkIndexId(indexId);
-
-    final BaseIndexEngine engine = indexEngines.get(indexId);
-    assert indexId == engine.getId();
-
-    ((IndexEngine) engine).update(session, atomicOperation, key, valueCreator);
   }
 
   public void putRidIndexEntry(int indexId, final Object key, final RID value)
@@ -3146,52 +3069,6 @@ public abstract class AbstractPaginatedStorage
     return ((MultiValueIndexEngine) engine).remove(atomicOperation, key, value);
   }
 
-  public void putIndexValue(DatabaseSessionInternal session, int indexId, final Object key,
-      final Object value)
-      throws InvalidIndexEngineIdException {
-    final int engineAPIVersion = extractEngineAPIVersion(indexId);
-
-    if (engineAPIVersion != 0) {
-      throw new IllegalStateException(
-          "Unsupported version of index engine API. Required 0 but found " + engineAPIVersion);
-    }
-
-    try {
-      assert transaction.get() != null;
-      final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
-      assert atomicOperation != null;
-      putIndexValueInternal(session, atomicOperation, indexId, key, value);
-
-    } catch (final InvalidIndexEngineIdException ie) {
-      throw logAndPrepareForRethrow(ie);
-    } catch (final RuntimeException ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Error ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Throwable t) {
-      throw logAndPrepareForRethrow(t);
-    }
-  }
-
-  private void putIndexValueInternal(
-      DatabaseSessionInternal session, AtomicOperation atomicOperation, final int indexId,
-      final Object key, final Object value)
-      throws InvalidIndexEngineIdException {
-    try {
-      checkIndexId(indexId);
-
-      final BaseIndexEngine engine = indexEngines.get(indexId);
-      assert engine.getId() == indexId;
-
-      ((IndexEngine) engine).put(session, atomicOperation, key, value);
-    } catch (final IOException e) {
-      throw BaseException.wrapException(
-          new StorageException(
-              "Cannot put key " + key + " value " + value + " entry to the index"),
-          e);
-    }
-  }
-
   /**
    * Puts the given value under the given key into this storage for the index with the given index
    * id. Validates the operation using the provided validator.
@@ -3261,7 +3138,7 @@ public abstract class AbstractPaginatedStorage
   }
 
   public Stream<RawPair<Object, RID>> iterateIndexEntriesBetween(
-      DatabaseSessionInternal session, int indexId,
+      DatabaseSessionInternal db, int indexId,
       final Object rangeFrom,
       final boolean fromInclusive,
       final Object rangeTo,
@@ -3273,7 +3150,7 @@ public abstract class AbstractPaginatedStorage
 
     try {
       if (transaction.get() != null) {
-        return doIterateIndexEntriesBetween(session,
+        return doIterateIndexEntriesBetween(db,
             indexId, rangeFrom, fromInclusive, rangeTo, toInclusive, ascSortOrder, transformer);
       }
 
@@ -3282,7 +3159,7 @@ public abstract class AbstractPaginatedStorage
 
         checkOpennessAndMigration();
 
-        return doIterateIndexEntriesBetween(session,
+        return doIterateIndexEntriesBetween(db,
             indexId, rangeFrom, fromInclusive, rangeTo, toInclusive, ascSortOrder, transformer);
       } finally {
         stateLock.readLock().unlock();
@@ -3299,7 +3176,7 @@ public abstract class AbstractPaginatedStorage
   }
 
   private Stream<RawPair<Object, RID>> doIterateIndexEntriesBetween(
-      DatabaseSessionInternal session, final int indexId,
+      DatabaseSessionInternal db, final int indexId,
       final Object rangeFrom,
       final boolean fromInclusive,
       final Object rangeTo,
@@ -3312,7 +3189,7 @@ public abstract class AbstractPaginatedStorage
     final BaseIndexEngine engine = indexEngines.get(indexId);
     assert indexId == engine.getId();
 
-    return engine.iterateEntriesBetween(session
+    return engine.iterateEntriesBetween(db
         , rangeFrom, fromInclusive, rangeTo, toInclusive, ascSortOrder, transformer);
   }
 
@@ -3570,7 +3447,7 @@ public abstract class AbstractPaginatedStorage
     final BaseIndexEngine engine = indexEngines.get(indexId);
     assert indexId == engine.getId();
 
-    return engine.size(transformer);
+    return engine.size(this, transformer);
   }
 
   public boolean hasIndexRangeQuerySupport(int indexId) throws InvalidIndexEngineIdException {
@@ -3847,11 +3724,11 @@ public abstract class AbstractPaginatedStorage
       final int recordVersion,
       final int iMode,
       final RecordCallback<Boolean> callback) {
-    return deleteRecord(recordId, recordVersion, iMode, callback).getResult();
+    return deleteRecord(recordId, recordVersion).getResult();
   }
 
   @Override
-  public final void freeze(final boolean throwException) {
+  public final void freeze(DatabaseSessionInternal db, final boolean throwException) {
     try {
       stateLock.readLock().lock();
       try {
@@ -3870,14 +3747,14 @@ public abstract class AbstractPaginatedStorage
         try {
           for (final BaseIndexEngine indexEngine : indexEngines) {
             if (indexEngine instanceof FreezableStorageComponent) {
-              ((FreezableStorageComponent) indexEngine).freeze(false);
+              ((FreezableStorageComponent) indexEngine).freeze(db, false);
               frozenIndexes.add((FreezableStorageComponent) indexEngine);
             }
           }
         } catch (final Exception e) {
           // RELEASE ALL THE FROZEN INDEXES
           for (final FreezableStorageComponent indexEngine : frozenIndexes) {
-            indexEngine.release();
+            indexEngine.release(db);
           }
 
           throw BaseException.wrapException(
@@ -3898,11 +3775,11 @@ public abstract class AbstractPaginatedStorage
   }
 
   @Override
-  public final void release() {
+  public final void release(DatabaseSessionInternal db) {
     try {
       for (final BaseIndexEngine indexEngine : indexEngines) {
         if (indexEngine instanceof FreezableStorageComponent) {
-          ((FreezableStorageComponent) indexEngine).release();
+          ((FreezableStorageComponent) indexEngine).release(db);
         }
       }
 
@@ -3994,10 +3871,9 @@ public abstract class AbstractPaginatedStorage
    * Executes the command request and return the result back.
    */
   @Override
-  public final Object command(DatabaseSessionInternal database,
+  public final Object command(DatabaseSessionInternal db,
       final CommandRequestText command) {
     try {
-      var db = database;
       assert db.assertIfNotActive();
 
       while (true) {
@@ -4013,8 +3889,8 @@ public abstract class AbstractPaginatedStorage
           context.setDatabase(db);
           executor.setContext(command.getContext());
           executor.setProgressListener(command.getProgressListener());
-          executor.parse(command);
-          return executeCommand(database, command, executor);
+          executor.parse(db, command);
+          return executeCommand(db, command, executor);
         } catch (final RetryQueryException ignore) {
           if (command instanceof QueryAbstract<?> query) {
             query.reset();
@@ -4039,15 +3915,9 @@ public abstract class AbstractPaginatedStorage
       }
       final long beginTime = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
       try {
-        final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().get();
-        // CALL BEFORE COMMAND
-        final Iterable<SessionListener> listeners = db.getListeners();
-
         // EXECUTE THE COMMAND
         final Map<Object, Object> params = iCommand.getParameters();
-        Object result = executor.execute(params, session);
-
-        return result;
+        return executor.execute(session, params);
 
       } catch (final BaseException e) {
         // PASS THROUGH
@@ -4273,13 +4143,10 @@ public abstract class AbstractPaginatedStorage
   @SuppressWarnings({"unused", "BooleanMethodIsAlwaysInverted"})
   protected abstract boolean isWriteAllowedDuringIncrementalBackup();
 
+  @Nullable
   @SuppressWarnings("unused")
   public StorageRecoverListener getRecoverListener() {
     return recoverListener;
-  }
-
-  public void registerRecoverListener(final StorageRecoverListener recoverListener) {
-    this.recoverListener = recoverListener;
   }
 
   @SuppressWarnings("unused")
@@ -4409,7 +4276,7 @@ public abstract class AbstractPaginatedStorage
     }
   }
 
-  public void deleteTreeRidBag(final SBTreeRidBag ridBag) {
+  public void deleteTreeRidBag(final BTreeBasedRidBag ridBag) {
     try {
       checkOpennessAndMigration();
 
@@ -4424,7 +4291,7 @@ public abstract class AbstractPaginatedStorage
     }
   }
 
-  private void deleteTreeRidBag(SBTreeRidBag ridBag, AtomicOperation atomicOperation) {
+  private void deleteTreeRidBag(BTreeBasedRidBag ridBag, AtomicOperation atomicOperation) {
     final BonsaiCollectionPointer collectionPointer = ridBag.getCollectionPointer();
     checkOpennessAndMigration();
 
@@ -5131,11 +4998,8 @@ public abstract class AbstractPaginatedStorage
               // non core indexes
               for (final BaseIndexEngine engine : indexEngines) {
                 if (engine != null
-                    && !(engine instanceof SBTreeIndexEngine
-                    || engine instanceof HashTableIndexEngine
-                    || engine instanceof CellBTreeSingleValueIndexEngine
-                    || engine instanceof CellBTreeMultiValueIndexEngine
-                    || engine instanceof AutoShardingIndexEngine)) {
+                    && !(engine instanceof CellBTreeSingleValueIndexEngine
+                    || engine instanceof CellBTreeMultiValueIndexEngine)) {
                   engine.close();
                 }
               }
@@ -5200,11 +5064,8 @@ public abstract class AbstractPaginatedStorage
 
         for (final BaseIndexEngine engine : indexEngines) {
           if (engine != null
-              && !(engine instanceof SBTreeIndexEngine
-              || engine instanceof HashTableIndexEngine
-              || engine instanceof CellBTreeSingleValueIndexEngine
-              || engine instanceof CellBTreeMultiValueIndexEngine
-              || engine instanceof AutoShardingIndexEngine)) {
+              && !(engine instanceof CellBTreeSingleValueIndexEngine
+              || engine instanceof CellBTreeMultiValueIndexEngine)) {
             // delete method is implemented only in non native indexes, so they do not use ODB
             // atomic operation
             engine.delete(null);
@@ -5337,6 +5198,7 @@ public abstract class AbstractPaginatedStorage
         return;
       }
 
+      var db = transcation.getDatabase();
       switch (txEntry.type) {
         case RecordOperation.CREATED: {
           final byte[] stream;
@@ -5348,7 +5210,7 @@ public abstract class AbstractPaginatedStorage
           }
           if (allocated != null) {
             final PhysicalPosition ppos;
-            final byte recordType = RecordInternal.getRecordType(rec);
+            final byte recordType = RecordInternal.getRecordType(db, rec);
             ppos =
                 doCreateRecord(
                     atomicOperation,
@@ -5370,7 +5232,7 @@ public abstract class AbstractPaginatedStorage
                     RecordInternal.isContentChanged(rec),
                     stream,
                     -2,
-                    RecordInternal.getRecordType(rec),
+                    RecordInternal.getRecordType(db, rec),
                     null,
                     cluster);
             RecordInternal.setVersion(rec, updateRes.getResult());
@@ -5397,7 +5259,7 @@ public abstract class AbstractPaginatedStorage
                   RecordInternal.isContentChanged(rec),
                   stream,
                   rec.getVersion(),
-                  RecordInternal.getRecordType(rec),
+                  RecordInternal.getRecordType(db, rec),
                   null,
                   cluster);
           RecordInternal.setVersion(rec, updateRes.getResult());
@@ -5531,56 +5393,61 @@ public abstract class AbstractPaginatedStorage
 
       while (!records.isEmpty()) {
         for (final WriteableWALRecord walRecord : records) {
-          if (walRecord instanceof AtomicUnitEndRecord atomicUnitEndRecord) {
-            final List<WALRecord> atomicUnit =
-                operationUnits.remove(atomicUnitEndRecord.getOperationUnitId());
+          switch (walRecord) {
+            case AtomicUnitEndRecord atomicUnitEndRecord -> {
+              final List<WALRecord> atomicUnit =
+                  operationUnits.remove(atomicUnitEndRecord.getOperationUnitId());
 
-            // in case of data restore from fuzzy checkpoint part of operations may be already
-            // flushed to the disk
-            if (atomicUnit != null) {
-              atomicUnit.add(walRecord);
-              if (!restoreAtomicUnit(atomicUnit, atLeastOnePageUpdate)) {
-                return lastUpdatedLSN;
-              } else {
-                lastUpdatedLSN = walRecord.getLsn();
+              // in case of data restore from fuzzy checkpoint part of operations may be already
+              // flushed to the disk
+              if (atomicUnit != null) {
+                atomicUnit.add(walRecord);
+                if (!restoreAtomicUnit(atomicUnit, atLeastOnePageUpdate)) {
+                  return lastUpdatedLSN;
+                } else {
+                  lastUpdatedLSN = walRecord.getLsn();
+                }
+              }
+              byte[] metadata = operationMetadata.remove(atomicUnitEndRecord.getOperationUnitId());
+              if (metadata != null) {
+                this.lastMetadata = metadata;
               }
             }
-            byte[] metadata = operationMetadata.remove(atomicUnitEndRecord.getOperationUnitId());
-            if (metadata != null) {
-              this.lastMetadata = metadata;
-            }
-          } else if (walRecord instanceof AtomicUnitStartRecord oAtomicUnitStartRecord) {
-            if (walRecord instanceof AtomicUnitStartMetadataRecord) {
-              byte[] metadata = ((AtomicUnitStartMetadataRecord) walRecord).getMetadata();
-              operationMetadata.put(
-                  ((AtomicUnitStartRecord) walRecord).getOperationUnitId(), metadata);
-            }
+            case AtomicUnitStartRecord oAtomicUnitStartRecord -> {
+              if (walRecord instanceof AtomicUnitStartMetadataRecord) {
+                byte[] metadata = ((AtomicUnitStartMetadataRecord) walRecord).getMetadata();
+                operationMetadata.put(
+                    ((AtomicUnitStartRecord) walRecord).getOperationUnitId(), metadata);
+              }
 
-            final List<WALRecord> operationList = new ArrayList<>(1024);
+              final List<WALRecord> operationList = new ArrayList<>(1024);
 
-            assert !operationUnits.containsKey(oAtomicUnitStartRecord.getOperationUnitId());
+              assert !operationUnits.containsKey(oAtomicUnitStartRecord.getOperationUnitId());
 
-            operationUnits.put(oAtomicUnitStartRecord.getOperationUnitId(), operationList);
-            operationList.add(walRecord);
-          } else if (walRecord instanceof OperationUnitRecord operationUnitRecord) {
-            List<WALRecord> operationList =
-                operationUnits.computeIfAbsent(
-                    operationUnitRecord.getOperationUnitId(), k -> new ArrayList<>(1024));
-            operationList.add(operationUnitRecord);
-          } else if (walRecord instanceof NonTxOperationPerformedWALRecord ignored) {
-            if (!wereNonTxOperationsPerformedInPreviousOpen) {
-              LogManager.instance()
-                  .warn(
-                      this,
-                      "Non tx operation was used during data modification we will need index"
-                          + " rebuild.");
-              wereNonTxOperationsPerformedInPreviousOpen = true;
+              operationUnits.put(oAtomicUnitStartRecord.getOperationUnitId(), operationList);
+              operationList.add(walRecord);
             }
-          } else if (walRecord instanceof MetaDataRecord metaDataRecord) {
-            this.lastMetadata = metaDataRecord.getMetadata();
-            lastUpdatedLSN = walRecord.getLsn();
-          } else {
-            LogManager.instance()
+            case OperationUnitRecord operationUnitRecord -> {
+              List<WALRecord> operationList =
+                  operationUnits.computeIfAbsent(
+                      operationUnitRecord.getOperationUnitId(), k -> new ArrayList<>(1024));
+              operationList.add(operationUnitRecord);
+            }
+            case NonTxOperationPerformedWALRecord ignored -> {
+              if (!wereNonTxOperationsPerformedInPreviousOpen) {
+                LogManager.instance()
+                    .warn(
+                        this,
+                        "Non tx operation was used during data modification we will need index"
+                            + " rebuild.");
+                wereNonTxOperationsPerformedInPreviousOpen = true;
+              }
+            }
+            case MetaDataRecord metaDataRecord -> {
+              this.lastMetadata = metaDataRecord.getMetadata();
+              lastUpdatedLSN = walRecord.getLsn();
+            }
+            case null, default -> LogManager.instance()
                 .warn(this, "Record %s will be skipped during data restore", walRecord);
           }
 
@@ -5600,7 +5467,7 @@ public abstract class AbstractPaginatedStorage
           }
         }
 
-        records = writeAheadLog.next(records.get(records.size() - 1).getLsn(), 1_000);
+        records = writeAheadLog.next(records.getLast().getLsn(), 1_000);
       }
     } catch (final WALPageBrokenException e) {
       LogManager.instance()
@@ -5624,100 +5491,112 @@ public abstract class AbstractPaginatedStorage
   protected final boolean restoreAtomicUnit(
       final List<WALRecord> atomicUnit, final ModifiableBoolean atLeastOnePageUpdate)
       throws IOException {
-    assert atomicUnit.get(atomicUnit.size() - 1) instanceof AtomicUnitEndRecord;
+    assert atomicUnit.getLast() instanceof AtomicUnitEndRecord;
     for (final WALRecord walRecord : atomicUnit) {
-      if (walRecord instanceof FileDeletedWALRecord fileDeletedWALRecord) {
-        if (writeCache.exists(fileDeletedWALRecord.getFileId())) {
-          readCache.deleteFile(fileDeletedWALRecord.getFileId(), writeCache);
-        }
-      } else if (walRecord instanceof FileCreatedWALRecord fileCreatedCreatedWALRecord) {
-        if (!writeCache.exists(fileCreatedCreatedWALRecord.getFileName())) {
-          readCache.addFile(
-              fileCreatedCreatedWALRecord.getFileName(),
-              fileCreatedCreatedWALRecord.getFileId(),
-              writeCache);
-        }
-      } else if (walRecord instanceof UpdatePageRecord updatePageRecord) {
-        long fileId = updatePageRecord.getFileId();
-        if (!writeCache.exists(fileId)) {
-          final String fileName = writeCache.restoreFileById(fileId);
-
-          if (fileName == null) {
-            throw new StorageException(
-                "File with id "
-                    + fileId
-                    + " was deleted from storage, the rest of operations can not be restored");
-          } else {
-            LogManager.instance()
-                .warn(
-                    this,
-                    "Previously deleted file with name "
-                        + fileName
-                        + " was deleted but new empty file was added to continue restore process");
+      switch (walRecord) {
+        case FileDeletedWALRecord fileDeletedWALRecord -> {
+          if (writeCache.exists(fileDeletedWALRecord.getFileId())) {
+            readCache.deleteFile(fileDeletedWALRecord.getFileId(), writeCache);
           }
         }
-
-        final long pageIndex = updatePageRecord.getPageIndex();
-        fileId = writeCache.externalFileId(writeCache.internalFileId(fileId));
-
-        CacheEntry cacheEntry = readCache.loadForWrite(fileId, pageIndex, writeCache, true, null);
-        if (cacheEntry == null) {
-          do {
-            if (cacheEntry != null) {
-              readCache.releaseFromWrite(cacheEntry, writeCache, true);
-            }
-
-            cacheEntry = readCache.allocateNewPage(fileId, writeCache, null);
-          } while (cacheEntry.getPageIndex() != pageIndex);
+        case FileCreatedWALRecord fileCreatedCreatedWALRecord -> {
+          if (!writeCache.exists(fileCreatedCreatedWALRecord.getFileName())) {
+            readCache.addFile(
+                fileCreatedCreatedWALRecord.getFileName(),
+                fileCreatedCreatedWALRecord.getFileId(),
+                writeCache);
+          }
         }
+        case UpdatePageRecord updatePageRecord -> {
+          long fileId = updatePageRecord.getFileId();
+          if (!writeCache.exists(fileId)) {
+            final String fileName = writeCache.restoreFileById(fileId);
 
-        try {
-          final DurablePage durablePage = new DurablePage(cacheEntry);
-          var pageLsn = durablePage.getLsn();
-          if (durablePage.getLsn().compareTo(walRecord.getLsn()) < 0) {
-            if (!pageLsn.equals(updatePageRecord.getInitialLsn())) {
+            if (fileName == null) {
+              throw new StorageException(
+                  "File with id "
+                      + fileId
+                      + " was deleted from storage, the rest of operations can not be restored");
+            } else {
               LogManager.instance()
-                  .error(
+                  .warn(
                       this,
-                      "Page with index "
-                          + pageIndex
-                          + " and file "
-                          + writeCache.fileNameById(fileId)
-                          + " was changed before page restore was started. Page will be restored"
-                          + " from WAL, but it may contain changes that were not present before"
-                          + " storage crash and data may be lost. Initial LSN is "
-                          + updatePageRecord.getInitialLsn()
-                          + ", but page contains changes with LSN "
-                          + pageLsn,
-                      null);
+                      "Previously deleted file with name "
+                          + fileName
+                          + " was deleted but new empty file was added to continue restore process");
             }
-            durablePage.restoreChanges(updatePageRecord.getChanges());
-            durablePage.setLsn(updatePageRecord.getLsn());
           }
-        } finally {
-          readCache.releaseFromWrite(cacheEntry, writeCache, true);
+
+          final long pageIndex = updatePageRecord.getPageIndex();
+          fileId = writeCache.externalFileId(writeCache.internalFileId(fileId));
+
+          CacheEntry cacheEntry = readCache.loadForWrite(fileId, pageIndex, writeCache, true, null);
+          if (cacheEntry == null) {
+            do {
+              if (cacheEntry != null) {
+                readCache.releaseFromWrite(cacheEntry, writeCache, true);
+              }
+
+              cacheEntry = readCache.allocateNewPage(fileId, writeCache, null);
+            } while (cacheEntry.getPageIndex() != pageIndex);
+          }
+
+          try {
+            final DurablePage durablePage = new DurablePage(cacheEntry);
+            var pageLsn = durablePage.getLsn();
+            if (durablePage.getLsn().compareTo(walRecord.getLsn()) < 0) {
+              if (!pageLsn.equals(updatePageRecord.getInitialLsn())) {
+                LogManager.instance()
+                    .error(
+                        this,
+                        "Page with index "
+                            + pageIndex
+                            + " and file "
+                            + writeCache.fileNameById(fileId)
+                            + " was changed before page restore was started. Page will be restored"
+                            + " from WAL, but it may contain changes that were not present before"
+                            + " storage crash and data may be lost. Initial LSN is "
+                            + updatePageRecord.getInitialLsn()
+                            + ", but page contains changes with LSN "
+                            + pageLsn,
+                        null);
+              }
+              durablePage.restoreChanges(updatePageRecord.getChanges());
+              durablePage.setLsn(updatePageRecord.getLsn());
+            }
+          } finally {
+            readCache.releaseFromWrite(cacheEntry, writeCache, true);
+          }
+
+          atLeastOnePageUpdate.setValue(true);
         }
+        //noinspection unused
+        case AtomicUnitStartRecord atomicUnitStartRecord -> {
+          //noinspection UnnecessaryContinue
+          continue;
+        }
+        //noinspection unused
+        case AtomicUnitEndRecord atomicUnitEndRecord -> {
+          //noinspection UnnecessaryContinue
+          continue;
 
-        atLeastOnePageUpdate.setValue(true);
-      } else if (walRecord instanceof AtomicUnitStartRecord) {
-        //noinspection UnnecessaryContinue
-        continue;
-      } else if (walRecord instanceof AtomicUnitEndRecord) {
-        //noinspection UnnecessaryContinue
-        continue;
-      } else if (walRecord instanceof HighLevelTransactionChangeRecord) {
-        //noinspection UnnecessaryContinue
-        continue;
-      } else {
-        assert walRecord != null;
-        LogManager.instance()
-            .error(
-                this,
-                "Invalid WAL record type was passed %s. Given record will be skipped.",
-                null,
-                walRecord.getClass());
+        }
+        //noinspection unused
+        case HighLevelTransactionChangeRecord highLevelTransactionChangeRecord -> {
+          //noinspection UnnecessaryContinue
+          continue;
+        }
+        case null, default -> {
+          assert walRecord != null;
+          LogManager.instance()
+              .error(
+                  this,
+                  "Invalid WAL record type was passed %s. Given record will be skipped.",
+                  null,
+                  walRecord.getClass());
 
-        assert false : "Invalid WAL record type was passed " + walRecord.getClass().getName();
+          assert false : "Invalid WAL record type was passed " + walRecord.getClass().getName();
+        }
       }
     }
     return true;
@@ -5809,32 +5688,12 @@ public abstract class AbstractPaginatedStorage
   }
 
   private void lockRidBags(
-      final TreeMap<Integer, StorageCluster> clusters,
-      final TreeMap<String, FrontendTransactionIndexChanges> indexes,
-      final IndexManagerAbstract manager,
-      DatabaseSessionInternal db) {
+      final TreeMap<Integer, StorageCluster> clusters) {
     final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
 
     for (final Integer clusterId : clusters.keySet()) {
       atomicOperationsManager.acquireExclusiveLockTillOperationComplete(
-          atomicOperation, SBTreeCollectionManagerShared.generateLockName(clusterId));
-    }
-
-    for (final Entry<String, FrontendTransactionIndexChanges> entry : indexes.entrySet()) {
-      final String indexName = entry.getKey();
-      final IndexInternal index = entry.getValue().resolveAssociatedIndex(indexName, manager, db);
-      if (index != null) {
-        try {
-          BaseIndexEngine engine = getIndexEngine(index.getIndexId());
-
-          if (!index.isUnique() && engine.hasRidBagTreesSupport()) {
-            atomicOperationsManager.acquireExclusiveLockTillOperationComplete(
-                atomicOperation, IndexRIDContainerSBTree.generateLockName(indexName));
-          }
-        } catch (InvalidIndexEngineIdException e) {
-          throw logAndPrepareForRethrow(e, false);
-        }
-      }
+          atomicOperation, BTreeCollectionManagerShared.generateLockName(clusterId));
     }
   }
 
@@ -6448,40 +6307,6 @@ public abstract class AbstractPaginatedStorage
     }
   }
 
-  @SuppressWarnings("unused")
-  public int getVersionForKey(final String indexName, final Object key) {
-    assert isIndexUniqueByName(indexName);
-    if (!isDistributedMode(lastMetadata)) {
-      return 0;
-    }
-    final BaseIndexEngine indexEngine = indexEngineNameMap.get(indexName);
-    return indexEngine.getUniqueIndexVersion(key);
-  }
-
-  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-  private static boolean isDistributedMode(final byte[] metadata) {
-    return metadata == null;
-  }
-
-  private boolean isIndexUniqueByName(final String indexName) {
-    final IndexEngineData engineData = configuration.getIndexEngine(indexName, 0);
-    return isIndexUniqueByType(engineData.getIndexType());
-  }
-
-  private static boolean isIndexUniqueByType(final String indexType) {
-    //noinspection deprecation
-    return indexType.equals(INDEX_TYPE.UNIQUE.name())
-        || indexType.equals(INDEX_TYPE.UNIQUE_HASH_INDEX.name())
-        || indexType.equals(INDEX_TYPE.DICTIONARY.name())
-        || indexType.equals(INDEX_TYPE.DICTIONARY_HASH_INDEX.name());
-  }
-
-  private void applyUniqueIndexChange(final String indexName, final Object key) {
-    if (!isDistributedMode(lastMetadata)) {
-      final BaseIndexEngine indexEngine = indexEngineNameMap.get(indexName);
-      indexEngine.updateUniqueIndexVersion(key);
-    }
-  }
 
   @Override
   public int[] getClustersIds(Set<String> filterClusters) {
@@ -6521,101 +6346,6 @@ public abstract class AbstractPaginatedStorage
       throw logAndPrepareForRethrow(ee, false);
     } catch (final Throwable t) {
       throw logAndPrepareForRethrow(t, false);
-    }
-  }
-
-  public Optional<BackgroundNewDelta> extractTransactionsFromWal(
-      List<FrontendTransactionId> transactionsMetadata) {
-    Map<FrontendTransactionId, FrontendTransactionData> finished = new HashMap<>();
-    List<FrontendTransactionId> started = new ArrayList<>();
-    stateLock.readLock().lock();
-    try {
-      Set<FrontendTransactionId> transactionsToRead = new HashSet<>(transactionsMetadata);
-      // we iterate till the last record is contained in wal at the moment when we call this method
-      LogSequenceNumber beginLsn = writeAheadLog.begin();
-      Long2ObjectOpenHashMap<FrontendTransactionData> units = new Long2ObjectOpenHashMap<>();
-
-      writeAheadLog.addCutTillLimit(beginLsn);
-      try {
-        List<WriteableWALRecord> records = writeAheadLog.next(beginLsn, 1_000);
-        // all information about changed records is contained in atomic operation metadata
-        while (!records.isEmpty()) {
-          for (final WALRecord record : records) {
-
-            if (record instanceof FileCreatedWALRecord) {
-              return Optional.empty();
-            }
-
-            if (record instanceof FileDeletedWALRecord) {
-              return Optional.empty();
-            }
-
-            if (record instanceof AtomicUnitStartMetadataRecord) {
-              byte[] meta = ((AtomicUnitStartMetadataRecord) record).getMetadata();
-              FrontendTransacationMetadataHolder data = FrontendTransacationMetadataHolderImpl.read(
-                  meta);
-              // This will not be a byte to byte compare, but should compare only the tx id not all
-              // status
-              //noinspection ConstantConditions
-              FrontendTransactionId txId =
-                  new FrontendTransactionId(
-                      Optional.empty(), data.getId().getPosition(), data.getId().getSequence());
-              if (transactionsToRead.contains(txId)) {
-                long unitId = ((AtomicUnitStartMetadataRecord) record).getOperationUnitId();
-                units.put(unitId, new FrontendTransactionData(txId));
-                started.add(txId);
-              }
-            }
-            if (record instanceof AtomicUnitEndRecord) {
-              long opId = ((AtomicUnitEndRecord) record).getOperationUnitId();
-              FrontendTransactionData opes = units.remove(opId);
-              if (opes != null) {
-                transactionsToRead.remove(opes.getTransactionId());
-                finished.put(opes.getTransactionId(), opes);
-              }
-            }
-            if (record instanceof HighLevelTransactionChangeRecord) {
-              byte[] data = ((HighLevelTransactionChangeRecord) record).getData();
-              long unitId = ((HighLevelTransactionChangeRecord) record).getOperationUnitId();
-              FrontendTransactionData tx = units.get(unitId);
-              if (tx != null) {
-                tx.addRecord(data);
-              }
-            }
-            if (transactionsToRead.isEmpty() && units.isEmpty()) {
-              // all read stop scanning and return the transactions
-              List<FrontendTransactionData> transactions = new ArrayList<>();
-              for (FrontendTransactionId id : started) {
-                FrontendTransactionData data = finished.get(id);
-                if (data != null) {
-                  transactions.add(data);
-                }
-              }
-              return Optional.of(new BackgroundNewDelta(transactions));
-            }
-          }
-          records = writeAheadLog.next(records.get(records.size() - 1).getLsn(), 1_000);
-        }
-      } finally {
-        writeAheadLog.removeCutTillLimit(beginLsn);
-      }
-      if (transactionsToRead.isEmpty()) {
-        List<FrontendTransactionData> transactions = new ArrayList<>();
-        for (FrontendTransactionId id : started) {
-          FrontendTransactionData data = finished.get(id);
-          if (data != null) {
-            transactions.add(data);
-          }
-        }
-        return Optional.of(new BackgroundNewDelta(transactions));
-      } else {
-        return Optional.empty();
-      }
-    } catch (final IOException e) {
-      throw BaseException.wrapException(
-          new StorageException("Error of reading of records from  WAL"), e);
-    } finally {
-      stateLock.readLock().unlock();
     }
   }
 

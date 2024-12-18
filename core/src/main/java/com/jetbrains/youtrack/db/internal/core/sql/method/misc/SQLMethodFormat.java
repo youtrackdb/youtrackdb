@@ -16,9 +16,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.method.misc;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,8 +46,9 @@ public class SQLMethodFormat extends AbstractSQLMethod {
       Object ioResult,
       final Object[] iParams) {
 
+    var db = iContext.getDatabase();
     // TRY TO RESOLVE AS DYNAMIC VALUE
-    Object v = getParameterValue(iRecord, iParams[0].toString());
+    Object v = getParameterValue(db, iRecord, iParams[0].toString());
     if (v == null)
     // USE STATIC ONE
     {

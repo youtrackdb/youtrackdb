@@ -52,10 +52,10 @@ public class DateConversionTestCase extends DbTestBase {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     Date dateToInsert = format.parse("1975-06-01 01:00:00");
 
-    EntityImpl document = new EntityImpl();
+    EntityImpl document = (EntityImpl) db.newEntity();
     document.field("date", dateToInsert, PropertyType.DATE);
     byte[] res = serializer.toStream(db, document);
-    EntityImpl extr = (EntityImpl) serializer.fromStream(db, res, new EntityImpl(),
+    EntityImpl extr = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
         new String[]{});
     final String[] fields = extr.fieldNames();
 
@@ -87,7 +87,7 @@ public class DateConversionTestCase extends DbTestBase {
 
         db.set(DatabaseSession.ATTRIBUTES.TIMEZONE, "GMT");
 
-        EntityImpl doc = new EntityImpl();
+        EntityImpl doc = (EntityImpl) db.newEntity();
 
         doc.setProperty("dateTime", date);
         String formatted = doc.eval("dateTime.format('yyyy-MM-dd')").toString();

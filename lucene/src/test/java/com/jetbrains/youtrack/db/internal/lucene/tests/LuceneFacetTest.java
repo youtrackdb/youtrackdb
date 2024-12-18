@@ -48,25 +48,25 @@ public class LuceneFacetTest extends LuceneBaseTest {
                 + " METADATA { 'facetFields' : ['category']}")
         .close();
 
-    EntityImpl doc = new EntityImpl("Item");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Item"));
     doc.field("name", "Pioneer");
     doc.field("category", "Electronic/HiFi");
 
     db.save(doc);
 
-    doc = new EntityImpl("Item");
+    doc = ((EntityImpl) db.newEntity("Item"));
     doc.field("name", "Hitachi");
     doc.field("category", "Electronic/HiFi");
 
     db.save(doc);
 
-    doc = new EntityImpl("Item");
+    doc = ((EntityImpl) db.newEntity("Item"));
     doc.field("name", "Philips");
     doc.field("category", "Electronic/HiFi");
 
     db.save(doc);
 
-    doc = new EntityImpl("Item");
+    doc = ((EntityImpl) db.newEntity("Item"));
     doc.field("name", "HP");
     doc.field("category", "Electronic/Computer");
 

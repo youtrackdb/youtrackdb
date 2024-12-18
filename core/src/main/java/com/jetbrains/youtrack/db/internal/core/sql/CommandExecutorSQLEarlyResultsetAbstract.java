@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -41,11 +41,11 @@ public abstract class CommandExecutorSQLEarlyResultsetAbstract
   }
 
   @Override
-  public Iterator<Identifiable> iterator(DatabaseSessionInternal querySession,
+  public Iterator<Identifiable> iterator(DatabaseSessionInternal db,
       Map<Object, Object> iArgs) {
     if (iterator == null) {
       if (tempResult == null) {
-        tempResult = (List<Identifiable>) execute(iArgs, querySession);
+        tempResult = (List<Identifiable>) execute(db, iArgs);
       }
       iterator = tempResult.iterator();
     }

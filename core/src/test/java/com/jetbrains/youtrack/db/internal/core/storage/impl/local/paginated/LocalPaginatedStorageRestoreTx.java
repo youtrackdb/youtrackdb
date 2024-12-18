@@ -1,16 +1,16 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseCompare;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
@@ -284,7 +284,7 @@ public class LocalPaginatedStorageRestoreTx {
           try {
             db.begin();
 
-            EntityImpl docOne = new EntityImpl(classOne);
+            EntityImpl docOne = ((EntityImpl) db.newEntity(classOne));
             docOne.field("intProp", random.nextInt());
 
             byte[] stringData = new byte[256];
@@ -304,7 +304,7 @@ public class LocalPaginatedStorageRestoreTx {
             EntityImpl docTwo = null;
 
             if (random.nextBoolean()) {
-              docTwo = new EntityImpl(classTwo);
+              docTwo = ((EntityImpl) db.newEntity(classTwo));
 
               List<String> stringList = new ArrayList<String>();
 
@@ -345,7 +345,7 @@ public class LocalPaginatedStorageRestoreTx {
             }
 
             if (!secondDocs.isEmpty() && (random.nextDouble() <= 0.2)) {
-              EntityImpl conflictDocTwo = new EntityImpl();
+              EntityImpl conflictDocTwo = ((EntityImpl) db.newEntity());
               RecordInternal.setIdentity(conflictDocTwo, new RecordId(secondDocs.get(0)));
               conflictDocTwo.setDirty();
               conflictDocTwo.save();

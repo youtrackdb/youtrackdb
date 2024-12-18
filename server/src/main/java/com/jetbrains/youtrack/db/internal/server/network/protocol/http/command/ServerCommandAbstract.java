@@ -22,11 +22,11 @@ package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequestException;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponseAbstract;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -44,14 +44,14 @@ public abstract class ServerCommandAbstract implements ServerCommand {
   }
 
   @Override
-  public boolean beforeExecute(final OHttpRequest iRequest, HttpResponse iResponse)
+  public boolean beforeExecute(final HttpRequest iRequest, HttpResponse iResponse)
       throws IOException {
     setNoCache(iResponse);
     return true;
   }
 
   @Override
-  public boolean afterExecute(final OHttpRequest iRequest, HttpResponse iResponse)
+  public boolean afterExecute(final HttpRequest iRequest, HttpResponse iResponse)
       throws IOException {
     return true;
   }
@@ -99,8 +99,8 @@ public abstract class ServerCommandAbstract implements ServerCommand {
       final Object iContent,
       final String iHeaders)
       throws IOException {
-    EntityImpl response = new EntityImpl();
-    EntityImpl error = new EntityImpl();
+    EntityImpl response = new EntityImpl(null);
+    EntityImpl error = new EntityImpl(null);
     error.field("code", iCode);
     error.field("reason", iReason);
     error.field("content", iContent);

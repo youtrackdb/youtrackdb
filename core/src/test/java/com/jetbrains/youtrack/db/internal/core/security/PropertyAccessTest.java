@@ -23,7 +23,7 @@ public class PropertyAccessTest extends DbTestBase {
 
   @Test
   public void testNotAccessible() {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.setProperty("name", "one value");
     assertEquals("one value", doc.getProperty("name"));
     assertEquals("one value", doc.field("name"));
@@ -41,9 +41,9 @@ public class PropertyAccessTest extends DbTestBase {
 
   @Test
   public void testNotAccessibleAfterConvert() {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.setProperty("name", "one value");
-    EntityImpl doc1 = new EntityImpl();
+    EntityImpl doc1 = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc1);
     doc1.fromStream(doc.toStream());
     assertEquals("one value", doc1.getProperty("name"));
@@ -62,7 +62,7 @@ public class PropertyAccessTest extends DbTestBase {
 
   @Test
   public void testNotAccessiblePropertyListing() {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.setProperty("name", "one value");
     assertArrayEquals(new String[]{"name"}, doc.getPropertyNames().toArray());
     assertArrayEquals(
@@ -86,7 +86,7 @@ public class PropertyAccessTest extends DbTestBase {
 
   @Test
   public void testNotAccessiblePropertyListingSer() {
-    EntityImpl docPre = new EntityImpl();
+    EntityImpl docPre = (EntityImpl) db.newEntity();
     docPre.setProperty("name", "one value");
     assertArrayEquals(new String[]{"name"}, docPre.getPropertyNames().toArray());
     assertArrayEquals(
@@ -99,7 +99,7 @@ public class PropertyAccessTest extends DbTestBase {
 
     Set<String> toHide = new HashSet<>();
     toHide.add("name");
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     doc.fromStream(docPre.toStream());
     EntityInternalUtils.setPropertyAccess(doc, new PropertyAccess(toHide));
@@ -114,7 +114,7 @@ public class PropertyAccessTest extends DbTestBase {
 
   @Test
   public void testJsonSerialization() {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.setProperty("name", "one value");
     assertTrue(doc.toJSON().contains("name"));
 
@@ -126,7 +126,7 @@ public class PropertyAccessTest extends DbTestBase {
 
   @Test
   public void testToMap() {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.setProperty("name", "one value");
     assertTrue(doc.toMap().containsKey("name"));
 
@@ -138,7 +138,7 @@ public class PropertyAccessTest extends DbTestBase {
 
   @Test
   public void testStringSerialization() {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.setProperty("name", "one value");
     assertTrue(doc.toString().contains("name"));
 

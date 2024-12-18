@@ -14,96 +14,96 @@ public class RecordCreateTest extends BaseDBTest {
 
   @Test
   public void testNewRecordNoTx() {
-    var element = database.newEntity();
+    var element = db.newEntity();
     Assert.assertFalse(element.exists());
   }
 
   @Test
   public void testNewRecordTx() {
-    database.begin();
+    db.begin();
     try {
-      var element = database.newEntity();
+      var element = db.newEntity();
       Assert.assertFalse(element.exists());
     } finally {
-      database.rollback();
+      db.rollback();
     }
   }
 
   @Test
   public void testSavedRecordTx() {
-    database.begin();
+    db.begin();
     try {
-      var element = database.newEntity();
+      var element = db.newEntity();
       element.save();
       Assert.assertTrue(element.exists());
     } finally {
-      database.rollback();
+      db.rollback();
     }
   }
 
   @Test
   public void testDeletedRecordTx() {
-    database.begin();
+    db.begin();
     try {
-      var element = database.newEntity();
+      var element = db.newEntity();
       element.save();
       element.delete();
       Assert.assertFalse(element.exists());
     } finally {
-      database.rollback();
+      db.rollback();
     }
   }
 
   @Test
   public void testSaveDeletedRecordTx() {
-    database.begin();
+    db.begin();
     try {
-      var element = database.newEntity();
+      var element = db.newEntity();
       element.save();
       Assert.assertTrue(element.exists());
       element.delete();
       Assert.assertFalse(element.exists());
     } finally {
-      database.rollback();
+      db.rollback();
     }
   }
 
   @Test
   public void testLoadedRecordNoTx() {
-    var element = database.newEntity();
-    database.begin();
+    var element = db.newEntity();
+    db.begin();
     element.save();
-    database.commit();
+    db.commit();
 
-    var loadedElement = database.load(element.getIdentity());
+    var loadedElement = db.load(element.getIdentity());
     Assert.assertTrue(loadedElement.exists());
   }
 
   @Test
   public void testLoadedRecordTx() {
-    database.begin();
+    db.begin();
     try {
-      var element = database.newEntity();
+      var element = db.newEntity();
       element.save();
-      var loadedElement = database.load(element.getIdentity());
+      var loadedElement = db.load(element.getIdentity());
       Assert.assertTrue(loadedElement.exists());
     } finally {
-      database.rollback();
+      db.rollback();
     }
   }
 
   @Test
   public void testLoadedDeletedRecordTx() {
-    database.begin();
+    db.begin();
     try {
-      var element = database.newEntity();
+      var element = db.newEntity();
       element.save();
-      var loadedElement = database.load(element.getIdentity());
+      var loadedElement = db.load(element.getIdentity());
       Assert.assertTrue(loadedElement.exists());
       element.delete();
       Assert.assertFalse(loadedElement.exists());
     } finally {
-      database.rollback();
+      db.rollback();
     }
   }
 }

@@ -24,8 +24,8 @@ import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandDocumentAbstract;
 import java.util.Collection;
 import java.util.Map;
@@ -80,7 +80,7 @@ public class ServerCommandPostBatch extends ServerCommandDocumentAbstract {
   private static final String[] NAMES = {"POST|batch/*"};
 
   @Override
-  public boolean execute(final OHttpRequest iRequest, HttpResponse iResponse) throws Exception {
+  public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
     checkSyntax(iRequest.getUrl(), 2, "Syntax error: batch/<database>");
 
     iRequest.getData().commandInfo = "Execute multiple requests in one shot";
@@ -100,7 +100,7 @@ public class ServerCommandPostBatch extends ServerCommandDocumentAbstract {
         db.rollback(true);
       }
 
-      batch = new EntityImpl();
+      batch = new EntityImpl(db);
       batch.fromJSON(iRequest.getContent());
 
       Boolean tx = batch.field("transaction");
@@ -132,17 +132,17 @@ public class ServerCommandPostBatch extends ServerCommandDocumentAbstract {
 
         if (type.equals("c")) {
           // CREATE
-          final EntityImpl entity = getRecord(operation);
+          final EntityImpl entity = getRecord(db, operation);
           entity.save();
           lastResult = entity;
         } else if (type.equals("u")) {
           // UPDATE
-          final EntityImpl entity = getRecord(operation);
+          final EntityImpl entity = getRecord(db, operation);
           entity.save();
           lastResult = entity;
         } else if (type.equals("d")) {
           // DELETE
-          final EntityImpl entity = getRecord(operation);
+          final EntityImpl entity = getRecord(db, operation);
           db.delete(entity.getIdentity());
           lastResult = entity.getIdentity();
         } else if (type.equals("cmd")) {
@@ -253,14 +253,14 @@ public class ServerCommandPostBatch extends ServerCommandDocumentAbstract {
     return false;
   }
 
-  public EntityImpl getRecord(Map<Object, Object> operation) {
+  public EntityImpl getRecord(DatabaseSessionInternal db, Map<Object, Object> operation) {
     Object record = operation.get("record");
 
     EntityImpl entity;
     if (record instanceof Map<?, ?>)
     // CONVERT MAP IN DOCUMENT
     {
-      entity = new EntityImpl((Map<String, Object>) record);
+      entity = new EntityImpl(db, (Map<String, Object>) record);
     } else {
       entity = (EntityImpl) record;
     }

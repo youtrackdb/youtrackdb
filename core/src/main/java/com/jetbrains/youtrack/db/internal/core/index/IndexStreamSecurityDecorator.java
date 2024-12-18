@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
 import java.util.stream.Stream;
@@ -28,7 +28,7 @@ public class IndexStreamSecurityDecorator {
     }
 
     return stream.filter(
-        (pair) -> IndexInternal.securityFilterOnRead(originalIndex, pair.second) != null);
+        (pair) -> IndexInternal.securityFilterOnRead(db, originalIndex, pair.second) != null);
   }
 
   public static Stream<RID> decorateRidStream(Index originalIndex, Stream<RID> stream) {
@@ -47,6 +47,7 @@ public class IndexStreamSecurityDecorator {
       return stream;
     }
 
-    return stream.filter((rid) -> IndexInternal.securityFilterOnRead(originalIndex, rid) != null);
+    return stream.filter(
+        (rid) -> IndexInternal.securityFilterOnRead(db, originalIndex, rid) != null);
   }
 }

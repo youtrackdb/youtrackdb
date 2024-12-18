@@ -207,34 +207,4 @@ public class ClassIndexFinder implements IndexFinder {
     }
     return Optional.empty();
   }
-
-  @Override
-  public Optional<IndexCandidate> findFullTextIndex(
-      MetadataPath path, Object value, CommandContext ctx) {
-    PrePath pre = findPrePath(path, ctx);
-    if (!pre.valid) {
-      return Optional.empty();
-    }
-    SchemaClass cl = pre.cl;
-    Optional<IndexCandidate> cand = pre.chain;
-    String last = pre.last;
-
-    var prop = (PropertyInternal) cl.getProperty(last);
-    if (prop != null) {
-      Collection<Index> indexes = prop.getAllIndexesInternal(ctx.getDatabase());
-      for (Index index : indexes) {
-        if (SchemaClass.INDEX_TYPE.FULLTEXT.name().equalsIgnoreCase(index.getType())
-            && !index.getAlgorithm().equalsIgnoreCase("LUCENE")) {
-          if (cand.isPresent()) {
-            ((IndexCandidateChain) cand.get()).add(index.getName());
-            ((IndexCandidateChain) cand.get()).setOperation(Operation.FuzzyEq);
-            return cand;
-          } else {
-            return Optional.of(new IndexCandidateImpl(index.getName(), Operation.FuzzyEq, prop));
-          }
-        }
-      }
-    }
-    return Optional.empty();
-  }
 }

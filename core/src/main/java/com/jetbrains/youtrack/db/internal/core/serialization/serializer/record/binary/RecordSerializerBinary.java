@@ -20,15 +20,14 @@
 
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary;
 
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.RecordFlat;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
-import com.jetbrains.youtrack.db.api.query.Result;
 import java.util.Base64;
 
 public class RecordSerializerBinary implements RecordSerializer {
@@ -91,11 +90,8 @@ public class RecordSerializerBinary implements RecordSerializer {
       return iRecord;
     }
     if (iRecord == null) {
-      iRecord = new EntityImpl();
+      iRecord = new EntityImpl(db);
     } else if (iRecord instanceof Blob) {
-      iRecord.fromStream(iSource);
-      return iRecord;
-    } else if (iRecord instanceof RecordFlat) {
       iRecord.fromStream(iSource);
       return iRecord;
     }
@@ -122,10 +118,8 @@ public class RecordSerializerBinary implements RecordSerializer {
   }
 
   @Override
-  public byte[] toStream(DatabaseSessionInternal session, RecordAbstract record) {
+  public byte[] toStream(DatabaseSessionInternal db, RecordAbstract record) {
     if (record instanceof Blob) {
-      return record.toStream();
-    } else if (record instanceof RecordFlat) {
       return record.toStream();
     } else {
       EntityImpl documentToSerialize = (EntityImpl) record;
@@ -136,7 +130,7 @@ public class RecordSerializerBinary implements RecordSerializer {
       int pos = container.alloc(1);
       container.bytes[pos] = currentSerializerVersion;
       // SERIALIZE RECORD
-      serializerByVersion[currentSerializerVersion].serialize(session, documentToSerialize,
+      serializerByVersion[currentSerializerVersion].serialize(db, documentToSerialize,
           container);
 
       return container.fitBytes();

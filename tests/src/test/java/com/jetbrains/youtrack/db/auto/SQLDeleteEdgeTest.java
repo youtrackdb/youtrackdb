@@ -24,42 +24,42 @@ public class SQLDeleteEdgeTest extends BaseDBTest {
   }
 
   public void testDeleteFromTo() {
-    database.command("CREATE CLASS testFromToOneE extends E").close();
-    database.command("CREATE CLASS testFromToTwoE extends E").close();
-    database.command("CREATE CLASS testFromToV extends V").close();
+    db.command("CREATE CLASS testFromToOneE extends E").close();
+    db.command("CREATE CLASS testFromToTwoE extends E").close();
+    db.command("CREATE CLASS testFromToV extends V").close();
 
-    database.begin();
-    database.command("create vertex testFromToV set name = 'Luca'").close();
-    database.command("create vertex testFromToV set name = 'Luca'").close();
-    database.commit();
+    db.begin();
+    db.command("create vertex testFromToV set name = 'Luca'").close();
+    db.command("create vertex testFromToV set name = 'Luca'").close();
+    db.commit();
 
     List<Identifiable> result =
-        database.query(new SQLSynchQuery<EntityImpl>("select from testFromToV"));
+        db.query(new SQLSynchQuery<EntityImpl>("select from testFromToV"));
 
-    database.begin();
-    database
+    db.begin();
+    db
         .command(
             "CREATE EDGE testFromToOneE from "
                 + result.get(1).getIdentity()
                 + " to "
                 + result.get(0).getIdentity())
         .close();
-    database
+    db
         .command(
             "CREATE EDGE testFromToTwoE from "
                 + result.get(1).getIdentity()
                 + " to "
                 + result.get(0).getIdentity())
         .close();
-    database.commit();
+    db.commit();
 
     ResultSet resultTwo =
-        database.query("select expand(outE()) from " + result.get(1).getIdentity());
+        db.query("select expand(outE()) from " + result.get(1).getIdentity());
 
     Assert.assertEquals(resultTwo.stream().count(), 2);
 
-    database.begin();
-    database
+    db.begin();
+    db
         .command(
             "DELETE EDGE testFromToTwoE from "
                 + result.get(1).getIdentity()
@@ -67,158 +67,158 @@ public class SQLDeleteEdgeTest extends BaseDBTest {
                 + result.get(0).getIdentity())
         .close();
 
-    resultTwo = database.query("select expand(outE()) from " + result.get(1).getIdentity());
+    resultTwo = db.query("select expand(outE()) from " + result.get(1).getIdentity());
 
     Assert.assertEquals(resultTwo.stream().count(), 1);
 
-    database.command("DELETE FROM testFromToOneE unsafe").close();
-    database.command("DELETE FROM testFromToTwoE unsafe").close();
-    database.command("DELETE VERTEX testFromToV").close();
-    database.commit();
+    db.command("DELETE FROM testFromToOneE unsafe").close();
+    db.command("DELETE FROM testFromToTwoE unsafe").close();
+    db.command("DELETE VERTEX testFromToV").close();
+    db.commit();
   }
 
   public void testDeleteFrom() {
-    database.command("CREATE CLASS testFromOneE extends E").close();
-    database.command("CREATE CLASS testFromTwoE extends E").close();
-    database.command("CREATE CLASS testFromV extends V").close();
+    db.command("CREATE CLASS testFromOneE extends E").close();
+    db.command("CREATE CLASS testFromTwoE extends E").close();
+    db.command("CREATE CLASS testFromV extends V").close();
 
-    database.begin();
-    database.command("create vertex testFromV set name = 'Luca'").close();
-    database.command("create vertex testFromV set name = 'Luca'").close();
-    database.commit();
+    db.begin();
+    db.command("create vertex testFromV set name = 'Luca'").close();
+    db.command("create vertex testFromV set name = 'Luca'").close();
+    db.commit();
 
     List<Identifiable> result =
-        database.query(new SQLSynchQuery<EntityImpl>("select from testFromV"));
+        db.query(new SQLSynchQuery<EntityImpl>("select from testFromV"));
 
-    database.begin();
-    database
+    db.begin();
+    db
         .command(
             "CREATE EDGE testFromOneE from "
                 + result.get(1).getIdentity()
                 + " to "
                 + result.get(0).getIdentity())
         .close();
-    database
+    db
         .command(
             "CREATE EDGE testFromTwoE from "
                 + result.get(1).getIdentity()
                 + " to "
                 + result.get(0).getIdentity())
         .close();
-    database.commit();
+    db.commit();
 
     ResultSet resultTwo =
-        database.query("select expand(outE()) from " + result.get(1).getIdentity());
+        db.query("select expand(outE()) from " + result.get(1).getIdentity());
 
     Assert.assertEquals(resultTwo.stream().count(), 2);
 
     try {
-      database.begin();
-      database.command("DELETE EDGE testFromTwoE from " + result.get(1).getIdentity()).close();
-      database.commit();
+      db.begin();
+      db.command("DELETE EDGE testFromTwoE from " + result.get(1).getIdentity()).close();
+      db.commit();
     } catch (Exception e) {
       e.printStackTrace();
       throw e;
     }
 
-    resultTwo = database.query("select expand(outE()) from " + result.get(1).getIdentity());
+    resultTwo = db.query("select expand(outE()) from " + result.get(1).getIdentity());
 
     Assert.assertEquals(resultTwo.stream().count(), 1);
 
-    database.begin();
-    database.command("DELETE FROM testFromOneE unsafe").close();
-    database.command("DELETE FROM testFromTwoE unsafe").close();
-    database.command("DELETE VERTEX testFromV").close();
-    database.commit();
+    db.begin();
+    db.command("DELETE FROM testFromOneE unsafe").close();
+    db.command("DELETE FROM testFromTwoE unsafe").close();
+    db.command("DELETE VERTEX testFromV").close();
+    db.commit();
   }
 
   public void testDeleteTo() {
-    database.command("CREATE CLASS testToOneE extends E").close();
-    database.command("CREATE CLASS testToTwoE extends E").close();
-    database.command("CREATE CLASS testToV extends V").close();
+    db.command("CREATE CLASS testToOneE extends E").close();
+    db.command("CREATE CLASS testToTwoE extends E").close();
+    db.command("CREATE CLASS testToV extends V").close();
 
-    database.begin();
-    database.command("create vertex testToV set name = 'Luca'").close();
-    database.command("create vertex testToV set name = 'Luca'").close();
-    database.commit();
+    db.begin();
+    db.command("create vertex testToV set name = 'Luca'").close();
+    db.command("create vertex testToV set name = 'Luca'").close();
+    db.commit();
 
     List<Identifiable> result =
-        database.query(new SQLSynchQuery<EntityImpl>("select from testToV"));
+        db.query(new SQLSynchQuery<EntityImpl>("select from testToV"));
 
-    database.begin();
-    database
+    db.begin();
+    db
         .command(
             "CREATE EDGE testToOneE from "
                 + result.get(1).getIdentity()
                 + " to "
                 + result.get(0).getIdentity())
         .close();
-    database
+    db
         .command(
             "CREATE EDGE testToTwoE from "
                 + result.get(1).getIdentity()
                 + " to "
                 + result.get(0).getIdentity())
         .close();
-    database.commit();
+    db.commit();
 
     ResultSet resultTwo =
-        database.query("select expand(outE()) from " + result.get(1).getIdentity());
+        db.query("select expand(outE()) from " + result.get(1).getIdentity());
 
     Assert.assertEquals(resultTwo.stream().count(), 2);
 
-    database.begin();
-    database.command("DELETE EDGE testToTwoE to " + result.get(0).getIdentity()).close();
-    database.commit();
+    db.begin();
+    db.command("DELETE EDGE testToTwoE to " + result.get(0).getIdentity()).close();
+    db.commit();
 
-    resultTwo = database.query("select expand(outE()) from " + result.get(1).getIdentity());
+    resultTwo = db.query("select expand(outE()) from " + result.get(1).getIdentity());
 
     Assert.assertEquals(resultTwo.stream().count(), 1);
 
-    database.begin();
-    database.command("DELETE FROM testToOneE unsafe").close();
-    database.command("DELETE FROM testToTwoE unsafe").close();
-    database.command("DELETE VERTEX testToV").close();
-    database.commit();
+    db.begin();
+    db.command("DELETE FROM testToOneE unsafe").close();
+    db.command("DELETE FROM testToTwoE unsafe").close();
+    db.command("DELETE VERTEX testToV").close();
+    db.commit();
   }
 
   public void testDropClassVandEwithUnsafe() {
-    database.command("CREATE CLASS SuperE extends E").close();
-    database.command("CREATE CLASS SuperV extends V").close();
+    db.command("CREATE CLASS SuperE extends E").close();
+    db.command("CREATE CLASS SuperV extends V").close();
 
-    database.begin();
+    db.begin();
     Identifiable v1 =
-        database.command("create vertex SuperV set name = 'Luca'").next().getIdentity().get();
+        db.command("create vertex SuperV set name = 'Luca'").next().getIdentity().get();
     Identifiable v2 =
-        database.command("create vertex SuperV set name = 'Mark'").next().getIdentity().get();
-    database
+        db.command("create vertex SuperV set name = 'Mark'").next().getIdentity().get();
+    db
         .command("CREATE EDGE SuperE from " + v1.getIdentity() + " to " + v2.getIdentity())
         .close();
-    database.commit();
+    db.commit();
 
     try {
-      database.command("DROP CLASS SuperV").close();
+      db.command("DROP CLASS SuperV").close();
       Assert.fail();
     } catch (CommandExecutionException e) {
       Assert.assertTrue(true);
     }
 
     try {
-      database.command("DROP CLASS SuperE").close();
+      db.command("DROP CLASS SuperE").close();
       Assert.fail();
     } catch (CommandExecutionException e) {
       Assert.assertTrue(true);
     }
 
     try {
-      database.command("DROP CLASS SuperV unsafe").close();
+      db.command("DROP CLASS SuperV unsafe").close();
       Assert.assertTrue(true);
     } catch (CommandExecutionException e) {
       Assert.fail();
     }
 
     try {
-      database.command("DROP CLASS SuperE UNSAFE").close();
+      db.command("DROP CLASS SuperE UNSAFE").close();
       Assert.assertTrue(true);
     } catch (CommandExecutionException e) {
       Assert.fail();
@@ -226,46 +226,46 @@ public class SQLDeleteEdgeTest extends BaseDBTest {
   }
 
   public void testDropClassVandEwithDeleteElements() {
-    database.command("CREATE CLASS SuperE extends E").close();
-    database.command("CREATE CLASS SuperV extends V").close();
+    db.command("CREATE CLASS SuperE extends E").close();
+    db.command("CREATE CLASS SuperV extends V").close();
 
-    database.begin();
+    db.begin();
     Identifiable v1 =
-        database.command("create vertex SuperV set name = 'Luca'").next().getIdentity().get();
+        db.command("create vertex SuperV set name = 'Luca'").next().getIdentity().get();
     Identifiable v2 =
-        database.command("create vertex SuperV set name = 'Mark'").next().getIdentity().get();
-    database
+        db.command("create vertex SuperV set name = 'Mark'").next().getIdentity().get();
+    db
         .command("CREATE EDGE SuperE from " + v1.getIdentity() + " to " + v2.getIdentity())
         .close();
-    database.commit();
+    db.commit();
 
     try {
-      database.command("DROP CLASS SuperV").close();
+      db.command("DROP CLASS SuperV").close();
       Assert.fail();
     } catch (CommandExecutionException e) {
       Assert.assertTrue(true);
     }
 
     try {
-      database.command("DROP CLASS SuperE").close();
+      db.command("DROP CLASS SuperE").close();
       Assert.fail();
     } catch (CommandExecutionException e) {
       Assert.assertTrue(true);
     }
 
-    database.begin();
-    database.command("DELETE VERTEX SuperV").close();
-    database.commit();
+    db.begin();
+    db.command("DELETE VERTEX SuperV").close();
+    db.commit();
 
     try {
-      database.command("DROP CLASS SuperV").close();
+      db.command("DROP CLASS SuperV").close();
       Assert.assertTrue(true);
     } catch (CommandExecutionException e) {
       Assert.fail();
     }
 
     try {
-      database.command("DROP CLASS SuperE").close();
+      db.command("DROP CLASS SuperE").close();
       Assert.assertTrue(true);
     } catch (CommandExecutionException e) {
       Assert.fail();
@@ -273,57 +273,57 @@ public class SQLDeleteEdgeTest extends BaseDBTest {
   }
 
   public void testFromInString() {
-    database.command("CREATE CLASS FromInStringE extends E").close();
-    database.command("CREATE CLASS FromInStringV extends V").close();
+    db.command("CREATE CLASS FromInStringE extends E").close();
+    db.command("CREATE CLASS FromInStringV extends V").close();
 
-    database.begin();
+    db.begin();
     Identifiable v1 =
-        database
+        db
             .command("create vertex FromInStringV set name = ' from '")
             .next()
             .getIdentity()
             .get();
     Identifiable v2 =
-        database
+        db
             .command("create vertex FromInStringV set name = ' FROM '")
             .next()
             .getIdentity()
             .get();
     Identifiable v3 =
-        database
+        db
             .command("create vertex FromInStringV set name = ' TO '")
             .next()
             .getIdentity()
             .get();
 
-    database
+    db
         .command("create edge FromInStringE from " + v1.getIdentity() + " to " + v2.getIdentity())
         .close();
-    database
+    db
         .command("create edge FromInStringE from " + v1.getIdentity() + " to " + v3.getIdentity())
         .close();
-    database.commit();
+    db.commit();
 
-    ResultSet result = database.query("SELECT expand(out()[name = ' FROM ']) FROM FromInStringV");
+    ResultSet result = db.query("SELECT expand(out()[name = ' FROM ']) FROM FromInStringV");
     Assert.assertEquals(result.stream().count(), 1);
 
-    result = database.query("SELECT expand(in()[name = ' from ']) FROM FromInStringV");
+    result = db.query("SELECT expand(in()[name = ' from ']) FROM FromInStringV");
     Assert.assertEquals(result.stream().count(), 2);
 
-    result = database.query("SELECT expand(out()[name = ' TO ']) FROM FromInStringV");
+    result = db.query("SELECT expand(out()[name = ' TO ']) FROM FromInStringV");
     Assert.assertEquals(result.stream().count(), 1);
   }
 
   public void testDeleteVertexWithReturn() {
-    database.begin();
+    db.begin();
     Identifiable v1 =
-        database.command("create vertex V set returning = true").next().getIdentity().get();
+        db.command("create vertex V set returning = true").next().getIdentity().get();
 
     List<Identifiable> v2s =
-        database.command("delete vertex V return before where returning = true").stream()
+        db.command("delete vertex V return before where returning = true").stream()
             .map((r) -> r.getIdentity().get())
             .collect(Collectors.toList());
-    database.commit();
+    db.commit();
 
     Assert.assertEquals(v2s.size(), 1);
     Assert.assertTrue(v2s.contains(v1));

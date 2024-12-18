@@ -50,7 +50,8 @@ public class CommandExecutorToStatementWrapper implements CommandExecutor {
 
   @SuppressWarnings("unchecked")
   @Override
-  public CommandExecutorToStatementWrapper parse(CommandRequest iCommand) {
+  public CommandExecutorToStatementWrapper parse(DatabaseSessionInternal db,
+      CommandRequest iCommand) {
     final CommandRequestText textRequest = (CommandRequestText) iCommand;
     if (iCommand instanceof SQLAsynchQuery) {
       request = (SQLAsynchQuery<EntityImpl>) iCommand;
@@ -71,7 +72,7 @@ public class CommandExecutorToStatementWrapper implements CommandExecutor {
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, Map<Object, Object> iArgs) {
     return statement.execute(request, context, this.progressListener);
   }
 

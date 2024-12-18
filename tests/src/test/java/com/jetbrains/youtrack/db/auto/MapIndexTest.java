@@ -32,39 +32,39 @@ public class MapIndexTest extends BaseDBTest {
 
   @BeforeClass
   public void setupSchema() {
-    if (database.getMetadata().getSchema().existsClass("Mapper")) {
-      database.getMetadata().getSchema().dropClass("Mapper");
+    if (db.getMetadata().getSchema().existsClass("Mapper")) {
+      db.getMetadata().getSchema().dropClass("Mapper");
     }
 
-    final SchemaClass mapper = database.getMetadata().getSchema().createClass("Mapper");
-    mapper.createProperty(database, "id", PropertyType.STRING);
-    mapper.createProperty(database, "intMap", PropertyType.EMBEDDEDMAP, PropertyType.INTEGER);
+    final SchemaClass mapper = db.getMetadata().getSchema().createClass("Mapper");
+    mapper.createProperty(db, "id", PropertyType.STRING);
+    mapper.createProperty(db, "intMap", PropertyType.EMBEDDEDMAP, PropertyType.INTEGER);
 
-    mapper.createIndex(database, "mapIndexTestKey", SchemaClass.INDEX_TYPE.NOTUNIQUE, "intMap");
-    mapper.createIndex(database, "mapIndexTestValue", SchemaClass.INDEX_TYPE.NOTUNIQUE,
+    mapper.createIndex(db, "mapIndexTestKey", SchemaClass.INDEX_TYPE.NOTUNIQUE, "intMap");
+    mapper.createIndex(db, "mapIndexTestValue", SchemaClass.INDEX_TYPE.NOTUNIQUE,
         "intMap by value");
 
-    final SchemaClass movie = database.getMetadata().getSchema().createClass("MapIndexTestMovie");
-    movie.createProperty(database, "title", PropertyType.STRING);
-    movie.createProperty(database, "thumbs", PropertyType.EMBEDDEDMAP, PropertyType.INTEGER);
+    final SchemaClass movie = db.getMetadata().getSchema().createClass("MapIndexTestMovie");
+    movie.createProperty(db, "title", PropertyType.STRING);
+    movie.createProperty(db, "thumbs", PropertyType.EMBEDDEDMAP, PropertyType.INTEGER);
 
-    movie.createIndex(database, "indexForMap", SchemaClass.INDEX_TYPE.NOTUNIQUE, "thumbs by key");
+    movie.createIndex(db, "indexForMap", SchemaClass.INDEX_TYPE.NOTUNIQUE, "thumbs by key");
   }
 
   @AfterClass
   public void destroySchema() {
-    database = createSessionInstance();
-    database.getMetadata().getSchema().dropClass("Mapper");
-    database.getMetadata().getSchema().dropClass("MapIndexTestMovie");
-    database.close();
+    db = createSessionInstance();
+    db.getMetadata().getSchema().dropClass("Mapper");
+    db.getMetadata().getSchema().dropClass("MapIndexTestMovie");
+    db.close();
   }
 
   @AfterMethod
   public void afterMethod() throws Exception {
-    database.begin();
-    database.command("delete from Mapper").close();
-    database.command("delete from MapIndexTestMovie").close();
-    database.commit();
+    db.begin();
+    db.command("delete from Mapper").close();
+    db.command("delete from MapIndexTestMovie").close();
+    db.commit();
 
     super.afterMethod();
   }
@@ -72,18 +72,18 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMap() {
     checkEmbeddedDB();
 
-    final Entity mapper = database.newEntity("Mapper");
+    final Entity mapper = db.newEntity("Mapper");
     final Map<String, Integer> map = new HashMap<>();
     map.put("key1", 10);
     map.put("key2", 20);
 
     mapper.setProperty("intMap", map);
-    database.begin();
-    database.save(mapper);
-    database.commit();
+    db.begin();
+    db.save(mapper);
+    db.commit();
 
     final Index keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
     try (final Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
       final Iterator<Object> keyIterator = keyStream.iterator();
       while (keyIterator.hasNext()) {
@@ -95,7 +95,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     final Index valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
     try (final Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
       final Iterator<Object> valuesIterator = valueStream.iterator();
       while (valuesIterator.hasNext()) {
@@ -111,24 +111,24 @@ public class MapIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     try {
-      database.begin();
-      final Entity mapper = database.newEntity("Mapper");
+      db.begin();
+      final Entity mapper = db.newEntity("Mapper");
       Map<String, Integer> map = new HashMap<>();
 
       map.put("key1", 10);
       map.put("key2", 20);
 
       mapper.setProperty("intMap", map);
-      database.save(mapper);
-      database.commit();
+      db.save(mapper);
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     Index keyIndex = getIndex("mapIndexTestKey");
 
-    Assert.assertEquals(keyIndex.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
@@ -142,7 +142,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     Index valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
@@ -160,20 +160,20 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateOne() {
     checkEmbeddedDB();
 
-    Entity mapper = database.newEntity("Mapper");
+    Entity mapper = db.newEntity("Mapper");
     Map<String, Integer> mapOne = new HashMap<>();
 
     mapOne.put("key1", 10);
     mapOne.put("key2", 20);
 
     mapper.setProperty("intMap", mapOne);
-    database.begin();
-    mapper = database.save(mapper);
-    database.commit();
+    db.begin();
+    mapper = db.save(mapper);
+    db.commit();
 
-    database.begin();
+    db.begin();
 
-    mapper = database.bindToSession(mapper);
+    mapper = db.bindToSession(mapper);
     final Map<String, Integer> mapTwo = new HashMap<>();
 
     mapTwo.put("key3", 30);
@@ -181,12 +181,12 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", mapTwo);
 
-    database.save(mapper);
-    database.commit();
+    db.save(mapper);
+    db.commit();
 
     Index keyIndex = getIndex("mapIndexTestKey");
 
-    Assert.assertEquals(keyIndex.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
@@ -201,7 +201,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     Index valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
@@ -219,36 +219,36 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateOneTx() {
     checkEmbeddedDB();
 
-    Entity mapper = database.newEntity("Mapper");
+    Entity mapper = db.newEntity("Mapper");
     Map<String, Integer> mapOne = new HashMap<>();
 
     mapOne.put("key1", 10);
     mapOne.put("key2", 20);
 
     mapper.setProperty("intMap", mapOne);
-    database.begin();
-    mapper = database.save(mapper);
-    database.commit();
+    db.begin();
+    mapper = db.save(mapper);
+    db.commit();
 
-    database.begin();
+    db.begin();
     try {
       final Map<String, Integer> mapTwo = new HashMap<>();
 
       mapTwo.put("key3", 30);
       mapTwo.put("key2", 20);
 
-      mapper = database.bindToSession(mapper);
+      mapper = db.bindToSession(mapper);
       mapper.setProperty("intMap", mapTwo);
-      database.save(mapper);
-      database.commit();
+      db.save(mapper);
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     Index keyIndex = getIndex("mapIndexTestKey");
 
-    Assert.assertEquals(keyIndex.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
@@ -263,7 +263,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     Index valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
@@ -281,30 +281,30 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateOneTxRollback() {
     checkEmbeddedDB();
 
-    Entity mapper = database.newEntity("Mapper");
+    Entity mapper = db.newEntity("Mapper");
     Map<String, Integer> mapOne = new HashMap<>();
 
     mapOne.put("key1", 10);
     mapOne.put("key2", 20);
 
     mapper.setProperty("intMap", mapOne);
-    database.begin();
-    mapper = database.save(mapper);
-    database.commit();
+    db.begin();
+    mapper = db.save(mapper);
+    db.commit();
 
-    database.begin();
+    db.begin();
     final Map<String, Integer> mapTwo = new HashMap<>();
 
     mapTwo.put("key3", 30);
     mapTwo.put("key2", 20);
 
-    mapper = database.bindToSession(mapper);
+    mapper = db.bindToSession(mapper);
     mapper.setProperty("intMap", mapTwo);
-    database.save(mapper);
-    database.rollback();
+    db.save(mapper);
+    db.rollback();
 
     Index keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
@@ -319,7 +319,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     Index valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
@@ -337,8 +337,8 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapAddItem() {
     checkEmbeddedDB();
 
-    database.begin();
-    Entity mapper = database.newEntity("Mapper");
+    db.begin();
+    Entity mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -346,15 +346,15 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
 
-    mapper = database.save(mapper);
-    database.commit();
+    mapper = db.save(mapper);
+    db.commit();
 
-    database.begin();
-    database.command("UPDATE " + mapper.getIdentity() + " set intMap['key3'] = 30").close();
-    database.commit();
+    db.begin();
+    db.command("UPDATE " + mapper.getIdentity() + " set intMap['key3'] = 30").close();
+    db.commit();
 
     Index keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(database), 3);
+    Assert.assertEquals(keyIndex.getInternal().size(db), 3);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
@@ -369,7 +369,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     Index valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(database), 3);
+    Assert.assertEquals(valueIndex.getInternal().size(db), 3);
 
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
@@ -387,31 +387,31 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapAddItemTx() {
     checkEmbeddedDB();
 
-    Entity mapper = database.newEntity("Mapper");
+    Entity mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
 
     mapper.setProperty("intMap", map);
-    database.begin();
-    mapper = database.save(mapper);
-    database.commit();
+    db.begin();
+    mapper = db.save(mapper);
+    db.commit();
 
     try {
-      database.begin();
-      Entity loadedMapper = database.load(mapper.getIdentity());
+      db.begin();
+      Entity loadedMapper = db.load(mapper.getIdentity());
       loadedMapper.<Map<String, Integer>>getProperty("intMap").put("key3", 30);
-      database.save(loadedMapper);
+      db.save(loadedMapper);
 
-      database.commit();
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     Index keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(database), 3);
+    Assert.assertEquals(keyIndex.getInternal().size(db), 3);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
@@ -426,7 +426,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     Index valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(database), 3);
+    Assert.assertEquals(valueIndex.getInternal().size(db), 3);
 
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
@@ -444,26 +444,26 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapAddItemTxRollback() {
     checkEmbeddedDB();
 
-    Entity mapper = database.newEntity("Mapper");
+    Entity mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
 
     mapper.setProperty("intMap", map);
-    database.begin();
-    mapper = database.save(mapper);
-    database.commit();
+    db.begin();
+    mapper = db.save(mapper);
+    db.commit();
 
-    database.begin();
-    Entity loadedMapper = database.load(mapper.getIdentity());
+    db.begin();
+    Entity loadedMapper = db.load(mapper.getIdentity());
     loadedMapper.<Map<String, Integer>>getProperty("intMap").put("key3", 30);
-    database.save(loadedMapper);
-    database.rollback();
+    db.save(loadedMapper);
+    db.rollback();
 
     Index keyIndex = getIndex("mapIndexTestKey");
 
-    Assert.assertEquals(keyIndex.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
@@ -478,7 +478,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     Index valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
@@ -496,23 +496,23 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateItem() {
     checkEmbeddedDB();
 
-    Entity mapper = database.newEntity("Mapper");
+    Entity mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
 
     mapper.setProperty("intMap", map);
-    database.begin();
-    mapper = database.save(mapper);
-    database.commit();
+    db.begin();
+    mapper = db.save(mapper);
+    db.commit();
 
-    database.begin();
-    database.command("UPDATE " + mapper.getIdentity() + " set intMap['key2'] = 40").close();
-    database.commit();
+    db.begin();
+    db.command("UPDATE " + mapper.getIdentity() + " set intMap['key2'] = 40").close();
+    db.commit();
 
     Index keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
@@ -528,7 +528,7 @@ public class MapIndexTest extends BaseDBTest {
 
     Index valueIndex = getIndex("mapIndexTestValue");
 
-    Assert.assertEquals(valueIndex.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
@@ -546,30 +546,30 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateItemInTx() {
     checkEmbeddedDB();
 
-    Entity mapper = database.newEntity("Mapper");
+    Entity mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
 
     mapper.setProperty("intMap", map);
-    database.begin();
-    mapper = database.save(mapper);
-    database.commit();
+    db.begin();
+    mapper = db.save(mapper);
+    db.commit();
 
     try {
-      database.begin();
-      Entity loadedMapper = database.load(mapper.getIdentity());
+      db.begin();
+      Entity loadedMapper = db.load(mapper.getIdentity());
       loadedMapper.<Map<String, Integer>>getProperty("intMap").put("key2", 40);
-      database.save(loadedMapper);
-      database.commit();
+      db.save(loadedMapper);
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     Index keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
@@ -584,7 +584,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     Index valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
@@ -602,7 +602,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateItemInTxRollback() {
     checkEmbeddedDB();
 
-    Entity mapper = database.newEntity("Mapper");
+    Entity mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -610,18 +610,18 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
 
-    database.begin();
-    mapper = database.save(mapper);
-    database.commit();
+    db.begin();
+    mapper = db.save(mapper);
+    db.commit();
 
-    database.begin();
-    Entity loadedMapper = database.load(new RecordId(mapper.getIdentity()));
+    db.begin();
+    Entity loadedMapper = db.load(new RecordId(mapper.getIdentity()));
     loadedMapper.<Map<String, Integer>>getProperty("intMap").put("key2", 40);
-    database.save(loadedMapper);
-    database.rollback();
+    db.save(loadedMapper);
+    db.rollback();
 
     Index keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
@@ -636,7 +636,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     Index valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
@@ -654,7 +654,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapRemoveItem() {
     checkEmbeddedDB();
 
-    Entity mapper = database.newEntity("Mapper");
+    Entity mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -663,16 +663,16 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
 
-    database.begin();
-    mapper = database.save(mapper);
-    database.commit();
+    db.begin();
+    mapper = db.save(mapper);
+    db.commit();
 
-    database.begin();
-    database.command("UPDATE " + mapper.getIdentity() + " remove intMap = 'key2'").close();
-    database.commit();
+    db.begin();
+    db.command("UPDATE " + mapper.getIdentity() + " remove intMap = 'key2'").close();
+    db.commit();
 
     Index keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
@@ -687,7 +687,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     Index valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
@@ -705,7 +705,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapRemoveItemInTx() {
     checkEmbeddedDB();
 
-    Entity mapper = database.newEntity("Mapper");
+    Entity mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -713,23 +713,23 @@ public class MapIndexTest extends BaseDBTest {
     map.put("key3", 30);
 
     mapper.setProperty("intMap", map);
-    database.begin();
-    mapper = database.save(mapper);
-    database.commit();
+    db.begin();
+    mapper = db.save(mapper);
+    db.commit();
 
     try {
-      database.begin();
-      Entity loadedMapper = database.load(mapper.getIdentity());
+      db.begin();
+      Entity loadedMapper = db.load(mapper.getIdentity());
       loadedMapper.<Map<String, Integer>>getProperty("intMap").remove("key2");
-      database.save(loadedMapper);
-      database.commit();
+      db.save(loadedMapper);
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     Index keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
@@ -745,7 +745,7 @@ public class MapIndexTest extends BaseDBTest {
 
     Index valueIndex = getIndex("mapIndexTestValue");
 
-    Assert.assertEquals(valueIndex.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
       valuesIterator = valueStream.iterator();
@@ -762,7 +762,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapRemoveItemInTxRollback() {
     checkEmbeddedDB();
 
-    Entity mapper = database.newEntity("Mapper");
+    Entity mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -771,19 +771,19 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
 
-    database.begin();
-    mapper = database.save(mapper);
-    database.commit();
+    db.begin();
+    mapper = db.save(mapper);
+    db.commit();
 
-    database.begin();
-    Entity loadedMapper = database.load(mapper.getIdentity());
+    db.begin();
+    Entity loadedMapper = db.load(mapper.getIdentity());
     loadedMapper.<Map<String, Integer>>getProperty("intMap").remove("key2");
-    database.save(loadedMapper);
-    database.rollback();
+    db.save(loadedMapper);
+    db.rollback();
 
     Index keyIndex = getIndex("mapIndexTestKey");
 
-    Assert.assertEquals(keyIndex.getInternal().size(database), 3);
+    Assert.assertEquals(keyIndex.getInternal().size(db), 3);
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
@@ -798,7 +798,7 @@ public class MapIndexTest extends BaseDBTest {
 
     Index valueIndex = getIndex("mapIndexTestValue");
 
-    Assert.assertEquals(valueIndex.getInternal().size(database), 3);
+    Assert.assertEquals(valueIndex.getInternal().size(db), 3);
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
       valuesIterator = valueStream.iterator();
@@ -815,33 +815,33 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapRemove() {
     checkEmbeddedDB();
 
-    Entity mapper = database.newEntity("Mapper");
+    Entity mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
 
     mapper.setProperty("intMap", map);
-    database.begin();
-    mapper = database.save(mapper);
-    database.commit();
+    db.begin();
+    mapper = db.save(mapper);
+    db.commit();
 
-    database.begin();
-    database.delete(database.bindToSession(mapper));
-    database.commit();
+    db.begin();
+    db.delete(db.bindToSession(mapper));
+    db.commit();
 
     Index keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(database), 0);
+    Assert.assertEquals(keyIndex.getInternal().size(db), 0);
 
     Index valueIndex = getIndex("mapIndexTestValue");
 
-    Assert.assertEquals(valueIndex.getInternal().size(database), 0);
+    Assert.assertEquals(valueIndex.getInternal().size(db), 0);
   }
 
   public void testIndexMapRemoveInTx() {
     checkEmbeddedDB();
 
-    Entity mapper = database.newEntity("Mapper");
+    Entity mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -849,30 +849,30 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
 
-    database.begin();
-    mapper = database.save(mapper);
-    database.commit();
+    db.begin();
+    mapper = db.save(mapper);
+    db.commit();
 
     try {
-      database.begin();
-      database.delete(database.bindToSession(mapper));
-      database.commit();
+      db.begin();
+      db.delete(db.bindToSession(mapper));
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     Index keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(database), 0);
+    Assert.assertEquals(keyIndex.getInternal().size(db), 0);
 
     Index valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(database), 0);
+    Assert.assertEquals(valueIndex.getInternal().size(db), 0);
   }
 
   public void testIndexMapRemoveInTxRollback() {
     checkEmbeddedDB();
 
-    Entity mapper = database.newEntity("Mapper");
+    Entity mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -880,16 +880,16 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
 
-    database.begin();
-    mapper = database.save(mapper);
-    database.commit();
+    db.begin();
+    mapper = db.save(mapper);
+    db.commit();
 
-    database.begin();
-    database.delete(database.bindToSession(mapper));
-    database.rollback();
+    db.begin();
+    db.delete(db.bindToSession(mapper));
+    db.rollback();
 
     Index keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
@@ -904,7 +904,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     Index valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
@@ -920,7 +920,7 @@ public class MapIndexTest extends BaseDBTest {
   }
 
   public void testIndexMapSQL() {
-    Entity mapper = database.newEntity("Mapper");
+    Entity mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -928,9 +928,9 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
 
-    database.begin();
-    database.save(mapper);
-    database.commit();
+    db.begin();
+    db.save(mapper);
+    db.commit();
 
     final List<EntityImpl> resultByKey =
         executeQuery("select * from Mapper where intMap containskey ?", "key1");

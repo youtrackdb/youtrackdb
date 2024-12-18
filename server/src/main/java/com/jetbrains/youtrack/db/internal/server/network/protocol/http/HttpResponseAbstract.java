@@ -200,7 +200,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       final String iAccept,
       final Map<String, Object> iAdditionalProperties,
       final String mode,
-      DatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal db)
       throws InterruptedException, IOException {
     if (iResult == null) {
       send(HttpUtils.STATUS_OK_NOCONTENT_CODE, "", HttpUtils.CONTENT_TEXT_PLAIN, null, null);
@@ -208,7 +208,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       final Object newResult;
 
       if (iResult instanceof Map) {
-        EntityImpl entity = new EntityImpl();
+        EntityImpl entity = new EntityImpl(db);
         for (Map.Entry<?, ?> entry : ((Map<?, ?>) iResult).entrySet()) {
           String key = keyFromMapObject(entry.getKey());
           entity.field(key, entry.getValue());
@@ -218,7 +218,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
           && (MultiValue.getSize(iResult) > 0
           && !((MultiValue.getFirstValue(iResult) instanceof Identifiable)
           || ((MultiValue.getFirstValue(iResult) instanceof Result))))) {
-        newResult = Collections.singleton(new EntityImpl().field("value", iResult)).iterator();
+        newResult = Collections.singleton(new EntityImpl(db).field("value", iResult)).iterator();
       } else if (iResult instanceof Identifiable) {
         // CONVERT SINGLE VALUE IN A COLLECTION
         newResult = Collections.singleton(iResult).iterator();
@@ -227,7 +227,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       } else if (MultiValue.isMultiValue(iResult)) {
         newResult = MultiValue.getMultiValueIterator(iResult);
       } else {
-        newResult = Collections.singleton(new EntityImpl().field("value", iResult)).iterator();
+        newResult = Collections.singleton(new EntityImpl(db).field("value", iResult)).iterator();
       }
 
       if (newResult == null) {
@@ -240,7 +240,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
             iAccept,
             iAdditionalProperties,
             mode,
-            databaseDocumentInternal);
+            db);
       }
     }
   }
@@ -299,7 +299,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       final String accept,
       final Map<String, Object> iAdditionalProperties,
       final String mode,
-      DatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal db)
       throws IOException {
     if (iRecords == null) {
       send(HttpUtils.STATUS_OK_NOCONTENT_CODE, "", HttpUtils.CONTENT_TEXT_PLAIN, null, null);
@@ -333,7 +333,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
                   result
                       .toEntity()
                       .getSchemaType()
-                      .ifPresent(x -> x.properties(databaseDocumentInternal)
+                      .ifPresent(x -> x.properties(db)
                           .forEach(prop -> colNames.add(prop.getName())));
                   for (String fieldName : result.getPropertyNames()) {
                     colNames.add(fieldName);
@@ -341,7 +341,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
 
                 } else if (r instanceof Identifiable) {
                   try {
-                    final Record rec = ((Identifiable) r).getRecord();
+                    final Record rec = ((Identifiable) r).getRecord(db);
                     if (rec instanceof EntityImpl entity) {
                       records.add(entity);
                       Collections.addAll(colNames, entity.fieldNames());
@@ -416,7 +416,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
                     iAdditionalProperties,
                     it,
                     writer,
-                    databaseDocumentInternal);
+                    db);
                 writer.flush();
               } catch (IOException e) {
                 LogManager.instance()
@@ -427,7 +427,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       } else {
         final StringWriter buffer = new StringWriter();
         writeRecordsOnStream(
-            iFetchPlan, iFormat, iAdditionalProperties, it, buffer, databaseDocumentInternal);
+            iFetchPlan, iFormat, iAdditionalProperties, it, buffer, db);
         send(
             HttpUtils.STATUS_OK_CODE,
             HttpUtils.STATUS_OK_DESCRIPTION,
@@ -444,7 +444,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       Map<String, Object> iAdditionalProperties,
       Iterator<?> it,
       Writer buffer,
-      DatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal db)
       throws IOException {
     final JSONWriter json = new JSONWriter(buffer, iFormat);
     json.beginObject();
@@ -452,8 +452,8 @@ public abstract class HttpResponseAbstract implements HttpResponse {
     final String format = iFetchPlan != null ? iFormat + ",fetchPlan:" + iFetchPlan : iFormat;
 
     // WRITE RECORDS
-    json.beginCollection(-1, true, "result");
-    formatMultiValue(it, buffer, format, databaseDocumentInternal);
+    json.beginCollection(db, -1, true, "result");
+    formatMultiValue(it, buffer, format, db);
     json.endCollection(-1, true);
 
     if (iAdditionalProperties != null) {
@@ -461,12 +461,12 @@ public abstract class HttpResponseAbstract implements HttpResponse {
 
         final Object v = entry.getValue();
         if (MultiValue.isMultiValue(v)) {
-          json.beginCollection(-1, true, entry.getKey());
+          json.beginCollection(db, -1, true, entry.getKey());
           formatMultiValue(
-              MultiValue.getMultiValueIterator(v), buffer, format, databaseDocumentInternal);
+              MultiValue.getMultiValueIterator(v), buffer, format, db);
           json.endCollection(-1, true);
         } else {
-          json.writeAttribute(entry.getKey(), v);
+          json.writeAttribute(db, entry.getKey(), v);
         }
 
         if (Thread.currentThread().isInterrupted()) {
@@ -483,7 +483,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       final Iterator<?> iIterator,
       final Writer buffer,
       final String format,
-      DatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal db)
       throws IOException {
     if (iIterator != null) {
       int counter = 0;
@@ -501,9 +501,9 @@ public abstract class HttpResponseAbstract implements HttpResponse {
             buffer.append(objectJson);
           } else if (entry instanceof Identifiable identifiable) {
             try {
-              Record rec = identifiable.getRecord();
-              if (rec.isNotBound(databaseDocumentInternal)) {
-                rec = databaseDocumentInternal.bindToSession(rec);
+              Record rec = identifiable.getRecord(db);
+              if (rec.isNotBound(db)) {
+                rec = db.bindToSession(rec);
               }
 
               objectJson = rec.toJSON(format);
@@ -516,10 +516,10 @@ public abstract class HttpResponseAbstract implements HttpResponse {
           } else if (MultiValue.isMultiValue(entry)) {
             buffer.append("[");
             formatMultiValue(
-                MultiValue.getMultiValueIterator(entry), buffer, format, databaseDocumentInternal);
+                MultiValue.getMultiValueIterator(entry), buffer, format, db);
             buffer.append("]");
           } else {
-            buffer.append(JSONWriter.writeValue(entry, format));
+            buffer.append(JSONWriter.writeValue(db, entry, format));
           }
         }
         checkConnection();

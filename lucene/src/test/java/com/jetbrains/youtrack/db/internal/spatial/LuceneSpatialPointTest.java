@@ -13,11 +13,12 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Before;
@@ -51,10 +52,10 @@ public class LuceneSpatialPointTest extends BaseSpatialLuceneTest {
     db.command("CREATE INDEX Place.l_lon ON Place(latitude,longitude) SPATIAL ENGINE LUCENE")
         .close();
 
-    EntityImpl rome = newCity("Rome", 12.5, 41.9);
-    EntityImpl london = newCity("London", -0.1275, 51.507222);
+    EntityImpl rome = newCity(db, "Rome", 12.5, 41.9);
+    EntityImpl london = newCity(db, "London", -0.1275, 51.507222);
 
-    EntityImpl rome1 = new EntityImpl("Place");
+    EntityImpl rome1 = ((EntityImpl) db.newEntity("Place"));
     rome1.field("name", "Rome");
     rome1.field("latitude", 41.9);
     rome1.field("longitude", 12.5);
@@ -119,9 +120,9 @@ public class LuceneSpatialPointTest extends BaseSpatialLuceneTest {
 //    Assert.assertEquals(1, old.size());
   }
 
-  protected static EntityImpl newCity(String name, final Double longitude,
+  protected static EntityImpl newCity(DatabaseSession db, String name, final Double longitude,
       final Double latitude) {
-    EntityImpl location = new EntityImpl("OPoint");
+    EntityImpl location = ((EntityImpl) db.newEntity("OPoint"));
     location.field(
         "coordinates",
         new ArrayList<Double>() {
@@ -131,7 +132,7 @@ public class LuceneSpatialPointTest extends BaseSpatialLuceneTest {
           }
         });
 
-    EntityImpl city = new EntityImpl("City");
+    EntityImpl city = ((EntityImpl) db.newEntity("City"));
     city.field("name", name);
     city.field("location", location);
     return city;

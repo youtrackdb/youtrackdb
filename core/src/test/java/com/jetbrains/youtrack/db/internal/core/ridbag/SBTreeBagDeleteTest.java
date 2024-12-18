@@ -11,8 +11,8 @@ import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.SBTreeBonsai;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.EdgeBTree;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
 import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
   @Test
   public void testDeleteRidbagTx() throws InterruptedException {
 
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     RidBag bag = new RidBag(db);
     int size =
         GlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger() * 2;
@@ -60,7 +60,7 @@ public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
     }
 
     Thread.sleep(100);
-    SBTreeBonsai<Identifiable, Integer> tree =
+    EdgeBTree<Identifiable, Integer> tree =
         db.getSbTreeCollectionManager().loadSBTree(pointer);
     assertEquals(0, tree.getRealBagSize(Collections.emptyMap()));
   }

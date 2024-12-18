@@ -48,31 +48,35 @@ public class TruncateClassTest extends BaseDBTest {
   public void testTruncateClass() {
     checkEmbeddedDB();
 
-    Schema schema = database.getMetadata().getSchema();
+    Schema schema = db.getMetadata().getSchema();
     SchemaClass testClass = getOrCreateClass(schema);
 
     final Index index = getOrCreateIndex(testClass);
 
-    database.command("truncate class test_class").close();
+    db.command("truncate class test_class").close();
 
-    database.begin();
-    database.save(
-        new EntityImpl(testClass).field("name", "x").field("data", Arrays.asList(1, 2)));
-    database.save(
-        new EntityImpl(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
-    database.commit();
+    db.begin();
+    db.save(
+        ((EntityImpl) db.newEntity(testClass)).field("name", "x")
+            .field("data", Arrays.asList(1, 2)));
+    db.save(
+        ((EntityImpl) db.newEntity(testClass)).field("name", "y")
+            .field("data", Arrays.asList(3, 0)));
+    db.commit();
 
-    database.command("truncate class test_class").close();
+    db.command("truncate class test_class").close();
 
-    database.begin();
-    database.save(
-        new EntityImpl(testClass).field("name", "x").field("data", Arrays.asList(5, 6, 7)));
-    database.save(
-        new EntityImpl(testClass).field("name", "y").field("data", Arrays.asList(8, 9, -1)));
-    database.commit();
+    db.begin();
+    db.save(
+        ((EntityImpl) db.newEntity(testClass)).field("name", "x")
+            .field("data", Arrays.asList(5, 6, 7)));
+    db.save(
+        ((EntityImpl) db.newEntity(testClass)).field("name", "y")
+            .field("data", Arrays.asList(8, 9, -1)));
+    db.commit();
 
     List<Result> result =
-        database.query("select from test_class").stream().collect(Collectors.toList());
+        db.query("select from test_class").stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 2);
     Set<Integer> set = new HashSet<Integer>();
     for (Result document : result) {
@@ -80,10 +84,10 @@ public class TruncateClassTest extends BaseDBTest {
     }
     Assert.assertTrue(set.containsAll(Arrays.asList(5, 6, 7, 8, 9, -1)));
 
-    Assert.assertEquals(index.getInternal().size(database), 6);
+    Assert.assertEquals(index.getInternal().size(db), 6);
 
     Iterator<RawPair<Object, RID>> indexIterator;
-    try (Stream<RawPair<Object, RID>> stream = index.getInternal().stream(database)) {
+    try (Stream<RawPair<Object, RID>> stream = index.getInternal().stream(db)) {
       indexIterator = stream.iterator();
 
       while (indexIterator.hasNext()) {
@@ -97,48 +101,48 @@ public class TruncateClassTest extends BaseDBTest {
 
   @Test
   public void testTruncateVertexClass() {
-    database.command("create class TestTruncateVertexClass extends V").close();
-    database.begin();
-    database.command("create vertex TestTruncateVertexClass set name = 'foo'").close();
-    database.commit();
+    db.command("create class TestTruncateVertexClass extends V").close();
+    db.begin();
+    db.command("create vertex TestTruncateVertexClass set name = 'foo'").close();
+    db.commit();
 
     try {
-      database.command("truncate class TestTruncateVertexClass ").close();
+      db.command("truncate class TestTruncateVertexClass ").close();
       Assert.fail();
     } catch (Exception e) {
     }
-    ResultSet result = database.query("select from TestTruncateVertexClass");
+    ResultSet result = db.query("select from TestTruncateVertexClass");
     Assert.assertEquals(result.stream().count(), 1);
 
-    database.command("truncate class TestTruncateVertexClass unsafe").close();
-    result = database.query("select from TestTruncateVertexClass");
+    db.command("truncate class TestTruncateVertexClass unsafe").close();
+    result = db.query("select from TestTruncateVertexClass");
     Assert.assertEquals(result.stream().count(), 0);
   }
 
   @Test
   public void testTruncateVertexClassSubclasses() {
 
-    database.command("create class TestTruncateVertexClassSuperclass").close();
-    database
+    db.command("create class TestTruncateVertexClassSuperclass").close();
+    db
         .command(
             "create class TestTruncateVertexClassSubclass extends"
                 + " TestTruncateVertexClassSuperclass")
         .close();
 
-    database.begin();
-    database.command("insert into TestTruncateVertexClassSuperclass set name = 'foo'").close();
-    database.command("insert into TestTruncateVertexClassSubclass set name = 'bar'").close();
-    database.commit();
+    db.begin();
+    db.command("insert into TestTruncateVertexClassSuperclass set name = 'foo'").close();
+    db.command("insert into TestTruncateVertexClassSubclass set name = 'bar'").close();
+    db.commit();
 
-    ResultSet result = database.query("select from TestTruncateVertexClassSuperclass");
+    ResultSet result = db.query("select from TestTruncateVertexClassSuperclass");
     Assert.assertEquals(result.stream().count(), 2);
 
-    database.command("truncate class TestTruncateVertexClassSuperclass ").close();
-    result = database.query("select from TestTruncateVertexClassSubclass");
+    db.command("truncate class TestTruncateVertexClassSuperclass ").close();
+    result = db.query("select from TestTruncateVertexClassSubclass");
     Assert.assertEquals(result.stream().count(), 1);
 
-    database.command("truncate class TestTruncateVertexClassSuperclass polymorphic").close();
-    result = database.query("select from TestTruncateVertexClassSubclass");
+    db.command("truncate class TestTruncateVertexClassSuperclass polymorphic").close();
+    result = db.query("select from TestTruncateVertexClassSubclass");
     Assert.assertEquals(result.stream().count(), 0);
   }
 
@@ -146,53 +150,53 @@ public class TruncateClassTest extends BaseDBTest {
   public void testTruncateVertexClassSubclassesWithIndex() {
     checkEmbeddedDB();
 
-    database.command("create class TestTruncateVertexClassSuperclassWithIndex").close();
-    database
+    db.command("create class TestTruncateVertexClassSuperclassWithIndex").close();
+    db
         .command("create property TestTruncateVertexClassSuperclassWithIndex.name STRING")
         .close();
-    database
+    db
         .command(
             "create index TestTruncateVertexClassSuperclassWithIndex_index on"
                 + " TestTruncateVertexClassSuperclassWithIndex (name) NOTUNIQUE")
         .close();
 
-    database
+    db
         .command(
             "create class TestTruncateVertexClassSubclassWithIndex extends"
                 + " TestTruncateVertexClassSuperclassWithIndex")
         .close();
 
-    database.begin();
-    database
+    db.begin();
+    db
         .command("insert into TestTruncateVertexClassSuperclassWithIndex set name = 'foo'")
         .close();
-    database
+    db
         .command("insert into TestTruncateVertexClassSubclassWithIndex set name = 'bar'")
         .close();
-    database.commit();
+    db.commit();
 
     final Index index = getIndex("TestTruncateVertexClassSuperclassWithIndex_index");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
-    database.command("truncate class TestTruncateVertexClassSubclassWithIndex").close();
-    Assert.assertEquals(index.getInternal().size(database), 1);
+    db.command("truncate class TestTruncateVertexClassSubclassWithIndex").close();
+    Assert.assertEquals(index.getInternal().size(db), 1);
 
-    database
+    db
         .command("truncate class TestTruncateVertexClassSuperclassWithIndex polymorphic")
         .close();
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   private Index getOrCreateIndex(SchemaClass testClass) {
     Index index =
-        database.getMetadata().getIndexManagerInternal().getIndex(database, "test_class_by_data");
+        db.getMetadata().getIndexManagerInternal().getIndex(db, "test_class_by_data");
     if (index == null) {
-      testClass.createProperty(database, "data", PropertyType.EMBEDDEDLIST, PropertyType.INTEGER);
-      testClass.createIndex(database, "test_class_by_data", SchemaClass.INDEX_TYPE.UNIQUE,
+      testClass.createProperty(db, "data", PropertyType.EMBEDDEDLIST, PropertyType.INTEGER);
+      testClass.createIndex(db, "test_class_by_data", SchemaClass.INDEX_TYPE.UNIQUE,
           "data");
     }
-    return database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "test_class_by_data");
+    return db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "test_class_by_data");
   }
 
   private SchemaClass getOrCreateClass(Schema schema) {
@@ -209,24 +213,26 @@ public class TruncateClassTest extends BaseDBTest {
   @Test
   public void testTruncateClassWithCommandCache() {
 
-    Schema schema = database.getMetadata().getSchema();
+    Schema schema = db.getMetadata().getSchema();
     SchemaClass testClass = getOrCreateClass(schema);
 
-    database.command("truncate class test_class").close();
+    db.command("truncate class test_class").close();
 
-    database.begin();
-    database.save(
-        new EntityImpl(testClass).field("name", "x").field("data", Arrays.asList(1, 2)));
-    database.save(
-        new EntityImpl(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
-    database.commit();
+    db.begin();
+    db.save(
+        ((EntityImpl) db.newEntity(testClass)).field("name", "x")
+            .field("data", Arrays.asList(1, 2)));
+    db.save(
+        ((EntityImpl) db.newEntity(testClass)).field("name", "y")
+            .field("data", Arrays.asList(3, 0)));
+    db.commit();
 
-    ResultSet result = database.query("select from test_class");
+    ResultSet result = db.query("select from test_class");
     Assert.assertEquals(result.stream().count(), 2);
 
-    database.command("truncate class test_class").close();
+    db.command("truncate class test_class").close();
 
-    result = database.query("select from test_class");
+    result = db.query("select from test_class");
     Assert.assertEquals(result.stream().count(), 0);
 
     schema.dropClass("test_class");

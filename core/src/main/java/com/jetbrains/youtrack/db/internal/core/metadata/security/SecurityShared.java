@@ -438,13 +438,13 @@ public class SecurityShared implements SecurityInternal {
     return removed != null && removed.intValue() > 0;
   }
 
-  public Role getRole(final DatabaseSession session, final Identifiable iRole) {
+  public Role getRole(final DatabaseSession db, final Identifiable iRole) {
     try {
-      final EntityImpl entity = iRole.getRecord();
+      final EntityImpl entity = iRole.getRecord(db);
       SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
 
       if (clazz != null && clazz.isOrole()) {
-        return new Role(session, entity);
+        return new Role(db, entity);
       }
     } catch (RecordNotFoundException rnf) {
       return null;
@@ -1380,7 +1380,7 @@ public class SecurityShared implements SecurityInternal {
                   for (Map.Entry<String, Identifiable> policyEntry : policies.entrySet()) {
                     SecurityResource res = SecurityResource.getInstance(policyEntry.getKey());
                     try {
-                      Entity policy = policyEntry.getValue().getRecord();
+                      Entity policy = policyEntry.getValue().getRecord(session);
 
                       for (SchemaClass clazz : allClasses) {
                         if (isClassInvolved(clazz, res)
@@ -1709,7 +1709,7 @@ public class SecurityShared implements SecurityInternal {
   }
 
   private ResultInternal calculateOriginalValue(Record record, DatabaseSessionInternal db) {
-    return calculateBefore(record.getRecord(), db);
+    return calculateBefore(record.getRecord(db), db);
   }
 
   public static ResultInternal calculateBefore(EntityImpl entity,
@@ -1896,15 +1896,15 @@ public class SecurityShared implements SecurityInternal {
   }
 
   protected Set<SecurityResourceProperty> calculateAllFilteredProperties(
-      DatabaseSessionInternal session) {
+      DatabaseSessionInternal db) {
     Set<SecurityResourceProperty> result = new HashSet<>();
-    if (!session
+    if (!db
         .getMetadata()
         .getImmutableSchemaSnapshot()
         .existsClass("ORole")) {
       return Collections.emptySet();
     }
-    try (ResultSet rs = session.query("select policies from ORole")) {
+    try (ResultSet rs = db.query("select policies from ORole")) {
       while (rs.hasNext()) {
         Result item = rs.next();
         Map<String, Identifiable> policies = item.getProperty("policies");
@@ -1913,10 +1913,10 @@ public class SecurityShared implements SecurityInternal {
             try {
               SecurityResource res = SecurityResource.getInstance(policyEntry.getKey());
               if (res instanceof SecurityResourceProperty) {
-                final Entity element = policyEntry.getValue().getRecord();
+                final Entity element = policyEntry.getValue().getRecord(db);
                 final SecurityPolicy policy =
-                    new ImmutableSecurityPolicy(session, new SecurityPolicyImpl(element));
-                final String readRule = policy.getReadRule(session);
+                    new ImmutableSecurityPolicy(db, new SecurityPolicyImpl(element));
+                final String readRule = policy.getReadRule(db);
                 if (readRule != null && !readRule.trim().equalsIgnoreCase("true")) {
                   result.add((SecurityResourceProperty) res);
                 }

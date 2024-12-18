@@ -20,32 +20,32 @@ public class IndexClusterTest extends BaseDBTest {
   @Test
   public void indexAfterRebuildShouldIncludeAllClusters() {
     // given
-    Schema schema = database.getMetadata().getSchema();
+    Schema schema = db.getMetadata().getSchema();
     String className = "IndexClusterTest";
 
     SchemaClass oclass = schema.createClass(className);
-    oclass.createProperty(database, "key", PropertyType.STRING);
-    oclass.createProperty(database, "value", PropertyType.INTEGER);
-    oclass.createIndex(database, className + "index1", SchemaClass.INDEX_TYPE.NOTUNIQUE, "key");
+    oclass.createProperty(db, "key", PropertyType.STRING);
+    oclass.createProperty(db, "value", PropertyType.INTEGER);
+    oclass.createIndex(db, className + "index1", SchemaClass.INDEX_TYPE.NOTUNIQUE, "key");
 
-    database.begin();
-    database.<EntityImpl>newInstance(className).field("key", "a").field("value", 1).save();
-    database.commit();
+    db.begin();
+    db.<EntityImpl>newInstance(className).field("key", "a").field("value", 1).save();
+    db.commit();
 
-    int clId = database.addCluster(className + "secondCluster");
-    oclass.addClusterId(database, clId);
+    int clId = db.addCluster(className + "secondCluster");
+    oclass.addClusterId(db, clId);
 
-    database.begin();
-    database
+    db.begin();
+    db
         .<EntityImpl>newInstance(className)
         .field("key", "a")
         .field("value", 2)
         .save(className + "secondCluster");
-    database.commit();
+    db.commit();
 
     // when
-    database.command("rebuild index " + className + "index1").close();
+    db.command("rebuild index " + className + "index1").close();
     assertEquals(
-        database.query("select from " + className + " where key = 'a'").stream().count(), 2);
+        db.query("select from " + className + " where key = 'a'").stream().count(), 2);
   }
 }

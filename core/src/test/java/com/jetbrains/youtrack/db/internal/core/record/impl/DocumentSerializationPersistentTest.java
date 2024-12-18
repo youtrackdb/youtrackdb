@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
 
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,10 +23,10 @@ public class DocumentSerializationPersistentTest extends BaseMemoryInternalDatab
     super.beforeTest();
 
     db.begin();
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
     doc.setProperty("name", "Artem");
 
-    final EntityImpl linkedDoc = new EntityImpl();
+    final EntityImpl linkedDoc = (EntityImpl) db.newEntity();
 
     doc.setProperty("country", linkedDoc, PropertyType.LINK);
     doc.setProperty("numbers", Arrays.asList(0, 1, 2, 3, 4, 5));
@@ -38,23 +38,23 @@ public class DocumentSerializationPersistentTest extends BaseMemoryInternalDatab
   @Test(expected = DatabaseException.class)
   public void testRidBagInEmbeddedDocument() {
     DatabaseRecordThreadLocal.instance().set(db);
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     RidBag rids = new RidBag(db);
     rids.add(new RecordId(2, 3));
     rids.add(new RecordId(2, 4));
     rids.add(new RecordId(2, 5));
     rids.add(new RecordId(2, 6));
     List<EntityImpl> docs = new ArrayList<EntityImpl>();
-    EntityImpl doc1 = new EntityImpl();
+    EntityImpl doc1 = (EntityImpl) db.newEntity();
     doc1.setProperty("rids", rids);
     docs.add(doc1);
-    EntityImpl doc2 = new EntityImpl();
+    EntityImpl doc2 = (EntityImpl) db.newEntity();
     doc2.setProperty("text", "text");
     docs.add(doc2);
     doc.setProperty("emb", docs, PropertyType.EMBEDDEDLIST);
     doc.setProperty("some", "test");
 
     byte[] res = db.getSerializer().toStream(db, doc);
-    db.getSerializer().fromStream(db, res, new EntityImpl(), new String[]{});
+    db.getSerializer().fromStream(db, res, (EntityImpl) db.newEntity(), new String[]{});
   }
 }

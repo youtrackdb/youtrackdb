@@ -1,21 +1,21 @@
 package com.jetbrains.youtrack.db.internal.core.db.tool;
 
-import com.jetbrains.youtrack.db.internal.common.util.Pair;
-import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.internal.core.metadata.Metadata;
-import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.api.record.Direction;
 import com.jetbrains.youtrack.db.api.record.Edge;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.common.util.Pair;
+import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
+import com.jetbrains.youtrack.db.internal.core.metadata.Metadata;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
@@ -183,7 +183,7 @@ public class GraphRepair {
               } else {
                 EntityImpl outVertex;
                 try {
-                  outVertex = out.getRecord();
+                  outVertex = out.getRecord(db);
                 } catch (RecordNotFoundException e) {
                   outVertex = null;
                 }
@@ -227,7 +227,7 @@ public class GraphRepair {
 
                 EntityImpl inVertex;
                 try {
-                  inVertex = in.getRecord();
+                  inVertex = in.getRecord(db);
                 } catch (RecordNotFoundException e) {
                   inVertex = null;
                 }
@@ -370,13 +370,12 @@ public class GraphRepair {
                 if (fieldValue != null) {
                   if (fieldValue instanceof Identifiable) {
 
-                    if (isEdgeBroken(
+                    if (isEdgeBroken(db,
                         vertex,
                         fieldName,
                         connection.getKey(),
                         (Identifiable) fieldValue,
-                        stats,
-                        true)) {
+                        stats, true)) {
                       vertexCorrupted = true;
                       if (!checkOnly) {
                         vertex.field(fieldName, (Object) null);
@@ -396,9 +395,9 @@ public class GraphRepair {
                     for (Iterator<?> it = coll.iterator(); it.hasNext(); ) {
                       final Object o = it.next();
 
-                      if (isEdgeBroken(
-                          vertex, fieldName, connection.getKey(), (Identifiable) o, stats,
-                          true)) {
+                      if (isEdgeBroken(db,
+                          vertex, fieldName, connection.getKey(), (Identifiable) o,
+                          stats, true)) {
                         vertexCorrupted = true;
                         if (!checkOnly) {
                           it.remove();
@@ -426,9 +425,9 @@ public class GraphRepair {
                     }
                     for (Iterator<?> it = ridbag.iterator(); it.hasNext(); ) {
                       final Object o = it.next();
-                      if (isEdgeBroken(
-                          vertex, fieldName, connection.getKey(), (Identifiable) o, stats,
-                          true)) {
+                      if (isEdgeBroken(db,
+                          vertex, fieldName, connection.getKey(), (Identifiable) o,
+                          stats, true)) {
                         vertexCorrupted = true;
                         if (!checkOnly) {
                           it.remove();
@@ -498,7 +497,7 @@ public class GraphRepair {
   }
 
   private boolean isEdgeBroken(
-      final Identifiable vertex,
+      DatabaseSessionInternal db, final Identifiable vertex,
       final String fieldName,
       final Direction direction,
       final Identifiable edgeRID,
@@ -515,7 +514,7 @@ public class GraphRepair {
     } else {
       EntityImpl record = null;
       try {
-        record = edgeRID.getIdentity().getRecord();
+        record = edgeRID.getIdentity().getRecord(db);
       } catch (RecordNotFoundException e) {
         broken = true;
       }

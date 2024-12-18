@@ -23,7 +23,7 @@ import com.jetbrains.youtrack.db.internal.core.db.SystemDatabase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.config.ServerConfiguration;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedServerAbstract;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,19 +40,19 @@ public class ServerCommandGetListDatabases extends ServerCommandAuthenticatedSer
   }
 
   @Override
-  public boolean beforeExecute(final OHttpRequest iRequest, final HttpResponse iResponse)
+  public boolean beforeExecute(final HttpRequest iRequest, final HttpResponse iResponse)
       throws IOException {
     return authenticate(iRequest, iResponse, false);
   }
 
   @Override
-  public boolean execute(final OHttpRequest iRequest, final HttpResponse iResponse)
+  public boolean execute(final HttpRequest iRequest, final HttpResponse iResponse)
       throws Exception {
     checkSyntax(iRequest.getUrl(), 1, "Syntax error: server");
 
     iRequest.getData().commandInfo = "Server status";
 
-    final EntityImpl result = new EntityImpl();
+    final EntityImpl result = new EntityImpl(null);
 
     // We copy the returned set so that we can modify it, and we use a LinkedHashSet to preserve the
     // ordering.

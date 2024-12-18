@@ -44,9 +44,7 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.i
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index.CompositeKeySerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index.SimpleKeySerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.stream.MixedIndexRIDContainerSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.stream.StreamSerializerRID;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.stream.StreamSerializerSBTreeIndexRIDContainer;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.multivalue.v2.MultiValueEntrySerializer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -96,13 +94,10 @@ public class BinarySerializerFactory {
     factory.registerSerializer(BinaryTypeSerializer.INSTANCE, PropertyType.BINARY);
     factory.registerSerializer(DecimalSerializer.INSTANCE, PropertyType.DECIMAL);
 
-    factory.registerSerializer(StreamSerializerSBTreeIndexRIDContainer.INSTANCE, null);
-
     // STATEFUL SERIALIER
     factory.registerSerializer(SimpleKeySerializer.ID, SimpleKeySerializer.class);
 
     factory.registerSerializer(CompactedLinkSerializer.INSTANCE, null);
-    factory.registerSerializer(MixedIndexRIDContainerSerializer.INSTANCE, null);
 
     factory.registerSerializer(UTF8Serializer.INSTANCE, null);
     factory.registerSerializer(MultiValueEntrySerializer.INSTANCE, null);

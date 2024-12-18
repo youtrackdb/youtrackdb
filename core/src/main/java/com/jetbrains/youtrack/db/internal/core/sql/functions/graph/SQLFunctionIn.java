@@ -1,6 +1,5 @@
 package com.jetbrains.youtrack.db.internal.core.sql.functions.graph;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Direction;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
@@ -29,12 +28,12 @@ public class SQLFunctionIn extends SQLFunctionMoveFiltered {
 
   @Override
   protected Object move(
-      final DatabaseSession graph, final Identifiable iRecord, final String[] iLabels) {
+      final DatabaseSessionInternal graph, final Identifiable iRecord, final String[] iLabels) {
     return v2v(graph, iRecord, Direction.IN, iLabels);
   }
 
   protected Object move(
-      final DatabaseSession graph,
+      final DatabaseSessionInternal graph,
       final Identifiable iRecord,
       final String[] iLabels,
       Iterable<Identifiable> iPossibleResults) {
@@ -61,7 +60,7 @@ public class SQLFunctionIn extends SQLFunctionMoveFiltered {
   }
 
   private static Object fetchFromIndex(
-      DatabaseSession graph,
+      DatabaseSessionInternal graph,
       Identifiable iFrom,
       Iterable<Identifiable> to,
       String[] iEdgeTypes) {
@@ -94,7 +93,7 @@ public class SQLFunctionIn extends SQLFunctionMoveFiltered {
           .getRids((DatabaseSessionInternal) graph, key)) {
         result.add(
             stream
-                .map((edge) -> ((EntityImpl) edge.getRecord()).rawField("out"))
+                .map((edge) -> ((EntityImpl) edge.getRecord(graph)).rawField("out"))
                 .collect(Collectors.toSet()));
       }
     }

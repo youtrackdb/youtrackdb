@@ -422,7 +422,7 @@ public class SecurityEngine {
               (db -> {
                 BasicCommandContext ctx = new BasicCommandContext();
                 ctx.setDatabase(db);
-                ctx.setDynamicVariable("$currentUser", (inContext) -> user.getRecordSilently());
+                ctx.setDynamicVariable("$currentUser", (inContext) -> user.getRecordSilently(db));
 
                 recordCopy.setup(db);
                 return predicate.evaluate(recordCopy, ctx);
@@ -444,7 +444,8 @@ public class SecurityEngine {
     try {
       // Create a new instance of EntityImpl with a user record id, this will lazy load the user data
       // at the first access with the same execution permission of the policy
-      final EntityImpl user = session.geCurrentUser().getIdentity(session).getRecordSilently();
+      final EntityImpl user = session.geCurrentUser().getIdentity(session)
+          .getRecordSilently(session);
       return session
           .getSharedContext()
           .getYouTrackDB()

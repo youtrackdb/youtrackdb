@@ -95,22 +95,23 @@ public class TableFormatter {
     columnHidden.add(column);
   }
 
-  public void writeRecords(final List<? extends Identifiable> resultSet, final int limit) {
-    writeRecords(resultSet, limit, null);
+  public void writeRecords(DatabaseSessionInternal db, final List<? extends Identifiable> resultSet,
+      final int limit) {
+    writeRecords(db, resultSet, limit, null);
   }
 
   public void writeRecords(
-      final List<? extends Identifiable> resultSet,
+      DatabaseSessionInternal db, final List<? extends Identifiable> resultSet,
       final int limit,
       final CallableFunction<Object, Identifiable> iAfterDump) {
-    final Map<String, Integer> columns = parseColumns(resultSet, limit);
+    final Map<String, Integer> columns = parseColumns(db, resultSet, limit);
 
     if (columnSorting != null) {
       resultSet.sort(
           (Comparator<Object>)
               (o1, o2) -> {
-                final EntityImpl doc1 = ((Identifiable) o1).getRecord();
-                final EntityImpl doc2 = ((Identifiable) o2).getRecord();
+                final EntityImpl doc1 = ((Identifiable) o1).getRecord(db);
+                final EntityImpl doc2 = ((Identifiable) o2).getRecord(db);
                 final Object value1 = doc1.field(columnSorting.getKey());
                 final Object value2 = doc2.field(columnSorting.getKey());
                 final boolean ascending = columnSorting.getValue();
@@ -132,7 +133,7 @@ public class TableFormatter {
 
     int fetched = 0;
     for (Identifiable record : resultSet) {
-      dumpRecordInTable(fetched++, record, columns);
+      dumpRecordInTable(db, fetched++, record, columns);
       if (iAfterDump != null) {
         iAfterDump.call(record);
       }
@@ -150,7 +151,7 @@ public class TableFormatter {
     }
 
     if (footer != null) {
-      dumpRecordInTable(-1, footer, columns);
+      dumpRecordInTable(db, -1, footer, columns);
       printHeaderLine(columns);
     }
   }
@@ -188,7 +189,8 @@ public class TableFormatter {
   }
 
   public void dumpRecordInTable(
-      final int iIndex, final Identifiable iRecord, final Map<String, Integer> iColumns) {
+      DatabaseSessionInternal db, final int iIndex, final Identifiable iRecord,
+      final Map<String, Integer> iColumns) {
     if (iIndex == 0) {
       printHeader(iColumns);
     }
@@ -217,7 +219,7 @@ public class TableFormatter {
 
         format.append("%-" + columnWidth + "s");
 
-        Object value = getFieldValue(iIndex, iRecord, columnName);
+        Object value = getFieldValue(db, iIndex, iRecord, columnName);
         String valueAsString = null;
 
         if (value != null) {
@@ -282,7 +284,8 @@ public class TableFormatter {
   }
 
   private Object getFieldValue(
-      final int iIndex, final Identifiable iRecord, final String iColumnName) {
+      DatabaseSessionInternal db, final int iIndex, final Identifiable iRecord,
+      final String iColumnName) {
     Object value = null;
 
     if (iColumnName.equals("#"))
@@ -298,7 +301,7 @@ public class TableFormatter {
     } else if (iRecord instanceof Blob) {
       value = "<binary> (size=" + ((RecordAbstract) iRecord).toStream().length + " bytes)";
     } else if (iRecord instanceof Identifiable) {
-      final Record rec = iRecord.getRecord();
+      final Record rec = iRecord.getRecord(db);
       if (rec instanceof EntityImpl) {
         value = ((EntityImpl) rec).getProperty(iColumnName);
       } else if (rec instanceof Blob) {
@@ -519,12 +522,14 @@ public class TableFormatter {
   /**
    * Fill the column map computing the maximum size for a field.
    *
+   * @param db
    * @param resultSet
    * @param limit
    * @return
    */
   private Map<String, Integer> parseColumns(
-      final Collection<? extends Identifiable> resultSet, final int limit) {
+      DatabaseSessionInternal db, final Collection<? extends Identifiable> resultSet,
+      final int limit) {
     final Map<String, Integer> columns = new LinkedHashMap<String, Integer>();
 
     for (String c : prefixedColumns) {
@@ -536,17 +541,18 @@ public class TableFormatter {
 
     int fetched = 0;
     for (Identifiable id : resultSet) {
-      Record rec = id.getRecord();
+      Record rec = id.getRecord(db);
 
       for (String c : prefixedColumns) {
-        columns.put(c, getColumnSize(fetched, rec, c, columns.get(c)));
+        columns.put(c, getColumnSize(db, fetched, rec, c, columns.get(c)));
       }
 
       if (rec instanceof EntityImpl entity) {
         entity.setLazyLoad(false);
         // PARSE ALL THE DOCUMENT'S FIELDS
         for (String fieldName : entity.getPropertyNames()) {
-          columns.put(fieldName, getColumnSize(fetched, entity, fieldName, columns.get(fieldName)));
+          columns.put(fieldName,
+              getColumnSize(db, fetched, entity, fieldName, columns.get(fieldName)));
         }
 
         if (!hasClass && entity.getClassName() != null) {
@@ -579,7 +585,8 @@ public class TableFormatter {
       footer.setLazyLoad(false);
       // PARSE ALL THE DOCUMENT'S FIELDS
       for (String fieldName : footer.fieldNames()) {
-        columns.put(fieldName, getColumnSize(fetched, footer, fieldName, columns.get(fieldName)));
+        columns.put(fieldName,
+            getColumnSize(db, fetched, footer, fieldName, columns.get(fieldName)));
       }
     }
 
@@ -660,7 +667,8 @@ public class TableFormatter {
   }
 
   private Integer getColumnSize(
-      final Integer iIndex, final Record iRecord, final String fieldName,
+      DatabaseSessionInternal db, final Integer iIndex, final Record iRecord,
+      final String fieldName,
       final Integer origSize) {
     Integer newColumnSize;
     if (origSize == null)
@@ -683,7 +691,7 @@ public class TableFormatter {
       }
     }
 
-    final Object fieldValue = getFieldValue(iIndex, iRecord, fieldName);
+    final Object fieldValue = getFieldValue(db, iIndex, iRecord, fieldName);
 
     if (fieldValue != null) {
       final String fieldValueAsString = fieldValue.toString();

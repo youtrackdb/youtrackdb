@@ -31,7 +31,7 @@ public class LuceneFullTextIndex extends LuceneIndexNotUnique {
     super(im, storage);
   }
 
-  public Document buildDocument(DatabaseSessionInternal session, final Object key) {
+  public Document buildDocument(DatabaseSessionInternal db, final Object key) {
 
     while (true) {
       try {
@@ -40,7 +40,7 @@ public class LuceneFullTextIndex extends LuceneIndexNotUnique {
             indexId,
             engine -> {
               LuceneIndexEngine indexEngine = (LuceneIndexEngine) engine;
-              return indexEngine.buildDocument(session, key, null);
+              return indexEngine.buildDocument(db, key, null);
             });
       } catch (InvalidIndexEngineIdException e) {
         doReloadIndexEngine();

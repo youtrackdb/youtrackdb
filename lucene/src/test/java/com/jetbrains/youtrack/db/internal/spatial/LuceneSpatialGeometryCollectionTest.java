@@ -37,12 +37,12 @@ public class LuceneSpatialGeometryCollectionTest extends BaseSpatialLuceneTest {
 
   @Test
   public void testGeoCollectionOutsideTx() {
-    EntityImpl test1 = new EntityImpl("test");
+    EntityImpl test1 = ((EntityImpl) db.newEntity("test"));
     test1.field("name", "test1");
-    EntityImpl geometry = new EntityImpl("OGeometryCollection");
-    EntityImpl point = new EntityImpl("OPoint");
+    EntityImpl geometry = ((EntityImpl) db.newEntity("OGeometryCollection"));
+    EntityImpl point = ((EntityImpl) db.newEntity("OPoint"));
     point.field("coordinates", Arrays.asList(1.0, 2.0));
-    EntityImpl polygon = new EntityImpl("OPolygon");
+    EntityImpl polygon = ((EntityImpl) db.newEntity("OPolygon"));
     polygon.field(
         "coordinates",
         List.of(
@@ -70,12 +70,12 @@ public class LuceneSpatialGeometryCollectionTest extends BaseSpatialLuceneTest {
   public void testGeoCollectionInsideTransaction() {
     db.begin();
 
-    EntityImpl test1 = new EntityImpl("test");
+    EntityImpl test1 = ((EntityImpl) db.newEntity("test"));
     test1.field("name", "test1");
-    EntityImpl geometry = new EntityImpl("OGeometryCollection");
-    EntityImpl point = new EntityImpl("OPoint");
+    EntityImpl geometry = ((EntityImpl) db.newEntity("OGeometryCollection"));
+    EntityImpl point = ((EntityImpl) db.newEntity("OPoint"));
     point.field("coordinates", Arrays.asList(1.0, 2.0));
-    EntityImpl polygon = new EntityImpl("OPolygon");
+    EntityImpl polygon = ((EntityImpl) db.newEntity("OPolygon"));
     polygon.field(
         "coordinates",
         List.of(

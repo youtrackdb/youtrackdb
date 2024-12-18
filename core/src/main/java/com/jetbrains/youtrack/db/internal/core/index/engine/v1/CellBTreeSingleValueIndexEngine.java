@@ -12,13 +12,11 @@ import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValidator;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValuesTransformer;
 import com.jetbrains.youtrack.db.internal.core.index.engine.SingleValueIndexEngine;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.singlevalue.CellBTreeSingleValue;
-import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.singlevalue.v1.CellBTreeSingleValueV1;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.singlevalue.v3.CellBTreeSingleValueV3;
-import com.jetbrains.youtrack.db.internal.core.storage.index.versionmap.VersionPositionMap;
-import com.jetbrains.youtrack.db.internal.core.storage.index.versionmap.VersionPositionMapV0;
 import java.io.IOException;
 import java.util.stream.Stream;
 
@@ -29,7 +27,6 @@ public final class CellBTreeSingleValueIndexEngine
   private static final String NULL_BUCKET_FILE_EXTENSION = ".nbt";
 
   private final CellBTreeSingleValue<Object> sbTree;
-  private final VersionPositionMap versionPositionMap;
   private final String name;
   private final int id;
   private final AbstractPaginatedStorage storage;
@@ -40,20 +37,13 @@ public final class CellBTreeSingleValueIndexEngine
     this.id = id;
     this.storage = storage;
 
-    if (version < 3) {
-      this.sbTree =
-          new CellBTreeSingleValueV1<>(
-              name, DATA_FILE_EXTENSION, NULL_BUCKET_FILE_EXTENSION, storage);
-    } else if (version == 3 || version == 4) {
+    if (version == 3 || version == 4) {
       this.sbTree =
           new CellBTreeSingleValueV3<>(
               name, DATA_FILE_EXTENSION, NULL_BUCKET_FILE_EXTENSION, storage);
     } else {
       throw new IllegalStateException("Invalid tree version " + version);
     }
-    versionPositionMap =
-        new VersionPositionMapV0(
-            storage, name, name + DATA_FILE_EXTENSION, VersionPositionMap.DEF_EXTENSION);
   }
 
   @Override
@@ -62,7 +52,7 @@ public final class CellBTreeSingleValueIndexEngine
   }
 
   @Override
-  public void init(IndexMetadata metadata) {
+  public void init(DatabaseSessionInternal db, IndexMetadata metadata) {
   }
 
   @Override
@@ -81,7 +71,6 @@ public final class CellBTreeSingleValueIndexEngine
     try {
       sbTree.create(
           atomicOperation, keySerializer, data.getKeyTypes(), data.getKeySize());
-      versionPositionMap.create(atomicOperation);
     } catch (IOException e) {
       throw BaseException.wrapException(new IndexException("Error of creation of index " + name),
           e);
@@ -93,7 +82,6 @@ public final class CellBTreeSingleValueIndexEngine
     try {
       doClearTree(atomicOperation);
       sbTree.delete(atomicOperation);
-      versionPositionMap.delete(atomicOperation);
     } catch (IOException e) {
       throw BaseException.wrapException(
           new IndexException("Error during deletion of index " + name), e);
@@ -120,12 +108,6 @@ public final class CellBTreeSingleValueIndexEngine
     PropertyType[] keyTypes = data.getKeyTypes();
     BinarySerializer keySerializer = storage.resolveObjectSerializer(data.getKeySerializedId());
     sbTree.load(name, keySize, keyTypes, keySerializer);
-    try {
-      versionPositionMap.open();
-    } catch (final IOException e) {
-      throw BaseException.wrapException(
-          new IndexException("Error during VPM load of index " + name), e);
-    }
   }
 
   @Override
@@ -139,7 +121,7 @@ public final class CellBTreeSingleValueIndexEngine
   }
 
   @Override
-  public void clear(AtomicOperation atomicOperation) {
+  public void clear(Storage storage, AtomicOperation atomicOperation) {
     try {
       doClearTree(atomicOperation);
     } catch (IOException e) {
@@ -212,7 +194,7 @@ public final class CellBTreeSingleValueIndexEngine
 
   @Override
   public Stream<RawPair<Object, RID>> iterateEntriesBetween(
-      DatabaseSessionInternal session, Object rangeFrom,
+      DatabaseSessionInternal db, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
       boolean toInclusive,
@@ -241,7 +223,7 @@ public final class CellBTreeSingleValueIndexEngine
   }
 
   @Override
-  public long size(final IndexEngineValuesTransformer transformer) {
+  public long size(Storage storage, final IndexEngineValuesTransformer transformer) {
     return sbTree.size();
   }
 
@@ -259,17 +241,5 @@ public final class CellBTreeSingleValueIndexEngine
   @Override
   public String getIndexNameByKey(Object key) {
     return name;
-  }
-
-  @Override
-  public void updateUniqueIndexVersion(final Object key) {
-    final int keyHash = versionPositionMap.getKeyHash(key);
-    versionPositionMap.updateVersion(keyHash);
-  }
-
-  @Override
-  public int getUniqueIndexVersion(final Object key) {
-    final int keyHash = versionPositionMap.getKeyHash(key);
-    return versionPositionMap.getVersion(keyHash);
   }
 }

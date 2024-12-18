@@ -26,7 +26,6 @@ import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.config.ConfigurationChangeCallback;
 import com.jetbrains.youtrack.db.internal.core.storage.ChecksumMode;
-
 import java.io.PrintStream;
 import java.util.Locale;
 import java.util.Map;
@@ -724,7 +723,7 @@ public enum GlobalConfiguration {
 
   SBTREEBONSAI_BUCKET_SIZE(
       "sbtreebonsai.bucketSize",
-      "Size of bucket in SBTreeBonsai (in kB). Contract: bucketSize < storagePageSize,"
+      "Size of bucket in EdgeBTree (in kB). Contract: bucketSize < storagePageSize,"
           + " storagePageSize % bucketSize == 0",
       Integer.class,
       2),

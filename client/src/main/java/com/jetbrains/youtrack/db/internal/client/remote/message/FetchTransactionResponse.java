@@ -6,7 +6,6 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.tx.IndexChange;
 import com.jetbrains.youtrack.db.internal.client.remote.message.tx.RecordOperationRequest;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
@@ -34,7 +33,7 @@ public class FetchTransactionResponse implements BinaryResponse {
   }
 
   public FetchTransactionResponse(
-      DatabaseSessionInternal session, long txId,
+      DatabaseSessionInternal db, long txId,
       Iterable<RecordOperation> operations,
       Map<String, FrontendTransactionIndexChanges> indexChanges,
       Map<RecordId, RecordId> updatedRids) {
@@ -53,9 +52,9 @@ public class FetchTransactionResponse implements BinaryResponse {
       request.setId(txEntry.getRecordId());
       var oldID = reversed.get(txEntry.getRecordId());
       request.setOldId(oldID != null ? oldID : txEntry.getRecordId());
-      request.setRecordType(RecordInternal.getRecordType(txEntry.record));
+      request.setRecordType(RecordInternal.getRecordType(db, txEntry.record));
       request.setRecord(
-          RecordSerializerNetworkV37Client.INSTANCE.toStream(session, txEntry.record));
+          RecordSerializerNetworkV37Client.INSTANCE.toStream(db, txEntry.record));
       request.setContentChanged(RecordInternal.isContentChanged(txEntry.record));
       netOperations.add(request);
     }
@@ -67,7 +66,7 @@ public class FetchTransactionResponse implements BinaryResponse {
   }
 
   @Override
-  public void write(DatabaseSessionInternal session, ChannelDataOutput channel,
+  public void write(DatabaseSessionInternal db, ChannelDataOutput channel,
       int protocolVersion, RecordSerializer serializer)
       throws IOException {
     channel.writeLong(txId);
@@ -80,7 +79,7 @@ public class FetchTransactionResponse implements BinaryResponse {
     channel.writeByte((byte) 0);
 
     // SEND MANUAL INDEX CHANGES
-    MessageHelper.writeTransactionIndexChanges(
+    MessageHelper.writeTransactionIndexChanges(db,
         channel, (RecordSerializerNetworkV37) serializer, indexChanges);
   }
 

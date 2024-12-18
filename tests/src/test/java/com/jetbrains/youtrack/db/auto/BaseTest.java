@@ -30,7 +30,7 @@ public abstract class BaseTest<T extends DatabaseSessionInternal> {
 
   public static final String DEFAULT_DB_NAME = "demo";
 
-  protected T database;
+  protected T db;
   protected String dbName;
 
   protected boolean remoteDB = false;
@@ -148,13 +148,13 @@ public abstract class BaseTest<T extends DatabaseSessionInternal> {
 
   private void newSession() {
     try {
-      if (database == null) {
-        database = createSessionInstance();
+      if (db == null) {
+        db = createSessionInstance();
       }
 
-      database.activateOnCurrentThread();
-      if (database.isClosed()) {
-        database = createSessionInstance();
+      db.activateOnCurrentThread();
+      if (db.isClosed()) {
+        db = createSessionInstance();
       }
     } catch (Exception e) {
       throw new IllegalStateException(
@@ -174,9 +174,9 @@ public abstract class BaseTest<T extends DatabaseSessionInternal> {
 
   private void closeSession() {
     try {
-      if (!database.isClosed()) {
-        database.activateOnCurrentThread();
-        database.close();
+      if (!db.isClosed()) {
+        db.activateOnCurrentThread();
+        db.close();
       }
     } catch (Exception e) {
       throw new IllegalStateException(
@@ -226,13 +226,13 @@ public abstract class BaseTest<T extends DatabaseSessionInternal> {
   }
 
   protected void checkEmbeddedDB() {
-    if (database.getStorage().isRemote()) {
+    if (db.getStorage().isRemote()) {
       throw new SkipException("Test is running only in embedded database");
     }
   }
 
   protected Index getIndex(final String indexName) {
-    final DatabaseSessionInternal db = database;
+    final DatabaseSessionInternal db = this.db;
 
     return (db.getMetadata()).getIndexManagerInternal().getIndex(db, indexName);
   }

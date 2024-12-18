@@ -679,7 +679,7 @@ public class UpdateStatementExecutionTest {
 
     db.begin();
     EntityImpl doc = db.newInstance(className);
-    EntityImpl emb = new EntityImpl();
+    EntityImpl emb = ((EntityImpl) db.newEntity());
     emb.setProperty("sub", "foo");
     emb.setProperty("aaa", "bar");
     doc.setProperty("theProperty", emb);

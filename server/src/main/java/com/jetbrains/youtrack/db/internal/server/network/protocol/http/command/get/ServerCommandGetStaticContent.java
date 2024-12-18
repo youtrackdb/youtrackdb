@@ -27,7 +27,7 @@ import com.jetbrains.youtrack.db.internal.server.config.ServerCommandConfigurati
 import com.jetbrains.youtrack.db.internal.server.config.ServerEntryConfiguration;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -112,7 +112,7 @@ public class ServerCommandGetStaticContent extends ServerCommandConfigurableAbst
   }
 
   @Override
-  public boolean beforeExecute(OHttpRequest iRequest, HttpResponse iResponse) throws IOException {
+  public boolean beforeExecute(HttpRequest iRequest, HttpResponse iResponse) throws IOException {
     String header = cacheHttpDefault;
 
     if (cacheHttp.size() > 0) {
@@ -137,7 +137,7 @@ public class ServerCommandGetStaticContent extends ServerCommandConfigurableAbst
   }
 
   @Override
-  public boolean execute(final OHttpRequest iRequest, final HttpResponse iResponse)
+  public boolean execute(final HttpRequest iRequest, final HttpResponse iResponse)
       throws Exception {
     iRequest.getData().commandInfo = "Get static content";
     iRequest.getData().commandDetail = iRequest.getUrl();
@@ -209,7 +209,7 @@ public class ServerCommandGetStaticContent extends ServerCommandConfigurableAbst
     virtualFolders.remove(iName);
   }
 
-  protected String getResource(final OHttpRequest iRequest) {
+  protected String getResource(final HttpRequest iRequest) {
     final String url;
     if (HttpUtils.URL_SEPARATOR.equals(iRequest.getUrl())) {
       url = "/www/index.htm";
@@ -224,7 +224,7 @@ public class ServerCommandGetStaticContent extends ServerCommandConfigurableAbst
     return url;
   }
 
-  protected StaticContent getVirtualFolderContent(final OHttpRequest iRequest) {
+  protected StaticContent getVirtualFolderContent(final HttpRequest iRequest) {
     if (iRequest.getUrl() != null) {
       final int beginPos = iRequest.getUrl().startsWith("/") ? 1 : 0;
       final int endPos = iRequest.getUrl().indexOf('/', beginPos);
@@ -256,7 +256,7 @@ public class ServerCommandGetStaticContent extends ServerCommandConfigurableAbst
   }
 
   private void loadStaticContent(
-      final OHttpRequest iRequest,
+      final HttpRequest iRequest,
       final HttpResponse iResponse,
       final StaticContent staticContent)
       throws IOException {

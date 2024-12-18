@@ -21,11 +21,6 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.IndexRIDContainer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.MixedIndexRIDContainer;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -72,13 +67,7 @@ public class SBTreeMapEntryIterator<K, V> implements Iterator<Map.Entry<K, V>> {
           entry -> {
             final V value = entry.getValue();
             final V resultValue;
-            if (value instanceof IndexRIDContainer || value instanceof MixedIndexRIDContainer) {
-              //noinspection unchecked
-              resultValue =
-                  (V) new HashSet<Identifiable>((Collection<? extends Identifiable>) value);
-            } else {
-              resultValue = value;
-            }
+            resultValue = value;
 
             preFetchedValues.add(
                 new Map.Entry<K, V>() {

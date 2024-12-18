@@ -189,9 +189,9 @@ import com.jetbrains.youtrack.db.internal.core.storage.config.ClusterBasedStorag
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperationsManager;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.TreeInternal;
-import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.SBTreeBonsai;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.EdgeBTree;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.server.distributed.DistributedConfiguration;
@@ -363,7 +363,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
   @Override
   public BinaryResponse executeDistributedStatus(DistributedStatusRequest request) {
     final EntityImpl req = request.getStatus();
-    EntityImpl clusterConfig = new EntityImpl();
+    EntityImpl clusterConfig = new EntityImpl(null);
 
     final String operation = req.field("operation");
     if (operation == null) {
@@ -459,7 +459,8 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
 
     } else {
       try {
-        final RecordAbstract record = connection.getDatabase().load(rid);
+        var db = connection.getDatabase();
+        final RecordAbstract record = db.load(rid);
         assert !record.isUnloaded();
         byte[] bytes = getRecordBytes(connection, record);
         final Set<RecordAbstract> recordsToSend = new HashSet<>();
@@ -477,12 +478,13 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
                   }
                 };
             final FetchContext context = new RemoteFetchContext();
-            FetchHelper.fetch(entity, entity, fetchPlan, listener, context, "");
+            FetchHelper.fetch(db, entity, entity, fetchPlan, listener, context, "");
           }
         }
         response =
             new ReadRecordResponse(
-                RecordInternal.getRecordType(record), record.getVersion(), bytes, recordsToSend);
+                RecordInternal.getRecordType(db, record), record.getVersion(), bytes,
+                recordsToSend);
       } catch (RecordNotFoundException e) {
         response = new ReadRecordResponse((byte) 0, 0, null, null);
       }
@@ -511,7 +513,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
 
     if (request.getMode() < 2) {
       Map<UUID, BonsaiCollectionPointer> changedIds;
-      SBTreeCollectionManager collectionManager =
+      BTreeCollectionManager collectionManager =
           connection.getDatabase().getSbTreeCollectionManager();
       if (collectionManager != null) {
         changedIds = new HashMap<>(collectionManager.changedIds());
@@ -535,7 +537,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
     RecordInternal.setVersion(newRecord, request.getVersion());
 
     RecordInternal.setContentChanged(newRecord, request.isUpdateContent());
-    RecordInternal.getDirtyManager(newRecord).clearForSave();
+    RecordInternal.getDirtyManager(database, newRecord).clearForSave();
     Record currentRecord = null;
     if (newRecord instanceof EntityImpl) {
       try {
@@ -576,7 +578,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
 
     if (request.getMode() < 2) {
       Map<UUID, BonsaiCollectionPointer> changedIds;
-      SBTreeCollectionManager collectionManager =
+      BTreeCollectionManager collectionManager =
           connection.getDatabase().getSbTreeCollectionManager();
       if (collectionManager != null) {
         changedIds = new HashMap<>(collectionManager.changedIds());
@@ -763,7 +765,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
               ? (OfflineClusterException) e.getCause()
               : e;
         }
-        final SBTreeCollectionManager collectionManager =
+        final BTreeCollectionManager collectionManager =
             connection.getDatabase().getSbTreeCollectionManager();
         Map<UUID, BonsaiCollectionPointer> changedIds = null;
         if (collectionManager != null) {
@@ -776,7 +778,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
           database.rollback(true);
         }
 
-        final SBTreeCollectionManager collectionManager =
+        final BTreeCollectionManager collectionManager =
             connection.getDatabase().getSbTreeCollectionManager();
         if (collectionManager != null) {
           collectionManager.clearChangedIds();
@@ -891,10 +893,10 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
 
   @Override
   public BinaryResponse executeSBTGet(SBTGetRequest request) {
-    final SBTreeCollectionManager sbTreeCollectionManager =
+    final BTreeCollectionManager bTreeCollectionManager =
         connection.getDatabase().getSbTreeCollectionManager();
-    final SBTreeBonsai<Identifiable, Integer> tree =
-        sbTreeCollectionManager.loadSBTree(request.getCollectionPointer());
+    final EdgeBTree<Identifiable, Integer> tree =
+        bTreeCollectionManager.loadSBTree(request.getCollectionPointer());
     try {
       final Identifiable key = tree.getKeySerializer().deserialize(request.getKeyStream(), 0);
 
@@ -911,17 +913,17 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
       valueSerializer.serialize(result, stream, ByteSerializer.BYTE_SIZE);
       return new SBTGetResponse(stream);
     } finally {
-      sbTreeCollectionManager.releaseSBTree(request.getCollectionPointer());
+      bTreeCollectionManager.releaseSBTree(request.getCollectionPointer());
     }
   }
 
   @Override
   public BinaryResponse executeSBTFirstKey(SBTFirstKeyRequest request) {
 
-    final SBTreeCollectionManager sbTreeCollectionManager =
+    final BTreeCollectionManager bTreeCollectionManager =
         connection.getDatabase().getSbTreeCollectionManager();
-    final SBTreeBonsai<Identifiable, Integer> tree =
-        sbTreeCollectionManager.loadSBTree(request.getCollectionPointer());
+    final EdgeBTree<Identifiable, Integer> tree =
+        bTreeCollectionManager.loadSBTree(request.getCollectionPointer());
     byte[] stream;
     try {
 
@@ -938,7 +940,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
       keySerializer.serialize(result, stream, ByteSerializer.BYTE_SIZE);
       return new SBTFirstKeyResponse(stream);
     } finally {
-      sbTreeCollectionManager.releaseSBTree(request.getCollectionPointer());
+      bTreeCollectionManager.releaseSBTree(request.getCollectionPointer());
     }
   }
 
@@ -946,10 +948,10 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
   public BinaryResponse executeSBTFetchEntriesMajor(
       @SuppressWarnings("rawtypes") SBTFetchEntriesMajorRequest request) {
 
-    final SBTreeCollectionManager sbTreeCollectionManager =
+    final BTreeCollectionManager bTreeCollectionManager =
         connection.getDatabase().getSbTreeCollectionManager();
-    final SBTreeBonsai<Identifiable, Integer> tree =
-        sbTreeCollectionManager.loadSBTree(request.getPointer());
+    final EdgeBTree<Identifiable, Integer> tree =
+        bTreeCollectionManager.loadSBTree(request.getPointer());
     try {
       final BinarySerializer<Identifiable> keySerializer = tree.getKeySerializer();
       Identifiable key = keySerializer.deserialize(request.getKeyStream(), 0);
@@ -962,21 +964,21 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
       List<Entry<Identifiable, Integer>> result = listener.getResult();
       return new SBTFetchEntriesMajorResponse<>(keySerializer, valueSerializer, result);
     } finally {
-      sbTreeCollectionManager.releaseSBTree(request.getPointer());
+      bTreeCollectionManager.releaseSBTree(request.getPointer());
     }
   }
 
   @Override
   public BinaryResponse executeSBTGetRealSize(SBTGetRealBagSizeRequest request) {
-    final SBTreeCollectionManager sbTreeCollectionManager =
+    final BTreeCollectionManager bTreeCollectionManager =
         connection.getDatabase().getSbTreeCollectionManager();
-    final SBTreeBonsai<Identifiable, Integer> tree =
-        sbTreeCollectionManager.loadSBTree(request.getCollectionPointer());
+    final EdgeBTree<Identifiable, Integer> tree =
+        bTreeCollectionManager.loadSBTree(request.getCollectionPointer());
     try {
       int realSize = tree.getRealBagSize(request.getChanges());
       return new SBTGetRealBagSizeResponse(realSize);
     } finally {
-      sbTreeCollectionManager.releaseSBTree(request.getCollectionPointer());
+      bTreeCollectionManager.releaseSBTree(request.getCollectionPointer());
     }
   }
 
@@ -1306,7 +1308,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
     var db = connection.getDatabase();
     final byte[] stream;
     String name = connection.getData().getSerializationImpl();
-    if (RecordInternal.getRecordType(iRecord) == EntityImpl.RECORD_TYPE) {
+    if (RecordInternal.getRecordType(db, iRecord) == EntityImpl.RECORD_TYPE) {
       ((EntityImpl) iRecord).deserializeFields();
       RecordSerializer ser = RecordSerializerFactory.instance().getFormat(name);
       stream = ser.toStream(db, iRecord);
@@ -1629,7 +1631,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
               ? (OfflineClusterException) e.getCause()
               : e;
         }
-        final SBTreeCollectionManager collectionManager =
+        final BTreeCollectionManager collectionManager =
             connection.getDatabase().getSbTreeCollectionManager();
         Map<UUID, BonsaiCollectionPointer> changedIds = null;
 
@@ -1643,7 +1645,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
           database.rollback(true);
         }
 
-        final SBTreeCollectionManager collectionManager =
+        final BTreeCollectionManager collectionManager =
             connection.getDatabase().getSbTreeCollectionManager();
         if (collectionManager != null) {
           collectionManager.clearChangedIds();
@@ -1708,7 +1710,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
               ? (OfflineClusterException) e.getCause()
               : e;
         }
-        final SBTreeCollectionManager collectionManager =
+        final BTreeCollectionManager collectionManager =
             connection.getDatabase().getSbTreeCollectionManager();
         Map<UUID, BonsaiCollectionPointer> changedIds = null;
 
@@ -1722,7 +1724,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
           database.rollback(true);
         }
 
-        final SBTreeCollectionManager collectionManager =
+        final BTreeCollectionManager collectionManager =
             connection.getDatabase().getSbTreeCollectionManager();
         if (collectionManager != null) {
           collectionManager.clearChangedIds();

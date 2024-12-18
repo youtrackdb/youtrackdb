@@ -103,12 +103,12 @@ public class HookInstallServerTest {
       for (int i = 0; i < 10; i++) {
         var poolInstance = pool.cachedPool("test", "admin", "admin");
         var id = i;
-        try (var some = poolInstance.acquire()) {
-          some.createClassIfNotExist("Test");
+        try (var db = poolInstance.acquire()) {
+          db.createClassIfNotExist("Test");
 
-          some.executeInTx(() -> {
-            some.save(new EntityImpl("Test").field("entry", id));
-            some.commit();
+          db.executeInTx(() -> {
+            db.save(((EntityImpl) db.newEntity("Test")).field("entry", id));
+            db.commit();
           });
         }
       }

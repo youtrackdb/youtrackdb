@@ -34,32 +34,32 @@ public class LinkListIndexTest extends BaseDBTest {
   @BeforeClass
   public void setupSchema() {
     final SchemaClass linkListIndexTestClass =
-        database.getMetadata().getSchema().createClass("LinkListIndexTestClass");
+        db.getMetadata().getSchema().createClass("LinkListIndexTestClass");
 
-    linkListIndexTestClass.createProperty(database, "linkCollection", PropertyType.LINKLIST);
+    linkListIndexTestClass.createProperty(db, "linkCollection", PropertyType.LINKLIST);
 
-    linkListIndexTestClass.createIndex(database,
+    linkListIndexTestClass.createIndex(db,
         "linkCollectionIndex", SchemaClass.INDEX_TYPE.NOTUNIQUE, "linkCollection");
   }
 
   @AfterClass
   public void destroySchema() {
-    database = acquireSession();
-    database.getMetadata().getSchema().dropClass("LinkListIndexTestClass");
+    db = acquireSession();
+    db.getMetadata().getSchema().dropClass("LinkListIndexTestClass");
   }
 
   @AfterMethod
   public void afterMethod() throws Exception {
-    database.begin();
-    database.command("DELETE FROM LinkListIndexTestClass").close();
-    database.commit();
+    db.begin();
+    db.command("DELETE FROM LinkListIndexTestClass").close();
+    db.commit();
 
-    ResultSet result = database.query("select from LinkListIndexTestClass");
+    ResultSet result = db.query("select from LinkListIndexTestClass");
     Assert.assertEquals(result.stream().count(), 0);
 
-    if (!database.getStorage().isRemote()) {
+    if (!db.getStorage().isRemote()) {
       final Index index = getIndex("linkCollectionIndex");
-      Assert.assertEquals(index.getInternal().size(database), 0);
+      Assert.assertEquals(index.getInternal().size(db), 0);
     }
 
     super.afterMethod();
@@ -68,22 +68,22 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollection() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    database.commit();
+    db.commit();
 
     Index index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keyIterator;
     try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
@@ -103,29 +103,29 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionInTx() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
     try {
-      database.begin();
-      final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
+      db.begin();
+      final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
       document.field(
           "linkCollection",
           new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
       document.save();
-      database.commit();
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     Index index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keyIterator;
     try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
@@ -144,17 +144,17 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdate() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
 
     document.field(
         "linkCollection",
@@ -165,10 +165,10 @@ public class LinkListIndexTest extends BaseDBTest {
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docThree.getIdentity())));
     document.save();
-    database.commit();
+    db.commit();
 
     Index index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keyIterator;
     try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
@@ -187,39 +187,39 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateInTx() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    EntityImpl document = new EntityImpl("LinkListIndexTestClass");
+    EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
 
     document.save();
-    database.commit();
+    db.commit();
 
     try {
-      database.begin();
-      document = database.bindToSession(document);
+      db.begin();
+      document = db.bindToSession(document);
       document.field(
           "linkCollection",
           new ArrayList<>(Arrays.asList(docOne.getIdentity(), docThree.getIdentity())));
       document.save();
-      database.commit();
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     Index index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keyIterator;
     try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
@@ -239,34 +239,34 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateInTxRollback() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    EntityImpl document = new EntityImpl("LinkListIndexTestClass");
+    EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
 
     document.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    document = database.bindToSession(document);
+    db.begin();
+    document = db.bindToSession(document);
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docThree.getIdentity())));
     document.save();
-    database.rollback();
+    db.rollback();
 
     Index index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keyIterator;
     try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
@@ -285,35 +285,35 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateAddItem() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    database
+    db.begin();
+    db
         .command(
             "UPDATE "
                 + document.getIdentity()
                 + " set linkCollection = linkCollection || "
                 + docThree.getIdentity())
         .close();
-    database.commit();
+    db.commit();
 
     Index index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(database), 3);
+    Assert.assertEquals(index.getInternal().size(db), 3);
 
     Iterator<Object> keyIterator;
     try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
@@ -333,36 +333,36 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateAddItemInTx() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    database.commit();
+    db.commit();
 
     try {
-      database.begin();
-      EntityImpl loadedDocument = database.load(document.getIdentity());
+      db.begin();
+      EntityImpl loadedDocument = db.load(document.getIdentity());
       loadedDocument.<List<Identifiable>>field("linkCollection").add(docThree.getIdentity());
       loadedDocument.save();
-      database.commit();
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     Index index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(database), 3);
+    Assert.assertEquals(index.getInternal().size(db), 3);
 
     Iterator<Object> keyIterator;
     try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
@@ -382,31 +382,31 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateAddItemInTxRollback() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    EntityImpl loadedDocument = database.load(document.getIdentity());
+    db.begin();
+    EntityImpl loadedDocument = db.load(document.getIdentity());
     loadedDocument.<List<Identifiable>>field("linkCollection").add(docThree.getIdentity());
     loadedDocument.save();
-    database.rollback();
+    db.rollback();
 
     Index index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keyIterator;
     try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
@@ -425,33 +425,33 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateRemoveItemInTx() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    database.commit();
+    db.commit();
 
     try {
-      database.begin();
-      EntityImpl loadedDocument = database.load(document.getIdentity());
+      db.begin();
+      EntityImpl loadedDocument = db.load(document.getIdentity());
       loadedDocument.<List>field("linkCollection").remove(docTwo.getIdentity());
       loadedDocument.save();
-      database.commit();
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     Index index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(database), 1);
+    Assert.assertEquals(index.getInternal().size(db), 1);
 
     Iterator<Object> keyIterator;
     try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
@@ -469,28 +469,28 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateRemoveItemInTxRollback() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    EntityImpl loadedDocument = database.load(document.getIdentity());
+    db.begin();
+    EntityImpl loadedDocument = db.load(document.getIdentity());
     loadedDocument.<List>field("linkCollection").remove(docTwo.getIdentity());
     loadedDocument.save();
-    database.rollback();
+    db.rollback();
 
     Index index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keyIterator;
     try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
@@ -509,27 +509,27 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateRemoveItem() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    database.command(
+    db.begin();
+    db.command(
         "UPDATE " + document.getIdentity() + " remove linkCollection = " + docTwo.getIdentity());
-    database.commit();
+    db.commit();
 
     Index index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(database), 1);
+    Assert.assertEquals(index.getInternal().size(db), 1);
 
     Iterator<Object> keyIterator;
     try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
@@ -548,85 +548,85 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionRemove() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    EntityImpl document = new EntityImpl("LinkListIndexTestClass");
+    EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    document = database.bindToSession(document);
+    db.begin();
+    document = db.bindToSession(document);
     document.delete();
-    database.commit();
+    db.commit();
 
     Index index = getIndex("linkCollectionIndex");
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testIndexCollectionRemoveInTx() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    EntityImpl document = new EntityImpl("LinkListIndexTestClass");
+    EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    database.commit();
+    db.commit();
 
     try {
-      database.begin();
-      document = database.bindToSession(document);
+      db.begin();
+      document = db.bindToSession(document);
       document.delete();
-      database.commit();
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     Index index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testIndexCollectionRemoveInTxRollback() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    database.bindToSession(document).delete();
-    database.rollback();
+    db.begin();
+    db.bindToSession(document).delete();
+    db.rollback();
 
     Index index = getIndex("linkCollectionIndex");
 
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keyIterator;
     try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
@@ -643,22 +643,22 @@ public class LinkListIndexTest extends BaseDBTest {
   }
 
   public void testIndexCollectionSQL() {
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    database.commit();
+    db.commit();
 
     ResultSet result =
-        database.query(
+        db.query(
             "select * from LinkListIndexTestClass where linkCollection contains ?",
             docOne.getIdentity());
     Assert.assertEquals(

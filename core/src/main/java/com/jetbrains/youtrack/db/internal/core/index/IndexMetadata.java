@@ -20,11 +20,6 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.stream.MixedIndexRIDContainerSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.stream.StreamSerializerRID;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.stream.StreamSerializerSBTreeIndexRIDContainer;
-import com.jetbrains.youtrack.db.internal.core.sharding.auto.AutoShardingIndexFactory;
-import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.HashIndexFactory;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -41,7 +36,6 @@ public class IndexMetadata {
   private final Set<String> clustersToIndex;
   private final String type;
   private final String algorithm;
-  private final String valueContainerAlgorithm;
   private int version;
   private Map<String, ?> metadata;
 
@@ -51,23 +45,14 @@ public class IndexMetadata {
       Set<String> clustersToIndex,
       String type,
       String algorithm,
-      String valueContainerAlgorithm,
       int version,
       Map<String, ?> metadata) {
     this.name = name;
     this.indexDefinition = indexDefinition;
     this.clustersToIndex = clustersToIndex;
     this.type = type;
-    if (type.equalsIgnoreCase(SchemaClass.INDEX_TYPE.UNIQUE_HASH_INDEX.name())
-        || type.equalsIgnoreCase(SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.name())
-        || type.equalsIgnoreCase(SchemaClass.INDEX_TYPE.DICTIONARY_HASH_INDEX.name())) {
-      if (!algorithm.equalsIgnoreCase("autosharding")) {
-        algorithm = HashIndexFactory.HASH_INDEX_ALGORITHM;
-      }
-    }
+
     this.algorithm = algorithm;
-    this.valueContainerAlgorithm = Objects.requireNonNullElse(valueContainerAlgorithm,
-        AutoShardingIndexFactory.NONE_VALUE_CONTAINER);
     this.version = version;
     this.metadata = metadata;
   }
@@ -130,32 +115,9 @@ public class IndexMetadata {
     return result;
   }
 
-  public String getValueContainerAlgorithm() {
-    return valueContainerAlgorithm;
-  }
-
   public boolean isMultivalue() {
     String t = type.toUpperCase();
-    return SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.toString().equals(t)
-        || SchemaClass.INDEX_TYPE.NOTUNIQUE.toString().equals(t)
-        || SchemaClass.INDEX_TYPE.FULLTEXT.toString().equals(t);
-  }
-
-  public byte getValueSerializerId(int binaryFormatVersion) {
-    String t = type.toUpperCase();
-    if (SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.toString().equals(t)
-        || SchemaClass.INDEX_TYPE.NOTUNIQUE.toString().equals(t)
-        || SchemaClass.INDEX_TYPE.FULLTEXT.toString().equals(t)
-        || SchemaClass.INDEX_TYPE.SPATIAL.toString().equals(t)) {
-      // TODO: Hard Coded Lucene maybe fix
-      if (binaryFormatVersion >= 13 && !"LUCENE".equalsIgnoreCase(algorithm)) {
-        return MixedIndexRIDContainerSerializer.ID;
-      }
-
-      return StreamSerializerSBTreeIndexRIDContainer.ID;
-    } else {
-      return StreamSerializerRID.INSTANCE.getId();
-    }
+    return SchemaClass.INDEX_TYPE.NOTUNIQUE.toString().equals(t);
   }
 
   public int getVersion() {

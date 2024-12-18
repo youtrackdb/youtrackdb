@@ -3,21 +3,21 @@ package com.jetbrains.youtrack.db.internal.core.db;
 import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.exception.CommitSerializationException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClassDescendentOrder;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClassDescendentOrder;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.Collection;
 import java.util.List;
 import org.junit.Assert;
@@ -32,34 +32,34 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     db.getMetadata().getSchema().createClass("TestSubclass", testSuperclass);
 
     db.begin();
-    EntityImpl toDelete = new EntityImpl("TestSubclass").field("id", 1);
+    EntityImpl toDelete = ((EntityImpl) db.newEntity("TestSubclass")).field("id", 1);
     toDelete.save();
     db.commit();
 
     // 1 SUB, 0 SUPER
-    Assert.assertEquals(db.countClass("TestSubclass", false), 1);
-    Assert.assertEquals(db.countClass("TestSubclass", true), 1);
-    Assert.assertEquals(db.countClass("TestSuperclass", false), 0);
-    Assert.assertEquals(db.countClass("TestSuperclass", true), 1);
+    Assert.assertEquals(1, db.countClass("TestSubclass", false));
+    Assert.assertEquals(1, db.countClass("TestSubclass", true));
+    Assert.assertEquals(0, db.countClass("TestSuperclass", false));
+    Assert.assertEquals(1, db.countClass("TestSuperclass", true));
 
     db.begin();
     try {
-      new EntityImpl("TestSuperclass").field("id", 1).save();
-      new EntityImpl("TestSubclass").field("id", 1).save();
+      ((EntityImpl) db.newEntity("TestSuperclass")).field("id", 1).save();
+      ((EntityImpl) db.newEntity("TestSubclass")).field("id", 1).save();
       // 2 SUB, 1 SUPER
 
-      Assert.assertEquals(db.countClass("TestSuperclass", false), 1);
-      Assert.assertEquals(db.countClass("TestSuperclass", true), 3);
-      Assert.assertEquals(db.countClass("TestSubclass", false), 2);
-      Assert.assertEquals(db.countClass("TestSubclass", true), 2);
+      Assert.assertEquals(1, db.countClass("TestSuperclass", false));
+      Assert.assertEquals(3, db.countClass("TestSuperclass", true));
+      Assert.assertEquals(2, db.countClass("TestSubclass", false));
+      Assert.assertEquals(2, db.countClass("TestSubclass", true));
 
       db.bindToSession(toDelete).delete();
       // 1 SUB, 1 SUPER
 
-      Assert.assertEquals(db.countClass("TestSuperclass", false), 1);
-      Assert.assertEquals(db.countClass("TestSuperclass", true), 2);
-      Assert.assertEquals(db.countClass("TestSubclass", false), 1);
-      Assert.assertEquals(db.countClass("TestSubclass", true), 1);
+      Assert.assertEquals(1, db.countClass("TestSuperclass", false));
+      Assert.assertEquals(2, db.countClass("TestSuperclass", true));
+      Assert.assertEquals(1, db.countClass("TestSubclass", false));
+      Assert.assertEquals(1, db.countClass("TestSubclass", true));
     } finally {
       db.commit();
     }
@@ -70,17 +70,17 @@ public class DatabaseDocumentTxTest extends DbTestBase {
 
     db.set(DatabaseSession.ATTRIBUTES.TIMEZONE, "Europe/Rome");
     Object newTimezone = db.get(DatabaseSession.ATTRIBUTES.TIMEZONE);
-    Assert.assertEquals(newTimezone, "Europe/Rome");
+    Assert.assertEquals("Europe/Rome", newTimezone);
 
     db.set(DatabaseSession.ATTRIBUTES.TIMEZONE, "foobar");
     newTimezone = db.get(DatabaseSession.ATTRIBUTES.TIMEZONE);
-    Assert.assertEquals(newTimezone, "GMT");
+    Assert.assertEquals("GMT", newTimezone);
   }
 
   @Test(expected = CommitSerializationException.class)
   public void testSaveInvalidRid() {
     db.begin();
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.field("test", new RecordId(-2, 10));
     db.save(doc);
     db.commit();
@@ -137,7 +137,7 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     c1.createProperty(db, "meta", PropertyType.EMBEDDED, c0);
 
     db.begin();
-    EntityImpl doc = new EntityImpl("testDocFromJsonEmbedded_Class1");
+    EntityImpl doc = (EntityImpl) db.newEntity("testDocFromJsonEmbedded_Class1");
 
     doc.fromJSON(
         "{\n"
@@ -156,15 +156,15 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     db.commit();
 
     try (ResultSet result = db.query("select from testDocFromJsonEmbedded_Class0")) {
-      Assert.assertEquals(result.stream().count(), 0);
+      Assert.assertEquals(0, result.stream().count());
     }
 
     try (ResultSet result = db.query("select from testDocFromJsonEmbedded_Class1")) {
       Assert.assertTrue(result.hasNext());
       Entity item = result.next().getEntity().get();
       EntityImpl meta = item.getProperty("meta");
-      Assert.assertEquals(meta.getClassName(), "testDocFromJsonEmbedded_Class0");
-      Assert.assertEquals(meta.field("ip"), "0:0:0:0:0:0:0:1");
+      Assert.assertEquals("testDocFromJsonEmbedded_Class0", meta.getClassName());
+      Assert.assertEquals("0:0:0:0:0:0:0:1", meta.field("ip"));
     }
   }
 
@@ -272,7 +272,7 @@ public class DatabaseDocumentTxTest extends DbTestBase {
 
       Object linkedVal = res.getProperty("o");
       Assert.assertTrue(linkedVal instanceof Collection);
-      Assert.assertEquals(((Collection) linkedVal).size(), 1);
+      Assert.assertEquals(1, ((Collection) linkedVal).size());
     }
   }
 
@@ -309,7 +309,7 @@ public class DatabaseDocumentTxTest extends DbTestBase {
 
       Object linkedVal = res.getProperty("o");
       Assert.assertTrue(linkedVal instanceof Collection);
-      Assert.assertEquals(((Collection) linkedVal).size(), 2);
+      Assert.assertEquals(2, ((Collection) linkedVal).size());
     }
   }
 
@@ -344,7 +344,7 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     schema.createClass(className, 1, schema.getClass(SchemaClass.VERTEX_CLASS_NAME));
     db.begin();
 
-    EntityImpl document = new EntityImpl(className);
+    EntityImpl document = (EntityImpl) db.newEntity(className);
     document.save();
     RecordIteratorClassDescendentOrder<EntityImpl> reverseIterator =
         new RecordIteratorClassDescendentOrder<EntityImpl>(db, db, className, true);

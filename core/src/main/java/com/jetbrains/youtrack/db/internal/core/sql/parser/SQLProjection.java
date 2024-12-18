@@ -2,12 +2,12 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.query.LegacyResultSet;
 import java.util.ArrayList;
@@ -132,7 +132,8 @@ public class SQLProjection extends SimpleNode {
       return iRecord;
     }
 
-    ResultInternal result = new ResultInternal(iContext.getDatabase());
+    var db = iContext.getDatabase();
+    ResultInternal result = new ResultInternal(db);
     for (SQLProjectionItem item : items) {
       if (item.exclude) {
         continue;
@@ -142,8 +143,9 @@ public class SQLProjection extends SimpleNode {
             .getEntity()
             .ifPresent(
                 (e) -> {
-                  if (e.getRecord() instanceof EntityImpl) {
-                    ((EntityImpl) e.getRecord()).deserializeFields();
+                  var record = e.getRecord(db);
+                  if (record instanceof EntityImpl entity) {
+                    entity.deserializeFields();
                   }
                 });
         for (String alias : iRecord.getPropertyNames()) {

@@ -19,7 +19,7 @@ public class CountFromClassStepTest extends TestUtilsFixture {
     String className = createClassInstance().getName();
     for (int i = 0; i < 20; i++) {
       db.begin();
-      EntityImpl document = new EntityImpl(className);
+      EntityImpl document = (EntityImpl) db.newEntity(className);
       document.save();
       db.commit();
     }

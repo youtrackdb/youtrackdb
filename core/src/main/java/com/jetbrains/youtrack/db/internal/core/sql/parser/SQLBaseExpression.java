@@ -479,10 +479,10 @@ public class SQLBaseExpression extends SQLMathExpression {
   }
 
   @Override
-  public boolean isDefinedFor(Entity currentRecord) {
+  public boolean isDefinedFor(DatabaseSessionInternal db, Entity currentRecord) {
     if (this.identifier != null) {
       if (modifier == null) {
-        return identifier.isDefinedFor(currentRecord);
+        return identifier.isDefinedFor(db, currentRecord);
       }
     }
     return true;

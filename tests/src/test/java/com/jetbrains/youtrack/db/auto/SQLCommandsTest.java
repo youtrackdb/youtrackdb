@@ -42,56 +42,56 @@ public class SQLCommandsTest extends BaseDBTest {
   }
 
   public void createProperty() {
-    Schema schema = database.getMetadata().getSchema();
+    Schema schema = db.getMetadata().getSchema();
     if (!schema.existsClass("account")) {
       schema.createClass("account");
     }
 
-    database.command("create property account.timesheet string").close();
+    db.command("create property account.timesheet string").close();
 
     Assert.assertEquals(
-        database.getMetadata().getSchema().getClass("account").getProperty("timesheet").getType(),
+        db.getMetadata().getSchema().getClass("account").getProperty("timesheet").getType(),
         PropertyType.STRING);
   }
 
   @Test(dependsOnMethods = "createProperty")
   public void createLinkedClassProperty() {
-    database.command("create property account.knows embeddedmap account").close();
+    db.command("create property account.knows embeddedmap account").close();
 
     Assert.assertEquals(
-        database.getMetadata().getSchema().getClass("account").getProperty("knows").getType(),
+        db.getMetadata().getSchema().getClass("account").getProperty("knows").getType(),
         PropertyType.EMBEDDEDMAP);
     Assert.assertEquals(
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClass("account")
             .getProperty("knows")
             .getLinkedClass(),
-        database.getMetadata().getSchema().getClass("account"));
+        db.getMetadata().getSchema().getClass("account"));
   }
 
   @Test(dependsOnMethods = "createLinkedClassProperty")
   public void createLinkedTypeProperty() {
-    database.command("create property account.tags embeddedlist string").close();
+    db.command("create property account.tags embeddedlist string").close();
 
     Assert.assertEquals(
-        database.getMetadata().getSchema().getClass("account").getProperty("tags").getType(),
+        db.getMetadata().getSchema().getClass("account").getProperty("tags").getType(),
         PropertyType.EMBEDDEDLIST);
     Assert.assertEquals(
-        database.getMetadata().getSchema().getClass("account").getProperty("tags").getLinkedType(),
+        db.getMetadata().getSchema().getClass("account").getProperty("tags").getLinkedType(),
         PropertyType.STRING);
   }
 
   @Test(dependsOnMethods = "createLinkedTypeProperty")
   public void removeProperty() {
-    database.command("drop property account.timesheet").close();
-    database.command("drop property account.tags").close();
+    db.command("drop property account.timesheet").close();
+    db.command("drop property account.tags").close();
 
     Assert.assertFalse(
-        database.getMetadata().getSchema().getClass("account").existsProperty("timesheet"));
+        db.getMetadata().getSchema().getClass("account").existsProperty("timesheet"));
     Assert.assertFalse(
-        database.getMetadata().getSchema().getClass("account").existsProperty("tags"));
+        db.getMetadata().getSchema().getClass("account").existsProperty("tags"));
   }
 
   @Test(dependsOnMethods = "removeProperty")
@@ -104,39 +104,39 @@ public class SQLCommandsTest extends BaseDBTest {
     cmd += "commit;";
     cmd += "return $a;";
 
-    Object result = database.command(new CommandScript("sql", cmd)).execute(database);
+    Object result = db.command(new CommandScript("sql", cmd)).execute(db);
 
     Assert.assertTrue(result instanceof Identifiable);
-    Assert.assertTrue(((Identifiable) result).getRecord() instanceof EntityImpl);
+    Assert.assertTrue(((Identifiable) result).getRecord(db) instanceof EntityImpl);
     Assert.assertTrue(
-        database.bindToSession((EntityImpl) ((Identifiable) result).getRecord())
+        db.bindToSession((EntityImpl) ((Identifiable) result).getRecord(db))
             .field("script"));
   }
 
   public void testClusterRename() {
-    if (database.getURL().startsWith("memory:")) {
+    if (db.getURL().startsWith("memory:")) {
       return;
     }
 
-    Collection<String> names = database.getClusterNames();
+    Collection<String> names = db.getClusterNames();
     Assert.assertFalse(names.contains("testClusterRename".toLowerCase(Locale.ENGLISH)));
 
-    database.command("create cluster testClusterRename").close();
+    db.command("create cluster testClusterRename").close();
 
-    names = database.getClusterNames();
+    names = db.getClusterNames();
     Assert.assertTrue(names.contains("testClusterRename".toLowerCase(Locale.ENGLISH)));
 
-    database.command("alter cluster testClusterRename name testClusterRename42").close();
-    names = database.getClusterNames();
+    db.command("alter cluster testClusterRename name testClusterRename42").close();
+    names = db.getClusterNames();
 
     Assert.assertTrue(names.contains("testClusterRename42".toLowerCase(Locale.ENGLISH)));
     Assert.assertFalse(names.contains("testClusterRename".toLowerCase(Locale.ENGLISH)));
 
     if (!remoteDB && databaseType.equals(DatabaseType.PLOCAL)) {
-      String storagePath = database.getStorage().getConfiguration().getDirectory();
+      String storagePath = db.getStorage().getConfiguration().getDirectory();
 
       final WOWCache wowCache =
-          (WOWCache) ((LocalPaginatedStorage) database.getStorage()).getWriteCache();
+          (WOWCache) ((LocalPaginatedStorage) db.getStorage()).getWriteCache();
 
       File dataFile =
           new File(

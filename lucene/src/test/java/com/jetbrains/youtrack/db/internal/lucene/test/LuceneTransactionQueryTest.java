@@ -51,7 +51,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
   @Test
   public void testRollback() {
 
-    EntityImpl doc = new EntityImpl("c1");
+    EntityImpl doc = ((EntityImpl) db.newEntity("c1"));
     doc.field("p1", "abc");
     db.begin();
     db.save(doc);
@@ -69,7 +69,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
   public void txRemoveTest() {
     db.begin();
 
-    EntityImpl doc = new EntityImpl("c1");
+    EntityImpl doc = ((EntityImpl) db.newEntity("c1"));
     doc.field("p1", "abc");
 
     Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
@@ -91,7 +91,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
     Assert.assertFalse(vertices.hasNext());
     Assert.assertEquals(1, index.getInternal().size(db));
 
-    doc = new EntityImpl("c1");
+    doc = ((EntityImpl) db.newEntity("c1"));
     doc.field("p1", "abc");
 
     db.delete(result.getIdentity().get());
@@ -134,7 +134,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
     db.begin();
     Assert.assertEquals(0, index.getInternal().size(db));
 
-    EntityImpl doc = new EntityImpl("c1");
+    EntityImpl doc = ((EntityImpl) db.newEntity("c1"));
     doc.field("p1", "update");
 
     db.save(doc);
@@ -210,10 +210,10 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
     db.begin();
     Assert.assertEquals(0, index.getInternal().size(db));
 
-    EntityImpl doc = new EntityImpl("c1");
+    EntityImpl doc = ((EntityImpl) db.newEntity("c1"));
     doc.field("p1", "abc");
 
-    EntityImpl doc1 = new EntityImpl("c1");
+    EntityImpl doc1 = ((EntityImpl) db.newEntity("c1"));
     doc1.field("p1", "abc");
 
     db.save(doc1);

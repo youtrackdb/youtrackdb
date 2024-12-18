@@ -30,6 +30,7 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -58,19 +59,19 @@ public class LiveQueryV2Test extends DbTestBase {
     public List<Result> ops = new ArrayList<>();
 
     @Override
-    public void onCreate(DatabaseSession database, Result data) {
+    public void onCreate(DatabaseSessionInternal database, Result data) {
       ops.add(data);
       latch.countDown();
     }
 
     @Override
-    public void onUpdate(DatabaseSession database, Result before, Result after) {
+    public void onUpdate(DatabaseSessionInternal database, Result before, Result after) {
       ops.add(after);
       latch.countDown();
     }
 
     @Override
-    public void onDelete(DatabaseSession database, Result data) {
+    public void onDelete(DatabaseSessionInternal database, Result data) {
       ops.add(data);
       latch.countDown();
     }
@@ -202,20 +203,20 @@ public class LiveQueryV2Test extends DbTestBase {
                     new LiveQueryResultListener() {
 
                       @Override
-                      public void onCreate(DatabaseSession database, Result data) {
+                      public void onCreate(DatabaseSessionInternal database, Result data) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
                       public void onUpdate(
-                          DatabaseSession database, Result before, Result after) {
+                          DatabaseSessionInternal database, Result before, Result after) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
-                      public void onDelete(DatabaseSession database, Result data) {
+                      public void onDelete(DatabaseSessionInternal database, Result data) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }

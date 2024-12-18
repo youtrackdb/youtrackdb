@@ -158,47 +158,47 @@ public class ShapeFactory extends ComplexShapeBuilder {
   }
 
   @Override
-  public EntityImpl toDoc(Shape shape) {
+  public EntityImpl toEntitty(Shape shape) {
 
     // TODO REFACTOR
     EntityImpl doc = null;
     if (Point.class.isAssignableFrom(shape.getClass())) {
-      doc = factories.get(PointShapeBuilder.NAME).toDoc(shape);
+      doc = factories.get(PointShapeBuilder.NAME).toEntitty(shape);
     } else if (Rectangle.class.isAssignableFrom(shape.getClass())) {
-      doc = factories.get(RectangleShapeBuilder.NAME).toDoc(shape);
+      doc = factories.get(RectangleShapeBuilder.NAME).toEntitty(shape);
     } else if (JtsGeometry.class.isAssignableFrom(shape.getClass())) {
       JtsGeometry geometry = (JtsGeometry) shape;
       Geometry geom = geometry.getGeom();
-      doc = factories.get("O" + geom.getClass().getSimpleName()).toDoc(shape);
+      doc = factories.get("O" + geom.getClass().getSimpleName()).toEntitty(shape);
 
     } else if (ShapeCollection.class.isAssignableFrom(shape.getClass())) {
       ShapeCollection collection = (ShapeCollection) shape;
 
       if (isMultiPolygon(collection)) {
-        doc = factories.get("OMultiPolygon").toDoc(createMultiPolygon(collection));
+        doc = factories.get("OMultiPolygon").toEntitty(createMultiPolygon(collection));
       } else if (isMultiPoint(collection)) {
-        doc = factories.get("OMultiPoint").toDoc(createMultiPoint(collection));
+        doc = factories.get("OMultiPoint").toEntitty(createMultiPoint(collection));
       } else if (isMultiLine(collection)) {
-        doc = factories.get("OMultiLineString").toDoc(createMultiLine(collection));
+        doc = factories.get("OMultiLineString").toEntitty(createMultiLine(collection));
       } else {
-        doc = factories.get("OGeometryCollection").toDoc(shape);
+        doc = factories.get("OGeometryCollection").toEntitty(shape);
       }
     }
     return doc;
   }
 
   @Override
-  protected EntityImpl toDoc(Shape shape, Geometry geometry) {
+  protected EntityImpl toEntitty(Shape shape, Geometry geometry) {
     if (Point.class.isAssignableFrom(shape.getClass())) {
-      return factories.get(PointShapeBuilder.NAME).toDoc(shape, geometry);
+      return factories.get(PointShapeBuilder.NAME).toEntitty(shape, geometry);
     } else if (geometry != null && "LineString".equals(geometry.getClass().getSimpleName())) {
-      return factories.get("OLineString").toDoc(shape, geometry);
+      return factories.get("OLineString").toEntitty(shape, geometry);
     } else if (geometry != null && "MultiLineString".equals(geometry.getClass().getSimpleName())) {
-      return factories.get("OMultiLineString").toDoc(shape, geometry);
+      return factories.get("OMultiLineString").toEntitty(shape, geometry);
     } else if (geometry != null && "Polygon".equals(geometry.getClass().getSimpleName())) {
-      return factories.get("OPolygon").toDoc(shape, geometry);
+      return factories.get("OPolygon").toEntitty(shape, geometry);
     } else {
-      return toDoc(shape);
+      return toEntitty(shape);
     }
   }
 
@@ -231,10 +231,10 @@ public class ShapeFactory extends ComplexShapeBuilder {
     }
   }
 
-  public EntityImpl toDoc(Geometry geometry) {
+  public EntityImpl toEntitty(Geometry geometry) {
     if (geometry instanceof org.locationtech.jts.geom.Point point) {
       Point point1 = context().makePoint(point.getX(), point.getY());
-      return toDoc(point1);
+      return toEntitty(point1);
     }
     if (geometry instanceof org.locationtech.jts.geom.GeometryCollection gc) {
       List<Shape> shapes = new ArrayList<Shape>();
@@ -248,9 +248,9 @@ public class ShapeFactory extends ComplexShapeBuilder {
         }
         shapes.add(shape);
       }
-      return toDoc(new ShapeCollection<Shape>(shapes, SPATIAL_CONTEXT));
+      return toEntitty(new ShapeCollection<Shape>(shapes, SPATIAL_CONTEXT));
     }
-    return toDoc(SPATIAL_CONTEXT.makeShape(geometry));
+    return toEntitty(SPATIAL_CONTEXT.makeShape(geometry));
   }
 
   public ShapeOperation operation() {

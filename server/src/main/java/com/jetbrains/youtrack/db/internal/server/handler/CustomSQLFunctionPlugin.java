@@ -31,7 +31,7 @@ public class CustomSQLFunctionPlugin extends ServerPluginAbstract {
 
   @Override
   public void config(YouTrackDBServer youTrackDBServer, ServerParameterConfiguration[] iParams) {
-    configuration = new EntityImpl();
+    configuration = new EntityImpl(null);
 
     final File configFile =
         Arrays.stream(iParams)
@@ -49,7 +49,7 @@ public class CustomSQLFunctionPlugin extends ServerPluginAbstract {
     try {
       String configurationContent = IOUtils.readFileAsString(configFile);
       configurationContent = removeComments(configurationContent);
-      configuration = new EntityImpl();
+      configuration = new EntityImpl(null);
       configuration.fromJSON(configurationContent);
     } catch (IOException e) {
       throw BaseException.wrapException(

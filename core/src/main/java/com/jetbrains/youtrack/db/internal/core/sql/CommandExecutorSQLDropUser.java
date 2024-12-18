@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import java.util.Map;
 
 /**
@@ -25,7 +25,7 @@ public class CommandExecutorSQLDropUser extends CommandExecutorSQLAbstract
   private String userName;
 
   @Override
-  public CommandExecutorSQLDropUser parse(CommandRequest iRequest) {
+  public CommandExecutorSQLDropUser parse(DatabaseSessionInternal db, CommandRequest iRequest) {
     init((CommandRequestText) iRequest);
 
     parserRequiredKeyword(KEYWORD_DROP);
@@ -36,7 +36,7 @@ public class CommandExecutorSQLDropUser extends CommandExecutorSQLAbstract
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, Map<Object, Object> iArgs) {
     if (this.userName == null) {
       throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -50,7 +50,6 @@ public class CommandExecutorSQLDropUser extends CommandExecutorSQLAbstract
         "DELETE FROM " + USER_CLASS + " WHERE " + USER_FIELD_NAME + "='" + this.userName + "'";
 
     //
-    var db = getDatabase();
     return db.command(new CommandSQL(sb)).execute(db);
   }
 

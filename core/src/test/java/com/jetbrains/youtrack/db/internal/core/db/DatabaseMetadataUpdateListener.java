@@ -5,13 +5,13 @@ import static org.junit.Assert.assertNotNull;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
-import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
 import java.util.Locale;
@@ -38,7 +38,7 @@ public class DatabaseMetadataUpdateListener {
         new MetadataUpdateListener() {
 
           @Override
-          public void onSchemaUpdate(DatabaseSessionInternal session, String database,
+          public void onSchemaUpdate(DatabaseSessionInternal db, String database,
               SchemaShared schema) {
             count++;
             assertNotNull(schema);

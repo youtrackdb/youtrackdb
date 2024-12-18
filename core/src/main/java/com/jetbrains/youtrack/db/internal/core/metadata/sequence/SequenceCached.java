@@ -19,9 +19,10 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.sequence;
 
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.SequenceLimitReachedException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -44,34 +45,26 @@ public class SequenceCached extends Sequence {
     cacheStart = cacheEnd = getValue(entity);
   }
 
-  public SequenceCached(Sequence.CreateParams params, @Nonnull String name) {
-    super(params, name);
-    var entity = (EntityImpl) entityRid.getRecord();
+  public SequenceCached(DatabaseSessionInternal db, CreateParams params, @Nonnull String name) {
+    super(db, params, name);
 
     if (params == null) {
       params = new CreateParams().setDefaults();
     }
 
-    var db = getDatabase();
     var currentParams = params;
     db.executeInTx(
         () -> {
-          EntityImpl boundEntity;
+          var entity = (EntityImpl) entityRid.getRecord(db);
 
-          if (entity.isNotBound(db)) {
-            boundEntity = db.bindToSession(entity);
-          } else {
-            boundEntity = entity;
-          }
-
-          setCacheSize(boundEntity, currentParams.cacheSize);
+          setCacheSize(entity, currentParams.cacheSize);
           cacheStart = cacheEnd = 0L;
           allocateCache(
-              boundEntity,
+              entity,
               currentParams.cacheSize,
-              getOrderType(boundEntity),
-              getLimitValue(boundEntity));
-          boundEntity.save();
+              getOrderType(entity),
+              getLimitValue(entity));
+          entity.save();
         });
   }
 
@@ -117,22 +110,23 @@ public class SequenceCached extends Sequence {
   }
 
   @Override
-  public long next() throws SequenceLimitReachedException, DatabaseException {
-    checkSecurity();
-    return nextWork();
+  public long next(DatabaseSessionInternal db)
+      throws SequenceLimitReachedException, DatabaseException {
+    checkSecurity(db);
+    return nextWork(db);
   }
 
-  private void checkSecurity() {
-    getDatabase()
+  private void checkSecurity(DatabaseSessionInternal db) {
+    db
         .checkSecurity(
             Rule.ResourceGeneric.CLASS,
             Role.PERMISSION_UPDATE,
-            this.entityRid.<EntityImpl>getRecord().getClassName());
+            this.entityRid.<EntityImpl>getRecord(db).getClassName());
   }
 
   @Override
-  public long nextWork() throws SequenceLimitReachedException {
-    return callRetry(
+  public long nextWork(DatabaseSessionInternal session) throws SequenceLimitReachedException {
+    return callRetry(session,
         (db, entity) -> {
           var orderType = getOrderType(entity);
           var limitValue = getLimitValue(entity);
@@ -195,26 +189,24 @@ public class SequenceCached extends Sequence {
 
           firstCache = false;
           return cacheStart;
-        },
-        "next");
+        }, "next");
   }
 
   @Override
-  protected long currentWork() {
+  protected long currentWork(DatabaseSessionInternal session) {
     return this.cacheStart;
   }
 
   @Override
-  public long resetWork() {
-    return callRetry(
+  public long resetWork(DatabaseSessionInternal session) {
+    return callRetry(session,
         (db, entity) -> {
           long newValue = getStart(entity);
           setValue(entity, newValue);
           firstCache = true;
           allocateCache(entity, getCacheSize(entity), getOrderType(entity), getLimitValue(entity));
           return newValue;
-        },
-        "reset");
+        }, "reset");
   }
 
   @Override

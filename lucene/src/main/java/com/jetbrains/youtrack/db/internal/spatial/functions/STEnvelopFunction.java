@@ -41,7 +41,7 @@ public class STEnvelopFunction extends SQLFunctionAbstract {
       Object[] iParams,
       CommandContext iContext) {
     Shape shape = factory.fromObject(iParams[0]);
-    return factory.toDoc(shape.getBoundingBox());
+    return factory.toEntitty(shape.getBoundingBox());
   }
 
   @Override

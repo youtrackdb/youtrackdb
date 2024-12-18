@@ -20,15 +20,14 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import java.util.HashSet;
 import java.util.Map;
@@ -47,7 +46,7 @@ public class EdgeDelegate implements EdgeInternal {
   protected SchemaImmutableClass lightweightEdgeType;
   protected String lightwightEdgeLabel;
 
-  protected EntityImpl element;
+  protected EntityImpl entity;
 
   public EdgeDelegate(
       Vertex out, Vertex in, SchemaImmutableClass lightweightEdgeType, String edgeLabel) {
@@ -58,7 +57,7 @@ public class EdgeDelegate implements EdgeInternal {
   }
 
   public EdgeDelegate(EntityImpl elem) {
-    this.element = elem;
+    this.entity = elem;
   }
 
   @Override
@@ -68,10 +67,7 @@ public class EdgeDelegate implements EdgeInternal {
       return vOut;
     }
 
-    final EntityImpl entity;
-    try {
-      entity = getRecord();
-    } catch (RecordNotFoundException rnf) {
+    if (entity == null) {
       return null;
     }
 
@@ -93,10 +89,7 @@ public class EdgeDelegate implements EdgeInternal {
       return vOut;
     }
 
-    final EntityImpl entity;
-    try {
-      entity = getRecord();
-    } catch (RecordNotFoundException rnf) {
+    if (entity == null) {
       return null;
     }
 
@@ -127,10 +120,7 @@ public class EdgeDelegate implements EdgeInternal {
       return vIn;
     }
 
-    final EntityImpl entity;
-    try {
-      entity = getRecord();
-    } catch (RecordNotFoundException rnf) {
+    if (entity == null) {
       return null;
     }
 
@@ -138,6 +128,7 @@ public class EdgeDelegate implements EdgeInternal {
     if (!(result instanceof Entity v)) {
       return null;
     }
+
     if (!v.isVertex()) {
       return null;
     }
@@ -152,11 +143,7 @@ public class EdgeDelegate implements EdgeInternal {
       return vIn;
     }
 
-    final EntityImpl entity;
-
-    try {
-      entity = getRecord();
-    } catch (RecordNotFoundException rnf) {
+    if (entity == null) {
       return null;
     }
 
@@ -175,39 +162,21 @@ public class EdgeDelegate implements EdgeInternal {
 
   @Override
   public boolean isLightweight() {
-    return this.element == null;
+    return this.entity == null;
   }
 
   public void delete() {
-    if (element != null) {
-      element.delete();
+    if (entity != null) {
+      entity.delete();
     } else {
       EdgeEntityImpl.deleteLinks(this);
     }
   }
 
   @Override
-  public void promoteToRegularEdge() {
-
-    var from = getFrom();
-    Vertex to = getTo();
-    VertexInternal.removeOutgoingEdge(from, this);
-    VertexInternal.removeIncomingEdge(to, this);
-
-    var db = element.getSession();
-    this.element =
-        db.newRegularEdge(
-                lightweightEdgeType == null ? "E" : lightweightEdgeType.getName(), from, to)
-            .getRecord();
-    this.lightweightEdgeType = null;
-    this.vOut = null;
-    this.vIn = null;
-  }
-
-  @Override
   @Nullable
-  public EntityImpl getBaseDocument() {
-    return element;
+  public EntityImpl getBaseEntity() {
+    return entity;
   }
 
   @Override
@@ -244,19 +213,19 @@ public class EdgeDelegate implements EdgeInternal {
 
   @Override
   public Optional<SchemaClass> getSchemaType() {
-    if (element == null) {
+    if (entity == null) {
       return Optional.ofNullable(lightweightEdgeType);
     }
-    return element.getSchemaType();
+    return entity.getSchemaType();
   }
 
   @Nullable
   @Override
   public SchemaClass getSchemaClass() {
-    if (element == null) {
+    if (entity == null) {
       return lightweightEdgeType;
     }
-    return element.getSchemaClass();
+    return entity.getSchemaClass();
   }
 
   public boolean isLabeled(String[] labels) {
@@ -294,20 +263,20 @@ public class EdgeDelegate implements EdgeInternal {
 
   @Override
   public RID getIdentity() {
-    if (element == null) {
+    if (entity == null) {
       return null;
     }
-    return element.getIdentity();
+    return entity.getIdentity();
   }
 
   @Nonnull
   @Override
-  public <T extends Record> T getRecord() {
-
-    if (element == null) {
+  public <T extends Record> T getRecord(DatabaseSession db) {
+    if (entity == null) {
       return null;
     }
-    return (T) element;
+
+    return (T) entity;
   }
 
   @Override
@@ -322,56 +291,59 @@ public class EdgeDelegate implements EdgeInternal {
 
   @Override
   public boolean equals(Object obj) {
-    if (element == null) {
+    if (entity == null) {
       return this == obj;
       // TODO double-check this logic for lightweight edges
     }
+
     if (!(obj instanceof Identifiable)) {
       return false;
     }
+
+    var session = entity.getSession();
     if (!(obj instanceof Entity)) {
-      obj = ((Identifiable) obj).getRecord();
+      obj = ((Identifiable) obj).getRecord(session);
     }
 
-    return element.equals(((Entity) obj).getRecord());
+    return entity.equals(((Entity) obj).getRecord(session));
   }
 
   @Override
   public int hashCode() {
-    if (element == null) {
+    if (entity == null) {
       return super.hashCode();
     }
 
-    return element.hashCode();
+    return entity.hashCode();
   }
 
   @Override
   public void clear() {
-    if (element != null) {
-      element.clear();
+    if (entity != null) {
+      entity.clear();
     }
   }
 
   @Override
   public int getVersion() {
-    if (element != null) {
-      return element.getVersion();
+    if (entity != null) {
+      return entity.getVersion();
     }
     return 1;
   }
 
   @Override
   public boolean isDirty() {
-    if (element != null) {
-      return element.isDirty();
+    if (entity != null) {
+      return entity.isDirty();
     }
     return false;
   }
 
   @Override
   public void save() {
-    if (element != null) {
-      element.save();
+    if (entity != null) {
+      entity.save();
     } else {
       vIn.save();
     }
@@ -379,16 +351,17 @@ public class EdgeDelegate implements EdgeInternal {
 
   @Override
   public void fromJSON(String iJson) {
-    if (element == null) {
-      promoteToRegularEdge();
+    if (entity == null) {
+      throw new UnsupportedOperationException("fromJSON is not supported for lightweight edges");
     }
-    element.fromJSON(iJson);
+
+    entity.fromJSON(iJson);
   }
 
   @Override
   public String toJSON() {
-    if (element != null) {
-      return element.toJSON();
+    if (entity != null) {
+      return entity.toJSON();
     } else {
       return "{\"out\":\""
           + vOut.getIdentity()
@@ -402,8 +375,8 @@ public class EdgeDelegate implements EdgeInternal {
 
   @Override
   public String toJSON(String iFormat) {
-    if (element != null) {
-      return element.toJSON(iFormat);
+    if (entity != null) {
+      return entity.toJSON(iFormat);
     } else {
       return "{\"out\":\""
           + vOut.getIdentity()
@@ -417,8 +390,8 @@ public class EdgeDelegate implements EdgeInternal {
 
   @Override
   public void fromMap(Map<String, ?> map) {
-    if (element != null) {
-      element.fromMap(map);
+    if (entity != null) {
+      entity.fromMap(map);
     }
 
     throw new UnsupportedOperationException("fromMap is not supported for lightweight edges");
@@ -431,8 +404,8 @@ public class EdgeDelegate implements EdgeInternal {
 
   @Override
   public boolean isNotBound(DatabaseSession session) {
-    if (element != null) {
-      return element.isNotBound(session);
+    if (entity != null) {
+      return entity.isNotBound(session);
     }
 
     return false;
@@ -440,8 +413,8 @@ public class EdgeDelegate implements EdgeInternal {
 
   @Override
   public String toString() {
-    if (element != null) {
-      return element.toString();
+    if (entity != null) {
+      return entity.toString();
     } else {
       StringBuilder result = new StringBuilder();
       boolean first = true;

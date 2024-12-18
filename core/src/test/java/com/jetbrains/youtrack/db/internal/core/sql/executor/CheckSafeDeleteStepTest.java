@@ -60,7 +60,7 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
               for (int i = 0; i < 10; i++) {
                 result.add(
                     new ResultInternal(db,
-                        new EntityImpl(i % 2 == 0 ? simpleClassName : className)));
+                        db.newEntity(i % 2 == 0 ? simpleClassName : className)));
               }
               done = true;
             }
@@ -89,7 +89,8 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
             if (!done) {
               for (int i = 0; i < 10; i++) {
                 result.add(
-                    new ResultInternal(db, new EntityImpl(createClassInstance().getName())));
+                    new ResultInternal(db,
+                        (EntityImpl) db.newEntity(createClassInstance().getName())));
               }
               done = true;
             }

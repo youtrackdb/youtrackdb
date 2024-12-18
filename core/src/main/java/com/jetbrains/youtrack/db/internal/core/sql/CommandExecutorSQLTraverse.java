@@ -20,6 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
@@ -27,7 +28,6 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.command.traverse.Traverse;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import java.util.Arrays;
@@ -68,7 +68,8 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
   /**
    * Compile the filter conditions only the first time.
    */
-  public CommandExecutorSQLTraverse parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLTraverse parse(DatabaseSessionInternal db,
+      final CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
     String queryText = textRequest.getText();
     String originalQuery = queryText;
@@ -77,7 +78,7 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
-      super.parse(iRequest);
+      super.parse(db, iRequest);
 
       final int pos = parseFields();
       if (pos == -1) {
@@ -201,7 +202,7 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
     return true;
   }
 
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     context.beginExecution(timeoutMs, timeoutStrategy);
 
     if (!assignTarget(iArgs)) {
@@ -211,11 +212,11 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
 
     try {
       if (traverse == null) {
-        traverse = new Traverse(querySession);
+        traverse = new Traverse(db);
       }
 
       // BROWSE ALL THE RECORDS AND COLLECTS RESULT
-      final List<Identifiable> result = traverse.execute(querySession);
+      final List<Identifiable> result = traverse.execute(db);
       for (Identifiable r : result) {
         if (!handleResult(r, context))
         // LIMIT REACHED
@@ -224,7 +225,7 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
         }
       }
 
-      return getResult(querySession);
+      return getResult(db);
     } finally {
       request.getResultListener().end();
     }
@@ -239,7 +240,7 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
     return iterator(DatabaseRecordThreadLocal.instance().get(), null);
   }
 
-  public Iterator<Identifiable> iterator(DatabaseSessionInternal querySession,
+  public Iterator<Identifiable> iterator(DatabaseSessionInternal db,
       final Map<Object, Object> iArgs) {
     assignTarget(iArgs);
     return traverse;

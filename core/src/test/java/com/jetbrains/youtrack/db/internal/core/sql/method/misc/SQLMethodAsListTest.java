@@ -2,6 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.method.misc;
 
 import static org.junit.Assert.assertEquals;
 
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -14,7 +15,7 @@ import org.junit.Test;
  * the execute() method from the SQLMethod interface that is used is the ioResult argument (the 4th
  * argument).
  */
-public class SQLMethodAsListTest {
+public class SQLMethodAsListTest extends DbTestBase {
 
   private SQLMethodAsList function;
 
@@ -55,6 +56,7 @@ public class SQLMethodAsListTest {
     assertEquals(result, expected);
   }
 
+  @Test
   public void testIterable() {
     // The expected behavior is to return a list with all of the elements
     // of the iterable in it, in order of the collecitons iterator.
@@ -68,6 +70,7 @@ public class SQLMethodAsListTest {
     assertEquals(result, expected);
   }
 
+  @Test
   public void testIterator() {
     // The expected behavior is to return a list with all of the elements
     // of the iterator in it, in order of the iterator.
@@ -81,10 +84,11 @@ public class SQLMethodAsListTest {
     assertEquals(result, expected);
   }
 
+  @Test
   public void testODocument() {
     // The expected behavior is to return a list with only the single
     // EntityImpl in it.
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = ((EntityImpl) db.newEntity());
     doc.field("f1", 1);
     doc.field("f2", 2);
 
@@ -96,6 +100,7 @@ public class SQLMethodAsListTest {
     assertEquals(result, expected);
   }
 
+  @Test
   public void testOtherSingleValue() {
     // The expected behavior is to return a list with only the single
     // element in it.

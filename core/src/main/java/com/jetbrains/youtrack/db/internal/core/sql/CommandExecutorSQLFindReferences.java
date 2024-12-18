@@ -19,14 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import java.util.HashSet;
@@ -47,7 +47,8 @@ public class CommandExecutorSQLFindReferences extends CommandExecutorSQLEarlyRes
   private String classList;
   private StringBuilder subQuery;
 
-  public CommandExecutorSQLFindReferences parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLFindReferences parse(DatabaseSessionInternal db,
+      final CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
     String queryText = textRequest.getText();
     String originalQuery = queryText;
@@ -103,7 +104,7 @@ public class CommandExecutorSQLFindReferences extends CommandExecutorSQLEarlyRes
   /**
    * Execute the FIND REFERENCES.
    */
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     if (recordIds.isEmpty() && subQuery == null) {
       throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -111,7 +112,7 @@ public class CommandExecutorSQLFindReferences extends CommandExecutorSQLEarlyRes
 
     if (subQuery != null) {
       final List<Identifiable> result = new CommandSQL(subQuery.toString()).execute(
-          querySession);
+          db);
       for (Identifiable id : result) {
         recordIds.add(id.getIdentity());
       }

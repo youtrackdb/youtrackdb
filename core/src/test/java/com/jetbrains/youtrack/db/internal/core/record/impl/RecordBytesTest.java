@@ -17,6 +17,7 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
 import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +30,7 @@ import org.junit.Test;
 /**
  *
  */
-public class RecordBytesTest {
+public class RecordBytesTest extends DbTestBase {
 
   private static final int SMALL_ARRAY = 3;
   private static final int BIG_ARRAY = 7;
@@ -69,23 +70,23 @@ public class RecordBytesTest {
   public void setUp() throws Exception {
     inputStream = new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5});
     emptyStream = new ByteArrayInputStream(new byte[]{});
-    testedInstance = new RecordBytes();
+    testedInstance = db.newBlob();
   }
 
   @Test
   public void testFromInputStream_ReadEmpty() throws Exception {
     final int result = testedInstance.fromInputStream(emptyStream, SMALL_ARRAY);
-    Assert.assertEquals(result, 0);
+    Assert.assertEquals(0, result);
     final byte[] source = (byte[]) getFieldValue(testedInstance, "source");
-    Assert.assertEquals(source.length, 0);
+    Assert.assertEquals(0, source.length);
   }
 
   @Test
   public void testFromInputStream_ReadSmall() throws Exception {
     final int result = testedInstance.fromInputStream(inputStream, SMALL_ARRAY);
-    Assert.assertEquals(result, SMALL_ARRAY);
+    Assert.assertEquals(SMALL_ARRAY, result);
     final byte[] source = (byte[]) getFieldValue(testedInstance, "source");
-    Assert.assertEquals(source.length, SMALL_ARRAY);
+    Assert.assertEquals(SMALL_ARRAY, source.length);
     for (int i = 1; i < SMALL_ARRAY + 1; i++) {
       Assert.assertEquals(source[i - 1], i);
     }
@@ -94,9 +95,9 @@ public class RecordBytesTest {
   @Test
   public void testFromInputStream_ReadBig() throws Exception {
     final int result = testedInstance.fromInputStream(inputStream, BIG_ARRAY);
-    Assert.assertEquals(result, FULL_ARRAY);
+    Assert.assertEquals(FULL_ARRAY, result);
     final byte[] source = (byte[]) getFieldValue(testedInstance, "source");
-    Assert.assertEquals(source.length, FULL_ARRAY);
+    Assert.assertEquals(FULL_ARRAY, source.length);
     for (int i = 1; i < FULL_ARRAY + 1; i++) {
       Assert.assertEquals(source[i - 1], i);
     }
@@ -105,9 +106,9 @@ public class RecordBytesTest {
   @Test
   public void testFromInputStream_ReadFull() throws Exception {
     final int result = testedInstance.fromInputStream(inputStream, FULL_ARRAY);
-    Assert.assertEquals(result, FULL_ARRAY);
+    Assert.assertEquals(FULL_ARRAY, result);
     final byte[] source = (byte[]) getFieldValue(testedInstance, "source");
-    Assert.assertEquals(source.length, FULL_ARRAY);
+    Assert.assertEquals(FULL_ARRAY, source.length);
     for (int i = 1; i < FULL_ARRAY + 1; i++) {
       Assert.assertEquals(source[i - 1], i);
     }

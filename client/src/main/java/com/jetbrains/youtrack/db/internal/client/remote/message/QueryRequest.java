@@ -65,7 +65,7 @@ public final class QueryRequest implements BinaryRequest<QueryResponse> {
       this.recordsPerPage = 100;
     }
     this.operationType = operationType;
-    EntityImpl parms = new EntityImpl();
+    EntityImpl parms = new EntityImpl(session);
     parms.field("params", this.params);
 
     paramsBytes = MessageHelper.getRecordBytes(session, parms, serializer);
@@ -154,7 +154,7 @@ public final class QueryRequest implements BinaryRequest<QueryResponse> {
   public Map<String, Object> getParams(DatabaseSessionInternal db) {
     if (params == null && this.paramsBytes != null) {
       // params
-      EntityImpl paramsEntity = new EntityImpl();
+      EntityImpl paramsEntity = new EntityImpl(db);
       paramsEntity.setTrackingChanges(false);
       serializer.fromStream(db, this.paramsBytes, paramsEntity, null);
       this.params = paramsEntity.field("params");

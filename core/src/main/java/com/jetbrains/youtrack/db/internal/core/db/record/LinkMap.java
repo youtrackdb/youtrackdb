@@ -20,12 +20,9 @@
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.util.Sizeable;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import java.util.Iterator;
@@ -35,13 +32,11 @@ import java.util.Map;
  * Lazy implementation of LinkedHashMap. It's bound to a source Record object to keep track of
  * changes. This avoid to call the makeDirty() by hand when the map is changed.
  */
-@SuppressWarnings({"serial"})
 public class LinkMap extends TrackedMap<Identifiable> implements Sizeable {
 
   private final byte recordType;
   private RecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE multiValueStatus =
       MULTIVALUE_CONTENT_TYPE.EMPTY;
-  private boolean autoConvertToRecord = true;
 
   public LinkMap(final RecordElement iSourceRecord) {
     super(iSourceRecord);
@@ -51,18 +46,11 @@ public class LinkMap extends TrackedMap<Identifiable> implements Sizeable {
   public LinkMap(final EntityImpl iSourceRecord, final byte iRecordType) {
     super(iSourceRecord);
     this.recordType = iRecordType;
-
-    if (iSourceRecord != null) {
-      if (!iSourceRecord.isLazyLoad())
-      // SET AS NON-LAZY LOAD THE COLLECTION TOO
-      {
-        autoConvertToRecord = false;
-      }
-    }
   }
 
   public LinkMap(final EntityImpl iSourceRecord, final Map<Object, Identifiable> iOrigin) {
     this(iSourceRecord);
+
     if (iOrigin != null && !iOrigin.isEmpty()) {
       putAll(iOrigin);
     }
@@ -80,11 +68,6 @@ public class LinkMap extends TrackedMap<Identifiable> implements Sizeable {
     }
 
     final String key = iKey.toString();
-
-    if (autoConvertToRecord) {
-      convertLink2Record(key);
-    }
-
     return super.get(key);
   }
 
@@ -126,45 +109,6 @@ public class LinkMap extends TrackedMap<Identifiable> implements Sizeable {
   @Override
   public String toString() {
     return RecordMultiValueHelper.toString(this);
-  }
-
-  public boolean isAutoConvertToRecord() {
-    return autoConvertToRecord;
-  }
-
-  public void setAutoConvertToRecord(boolean convertToRecord) {
-    this.autoConvertToRecord = convertToRecord;
-  }
-
-  /**
-   * Convert the item with the received key to a record.
-   *
-   * @param iKey Key of the item to convert
-   */
-  private void convertLink2Record(final Object iKey) {
-    if (multiValueStatus == MULTIVALUE_CONTENT_TYPE.ALL_RECORDS) {
-      return;
-    }
-
-    final Object value;
-
-    if (iKey instanceof RID) {
-      value = iKey;
-    } else {
-      value = super.get(iKey);
-    }
-
-    if (value instanceof RID rid) {
-      try {
-        // OVERWRITE IT
-        Record record = rid.getRecord();
-        RecordInternal.unTrack(sourceRecord, rid);
-        RecordInternal.track(sourceRecord, record);
-        super.putInternal(iKey, record);
-      } catch (RecordNotFoundException ignore) {
-        // IGNORE THIS
-      }
-    }
   }
 
   public byte getRecordType() {

@@ -20,12 +20,14 @@
 package com.jetbrains.youtrack.db.internal.common.collection;
 
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrderBy;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrderByItem;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 public class SortedMultiIterator<T extends Identifiable> implements Iterator<T> {
 
@@ -38,8 +40,11 @@ public class SortedMultiIterator<T extends Identifiable> implements Iterator<T> 
   private final List<T> heads = new ArrayList<T>();
 
   private int status = STATUS_INIT;
+  private final DatabaseSessionInternal db;
 
-  public SortedMultiIterator(SQLOrderBy orderBy) {
+  public SortedMultiIterator(@Nonnull DatabaseSessionInternal db, SQLOrderBy orderBy) {
+    assert db.assertIfNotActive();
+    this.db = db;
     this.orderBy = orderBy;
   }
 
@@ -116,9 +121,9 @@ public class SortedMultiIterator<T extends Identifiable> implements Iterator<T> 
     }
 
     EntityImpl leftEntity =
-        (left instanceof EntityImpl) ? (EntityImpl) left : (EntityImpl) left.getRecord();
+        (left instanceof EntityImpl) ? (EntityImpl) left : (EntityImpl) left.getRecord(db);
     EntityImpl rightEntity =
-        (right instanceof EntityImpl) ? (EntityImpl) right : (EntityImpl) right.getRecord();
+        (right instanceof EntityImpl) ? (EntityImpl) right : (EntityImpl) right.getRecord(db);
 
     for (SQLOrderByItem orderItem : orderBy.getItems()) {
       Object leftVal = leftEntity.field(orderItem.getRecordAttr());

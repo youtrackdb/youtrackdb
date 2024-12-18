@@ -20,9 +20,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import java.util.Map;
 
 /**
@@ -35,14 +35,15 @@ public class CommandExecutorSQLTransactional extends CommandExecutorSQLDelegate 
 
   @SuppressWarnings("unchecked")
   @Override
-  public CommandExecutorSQLTransactional parse(CommandRequest iCommand) {
+  public CommandExecutorSQLTransactional parse(DatabaseSessionInternal db,
+      CommandRequest iCommand) {
     String cmd = ((CommandSQL) iCommand).getText();
-    super.parse(new CommandSQL(cmd.substring(KEYWORD_TRANSACTIONAL.length())));
+    super.parse(db, new CommandSQL(cmd.substring(KEYWORD_TRANSACTIONAL.length())));
     return this;
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, Map<Object, Object> iArgs) {
     var database = getDatabase();
     boolean txbegun = database.getTransaction() == null || !database.getTransaction().isActive();
 
@@ -51,7 +52,7 @@ public class CommandExecutorSQLTransactional extends CommandExecutorSQLDelegate 
     }
 
     try {
-      final Object result = super.execute(iArgs, querySession);
+      final Object result = super.execute(db, iArgs);
 
       if (txbegun) {
         database.commit();

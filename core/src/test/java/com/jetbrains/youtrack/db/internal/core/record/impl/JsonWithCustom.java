@@ -2,33 +2,33 @@ package com.jetbrains.youtrack.db.internal.core.record.impl;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import org.junit.Test;
 
 /**
  *
  */
-public class JsonWithCustom {
+public class JsonWithCustom extends DbTestBase {
 
   @Test
   public void testCustomField() {
     boolean old = GlobalConfiguration.DB_CUSTOM_SUPPORT.getValueAsBoolean();
     GlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(true);
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.field("test", String.class, PropertyType.CUSTOM);
 
     String json = doc.toJSON();
 
     System.out.println(json);
 
-    EntityImpl doc1 = new EntityImpl();
+    EntityImpl doc1 = (EntityImpl) db.newEntity();
     doc1.fromJSON(json);
     assertEquals(doc.<String>field("test"), doc1.field("test"));
     GlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(old);
@@ -36,14 +36,14 @@ public class JsonWithCustom {
 
   @Test(expected = DatabaseException.class)
   public void testCustomFieldDisabled() {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.field("test", String.class, PropertyType.CUSTOM);
 
     String json = doc.toJSON();
 
     System.out.println(json);
 
-    EntityImpl doc1 = new EntityImpl();
+    EntityImpl doc1 = (EntityImpl) db.newEntity();
     doc1.fromJSON(json);
     assertEquals(doc.<String>field("test"), doc1.field("test"));
   }
@@ -60,12 +60,12 @@ public class JsonWithCustom {
           CreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
         SchemaClass klass = db.getMetadata().getSchema().createClass("TestCustom");
         klass.createProperty(db, "test", PropertyType.CUSTOM);
-        EntityImpl doc = new EntityImpl("TestCustom");
+        EntityImpl doc = (EntityImpl) db.newEntity("TestCustom");
         doc.field("test", TestCustom.ONE, PropertyType.CUSTOM);
 
         String json = doc.toJSON();
 
-        EntityImpl doc1 = new EntityImpl();
+        EntityImpl doc1 = (EntityImpl) db.newEntity();
         doc1.fromJSON(json);
         assertEquals(TestCustom.ONE, TestCustom.valueOf(doc1.field("test")));
       }

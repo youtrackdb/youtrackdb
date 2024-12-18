@@ -2,15 +2,15 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.FieldTypesString;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.UpdatableResult;
 import java.util.ArrayList;
@@ -62,13 +62,14 @@ public class SQLJson extends SimpleNode {
     builder.append("}");
   }
 
-  public EntityImpl toDocument(Identifiable source, CommandContext ctx) {
+  public EntityImpl toEntity(Identifiable source, CommandContext ctx) {
     String className = getClassNameForDocument(ctx);
+    var db = ctx.getDatabase();
     EntityImpl entity;
     if (className != null) {
-      entity = new EntityImpl(className);
+      entity = new EntityImpl(db, className);
     } else {
-      entity = new EntityImpl();
+      entity = new EntityImpl(db);
     }
     for (SQLJsonItem item : items) {
       String name = item.getLeftValue();
@@ -77,7 +78,7 @@ public class SQLJson extends SimpleNode {
       }
       Object value;
       if (item.right.value instanceof SQLJson) {
-        value = ((SQLJson) item.right.value).toDocument(source, ctx);
+        value = ((SQLJson) item.right.value).toEntity(source, ctx);
       } else {
         value = item.right.execute(source, ctx);
       }
@@ -87,13 +88,13 @@ public class SQLJson extends SimpleNode {
     return entity;
   }
 
-  private EntityImpl toDocument(Result source, CommandContext ctx, String className) {
-    EntityImpl retDoc = new EntityImpl(className);
+  private EntityImpl toEntity(Result source, CommandContext ctx, String className) {
+    EntityImpl retDoc = new EntityImpl(ctx.getDatabase(), className);
     Map<String, Character> types = null;
     for (SQLJsonItem item : items) {
       String name = item.getLeftValue();
       if (name == null
-          || DocumentHelper.getReservedAttributes().contains(name.toLowerCase(Locale.ENGLISH))) {
+          || EntityHelper.getReservedAttributes().contains(name.toLowerCase(Locale.ENGLISH))) {
         if (name.equals(FieldTypesString.ATTRIBUTE_FIELD_TYPES)) {
           Object value = item.right.execute(source, ctx);
           types = FieldTypesString.loadFieldTypes(value.toString());
@@ -132,7 +133,7 @@ public class SQLJson extends SimpleNode {
     String className = getClassNameForDocument(ctx);
     String type = getTypeForDocument(ctx);
     if (className != null || ("d".equalsIgnoreCase(type))) {
-      return toDocument(source, ctx, className);
+      return toEntity(source, ctx, className);
     } else {
       return toMap(source, ctx);
     }
@@ -152,7 +153,7 @@ public class SQLJson extends SimpleNode {
           element = new UpdatableResult(db, el);
         }
       }
-      return toDocument(element, ctx, className);
+      return toEntity(element, ctx, className);
     } else {
       return toMap(source, ctx);
     }

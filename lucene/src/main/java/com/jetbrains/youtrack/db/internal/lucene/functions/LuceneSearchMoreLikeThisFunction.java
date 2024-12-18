@@ -99,6 +99,7 @@ public class LuceneSearchMoreLikeThisFunction extends SQLFunctionAbstract
 
     List<String> ridsAsString = parseRids(ctx, expression);
 
+    var db = ctx.getDatabase();
     List<Record> others =
         ridsAsString.stream()
             .map(
@@ -109,7 +110,7 @@ public class LuceneSearchMoreLikeThisFunction extends SQLFunctionAbstract
                   recordId = recordId.copy();
                   return recordId;
                 })
-            .<Record>map(RecordId::getRecord)
+            .<Record>map(recordId1 -> recordId1.getRecord(db))
             .toList();
 
     MoreLikeThis mlt = buildMoreLikeThis(index, searcher, metadata);
@@ -178,7 +179,7 @@ public class LuceneSearchMoreLikeThisFunction extends SQLFunctionAbstract
   }
 
   private static Map<String, ?> parseMetadata(SQLExpression[] args) {
-    EntityImpl metadata = new EntityImpl();
+    EntityImpl metadata = new EntityImpl(null);
     if (args.length == 2) {
       metadata.fromJSON(args[1].toString());
     }

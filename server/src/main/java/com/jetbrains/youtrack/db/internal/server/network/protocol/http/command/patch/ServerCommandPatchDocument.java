@@ -29,7 +29,7 @@ import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandDocumentAbstract;
 
 public class ServerCommandPatchDocument extends ServerCommandDocumentAbstract {
@@ -37,12 +37,12 @@ public class ServerCommandPatchDocument extends ServerCommandDocumentAbstract {
   private static final String[] NAMES = {"PATCH|document/*"};
 
   @Override
-  public boolean execute(final OHttpRequest iRequest, HttpResponse iResponse) throws Exception {
+  public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
     final String[] urlParts =
         checkSyntax(iRequest.getUrl(), 2, "Syntax error: document/<database>[/<record-id>]");
 
     iRequest.getData().commandInfo = "Edit Document";
-    try (DatabaseSession db = getProfiledDatabaseInstance(iRequest)) {
+    try (var db = getProfiledDatabaseInstance(iRequest)) {
       RawPair<Boolean, RID> result =
           db.computeInTx(
               () -> {
@@ -63,7 +63,7 @@ public class ServerCommandPatchDocument extends ServerCommandDocumentAbstract {
                 }
 
                 // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
-                var entity = new EntityImpl();
+                var entity = new EntityImpl(db);
                 entity.fromJSON(iRequest.getContent());
 
                 if (iRequest.getIfMatch() != null)

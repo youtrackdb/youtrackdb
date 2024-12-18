@@ -13,10 +13,10 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial.shape;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,7 +52,6 @@ public class MultiPointShapeBuilder extends ComplexShapeBuilder<JtsGeometry> {
 
   @Override
   public void initClazz(DatabaseSessionInternal db) {
-
     Schema schema = db.getMetadata().getSchema();
     SchemaClass multiPoint = schema.createAbstractClass(getName(), superClass(db));
     multiPoint.createProperty(db, COORDINATES, PropertyType.EMBEDDEDLIST,
@@ -60,10 +59,10 @@ public class MultiPointShapeBuilder extends ComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  public EntityImpl toDoc(final JtsGeometry shape) {
+  public EntityImpl toEntitty(final JtsGeometry shape) {
     final MultiPoint geom = (MultiPoint) shape.getGeom();
 
-    EntityImpl doc = new EntityImpl(getName());
+    EntityImpl doc = new EntityImpl(null, getName());
     doc.field(
         COORDINATES,
         new ArrayList<List<Double>>() {

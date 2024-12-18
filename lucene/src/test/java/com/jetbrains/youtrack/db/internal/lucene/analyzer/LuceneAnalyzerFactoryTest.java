@@ -6,11 +6,11 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.lucene.analyzer.LuceneAnalyzerFactory;
-import com.jetbrains.youtrack.db.internal.lucene.analyzer.LucenePerFieldAnalyzerWrapper;
+import com.jetbrains.youtrack.db.internal.lucene.tests.LuceneBaseTest;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -25,7 +25,7 @@ import org.mockito.Mockito;
 /**
  *
  */
-public class LuceneAnalyzerFactoryTest {
+public class LuceneAnalyzerFactoryTest extends LuceneBaseTest {
 
   private LuceneAnalyzerFactory analyzerFactory;
   private Map<String, ?> metadata;
@@ -40,7 +40,7 @@ public class LuceneAnalyzerFactoryTest {
 
     String metajson =
         IOUtils.readFileAsString(new File("./src/test/resources/index_metadata_new.json"));
-    var metadataDocument = new EntityImpl();
+    var metadataDocument = ((EntityImpl) db.newEntity());
     metadataDocument.fromJSON(metajson);
     metadata = metadataDocument.toMap();
 

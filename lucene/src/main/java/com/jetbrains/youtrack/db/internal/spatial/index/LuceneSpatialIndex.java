@@ -24,7 +24,7 @@ import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChange
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChangesPerKey;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChangesPerKey.TransactionIndexEntry;
 import com.jetbrains.youtrack.db.internal.lucene.index.LuceneIndexNotUnique;
-import com.jetbrains.youtrack.db.internal.spatial.engine.OLuceneSpatialIndexContainer;
+import com.jetbrains.youtrack.db.internal.spatial.engine.LuceneSpatialIndexContainer;
 import com.jetbrains.youtrack.db.internal.spatial.shape.ShapeFactory;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,12 +41,12 @@ public class LuceneSpatialIndex extends LuceneIndexNotUnique {
   }
 
   @Override
-  public LuceneIndexNotUnique put(DatabaseSessionInternal session, Object key,
+  public LuceneIndexNotUnique put(DatabaseSessionInternal db, Object key,
       Identifiable value) {
     if (key == null) {
       return this;
     }
-    return super.put(session, key, value);
+    return super.put(db, key, value);
   }
 
   @Override
@@ -58,7 +58,7 @@ public class LuceneSpatialIndex extends LuceneIndexNotUnique {
           false,
           indexId,
           engine -> {
-            if (((OLuceneSpatialIndexContainer) engine).isLegacy()) {
+            if (((LuceneSpatialIndexContainer) engine).isLegacy()) {
               return LuceneSpatialIndex.super.interpretTxKeyChanges(changes);
             } else {
               return interpretAsSpatial(changes);
@@ -85,7 +85,7 @@ public class LuceneSpatialIndex extends LuceneIndexNotUnique {
   protected Object decodeKey(Object key) {
 
     if (key instanceof Geometry geom) {
-      return shapeFactory.toDoc(geom);
+      return shapeFactory.toEntitty(geom);
     }
     return key;
   }

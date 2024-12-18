@@ -70,7 +70,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
     ResultInternal rec = new ResultInternal(db, record);
     List<Result> results = new ArrayList<>();
     for (RID rid : rids) {
-      List<String> resultForRecord = checkObject(Collections.singleton(rid), rec, record, "");
+      List<String> resultForRecord = checkObject(db, Collections.singleton(rid), rec, record, "");
       if (!resultForRecord.isEmpty()) {
         ResultInternal nextResult = new ResultInternal(db);
         nextResult.setProperty("rid", rid);
@@ -138,43 +138,42 @@ public class FindReferencesStep extends AbstractExecutionStep {
   }
 
   private static List<String> checkObject(
-      final Set<RID> iSourceRIDs, final Object value, final Record iRootObject, String prefix) {
-    if (value instanceof Result) {
-      return checkRoot(iSourceRIDs, (Result) value, iRootObject, prefix).stream()
+      DatabaseSessionInternal db, final Set<RID> iSourceRIDs, final Object value,
+      final Record iRootObject, String prefix) {
+    return switch (value) {
+      case Result result -> checkRoot(db, iSourceRIDs, result, iRootObject, prefix).stream()
           .map(y -> value + "." + y)
           .collect(Collectors.toList());
-    } else if (value instanceof Identifiable) {
-      return checkRecord(iSourceRIDs, (Identifiable) value, iRootObject, prefix).stream()
+      case Identifiable identifiable ->
+          checkRecord(db, iSourceRIDs, identifiable, iRootObject, prefix).stream()
+              .map(y -> value + "." + y)
+              .collect(Collectors.toList());
+      case Collection<?> objects ->
+          checkCollection(db, iSourceRIDs, objects, iRootObject, prefix).stream()
+              .map(y -> value + "." + y)
+              .collect(Collectors.toList());
+      case Map<?, ?> map -> checkMap(db, iSourceRIDs, map, iRootObject, prefix).stream()
           .map(y -> value + "." + y)
           .collect(Collectors.toList());
-    } else if (value instanceof Collection<?>) {
-      return checkCollection(iSourceRIDs, (Collection<?>) value, iRootObject, prefix).stream()
-          .map(y -> value + "." + y)
-          .collect(Collectors.toList());
-    } else if (value instanceof Map<?, ?>) {
-      return checkMap(iSourceRIDs, (Map<?, ?>) value, iRootObject, prefix).stream()
-          .map(y -> value + "." + y)
-          .collect(Collectors.toList());
-    } else {
-      return new ArrayList<>();
-    }
+      case null, default -> new ArrayList<>();
+    };
   }
 
   private static List<String> checkCollection(
-      final Set<RID> iSourceRIDs,
+      DatabaseSessionInternal db, final Set<RID> iSourceRIDs,
       final Collection<?> values,
       final Record iRootObject,
       String prefix) {
     final Iterator<?> it = values.iterator();
     List<String> result = new ArrayList<>();
     while (it.hasNext()) {
-      result.addAll(checkObject(iSourceRIDs, it.next(), iRootObject, prefix));
+      result.addAll(checkObject(db, iSourceRIDs, it.next(), iRootObject, prefix));
     }
     return result;
   }
 
   private static List<String> checkMap(
-      final Set<RID> iSourceRIDs,
+      DatabaseSessionInternal db, final Set<RID> iSourceRIDs,
       final Map<?, ?> values,
       final Record iRootObject,
       String prefix) {
@@ -186,13 +185,13 @@ public class FindReferencesStep extends AbstractExecutionStep {
     }
     List<String> result = new ArrayList<>();
     while (it.hasNext()) {
-      result.addAll(checkObject(iSourceRIDs, it.next(), iRootObject, prefix));
+      result.addAll(checkObject(db, iSourceRIDs, it.next(), iRootObject, prefix));
     }
     return result;
   }
 
   private static List<String> checkRecord(
-      final Set<RID> iSourceRIDs,
+      DatabaseSessionInternal db, final Set<RID> iSourceRIDs,
       final Identifiable value,
       final Record iRootObject,
       String prefix) {
@@ -200,24 +199,27 @@ public class FindReferencesStep extends AbstractExecutionStep {
     if (iSourceRIDs.contains(value.getIdentity())) {
       result.add(prefix);
     } else if (!((RecordId) value.getIdentity()).isValid()
-        && value.getRecord() instanceof EntityImpl) {
+        && value.getRecord(db) instanceof EntityImpl) {
       // embedded document
-      EntityImpl entity = value.getRecord();
+      EntityImpl entity = value.getRecord(db);
       for (String fieldName : entity.fieldNames()) {
         Object fieldValue = entity.field(fieldName);
-        result.addAll(checkObject(iSourceRIDs, fieldValue, iRootObject, prefix + "." + fieldName));
+        result.addAll(
+            checkObject(db, iSourceRIDs, fieldValue, iRootObject, prefix + "." + fieldName));
       }
     }
     return result;
   }
 
   private static List<String> checkRoot(
-      final Set<RID> iSourceRIDs, final Result value, final Record iRootObject,
+      DatabaseSessionInternal db, final Set<RID> iSourceRIDs, final Result value,
+      final Record iRootObject,
       String prefix) {
     List<String> result = new ArrayList<>();
     for (String fieldName : value.getPropertyNames()) {
       Object fieldValue = value.getProperty(fieldName);
-      result.addAll(checkObject(iSourceRIDs, fieldValue, iRootObject, prefix + "." + fieldName));
+      result.addAll(
+          checkObject(db, iSourceRIDs, fieldValue, iRootObject, prefix + "." + fieldName));
     }
     return result;
   }

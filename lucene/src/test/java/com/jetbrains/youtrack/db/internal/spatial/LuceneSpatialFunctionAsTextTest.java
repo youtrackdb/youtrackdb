@@ -61,7 +61,7 @@ public class LuceneSpatialFunctionAsTextTest extends BaseSpatialLuceneTest {
   }
 
   protected void createLocation(String name, EntityImpl geometry) {
-    EntityImpl doc = new EntityImpl("Location");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Location"));
     doc.field("name", name);
     doc.field("geometry", geometry);
 

@@ -19,8 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.tx;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
 import javax.annotation.Nonnull;
@@ -36,7 +36,7 @@ public abstract class FrontendTransactionAbstract implements FrontendTransaction
    *
    * @see #getRecord(RID)
    */
-  public static final RecordAbstract DELETED_RECORD = new RecordBytes();
+  public static final RecordAbstract DELETED_RECORD = new RecordBytes(null);
 
   protected FrontendTransactionAbstract(@Nonnull final DatabaseSessionInternal iDatabase) {
     database = iDatabase;

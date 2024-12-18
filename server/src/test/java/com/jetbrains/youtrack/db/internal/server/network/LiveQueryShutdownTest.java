@@ -11,6 +11,7 @@ import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
 import java.io.File;
 import java.util.concurrent.CountDownLatch;
@@ -53,17 +54,17 @@ public class LiveQueryShutdownTest {
             new LiveQueryResultListener() {
 
               @Override
-              public void onCreate(DatabaseSession database, Result data) {
+              public void onCreate(DatabaseSessionInternal database, Result data) {
 
               }
 
               @Override
-              public void onUpdate(DatabaseSession database, Result before, Result after) {
+              public void onUpdate(DatabaseSessionInternal database, Result before, Result after) {
 
               }
 
               @Override
-              public void onDelete(DatabaseSession database, Result data) {
+              public void onDelete(DatabaseSessionInternal database, Result data) {
 
               }
 

@@ -19,10 +19,12 @@
 package com.jetbrains.youtrack.db.internal.lucene.collections;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.ContextualRecordId;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.lucene.engine.LuceneIndexEngine;
 import com.jetbrains.youtrack.db.internal.lucene.engine.LuceneIndexEngineAbstract;
 import com.jetbrains.youtrack.db.internal.lucene.engine.LuceneIndexEngineUtils;
@@ -70,18 +72,21 @@ public class LuceneResultSet implements Set<Identifiable> {
   private long deletedMatchCount = 0;
 
   private boolean closed = false;
+  private final DatabaseSessionInternal db;
 
-  protected LuceneResultSet() {
+  protected LuceneResultSet(DatabaseSessionInternal db) {
+    this.db = db;
   }
 
   public LuceneResultSet(
-      final LuceneIndexEngine engine,
+      DatabaseSessionInternal db, final LuceneIndexEngine engine,
       final LuceneQueryContext queryContext,
       final Map<String, ?> metadata) {
     this.engine = engine;
     this.queryContext = queryContext;
     this.query = queryContext.getQuery();
     this.indexName = engine.indexName();
+    this.db = db;
 
     fetchFirstBatch();
     deletedMatchCount = calculateDeletedMatch();
@@ -212,7 +217,8 @@ public class LuceneResultSet implements Set<Identifiable> {
       if (!hasNext && !closed) {
         final IndexSearcher searcher = queryContext.getSearcher();
         if (searcher.getIndexReader().getRefCount() > 1) {
-          engine.release(searcher);
+          assert db.assertIfNotActive();
+          engine.release(db.getStorage(), searcher);
           closed = true;
         }
       }
@@ -221,6 +227,8 @@ public class LuceneResultSet implements Set<Identifiable> {
 
     @Override
     public Identifiable next() {
+      assert db.assertIfNotActive();
+      var storage = db.getStorage();
       ScoreDoc scoreDoc;
       ContextualRecordId res;
       Document doc;
@@ -229,7 +237,7 @@ public class LuceneResultSet implements Set<Identifiable> {
         doc = toDocument(scoreDoc);
 
         res = toRecordId(doc, scoreDoc);
-      } while (isToSkip(res, doc));
+      } while (isToSkip(storage, res, doc));
       index++;
       return res;
     }
@@ -276,8 +284,9 @@ public class LuceneResultSet implements Set<Identifiable> {
       }
     }
 
-    private boolean isToSkip(final ContextualRecordId recordId, final Document doc) {
-      return isDeleted(recordId, doc) || isUpdatedDiskMatch(recordId, doc);
+    private boolean isToSkip(Storage storage, final ContextualRecordId recordId,
+        final Document doc) {
+      return isDeleted(storage, recordId, doc) || isUpdatedDiskMatch(recordId, doc);
     }
 
     private void fetchMoreResult() {
@@ -298,8 +307,8 @@ public class LuceneResultSet implements Set<Identifiable> {
       }
     }
 
-    private boolean isDeleted(Identifiable value, Document doc) {
-      return queryContext.isDeleted(doc, null, value);
+    private boolean isDeleted(Storage storage, Identifiable value, Document doc) {
+      return queryContext.isDeleted(storage, doc, null, value);
     }
 
     private boolean isUpdatedDiskMatch(Identifiable value, Document doc) {

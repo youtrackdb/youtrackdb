@@ -13,10 +13,10 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial.shape;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,7 @@ public class GeometryCollectionShapeBuilder extends ComplexShapeBuilder<ShapeCol
 
   @Override
   public ShapeCollection<Shape> fromMapGeoJson(Map<String, Object> geoJsonMap) {
-    EntityImpl doc = new EntityImpl(getName());
+    EntityImpl doc = new EntityImpl(null, getName());
     doc.field("geometries", geoJsonMap.get("geometries"));
     return fromDoc(doc);
   }
@@ -90,12 +90,12 @@ public class GeometryCollectionShapeBuilder extends ComplexShapeBuilder<ShapeCol
   }
 
   @Override
-  public EntityImpl toDoc(ShapeCollection<Shape> shapes) {
+  public EntityImpl toEntitty(ShapeCollection<Shape> shapes) {
 
-    EntityImpl doc = new EntityImpl(getName());
+    EntityImpl doc = new EntityImpl(null, getName());
     List<EntityImpl> geometries = new ArrayList<EntityImpl>(shapes.size());
     for (Shape s : shapes) {
-      geometries.add(shapeFactory.toDoc(s));
+      geometries.add(shapeFactory.toEntitty(s));
     }
     doc.field("geometries", geometries);
     return doc;

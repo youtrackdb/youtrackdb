@@ -19,10 +19,10 @@
  */
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.internal.core.collate.DefaultCollate;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.collate.DefaultCollate;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLCreateIndex;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -158,13 +158,14 @@ public class PropertyIndexDefinition extends AbstractIndexDefinition {
   }
 
   @Override
-  public final @Nonnull EntityImpl toStream(@Nonnull EntityImpl entity) {
-    serializeToStream(entity);
+  public final @Nonnull EntityImpl toStream(DatabaseSessionInternal db,
+      @Nonnull EntityImpl entity) {
+    serializeToStream(db, entity);
     return entity;
   }
 
-  protected void serializeToStream(EntityImpl entity) {
-    super.serializeToStream(entity);
+  protected void serializeToStream(DatabaseSessionInternal db, EntityImpl entity) {
+    super.serializeToStream(db, entity);
 
     entity.setPropertyInternal("className", className);
     entity.setPropertyInternal("field", field);

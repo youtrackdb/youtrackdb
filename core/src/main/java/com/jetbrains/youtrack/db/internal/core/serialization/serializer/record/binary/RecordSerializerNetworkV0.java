@@ -20,12 +20,19 @@
 
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary;
 
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.exception.ValidationException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.DecimalSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
@@ -34,24 +41,17 @@ import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
-import com.jetbrains.youtrack.db.api.exception.ValidationException;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryption;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityEntry;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImplEmbedded;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
-import com.jetbrains.youtrack.db.internal.core.serialization.DocumentSerializable;
+import com.jetbrains.youtrack.db.internal.core.serialization.EntitySerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.io.Serializable;
@@ -322,7 +322,7 @@ public class RecordSerializerNetworkV0 implements EntitySerializer {
     bytes.bytes[pos] = (byte) type.getId();
   }
 
-  public Object deserializeValue(DatabaseSessionInternal session, BytesContainer bytes,
+  public Object deserializeValue(DatabaseSessionInternal db, BytesContainer bytes,
       PropertyType type,
       RecordElement owner) {
     Object value = null;
@@ -362,13 +362,13 @@ public class RecordSerializerNetworkV0 implements EntitySerializer {
         value = new Date(savedTime);
         break;
       case EMBEDDED:
-        value = new EntityImplEmbedded();
-        deserialize(session, (EntityImpl) value, bytes);
-        if (((EntityImpl) value).containsField(DocumentSerializable.CLASS_NAME)) {
-          String className = ((EntityImpl) value).field(DocumentSerializable.CLASS_NAME);
+        value = new EntityImplEmbedded(db);
+        deserialize(db, (EntityImpl) value, bytes);
+        if (((EntityImpl) value).containsField(EntitySerializable.CLASS_NAME)) {
+          String className = ((EntityImpl) value).field(EntitySerializable.CLASS_NAME);
           try {
             Class<?> clazz = Class.forName(className);
-            DocumentSerializable newValue = (DocumentSerializable) clazz.newInstance();
+            EntitySerializable newValue = (EntitySerializable) clazz.newInstance();
             newValue.fromDocument((EntityImpl) value);
             value = newValue;
           } catch (Exception e) {
@@ -381,11 +381,11 @@ public class RecordSerializerNetworkV0 implements EntitySerializer {
         break;
       case EMBEDDEDSET:
         TrackedSet<Object> set = new TrackedSet<Object>(owner);
-        value = readEmbeddedCollection(session, bytes, set, set);
+        value = readEmbeddedCollection(db, bytes, set, set);
         break;
       case EMBEDDEDLIST:
         TrackedList<Object> list = new TrackedList<Object>(owner);
-        value = readEmbeddedCollection(session, bytes, list, list);
+        value = readEmbeddedCollection(db, bytes, list, list);
         break;
       case LINKSET:
         value = readLinkCollection(bytes, new LinkSet(owner));
@@ -400,18 +400,18 @@ public class RecordSerializerNetworkV0 implements EntitySerializer {
         value = readOptimizedLink(bytes);
         break;
       case LINKMAP:
-        value = readLinkMap(session, bytes, owner);
+        value = readLinkMap(db, bytes, owner);
         break;
       case EMBEDDEDMAP:
-        value = readEmbeddedMap(session, bytes, owner);
+        value = readEmbeddedMap(db, bytes, owner);
         break;
       case DECIMAL:
         value = DecimalSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset);
         bytes.skip(DecimalSerializer.INSTANCE.getObjectSize(bytes.bytes, bytes.offset));
         break;
       case LINKBAG:
-        RidBag bag = new RidBag(session);
-        bag.fromStream(bytes);
+        RidBag bag = new RidBag(db);
+        bag.fromStream(db, bytes);
         bag.setOwner(owner);
         value = bag;
         break;
@@ -550,7 +550,7 @@ public class RecordSerializerNetworkV0 implements EntitySerializer {
   @SuppressWarnings("unchecked")
   @Override
   public int serializeValue(
-      DatabaseSessionInternal session, final BytesContainer bytes,
+      DatabaseSessionInternal db, final BytesContainer bytes,
       Object value,
       final PropertyType type,
       final PropertyType linkedType,
@@ -605,23 +605,23 @@ public class RecordSerializerNetworkV0 implements EntitySerializer {
         break;
       case EMBEDDED:
         pointer = bytes.offset;
-        if (value instanceof DocumentSerializable) {
-          EntityImpl cur = ((DocumentSerializable) value).toDocument();
-          cur.field(DocumentSerializable.CLASS_NAME, value.getClass().getName());
-          serialize(session, cur, bytes);
+        if (value instanceof EntitySerializable) {
+          EntityImpl cur = ((EntitySerializable) value).toEntity(db);
+          cur.field(EntitySerializable.CLASS_NAME, value.getClass().getName());
+          serialize(db, cur, bytes);
         } else {
-          serialize(session, (EntityImpl) value, bytes);
+          serialize(db, (EntityImpl) value, bytes);
         }
         break;
       case EMBEDDEDSET:
       case EMBEDDEDLIST:
         if (value.getClass().isArray()) {
           pointer =
-              writeEmbeddedCollection(session,
+              writeEmbeddedCollection(db,
                   bytes, Arrays.asList(MultiValue.array(value)), linkedType, schema, encryption);
         } else {
           pointer =
-              writeEmbeddedCollection(session, bytes, (Collection<?>) value, linkedType, schema,
+              writeEmbeddedCollection(db, bytes, (Collection<?>) value, linkedType, schema,
                   encryption);
         }
         break;
@@ -636,23 +636,23 @@ public class RecordSerializerNetworkV0 implements EntitySerializer {
       case LINKSET:
       case LINKLIST:
         Collection<Identifiable> ridCollection = (Collection<Identifiable>) value;
-        pointer = writeLinkCollection(bytes, ridCollection);
+        pointer = writeLinkCollection(db, bytes, ridCollection);
         break;
       case LINK:
         if (!(value instanceof Identifiable)) {
           throw new ValidationException("Value '" + value + "' is not a Identifiable");
         }
 
-        pointer = writeOptimizedLink(bytes, (Identifiable) value);
+        pointer = writeOptimizedLink(db, bytes, (Identifiable) value);
         break;
       case LINKMAP:
-        pointer = writeLinkMap(bytes, (Map<Object, Identifiable>) value);
+        pointer = writeLinkMap(db, bytes, (Map<Object, Identifiable>) value);
         break;
       case EMBEDDEDMAP:
-        pointer = writeEmbeddedMap(session, bytes, (Map<Object, Object>) value, schema, encryption);
+        pointer = writeEmbeddedMap(db, bytes, (Map<Object, Object>) value, schema, encryption);
         break;
       case LINKBAG:
-        pointer = ((RidBag) value).toStream(bytes);
+        pointer = ((RidBag) value).toStream(db, bytes);
         break;
       case CUSTOM:
         if (!(value instanceof SerializableStream)) {
@@ -669,14 +669,12 @@ public class RecordSerializerNetworkV0 implements EntitySerializer {
     return pointer;
   }
 
-  private int writeBinary(final BytesContainer bytes, final byte[] valueBytes) {
-    final int pointer = VarIntSerializer.write(bytes, valueBytes.length);
-    final int start = bytes.alloc(valueBytes.length);
-    System.arraycopy(valueBytes, 0, bytes.bytes, start, valueBytes.length);
-    return pointer;
+  private static int writeBinary(final BytesContainer bytes, final byte[] valueBytes) {
+    return HelperClasses.writeBinary(bytes, valueBytes);
   }
 
-  private int writeLinkMap(final BytesContainer bytes, final Map<Object, Identifiable> map) {
+  private int writeLinkMap(DatabaseSessionInternal db, final BytesContainer bytes,
+      final Map<Object, Identifiable> map) {
     final int fullPos = VarIntSerializer.write(bytes, map.size());
     for (Entry<Object, Identifiable> entry : map.entrySet()) {
       // TODO:check skip of complex types
@@ -687,7 +685,7 @@ public class RecordSerializerNetworkV0 implements EntitySerializer {
       if (entry.getValue() == null) {
         writeNullLink(bytes);
       } else {
-        writeOptimizedLink(bytes, entry.getValue());
+        writeOptimizedLink(db, bytes, entry.getValue());
       }
     }
     return fullPos;
@@ -739,10 +737,11 @@ public class RecordSerializerNetworkV0 implements EntitySerializer {
     return pos;
   }
 
-  private static int writeOptimizedLink(final BytesContainer bytes, Identifiable link) {
+  private static int writeOptimizedLink(DatabaseSessionInternal db, final BytesContainer bytes,
+      Identifiable link) {
     if (!link.getIdentity().isPersistent()) {
       try {
-        link = link.getRecord();
+        link = link.getRecord(db);
       } catch (RecordNotFoundException rnf) {
         // ignore it
       }
@@ -754,14 +753,15 @@ public class RecordSerializerNetworkV0 implements EntitySerializer {
   }
 
   private int writeLinkCollection(
-      final BytesContainer bytes, final Collection<Identifiable> value) {
+      DatabaseSessionInternal db, final BytesContainer bytes,
+      final Collection<Identifiable> value) {
     final int pos = VarIntSerializer.write(bytes, value.size());
     for (Identifiable itemValue : value) {
       // TODO: handle the null links
       if (itemValue == null) {
         writeNullLink(bytes);
       } else {
-        writeOptimizedLink(bytes, itemValue);
+        writeOptimizedLink(db, bytes, itemValue);
       }
     }
 

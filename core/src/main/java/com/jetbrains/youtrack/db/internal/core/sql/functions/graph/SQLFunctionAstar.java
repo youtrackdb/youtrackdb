@@ -19,19 +19,20 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.graph;
 
-import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
-import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Direction;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLHelper;
-import com.jetbrains.youtrack.db.api.query.Result;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -86,7 +87,8 @@ public class SQLFunctionAstar extends SQLFunctionHeuristicPathFinderAbstract {
     context = iContext;
     final SQLFunctionAstar context = this;
 
-    final Record record = iCurrentRecord != null ? iCurrentRecord.getRecord() : null;
+    var db = iContext.getDatabase();
+    final Record record = iCurrentRecord != null ? iCurrentRecord.getRecord(db) : null;
 
     Object source = iParams[0];
     if (MultiValue.isMultiValue(source)) {
@@ -100,7 +102,7 @@ public class SQLFunctionAstar extends SQLFunctionHeuristicPathFinderAbstract {
     }
     source = SQLHelper.getValue(source, record, iContext);
     if (source instanceof Identifiable) {
-      Entity elem = ((Identifiable) source).getRecord();
+      Entity elem = ((Identifiable) source).getRecord(db);
       if (!elem.isVertex()) {
         throw new IllegalArgumentException("The sourceVertex must be a vertex record");
       }
@@ -121,7 +123,7 @@ public class SQLFunctionAstar extends SQLFunctionHeuristicPathFinderAbstract {
     }
     dest = SQLHelper.getValue(dest, record, iContext);
     if (dest instanceof Identifiable) {
-      Entity elem = ((Identifiable) dest).getRecord();
+      Entity elem = ((Identifiable) dest).getRecord(db);
       if (!elem.isVertex()) {
         throw new IllegalArgumentException("The destinationVertex must be a vertex record");
       }
@@ -143,7 +145,7 @@ public class SQLFunctionAstar extends SQLFunctionHeuristicPathFinderAbstract {
   }
 
   private LinkedList<Vertex> internalExecute(
-      final CommandContext iContext, DatabaseSession graph) {
+      final CommandContext iContext, DatabaseSessionInternal graph) {
 
     Vertex start = paramSourceVertex;
     Vertex goal = paramDestinationVertex;
@@ -175,7 +177,7 @@ public class SQLFunctionAstar extends SQLFunctionHeuristicPathFinderAbstract {
       closedSet.add(current);
       for (Edge neighborEdge : getNeighborEdges(current)) {
 
-        Vertex neighbor = getNeighbor(current, neighborEdge, graph);
+        Vertex neighbor = getNeighbor(graph, current, neighborEdge, graph);
         // Ignore the neighbor which is already evaluated.
         if (closedSet.contains(neighbor)) {
           continue;
@@ -204,20 +206,20 @@ public class SQLFunctionAstar extends SQLFunctionHeuristicPathFinderAbstract {
     return getPath();
   }
 
-  private static Vertex getNeighbor(Vertex current, Edge neighborEdge,
+  private static Vertex getNeighbor(DatabaseSessionInternal db, Vertex current, Edge neighborEdge,
       DatabaseSession graph) {
     if (neighborEdge.getFrom().equals(current)) {
-      return toVertex(neighborEdge.getTo());
+      return toVertex(neighborEdge.getTo(), db);
     }
-    return toVertex(neighborEdge.getFrom());
+    return toVertex(neighborEdge.getFrom(), db);
   }
 
-  private static Vertex toVertex(Identifiable outVertex) {
+  private static Vertex toVertex(Identifiable outVertex, DatabaseSessionInternal db) {
     if (outVertex == null) {
       return null;
     }
     if (!(outVertex instanceof Entity)) {
-      outVertex = outVertex.getRecord();
+      outVertex = outVertex.getRecord(db);
     }
     return ((Entity) outVertex).asVertex().orElse(null);
   }
@@ -241,11 +243,12 @@ public class SQLFunctionAstar extends SQLFunctionHeuristicPathFinderAbstract {
     if (additionalParams == null) {
       return;
     }
+    var db = context.getDatabase();
     Map<String, ?> mapParams = null;
     if (additionalParams instanceof Map) {
       mapParams = (Map) additionalParams;
     } else if (additionalParams instanceof Identifiable) {
-      mapParams = ((EntityImpl) ((Identifiable) additionalParams).getRecord()).toMap();
+      mapParams = ((EntityImpl) ((Identifiable) additionalParams).getRecord(db)).toMap();
     }
     if (mapParams != null) {
       ctx.paramEdgeTypeNames = stringArray(mapParams.get(SQLFunctionAstar.PARAM_EDGE_TYPE_NAMES));

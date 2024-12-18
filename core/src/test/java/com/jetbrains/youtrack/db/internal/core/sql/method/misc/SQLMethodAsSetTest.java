@@ -100,7 +100,7 @@ public class SQLMethodAsSetTest extends DbTestBase {
   public void testODocument() {
     // The expected behavior is to return a set with only the single
     // EntityImpl in it.
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = ((EntityImpl) db.newEntity());
     doc.field("f1", 1);
     doc.field("f2", 2);
 

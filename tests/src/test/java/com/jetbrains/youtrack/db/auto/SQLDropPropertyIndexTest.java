@@ -44,93 +44,93 @@ public class SQLDropPropertyIndexTest extends BaseDBTest {
   public void beforeMethod() throws Exception {
     super.beforeMethod();
 
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     final SchemaClass oClass = schema.createClass("DropPropertyIndexTestClass");
-    oClass.createProperty(database, "prop1", EXPECTED_PROP1_TYPE);
-    oClass.createProperty(database, "prop2", EXPECTED_PROP2_TYPE);
+    oClass.createProperty(db, "prop1", EXPECTED_PROP1_TYPE);
+    oClass.createProperty(db, "prop2", EXPECTED_PROP2_TYPE);
   }
 
   @AfterMethod
   public void afterMethod() throws Exception {
-    database.command("drop class DropPropertyIndexTestClass").close();
+    db.command("drop class DropPropertyIndexTestClass").close();
 
     super.afterMethod();
   }
 
   @Test
   public void testForcePropertyEnabled() throws Exception {
-    database
+    db
         .command(
             "CREATE INDEX DropPropertyIndexCompositeIndex ON DropPropertyIndexTestClass (prop2,"
                 + " prop1) UNIQUE")
         .close();
 
     Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("DropPropertyIndexTestClass")
-            .getClassIndex(database, "DropPropertyIndexCompositeIndex");
+            .getClassIndex(db, "DropPropertyIndexCompositeIndex");
     Assert.assertNotNull(index);
 
-    database.command("DROP PROPERTY DropPropertyIndexTestClass.prop1 FORCE").close();
+    db.command("DROP PROPERTY DropPropertyIndexTestClass.prop1 FORCE").close();
 
     index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("DropPropertyIndexTestClass")
-            .getClassIndex(database, "DropPropertyIndexCompositeIndex");
+            .getClassIndex(db, "DropPropertyIndexCompositeIndex");
 
     Assert.assertNull(index);
   }
 
   @Test
   public void testForcePropertyEnabledBrokenCase() throws Exception {
-    database
+    db
         .command(
             "CREATE INDEX DropPropertyIndexCompositeIndex ON DropPropertyIndexTestClass (prop2,"
                 + " prop1) UNIQUE")
         .close();
 
     Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("DropPropertyIndexTestClass")
-            .getClassIndex(database, "DropPropertyIndexCompositeIndex");
+            .getClassIndex(db, "DropPropertyIndexCompositeIndex");
     Assert.assertNotNull(index);
 
-    database.command("DROP PROPERTY DropPropertyIndextestclasS.prop1 FORCE").close();
+    db.command("DROP PROPERTY DropPropertyIndextestclasS.prop1 FORCE").close();
 
     index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("DropPropertyIndexTestClass")
-            .getClassIndex(database, "DropPropertyIndexCompositeIndex");
+            .getClassIndex(db, "DropPropertyIndexCompositeIndex");
 
     Assert.assertNull(index);
   }
 
   @Test
   public void testForcePropertyDisabled() throws Exception {
-    database
+    db
         .command(
             "CREATE INDEX DropPropertyIndexCompositeIndex ON DropPropertyIndexTestClass (prop1,"
                 + " prop2) UNIQUE")
         .close();
 
     Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("DropPropertyIndexTestClass")
-            .getClassIndex(database, "DropPropertyIndexCompositeIndex");
+            .getClassIndex(db, "DropPropertyIndexCompositeIndex");
     Assert.assertNotNull(index);
 
     try {
-      database.command("DROP PROPERTY DropPropertyIndexTestClass.prop1").close();
+      db.command("DROP PROPERTY DropPropertyIndexTestClass.prop1").close();
       Assert.fail();
     } catch (CommandExecutionException e) {
       Assert.assertTrue(
@@ -141,11 +141,11 @@ public class SQLDropPropertyIndexTest extends BaseDBTest {
     }
 
     index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("DropPropertyIndexTestClass")
-            .getClassIndex(database, "DropPropertyIndexCompositeIndex");
+            .getClassIndex(db, "DropPropertyIndexCompositeIndex");
 
     Assert.assertNotNull(index);
 
@@ -160,14 +160,14 @@ public class SQLDropPropertyIndexTest extends BaseDBTest {
 
   @Test
   public void testForcePropertyDisabledBrokenCase() throws Exception {
-    database
+    db
         .command(
             "CREATE INDEX DropPropertyIndexCompositeIndex ON DropPropertyIndexTestClass (prop1,"
                 + " prop2) UNIQUE")
         .close();
 
     try {
-      database.command("DROP PROPERTY DropPropertyIndextestclass.prop1").close();
+      db.command("DROP PROPERTY DropPropertyIndextestclass.prop1").close();
       Assert.fail();
     } catch (CommandExecutionException e) {
       Assert.assertTrue(
@@ -178,11 +178,11 @@ public class SQLDropPropertyIndexTest extends BaseDBTest {
     }
 
     final Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("DropPropertyIndexTestClass")
-            .getClassIndex(database, "DropPropertyIndexCompositeIndex");
+            .getClassIndex(db, "DropPropertyIndexCompositeIndex");
 
     Assert.assertNotNull(index);
 

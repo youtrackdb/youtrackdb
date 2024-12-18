@@ -39,7 +39,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
 
     if (schema.existsClass("classIndexManagerTestClass")) {
       schema.dropClass("classIndexManagerTestClass");
@@ -58,8 +58,8 @@ public class ClassIndexManagerTest extends BaseDBTest {
     }
 
     final SchemaClass superClass = schema.createClass("classIndexManagerTestSuperClass");
-    superClass.createProperty(database, "prop0", PropertyType.STRING);
-    superClass.createIndex(database,
+    superClass.createProperty(db, "prop0", PropertyType.STRING);
+    superClass.createIndex(db,
         "classIndexManagerTestSuperClass.prop0",
         SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
@@ -67,97 +67,97 @@ public class ClassIndexManagerTest extends BaseDBTest {
         new String[]{"prop0"});
 
     final SchemaClass oClass = schema.createClass("classIndexManagerTestClass", superClass);
-    oClass.createProperty(database, "prop1", PropertyType.STRING);
-    oClass.createIndex(database,
+    oClass.createProperty(db, "prop1", PropertyType.STRING);
+    oClass.createIndex(db,
         "classIndexManagerTestClass.prop1",
         SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
         Map.of("ignoreNullValues", true),
         new String[]{"prop1"});
 
-    final Property propTwo = oClass.createProperty(database, "prop2", PropertyType.INTEGER);
-    propTwo.createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+    final Property propTwo = oClass.createProperty(db, "prop2", PropertyType.INTEGER);
+    propTwo.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
-    oClass.createProperty(database, "prop3", PropertyType.BOOLEAN);
+    oClass.createProperty(db, "prop3", PropertyType.BOOLEAN);
 
-    final Property propFour = oClass.createProperty(database, "prop4", PropertyType.EMBEDDEDLIST,
+    final Property propFour = oClass.createProperty(db, "prop4", PropertyType.EMBEDDEDLIST,
         PropertyType.STRING);
-    propFour.createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+    propFour.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
-    oClass.createProperty(database, "prop5", PropertyType.EMBEDDEDMAP, PropertyType.STRING);
-    oClass.createIndex(database, "classIndexManagerTestIndexByKey",
+    oClass.createProperty(db, "prop5", PropertyType.EMBEDDEDMAP, PropertyType.STRING);
+    oClass.createIndex(db, "classIndexManagerTestIndexByKey",
         SchemaClass.INDEX_TYPE.NOTUNIQUE,
         "prop5");
-    oClass.createIndex(database,
+    oClass.createIndex(db,
         "classIndexManagerTestIndexByValue", SchemaClass.INDEX_TYPE.NOTUNIQUE, "prop5 by value");
 
-    final Property propSix = oClass.createProperty(database, "prop6", PropertyType.EMBEDDEDSET,
+    final Property propSix = oClass.createProperty(db, "prop6", PropertyType.EMBEDDEDSET,
         PropertyType.STRING);
-    propSix.createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+    propSix.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
-    oClass.createIndex(database,
+    oClass.createIndex(db,
         "classIndexManagerComposite",
         SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
         Map.of("ignoreNullValues", true), new String[]{"prop1", "prop2"});
 
     final SchemaClass oClassTwo = schema.createClass("classIndexManagerTestClassTwo");
-    oClassTwo.createProperty(database, "prop1", PropertyType.STRING);
-    oClassTwo.createProperty(database, "prop2", PropertyType.INTEGER);
+    oClassTwo.createProperty(db, "prop1", PropertyType.STRING);
+    oClassTwo.createProperty(db, "prop2", PropertyType.INTEGER);
 
     final SchemaClass compositeCollectionClass =
         schema.createClass("classIndexManagerTestCompositeCollectionClass");
-    compositeCollectionClass.createProperty(database, "prop1", PropertyType.STRING);
-    compositeCollectionClass.createProperty(database, "prop2", PropertyType.EMBEDDEDLIST,
+    compositeCollectionClass.createProperty(db, "prop1", PropertyType.STRING);
+    compositeCollectionClass.createProperty(db, "prop2", PropertyType.EMBEDDEDLIST,
         PropertyType.INTEGER);
 
-    compositeCollectionClass.createIndex(database,
+    compositeCollectionClass.createIndex(db,
         "classIndexManagerTestIndexValueAndCollection",
         SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
         Map.of("ignoreNullValues", true),
         new String[]{"prop1", "prop2"});
 
-    oClass.createIndex(database,
+    oClass.createIndex(db,
         "classIndexManagerTestIndexOnPropertiesFromClassAndSuperclass",
         SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
         Map.of("ignoreNullValues", true),
         new String[]{"prop0", "prop1"});
 
-    database.close();
+    db.close();
   }
 
   @AfterMethod
   public void afterMethod() throws Exception {
-    database.begin();
-    database.command("delete from classIndexManagerTestClass").close();
-    database.commit();
+    db.begin();
+    db.command("delete from classIndexManagerTestClass").close();
+    db.commit();
 
-    database.begin();
-    database.command("delete from classIndexManagerTestClassTwo").close();
-    database.commit();
+    db.begin();
+    db.command("delete from classIndexManagerTestClassTwo").close();
+    db.commit();
 
-    database.begin();
-    database.command("delete from classIndexManagerTestSuperClass").close();
-    database.commit();
+    db.begin();
+    db.command("delete from classIndexManagerTestSuperClass").close();
+    db.commit();
 
-    if (!database.getStorage().isRemote()) {
+    if (!db.getStorage().isRemote()) {
       Assert.assertEquals(
-          database
+          db
               .getMetadata()
               .getIndexManagerInternal()
-              .getIndex(database, "classIndexManagerTestClass.prop1")
+              .getIndex(db, "classIndexManagerTestClass.prop1")
               .getInternal()
-              .size(database),
+              .size(db),
           0);
       Assert.assertEquals(
-          database
+          db
               .getMetadata()
               .getIndexManagerInternal()
-              .getIndex(database, "classIndexManagerTestClass.prop2")
+              .getIndex(db, "classIndexManagerTestClass.prop2")
               .getInternal()
-              .size(database),
+              .size(db),
           0);
     }
 
@@ -165,20 +165,20 @@ public class ClassIndexManagerTest extends BaseDBTest {
   }
 
   public void testPropertiesCheckUniqueIndexDubKeysCreate() {
-    final EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
-    final EntityImpl docTwo = new EntityImpl("classIndexManagerTestClass");
+    final EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     docOne.field("prop1", "a");
-    database.begin();
+    db.begin();
     docOne.save();
-    database.commit();
+    db.commit();
 
     boolean exceptionThrown = false;
     try {
       docTwo.field("prop1", "a");
-      database.begin();
+      db.begin();
       docTwo.save();
-      database.commit();
+      db.commit();
 
     } catch (RecordDuplicatedException e) {
       exceptionThrown = true;
@@ -187,48 +187,48 @@ public class ClassIndexManagerTest extends BaseDBTest {
   }
 
   public void testPropertiesCheckUniqueIndexDubKeyIsNullCreate() {
-    final EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
-    final EntityImpl docTwo = new EntityImpl("classIndexManagerTestClass");
+    final EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     docOne.field("prop1", "a");
-    database.begin();
+    db.begin();
     docOne.save();
-    database.commit();
+    db.commit();
 
     docTwo.field("prop1", (String) null);
-    database.begin();
+    db.begin();
     docTwo.save();
-    database.commit();
+    db.commit();
   }
 
   public void testPropertiesCheckUniqueIndexDubKeyIsNullCreateInTx() {
-    final EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
-    final EntityImpl docTwo = new EntityImpl("classIndexManagerTestClass");
+    final EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
-    database.begin();
+    db.begin();
     docOne.field("prop1", "a");
     docOne.save();
 
     docTwo.field("prop1", (String) null);
     docTwo.save();
-    database.commit();
+    db.commit();
   }
 
   public void testPropertiesCheckUniqueIndexInParentDubKeysCreate() {
-    final EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
-    final EntityImpl docTwo = new EntityImpl("classIndexManagerTestClass");
+    final EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     docOne.field("prop0", "a");
-    database.begin();
+    db.begin();
     docOne.save();
-    database.commit();
+    db.commit();
 
     boolean exceptionThrown = false;
     try {
       docTwo.field("prop0", "a");
-      database.begin();
+      db.begin();
       docTwo.save();
-      database.commit();
+      db.commit();
     } catch (RecordDuplicatedException e) {
       exceptionThrown = true;
     }
@@ -236,29 +236,29 @@ public class ClassIndexManagerTest extends BaseDBTest {
   }
 
   public void testPropertiesCheckUniqueIndexDubKeysUpdate() {
-    database.begin();
-    EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
-    EntityImpl docTwo = new EntityImpl("classIndexManagerTestClass");
+    db.begin();
+    EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    EntityImpl docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     boolean exceptionThrown = false;
     docOne.field("prop1", "a");
 
     docOne.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
+    db.begin();
     docTwo.field("prop1", "b");
 
     docTwo.save();
-    database.commit();
+    db.commit();
 
     try {
-      database.begin();
-      docTwo = database.bindToSession(docTwo);
+      db.begin();
+      docTwo = db.bindToSession(docTwo);
       docTwo.field("prop1", "a");
 
       docTwo.save();
-      database.commit();
+      db.commit();
     } catch (RecordDuplicatedException e) {
       exceptionThrown = true;
     }
@@ -266,34 +266,34 @@ public class ClassIndexManagerTest extends BaseDBTest {
   }
 
   public void testPropertiesCheckUniqueIndexDubKeyIsNullUpdate() {
-    database.begin();
-    EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
-    EntityImpl docTwo = new EntityImpl("classIndexManagerTestClass");
+    db.begin();
+    EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    EntityImpl docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     docOne.field("prop1", "a");
 
     docOne.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
+    db.begin();
     docTwo.field("prop1", "b");
 
     docTwo.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    docTwo = database.bindToSession(docTwo);
+    db.begin();
+    docTwo = db.bindToSession(docTwo);
     docTwo.field("prop1", (String) null);
 
     docTwo.save();
-    database.commit();
+    db.commit();
   }
 
   public void testPropertiesCheckUniqueIndexDubKeyIsNullUpdateInTX() {
-    final EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
-    final EntityImpl docTwo = new EntityImpl("classIndexManagerTestClass");
+    final EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
-    database.begin();
+    db.begin();
     docOne.field("prop1", "a");
     docOne.save();
 
@@ -302,61 +302,61 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     docTwo.field("prop1", (String) null);
     docTwo.save();
-    database.commit();
+    db.commit();
   }
 
   public void testPropertiesCheckNonUniqueIndexDubKeys() {
-    final EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
+    final EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     docOne.field("prop2", 1);
-    database.begin();
+    db.begin();
     docOne.save();
-    database.commit();
+    db.commit();
 
-    final EntityImpl docTwo = new EntityImpl("classIndexManagerTestClass");
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     docTwo.field("prop2", 1);
-    database.begin();
+    db.begin();
     docTwo.save();
-    database.commit();
+    db.commit();
   }
 
   public void testPropertiesCheckUniqueNullKeys() {
-    final EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
-    database.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    db.begin();
     docOne.save();
-    database.commit();
+    db.commit();
 
-    final EntityImpl docTwo = new EntityImpl("classIndexManagerTestClass");
-    database.begin();
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    db.begin();
     docTwo.save();
-    database.commit();
+    db.commit();
   }
 
   public void testCreateDocumentWithoutClass() {
     checkEmbeddedDB();
 
     final Collection<? extends Index> beforeIndexes =
-        database.getMetadata().getIndexManagerInternal().getIndexes(database);
+        db.getMetadata().getIndexManagerInternal().getIndexes(db);
     final Map<String, Long> indexSizeMap = new HashMap<>();
 
     for (final Index index : beforeIndexes) {
-      indexSizeMap.put(index.getName(), index.getInternal().size(database));
+      indexSizeMap.put(index.getName(), index.getInternal().size(db));
     }
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
     docOne.field("prop1", "a");
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
     docTwo.field("prop1", "a");
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
     final Collection<? extends Index> afterIndexes =
-        database.getMetadata().getIndexManagerInternal().getIndexes(database);
+        db.getMetadata().getIndexManagerInternal().getIndexes(db);
     for (final Index index : afterIndexes) {
       Assert.assertEquals(
-          index.getInternal().size(database), indexSizeMap.get(index.getName()).longValue());
+          index.getInternal().size(db), indexSizeMap.get(index.getName()).longValue());
     }
   }
 
@@ -364,249 +364,249 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     final Collection<? extends Index> beforeIndexes =
-        database.getMetadata().getIndexManagerInternal().getIndexes(database);
+        db.getMetadata().getIndexManagerInternal().getIndexes(db);
     final Map<String, Long> indexSizeMap = new HashMap<>();
 
     for (final Index index : beforeIndexes) {
-      indexSizeMap.put(index.getName(), index.getInternal().size(database));
+      indexSizeMap.put(index.getName(), index.getInternal().size(db));
     }
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
     docOne.field("prop1", "a");
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
     docTwo.field("prop1", "b");
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
     docOne.field("prop1", "a");
     docOne.save();
-    database.commit();
+    db.commit();
 
     final Collection<? extends Index> afterIndexes =
-        database.getMetadata().getIndexManagerInternal().getIndexes(database);
+        db.getMetadata().getIndexManagerInternal().getIndexes(db);
     for (final Index index : afterIndexes) {
       Assert.assertEquals(
-          index.getInternal().size(database), indexSizeMap.get(index.getName()).longValue());
+          index.getInternal().size(db), indexSizeMap.get(index.getName()).longValue());
     }
   }
 
   public void testDeleteDocumentWithoutClass() {
-    final EntityImpl docOne = new EntityImpl();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
     docOne.field("prop1", "a");
 
-    database.begin();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    db.begin();
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
-    database.begin();
-    database.bindToSession(docOne).delete();
-    database.commit();
+    db.begin();
+    db.bindToSession(docOne).delete();
+    db.commit();
   }
 
   public void testDeleteModifiedDocumentWithoutClass() {
-    EntityImpl docOne = new EntityImpl();
+    EntityImpl docOne = ((EntityImpl) db.newEntity());
     docOne.field("prop1", "a");
 
-    database.begin();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    db.begin();
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
-    database.begin();
-    docOne = database.bindToSession(docOne);
+    db.begin();
+    docOne = db.bindToSession(docOne);
     docOne.field("prop1", "b");
     docOne.delete();
-    database.commit();
+    db.commit();
   }
 
   public void testDocumentUpdateWithoutDirtyFields() {
-    database.begin();
-    EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
+    db.begin();
+    EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     docOne.field("prop1", "a");
 
     docOne.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    docOne = database.bindToSession(docOne);
+    db.begin();
+    docOne = db.bindToSession(docOne);
     docOne.setDirty();
     docOne.save();
-    database.commit();
+    db.commit();
   }
 
   public void testCreateDocumentIndexRecordAdded() {
     checkEmbeddedDB();
 
-    final EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
+    final EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
 
-    database.begin();
+    db.begin();
     doc.save();
-    database.commit();
+    db.commit();
 
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     final SchemaClass oClass = schema.getClass("classIndexManagerTestClass");
     final SchemaClass oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
 
-    final Index propOneIndex = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "classIndexManagerTestClass.prop1");
-    try (Stream<RID> stream = propOneIndex.getInternal().getRids(database, "a")) {
+    final Index propOneIndex = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "classIndexManagerTestClass.prop1");
+    try (Stream<RID> stream = propOneIndex.getInternal().getRids(db, "a")) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
-    Assert.assertEquals(propOneIndex.getInternal().size(database), 1);
+    Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
 
-    final Index compositeIndex = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "classIndexManagerComposite");
+    final Index compositeIndex = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "classIndexManagerComposite");
 
     final IndexDefinition compositeIndexDefinition = compositeIndex.getDefinition();
     try (Stream<RID> rids =
         compositeIndex
             .getInternal()
-            .getRids(database, compositeIndexDefinition.createValue(database, "a", 1))) {
+            .getRids(db, compositeIndexDefinition.createValue(db, "a", 1))) {
       Assert.assertTrue(rids.findFirst().isPresent());
     }
-    Assert.assertEquals(compositeIndex.getInternal().size(database), 1);
+    Assert.assertEquals(compositeIndex.getInternal().size(db), 1);
 
-    final Index propZeroIndex = database.getMetadata().getIndexManagerInternal().getIndex(database,
+    final Index propZeroIndex = db.getMetadata().getIndexManagerInternal().getIndex(db,
         "classIndexManagerTestSuperClass.prop0");
-    try (Stream<RID> stream = propZeroIndex.getInternal().getRids(database, "x")) {
+    try (Stream<RID> stream = propZeroIndex.getInternal().getRids(db, "x")) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
-    Assert.assertEquals(propZeroIndex.getInternal().size(database), 1);
+    Assert.assertEquals(propZeroIndex.getInternal().size(db), 1);
   }
 
   public void testUpdateDocumentIndexRecordRemoved() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     final SchemaClass oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
     final SchemaClass oClass = schema.getClass("classIndexManagerTestClass");
 
-    final Index propOneIndex = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "classIndexManagerTestClass.prop1");
-    final Index compositeIndex = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "classIndexManagerComposite");
-    final Index propZeroIndex = database.getMetadata().getIndexManagerInternal().getIndex(database,
+    final Index propOneIndex = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "classIndexManagerTestClass.prop1");
+    final Index compositeIndex = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "classIndexManagerComposite");
+    final Index propZeroIndex = db.getMetadata().getIndexManagerInternal().getIndex(db,
         "classIndexManagerTestSuperClass.prop0");
 
-    Assert.assertEquals(propOneIndex.getInternal().size(database), 1);
-    Assert.assertEquals(compositeIndex.getInternal().size(database), 1);
-    Assert.assertEquals(propZeroIndex.getInternal().size(database), 1);
+    Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
+    Assert.assertEquals(compositeIndex.getInternal().size(db), 1);
+    Assert.assertEquals(propZeroIndex.getInternal().size(db), 1);
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.begin();
+    doc = db.bindToSession(doc);
     doc.removeField("prop2");
     doc.removeField("prop0");
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(propOneIndex.getInternal().size(database), 1);
-    Assert.assertEquals(compositeIndex.getInternal().size(database), 0);
-    Assert.assertEquals(propZeroIndex.getInternal().size(database), 0);
+    Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
+    Assert.assertEquals(compositeIndex.getInternal().size(db), 0);
+    Assert.assertEquals(propZeroIndex.getInternal().size(db), 0);
   }
 
   public void testUpdateDocumentNullKeyIndexRecordRemoved() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     final SchemaClass oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
     final SchemaClass oClass = schema.getClass("classIndexManagerTestClass");
 
-    final Index propOneIndex = database.getMetadata().getIndexManagerInternal().getIndex(database,
+    final Index propOneIndex = db.getMetadata().getIndexManagerInternal().getIndex(db,
         "classIndexManagerTestClass.prop1");
-    final Index compositeIndex = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "classIndexManagerComposite");
-    final Index propZeroIndex = database.getMetadata().getIndexManagerInternal().getIndex(database,
+    final Index compositeIndex = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "classIndexManagerComposite");
+    final Index propZeroIndex = db.getMetadata().getIndexManagerInternal().getIndex(db,
         "classIndexManagerTestSuperClass.prop0");
 
-    Assert.assertEquals(propOneIndex.getInternal().size(database), 1);
-    Assert.assertEquals(compositeIndex.getInternal().size(database), 1);
-    Assert.assertEquals(propZeroIndex.getInternal().size(database), 1);
+    Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
+    Assert.assertEquals(compositeIndex.getInternal().size(db), 1);
+    Assert.assertEquals(propZeroIndex.getInternal().size(db), 1);
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.begin();
+    doc = db.bindToSession(doc);
     doc.field("prop2", (Object) null);
     doc.field("prop0", (Object) null);
     doc.save();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(propOneIndex.getInternal().size(database), 1);
-    Assert.assertEquals(compositeIndex.getInternal().size(database), 0);
-    Assert.assertEquals(propZeroIndex.getInternal().size(database), 0);
+    Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
+    Assert.assertEquals(compositeIndex.getInternal().size(db), 0);
+    Assert.assertEquals(propZeroIndex.getInternal().size(db), 0);
   }
 
   public void testUpdateDocumentIndexRecordUpdated() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     final SchemaClass oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
     final SchemaClass oClass = schema.getClass("classIndexManagerTestClass");
 
-    final Index propZeroIndex = database.getMetadata().getIndexManagerInternal().getIndex(database,
+    final Index propZeroIndex = db.getMetadata().getIndexManagerInternal().getIndex(db,
         "classIndexManagerTestSuperClass.prop0");
-    final Index propOneIndex = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "classIndexManagerTestClass.prop1");
-    final Index compositeIndex = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "classIndexManagerComposite");
+    final Index propOneIndex = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "classIndexManagerTestClass.prop1");
+    final Index compositeIndex = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "classIndexManagerComposite");
     final IndexDefinition compositeIndexDefinition = compositeIndex.getDefinition();
 
-    Assert.assertEquals(propOneIndex.getInternal().size(database), 1);
-    Assert.assertEquals(compositeIndex.getInternal().size(database), 1);
-    Assert.assertEquals(propZeroIndex.getInternal().size(database), 1);
+    Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
+    Assert.assertEquals(compositeIndex.getInternal().size(db), 1);
+    Assert.assertEquals(propZeroIndex.getInternal().size(db), 1);
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.begin();
+    doc = db.bindToSession(doc);
     doc.field("prop2", 2);
     doc.field("prop0", "y");
     doc.save();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(propOneIndex.getInternal().size(database), 1);
-    Assert.assertEquals(compositeIndex.getInternal().size(database), 1);
-    Assert.assertEquals(propZeroIndex.getInternal().size(database), 1);
+    Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
+    Assert.assertEquals(compositeIndex.getInternal().size(db), 1);
+    Assert.assertEquals(propZeroIndex.getInternal().size(db), 1);
 
-    try (Stream<RID> stream = propZeroIndex.getInternal().getRids(database, "y")) {
+    try (Stream<RID> stream = propZeroIndex.getInternal().getRids(db, "y")) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
-    try (Stream<RID> stream = propOneIndex.getInternal().getRids(database, "a")) {
+    try (Stream<RID> stream = propOneIndex.getInternal().getRids(db, "a")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
     try (Stream<RID> stream =
         compositeIndex
             .getInternal()
-            .getRids(database, compositeIndexDefinition.createValue(database, "a", 2))) {
+            .getRids(db, compositeIndexDefinition.createValue(db, "a", 2))) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
@@ -614,42 +614,42 @@ public class ClassIndexManagerTest extends BaseDBTest {
   public void testUpdateDocumentIndexRecordUpdatedFromNullField() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     doc.field("prop1", "a");
     doc.field("prop2", (Object) null);
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     final SchemaClass oClass = schema.getClass("classIndexManagerTestClass");
 
-    final Index propOneIndex = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "classIndexManagerTestClass.prop1");
-    final Index compositeIndex = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "classIndexManagerComposite");
+    final Index propOneIndex = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "classIndexManagerTestClass.prop1");
+    final Index compositeIndex = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "classIndexManagerComposite");
     final IndexDefinition compositeIndexDefinition = compositeIndex.getDefinition();
 
-    Assert.assertEquals(propOneIndex.getInternal().size(database), 1);
-    Assert.assertEquals(compositeIndex.getInternal().size(database), 0);
+    Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
+    Assert.assertEquals(compositeIndex.getInternal().size(db), 0);
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.begin();
+    doc = db.bindToSession(doc);
     doc.field("prop2", 2);
     doc.save();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(propOneIndex.getInternal().size(database), 1);
-    Assert.assertEquals(compositeIndex.getInternal().size(database), 1);
+    Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
+    Assert.assertEquals(compositeIndex.getInternal().size(db), 1);
 
-    try (Stream<RID> stream = propOneIndex.getInternal().getRids(database, "a")) {
+    try (Stream<RID> stream = propOneIndex.getInternal().getRids(db, "a")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
     try (Stream<RID> stream =
         compositeIndex
             .getInternal()
-            .getRids(database, compositeIndexDefinition.createValue(database, "a", 2))) {
+            .getRids(db, compositeIndexDefinition.createValue(db, "a", 2))) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
   }
@@ -657,16 +657,16 @@ public class ClassIndexManagerTest extends BaseDBTest {
   public void testListUpdate() {
     checkEmbeddedDB();
 
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     final SchemaClass oClass = schema.getClass("classIndexManagerTestClass");
 
-    final Index propFourIndex = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "classIndexManagerTestClass.prop4");
+    final Index propFourIndex = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "classIndexManagerTestClass.prop4");
 
-    Assert.assertEquals(propFourIndex.getInternal().size(database), 0);
+    Assert.assertEquals(propFourIndex.getInternal().size(db), 0);
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     final List<String> listProperty = new ArrayList<>();
     listProperty.add("value1");
@@ -674,18 +674,18 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     doc.field("prop4", listProperty);
     doc.save();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(propFourIndex.getInternal().size(database), 2);
-    try (Stream<RID> stream = propFourIndex.getInternal().getRids(database, "value1")) {
+    Assert.assertEquals(propFourIndex.getInternal().size(db), 2);
+    try (Stream<RID> stream = propFourIndex.getInternal().getRids(db, "value1")) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
-    try (Stream<RID> stream = propFourIndex.getInternal().getRids(database, "value2")) {
+    try (Stream<RID> stream = propFourIndex.getInternal().getRids(db, "value2")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.begin();
+    doc = db.bindToSession(doc);
     List<String> trackedList = doc.field("prop4");
     trackedList.set(0, "value3");
 
@@ -697,17 +697,17 @@ public class ClassIndexManagerTest extends BaseDBTest {
     trackedList.add("value5");
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(propFourIndex.getInternal().size(database), 3);
-    try (Stream<RID> stream = propFourIndex.getInternal().getRids(database, "value3")) {
+    Assert.assertEquals(propFourIndex.getInternal().size(db), 3);
+    try (Stream<RID> stream = propFourIndex.getInternal().getRids(db, "value3")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFourIndex.getInternal().getRids(database, "value4")) {
+    try (Stream<RID> stream = propFourIndex.getInternal().getRids(db, "value4")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    try (Stream<RID> stream = propFourIndex.getInternal().getRids(database, "value5")) {
+    try (Stream<RID> stream = propFourIndex.getInternal().getRids(db, "value5")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
@@ -715,17 +715,17 @@ public class ClassIndexManagerTest extends BaseDBTest {
   public void testMapUpdate() {
     checkEmbeddedDB();
 
-    final Index propFiveIndexKey = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database,
+    final Index propFiveIndexKey = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db,
             "classIndexManagerTestIndexByKey");
-    final Index propFiveIndexValue = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database,
+    final Index propFiveIndexValue = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db,
             "classIndexManagerTestIndexByValue");
 
-    Assert.assertEquals(propFiveIndexKey.getInternal().size(database), 0);
+    Assert.assertEquals(propFiveIndexKey.getInternal().size(db), 0);
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     final Map<String, String> mapProperty = new HashMap<>();
     mapProperty.put("key1", "value1");
@@ -733,18 +733,18 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     doc.field("prop5", mapProperty);
     doc.save();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(propFiveIndexKey.getInternal().size(database), 2);
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(database, "key1")) {
+    Assert.assertEquals(propFiveIndexKey.getInternal().size(db), 2);
+    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(database, "key2")) {
+    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key2")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.begin();
+    doc = db.bindToSession(doc);
     Map<String, String> trackedMap = doc.field("prop5");
     trackedMap.put("key3", "value3");
     trackedMap.put("key4", "value4");
@@ -759,36 +759,36 @@ public class ClassIndexManagerTest extends BaseDBTest {
     trackedMap.remove("key8");
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(propFiveIndexKey.getInternal().size(database), 5);
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(database, "key1")) {
+    Assert.assertEquals(propFiveIndexKey.getInternal().size(db), 5);
+    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(database, "key3")) {
+    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key3")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(database, "key4")) {
+    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key4")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(database, "key6")) {
+    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key6")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(database, "key7")) {
+    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key7")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    Assert.assertEquals(propFiveIndexValue.getInternal().size(database), 4);
-    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(database, "value5")) {
+    Assert.assertEquals(propFiveIndexValue.getInternal().size(db), 4);
+    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(db, "value5")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(database, "value3")) {
+    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(db, "value3")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(database, "value7")) {
+    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(db, "value7")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(database, "value6")) {
+    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(db, "value6")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
@@ -796,13 +796,13 @@ public class ClassIndexManagerTest extends BaseDBTest {
   public void testSetUpdate() {
     checkEmbeddedDB();
 
-    final Index propSixIndex = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "classIndexManagerTestClass.prop6");
+    final Index propSixIndex = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "classIndexManagerTestClass.prop6");
 
-    Assert.assertEquals(propSixIndex.getInternal().size(database), 0);
+    Assert.assertEquals(propSixIndex.getInternal().size(db), 0);
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     final Set<String> setProperty = new HashSet<>();
     setProperty.add("value1");
@@ -810,18 +810,18 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     doc.field("prop6", setProperty);
     doc.save();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(propSixIndex.getInternal().size(database), 2);
-    try (Stream<RID> stream = propSixIndex.getInternal().getRids(database, "value1")) {
+    Assert.assertEquals(propSixIndex.getInternal().size(db), 2);
+    try (Stream<RID> stream = propSixIndex.getInternal().getRids(db, "value1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propSixIndex.getInternal().getRids(database, "value2")) {
+    try (Stream<RID> stream = propSixIndex.getInternal().getRids(db, "value2")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.begin();
+    doc = db.bindToSession(doc);
     Set<String> trackedSet = doc.field("prop6");
 
     //noinspection OverwrittenKey
@@ -835,13 +835,13 @@ public class ClassIndexManagerTest extends BaseDBTest {
     trackedSet.add("value5");
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(propSixIndex.getInternal().size(database), 2);
-    try (Stream<RID> stream = propSixIndex.getInternal().getRids(database, "value1")) {
+    Assert.assertEquals(propSixIndex.getInternal().size(db), 2);
+    try (Stream<RID> stream = propSixIndex.getInternal().getRids(db, "value1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propSixIndex.getInternal().getRids(database, "value5")) {
+    try (Stream<RID> stream = propSixIndex.getInternal().getRids(db, "value5")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
@@ -849,13 +849,13 @@ public class ClassIndexManagerTest extends BaseDBTest {
   public void testListDelete() {
     checkEmbeddedDB();
 
-    final Index propFourIndex = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "classIndexManagerTestClass.prop4");
+    final Index propFourIndex = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "classIndexManagerTestClass.prop4");
 
-    Assert.assertEquals(propFourIndex.getInternal().size(database), 0);
+    Assert.assertEquals(propFourIndex.getInternal().size(db), 0);
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     final List<String> listProperty = new ArrayList<>();
     listProperty.add("value1");
@@ -863,18 +863,18 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     doc.field("prop4", listProperty);
     doc.save();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(propFourIndex.getInternal().size(database), 2);
-    try (Stream<RID> stream = propFourIndex.getInternal().getRids(database, "value1")) {
+    Assert.assertEquals(propFourIndex.getInternal().size(db), 2);
+    try (Stream<RID> stream = propFourIndex.getInternal().getRids(db, "value1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFourIndex.getInternal().getRids(database, "value2")) {
+    try (Stream<RID> stream = propFourIndex.getInternal().getRids(db, "value2")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.begin();
+    doc = db.bindToSession(doc);
     List<String> trackedList = doc.field("prop4");
     trackedList.set(0, "value3");
 
@@ -886,46 +886,46 @@ public class ClassIndexManagerTest extends BaseDBTest {
     trackedList.add("value5");
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(propFourIndex.getInternal().size(database), 3);
-    try (Stream<RID> stream = propFourIndex.getInternal().getRids(database, "value3")) {
+    Assert.assertEquals(propFourIndex.getInternal().size(db), 3);
+    try (Stream<RID> stream = propFourIndex.getInternal().getRids(db, "value3")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFourIndex.getInternal().getRids(database, "value4")) {
+    try (Stream<RID> stream = propFourIndex.getInternal().getRids(db, "value4")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFourIndex.getInternal().getRids(database, "value5")) {
+    try (Stream<RID> stream = propFourIndex.getInternal().getRids(db, "value5")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.begin();
+    doc = db.bindToSession(doc);
     trackedList = doc.field("prop4");
     trackedList.remove("value3");
     trackedList.remove("value4");
     trackedList.add("value8");
 
     doc.delete();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(propFourIndex.getInternal().size(database), 0);
+    Assert.assertEquals(propFourIndex.getInternal().size(db), 0);
   }
 
   public void testMapDelete() {
     checkEmbeddedDB();
 
-    final Index propFiveIndexKey = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database,
+    final Index propFiveIndexKey = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db,
             "classIndexManagerTestIndexByKey");
-    final Index propFiveIndexValue = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database,
+    final Index propFiveIndexValue = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db,
             "classIndexManagerTestIndexByValue");
 
-    Assert.assertEquals(propFiveIndexKey.getInternal().size(database), 0);
+    Assert.assertEquals(propFiveIndexKey.getInternal().size(db), 0);
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     final Map<String, String> mapProperty = new HashMap<>();
     mapProperty.put("key1", "value1");
@@ -933,18 +933,18 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     doc.field("prop5", mapProperty);
     doc.save();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(propFiveIndexKey.getInternal().size(database), 2);
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(database, "key1")) {
+    Assert.assertEquals(propFiveIndexKey.getInternal().size(db), 2);
+    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(database, "key2")) {
+    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key2")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.begin();
+    doc = db.bindToSession(doc);
     Map<String, String> trackedMap = doc.field("prop5");
     trackedMap.put("key3", "value3");
     trackedMap.put("key4", "value4");
@@ -959,41 +959,41 @@ public class ClassIndexManagerTest extends BaseDBTest {
     trackedMap.remove("key8");
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(propFiveIndexKey.getInternal().size(database), 5);
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(database, "key1")) {
+    Assert.assertEquals(propFiveIndexKey.getInternal().size(db), 5);
+    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(database, "key3")) {
+    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key3")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(database, "key4")) {
+    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key4")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(database, "key6")) {
+    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key6")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(database, "key7")) {
-      Assert.assertTrue(stream.findAny().isPresent());
-    }
-
-    Assert.assertEquals(propFiveIndexValue.getInternal().size(database), 4);
-    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(database, "value5")) {
-      Assert.assertTrue(stream.findAny().isPresent());
-    }
-    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(database, "value3")) {
-      Assert.assertTrue(stream.findAny().isPresent());
-    }
-    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(database, "value7")) {
-      Assert.assertTrue(stream.findAny().isPresent());
-    }
-    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(database, "value6")) {
+    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key7")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    Assert.assertEquals(propFiveIndexValue.getInternal().size(db), 4);
+    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(db, "value5")) {
+      Assert.assertTrue(stream.findAny().isPresent());
+    }
+    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(db, "value3")) {
+      Assert.assertTrue(stream.findAny().isPresent());
+    }
+    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(db, "value7")) {
+      Assert.assertTrue(stream.findAny().isPresent());
+    }
+    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(db, "value6")) {
+      Assert.assertTrue(stream.findAny().isPresent());
+    }
+
+    db.begin();
+    doc = db.bindToSession(doc);
     trackedMap = doc.field("prop5");
 
     trackedMap.remove("key1");
@@ -1003,21 +1003,21 @@ public class ClassIndexManagerTest extends BaseDBTest {
     trackedMap.put("key11", "value11");
 
     doc.delete();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(propFiveIndexKey.getInternal().size(database), 0);
-    Assert.assertEquals(propFiveIndexValue.getInternal().size(database), 0);
+    Assert.assertEquals(propFiveIndexKey.getInternal().size(db), 0);
+    Assert.assertEquals(propFiveIndexValue.getInternal().size(db), 0);
   }
 
   public void testSetDelete() {
     checkEmbeddedDB();
-    final Index propSixIndex = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "classIndexManagerTestClass.prop6");
+    final Index propSixIndex = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "classIndexManagerTestClass.prop6");
 
-    Assert.assertEquals(propSixIndex.getInternal().size(database), 0);
+    Assert.assertEquals(propSixIndex.getInternal().size(db), 0);
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     final Set<String> setProperty = new HashSet<>();
     setProperty.add("value1");
@@ -1025,18 +1025,18 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     doc.field("prop6", setProperty);
     doc.save();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(propSixIndex.getInternal().size(database), 2);
-    try (Stream<RID> stream = propSixIndex.getInternal().getRids(database, "value1")) {
+    Assert.assertEquals(propSixIndex.getInternal().size(db), 2);
+    try (Stream<RID> stream = propSixIndex.getInternal().getRids(db, "value1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propSixIndex.getInternal().getRids(database, "value2")) {
+    try (Stream<RID> stream = propSixIndex.getInternal().getRids(db, "value2")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.begin();
+    doc = db.bindToSession(doc);
     Set<String> trackedSet = doc.field("prop6");
 
     //noinspection OverwrittenKey
@@ -1050,384 +1050,387 @@ public class ClassIndexManagerTest extends BaseDBTest {
     trackedSet.add("value5");
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(propSixIndex.getInternal().size(database), 2);
-    try (Stream<RID> stream = propSixIndex.getInternal().getRids(database, "value1")) {
+    Assert.assertEquals(propSixIndex.getInternal().size(db), 2);
+    try (Stream<RID> stream = propSixIndex.getInternal().getRids(db, "value1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propSixIndex.getInternal().getRids(database, "value5")) {
+    try (Stream<RID> stream = propSixIndex.getInternal().getRids(db, "value5")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.begin();
+    doc = db.bindToSession(doc);
     trackedSet = doc.field("prop6");
     trackedSet.remove("value1");
     trackedSet.add("value6");
 
     doc.delete();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(propSixIndex.getInternal().size(database), 0);
+    Assert.assertEquals(propSixIndex.getInternal().size(db), 0);
   }
 
   public void testDeleteDocumentIndexRecordDeleted() {
     checkEmbeddedDB();
 
-    final EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
+    final EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
 
-    database.begin();
+    db.begin();
     doc.save();
-    database.commit();
+    db.commit();
 
-    final Index propZeroIndex = database.getMetadata().getIndexManagerInternal().getIndex(database,
+    final Index propZeroIndex = db.getMetadata().getIndexManagerInternal().getIndex(db,
         "classIndexManagerTestSuperClass.prop0");
-    final Index propOneIndex = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "classIndexManagerTestClass.prop1");
-    final Index compositeIndex = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "classIndexManagerComposite");
+    final Index propOneIndex = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "classIndexManagerTestClass.prop1");
+    final Index compositeIndex = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "classIndexManagerComposite");
 
-    Assert.assertEquals(propZeroIndex.getInternal().size(database), 1);
-    Assert.assertEquals(propOneIndex.getInternal().size(database), 1);
-    Assert.assertEquals(compositeIndex.getInternal().size(database), 1);
+    Assert.assertEquals(propZeroIndex.getInternal().size(db), 1);
+    Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
+    Assert.assertEquals(compositeIndex.getInternal().size(db), 1);
 
-    database.begin();
-    database.bindToSession(doc).delete();
-    database.commit();
+    db.begin();
+    db.bindToSession(doc).delete();
+    db.commit();
 
-    Assert.assertEquals(propZeroIndex.getInternal().size(database), 0);
-    Assert.assertEquals(propOneIndex.getInternal().size(database), 0);
-    Assert.assertEquals(compositeIndex.getInternal().size(database), 0);
+    Assert.assertEquals(propZeroIndex.getInternal().size(db), 0);
+    Assert.assertEquals(propOneIndex.getInternal().size(db), 0);
+    Assert.assertEquals(compositeIndex.getInternal().size(db), 0);
   }
 
   public void testDeleteUpdatedDocumentIndexRecordDeleted() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    final Index propOneIndex = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "classIndexManagerTestClass.prop1");
-    final Index compositeIndex = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "classIndexManagerComposite");
+    final Index propOneIndex = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "classIndexManagerTestClass.prop1");
+    final Index compositeIndex = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "classIndexManagerComposite");
 
-    final Index propZeroIndex = database.getMetadata().getIndexManagerInternal().getIndex(database,
+    final Index propZeroIndex = db.getMetadata().getIndexManagerInternal().getIndex(db,
         "classIndexManagerTestSuperClass.prop0");
-    Assert.assertEquals(propZeroIndex.getInternal().size(database), 1);
-    Assert.assertEquals(propOneIndex.getInternal().size(database), 1);
-    Assert.assertEquals(compositeIndex.getInternal().size(database), 1);
+    Assert.assertEquals(propZeroIndex.getInternal().size(db), 1);
+    Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
+    Assert.assertEquals(compositeIndex.getInternal().size(db), 1);
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.begin();
+    doc = db.bindToSession(doc);
     doc.field("prop2", 2);
     doc.field("prop0", "y");
 
     doc.delete();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(propZeroIndex.getInternal().size(database), 0);
-    Assert.assertEquals(propOneIndex.getInternal().size(database), 0);
-    Assert.assertEquals(compositeIndex.getInternal().size(database), 0);
+    Assert.assertEquals(propZeroIndex.getInternal().size(db), 0);
+    Assert.assertEquals(propOneIndex.getInternal().size(db), 0);
+    Assert.assertEquals(compositeIndex.getInternal().size(db), 0);
   }
 
   public void testDeleteUpdatedDocumentNullFieldIndexRecordDeleted() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
+    db.begin();
+    final EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     doc.field("prop1", "a");
     doc.field("prop2", (Object) null);
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    final Index propOneIndex = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "classIndexManagerTestClass.prop1");
-    final Index compositeIndex = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "classIndexManagerComposite");
+    final Index propOneIndex = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "classIndexManagerTestClass.prop1");
+    final Index compositeIndex = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "classIndexManagerComposite");
 
-    Assert.assertEquals(propOneIndex.getInternal().size(database), 1);
-    Assert.assertEquals(compositeIndex.getInternal().size(database), 0);
+    Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
+    Assert.assertEquals(compositeIndex.getInternal().size(db), 0);
 
-    database.begin();
-    database.bindToSession(doc).delete();
-    database.commit();
+    db.begin();
+    db.bindToSession(doc).delete();
+    db.commit();
 
-    Assert.assertEquals(propOneIndex.getInternal().size(database), 0);
-    Assert.assertEquals(compositeIndex.getInternal().size(database), 0);
+    Assert.assertEquals(propOneIndex.getInternal().size(db), 0);
+    Assert.assertEquals(compositeIndex.getInternal().size(db), 0);
   }
 
   public void testDeleteUpdatedDocumentOrigNullFieldIndexRecordDeleted() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     doc.field("prop1", "a");
     doc.field("prop2", (Object) null);
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    final Index propOneIndex = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "classIndexManagerTestClass.prop1");
-    final Index compositeIndex = database.getMetadata().getIndexManagerInternal()
-        .getIndex(database, "classIndexManagerComposite");
+    final Index propOneIndex = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "classIndexManagerTestClass.prop1");
+    final Index compositeIndex = db.getMetadata().getIndexManagerInternal()
+        .getIndex(db, "classIndexManagerComposite");
 
-    Assert.assertEquals(propOneIndex.getInternal().size(database), 1);
-    Assert.assertEquals(compositeIndex.getInternal().size(database), 0);
+    Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
+    Assert.assertEquals(compositeIndex.getInternal().size(db), 0);
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.begin();
+    doc = db.bindToSession(doc);
     doc.field("prop2", 2);
 
     doc.delete();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(propOneIndex.getInternal().size(database), 0);
-    Assert.assertEquals(compositeIndex.getInternal().size(database), 0);
+    Assert.assertEquals(propOneIndex.getInternal().size(db), 0);
+    Assert.assertEquals(compositeIndex.getInternal().size(db), 0);
   }
 
   public void testNoClassIndexesUpdate() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestClassTwo");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClassTwo"));
     doc.field("prop1", "a");
 
     doc.save();
-    database.commit();
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.commit();
+    db.begin();
+    doc = db.bindToSession(doc);
     doc.field("prop1", "b");
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     final SchemaClassInternal oClass = (SchemaClassInternal) schema.getClass(
         "classIndexManagerTestClass");
 
-    final Collection<Index> indexes = oClass.getIndexesInternal(database);
+    final Collection<Index> indexes = oClass.getIndexesInternal(db);
     for (final Index index : indexes) {
-      Assert.assertEquals(index.getInternal().size(database), 0);
+      Assert.assertEquals(index.getInternal().size(db), 0);
     }
   }
 
   public void testNoClassIndexesDelete() {
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestClassTwo");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClassTwo"));
     doc.field("prop1", "a");
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    database.bindToSession(doc).delete();
-    database.commit();
+    db.begin();
+    db.bindToSession(doc).delete();
+    db.commit();
   }
 
   public void testCollectionCompositeCreation() {
     checkEmbeddedDB();
 
-    final EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
+    final EntityImpl doc = ((EntityImpl) db.newEntity(
+        "classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    database.begin();
+    db.begin();
     doc.save();
-    database.commit();
+    db.commit();
 
     final Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+            .getIndex(db, "classIndexManagerTestIndexValueAndCollection");
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     try (Stream<RID> stream = index.getInternal()
-        .getRids(database, new CompositeKey("test1", 1))) {
+        .getRids(db, new CompositeKey("test1", 1))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
     try (Stream<RID> stream = index.getInternal()
-        .getRids(database, new CompositeKey("test1", 2))) {
+        .getRids(db, new CompositeKey("test1", 2))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
 
-    database.begin();
-    database.bindToSession(doc).delete();
-    database.commit();
+    db.begin();
+    db.bindToSession(doc).delete();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testCollectionCompositeNullSimpleFieldCreation() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
+    db.begin();
+    final EntityImpl doc = ((EntityImpl) db.newEntity(
+        "classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", (Object) null);
     doc.field("prop2", Arrays.asList(1, 2));
 
     doc.save();
-    database.commit();
+    db.commit();
 
     final Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
-    Assert.assertEquals(index.getInternal().size(database), 0);
+            .getIndex(db, "classIndexManagerTestIndexValueAndCollection");
+    Assert.assertEquals(index.getInternal().size(db), 0);
 
-    database.begin();
-    database.bindToSession(doc).delete();
-    database.commit();
+    db.begin();
+    db.bindToSession(doc).delete();
+    db.commit();
   }
 
   public void testCollectionCompositeNullCollectionFieldCreation() {
     checkEmbeddedDB();
 
-    final EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
+    final EntityImpl doc = ((EntityImpl) db.newEntity(
+        "classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", (Object) null);
 
-    database.begin();
+    db.begin();
     doc.save();
-    database.commit();
+    db.commit();
 
     final Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
-    Assert.assertEquals(index.getInternal().size(database), 0);
+            .getIndex(db, "classIndexManagerTestIndexValueAndCollection");
+    Assert.assertEquals(index.getInternal().size(db), 0);
 
-    database.begin();
-    database.bindToSession(doc).delete();
-    database.commit();
+    db.begin();
+    db.bindToSession(doc).delete();
+    db.commit();
   }
 
   public void testCollectionCompositeUpdateSimpleField() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
+    db.begin();
     final Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+            .getIndex(db, "classIndexManagerTestIndexValueAndCollection");
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     doc.field("prop1", "test2");
 
     doc.save();
-    database.commit();
+    db.commit();
 
     try (Stream<RID> stream = index.getInternal()
-        .getRids(database, new CompositeKey("test2", 1))) {
+        .getRids(db, new CompositeKey("test2", 1))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
     try (Stream<RID> stream = index.getInternal()
-        .getRids(database, new CompositeKey("test2", 2))) {
+        .getRids(db, new CompositeKey("test2", 2))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
 
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
-    database.begin();
-    database.bindToSession(doc).delete();
-    database.commit();
+    db.begin();
+    db.bindToSession(doc).delete();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testCollectionCompositeUpdateCollectionWasAssigned() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
+    db.begin();
     final Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+            .getIndex(db, "classIndexManagerTestIndexValueAndCollection");
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     doc.field("prop2", Arrays.asList(1, 3));
 
     doc.save();
-    database.commit();
+    db.commit();
 
     try (Stream<RID> stream = index.getInternal()
-        .getRids(database, new CompositeKey("test1", 1))) {
+        .getRids(db, new CompositeKey("test1", 1))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
     try (Stream<RID> stream = index.getInternal()
-        .getRids(database, new CompositeKey("test1", 3))) {
+        .getRids(db, new CompositeKey("test1", 3))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
 
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
-    database.begin();
-    database.bindToSession(doc).delete();
-    database.commit();
+    db.begin();
+    db.bindToSession(doc).delete();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testCollectionCompositeUpdateCollectionWasChanged() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
+    db.begin();
     final Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+            .getIndex(db, "classIndexManagerTestIndexValueAndCollection");
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     List<Integer> docList = doc.field("prop2");
     docList.add(3);
     docList.add(4);
@@ -1436,55 +1439,55 @@ public class ClassIndexManagerTest extends BaseDBTest {
     docList.remove(0);
 
     doc.save();
-    database.commit();
+    db.commit();
 
     try (Stream<RID> stream = index.getInternal()
-        .getRids(database, new CompositeKey("test1", 2))) {
+        .getRids(db, new CompositeKey("test1", 2))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
     try (Stream<RID> stream = index.getInternal()
-        .getRids(database, new CompositeKey("test1", 3))) {
+        .getRids(db, new CompositeKey("test1", 3))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
     try (Stream<RID> stream = index.getInternal()
-        .getRids(database, new CompositeKey("test1", 4))) {
+        .getRids(db, new CompositeKey("test1", 4))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
     try (Stream<RID> stream = index.getInternal()
-        .getRids(database, new CompositeKey("test1", 5))) {
+        .getRids(db, new CompositeKey("test1", 5))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
 
-    Assert.assertEquals(index.getInternal().size(database), 4);
+    Assert.assertEquals(index.getInternal().size(db), 4);
 
-    database.begin();
-    database.bindToSession(doc).delete();
-    database.commit();
+    db.begin();
+    db.bindToSession(doc).delete();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testCollectionCompositeUpdateCollectionWasChangedSimpleFieldWasAssigned() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
+    db.begin();
     final Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+            .getIndex(db, "classIndexManagerTestIndexValueAndCollection");
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     List<Integer> docList = doc.field("prop2");
     docList.add(3);
     docList.add(4);
@@ -1495,161 +1498,161 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "test2");
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 4);
+    Assert.assertEquals(index.getInternal().size(db), 4);
 
     try (Stream<RID> stream = index.getInternal()
-        .getRids(database, new CompositeKey("test2", 2))) {
+        .getRids(db, new CompositeKey("test2", 2))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
     try (Stream<RID> stream = index.getInternal()
-        .getRids(database, new CompositeKey("test2", 3))) {
+        .getRids(db, new CompositeKey("test2", 3))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
     try (Stream<RID> stream = index.getInternal()
-        .getRids(database, new CompositeKey("test2", 4))) {
+        .getRids(db, new CompositeKey("test2", 4))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
     try (Stream<RID> stream = index.getInternal()
-        .getRids(database, new CompositeKey("test2", 5))) {
+        .getRids(db, new CompositeKey("test2", 5))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
 
-    database.begin();
-    database.bindToSession(doc).delete();
-    database.commit();
+    db.begin();
+    db.bindToSession(doc).delete();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testCollectionCompositeUpdateSimpleFieldNull() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
+    db.begin();
     final Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+            .getIndex(db, "classIndexManagerTestIndexValueAndCollection");
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     doc.field("prop1", (Object) null);
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
 
-    database.begin();
-    database.bindToSession(doc).delete();
-    database.commit();
+    db.begin();
+    db.bindToSession(doc).delete();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testCollectionCompositeUpdateCollectionWasAssignedNull() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
+    db.begin();
     final Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+            .getIndex(db, "classIndexManagerTestIndexValueAndCollection");
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     doc.field("prop2", (Object) null);
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
 
-    database.begin();
-    database.bindToSession(doc).delete();
-    database.commit();
+    db.begin();
+    db.bindToSession(doc).delete();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testCollectionCompositeUpdateBothAssignedNull() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.begin();
+    doc = db.bindToSession(doc);
     final Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+            .getIndex(db, "classIndexManagerTestIndexValueAndCollection");
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     doc.field("prop2", (Object) null);
     doc.field("prop1", (Object) null);
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
 
-    database.begin();
-    database.bindToSession(doc).delete();
-    database.commit();
+    db.begin();
+    db.bindToSession(doc).delete();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testCollectionCompositeUpdateCollectionWasChangedSimpleFieldWasAssignedNull() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
+    db.begin();
     final Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+            .getIndex(db, "classIndexManagerTestIndexValueAndCollection");
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     List<Integer> docList = doc.field("prop2");
     docList.add(3);
     docList.add(4);
@@ -1660,96 +1663,96 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", (Object) null);
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
 
-    database.begin();
-    database.bindToSession(doc).delete();
-    database.commit();
+    db.begin();
+    db.bindToSession(doc).delete();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testCollectionCompositeDeleteSimpleFieldAssigend() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
+    db.begin();
     final Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+            .getIndex(db, "classIndexManagerTestIndexValueAndCollection");
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     doc.field("prop1", "test2");
 
     doc.delete();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testCollectionCompositeDeleteCollectionFieldAssigend() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
+    db.begin();
     final Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+            .getIndex(db, "classIndexManagerTestIndexValueAndCollection");
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     doc.field("prop2", Arrays.asList(1, 3));
 
     doc.delete();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testCollectionCompositeDeleteCollectionFieldChanged() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
+    db.begin();
     final Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+            .getIndex(db, "classIndexManagerTestIndexValueAndCollection");
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     List<Integer> docList = doc.field("prop2");
     docList.add(3);
     docList.add(4);
@@ -1757,31 +1760,31 @@ public class ClassIndexManagerTest extends BaseDBTest {
     docList.remove(1);
 
     doc.delete();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testCollectionCompositeDeleteBothCollectionSimpleFieldChanged() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.begin();
+    doc = db.bindToSession(doc);
     final Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+            .getIndex(db, "classIndexManagerTestIndexValueAndCollection");
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     List<Integer> docList = doc.field("prop2");
     docList.add(3);
@@ -1792,149 +1795,149 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "test2");
 
     doc.delete();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testCollectionCompositeDeleteBothCollectionSimpleFieldAssigend() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
+    db.begin();
     final Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+            .getIndex(db, "classIndexManagerTestIndexValueAndCollection");
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     doc.field("prop2", Arrays.asList(1, 3));
     doc.field("prop1", "test2");
 
     doc.delete();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testCollectionCompositeDeleteSimpleFieldNull() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.begin();
+    doc = db.bindToSession(doc);
     final Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+            .getIndex(db, "classIndexManagerTestIndexValueAndCollection");
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     doc.field("prop1", (Object) null);
 
     doc.delete();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testCollectionCompositeDeleteCollectionFieldNull() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
+    db.begin();
     final Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+            .getIndex(db, "classIndexManagerTestIndexValueAndCollection");
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
-    doc = database.bindToSession(doc);
+    doc = db.bindToSession(doc);
     doc.field("prop2", (Object) null);
 
     doc.delete();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testCollectionCompositeDeleteBothSimpleCollectionFieldNull() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.begin();
+    doc = db.bindToSession(doc);
     final Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+            .getIndex(db, "classIndexManagerTestIndexValueAndCollection");
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     doc.field("prop2", (Object) null);
     doc.field("prop1", (Object) null);
 
     doc.delete();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testCollectionCompositeDeleteCollectionFieldChangedSimpleFieldNull() {
     checkEmbeddedDB();
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
     doc.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.begin();
+    doc = db.bindToSession(doc);
     final Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+            .getIndex(db, "classIndexManagerTestIndexValueAndCollection");
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     List<Integer> docList = doc.field("prop2");
     docList.add(3);
@@ -1945,35 +1948,35 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", (Object) null);
 
     doc.delete();
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testIndexOnPropertiesFromClassAndSuperclass() {
     checkEmbeddedDB();
 
-    final EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
+    final EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     docOne.field("prop0", "doc1-prop0");
     docOne.field("prop1", "doc1-prop1");
 
-    database.begin();
+    db.begin();
     docOne.save();
-    database.commit();
+    db.commit();
 
-    final EntityImpl docTwo = new EntityImpl("classIndexManagerTestClass");
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     docTwo.field("prop0", "doc2-prop0");
     docTwo.field("prop1", "doc2-prop1");
 
-    database.begin();
+    db.begin();
     docTwo.save();
-    database.commit();
+    db.commit();
 
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     final Index index =
-        database.getMetadata().getIndexManagerInternal()
-            .getIndex(database, "classIndexManagerTestIndexOnPropertiesFromClassAndSuperclass");
+        db.getMetadata().getIndexManagerInternal()
+            .getIndex(db, "classIndexManagerTestIndexOnPropertiesFromClassAndSuperclass");
 
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
   }
 }

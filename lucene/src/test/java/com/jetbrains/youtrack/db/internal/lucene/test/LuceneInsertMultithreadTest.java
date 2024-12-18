@@ -139,7 +139,7 @@ public class LuceneInsertMultithreadTest {
       try (DatabaseSession db = YOUTRACKDB.open(dbName, "admin", "admin")) {
         db.begin();
         for (int i = 0; i < cycle; i++) {
-          EntityImpl doc = new EntityImpl("City");
+          EntityImpl doc = ((EntityImpl) db.newEntity("City"));
 
           doc.field("name", "Rome");
 

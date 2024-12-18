@@ -19,19 +19,19 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
-import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableIdentity;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.IdentityChangeListener;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.id.ImmutableRecordId;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DirtyManager;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
@@ -93,7 +93,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   }
 
   @Nonnull
-  public RecordAbstract getRecord() {
+  public RecordAbstract getRecord(DatabaseSession db) {
     return this;
   }
 
@@ -254,7 +254,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     checkForBinding();
 
     return RecordSerializerJSON.INSTANCE
-        .toString(this, new StringBuilder(1024), format == null ? "" : format)
+        .toString(getSession(), this, new StringBuilder(1024), format == null ? "" : format)
         .toString();
   }
 
@@ -567,7 +567,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   }
 
   protected void track(Identifiable id) {
-    this.getDirtyManager().track(this, id);
+    this.getDirtyManager().track(getSession(), this, id);
   }
 
   protected void unTrack(Identifiable id) {

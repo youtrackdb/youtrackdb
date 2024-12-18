@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.SingleOpExecutionPlan;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.HashMap;
@@ -50,7 +50,7 @@ public abstract class SQLSimpleExecStatement extends SQLStatement {
 
   public ResultSet execute(
       DatabaseSessionInternal db,
-      Map params,
+      Map<Object, Object> params,
       CommandContext parentContext,
       boolean usePlanCache) {
     BasicCommandContext ctx = new BasicCommandContext();

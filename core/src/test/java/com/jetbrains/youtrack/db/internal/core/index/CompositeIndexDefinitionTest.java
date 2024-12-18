@@ -336,7 +336,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testDocumentToIndexSuccessful() {
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = (EntityImpl) db.newEntity();
 
     document.field("fOne", 12);
     document.field("fTwo", "test");
@@ -347,7 +347,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testDocumentToIndexMapValueSuccessful() {
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = (EntityImpl) db.newEntity();
 
     final Map<String, String> stringMap = new HashMap<String, String>();
     stringMap.put("key1", "val1");
@@ -376,7 +376,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testDocumentToIndexCollectionValueSuccessfulOne() {
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = (EntityImpl) db.newEntity();
 
     document.field("fOne", 12);
     document.field("fTwo", Arrays.asList(1, 2));
@@ -401,7 +401,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testDocumentToIndexCollectionValueEmptyOne() {
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = (EntityImpl) db.newEntity();
 
     document.field("fOne", 12);
     document.field("fTwo", Collections.emptyList());
@@ -420,7 +420,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testDocumentToIndexCollectionValueEmptyTwo() {
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = (EntityImpl) db.newEntity();
 
     document.field("fOne", Collections.emptyList());
     document.field("fTwo", 12);
@@ -439,7 +439,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testDocumentToIndexCollectionValueEmptyOneNullValuesSupport() {
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = (EntityImpl) db.newEntity();
 
     document.field("fOne", 12);
     document.field("fTwo", Collections.emptyList());
@@ -459,7 +459,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testDocumentToIndexCollectionValueEmptyTwoNullValuesSupport() {
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = (EntityImpl) db.newEntity();
 
     document.field("fOne", Collections.emptyList());
     document.field("fTwo", 12);
@@ -479,7 +479,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testDocumentToIndexRidBagValueSuccessfulOne() {
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = (EntityImpl) db.newEntity();
 
     final RidBag ridBag = new RidBag(db);
     ridBag.add(new RecordId("#1:10"));
@@ -510,7 +510,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testDocumentToIndexCollectionValueSuccessfulTwo() {
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = (EntityImpl) db.newEntity();
 
     document.field("fOne", 12);
     document.field("fTwo", Arrays.asList(1, 2));
@@ -540,7 +540,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     ridBag.add(new RecordId("#1:11"));
     ridBag.add(new RecordId("#1:11"));
 
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = (EntityImpl) db.newEntity();
 
     document.field("fOne", 12);
     document.field("fTwo", ridBag);
@@ -566,7 +566,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testDocumentToIndexCollectionValueSuccessfulThree() {
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = (EntityImpl) db.newEntity();
 
     document.field("fOne", 12);
     document.field("fTwo", Arrays.asList(1, 2));
@@ -594,7 +594,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testDocumentToIndexRidBagValueSuccessfulThree() {
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = (EntityImpl) db.newEntity();
 
     final RidBag ridBag = new RidBag(db);
     ridBag.add(new RecordId("#1:10"));
@@ -628,7 +628,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test(expected = BaseException.class)
   public void testDocumentToIndexCollectionValueTwoCollections() {
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = (EntityImpl) db.newEntity();
 
     document.field("fOne", List.of(12));
     document.field("fTwo", Arrays.asList(1, 2));
@@ -645,7 +645,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test(expected = DatabaseException.class)
   public void testDocumentToIndexWrongField() {
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = (EntityImpl) db.newEntity();
 
     document.field("fOne", "1t2");
     document.field("fTwo", "test");
@@ -680,7 +680,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
         new PropertyIndexDefinition("testClass", "fTwo", PropertyType.STRING));
 
     db.begin();
-    final EntityImpl docToStore = emptyCompositeIndex.toStream(new EntityImpl());
+    final EntityImpl docToStore = emptyCompositeIndex.toStream(db, (EntityImpl) db.newEntity());
     db.save(docToStore);
     db.commit();
 
@@ -694,7 +694,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testIndexReload() {
-    final EntityImpl docToStore = compositeIndex.toStream(new EntityImpl());
+    final EntityImpl docToStore = compositeIndex.toStream(db, (EntityImpl) db.newEntity());
 
     final CompositeIndexDefinition result = new CompositeIndexDefinition();
     result.fromStream(docToStore);
@@ -723,7 +723,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     Assert.assertEquals(emptyCompositeIndex, emptyCompositeIndexTwo);
 
     db.begin();
-    final EntityImpl entityToStore = emptyCompositeIndex.toStream(new EntityImpl());
+    final EntityImpl entityToStore = emptyCompositeIndex.toStream(db, (EntityImpl) db.newEntity());
     db.save(entityToStore);
     db.commit();
 
@@ -746,7 +746,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.INTEGER));
 
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -826,7 +826,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.INTEGER));
 
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -913,7 +913,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.INTEGER));
 
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -955,7 +955,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.INTEGER));
 
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -1002,7 +1002,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.INTEGER));
 
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -1045,7 +1045,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.INTEGER));
 
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 

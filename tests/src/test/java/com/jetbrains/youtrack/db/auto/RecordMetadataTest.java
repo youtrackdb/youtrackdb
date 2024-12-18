@@ -27,20 +27,20 @@ public class RecordMetadataTest extends BaseDBTest {
 
   public void testGetRecordMetadata() {
 
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = ((EntityImpl) db.newEntity());
     for (int i = 0; i < 5; i++) {
-      database.begin();
+      db.begin();
       if (!doc.getIdentity().isNew()) {
-        doc = database.bindToSession(doc);
+        doc = db.bindToSession(doc);
       }
 
       doc.field("field", i);
-      database.save(doc, database.getClusterNameById(database.getDefaultClusterId()));
-      database.commit();
+      db.save(doc, db.getClusterNameById(db.getDefaultClusterId()));
+      db.commit();
 
-      final RecordMetadata metadata = database.getRecordMetadata(doc.getIdentity());
+      final RecordMetadata metadata = db.getRecordMetadata(doc.getIdentity());
       assetORIDEquals(doc.getIdentity(), metadata.getRecordId());
-      assertEquals(database.bindToSession(doc).getVersion(), metadata.getVersion());
+      assertEquals(db.bindToSession(doc).getVersion(), metadata.getVersion());
     }
   }
 }

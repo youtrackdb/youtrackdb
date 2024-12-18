@@ -19,6 +19,9 @@
  */
 package com.jetbrains.youtrack.db.api.record;
 
+
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+
 /**
  * Hook abstract class that calls separate methods for each hook defined.
  *
@@ -46,9 +49,10 @@ public abstract class RecordHookAbstract implements RecordHook {
   /**
    * It's called just after the iRecord is created.
    *
+   * @param db
    * @param iRecord The iRecord just created
    */
-  public void onRecordAfterCreate(final Record iRecord) {
+  public void onRecordAfterCreate(DatabaseSession db, final Record iRecord) {
   }
 
   public void onRecordCreateFailed(final Record iRecord) {
@@ -69,9 +73,10 @@ public abstract class RecordHookAbstract implements RecordHook {
   /**
    * It's called just after the iRecord is read.
    *
+   * @param db
    * @param iRecord The iRecord just read
    */
-  public void onRecordAfterRead(final Record iRecord) {
+  public void onRecordAfterRead(DatabaseSession db, final Record iRecord) {
   }
 
   public void onRecordReadFailed(final Record iRecord) {
@@ -94,9 +99,10 @@ public abstract class RecordHookAbstract implements RecordHook {
   /**
    * It's called just after the iRecord is updated.
    *
+   * @param db
    * @param iRecord The iRecord just updated
    */
-  public void onRecordAfterUpdate(final Record iRecord) {
+  public void onRecordAfterUpdate(DatabaseSession db, final Record iRecord) {
   }
 
   public void onRecordUpdateFailed(final Record iRecord) {
@@ -119,9 +125,10 @@ public abstract class RecordHookAbstract implements RecordHook {
   /**
    * It's called just after the iRecord is deleted.
    *
+   * @param db
    * @param iRecord The iRecord just deleted
    */
-  public void onRecordAfterDelete(final Record iRecord) {
+  public void onRecordAfterDelete(DatabaseSession db, final Record iRecord) {
   }
 
   public void onRecordDeleteFailed(final Record iRecord) {
@@ -169,13 +176,13 @@ public abstract class RecordHookAbstract implements RecordHook {
   public void onRecordFinalizeDeletion(final Record record) {
   }
 
-  public RESULT onTrigger(final TYPE iType, final Record record) {
+  public RESULT onTrigger(DatabaseSession db, final TYPE iType, final Record record) {
     switch (iType) {
       case BEFORE_CREATE:
         return onRecordBeforeCreate(record);
 
       case AFTER_CREATE:
-        onRecordAfterCreate(record);
+        onRecordAfterCreate(db, record);
         break;
 
       case CREATE_FAILED:
@@ -190,7 +197,7 @@ public abstract class RecordHookAbstract implements RecordHook {
         return onRecordBeforeRead(record);
 
       case AFTER_READ:
-        onRecordAfterRead(record);
+        onRecordAfterRead(db, record);
         break;
 
       case READ_FAILED:
@@ -205,7 +212,7 @@ public abstract class RecordHookAbstract implements RecordHook {
         return onRecordBeforeUpdate(record);
 
       case AFTER_UPDATE:
-        onRecordAfterUpdate(record);
+        onRecordAfterUpdate(db, record);
         break;
 
       case UPDATE_FAILED:
@@ -220,7 +227,7 @@ public abstract class RecordHookAbstract implements RecordHook {
         return onRecordBeforeDelete(record);
 
       case AFTER_DELETE:
-        onRecordAfterDelete(record);
+        onRecordAfterDelete(db, record);
         break;
 
       case DELETE_FAILED:

@@ -3,15 +3,15 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor.metadata;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder.Operation;
 import java.util.Optional;
@@ -61,9 +61,9 @@ public class IndexFinderTest {
   public void testFindSimpleMatchHashIndex() {
     SchemaClass cl = this.session.createClass("cl");
     Property prop = cl.createProperty(session, "name", PropertyType.STRING);
-    prop.createIndex(session, INDEX_TYPE.NOTUNIQUE_HASH_INDEX);
+    prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
     Property prop1 = cl.createProperty(session, "surname", PropertyType.STRING);
-    prop1.createIndex(session, INDEX_TYPE.UNIQUE_HASH_INDEX);
+    prop1.createIndex(session, INDEX_TYPE.UNIQUE);
 
     IndexFinder finder = new ClassIndexFinder("cl");
     BasicCommandContext ctx = new BasicCommandContext(session);
@@ -102,9 +102,9 @@ public class IndexFinderTest {
   public void testFindRangeNotMatchIndex() {
     SchemaClass cl = this.session.createClass("cl");
     Property prop = cl.createProperty(session, "name", PropertyType.STRING);
-    prop.createIndex(session, INDEX_TYPE.NOTUNIQUE_HASH_INDEX);
+    prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
     Property prop1 = cl.createProperty(session, "surname", PropertyType.STRING);
-    prop1.createIndex(session, INDEX_TYPE.UNIQUE_HASH_INDEX);
+    prop1.createIndex(session, INDEX_TYPE.UNIQUE);
     Property prop2 = cl.createProperty(session, "third", PropertyType.STRING);
     prop2.createIndex(session, INDEX_TYPE.FULLTEXT);
 
@@ -150,19 +150,6 @@ public class IndexFinderTest {
     Optional<IndexCandidate> result = finder.findByValueIndex(new MetadataPath("map"), null, ctx);
 
     assertEquals("cl.map", result.get().getName());
-  }
-
-  @Test
-  public void testFindFullTextMatchIndex() {
-    SchemaClass cl = this.session.createClass("cl");
-    Property prop = cl.createProperty(session, "name", PropertyType.STRING);
-    prop.createIndex(session, INDEX_TYPE.FULLTEXT);
-
-    IndexFinder finder = new ClassIndexFinder("cl");
-    BasicCommandContext ctx = new BasicCommandContext(session);
-    Optional<IndexCandidate> result = finder.findFullTextIndex(new MetadataPath("name"), null, ctx);
-
-    assertEquals("cl.name", result.get().getName());
   }
 
   @Test
@@ -231,24 +218,6 @@ public class IndexFinderTest {
     path.addPre("friend");
     Optional<IndexCandidate> result = finder.findByValueIndex(path, null, ctx);
     assertEquals("cl.friend->cl.friend->cl.map->", result.get().getName());
-  }
-
-  @Test
-  public void testFindChainFullTextMatchIndex() {
-    SchemaClass cl = this.session.createClass("cl");
-    Property prop = cl.createProperty(session, "name", PropertyType.STRING);
-    prop.createIndex(session, INDEX_TYPE.FULLTEXT);
-    Property prop1 = cl.createProperty(session, "friend", PropertyType.LINK, cl);
-    prop1.createIndex(session, INDEX_TYPE.NOTUNIQUE);
-
-    IndexFinder finder = new ClassIndexFinder("cl");
-    BasicCommandContext ctx = new BasicCommandContext(session);
-    MetadataPath path = new MetadataPath("name");
-    path.addPre("friend");
-    path.addPre("friend");
-
-    Optional<IndexCandidate> result = finder.findFullTextIndex(path, null, ctx);
-    assertEquals("cl.friend->cl.friend->cl.name->", result.get().getName());
   }
 
   @Test

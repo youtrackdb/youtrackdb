@@ -16,15 +16,15 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.method.misc;
 
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.Result;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -65,14 +65,14 @@ public class SQLMethodField extends AbstractSQLMethod {
       }
       if (ioResult instanceof String) {
         try {
-          ioResult = new RecordId((String) ioResult).getRecord();
+          ioResult = new RecordId((String) ioResult).getRecord(db);
         } catch (Exception e) {
           LogManager.instance().error(this, "Error on reading rid with value '%s'", e, ioResult);
           ioResult = null;
         }
       } else if (ioResult instanceof Identifiable) {
         try {
-          ioResult = ((Identifiable) ioResult).getRecord();
+          ioResult = ((Identifiable) ioResult).getRecord(db);
         } catch (RecordNotFoundException rnf) {
           LogManager.instance()
               .error(this, "Error on reading rid with value '%s'", null, ioResult);
@@ -83,7 +83,7 @@ public class SQLMethodField extends AbstractSQLMethod {
           || ioResult.getClass().isArray()) {
         final List<Object> result = new ArrayList<Object>(MultiValue.getSize(ioResult));
         for (Object o : MultiValue.getMultiValueIterable(ioResult)) {
-          Object newlyAdded = DocumentHelper.getFieldValue(db, o, paramAsString);
+          Object newlyAdded = EntityHelper.getFieldValue(db, o, paramAsString);
           if (MultiValue.isMultiValue(newlyAdded)) {
             if (newlyAdded instanceof Map || newlyAdded instanceof Identifiable) {
               result.add(newlyAdded);
@@ -104,7 +104,7 @@ public class SQLMethodField extends AbstractSQLMethod {
       if (ioResult instanceof CommandContext) {
         ioResult = ((CommandContext) ioResult).getVariable(paramAsString);
       } else {
-        ioResult = DocumentHelper.getFieldValue(db, ioResult, paramAsString, iContext);
+        ioResult = EntityHelper.getFieldValue(db, ioResult, paramAsString, iContext);
       }
     }
 

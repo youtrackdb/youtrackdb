@@ -1,22 +1,22 @@
 package com.jetbrains.youtrack.db.internal.client.remote;
 
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
 import com.jetbrains.youtrack.db.internal.client.remote.message.LiveQueryPushRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.live.LiveQueryResult;
-import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
 
 /**
  *
  */
 public class LiveQueryClientListener {
 
-  private final DatabaseSession database;
+  private final DatabaseSessionInternal database;
   private final LiveQueryResultListener listener;
 
-  public LiveQueryClientListener(DatabaseSession database, LiveQueryResultListener listener) {
+  public LiveQueryClientListener(DatabaseSessionInternal database,
+      LiveQueryResultListener listener) {
     this.database = database;
     this.listener = listener;
   }

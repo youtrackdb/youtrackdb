@@ -21,7 +21,6 @@ package com.jetbrains.youtrack.db.internal.core.index;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
@@ -32,18 +31,15 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.MetadataUpdateListener;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
-import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.Metadata;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityResourceProperty;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sharding.auto.AutoShardingIndexFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.util.Arrays;
@@ -183,7 +179,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
     try {
       EntityImpl entity =
           database.computeInTx(
-              () -> database.save(new EntityImpl(), MetadataDefault.CLUSTER_INTERNAL_NAME));
+              () -> database.save(new EntityImpl(database), MetadataDefault.CLUSTER_INTERNAL_NAME));
       identity = entity.getIdentity();
       database.getStorage().setIndexMgrRecordId(entity.getIdentity().toString());
     } finally {
@@ -226,21 +222,6 @@ public class IndexManagerShared implements IndexManagerAbstract {
     } finally {
       releaseExclusiveLock(database);
     }
-  }
-
-  public Dictionary<Record> getDictionary(DatabaseSessionInternal database) {
-    Index idx;
-    acquireSharedLock();
-    try {
-      idx = getIndex(database, DICTIONARY_NAME);
-    } finally {
-      releaseSharedLock();
-    }
-    // we lock exclusively only when Dictionary not found
-    if (idx == null) {
-      idx = createDictionaryIfNeeded(database);
-    }
-    return new Dictionary<>(idx);
   }
 
   public EntityImpl getConfiguration(DatabaseSessionInternal session) {
@@ -363,22 +344,6 @@ public class IndexManagerShared implements IndexManagerAbstract {
         && index.getDefinition().getClassName() != null
         && className.equals(index.getDefinition().getClassName().toLowerCase())) {
       return index;
-    }
-    return null;
-  }
-
-  public Index getClassAutoShardingIndex(DatabaseSessionInternal database, String className) {
-    className = className.toLowerCase();
-
-    // LOOK FOR INDEX
-    for (Index index : indexes.values()) {
-      if (index != null
-          && AutoShardingIndexFactory.AUTOSHARDING_ALGORITHM.equals(index.getAlgorithm())
-          && index.getDefinition() != null
-          && index.getDefinition().getClassName() != null
-          && className.equals(index.getDefinition().getClassName().toLowerCase())) {
-        return index;
-      }
     }
     return null;
   }
@@ -524,27 +489,6 @@ public class IndexManagerShared implements IndexManagerAbstract {
     return Collections.unmodifiableMap(result);
   }
 
-  private Index createDictionaryIfNeeded(DatabaseSessionInternal database) {
-    acquireExclusiveLock();
-    try {
-      Index idx = getIndex(database, DICTIONARY_NAME);
-      return idx != null ? idx : createDictionary(database);
-    } finally {
-      releaseExclusiveLock(database, true);
-    }
-  }
-
-  private Index createDictionary(DatabaseSessionInternal database) {
-    return createIndex(
-        database,
-        DICTIONARY_NAME,
-        SchemaClass.INDEX_TYPE.DICTIONARY.toString(),
-        new SimpleKeyIndexDefinition(PropertyType.STRING),
-        null,
-        null,
-        null);
-  }
-
   private Map<MultiKey, Set<Index>> getIndexOnProperty(final String className) {
     acquireSharedLock();
     try {
@@ -638,7 +582,6 @@ public class IndexManagerShared implements IndexManagerAbstract {
       algorithm = Indexes.chooseDefaultIndexAlgorithm(type);
     }
 
-    final String valueContainerAlgorithm = chooseContainerAlgorithm(type);
 
     final IndexInternal index;
     acquireExclusiveLock();
@@ -673,7 +616,6 @@ public class IndexManagerShared implements IndexManagerAbstract {
               clustersToIndex,
               type,
               algorithm,
-              valueContainerAlgorithm,
               -1,
               metadata);
 
@@ -683,7 +625,6 @@ public class IndexManagerShared implements IndexManagerAbstract {
 
     } finally {
       releaseExclusiveLock(database, true);
-      notifyInvolvedClasses(database, clusterIdsToIndex);
     }
 
     return index;
@@ -757,22 +698,6 @@ public class IndexManagerShared implements IndexManagerAbstract {
     }
   }
 
-  private static void notifyInvolvedClasses(
-      DatabaseSessionInternal database, int[] clusterIdsToIndex) {
-    if (clusterIdsToIndex == null || clusterIdsToIndex.length == 0) {
-      return;
-    }
-
-    // UPDATE INVOLVED CLASSES
-    final Set<String> classes = new HashSet<>();
-    for (int clusterId : clusterIdsToIndex) {
-      final SchemaClass cls = database.getMetadata().getSchema().getClassByClusterId(clusterId);
-      if (cls instanceof SchemaClassImpl && !classes.contains(cls.getName())) {
-        ((SchemaClassImpl) cls).onPostIndexManagement(database);
-        classes.add(cls.getName());
-      }
-    }
-  }
 
   private static Set<String> findClustersByIds(
       int[] clusterIdsToIndex, DatabaseSessionInternal database) {
@@ -788,18 +713,6 @@ public class IndexManagerShared implements IndexManagerAbstract {
       }
     }
     return clustersToIndex;
-  }
-
-  private static String chooseContainerAlgorithm(String type) {
-    final String valueContainerAlgorithm;
-    if (SchemaClass.INDEX_TYPE.NOTUNIQUE.toString().equals(type)
-        || SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.toString().equals(type)
-        || SchemaClass.INDEX_TYPE.FULLTEXT.toString().equals(type)) {
-      valueContainerAlgorithm = DefaultIndexFactory.SBTREE_BONSAI_VALUE_CONTAINER;
-    } else {
-      valueContainerAlgorithm = DefaultIndexFactory.NONE_VALUE_CONTAINER;
-    }
-    return valueContainerAlgorithm;
   }
 
   public void dropIndex(DatabaseSessionInternal database, final String iIndexName) {
@@ -831,7 +744,6 @@ public class IndexManagerShared implements IndexManagerAbstract {
       }
     } finally {
       releaseExclusiveLock(database, true);
-      notifyInvolvedClasses(database, clusterIdsToIndex);
     }
   }
 

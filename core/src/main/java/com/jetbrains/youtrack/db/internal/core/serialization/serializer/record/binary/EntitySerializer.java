@@ -20,11 +20,11 @@
 
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary;
 
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryption;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 
@@ -33,7 +33,7 @@ public interface EntitySerializer {
   void serialize(DatabaseSessionInternal session, EntityImpl entity, BytesContainer bytes);
 
   int serializeValue(
-      DatabaseSessionInternal session, BytesContainer bytes,
+      DatabaseSessionInternal db, BytesContainer bytes,
       Object value,
       PropertyType type,
       PropertyType linkedType,
@@ -45,7 +45,7 @@ public interface EntitySerializer {
   void deserializePartial(DatabaseSessionInternal db, EntityImpl entity, BytesContainer bytes,
       String[] iFields);
 
-  Object deserializeValue(DatabaseSessionInternal session, BytesContainer bytes, PropertyType type,
+  Object deserializeValue(DatabaseSessionInternal db, BytesContainer bytes, PropertyType type,
       RecordElement owner);
 
   BinaryField deserializeField(

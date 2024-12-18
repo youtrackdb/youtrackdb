@@ -48,22 +48,22 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
     db.commit();
 
     v1 = db.bindToSession(v1);
-    Assert.assertEquals(v1.getSchemaType().get().getName(), "V");
+    Assert.assertEquals("V", v1.getSchemaType().get().getName());
 
     db.begin();
     Vertex v2 = db.command("create vertex V1").next().getVertex().get();
     db.commit();
 
     v2 = db.bindToSession(v2);
-    Assert.assertEquals(v2.getSchemaType().get().getName(), "V1");
+    Assert.assertEquals("V1", v2.getSchemaType().get().getName());
 
     db.begin();
     Vertex v3 = db.command("create vertex set brand = 'fiat'").next().getVertex().get();
     db.commit();
 
     v3 = db.bindToSession(v3);
-    Assert.assertEquals(v3.getSchemaType().get().getName(), "V");
-    Assert.assertEquals(v3.getProperty("brand"), "fiat");
+    Assert.assertEquals("V", v3.getSchemaType().get().getName());
+    Assert.assertEquals("fiat", v3.getProperty("brand"));
 
     db.begin();
     Vertex v4 =
@@ -71,16 +71,16 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
     db.commit();
 
     v4 = db.bindToSession(v4);
-    Assert.assertEquals(v4.getSchemaType().get().getName(), "V1");
-    Assert.assertEquals(v4.getProperty("brand"), "fiat");
-    Assert.assertEquals(v4.getProperty("name"), "wow");
+    Assert.assertEquals("V1", v4.getSchemaType().get().getName());
+    Assert.assertEquals("fiat", v4.getProperty("brand"));
+    Assert.assertEquals("wow", v4.getProperty("name"));
 
     db.begin();
     Vertex v5 = db.command("create vertex V1 cluster vdefault").next().getVertex().get();
     db.commit();
 
     v5 = db.bindToSession(v5);
-    Assert.assertEquals(v5.getSchemaType().get().getName(), "V1");
+    Assert.assertEquals("V1", v5.getSchemaType().get().getName());
     Assert.assertEquals(v5.getIdentity().getClusterId(), vclusterId);
 
     // EDGES
@@ -88,12 +88,12 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
     ResultSet edges =
         db.command("create edge from " + v1.getIdentity() + " to " + v2.getIdentity());
     db.commit();
-    assertEquals(edges.stream().count(), 1);
+    assertEquals(1, edges.stream().count());
 
     db.begin();
     edges = db.command("create edge E1 from " + v1.getIdentity() + " to " + v3.getIdentity());
     db.commit();
-    assertEquals(edges.stream().count(), 1);
+    assertEquals(1, edges.stream().count());
 
     db.begin();
     edges =
@@ -101,11 +101,11 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
             "create edge from " + v1.getIdentity() + " to " + v4.getIdentity() + " set weight = 3");
     db.commit();
 
-    EntityImpl e3 = edges.next().getIdentity().get().getRecord();
-    Assert.assertEquals(e3.getClassName(), "E");
+    EntityImpl e3 = edges.next().getIdentity().get().getRecord(db);
+    Assert.assertEquals("E", e3.getClassName());
     Assert.assertEquals(e3.field("out"), v1);
     Assert.assertEquals(e3.field("in"), v4);
-    Assert.assertEquals(e3.<Object>field("weight"), 3);
+    Assert.assertEquals(3, e3.<Object>field("weight"));
 
     db.begin();
     edges =
@@ -116,11 +116,11 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
                 + v3.getIdentity()
                 + " set weight = 10");
     db.commit();
-    EntityImpl e4 = edges.next().getIdentity().get().getRecord();
-    Assert.assertEquals(e4.getClassName(), "E1");
+    EntityImpl e4 = edges.next().getIdentity().get().getRecord(db);
+    Assert.assertEquals("E1", e4.getClassName());
     Assert.assertEquals(e4.field("out"), v2);
     Assert.assertEquals(e4.field("in"), v3);
-    Assert.assertEquals(e4.<Object>field("weight"), 10);
+    Assert.assertEquals(10, e4.<Object>field("weight"));
 
     db.begin();
     edges =
@@ -131,8 +131,8 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
                 + v5.getIdentity()
                 + " set weight = 17");
     db.commit();
-    EntityImpl e5 = edges.next().getIdentity().get().getRecord();
-    Assert.assertEquals(e5.getClassName(), "E1");
+    EntityImpl e5 = edges.next().getIdentity().get().getRecord(db);
+    Assert.assertEquals("E1", e5.getClassName());
     Assert.assertEquals(e5.getIdentity().getClusterId(), eclusterId);
   }
 
@@ -175,7 +175,7 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
     db.commit();
 
     v1 = db.bindToSession(v1);
-    Assert.assertEquals(v1.getSchemaType().get().getName(), "V");
+    Assert.assertEquals("V", v1.getSchemaType().get().getName());
 
     RID vid = v1.getIdentity();
 
@@ -231,7 +231,7 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
 
       ResultSet edges = db.query("select from E where name = 'testSqlScriptThatDeletesEdge'");
 
-      Assert.assertEquals(edges.stream().count(), 0);
+      Assert.assertEquals(0, edges.stream().count());
     } catch (Exception ex) {
       System.err.println("commit exception! " + ex);
       ex.printStackTrace(System.err);

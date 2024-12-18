@@ -3,16 +3,16 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
 import java.util.Map;
 
@@ -66,11 +66,11 @@ public class SQLStatement extends SimpleNode {
     return execute(db, args, parentContext, true);
   }
 
-  public ResultSet execute(DatabaseSessionInternal db, Map args) {
+  public ResultSet execute(DatabaseSessionInternal db, Map<Object, Object> args) {
     return execute(db, args, true);
   }
 
-  public ResultSet execute(DatabaseSessionInternal db, Map args,
+  public ResultSet execute(DatabaseSessionInternal db, Map<Object, Object> args,
       CommandContext parentContext) {
     return execute(db, args, parentContext, true);
   }
@@ -87,12 +87,14 @@ public class SQLStatement extends SimpleNode {
     throw new UnsupportedOperationException();
   }
 
-  public ResultSet execute(DatabaseSessionInternal db, Map args, boolean usePlanCache) {
+  public ResultSet execute(DatabaseSessionInternal db, Map<Object, Object> args,
+      boolean usePlanCache) {
     return execute(db, args, null, usePlanCache);
   }
 
   public ResultSet execute(
-      DatabaseSessionInternal db, Map args, CommandContext parentContext, boolean usePlanCache) {
+      DatabaseSessionInternal db, Map<Object, Object> args, CommandContext parentContext,
+      boolean usePlanCache) {
     throw new UnsupportedOperationException();
   }
 

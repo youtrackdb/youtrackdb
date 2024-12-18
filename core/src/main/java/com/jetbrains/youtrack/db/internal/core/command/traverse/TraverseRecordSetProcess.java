@@ -21,6 +21,7 @@ package com.jetbrains.youtrack.db.internal.core.command.traverse;
 
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import java.util.Iterator;
@@ -32,8 +33,9 @@ public class TraverseRecordSetProcess extends TraverseAbstractProcess<Iterator<I
   protected int index = -1;
 
   public TraverseRecordSetProcess(
-      final Traverse iCommand, final Iterator<Identifiable> iTarget, TraversePath parentPath) {
-    super(iCommand, iTarget);
+      final Traverse iCommand, final Iterator<Identifiable> iTarget, TraversePath parentPath,
+      DatabaseSessionInternal db) {
+    super(iCommand, iTarget, db);
     this.path = parentPath.appendRecordSet();
     command.getContext().push(this);
   }
@@ -44,7 +46,7 @@ public class TraverseRecordSetProcess extends TraverseAbstractProcess<Iterator<I
       record = target.next();
       index++;
 
-      final Record rec = record.getRecord();
+      final Record rec = record.getRecord(db);
       if (rec instanceof EntityImpl entity) {
         if (!entity.getIdentity().isPersistent() && entity.fields() == 1) {
           // EXTRACT THE FIELD CONTEXT
@@ -54,13 +56,13 @@ public class TraverseRecordSetProcess extends TraverseAbstractProcess<Iterator<I
                 .getContext()
                 .push(
                     new TraverseRecordSetProcess(
-                        command, ((Collection<Identifiable>) fieldvalue).iterator(), path));
+                        command, ((Collection<Identifiable>) fieldvalue).iterator(), path, db));
 
           } else if (fieldvalue instanceof EntityImpl) {
-            command.getContext().push(new TraverseRecordProcess(command, rec, path));
+            command.getContext().push(new TraverseRecordProcess(command, rec, path, db));
           }
         } else {
-          command.getContext().push(new TraverseRecordProcess(command, rec, path));
+          command.getContext().push(new TraverseRecordProcess(command, rec, path, db));
         }
 
         return null;

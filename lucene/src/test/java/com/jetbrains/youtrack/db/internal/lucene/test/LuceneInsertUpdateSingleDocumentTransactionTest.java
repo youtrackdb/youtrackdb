@@ -56,9 +56,9 @@ public class LuceneInsertUpdateSingleDocumentTransactionTest extends BaseLuceneT
     db = openDatabase();
     Schema schema = db.getMetadata().getSchema();
     db.begin();
-    EntityImpl doc = new EntityImpl("City");
+    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "");
-    EntityImpl doc1 = new EntityImpl("City");
+    EntityImpl doc1 = ((EntityImpl) db.newEntity("City"));
     doc1.field("name", "");
     doc = db.save(doc);
     doc1 = db.save(doc1);

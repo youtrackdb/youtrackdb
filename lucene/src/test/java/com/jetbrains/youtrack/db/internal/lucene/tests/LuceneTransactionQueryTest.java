@@ -54,7 +54,7 @@ public class LuceneTransactionQueryTest extends LuceneBaseTest {
   @Test
   public void testRollback() {
 
-    EntityImpl doc = new EntityImpl("c1");
+    EntityImpl doc = ((EntityImpl) db.newEntity("c1"));
     doc.field("p1", "abc");
     db.begin();
     db.save(doc);
@@ -76,7 +76,7 @@ public class LuceneTransactionQueryTest extends LuceneBaseTest {
   public void txRemoveTest() {
     db.begin();
 
-    EntityImpl doc = new EntityImpl("c1");
+    EntityImpl doc = ((EntityImpl) db.newEntity("c1"));
     doc.field("p1", "abc");
 
     Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
@@ -101,7 +101,7 @@ public class LuceneTransactionQueryTest extends LuceneBaseTest {
     }
     assertThat(index.getInternal().size(db)).isEqualTo(1);
 
-    doc = new EntityImpl("c1");
+    doc = ((EntityImpl) db.newEntity("c1"));
     doc.field("p1", "abc");
 
     //noinspection OptionalGetWithoutIsPresent
@@ -145,7 +145,7 @@ public class LuceneTransactionQueryTest extends LuceneBaseTest {
     db.begin();
     Assert.assertEquals(index.getInternal().size(db), 0);
 
-    EntityImpl doc = new EntityImpl("c1");
+    EntityImpl doc = ((EntityImpl) db.newEntity("c1"));
     doc.field("p1", "update");
 
     db.save(doc);
@@ -221,10 +221,10 @@ public class LuceneTransactionQueryTest extends LuceneBaseTest {
     db.begin();
     Assert.assertEquals(index.getInternal().size(db), 0);
 
-    EntityImpl doc = new EntityImpl("c1");
+    EntityImpl doc = ((EntityImpl) db.newEntity("c1"));
     doc.field("p1", "abc");
 
-    EntityImpl doc1 = new EntityImpl("c1");
+    EntityImpl doc1 = ((EntityImpl) db.newEntity("c1"));
     doc1.field("p1", "abc");
 
     db.save(doc1);

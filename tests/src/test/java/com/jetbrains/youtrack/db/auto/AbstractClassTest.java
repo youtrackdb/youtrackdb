@@ -48,8 +48,8 @@ public class AbstractClassTest extends BaseDBTest {
   @BeforeClass
   public void createSchema() throws IOException {
     SchemaClass abstractPerson =
-        database.getMetadata().getSchema().createAbstractClass("AbstractPerson");
-    abstractPerson.createProperty(database, "name", PropertyType.STRING);
+        db.getMetadata().getSchema().createAbstractClass("AbstractPerson");
+    abstractPerson.createProperty(db, "name", PropertyType.STRING);
 
     Assert.assertTrue(abstractPerson.isAbstract());
     Assert.assertEquals(abstractPerson.getClusterIds().length, 1);
@@ -58,9 +58,9 @@ public class AbstractClassTest extends BaseDBTest {
   @Test
   public void testCannotCreateInstances() {
     try {
-      database.begin();
-      new EntityImpl("AbstractPerson").save();
-      database.begin();
+      db.begin();
+      ((EntityImpl) db.newEntity("AbstractPerson")).save();
+      db.begin();
     } catch (BaseException e) {
       Throwable cause = e;
 

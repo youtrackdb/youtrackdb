@@ -27,112 +27,112 @@ public class IndexChangesQueryTest {
   private static final String FIELD_NAME = "value";
   private static final String INDEX_NAME = "idxTxAwareMultiValueGetEntriesTestIndex";
   private YouTrackDB youTrackDB;
-  private DatabaseSessionInternal database;
+  private DatabaseSessionInternal db;
 
   @Before
   public void before() {
     youTrackDB =
         CreateDatabaseUtil.createDatabase("test", DbTestBase.embeddedDBUrl(getClass()),
             CreateDatabaseUtil.TYPE_MEMORY);
-    database =
+    db =
         (DatabaseSessionInternal)
             youTrackDB.open("test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     final SchemaClass cls = schema.createClass(CLASS_NAME);
-    cls.createProperty(database, FIELD_NAME, PropertyType.INTEGER);
-    cls.createIndex(database, INDEX_NAME, SchemaClass.INDEX_TYPE.NOTUNIQUE, FIELD_NAME);
+    cls.createProperty(db, FIELD_NAME, PropertyType.INTEGER);
+    cls.createIndex(db, INDEX_NAME, SchemaClass.INDEX_TYPE.NOTUNIQUE, FIELD_NAME);
   }
 
   @After
   public void after() {
-    database.close();
+    db.close();
     youTrackDB.close();
   }
 
   @Test
   public void testMultiplePut() {
-    database.begin();
+    db.begin();
 
     final Index index =
-        database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX_NAME);
+        db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX_NAME);
 
-    EntityImpl doc = new EntityImpl(CLASS_NAME);
+    EntityImpl doc = ((EntityImpl) db.newEntity(CLASS_NAME));
     doc.field(FIELD_NAME, 1);
     doc.save();
 
-    EntityImpl doc1 = new EntityImpl(CLASS_NAME);
+    EntityImpl doc1 = ((EntityImpl) db.newEntity(CLASS_NAME));
     doc1.field(FIELD_NAME, 2);
     doc1.save();
-    Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX_NAME));
+    Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX_NAME));
 
     Assert.assertFalse(fetchCollectionFromIndex(index, 1).isEmpty());
     Assert.assertFalse((fetchCollectionFromIndex(index, 2)).isEmpty());
 
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
     Assert.assertFalse((fetchCollectionFromIndex(index, 1)).isEmpty());
     Assert.assertFalse((fetchCollectionFromIndex(index, 2)).isEmpty());
   }
 
   private Collection<RID> fetchCollectionFromIndex(Index index, int key) {
-    try (Stream<RID> stream = index.getInternal().getRids(database, key)) {
+    try (Stream<RID> stream = index.getInternal().getRids(db, key)) {
       return stream.collect(Collectors.toList());
     }
   }
 
   @Test
   public void testClearAndPut() {
-    database.begin();
+    db.begin();
 
-    EntityImpl doc1 = new EntityImpl(CLASS_NAME);
+    EntityImpl doc1 = ((EntityImpl) db.newEntity(CLASS_NAME));
     doc1.field(FIELD_NAME, 1);
     doc1.save();
 
-    EntityImpl doc2 = new EntityImpl(CLASS_NAME);
+    EntityImpl doc2 = ((EntityImpl) db.newEntity(CLASS_NAME));
     doc2.field(FIELD_NAME, 1);
     doc2.save();
 
-    EntityImpl doc3 = new EntityImpl(CLASS_NAME);
+    EntityImpl doc3 = ((EntityImpl) db.newEntity(CLASS_NAME));
     doc3.field(FIELD_NAME, 2);
     doc3.save();
 
     final Index index =
-        database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX_NAME);
+        db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX_NAME);
 
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(3, index.getInternal().size(database));
+    Assert.assertEquals(3, index.getInternal().size(db));
     Assert.assertEquals(2, (fetchCollectionFromIndex(index, 1)).size());
     Assert.assertEquals(1, (fetchCollectionFromIndex(index, 2)).size());
 
-    database.begin();
+    db.begin();
 
-    doc1 = database.bindToSession(doc1);
-    doc2 = database.bindToSession(doc2);
-    doc3 = database.bindToSession(doc3);
+    doc1 = db.bindToSession(doc1);
+    doc2 = db.bindToSession(doc2);
+    doc3 = db.bindToSession(doc3);
 
     doc1.delete();
     doc2.delete();
     doc3.delete();
 
-    doc3 = new EntityImpl(CLASS_NAME);
+    doc3 = ((EntityImpl) db.newEntity(CLASS_NAME));
     doc3.field(FIELD_NAME, 1);
     doc3.save();
 
-    EntityImpl doc = new EntityImpl(CLASS_NAME);
+    EntityImpl doc = ((EntityImpl) db.newEntity(CLASS_NAME));
     doc.field(FIELD_NAME, 2);
     doc.save();
 
     Assert.assertEquals(1, (fetchCollectionFromIndex(index, 1)).size());
     Assert.assertEquals(1, (fetchCollectionFromIndex(index, 2)).size());
 
-    database.rollback();
+    db.rollback();
 
-    Assert.assertNull(database.getTransaction().getIndexChanges(INDEX_NAME));
+    Assert.assertNull(db.getTransaction().getIndexChanges(INDEX_NAME));
 
-    Assert.assertEquals(3, index.getInternal().size(database));
+    Assert.assertEquals(3, index.getInternal().size(db));
     Assert.assertEquals(2, (fetchCollectionFromIndex(index, 1)).size());
     Assert.assertEquals(1, (fetchCollectionFromIndex(index, 2)).size());
   }

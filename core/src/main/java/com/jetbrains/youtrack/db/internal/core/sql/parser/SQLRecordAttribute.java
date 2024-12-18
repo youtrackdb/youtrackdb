@@ -2,18 +2,18 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.Map;
 import java.util.Objects;
@@ -102,7 +102,7 @@ public class SQLRecordAttribute extends SimpleNode {
           .getRecord()
           .map(
               r -> {
-                var recordType = RecordInternal.getRecordType(r);
+                var recordType = RecordInternal.getRecordType(ctx.getDatabase(), r);
                 if (recordType == EntityImpl.RECORD_TYPE) {
                   return "document";
                 } else if (recordType == RecordBytes.RECORD_TYPE) {
@@ -130,13 +130,14 @@ public class SQLRecordAttribute extends SimpleNode {
     if (iCurrentRecord == null) {
       return null;
     }
+    var db = ctx.getDatabase();
     if (name.equalsIgnoreCase("@rid")) {
       return iCurrentRecord.getIdentity();
     } else if (name.equalsIgnoreCase("@class")) {
       return iCurrentRecord.getSchemaType().map(SchemaClass::getName).orElse(null);
     } else if (name.equalsIgnoreCase("@version")) {
       try {
-        Record record = iCurrentRecord.getRecord();
+        Record record = iCurrentRecord.getRecord(db);
         return record.getVersion();
       } catch (RecordNotFoundException e) {
         return null;

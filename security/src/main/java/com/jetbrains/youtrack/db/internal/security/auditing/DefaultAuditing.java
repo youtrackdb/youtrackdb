@@ -140,8 +140,8 @@ public class DefaultAuditing
     iDatabase.registerListener(hook);
   }
 
-  private AuditingHook defaultHook(final DatabaseSessionInternal iDatabase) {
-    final File auditingFileConfig = getConfigFile(iDatabase.getName());
+  private AuditingHook defaultHook(final DatabaseSessionInternal db) {
+    final File auditingFileConfig = getConfigFile(db.getName());
     String content = null;
     if (auditingFileConfig != null && auditingFileConfig.exists()) {
       content = getContent(auditingFileConfig);
@@ -182,7 +182,7 @@ public class DefaultAuditing
         }
       }
     }
-    final EntityImpl cfg = new EntityImpl().fromJSON(content, "noMap");
+    final EntityImpl cfg = new EntityImpl(db).fromJSON(content, "noMap");
     return new AuditingHook(cfg, security);
   }
 

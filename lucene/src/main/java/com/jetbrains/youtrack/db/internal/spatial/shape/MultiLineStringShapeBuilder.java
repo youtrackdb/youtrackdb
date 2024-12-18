@@ -14,10 +14,10 @@
 package com.jetbrains.youtrack.db.internal.spatial.shape;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,11 +67,11 @@ public class MultiLineStringShapeBuilder extends ComplexShapeBuilder<JtsGeometry
   }
 
   @Override
-  public EntityImpl toDoc(JtsGeometry shape) {
+  public EntityImpl toEntitty(JtsGeometry shape) {
     final MultiLineString geom = (MultiLineString) shape.getGeom();
 
     List<List<List<Double>>> coordinates = new ArrayList<List<List<Double>>>();
-    EntityImpl doc = new EntityImpl(getName());
+    EntityImpl doc = new EntityImpl(null, getName());
     for (int i = 0; i < geom.getNumGeometries(); i++) {
       final LineString lineString = (LineString) geom.getGeometryN(i);
       coordinates.add(coordinatesFromLineString(lineString));
@@ -82,13 +82,13 @@ public class MultiLineStringShapeBuilder extends ComplexShapeBuilder<JtsGeometry
   }
 
   @Override
-  protected EntityImpl toDoc(JtsGeometry shape, Geometry geometry) {
+  protected EntityImpl toEntitty(JtsGeometry shape, Geometry geometry) {
     if (geometry == null || Double.isNaN(geometry.getCoordinates()[0].getZ())) {
-      return toDoc(shape);
+      return toEntitty(shape);
     }
 
     List<List<List<Double>>> coordinates = new ArrayList<List<List<Double>>>();
-    EntityImpl doc = new EntityImpl(getName() + "Z");
+    EntityImpl doc = new EntityImpl(null, getName() + "Z");
     for (int i = 0; i < geometry.getNumGeometries(); i++) {
       final Geometry lineString = geometry.getGeometryN(i);
       coordinates.add(coordinatesFromLineStringZ(lineString));

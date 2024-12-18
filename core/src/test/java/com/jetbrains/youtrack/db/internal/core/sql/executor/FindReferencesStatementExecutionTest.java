@@ -25,7 +25,7 @@ public class FindReferencesStatementExecutionTest extends DbTestBase {
     db.getMetadata().getSchema().createClass(name2);
 
     db.begin();
-    EntityImpl linked = new EntityImpl(name);
+    EntityImpl linked = (EntityImpl) db.newEntity(name);
     linked.field("foo", "bar");
     linked.save();
     db.commit();
@@ -35,7 +35,7 @@ public class FindReferencesStatementExecutionTest extends DbTestBase {
     for (int i = 0; i < 10; i++) {
       db.begin();
       linked = db.bindToSession(linked);
-      EntityImpl doc = new EntityImpl(name2);
+      EntityImpl doc = (EntityImpl) db.newEntity(name2);
       doc.field("counter", i);
       if (i % 2 == 0) {
         doc.field("link", linked);

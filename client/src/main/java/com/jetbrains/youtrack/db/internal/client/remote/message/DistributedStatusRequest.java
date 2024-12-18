@@ -41,13 +41,13 @@ public class DistributedStatusRequest implements BinaryRequest<DistributedStatus
   @Override
   public void write(DatabaseSessionInternal database, ChannelDataOutput network,
       StorageRemoteSession session) throws IOException {
-    network.writeBytes(new EntityImpl().field("operation", "status").toStream());
+    network.writeBytes(new EntityImpl(database).field("operation", "status").toStream());
   }
 
   public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
       RecordSerializer serializer)
       throws IOException {
-    status = new EntityImpl(channel.readBytes());
+    status = new EntityImpl(db, channel.readBytes());
   }
 
   public EntityImpl getStatus() {

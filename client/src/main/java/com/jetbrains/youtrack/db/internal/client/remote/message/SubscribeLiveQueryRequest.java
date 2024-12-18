@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.client.remote.message;
 
+import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
+import com.jetbrains.youtrack.db.internal.client.remote.BinaryRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
+import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
+import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
-import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
-import com.jetbrains.youtrack.db.internal.client.remote.BinaryRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
-import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37Client;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
@@ -45,7 +45,7 @@ public class SubscribeLiveQueryRequest implements BinaryRequest<SubscribeLiveQue
     RecordSerializerNetworkV37Client serializer = new RecordSerializerNetworkV37Client();
     network.writeString(query);
     // params
-    EntityImpl parms = new EntityImpl();
+    EntityImpl parms = new EntityImpl(database);
     parms.field("params", this.params);
 
     byte[] bytes = MessageHelper.getRecordBytes(database, parms, serializer);
@@ -58,7 +58,7 @@ public class SubscribeLiveQueryRequest implements BinaryRequest<SubscribeLiveQue
       RecordSerializer serializer)
       throws IOException {
     this.query = channel.readString();
-    EntityImpl paramsEntity = new EntityImpl();
+    EntityImpl paramsEntity = new EntityImpl(db);
     byte[] bytes = channel.readBytes();
     serializer.fromStream(db, bytes, paramsEntity, null);
     this.params = paramsEntity.field("params");

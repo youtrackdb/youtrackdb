@@ -39,33 +39,33 @@ public class GEOTest extends BaseDBTest {
 
   @Test
   public void geoSchema() {
-    final SchemaClass mapPointClass = database.getMetadata().getSchema().createClass("MapPoint");
-    mapPointClass.createProperty(database, "x", PropertyType.DOUBLE)
-        .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
-    mapPointClass.createProperty(database, "y", PropertyType.DOUBLE)
-        .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+    final SchemaClass mapPointClass = db.getMetadata().getSchema().createClass("MapPoint");
+    mapPointClass.createProperty(db, "x", PropertyType.DOUBLE)
+        .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+    mapPointClass.createProperty(db, "y", PropertyType.DOUBLE)
+        .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     final Set<Index> xIndexes =
-        database.getMetadata().getSchema().getClassInternal("MapPoint")
-            .getInvolvedIndexesInternal(database, "x");
+        db.getMetadata().getSchema().getClassInternal("MapPoint")
+            .getInvolvedIndexesInternal(db, "x");
     Assert.assertEquals(xIndexes.size(), 1);
 
     final Set<Index> yIndexes =
-        database.getMetadata().getSchema().getClassInternal("MapPoint")
-            .getInvolvedIndexesInternal(database, "y");
+        db.getMetadata().getSchema().getClassInternal("MapPoint")
+            .getInvolvedIndexesInternal(db, "y");
     Assert.assertEquals(yIndexes.size(), 1);
   }
 
   @Test(dependsOnMethods = "geoSchema")
   public void checkGeoIndexes() {
     final Set<Index> xIndexes =
-        database.getMetadata().getSchema().getClassInternal("MapPoint").
-            getInvolvedIndexesInternal(database, "x");
+        db.getMetadata().getSchema().getClassInternal("MapPoint").
+            getInvolvedIndexesInternal(db, "x");
     Assert.assertEquals(xIndexes.size(), 1);
 
     final Set<Index> yIndexDefinitions =
-        database.getMetadata().getSchema().getClassInternal("MapPoint")
-            .getInvolvedIndexesInternal(database, "y");
+        db.getMetadata().getSchema().getClassInternal("MapPoint")
+            .getInvolvedIndexesInternal(db, "y");
     Assert.assertEquals(yIndexDefinitions.size(), 1);
   }
 
@@ -74,45 +74,45 @@ public class GEOTest extends BaseDBTest {
     EntityImpl point;
 
     for (int i = 0; i < 10000; ++i) {
-      point = new EntityImpl();
+      point = ((EntityImpl) db.newEntity());
       point.setClassName("MapPoint");
 
       point.field("x", (52.20472d + i / 100d));
       point.field("y", (0.14056d + i / 100d));
 
-      database.begin();
+      db.begin();
       point.save();
-      database.commit();
+      db.commit();
     }
   }
 
   @Test(dependsOnMethods = "queryCreatePoints")
   public void queryDistance() {
-    Assert.assertEquals(database.countClass("MapPoint"), 10000);
+    Assert.assertEquals(db.countClass("MapPoint"), 10000);
 
     List<EntityImpl> result =
-        database
+        db
             .command(
                 new SQLSynchQuery<EntityImpl>(
                     "select from MapPoint where distance(x, y,52.20472, 0.14056 ) <= 30"))
-            .execute(database);
+            .execute(db);
 
     Assert.assertTrue(result.size() != 0);
 
     for (EntityImpl d : result) {
       Assert.assertEquals(d.getClassName(), "MapPoint");
-      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(db, d), EntityImpl.RECORD_TYPE);
     }
   }
 
   @Test(dependsOnMethods = "queryCreatePoints")
   public void queryDistanceOrdered() {
-    Assert.assertEquals(database.countClass("MapPoint"), 10000);
+    Assert.assertEquals(db.countClass("MapPoint"), 10000);
 
     // MAKE THE FIRST RECORD DIRTY TO TEST IF DISTANCE JUMP IT
     List<EntityImpl> result =
-        database.command(new SQLSynchQuery<EntityImpl>("select from MapPoint limit 1"))
-            .execute(database);
+        db.command(new SQLSynchQuery<EntityImpl>("select from MapPoint limit 1"))
+            .execute(db);
     try {
       result.get(0).field("x", "--wrong--");
       Assert.fail();

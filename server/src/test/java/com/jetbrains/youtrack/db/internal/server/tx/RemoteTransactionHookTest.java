@@ -81,7 +81,7 @@ public class RemoteTransactionHookTest extends DbTestBase {
     db.registerHook(calls);
 
     db.begin();
-    EntityImpl doc = new EntityImpl("SomeTx");
+    EntityImpl doc = ((EntityImpl) db.newEntity("SomeTx"));
     doc.setProperty("name", "some");
     db.save(doc);
     db.command("insert into SomeTx set name='aa' ").close();
@@ -105,7 +105,7 @@ public class RemoteTransactionHookTest extends DbTestBase {
     database.registerHook(calls);
     database.createClassIfNotExist("SomeTx");
     database.begin();
-    EntityImpl doc = new EntityImpl("SomeTx");
+    EntityImpl doc = ((EntityImpl) db.newEntity("SomeTx"));
     doc.setProperty("name", "some");
     database.save(doc);
     database.command("insert into SomeTx set name='aa' ").close();
@@ -131,7 +131,7 @@ public class RemoteTransactionHookTest extends DbTestBase {
   public void testCalledInTxServer() {
     db.begin();
     CountCallHookServer calls = CountCallHookServer.instance;
-    EntityImpl doc = new EntityImpl("SomeTx");
+    EntityImpl doc = ((EntityImpl) db.newEntity("SomeTx"));
     doc.setProperty("name", "some");
     db.save(doc);
     db.command("insert into SomeTx set name='aa' ").close();

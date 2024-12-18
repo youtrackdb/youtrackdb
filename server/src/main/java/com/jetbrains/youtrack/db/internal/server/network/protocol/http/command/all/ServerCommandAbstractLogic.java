@@ -29,14 +29,14 @@ import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpReque
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponseWrapper;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
 import java.io.IOException;
 
 public abstract class ServerCommandAbstractLogic extends ServerCommandAuthenticatedDbAbstract {
 
   @Override
-  public boolean execute(final OHttpRequest iRequest, final HttpResponse iResponse)
+  public boolean execute(final HttpRequest iRequest, final HttpResponse iResponse)
       throws Exception {
     final String[] parts = init(iRequest, iResponse);
     DatabaseSessionInternal db = null;
@@ -76,7 +76,7 @@ public abstract class ServerCommandAbstractLogic extends ServerCommandAuthentica
       if (args.length == 0 && iRequest.getContent() != null && !iRequest.getContent().isEmpty()) {
         // PARSE PARAMETERS FROM CONTENT PAYLOAD
         try {
-          final EntityImpl params = new EntityImpl();
+          final EntityImpl params = new EntityImpl(null);
           params.fromJSON(iRequest.getContent());
           functionResult = f.executeInContext(context, params.toMap());
         } catch (Exception e) {
@@ -127,10 +127,10 @@ public abstract class ServerCommandAbstractLogic extends ServerCommandAuthentica
     return false;
   }
 
-  protected abstract String[] init(OHttpRequest iRequest, HttpResponse iResponse);
+  protected abstract String[] init(HttpRequest iRequest, HttpResponse iResponse);
 
   protected abstract void handleResult(
-      OHttpRequest iRequest,
+      HttpRequest iRequest,
       HttpResponse iResponse,
       Object iResult,
       DatabaseSessionInternal databaseDocumentInternal)

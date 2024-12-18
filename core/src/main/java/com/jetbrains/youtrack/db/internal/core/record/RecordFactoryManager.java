@@ -27,7 +27,6 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeEntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
-import com.jetbrains.youtrack.db.internal.core.record.impl.RecordFlat;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexEntityImpl;
 
 /**
@@ -67,12 +66,7 @@ public class RecordFactoryManager {
           return new EntityImpl(database, rid);
         });
     declareRecordType(
-        Blob.RECORD_TYPE, "bytes", Blob.class, (rid, database) -> new RecordBytes(rid));
-    declareRecordType(
-        RecordFlat.RECORD_TYPE,
-        "flat",
-        RecordFlat.class,
-        (rid, database) -> new RecordFlat(rid));
+        Blob.RECORD_TYPE, "bytes", Blob.class, (rid, database) -> new RecordBytes(database, rid));
   }
 
   public String getRecordTypeName(final byte iRecordType) {

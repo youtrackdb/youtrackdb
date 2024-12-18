@@ -20,8 +20,8 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.multipart.HttpMultipartContentBaseParser;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.multipart.HttpMultipartFileToRecordContentParser;
@@ -50,7 +50,7 @@ public class ServerCommandPostUploadSingleFile extends
   protected DatabaseSessionInternal database;
 
   @Override
-  public boolean execute(final OHttpRequest iRequest, HttpResponse iResponse) throws Exception {
+  public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
     if (!iRequest.isMultipart()) {
       iResponse.send(
           HttpUtils.STATUS_INVALIDMETHOD_CODE,
@@ -78,7 +78,7 @@ public class ServerCommandPostUploadSingleFile extends
             new HttpMultipartContentBaseParser(),
             new HttpMultipartFileToRecordContentParser(),
             database);
-        boolean ok = saveRecord(iRequest, iResponse);
+        boolean ok = saveRecord(database, iRequest, iResponse);
         writer.endObject();
         writer.flush();
         if (ok) {
@@ -116,7 +116,7 @@ public class ServerCommandPostUploadSingleFile extends
 
   @Override
   protected void processBaseContent(
-      OHttpRequest iRequest, String iContentResult, HashMap<String, String> headers)
+      HttpRequest iRequest, String iContentResult, HashMap<String, String> headers)
       throws Exception {
     if (headers.containsKey(HttpUtils.MULTIPART_CONTENT_NAME)
         && headers.get(HttpUtils.MULTIPART_CONTENT_NAME).equals(getDocumentParamenterName())) {
@@ -126,7 +126,7 @@ public class ServerCommandPostUploadSingleFile extends
 
   @Override
   protected void processFileContent(
-      OHttpRequest iRequest, RecordId contentResult, HashMap<String, String> headers)
+      HttpRequest iRequest, RecordId contentResult, HashMap<String, String> headers)
       throws Exception {
     if (headers.containsKey(HttpUtils.MULTIPART_CONTENT_NAME)
         && headers.get(HttpUtils.MULTIPART_CONTENT_NAME).equals(getFileParamenterName())) {
@@ -146,16 +146,17 @@ public class ServerCommandPostUploadSingleFile extends
         now = cal.getTimeInMillis();
 
         writer.beginObject("uploadedFile");
-        writer.writeAttribute(1, true, "name", fileName);
-        writer.writeAttribute(1, true, "type", fileType);
-        writer.writeAttribute(1, true, "date", formatter.format(cal.getTime()));
-        writer.writeAttribute(1, true, "rid", fileRID);
+        writer.writeAttribute(null, 1, true, "name", fileName);
+        writer.writeAttribute(null, 1, true, "type", fileType);
+        writer.writeAttribute(null, 1, true, "date", formatter.format(cal.getTime()));
+        writer.writeAttribute(null, 1, true, "rid", fileRID);
         writer.endObject();
       }
     }
   }
 
-  public boolean saveRecord(OHttpRequest iRequest, final HttpResponse iResponse)
+  public boolean saveRecord(DatabaseSessionInternal db, HttpRequest iRequest,
+      final HttpResponse iResponse)
       throws InterruptedException, IOException {
     if (fileDocument != null) {
       if (fileRID != null) {
@@ -171,11 +172,11 @@ public class ServerCommandPostUploadSingleFile extends
         if (fileDocument.contains("$file")) {
           fileDocument = fileDocument.replace("$file", fileRID.toString());
         }
-        EntityImpl entity = new EntityImpl();
+        EntityImpl entity = new EntityImpl(db);
         entity.fromJSON(fileDocument);
         entity.save();
         writer.beginObject("updatedDocument");
-        writer.writeAttribute(1, true, "rid", entity.getIdentity().toString());
+        writer.writeAttribute(db, 1, true, "rid", entity.getIdentity().toString());
         writer.endObject();
       } else {
         iResponse.send(

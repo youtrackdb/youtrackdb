@@ -96,7 +96,7 @@ import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageInfo;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.FreezableStorageComponent;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx.NonTxReadMode;
@@ -347,6 +347,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   public void callOnCreateListeners() {
     // WAKE UP DB LIFECYCLE LISTENER
+    assert assertIfNotActive();
     for (Iterator<DatabaseLifecycleListener> it = YouTrackDBEnginesManager.instance()
         .getDbLifecycleListeners();
         it.hasNext(); ) {
@@ -355,12 +356,14 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   protected void createMetadata(SharedContext shared) {
+    assert assertIfNotActive();
     metadata.init(shared);
     ((SharedContextEmbedded) shared).create(this);
   }
 
   @Override
   protected void loadMetadata() {
+    assert assertIfNotActive();
     executeInTx(
         () -> {
           metadata = new MetadataDefault(this);
@@ -379,7 +382,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   public void set(final ATTRIBUTES iAttribute, final Object iValue) {
-    checkIfActive();
+    assert assertIfNotActive();
 
     if (iAttribute == null) {
       throw new IllegalArgumentException("attribute is null");
@@ -481,7 +484,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   public DatabaseSession setCustom(final String name, final Object iValue) {
-    checkIfActive();
+    assert assertIfNotActive();
 
     if ("clear".equalsIgnoreCase(name) && iValue == null) {
       clearCustomInternal();
@@ -552,27 +555,32 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   public void rebuildIndexes() {
+    assert assertIfNotActive();
     if (metadata.getIndexManagerInternal().autoRecreateIndexesAfterCrash(this)) {
       metadata.getIndexManagerInternal().recreateIndexes(this);
     }
   }
 
   protected void installHooksEmbedded() {
+    assert assertIfNotActive();
     hooks.clear();
   }
 
   @Override
   public Storage getStorage() {
+    assert assertIfNotActive();
     return storage;
   }
 
   @Override
   public StorageInfo getStorageInfo() {
+    assert assertIfNotActive();
     return storage;
   }
 
   @Override
   public void replaceStorage(Storage iNewStorage) {
+    assert assertIfNotActive();
     this.getSharedContext().setStorage(iNewStorage);
     storage = iNewStorage;
   }
@@ -580,7 +588,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   @Override
   public ResultSet query(String query, Object[] args) {
     checkOpenness();
-    checkIfActive();
+    assert assertIfNotActive();
     getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     try {
       preQueryStart();
@@ -602,7 +610,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   @Override
   public ResultSet query(String query, Map args) {
     checkOpenness();
-    checkIfActive();
+    assert assertIfNotActive();
     getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     preQueryStart();
     try {
@@ -624,7 +632,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   @Override
   public ResultSet command(String query, Object[] args) {
     checkOpenness();
-    checkIfActive();
+    assert assertIfNotActive();
 
     getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     preQueryStart();
@@ -654,7 +662,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   @Override
   public ResultSet command(String query, Map args) {
     checkOpenness();
-    checkIfActive();
+    assert assertIfNotActive();
 
     getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     try {
@@ -687,7 +695,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   @Override
   public ResultSet execute(String language, String script, Object... args) {
     checkOpenness();
-    checkIfActive();
+    assert assertIfNotActive();
     if (!"sql".equalsIgnoreCase(language)) {
       checkSecurity(Rule.ResourceGeneric.COMMAND, Role.PERMISSION_EXECUTE, language);
     }
@@ -740,7 +748,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   @Override
   public ResultSet execute(String language, String script, Map<String, ?> args) {
     checkOpenness();
-    checkIfActive();
+    assert assertIfNotActive();
     if (!"sql".equalsIgnoreCase(language)) {
       checkSecurity(Rule.ResourceGeneric.COMMAND, Role.PERMISSION_EXECUTE, language);
     }
@@ -773,7 +781,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   public LocalResultSetLifecycleDecorator query(ExecutionPlan plan, Map<Object, Object> params) {
     checkOpenness();
-    checkIfActive();
+    assert assertIfNotActive();
     getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     try {
       preQueryStart();
@@ -799,13 +807,14 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   public YouTrackDBConfig getConfig() {
+    assert assertIfNotActive();
     return config;
   }
 
   @Override
   public LiveQueryMonitor live(String query, LiveQueryResultListener listener, Object... args) {
     checkOpenness();
-    checkIfActive();
+    assert assertIfNotActive();
 
     LiveQueryListenerV2 queryListener = new LiveQueryListenerImpl(listener, query, this, args);
     DatabaseSessionInternal dbCopy = this.copy();
@@ -818,7 +827,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   public LiveQueryMonitor live(
       String query, LiveQueryResultListener listener, Map<String, ?> args) {
     checkOpenness();
-    checkIfActive();
+    assert assertIfNotActive();
 
     LiveQueryListenerV2 queryListener =
         new LiveQueryListenerImpl(listener, query, this, (Map) args);
@@ -835,6 +844,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   public int addBlobCluster(final String iClusterName, final Object... iParameters) {
+    assert assertIfNotActive();
     int id;
     if (!existsCluster(iClusterName)) {
       id = addCluster(iClusterName, iParameters);
@@ -847,6 +857,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   public Identifiable beforeCreateOperations(Identifiable id, String iClusterName) {
+    assert assertIfNotActive();
     checkSecurity(Role.PERMISSION_CREATE, id, iClusterName);
 
     RecordHook.RESULT triggerChanged = null;
@@ -907,6 +918,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   public Identifiable beforeUpdateOperations(Identifiable id, String iClusterName) {
+    assert assertIfNotActive();
     checkSecurity(Role.PERMISSION_UPDATE, id, iClusterName);
 
     RecordHook.RESULT triggerChanged = null;
@@ -984,6 +996,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
    */
   public void delete(Record record) {
     checkOpenness();
+    assert assertIfNotActive();
 
     if (record == null) {
       throw new DatabaseException("Cannot delete null entity");
@@ -1030,6 +1043,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   public void beforeDeleteOperations(Identifiable id, String iClusterName) {
+    assert assertIfNotActive();
     checkSecurity(Role.PERMISSION_DELETE, id, iClusterName);
     if (id instanceof EntityImpl entity) {
       SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
@@ -1058,6 +1072,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   public void afterCreateOperations(final Identifiable id) {
+    assert assertIfNotActive();
     if (id instanceof EntityImpl entity) {
       final SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
 
@@ -1082,6 +1097,8 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   public void afterUpdateOperations(final Identifiable id) {
+    assert assertIfNotActive();
+
     if (id instanceof EntityImpl entity) {
       SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
@@ -1102,6 +1119,8 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   public void afterDeleteOperations(final Identifiable id) {
+    assert assertIfNotActive();
+
     if (id instanceof EntityImpl entity) {
       SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
@@ -1130,6 +1149,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   public void afterReadOperations(Identifiable identifiable) {
+    assert assertIfNotActive();
     if (identifiable instanceof EntityImpl entity) {
       SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
@@ -1143,6 +1163,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   public boolean beforeReadOperations(Identifiable identifiable) {
+    assert assertIfNotActive();
     if (identifiable instanceof EntityImpl entity) {
       SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
@@ -1178,6 +1199,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   public void afterCommitOperations() {
+    assert assertIfNotActive();
     for (var operation : currentTx.getRecordOperations()) {
       if (operation.type == RecordOperation.CREATED) {
         var record = operation.record;
@@ -1226,7 +1248,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   public void set(ATTRIBUTES_INTERNAL attribute, Object value) {
-    checkIfActive();
+    assert assertIfNotActive();
 
     if (attribute == null) {
       throw new IllegalArgumentException("attribute is null");
@@ -1247,12 +1269,16 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   protected void afterRollbackOperations() {
+    assert assertIfNotActive();
+
     super.afterRollbackOperations();
     LiveQueryHook.removePendingDatabaseOps(this);
     LiveQueryHookV2.removePendingDatabaseOps(this);
   }
 
   public String getClusterName(final Record record) {
+    assert assertIfNotActive();
+
     int clusterId = record.getIdentity().getClusterId();
     if (clusterId == RID.CLUSTER_ID_INVALID) {
       // COMPUTE THE CLUSTER ID
@@ -1283,7 +1309,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   @Override
   public boolean executeExists(RID rid) {
     checkOpenness();
-    checkIfActive();
+    assert assertIfNotActive();
     try {
       checkSecurity(
           Rule.ResourceGeneric.CLUSTER,
@@ -1334,6 +1360,8 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       final Rule.ResourceGeneric resourceGeneric,
       final String resourceSpecific,
       final int iOperation) {
+    assert assertIfNotActive();
+
     if (user != null) {
       try {
         user.allow(this, resourceGeneric, resourceSpecific, iOperation);
@@ -1362,6 +1390,8 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       final Rule.ResourceGeneric iResourceGeneric,
       final int iOperation,
       final Object... iResourcesSpecific) {
+    assert assertIfNotActive();
+
     if (iResourcesSpecific == null || iResourcesSpecific.length == 0) {
       checkSecurity(iResourceGeneric, null, iOperation);
     } else {
@@ -1379,6 +1409,8 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       final int iOperation,
       final Object iResourceSpecific) {
     checkOpenness();
+    assert assertIfNotActive();
+
     checkSecurity(
         iResourceGeneric,
         iResourceSpecific == null ? null : iResourceSpecific.toString(),
@@ -1388,6 +1420,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   @Override
   @Deprecated
   public void checkSecurity(final String iResource, final int iOperation) {
+    assert assertIfNotActive();
     final String resourceSpecific = Rule.mapLegacyResourceToSpecificResource(iResource);
     final Rule.ResourceGeneric resourceGeneric =
         Rule.mapLegacyResourceToGenericResource(iResource);
@@ -1403,6 +1436,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   @Deprecated
   public void checkSecurity(
       final String iResourceGeneric, final int iOperation, final Object iResourceSpecific) {
+    assert assertIfNotActive();
     final Rule.ResourceGeneric resourceGeneric =
         Rule.mapLegacyResourceToGenericResource(iResourceGeneric);
     if (iResourceSpecific == null || iResourceSpecific.equals("*")) {
@@ -1416,6 +1450,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   @Deprecated
   public void checkSecurity(
       final String iResourceGeneric, final int iOperation, final Object... iResourcesSpecific) {
+    assert assertIfNotActive();
     final Rule.ResourceGeneric resourceGeneric =
         Rule.mapLegacyResourceToGenericResource(iResourceGeneric);
     checkSecurity(resourceGeneric, iOperation, iResourcesSpecific);
@@ -1423,37 +1458,37 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   public int addCluster(final String iClusterName, final Object... iParameters) {
-    checkIfActive();
+    assert assertIfNotActive();
     return storage.addCluster(this, iClusterName, iParameters);
   }
 
   @Override
   public int addCluster(final String iClusterName, final int iRequestedId) {
-    checkIfActive();
+    assert assertIfNotActive();
     return storage.addCluster(this, iClusterName, iRequestedId);
   }
 
   public RecordConflictStrategy getConflictStrategy() {
-    checkIfActive();
+    assert assertIfNotActive();
     return getStorageInfo().getRecordConflictStrategy();
   }
 
   public DatabaseSessionEmbedded setConflictStrategy(final String iStrategyName) {
-    checkIfActive();
+    assert assertIfNotActive();
     storage.setConflictStrategy(
         YouTrackDBEnginesManager.instance().getRecordConflictStrategy().getStrategy(iStrategyName));
     return this;
   }
 
   public DatabaseSessionEmbedded setConflictStrategy(final RecordConflictStrategy iResolver) {
-    checkIfActive();
+    assert assertIfNotActive();
     storage.setConflictStrategy(iResolver);
     return this;
   }
 
   @Override
   public long getClusterRecordSizeByName(final String clusterName) {
-    checkIfActive();
+    assert assertIfNotActive();
     try {
       return storage.getClusterRecordsSizeByName(clusterName);
     } catch (Exception e) {
@@ -1466,7 +1501,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   public long getClusterRecordSizeById(final int clusterId) {
-    checkIfActive();
+    assert assertIfNotActive();
     try {
       return storage.getClusterRecordsSizeById(clusterId);
     } catch (Exception e) {
@@ -1482,12 +1517,13 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
    */
   @Override
   public long countClusterElements(int iClusterId, boolean countTombstones) {
+    assert assertIfNotActive();
     final String name = getClusterNameById(iClusterId);
     if (name == null) {
       return 0;
     }
     checkSecurity(Rule.ResourceGeneric.CLUSTER, Role.PERMISSION_READ, name);
-    checkIfActive();
+    assert assertIfNotActive();
     return storage.count(this, iClusterId, countTombstones);
   }
 
@@ -1496,7 +1532,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
    */
   @Override
   public long countClusterElements(int[] iClusterIds, boolean countTombstones) {
-    checkIfActive();
+    assert assertIfNotActive();
     String name;
     for (int iClusterId : iClusterIds) {
       name = getClusterNameById(iClusterId);
@@ -1511,7 +1547,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   @Override
   public long countClusterElements(final String iClusterName) {
     checkSecurity(Rule.ResourceGeneric.CLUSTER, Role.PERMISSION_READ, iClusterName);
-    checkIfActive();
+    assert assertIfNotActive();
 
     final int clusterId = getClusterIdByName(iClusterName);
     if (clusterId < 0) {
@@ -1522,7 +1558,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   public boolean dropCluster(final String iClusterName) {
-    checkIfActive();
+    assert assertIfNotActive();
     final int clusterId = getClusterIdByName(iClusterName);
     SchemaProxy schema = metadata.getSchema();
     SchemaClass clazz = schema.getClassByClusterId(clusterId);
@@ -1538,12 +1574,13 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   protected boolean dropClusterInternal(final String iClusterName) {
+    assert assertIfNotActive();
     return storage.dropCluster(this, iClusterName);
   }
 
   @Override
   public boolean dropCluster(final int clusterId) {
-    checkIfActive();
+    assert assertIfNotActive();
 
     checkSecurity(
         Rule.ResourceGeneric.CLUSTER, Role.PERMISSION_DELETE, getClusterNameById(clusterId));
@@ -1576,16 +1613,18 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   public boolean dropClusterInternal(int clusterId) {
+    assert assertIfNotActive();
     return storage.dropCluster(this, clusterId);
   }
 
   @Override
   public long getSize() {
-    checkIfActive();
+    assert assertIfNotActive();
     return storage.getSize(this);
   }
 
   public DatabaseStats getStats() {
+    assert assertIfNotActive();
     DatabaseStats stats = new DatabaseStats();
     stats.loadedRecords = loadedRecordsCount;
     stats.minLoadRecordTimeMs = minRecordLoadMs;
@@ -1601,6 +1640,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   public void addRidbagPrefetchStats(long execTimeMs) {
+    assert assertIfNotActive();
     this.ridbagPrefetchCount++;
     totalRidbagPrefetchMs += execTimeMs;
     if (this.ridbagPrefetchCount == 1) {
@@ -1613,6 +1653,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   public void resetRecordLoadStats() {
+    assert assertIfNotActive();
     this.loadedRecordsCount = 0L;
     this.totalRecordLoadMs = 0L;
     this.minRecordLoadMs = 0L;
@@ -1626,7 +1667,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   @Override
   public String incrementalBackup(final Path path) throws UnsupportedOperationException {
     checkOpenness();
-    checkIfActive();
+    assert assertIfNotActive();
     checkSecurity(Rule.ResourceGeneric.DATABASE, "backup", Role.PERMISSION_EXECUTE);
 
     return storage.incrementalBackup(this, path.toAbsolutePath().toString(), null);
@@ -1634,7 +1675,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   public RecordMetadata getRecordMetadata(final RID rid) {
-    checkIfActive();
+    assert assertIfNotActive();
     return storage.getRecordMetadata(this, rid);
   }
 
@@ -1644,6 +1685,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   @Override
   public void freeze(final boolean throwException) {
     checkOpenness();
+    assert assertIfNotActive();
     if (!(storage instanceof FreezableStorageComponent)) {
       LogManager.instance()
           .error(
@@ -1659,7 +1701,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
     final FreezableStorageComponent storage = getFreezableStorage();
     if (storage != null) {
-      storage.freeze(throwException);
+      storage.freeze(this, throwException);
     }
 
     YouTrackDBEnginesManager.instance()
@@ -1673,6 +1715,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
    */
   @Override
   public void freeze() {
+    assert assertIfNotActive();
     freeze(false);
   }
 
@@ -1682,6 +1725,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   @Override
   public void release() {
     checkOpenness();
+    assert assertIfNotActive();
     if (!(storage instanceof FreezableStorageComponent)) {
       LogManager.instance()
           .error(
@@ -1696,7 +1740,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
     final FreezableStorageComponent storage = getFreezableStorage();
     if (storage != null) {
-      storage.release();
+      storage.release(this);
     }
 
     YouTrackDBEnginesManager.instance()
@@ -1723,13 +1767,14 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   /**
    * {@inheritDoc}
    */
-  public SBTreeCollectionManager getSbTreeCollectionManager() {
+  public BTreeCollectionManager getSbTreeCollectionManager() {
+    assert assertIfNotActive();
     return storage.getSBtreeCollectionManager();
   }
 
   @Override
   public void reload() {
-    checkIfActive();
+    assert assertIfNotActive();
 
     if (this.isClosed()) {
       throw new DatabaseException("Cannot reload a closed db");
@@ -1740,6 +1785,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   public void internalCommit(TransactionOptimistic transaction) {
+    assert assertIfNotActive();
     this.storage.commit(transaction);
   }
 
@@ -1748,7 +1794,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       return;
     }
 
-    checkIfActive();
+    assert assertIfNotActive();
 
     try {
       closeActiveQueries();
@@ -1784,40 +1830,47 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   public long[] getClusterDataRange(int currentClusterId) {
+    assert assertIfNotActive();
     return storage.getClusterDataRange(this, currentClusterId);
   }
 
   @Override
   public void setDefaultClusterId(int addCluster) {
+    assert assertIfNotActive();
     storage.setDefaultClusterId(addCluster);
   }
 
   @Override
   public long getLastClusterPosition(int clusterId) {
+    assert assertIfNotActive();
     return storage.getLastClusterPosition(clusterId);
   }
 
   @Override
   public String getClusterRecordConflictStrategy(int clusterId) {
+    assert assertIfNotActive();
     return storage.getClusterRecordConflictStrategy(clusterId);
   }
 
   @Override
   public int[] getClustersIds(Set<String> filterClusters) {
-    checkIfActive();
+    assert assertIfNotActive();
     return storage.getClustersIds(filterClusters);
   }
 
   public void startExclusiveMetadataChange() {
+    assert assertIfNotActive();
     ((AbstractPaginatedStorage) storage).startDDL();
   }
 
   public void endExclusiveMetadataChange() {
+    assert assertIfNotActive();
     ((AbstractPaginatedStorage) storage).endDDL();
   }
 
   @Override
   public long truncateClass(String name, boolean polimorfic) {
+    assert assertIfNotActive();
     this.checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_UPDATE);
     SchemaClass clazz = getClass(name);
     if (clazz.isSubClassOf(SecurityShared.RESTRICTED_CLASSNAME)) {
@@ -1851,11 +1904,13 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   public void truncateClass(String name) {
+    assert assertIfNotActive();
     truncateClass(name, true);
   }
 
   @Override
   public long truncateClusterInternal(String clusterName) {
+    assert assertIfNotActive();
     checkSecurity(Rule.ResourceGeneric.CLUSTER, Role.PERMISSION_DELETE, clusterName);
     checkForClusterPermissions(clusterName);
 
@@ -1885,11 +1940,13 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   public NonTxReadMode getNonTxReadMode() {
+    assert assertIfNotActive();
     return nonTxReadMode;
   }
 
   @Override
   public void truncateCluster(String clusterName) {
+    assert assertIfNotActive();
     truncateClusterInternal(clusterName);
   }
 }

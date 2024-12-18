@@ -21,13 +21,13 @@ package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command;
 
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import java.util.Map;
 
 public abstract class ServerCommandDocumentAbstract extends ServerCommandAuthenticatedDbAbstract {
 
   protected String bindToFields(
-      final OHttpRequest iRequest, final Map<String, String> iFields, final RecordId iRid)
+      final HttpRequest iRequest, final Map<String, String> iFields, final RecordId iRid)
       throws Exception {
     if (iRequest.getContent() == null) {
       throw new IllegalArgumentException("HTTP Request content is empty");

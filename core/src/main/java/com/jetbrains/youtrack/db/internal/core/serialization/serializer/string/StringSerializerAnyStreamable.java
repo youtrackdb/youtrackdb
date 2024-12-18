@@ -49,7 +49,7 @@ public class StringSerializerAnyStreamable implements StringSerializer {
     int propertyPos = iStream.indexOf(':');
     int pos = iStream.indexOf(StringSerializerEmbedded.SEPARATOR);
     if (pos < 0 || propertyPos > -1 && pos > propertyPos) {
-      instance = new EntityImpl();
+      instance = new EntityImpl(db);
       pos = -1;
     } else {
       final String className = iStream.substring(0, pos);
@@ -70,9 +70,11 @@ public class StringSerializerAnyStreamable implements StringSerializer {
   /**
    * Serialize the class name size + class name + object content
    *
+   * @param db
    * @param iValue
    */
-  public StringBuilder toStream(final StringBuilder iOutput, Object iValue) {
+  public StringBuilder toStream(DatabaseSessionInternal db, final StringBuilder iOutput,
+      Object iValue) {
     if (iValue != null) {
       if (!(iValue instanceof SerializableStream stream)) {
         throw new SerializationException(

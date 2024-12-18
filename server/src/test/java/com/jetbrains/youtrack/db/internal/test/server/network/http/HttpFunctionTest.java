@@ -36,7 +36,7 @@ public class HttpFunctionTest extends BaseHttpDatabaseTest {
 
     Assert.assertNotNull(response);
 
-    var responseDoc = new EntityImpl();
+    var responseDoc = new EntityImpl(null);
     responseDoc.fromJSON(response);
     EntityImpl result =
         ((List<EntityImpl>) responseDoc.field("result")).get(0);

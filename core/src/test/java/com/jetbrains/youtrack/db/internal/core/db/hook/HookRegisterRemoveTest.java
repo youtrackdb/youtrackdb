@@ -2,9 +2,10 @@ package com.jetbrains.youtrack.db.internal.core.db.hook;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.api.record.RecordHook;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.RecordHook;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
@@ -22,7 +23,7 @@ public class HookRegisterRemoveTest extends DbTestBase {
           }
 
           @Override
-          public RESULT onTrigger(TYPE iType, Record iRecord) {
+          public RESULT onTrigger(DatabaseSession db, TYPE iType, Record iRecord) {
             integer.incrementAndGet();
             return null;
           }
@@ -35,14 +36,14 @@ public class HookRegisterRemoveTest extends DbTestBase {
     db.registerHook(iHookImpl);
 
     db.begin();
-    db.save(new EntityImpl().field("test", "test"),
+    db.save(((EntityImpl) db.newEntity()).field("test", "test"),
         db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
     assertEquals(3, integer.get());
     db.unregisterHook(iHookImpl);
 
     db.begin();
-    db.save(new EntityImpl(), db.getClusterNameById(db.getDefaultClusterId()));
+    db.save((EntityImpl) db.newEntity(), db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
     assertEquals(3, integer.get());

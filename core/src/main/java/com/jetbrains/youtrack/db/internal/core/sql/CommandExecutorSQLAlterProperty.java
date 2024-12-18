@@ -19,19 +19,19 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.Property.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
-import com.jetbrains.youtrack.db.api.schema.Property.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAlterPropertyStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
@@ -55,7 +55,8 @@ public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
   private ATTRIBUTES attribute;
   private String value;
 
-  public CommandExecutorSQLAlterProperty parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLAlterProperty parse(DatabaseSessionInternal db,
+      final CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
 
     String queryText = textRequest.getText();
@@ -212,13 +213,12 @@ public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
   /**
    * Execute the ALTER PROPERTY.
    */
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     if (attribute == null) {
       throw new CommandExecutionException(
           "Cannot execute the command because it has not yet been parsed");
     }
 
-    var db = getDatabase();
     final SchemaClassImpl sourceClass =
         (SchemaClassImpl) db.getMetadata().getSchema().getClass(className);
     if (sourceClass == null) {

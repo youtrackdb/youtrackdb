@@ -41,24 +41,24 @@ public class TestNetworkSerializerIndependency {
     DatabaseSessionAbstract.setDefaultSerializer(RecordSerializerSchemaAware2CSV.INSTANCE);
     createDatabase();
 
-    DatabaseSessionInternal dbTx = null;
+    DatabaseSessionInternal db = null;
     try {
       DatabaseSessionAbstract.setDefaultSerializer(RecordSerializerBinary.INSTANCE);
-      dbTx = new DatabaseDocumentTx("remote:localhost/test");
-      dbTx.open("admin", "admin");
-      EntityImpl document = new EntityImpl();
+      db = new DatabaseDocumentTx("remote:localhost/test");
+      db.open("admin", "admin");
+      EntityImpl document = ((EntityImpl) db.newEntity());
       document.field("name", "something");
       document.field("surname", "something-else");
-      document = dbTx.save(document, dbTx.getClusterNameById(dbTx.getDefaultClusterId()));
-      dbTx.commit();
-      EntityImpl doc = dbTx.load(document.getIdentity());
+      document = db.save(document, db.getClusterNameById(db.getDefaultClusterId()));
+      db.commit();
+      EntityImpl doc = db.load(document.getIdentity());
       assertEquals(doc.fields(), document.fields());
       assertEquals(doc.<Object>field("name"), document.field("name"));
       assertEquals(doc.<Object>field("surname"), document.field("surname"));
     } finally {
-      if (dbTx != null && !dbTx.isClosed()) {
-        dbTx.close();
-        dbTx.getStorage().close(dbTx);
+      if (db != null && !db.isClosed()) {
+        db.close();
+        db.getStorage().close(db);
       }
 
       dropDatabase();
@@ -88,18 +88,18 @@ public class TestNetworkSerializerIndependency {
       DatabaseSessionAbstract.setDefaultSerializer(RecordSerializerSchemaAware2CSV.INSTANCE);
       try (var youTrackDBManager = YourTracks.remote("remote:localhost", "root", "root")) {
         youTrackDBManager.createIfNotExists("test", DatabaseType.MEMORY, "admin", "admin", "admin");
-        try (var dbTx = youTrackDBManager.open("test", "admin", "admin")) {
-          dbTx.begin();
-          EntityImpl entity = new EntityImpl();
+        try (var db = youTrackDBManager.open("test", "admin", "admin")) {
+          db.begin();
+          EntityImpl entity = ((EntityImpl) db.newEntity());
           entity.field("name", "something");
           entity.field("surname", "something-else");
-          entity = dbTx.save(entity);
+          entity = db.save(entity);
           var fields = entity.fields();
           var name = entity.field("name");
           var surname = entity.field("surname");
-          dbTx.commit();
+          db.commit();
 
-          EntityImpl doc = dbTx.load(entity.getIdentity());
+          EntityImpl doc = db.load(entity.getIdentity());
           assertEquals(doc.fields(), fields);
           assertEquals(doc.field("name"), name);
           assertEquals(doc.field("surname"), surname);

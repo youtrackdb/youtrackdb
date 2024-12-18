@@ -26,7 +26,7 @@ public class ChainIndexFetchTest extends DbTestBase {
     propr.createIndex(db, INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
-    EntityImpl doc = new EntityImpl(linkedClass);
+    EntityImpl doc = (EntityImpl) db.newEntity(linkedClass);
     doc.field("id", "referred");
     db.save(doc);
     db.commit();
@@ -34,7 +34,7 @@ public class ChainIndexFetchTest extends DbTestBase {
     db.begin();
 
     doc = db.bindToSession(doc);
-    EntityImpl doc1 = new EntityImpl(baseClass);
+    EntityImpl doc1 = (EntityImpl) db.newEntity(baseClass);
     doc1.field("ref", doc);
 
     db.save(doc1);

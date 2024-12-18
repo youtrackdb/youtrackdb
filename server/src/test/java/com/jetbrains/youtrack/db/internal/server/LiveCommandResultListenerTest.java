@@ -42,7 +42,7 @@ public class LiveCommandResultListenerTest extends BaseMemoryInternalDatabase {
   private static class TestResultListener implements CommandResultListener {
 
     @Override
-    public boolean result(DatabaseSessionInternal querySession, Object iRecord) {
+    public boolean result(DatabaseSessionInternal db, Object iRecord) {
       return false;
     }
 
@@ -78,8 +78,8 @@ public class LiveCommandResultListenerTest extends BaseMemoryInternalDatabase {
   public void testSimpleMessageSend() throws IOException {
     LiveCommandResultListener listener =
         new LiveCommandResultListener(server, connection, new TestResultListener());
-    RecordOperation op = new RecordOperation(new EntityImpl(), RecordOperation.CREATED);
-    listener.onLiveResult(10, op);
+    RecordOperation op = new RecordOperation(new EntityImpl(db), RecordOperation.CREATED);
+    listener.onLiveResult(db, 10, op);
     Mockito.verify(channelBinary, atLeastOnce()).writeBytes(Mockito.any(byte[].class));
   }
 
@@ -91,8 +91,8 @@ public class LiveCommandResultListenerTest extends BaseMemoryInternalDatabase {
         new LiveCommandResultListener(server, connection, new TestResultListener());
     LiveQueryHook.subscribe(10, rawListener, db);
     assertTrue(LiveQueryHook.getOpsReference(db).getQueueThread().hasToken(10));
-    RecordOperation op = new RecordOperation(new EntityImpl(), RecordOperation.CREATED);
-    listener.onLiveResult(10, op);
+    RecordOperation op = new RecordOperation(new EntityImpl(db), RecordOperation.CREATED);
+    listener.onLiveResult(db, 10, op);
     assertFalse(LiveQueryHook.getOpsReference(db).getQueueThread().hasToken(10));
   }
 }

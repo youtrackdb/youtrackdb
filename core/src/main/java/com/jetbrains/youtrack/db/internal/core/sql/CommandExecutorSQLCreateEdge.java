@@ -19,20 +19,20 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItem;
@@ -62,7 +62,8 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
   private int batch = 100;
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLCreateEdge parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLCreateEdge parse(DatabaseSessionInternal db,
+      final CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
 
     String queryText = textRequest.getText();
@@ -70,8 +71,6 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
-
-      final var database = getDatabase();
 
       init((CommandRequestText) iRequest);
 
@@ -95,10 +94,10 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
 
         } else if (temp.equals(KEYWORD_SET)) {
           fields = new ArrayList<Pair<String, Object>>();
-          parseSetFields(clazz, fields);
+          parseSetFields(db, clazz, fields);
 
         } else if (temp.equals(KEYWORD_CONTENT)) {
-          parseContent();
+          parseContent(db);
 
         } else if (temp.equals(KEYWORD_BATCH)) {
           temp = parserNextWord(true);
@@ -109,11 +108,11 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
         } else if (className == null && !temp.isEmpty()) {
           className = tempLower;
 
-          clazz = (SchemaClassInternal) database.getMetadata().getImmutableSchemaSnapshot()
+          clazz = (SchemaClassInternal) db.getMetadata().getImmutableSchemaSnapshot()
               .getClass(temp);
           if (clazz == null) {
             final int committed;
-            if (database.getTransaction().isActive()) {
+            if (db.getTransaction().isActive()) {
               LogManager.instance()
                   .warn(
                       this,
@@ -122,20 +121,20 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
                           + "' must be executed outside active transaction: the transaction will be"
                           + " committed and reopen right after it. To avoid this behavior execute"
                           + " it outside a transaction");
-              committed = database.getTransaction().amountOfNestedTxs();
-              database.commit();
+              committed = db.getTransaction().amountOfNestedTxs();
+              db.commit();
             } else {
               committed = 0;
             }
 
             try {
-              Schema schema = database.getMetadata().getSchema();
+              Schema schema = db.getMetadata().getSchema();
               SchemaClass e = schema.getClass("E");
               clazz = (SchemaClassInternal) schema.createClass(className, e);
             } finally {
               // RESTART TRANSACTION
               for (int i = 0; i < committed; ++i) {
-                database.begin();
+                db.begin();
               }
             }
           }
@@ -150,7 +149,7 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
       if (className == null) {
         // ASSIGN DEFAULT CLASS
         className = "E";
-        clazz = (SchemaClassInternal) database.getMetadata().getImmutableSchemaSnapshot()
+        clazz = (SchemaClassInternal) db.getMetadata().getImmutableSchemaSnapshot()
             .getClass(className);
       }
 
@@ -169,13 +168,12 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
   /**
    * Execute the command and return the EntityImpl object created.
    */
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     if (clazz == null) {
       throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    DatabaseSessionInternal db = getDatabase();
     final List<Object> edges = new ArrayList<Object>();
     Set<Identifiable> fromIds = null;
     Set<Identifiable> toIds = null;
@@ -229,10 +227,10 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
           edge = (EdgeInternal) fromVertex.addEdge(toVertex, edgeLabel);
           if (fields != null && !fields.isEmpty()) {
             SQLHelper.bindParameters(
-                edge.getRecord(), fields, new CommandParameters(iArgs), context);
+                edge.getRecord(db), fields, new CommandParameters(iArgs), context);
           }
 
-          edge.getBaseDocument().save(clusterName);
+          edge.getBaseEntity().save(clusterName);
           fromVertex.save();
           toVertex.save();
 

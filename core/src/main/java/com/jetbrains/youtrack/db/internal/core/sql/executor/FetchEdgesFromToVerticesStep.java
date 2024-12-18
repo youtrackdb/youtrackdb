@@ -1,19 +1,19 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Direction;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStreamProducer;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import java.util.Collections;
 import java.util.HashSet;
@@ -52,10 +52,9 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
     }
 
     final Iterator fromIter = loadFrom();
-
-    final Set<RID> toList = loadTo();
-
     var db = ctx.getDatabase();
+    final Set<RID> toList = loadTo(db);
+
     ExecutionStreamProducer res =
         new ExecutionStreamProducer() {
           private final Iterator iter = fromIter;
@@ -82,7 +81,8 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
   private ExecutionStream createResultSet(DatabaseSessionInternal db, Set<RID> toList,
       Object val) {
     return ExecutionStream.resultIterator(
-        StreamSupport.stream(this.loadNextResults(val).spliterator(), false)
+        StreamSupport.stream(FetchEdgesFromToVerticesStep.loadNextResults(db, val).spliterator(),
+                false)
             .filter((e) -> filterResult(e, toList))
             .map(
                 (edge) -> {
@@ -91,7 +91,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
             .iterator());
   }
 
-  private Set<RID> loadTo() {
+  private Set<RID> loadTo(DatabaseSessionInternal db) {
     Object toValues = null;
 
     toValues = ctx.getVariable(toAlias);
@@ -110,7 +110,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
           elem = ((Result) elem).toEntity();
         }
         if (elem instanceof Identifiable && !(elem instanceof Entity)) {
-          elem = ((Identifiable) elem).getRecord();
+          elem = ((Identifiable) elem).getRecord(db);
         }
         if (!(elem instanceof Entity)) {
           throw new CommandExecutionException("Invalid vertex: " + elem);
@@ -142,12 +142,12 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
     return true;
   }
 
-  private Iterable<Edge> loadNextResults(Object from) {
+  private static Iterable<Edge> loadNextResults(DatabaseSessionInternal db, Object from) {
     if (from instanceof Result) {
       from = ((Result) from).toEntity();
     }
     if (from instanceof Identifiable && !(from instanceof Entity)) {
-      from = ((Identifiable) from).getRecord();
+      from = ((Identifiable) from).getRecord(db);
     }
     if (from instanceof Entity && ((Entity) from).isVertex()) {
       var vertex = ((Entity) from).toVertex();

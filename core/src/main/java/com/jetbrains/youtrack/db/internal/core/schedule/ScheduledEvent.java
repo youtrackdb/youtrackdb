@@ -16,19 +16,19 @@
 
 package com.jetbrains.youtrack.db.internal.core.schedule;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.CommandScriptException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.api.exception.CommandScriptException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseExportException;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.schedule.Scheduler.STATUS;
 import com.jetbrains.youtrack.db.internal.core.type.EntityWrapper;
@@ -67,16 +67,16 @@ public class ScheduledEvent extends EntityWrapper {
   /**
    * Creates a scheduled event object from a configuration.
    */
-  public ScheduledEvent(final EntityImpl entity, DatabaseSession session) {
+  public ScheduledEvent(final EntityImpl entity, DatabaseSessionInternal db) {
     super(entity);
     running = new AtomicBoolean(false);
-    nextExecutionId = new AtomicLong(getNextExecutionId(session));
-    getFunction(session);
+    nextExecutionId = new AtomicLong(getNextExecutionId(db));
+    getFunction(db);
     try {
-      cron = new CronExpression(getRule(session));
+      cron = new CronExpression(getRule(db));
     } catch (ParseException e) {
       LogManager.instance()
-          .error(this, "Error on compiling cron expression " + getRule(session), e);
+          .error(this, "Error on compiling cron expression " + getRule(db), e);
     }
   }
 
@@ -90,8 +90,8 @@ public class ScheduledEvent extends EntityWrapper {
     }
   }
 
-  public Function getFunction(DatabaseSession session) {
-    final Function fun = getFunctionSafe(session);
+  public Function getFunction(DatabaseSessionInternal db) {
+    final Function fun = getFunctionSafe(db);
     if (fun == null) {
       throw new CommandScriptException("Function cannot be null");
     }
@@ -185,19 +185,21 @@ public class ScheduledEvent extends EntityWrapper {
     this.running.set(running);
   }
 
-  private Function getFunctionSafe(DatabaseSession session) {
-    var entity = getDocument(session);
+  private Function getFunctionSafe(DatabaseSessionInternal db) {
+    var entity = getDocument(db);
     if (function == null) {
       final Object funcDoc = entity.field(PROP_FUNC);
       if (funcDoc != null) {
-        if (funcDoc instanceof Function) {
-          function = (Function) funcDoc;
-          // OVERWRITE FUNCTION ID
-          entity.field(PROP_FUNC, function.getId(session));
-        } else if (funcDoc instanceof EntityImpl) {
-          function = new Function((EntityImpl) funcDoc);
-        } else if (funcDoc instanceof RecordId) {
-          function = new Function((RecordId) funcDoc);
+        switch (funcDoc) {
+          case Function function1 -> {
+            function = function1;
+            // OVERWRITE FUNCTION ID
+            entity.field(PROP_FUNC, function.getId(db));
+          }
+          case EntityImpl entries -> function = new Function(entries);
+          case RecordId recordId -> function = new Function(db, recordId);
+          default -> {
+          }
         }
       }
     }
@@ -389,15 +391,15 @@ public class ScheduledEvent extends EntityWrapper {
       }
     }
 
-    private boolean isEventAlreadyExecuted(@Nonnull DatabaseSession session) {
+    private boolean isEventAlreadyExecuted(@Nonnull DatabaseSession db) {
       final Record rec;
       try {
-        rec = event.getDocument(session).getIdentity().getRecord();
+        rec = event.getDocument(db).getIdentity().getRecord(db);
       } catch (RecordNotFoundException e) {
         return true;
       }
 
-      final EntityImpl updated = session.load(rec.getIdentity());
+      final EntityImpl updated = db.load(rec.getIdentity());
       final Long currentExecutionId = updated.field(PROP_EXEC_ID);
       if (currentExecutionId == null) {
         return false;
@@ -408,7 +410,7 @@ public class ScheduledEvent extends EntityWrapper {
             .info(
                 this,
                 "Scheduled event '%s' with id %d is already running (current id=%d)",
-                event.getName(session),
+                event.getName(db),
                 event.nextExecutionId.get(),
                 currentExecutionId);
         // ALREADY RUNNING

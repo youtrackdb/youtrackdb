@@ -30,7 +30,7 @@ public interface RecordSerializer {
       RecordAbstract iRecord,
       String[] iFields);
 
-  byte[] toStream(DatabaseSessionInternal session, RecordAbstract iSource);
+  byte[] toStream(DatabaseSessionInternal db, RecordAbstract iSource);
 
   int getCurrentVersion();
 

@@ -1,15 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
-import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseCompare;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseCompare;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.BufferedInputStream;
@@ -323,7 +323,7 @@ public class LocalPaginatedStorageRestoreFromWALIT {
         SchemaClass classTwo = db.getMetadata().getSchema().getClass("TestTwo");
 
         for (int i = 0; i < 5000; i++) {
-          EntityImpl docOne = new EntityImpl(classOne);
+          EntityImpl docOne = ((EntityImpl) db.newEntity(classOne));
           docOne.field("intProp", random.nextInt());
 
           byte[] stringData = new byte[256];
@@ -343,7 +343,7 @@ public class LocalPaginatedStorageRestoreFromWALIT {
           firstDocs.add(docOne.getIdentity());
 
           if (random.nextBoolean()) {
-            EntityImpl docTwo = new EntityImpl(classTwo);
+            EntityImpl docTwo = ((EntityImpl) db.newEntity(classTwo));
 
             List<String> stringList = new ArrayList<String>();
 

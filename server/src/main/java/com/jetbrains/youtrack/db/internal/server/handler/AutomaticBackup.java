@@ -94,8 +94,7 @@ public class AutomaticBackup extends ServerPluginAbstract implements OServerPlug
       final ServerParameterConfiguration[] iParams) {
     serverInstance = iServer;
 
-    configuration = new EntityImpl();
-
+    configuration = new EntityImpl(null);
     for (ServerParameterConfiguration param : iParams) {
       if (param.name.equalsIgnoreCase("config") && param.value.trim().length() > 0) {
         configFile = param.value.trim();
@@ -288,7 +287,7 @@ public class AutomaticBackup extends ServerPluginAbstract implements OServerPlug
       // READ THE FILE
       try {
         final String configurationContent = IOUtils.readFileAsString(f);
-        configuration = new EntityImpl();
+        configuration = new EntityImpl(null);
         configuration.fromJSON(configurationContent);
       } catch (IOException e) {
         throw BaseException.wrapException(

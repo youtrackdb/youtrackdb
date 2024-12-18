@@ -46,7 +46,7 @@ public class LuceneSpatialMemoryTest extends LuceneBaseTest {
     db.command("CREATE INDEX Point.ll ON Point(latitude,longitude) SPATIAL ENGINE LUCENE")
         .close();
 
-    EntityImpl document = new EntityImpl("Point");
+    EntityImpl document = ((EntityImpl) db.newEntity("Point"));
 
     document.field("latitude", 42.2814837);
     document.field("longitude", -83.7605452);
@@ -75,7 +75,7 @@ public class LuceneSpatialMemoryTest extends LuceneBaseTest {
 
     db.begin();
 
-    EntityImpl document = new EntityImpl("Point");
+    EntityImpl document = ((EntityImpl) db.newEntity("Point"));
 
     document.field("latitude", 42.2814837);
     document.field("longitude", -83.7605452);
@@ -146,7 +146,7 @@ public class LuceneSpatialMemoryTest extends LuceneBaseTest {
 
     db.begin();
 
-    EntityImpl document = new EntityImpl("Point");
+    EntityImpl document = ((EntityImpl) db.newEntity("Point"));
 
     document.field("latitude", 42.2814837);
     document.field("longitude", -83.7605452);

@@ -24,7 +24,7 @@ import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import java.util.HashMap;
@@ -106,7 +106,7 @@ public class BasicCommandContext implements CommandContext {
         if (lastPart.startsWith("$")) {
           result = parent.getVariable(lastPart.substring(1));
         } else {
-          result = DocumentHelper.getFieldValue(getDatabase(), parent, lastPart);
+          result = EntityHelper.getFieldValue(getDatabase(), parent, lastPart);
         }
 
         return result != null ? resolveValue(result) : iDefault;
@@ -120,7 +120,7 @@ public class BasicCommandContext implements CommandContext {
         if (lastPart.startsWith("$")) {
           result = p.getVariable(lastPart.substring(1));
         } else {
-          result = DocumentHelper.getFieldValue(getDatabase(), p, lastPart, this);
+          result = EntityHelper.getFieldValue(getDatabase(), p, lastPart, this);
         }
 
         return result != null ? resolveValue(result) : iDefault;
@@ -153,7 +153,7 @@ public class BasicCommandContext implements CommandContext {
     }
 
     if (pos > -1) {
-      result = DocumentHelper.getFieldValue(getDatabase(), result, lastPart, this);
+      result = EntityHelper.getFieldValue(getDatabase(), result, lastPart, this);
     }
 
     return result != null ? resolveValue(result) : iDefault;

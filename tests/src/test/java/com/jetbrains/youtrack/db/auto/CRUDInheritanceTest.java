@@ -45,14 +45,14 @@ public class CRUDInheritanceTest extends BaseDBTest {
 
   @Test
   public void create() {
-    database.command("delete from Company").close();
+    db.command("delete from Company").close();
 
     generateCompanyData();
   }
 
   @Test(dependsOnMethods = "create")
   public void testCreate() {
-    Assert.assertEquals(database.countClass("Company"), TOT_COMPANY_RECORDS);
+    Assert.assertEquals(db.countClass("Company"), TOT_COMPANY_RECORDS);
   }
 
   @Test(dependsOnMethods = "testCreate")
@@ -93,30 +93,30 @@ public class CRUDInheritanceTest extends BaseDBTest {
   @Test(dependsOnMethods = {"queryPerSuperType", "testCreate"})
   public void deleteFirst() {
     // DELETE ALL THE RECORD IN THE CLUSTER
-    database.begin();
-    var companyClusterIterator = database.browseClass("Company");
+    db.begin();
+    var companyClusterIterator = db.browseClass("Company");
     for (Entity obj : companyClusterIterator) {
       if (obj.<Integer>getProperty("id") == 1) {
-        database.delete(obj);
+        db.delete(obj);
         break;
       }
     }
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(database.countClass("Company"), TOT_COMPANY_RECORDS - 1);
+    Assert.assertEquals(db.countClass("Company"), TOT_COMPANY_RECORDS - 1);
   }
 
   @Test(dependsOnMethods = "deleteFirst")
   public void testSuperclassInheritanceCreation() {
-    database.close();
-    database = createSessionInstance();
+    db.close();
+    db = createSessionInstance();
 
     createInheritanceTestClass();
 
     SchemaClass abstractClass =
-        database.getMetadata().getSchema().getClass("InheritanceTestAbstractClass");
-    SchemaClass baseClass = database.getMetadata().getSchema().getClass("InheritanceTestBaseClass");
-    SchemaClass testClass = database.getMetadata().getSchema().getClass("InheritanceTestClass");
+        db.getMetadata().getSchema().getClass("InheritanceTestAbstractClass");
+    SchemaClass baseClass = db.getMetadata().getSchema().getClass("InheritanceTestBaseClass");
+    SchemaClass testClass = db.getMetadata().getSchema().getClass("InheritanceTestClass");
 
     Assert.assertTrue(baseClass.getSuperClasses().contains(abstractClass));
     Assert.assertTrue(testClass.getSuperClasses().contains(baseClass));
@@ -126,13 +126,13 @@ public class CRUDInheritanceTest extends BaseDBTest {
   public void testIdFieldInheritanceFirstSubClass() {
     createInheritanceTestClass();
 
-    Entity a = database.newInstance("InheritanceTestBaseClass");
-    Entity b = database.newInstance("InheritanceTestClass");
+    Entity a = db.newInstance("InheritanceTestBaseClass");
+    Entity b = db.newInstance("InheritanceTestClass");
 
-    database.begin();
-    database.save(a);
-    database.save(b);
-    database.commit();
+    db.begin();
+    db.save(a);
+    db.save(b);
+    db.commit();
 
     final List<EntityImpl> result1 = executeQuery("select from InheritanceTestBaseClass");
     Assert.assertEquals(2, result1.size());
@@ -140,50 +140,50 @@ public class CRUDInheritanceTest extends BaseDBTest {
 
   @Test
   public void testKeywordClass() {
-    SchemaClass klass = database.getMetadata().getSchema().createClass("Not");
+    SchemaClass klass = db.getMetadata().getSchema().createClass("Not");
 
-    SchemaClass klass1 = database.getMetadata().getSchema().createClass("Extends_Not", klass);
+    SchemaClass klass1 = db.getMetadata().getSchema().createClass("Extends_Not", klass);
     Assert.assertEquals(1, klass1.getSuperClasses().size(), 1);
     Assert.assertEquals("Not", klass1.getSuperClasses().get(0).getName());
   }
 
   @Test
   public void testSchemaGeneration() {
-    var schema = database.getMetadata().getSchema();
+    var schema = db.getMetadata().getSchema();
     SchemaClass testSchemaClass = schema.createClass("JavaTestSchemaGeneration");
     SchemaClass childClass = schema.createClass("TestSchemaGenerationChild");
 
-    testSchemaClass.createProperty(database, "text", PropertyType.STRING);
-    testSchemaClass.createProperty(database, "enumeration", PropertyType.STRING);
-    testSchemaClass.createProperty(database, "numberSimple", PropertyType.INTEGER);
-    testSchemaClass.createProperty(database, "longSimple", PropertyType.LONG);
-    testSchemaClass.createProperty(database, "doubleSimple", PropertyType.DOUBLE);
-    testSchemaClass.createProperty(database, "floatSimple", PropertyType.FLOAT);
-    testSchemaClass.createProperty(database, "byteSimple", PropertyType.BYTE);
-    testSchemaClass.createProperty(database, "flagSimple", PropertyType.BOOLEAN);
-    testSchemaClass.createProperty(database, "dateField", PropertyType.DATETIME);
+    testSchemaClass.createProperty(db, "text", PropertyType.STRING);
+    testSchemaClass.createProperty(db, "enumeration", PropertyType.STRING);
+    testSchemaClass.createProperty(db, "numberSimple", PropertyType.INTEGER);
+    testSchemaClass.createProperty(db, "longSimple", PropertyType.LONG);
+    testSchemaClass.createProperty(db, "doubleSimple", PropertyType.DOUBLE);
+    testSchemaClass.createProperty(db, "floatSimple", PropertyType.FLOAT);
+    testSchemaClass.createProperty(db, "byteSimple", PropertyType.BYTE);
+    testSchemaClass.createProperty(db, "flagSimple", PropertyType.BOOLEAN);
+    testSchemaClass.createProperty(db, "dateField", PropertyType.DATETIME);
 
-    testSchemaClass.createProperty(database, "stringListMap", PropertyType.EMBEDDEDMAP,
+    testSchemaClass.createProperty(db, "stringListMap", PropertyType.EMBEDDEDMAP,
         PropertyType.EMBEDDEDLIST);
-    testSchemaClass.createProperty(database, "enumList", PropertyType.EMBEDDEDLIST,
+    testSchemaClass.createProperty(db, "enumList", PropertyType.EMBEDDEDLIST,
         PropertyType.STRING);
-    testSchemaClass.createProperty(database, "enumSet", PropertyType.EMBEDDEDSET,
+    testSchemaClass.createProperty(db, "enumSet", PropertyType.EMBEDDEDSET,
         PropertyType.STRING);
-    testSchemaClass.createProperty(database, "stringSet", PropertyType.EMBEDDEDSET,
+    testSchemaClass.createProperty(db, "stringSet", PropertyType.EMBEDDEDSET,
         PropertyType.STRING);
-    testSchemaClass.createProperty(database, "stringMap", PropertyType.EMBEDDEDMAP,
+    testSchemaClass.createProperty(db, "stringMap", PropertyType.EMBEDDEDMAP,
         PropertyType.STRING);
 
-    testSchemaClass.createProperty(database, "list", PropertyType.LINKLIST, childClass);
-    testSchemaClass.createProperty(database, "set", PropertyType.LINKSET, childClass);
-    testSchemaClass.createProperty(database, "children", PropertyType.LINKMAP, childClass);
-    testSchemaClass.createProperty(database, "child", PropertyType.LINK, childClass);
+    testSchemaClass.createProperty(db, "list", PropertyType.LINKLIST, childClass);
+    testSchemaClass.createProperty(db, "set", PropertyType.LINKSET, childClass);
+    testSchemaClass.createProperty(db, "children", PropertyType.LINKMAP, childClass);
+    testSchemaClass.createProperty(db, "child", PropertyType.LINK, childClass);
 
-    testSchemaClass.createProperty(database, "embeddedSet", PropertyType.EMBEDDEDSET, childClass);
-    testSchemaClass.createProperty(database, "embeddedChildren", PropertyType.EMBEDDEDMAP,
+    testSchemaClass.createProperty(db, "embeddedSet", PropertyType.EMBEDDEDSET, childClass);
+    testSchemaClass.createProperty(db, "embeddedChildren", PropertyType.EMBEDDEDMAP,
         childClass);
-    testSchemaClass.createProperty(database, "embeddedChild", PropertyType.EMBEDDED, childClass);
-    testSchemaClass.createProperty(database, "embeddedList", PropertyType.EMBEDDEDLIST, childClass);
+    testSchemaClass.createProperty(db, "embeddedChild", PropertyType.EMBEDDED, childClass);
+    testSchemaClass.createProperty(db, "embeddedList", PropertyType.EMBEDDEDLIST, childClass);
 
     // Test simple types
     checkProperty(testSchemaClass, "text", PropertyType.STRING);

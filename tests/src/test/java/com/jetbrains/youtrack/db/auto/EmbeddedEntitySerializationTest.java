@@ -22,30 +22,30 @@ public class EmbeddedEntitySerializationTest extends BaseDBTest {
   }
 
   public void testEmbeddedObjectSerialization() {
-    database.begin();
-    final EntityImpl originalDoc = new EntityImpl();
+    db.begin();
+    final EntityImpl originalDoc = ((EntityImpl) db.newEntity());
 
     final CompositeKey compositeKey =
         new CompositeKey(123, "56", new Date(), new RecordId("#0:12"));
     originalDoc.field("compositeKey", compositeKey);
     originalDoc.field("int", 12);
     originalDoc.field("val", "test");
-    originalDoc.save(database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    originalDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
-    final EntityImpl loadedDoc = database.load(originalDoc.getIdentity());
+    final EntityImpl loadedDoc = db.load(originalDoc.getIdentity());
     Assert.assertNotSame(loadedDoc, originalDoc);
 
     final CompositeKey loadedCompositeKey = loadedDoc.field("compositeKey");
     Assert.assertEquals(loadedCompositeKey, compositeKey);
 
-    database.begin();
-    database.bindToSession(originalDoc).delete();
-    database.commit();
+    db.begin();
+    db.bindToSession(originalDoc).delete();
+    db.commit();
   }
 
   public void testEmbeddedObjectSerializationInsideOfOtherEmbeddedObjects() {
-    final EntityImpl originalDoc = new EntityImpl();
+    final EntityImpl originalDoc = ((EntityImpl) db.newEntity());
 
     final CompositeKey compositeKeyOne =
         new CompositeKey(123, "56", new Date(), new RecordId("#0:12"));
@@ -56,17 +56,17 @@ public class EmbeddedEntitySerializationTest extends BaseDBTest {
         new CompositeKey(
             36, "563", new Date(System.currentTimeMillis() + 1000), new RecordId("#0:23"));
 
-    final EntityImpl embeddedDocOne = new EntityImpl();
+    final EntityImpl embeddedDocOne = ((EntityImpl) db.newEntity());
     embeddedDocOne.field("compositeKey", compositeKeyOne);
     embeddedDocOne.field("val", "test");
     embeddedDocOne.field("int", 10);
 
-    final EntityImpl embeddedDocTwo = new EntityImpl();
+    final EntityImpl embeddedDocTwo = ((EntityImpl) db.newEntity());
     embeddedDocTwo.field("compositeKey", compositeKeyTwo);
     embeddedDocTwo.field("val", "test");
     embeddedDocTwo.field("int", 10);
 
-    final EntityImpl embeddedDocThree = new EntityImpl();
+    final EntityImpl embeddedDocThree = ((EntityImpl) db.newEntity());
     embeddedDocThree.field("compositeKey", compositeKeyThree);
     embeddedDocThree.field("val", "test");
     embeddedDocThree.field("int", 10);
@@ -78,11 +78,11 @@ public class EmbeddedEntitySerializationTest extends BaseDBTest {
     originalDoc.field("embeddedDoc", embeddedDocOne, PropertyType.EMBEDDED);
     originalDoc.field("embeddedCollection", embeddedCollection, PropertyType.EMBEDDEDLIST);
 
-    database.begin();
-    originalDoc.save(database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    db.begin();
+    originalDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
-    final EntityImpl loadedDocument = database.load(originalDoc.getIdentity());
+    final EntityImpl loadedDocument = db.load(originalDoc.getIdentity());
     Assert.assertNotSame(loadedDocument, originalDoc);
 
     final EntityImpl loadedEmbeddedDocOne = loadedDocument.field("embeddedDoc");
@@ -103,8 +103,8 @@ public class EmbeddedEntitySerializationTest extends BaseDBTest {
 
     Assert.assertEquals(loadedEmbeddedDocThree.field("compositeKey"), compositeKeyThree);
 
-    database.begin();
-    database.bindToSession(originalDoc).delete();
-    database.commit();
+    db.begin();
+    db.bindToSession(originalDoc).delete();
+    db.commit();
   }
 }

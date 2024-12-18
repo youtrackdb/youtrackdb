@@ -14,8 +14,8 @@
 package com.jetbrains.youtrack.db.internal.spatial.shape;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -98,7 +98,7 @@ public abstract class ShapeBuilder<T extends Shape> {
   }
 
   public T fromMapGeoJson(Map<String, Object> geoJsonMap) {
-    EntityImpl doc = new EntityImpl(getName());
+    EntityImpl doc = new EntityImpl(null, getName());
     doc.field(COORDINATES, geoJsonMap.get(COORDINATES));
     return fromDoc(doc);
   }
@@ -138,7 +138,7 @@ public abstract class ShapeBuilder<T extends Shape> {
 
   public EntityImpl fromGeoJson(String geoJson) throws IOException, ParseException {
     Shape shape = SPATIAL_CONTEXT.getFormats().getGeoJsonReader().read(geoJson);
-    return toDoc((T) shape);
+    return toEntitty((T) shape);
   }
 
   public void validate(EntityImpl doc) {
@@ -166,19 +166,19 @@ public abstract class ShapeBuilder<T extends Shape> {
     return (T) entity;
   }
 
-  public abstract EntityImpl toDoc(T shape);
+  public abstract EntityImpl toEntitty(T shape);
 
-  protected EntityImpl toDoc(T parsed, Geometry geometry) {
+  protected EntityImpl toEntitty(T parsed, Geometry geometry) {
     if (geometry == null || Double.isNaN(geometry.getCoordinates()[0].getZ())) {
-      return toDoc(parsed);
+      return toEntitty(parsed);
     }
     throw new IllegalArgumentException("Invalid shape");
   }
 
-  public EntityImpl toDoc(String wkt)
+  public EntityImpl toEntitty(String wkt)
       throws ParseException, org.locationtech.jts.io.ParseException {
     T parsed = fromText(wkt);
-    return toDoc(
+    return toEntitty(
         parsed,
         GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()
             ? wktReader.read(wkt)

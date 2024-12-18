@@ -19,21 +19,23 @@
  */
 package com.jetbrains.youtrack.db.internal.core.fetch;
 
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.fetch.json.JSONFetchContext;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJSON;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJSON.FormatSettings;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -65,7 +67,7 @@ public class FetchHelper {
   }
 
   public static void fetch(
-      final Record rootRecord,
+      DatabaseSessionInternal db, final Record rootRecord,
       final Object userObject,
       final FetchPlan fetchPlan,
       final FetchListener listener,
@@ -83,9 +85,9 @@ public class FetchHelper {
         }
 
         if (!format.contains("shallow")) {
-          processRecordRidMap(record, fetchPlan, 0, 0, -1, parsedRecords, "", context);
+          processRecordRidMap(db, record, fetchPlan, 0, 0, -1, parsedRecords, "", context);
         }
-        processRecord(
+        processRecord(db,
             record, userObject, fetchPlan, 0, 0, -1, parsedRecords, "", listener, context, format);
       }
     } catch (final Exception e) {
@@ -121,7 +123,7 @@ public class FetchHelper {
   }
 
   public static void processRecordRidMap(
-      final EntityImpl record,
+      DatabaseSessionInternal db, final EntityImpl record,
       final FetchPlan iFetchPlan,
       final int iCurrentLevel,
       final int iLevelFromRoot,
@@ -185,18 +187,17 @@ public class FetchHelper {
           final int nextLevel = isEmbedded ? iLevelFromRoot : iLevelFromRoot + 1;
 
           if (fieldValue instanceof RecordId) {
-            fieldValue = ((RecordId) fieldValue).getRecord();
+            fieldValue = ((RecordId) fieldValue).getRecord(db);
           }
 
-          fetchRidMap(
+          fetchRidMap(db,
               iFetchPlan,
               fieldValue,
               iCurrentLevel,
               nextLevel,
               iFieldDepthLevel,
               parsedRecords,
-              fieldPath,
-              iContext);
+              fieldPath, iContext);
         } catch (Exception e) {
           LogManager.instance()
               .error(FetchHelper.class, "Fetching error on record %s", e, record.getIdentity());
@@ -206,7 +207,7 @@ public class FetchHelper {
   }
 
   private static void fetchRidMap(
-      final FetchPlan iFetchPlan,
+      DatabaseSessionInternal db, final FetchPlan iFetchPlan,
       final Object fieldValue,
       final int iCurrentLevel,
       final int iLevelFromRoot,
@@ -218,50 +219,46 @@ public class FetchHelper {
       //noinspection UnnecessaryReturnStatement
       return;
     } else if (fieldValue instanceof EntityImpl) {
-      fetchDocumentRidMap(
+      fetchDocumentRidMap(db,
           iFetchPlan,
           fieldValue,
           iCurrentLevel,
           iLevelFromRoot,
           iFieldDepthLevel,
           parsedRecords,
-          iFieldPathFromRoot,
-          iContext);
+          iFieldPathFromRoot, iContext);
     } else if (fieldValue instanceof Iterable<?>) {
-      fetchCollectionRidMap(
+      fetchCollectionRidMap(db,
           iFetchPlan,
           fieldValue,
           iCurrentLevel,
           iLevelFromRoot,
           iFieldDepthLevel,
           parsedRecords,
-          iFieldPathFromRoot,
-          iContext);
+          iFieldPathFromRoot, iContext);
     } else if (fieldValue.getClass().isArray()) {
-      fetchArrayRidMap(
+      fetchArrayRidMap(db,
           iFetchPlan,
           fieldValue,
           iCurrentLevel,
           iLevelFromRoot,
           iFieldDepthLevel,
           parsedRecords,
-          iFieldPathFromRoot,
-          iContext);
+          iFieldPathFromRoot, iContext);
     } else if (fieldValue instanceof Map<?, ?>) {
-      fetchMapRidMap(
+      fetchMapRidMap(db,
           iFetchPlan,
           fieldValue,
           iCurrentLevel,
           iLevelFromRoot,
           iFieldDepthLevel,
           parsedRecords,
-          iFieldPathFromRoot,
-          iContext);
+          iFieldPathFromRoot, iContext);
     }
   }
 
   private static void fetchDocumentRidMap(
-      final FetchPlan iFetchPlan,
+      DatabaseSessionInternal db, final FetchPlan iFetchPlan,
       Object fieldValue,
       final int iCurrentLevel,
       final int iLevelFromRoot,
@@ -269,20 +266,19 @@ public class FetchHelper {
       final Object2IntOpenHashMap<RID> parsedRecords,
       final String iFieldPathFromRoot,
       final FetchContext iContext) {
-    updateRidMap(
+    updateRidMap(db,
         iFetchPlan,
         (EntityImpl) fieldValue,
         iCurrentLevel,
         iLevelFromRoot,
         iFieldDepthLevel,
         parsedRecords,
-        iFieldPathFromRoot,
-        iContext);
+        iFieldPathFromRoot, iContext);
   }
 
   @SuppressWarnings("unchecked")
   private static void fetchCollectionRidMap(
-      final FetchPlan iFetchPlan,
+      DatabaseSessionInternal db, final FetchPlan iFetchPlan,
       final Object fieldValue,
       final int iCurrentLevel,
       final int iLevelFromRoot,
@@ -294,23 +290,22 @@ public class FetchHelper {
     for (Identifiable d : linked) {
       if (d != null) {
         // GO RECURSIVELY
-        d = d.getRecord();
+        d = d.getRecord(db);
 
-        updateRidMap(
+        updateRidMap(db,
             iFetchPlan,
             (EntityImpl) d,
             iCurrentLevel,
             iLevelFromRoot,
             iFieldDepthLevel,
             parsedRecords,
-            iFieldPathFromRoot,
-            iContext);
+            iFieldPathFromRoot, iContext);
       }
     }
   }
 
   private static void fetchArrayRidMap(
-      final FetchPlan iFetchPlan,
+      DatabaseSessionInternal db, final FetchPlan iFetchPlan,
       final Object fieldValue,
       final int iCurrentLevel,
       final int iLevelFromRoot,
@@ -322,22 +317,21 @@ public class FetchHelper {
       for (EntityImpl d : linked)
       // GO RECURSIVELY
       {
-        updateRidMap(
+        updateRidMap(db,
             iFetchPlan,
             d,
             iCurrentLevel,
             iLevelFromRoot,
             iFieldDepthLevel,
             parsedRecords,
-            iFieldPathFromRoot,
-            iContext);
+            iFieldPathFromRoot, iContext);
       }
     }
   }
 
   @SuppressWarnings("unchecked")
   private static void fetchMapRidMap(
-      final FetchPlan iFetchPlan,
+      DatabaseSessionInternal db, final FetchPlan iFetchPlan,
       Object fieldValue,
       final int iCurrentLevel,
       final int iLevelFromRoot,
@@ -349,20 +343,19 @@ public class FetchHelper {
     for (EntityImpl d : (linked).values())
     // GO RECURSIVELY
     {
-      updateRidMap(
+      updateRidMap(db,
           iFetchPlan,
           d,
           iCurrentLevel,
           iLevelFromRoot,
           iFieldDepthLevel,
           parsedRecords,
-          iFieldPathFromRoot,
-          iContext);
+          iFieldPathFromRoot, iContext);
     }
   }
 
   private static void updateRidMap(
-      final FetchPlan iFetchPlan,
+      DatabaseSessionInternal db, final FetchPlan iFetchPlan,
       final EntityImpl fieldValue,
       final int iCurrentLevel,
       final int iLevelFromRoot,
@@ -389,20 +382,19 @@ public class FetchHelper {
         parsedRecords.put(fieldValue.getIdentity(), iLevelFromRoot);
       }
 
-      processRecordRidMap(
+      processRecordRidMap(db,
           fieldValue,
           iFetchPlan,
           currentLevel,
           iLevelFromRoot,
           fieldDepthLevel,
           parsedRecords,
-          iFieldPathFromRoot,
-          iContext);
+          iFieldPathFromRoot, iContext);
     }
   }
 
   private static void processRecord(
-      final EntityImpl record,
+      DatabaseSessionInternal db, final EntityImpl record,
       final Object userObject,
       final FetchPlan fetchPlan,
       final int currentLevel,
@@ -438,13 +430,13 @@ public class FetchHelper {
             new HashSet<>(),
             fieldName);
       }
-      fetchContext.onAfterFetch(record);
+      fetchContext.onAfterFetch(db, record);
     }
 
     fetchContext.onBeforeFetch(record);
     final Set<String> toRemove = new HashSet<>();
     for (final String fieldName : record.getPropertyNamesInternal()) {
-      process(
+      process(db,
           record,
           userObject,
           fetchPlan,
@@ -456,14 +448,13 @@ public class FetchHelper {
           fetchListener,
           fetchContext,
           format,
-          toRemove,
-          fieldName);
+          toRemove, fieldName);
     }
     for (final String fieldName : toRemove) {
       fetchListener.skipStandardField(record, fieldName, fetchContext, userObject, format);
     }
     if (settings.keepTypes) {
-      fetchContext.onAfterFetch(record);
+      fetchContext.onAfterFetch(db, record);
     }
   }
 
@@ -519,7 +510,7 @@ public class FetchHelper {
   }
 
   private static void process(
-      final EntityImpl record,
+      DatabaseSessionInternal db, final EntityImpl record,
       final Object userObject,
       final FetchPlan fetchPlan,
       final int currentLevel,
@@ -575,14 +566,14 @@ public class FetchHelper {
         || !(Array.get(fieldValue, 0) instanceof Identifiable))
         && !containsIdentifiers(fieldValue)) {
       fetchContext.onBeforeStandardField(fieldValue, fieldName, userObject, fieldType);
-      fetchListener.processStandardField(
+      fetchListener.processStandardField(db,
           record, fieldValue, fieldName, fetchContext, userObject, format, fieldType);
       fetchContext.onAfterStandardField(fieldValue, fieldName, userObject, fieldType);
     } else {
       try {
         if (fetch) {
           final int nextLevel = isEmbedded ? levelFromRoot : levelFromRoot + 1;
-          fetch(
+          fetch(db,
               record,
               userObject,
               fetchPlan,
@@ -594,8 +585,7 @@ public class FetchHelper {
               parsedRecords,
               fieldPath,
               fetchListener,
-              fetchContext,
-              settings);
+              fetchContext, settings);
         }
       } catch (final Exception e) {
         LogManager.instance()
@@ -646,7 +636,7 @@ public class FetchHelper {
   }
 
   private static void fetch(
-      final EntityImpl iRootRecord,
+      DatabaseSessionInternal db, final EntityImpl iRootRecord,
       final Object iUserObject,
       final FetchPlan iFetchPlan,
       final Object fieldValue,
@@ -658,7 +648,7 @@ public class FetchHelper {
       final String iFieldPathFromRoot,
       final FetchListener iListener,
       final FetchContext iContext,
-      final RecordSerializerJSON.FormatSettings settings)
+      final FormatSettings settings)
       throws IOException {
     int currentLevel = iCurrentLevel + 1;
     int fieldDepthLevel = iFieldDepthLevel;
@@ -668,9 +658,10 @@ public class FetchHelper {
     }
 
     if (fieldValue == null) {
-      iListener.processStandardField(iRootRecord, null, fieldName, iContext, iUserObject, "", null);
+      iListener.processStandardField(db, iRootRecord, null, fieldName, iContext, iUserObject, "",
+          null);
     } else if (fieldValue instanceof Identifiable) {
-      fetchDocument(
+      fetchEntity(db,
           iRootRecord,
           iUserObject,
           iFetchPlan,
@@ -682,10 +673,9 @@ public class FetchHelper {
           parsedRecords,
           iFieldPathFromRoot,
           iListener,
-          iContext,
-          settings);
+          iContext, settings);
     } else if (fieldValue instanceof Map<?, ?>) {
-      fetchMap(
+      fetchMap(db,
           iRootRecord,
           iUserObject,
           iFetchPlan,
@@ -697,10 +687,9 @@ public class FetchHelper {
           parsedRecords,
           iFieldPathFromRoot,
           iListener,
-          iContext,
-          settings);
+          iContext, settings);
     } else if (MultiValue.isMultiValue(fieldValue)) {
-      fetchCollection(
+      fetchCollection(db,
           iRootRecord,
           iUserObject,
           iFetchPlan,
@@ -712,10 +701,9 @@ public class FetchHelper {
           parsedRecords,
           iFieldPathFromRoot,
           iListener,
-          iContext,
-          settings);
+          iContext, settings);
     } else if (fieldValue.getClass().isArray()) {
-      fetchArray(
+      fetchArray(db,
           iRootRecord,
           iUserObject,
           iFetchPlan,
@@ -727,14 +715,13 @@ public class FetchHelper {
           parsedRecords,
           iFieldPathFromRoot,
           iListener,
-          iContext,
-          settings);
+          iContext, settings);
     }
   }
 
   @SuppressWarnings("unchecked")
   private static void fetchMap(
-      final EntityImpl iRootRecord,
+      DatabaseSessionInternal db, final EntityImpl iRootRecord,
       final Object iUserObject,
       final FetchPlan iFetchPlan,
       Object fieldValue,
@@ -746,7 +733,7 @@ public class FetchHelper {
       final String iFieldPathFromRoot,
       final FetchListener iListener,
       final FetchContext iContext,
-      final RecordSerializerJSON.FormatSettings settings) {
+      final FormatSettings settings) {
     final Map<String, Object> linked = (Map<String, Object>) fieldValue;
     iContext.onBeforeMap(iRootRecord, fieldName, iUserObject);
 
@@ -756,7 +743,7 @@ public class FetchHelper {
       if (o instanceof Identifiable identifiable) {
         Record r = null;
         try {
-          r = identifiable.getRecord();
+          r = identifiable.getRecord(db);
         } catch (RecordNotFoundException ignore) {
         }
         if (r != null) {
@@ -766,11 +753,11 @@ public class FetchHelper {
             if (!d.getIdentity().isValid()
                 || (fieldDepthLevel > -1 && fieldDepthLevel == iLevelFromRoot)) {
               removeParsedFromMap(parsedRecords, d);
-              iContext.onBeforeDocument(iRootRecord, d, key.toString(), iUserObject);
+              iContext.onBeforeDocument(db, iRootRecord, d, key.toString(), iUserObject);
               final Object userObject =
                   iListener.fetchLinkedMapEntry(
                       iRootRecord, iUserObject, fieldName, key.toString(), d, iContext);
-              processRecord(
+              processRecord(db,
                   d,
                   userObject,
                   iFetchPlan,
@@ -780,22 +767,21 @@ public class FetchHelper {
                   parsedRecords,
                   iFieldPathFromRoot,
                   iListener,
-                  iContext,
-                  getTypesFormat(settings.keepTypes)); // ""
+                  iContext, getTypesFormat(settings.keepTypes)); // ""
               iContext.onAfterDocument(iRootRecord, d, key.toString(), iUserObject);
             } else {
-              iListener.parseLinked(iRootRecord, d, iUserObject, key.toString(), iContext);
+              iListener.parseLinked(db, iRootRecord, d, iUserObject, key.toString(), iContext);
             }
           } else {
-            iListener.parseLinked(iRootRecord, r, iUserObject, key.toString(), iContext);
+            iListener.parseLinked(db, iRootRecord, r, iUserObject, key.toString(), iContext);
           }
 
         } else {
-          iListener.processStandardField(
+          iListener.processStandardField(db,
               iRootRecord, o, key.toString(), iContext, iUserObject, "", null);
         }
       } else {
-        iListener.processStandardField(
+        iListener.processStandardField(db,
             iRootRecord, o, key.toString(), iContext, iUserObject, "", null);
       }
     }
@@ -803,7 +789,7 @@ public class FetchHelper {
   }
 
   private static void fetchArray(
-      final EntityImpl rootRecord,
+      DatabaseSessionInternal db, final EntityImpl rootRecord,
       final Object iUserObject,
       final FetchPlan iFetchPlan,
       Object fieldValue,
@@ -815,19 +801,19 @@ public class FetchHelper {
       final String iFieldPathFromRoot,
       final FetchListener iListener,
       final FetchContext context,
-      RecordSerializerJSON.FormatSettings settings) {
+      FormatSettings settings) {
     if (fieldValue instanceof EntityImpl[] linked) {
-      context.onBeforeArray(rootRecord, fieldName, iUserObject, linked);
+      context.onBeforeArray(db, rootRecord, fieldName, iUserObject, linked);
       for (final EntityImpl entity : linked) {
         // GO RECURSIVELY
         final int fieldDepthLevel = parsedRecords.getInt(entity.getIdentity());
         if (!entity.getIdentity().isValid()
             || (fieldDepthLevel > -1 && fieldDepthLevel == iLevelFromRoot)) {
           removeParsedFromMap(parsedRecords, entity);
-          context.onBeforeDocument(rootRecord, entity, fieldName, iUserObject);
+          context.onBeforeDocument(db, rootRecord, entity, fieldName, iUserObject);
           final Object userObject =
               iListener.fetchLinked(rootRecord, iUserObject, fieldName, entity, context);
-          processRecord(
+          processRecord(db,
               entity,
               userObject,
               iFetchPlan,
@@ -837,24 +823,23 @@ public class FetchHelper {
               parsedRecords,
               iFieldPathFromRoot,
               iListener,
-              context,
-              getTypesFormat(settings.keepTypes)); // ""
+              context, getTypesFormat(settings.keepTypes)); // ""
           context.onAfterDocument(rootRecord, entity, fieldName, iUserObject);
         } else {
-          iListener.parseLinkedCollectionValue(
+          iListener.parseLinkedCollectionValue(db,
               rootRecord, entity, iUserObject, fieldName, context);
         }
       }
       context.onAfterArray(rootRecord, fieldName, iUserObject);
     } else {
-      iListener.processStandardField(
+      iListener.processStandardField(db,
           rootRecord, fieldValue, fieldName, context, iUserObject, "", null);
     }
   }
 
   @SuppressWarnings("unchecked")
   private static void fetchCollection(
-      final EntityImpl iRootRecord,
+      DatabaseSessionInternal db, final EntityImpl iRootRecord,
       final Object iUserObject,
       final FetchPlan iFetchPlan,
       final Object fieldValue,
@@ -866,15 +851,15 @@ public class FetchHelper {
       final String iFieldPathFromRoot,
       final FetchListener iListener,
       final FetchContext context,
-      final RecordSerializerJSON.FormatSettings settings)
+      final FormatSettings settings)
       throws IOException {
     final Iterable<?> linked;
     if (fieldValue instanceof Iterable<?>) {
       linked = (Iterable<Identifiable>) fieldValue;
-      context.onBeforeCollection(iRootRecord, fieldName, iUserObject, linked);
+      context.onBeforeCollection(db, iRootRecord, fieldName, iUserObject, linked);
     } else if (fieldValue.getClass().isArray()) {
       linked = MultiValue.getMultiValueIterable(fieldValue);
-      context.onBeforeCollection(iRootRecord, fieldName, iUserObject, linked);
+      context.onBeforeCollection(db, iRootRecord, fieldName, iUserObject, linked);
     } else if (fieldValue instanceof Map<?, ?>) {
       linked = ((Map<?, ?>) fieldValue).values();
       context.onBeforeMap(iRootRecord, fieldName, iUserObject);
@@ -898,17 +883,17 @@ public class FetchHelper {
               || (fieldDepthLevel > -1 && fieldDepthLevel == iLevelFromRoot)) {
             removeParsedFromMap(parsedRecords, identifiable);
             try {
-              identifiable = identifiable.getRecord();
+              identifiable = identifiable.getRecord(db);
               if (!(identifiable instanceof EntityImpl)) {
-                iListener.processStandardField(
+                iListener.processStandardField(db,
                     null, identifiable, fieldName, context, iUserObject, "", null);
               } else {
-                context.onBeforeDocument(
+                context.onBeforeDocument(db,
                     iRootRecord, (EntityImpl) identifiable, fieldName, iUserObject);
                 final Object userObject =
                     iListener.fetchLinkedCollectionValue(
                         iRootRecord, iUserObject, fieldName, (EntityImpl) identifiable, context);
-                processRecord(
+                processRecord(db,
                     (EntityImpl) identifiable,
                     userObject,
                     iFetchPlan,
@@ -918,21 +903,20 @@ public class FetchHelper {
                     parsedRecords,
                     iFieldPathFromRoot,
                     iListener,
-                    context,
-                    getTypesFormat(settings.keepTypes)); // ""
+                    context, getTypesFormat(settings.keepTypes)); // ""
                 context.onAfterDocument(
                     iRootRecord, (EntityImpl) identifiable, fieldName, iUserObject);
               }
             } catch (RecordNotFoundException rnf) {
-              iListener.processStandardField(
+              iListener.processStandardField(db,
                   null, identifiable, null, context, iUserObject, "", null);
             }
           } else {
-            iListener.parseLinkedCollectionValue(
+            iListener.parseLinkedCollectionValue(db,
                 iRootRecord, identifiable, iUserObject, fieldName, context);
           }
         } else if (recordLazyMultiValue instanceof Map<?, ?>) {
-          fetchMap(
+          fetchMap(db,
               iRootRecord,
               iUserObject,
               iFetchPlan,
@@ -944,10 +928,9 @@ public class FetchHelper {
               parsedRecords,
               iFieldPathFromRoot,
               iListener,
-              context,
-              settings);
+              context, settings);
         } else if (MultiValue.isMultiValue(recordLazyMultiValue)) {
-          fetchCollection(
+          fetchCollection(db,
               iRootRecord,
               iUserObject,
               iFetchPlan,
@@ -959,13 +942,13 @@ public class FetchHelper {
               parsedRecords,
               iFieldPathFromRoot,
               iListener,
-              context,
-              settings);
+              context, settings);
         } else if ((recordLazyMultiValue instanceof String
             || recordLazyMultiValue instanceof Number
             || recordLazyMultiValue instanceof Boolean)
             && context instanceof JSONFetchContext) {
-          ((JSONFetchContext) context).getJsonWriter().writeValue(0, false, recordLazyMultiValue);
+          ((JSONFetchContext) context).getJsonWriter().writeValue(db, 0,
+              false, recordLazyMultiValue);
         }
       }
     } finally {
@@ -979,8 +962,8 @@ public class FetchHelper {
     }
   }
 
-  private static void fetchDocument(
-      final EntityImpl iRootRecord,
+  private static void fetchEntity(
+      DatabaseSessionInternal db, final EntityImpl iRootRecord,
       final Object iUserObject,
       final FetchPlan iFetchPlan,
       final Identifiable fieldValue,
@@ -992,11 +975,11 @@ public class FetchHelper {
       final String iFieldPathFromRoot,
       final FetchListener iListener,
       final FetchContext iContext,
-      final RecordSerializerJSON.FormatSettings settings) {
+      final FormatSettings settings) {
     if (fieldValue instanceof RID && !((RecordId) fieldValue).isValid()) {
       // RID NULL: TREAT AS "NULL" VALUE
       iContext.onBeforeStandardField(fieldValue, fieldName, iRootRecord, null);
-      iListener.parseLinked(iRootRecord, fieldValue, iUserObject, fieldName, iContext);
+      iListener.parseLinked(db, iRootRecord, fieldValue, iUserObject, fieldName, iContext);
       iContext.onAfterStandardField(fieldValue, fieldName, iRootRecord, null);
       return;
     }
@@ -1007,15 +990,15 @@ public class FetchHelper {
       removeParsedFromMap(parsedRecords, fieldValue);
       final EntityImpl linked;
       try {
-        linked = fieldValue.getRecord();
+        linked = fieldValue.getRecord(db);
       } catch (RecordNotFoundException rnf) {
         return;
       }
 
-      iContext.onBeforeDocument(iRootRecord, linked, fieldName, iUserObject);
+      iContext.onBeforeDocument(db, iRootRecord, linked, fieldName, iUserObject);
       Object userObject =
           iListener.fetchLinked(iRootRecord, iUserObject, fieldName, linked, iContext);
-      processRecord(
+      processRecord(db,
           linked,
           userObject,
           iFetchPlan,
@@ -1025,12 +1008,11 @@ public class FetchHelper {
           parsedRecords,
           iFieldPathFromRoot,
           iListener,
-          iContext,
-          getTypesFormat(settings.keepTypes)); // ""
+          iContext, getTypesFormat(settings.keepTypes)); // ""
       iContext.onAfterDocument(iRootRecord, linked, fieldName, iUserObject);
     } else {
       iContext.onBeforeStandardField(fieldValue, fieldName, iRootRecord, null);
-      iListener.parseLinked(iRootRecord, fieldValue, iUserObject, fieldName, iContext);
+      iListener.parseLinked(db, iRootRecord, fieldValue, iUserObject, fieldName, iContext);
       iContext.onAfterStandardField(fieldValue, fieldName, iRootRecord, null);
     }
   }

@@ -3,15 +3,15 @@ package com.jetbrains.youtrack.db.internal.client.remote;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.client.remote.message.LiveQueryPushRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.live.LiveQueryResult;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,17 +33,17 @@ public class RemoteLiveQueryPushTest {
     public boolean end;
 
     @Override
-    public void onCreate(DatabaseSession database, Result data) {
+    public void onCreate(DatabaseSessionInternal database, Result data) {
       countCreate++;
     }
 
     @Override
-    public void onUpdate(DatabaseSession database, Result before, Result after) {
+    public void onUpdate(DatabaseSessionInternal database, Result before, Result after) {
       countUpdate++;
     }
 
     @Override
-    public void onDelete(DatabaseSession database, Result data) {
+    public void onDelete(DatabaseSessionInternal database, Result data) {
       countDelete++;
     }
 

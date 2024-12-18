@@ -309,7 +309,7 @@ public class StorageBackupMTTest {
                 final EntityImpl document = db.load(id);
                 document.field("data", data);
               } else {
-                final EntityImpl document = new EntityImpl("BackupClass");
+                final EntityImpl document = ((EntityImpl) db.newEntity("BackupClass"));
                 document.field("num", num);
                 document.field("data", data);
 

@@ -19,18 +19,18 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.query;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.query.QueryAbstract;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
@@ -151,7 +151,7 @@ public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandReq
       return Collections.emptyMap();
     }
 
-    final EntityImpl param = new EntityImpl();
+    final EntityImpl param = new EntityImpl(null);
 
     ImmutableSchema schema =
         DatabaseRecordThreadLocal.instance().get().getMetadata().getImmutableSchemaSnapshot();
@@ -177,7 +177,7 @@ public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandReq
       return CommonConst.EMPTY_BYTE_ARRAY;
     }
 
-    final EntityImpl param = new EntityImpl();
+    final EntityImpl param = new EntityImpl(null);
     param.field("params", convertToRIDsIfPossible(params));
     return param.toStream();
   }

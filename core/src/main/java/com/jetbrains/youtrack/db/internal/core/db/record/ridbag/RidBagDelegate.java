@@ -20,12 +20,13 @@
 
 package com.jetbrains.youtrack.db.internal.core.db.record.ridbag;
 
-import com.jetbrains.youtrack.db.internal.common.util.Sizeable;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMultiValue;
+import com.jetbrains.youtrack.db.internal.common.util.Sizeable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMultiValue;
 import com.jetbrains.youtrack.db.internal.core.record.impl.SimpleMultiValueTracker;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.Change;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.Change;
 import java.util.Collection;
 import java.util.NavigableMap;
 import java.util.UUID;
@@ -52,14 +53,15 @@ public interface RidBagDelegate
    * <p>OwnerUuid is needed to notify db about changes of collection pointer if some happens during
    * serialization.
    *
+   * @param db
    * @param stream    to write content
    * @param offset    in stream where start to write content
    * @param ownerUuid id of delegate owner
    * @return offset where content of stream is ended
    */
-  int serialize(byte[] stream, int offset, UUID ownerUuid);
+  int serialize(DatabaseSessionInternal db, byte[] stream, int offset, UUID ownerUuid);
 
-  int deserialize(byte[] stream, int offset);
+  int deserialize(DatabaseSessionInternal db, byte[] stream, int offset);
 
   void requestDelete();
 

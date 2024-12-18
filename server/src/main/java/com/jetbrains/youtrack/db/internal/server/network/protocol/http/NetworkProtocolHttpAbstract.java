@@ -125,7 +125,7 @@ public abstract class NetworkProtocolHttpAbstract extends NetworkProtocol
   protected ClientConnection connection;
   protected SocketChannelTextServer channel;
   protected SecurityUserIml account;
-  protected OHttpRequest request;
+  protected HttpRequest request;
   protected HttpResponse response;
   protected HttpNetworkCommandManager cmdManager;
   private String responseCharSet;
@@ -355,7 +355,7 @@ public abstract class NetworkProtocolHttpAbstract extends NetworkProtocol
     }
   }
 
-  public OHttpRequest getRequest() {
+  public HttpRequest getRequest() {
     return request;
   }
 
@@ -392,7 +392,7 @@ public abstract class NetworkProtocolHttpAbstract extends NetworkProtocol
     return cmdManager;
   }
 
-  protected void handleError(Throwable e, OHttpRequest iRequest) {
+  protected void handleError(Throwable e, HttpRequest iRequest) {
     if (LogManager.instance().isDebugEnabled()) {
       LogManager.instance().debug(this, "Caught exception", e);
     }
@@ -549,8 +549,8 @@ public abstract class NetworkProtocolHttpAbstract extends NetworkProtocol
       writeLine(iHeaders);
     }
 
-    EntityImpl response = new EntityImpl();
-    EntityImpl error = new EntityImpl();
+    EntityImpl response = new EntityImpl(null);
+    EntityImpl error = new EntityImpl(null);
 
     error.field("code", iCode);
     error.field("reason", iCode);
@@ -599,7 +599,7 @@ public abstract class NetworkProtocolHttpAbstract extends NetworkProtocol
     }
   }
 
-  protected void readAllContent(final OHttpRequest iRequest) throws IOException {
+  protected void readAllContent(final HttpRequest iRequest) throws IOException {
     iRequest.setContent(null);
 
     int in;

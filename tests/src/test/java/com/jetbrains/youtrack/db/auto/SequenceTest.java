@@ -33,7 +33,7 @@ public class SequenceTest extends BaseDBTest {
 
   private void testSequence(String sequenceName, SEQUENCE_TYPE sequenceType)
       throws ExecutionException, InterruptedException {
-    SequenceLibrary sequenceLibrary = database.getMetadata().getSequenceLibrary();
+    SequenceLibrary sequenceLibrary = db.getMetadata().getSequenceLibrary();
 
     Sequence seq = sequenceLibrary.createSequence(sequenceName, sequenceType, null);
 
@@ -54,19 +54,19 @@ public class SequenceTest extends BaseDBTest {
 
     // Doing it twice to check everything works after reset
     for (int i = 0; i < 2; ++i) {
-      Assert.assertEquals(seq.next(), 1L);
-      Assert.assertEquals(seq.current(), 1L);
-      Assert.assertEquals(seq.next(), 2L);
-      Assert.assertEquals(seq.next(), 3L);
-      Assert.assertEquals(seq.next(), 4L);
-      Assert.assertEquals(seq.current(), 4L);
-      Assert.assertEquals(seq.reset(), 0L);
+      Assert.assertEquals(seq.next(db), 1L);
+      Assert.assertEquals(seq.current(db), 1L);
+      Assert.assertEquals(seq.next(db), 2L);
+      Assert.assertEquals(seq.next(db), 3L);
+      Assert.assertEquals(seq.next(db), 4L);
+      Assert.assertEquals(seq.current(db), 4L);
+      Assert.assertEquals(seq.reset(db), 0L);
     }
   }
 
   @Test
   public void testOrdered() throws ExecutionException, InterruptedException {
-    SequenceLibrary sequenceManager = database.getMetadata().getSequenceLibrary();
+    SequenceLibrary sequenceManager = db.getMetadata().getSequenceLibrary();
 
     Sequence seq = sequenceManager.createSequence("seqOrdered", SEQUENCE_TYPE.ORDERED, null);
 
@@ -86,9 +86,9 @@ public class SequenceTest extends BaseDBTest {
     testUsage(seq, FIRST_START);
 
     //
-    database.begin();
-    seq.updateParams(new Sequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
-    database.commit();
+    db.begin();
+    seq.updateParams(db, new Sequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
+    db.commit();
 
     testUsage(seq, SECOND_START);
   }
@@ -96,15 +96,15 @@ public class SequenceTest extends BaseDBTest {
   private void testUsage(Sequence seq, long reset)
       throws ExecutionException, InterruptedException {
     for (int i = 0; i < 2; ++i) {
-      Assert.assertEquals(seq.reset(), reset);
-      Assert.assertEquals(seq.current(), reset);
-      Assert.assertEquals(seq.next(), reset + 1L);
-      Assert.assertEquals(seq.current(), reset + 1L);
-      Assert.assertEquals(seq.next(), reset + 2L);
-      Assert.assertEquals(seq.next(), reset + 3L);
-      Assert.assertEquals(seq.next(), reset + 4L);
-      Assert.assertEquals(seq.current(), reset + 4L);
-      Assert.assertEquals(seq.reset(), reset);
+      Assert.assertEquals(seq.reset(db), reset);
+      Assert.assertEquals(seq.current(db), reset);
+      Assert.assertEquals(seq.next(db), reset + 1L);
+      Assert.assertEquals(seq.current(db), reset + 1L);
+      Assert.assertEquals(seq.next(db), reset + 2L);
+      Assert.assertEquals(seq.next(db), reset + 3L);
+      Assert.assertEquals(seq.next(db), reset + 4L);
+      Assert.assertEquals(seq.current(db), reset + 4L);
+      Assert.assertEquals(seq.reset(db), reset);
     }
   }
 }

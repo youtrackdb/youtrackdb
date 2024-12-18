@@ -17,7 +17,7 @@ public class LocalLiveResultListener implements LiveResultListener, CommandResul
   }
 
   @Override
-  public boolean result(DatabaseSessionInternal querySession, Object iRecord) {
+  public boolean result(DatabaseSessionInternal db, Object iRecord) {
     return false;
   }
 
@@ -31,8 +31,9 @@ public class LocalLiveResultListener implements LiveResultListener, CommandResul
   }
 
   @Override
-  public void onLiveResult(int iLiveToken, RecordOperation iOp) throws BaseException {
-    underlying.onLiveResult(iLiveToken, iOp);
+  public void onLiveResult(DatabaseSessionInternal db, int iLiveToken, RecordOperation iOp)
+      throws BaseException {
+    underlying.onLiveResult(db, iLiveToken, iOp);
   }
 
   @Override

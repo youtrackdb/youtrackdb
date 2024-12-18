@@ -6,7 +6,6 @@ import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,7 +25,7 @@ public class TestBinaryRecordsQuery extends DbTestBase {
   @Test
   public void testSelectBinary() {
     db.begin();
-    db.save(new RecordBytes("blabla".getBytes()), "BlobCluster");
+    db.save(db.newBlob("blabla".getBytes()), "BlobCluster");
     db.commit();
 
     ResultSet res = db.query("select from cluster:BlobCluster");
@@ -37,7 +36,7 @@ public class TestBinaryRecordsQuery extends DbTestBase {
   @Test
   public void testSelectRidBinary() {
     db.begin();
-    db.save(new RecordBytes("blabla".getBytes()), "BlobCluster");
+    db.save(db.newBlob("blabla".getBytes()), "BlobCluster");
     db.commit();
 
     ResultSet res = db.query("select @rid from cluster:BlobCluster");
@@ -47,7 +46,7 @@ public class TestBinaryRecordsQuery extends DbTestBase {
   @Test
   public void testDeleteBinary() {
     db.begin();
-    Record rec = db.save(new RecordBytes("blabla".getBytes()), "BlobCluster");
+    Record rec = db.save(db.newBlob("blabla".getBytes()), "BlobCluster");
     db.commit();
 
     db.begin();
@@ -66,13 +65,13 @@ public class TestBinaryRecordsQuery extends DbTestBase {
   @Test
   public void testSelectDeleteBinary() {
     db.begin();
-    Record rec = db.save(new RecordBytes("blabla".getBytes()), "BlobCluster");
+    Record rec = db.save(db.newBlob("blabla".getBytes()), "BlobCluster");
     db.commit();
 
     db.getMetadata().getSchema().createClass("RecordPointer");
 
     db.begin();
-    EntityImpl doc = new EntityImpl("RecordPointer");
+    EntityImpl doc = (EntityImpl) db.newEntity("RecordPointer");
     doc.field("ref", db.bindToSession(rec));
     db.save(doc);
     db.commit();
@@ -94,20 +93,20 @@ public class TestBinaryRecordsQuery extends DbTestBase {
   @Test
   public void testDeleteFromSelectBinary() {
     db.begin();
-    Record rec = db.save(new RecordBytes("blabla".getBytes()), "BlobCluster");
-    Record rec1 = db.save(new RecordBytes("blabla".getBytes()), "BlobCluster");
+    Record rec = db.save(db.newBlob("blabla".getBytes()), "BlobCluster");
+    Record rec1 = db.save(db.newBlob("blabla".getBytes()), "BlobCluster");
     db.commit();
 
     db.getMetadata().getSchema().createClass("RecordPointer");
 
     db.begin();
-    EntityImpl doc = new EntityImpl("RecordPointer");
+    EntityImpl doc = (EntityImpl) db.newEntity("RecordPointer");
     doc.field("ref", db.bindToSession(rec));
     db.save(doc);
     db.commit();
 
     db.begin();
-    EntityImpl doc1 = new EntityImpl("RecordPointer");
+    EntityImpl doc1 = (EntityImpl) db.newEntity("RecordPointer");
     doc1.field("ref", db.bindToSession(rec1));
     db.save(doc1);
     db.commit();

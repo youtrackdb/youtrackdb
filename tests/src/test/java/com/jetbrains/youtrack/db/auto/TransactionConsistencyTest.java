@@ -300,12 +300,15 @@ public class TransactionConsistencyTest extends BaseDBTest {
   @SuppressWarnings("unchecked")
   @Test
   public void checkVersionsInConnectedDocuments() {
-    database = acquireSession();
-    database.begin();
+    db = acquireSession();
+    db.begin();
 
-    EntityImpl kim = new EntityImpl("Profile").field("name", "Kim").field("surname", "Bauer");
-    EntityImpl teri = new EntityImpl("Profile").field("name", "Teri").field("surname", "Bauer");
-    EntityImpl jack = new EntityImpl("Profile").field("name", "Jack").field("surname", "Bauer");
+    EntityImpl kim = ((EntityImpl) db.newEntity("Profile")).field("name", "Kim")
+        .field("surname", "Bauer");
+    EntityImpl teri = ((EntityImpl) db.newEntity("Profile")).field("name", "Teri")
+        .field("surname", "Bauer");
+    EntityImpl jack = ((EntityImpl) db.newEntity("Profile")).field("name", "Jack")
+        .field("surname", "Bauer");
 
     ((HashSet<EntityImpl>) jack.field("following", new HashSet<EntityImpl>())
         .field("following"))
@@ -318,60 +321,61 @@ public class TransactionConsistencyTest extends BaseDBTest {
 
     jack.save();
 
-    database.commit();
+    db.commit();
 
-    database.close();
-    database = acquireSession();
+    db.close();
+    db = acquireSession();
 
-    EntityImpl loadedJack = database.load(jack.getIdentity());
+    EntityImpl loadedJack = db.load(jack.getIdentity());
 
     int jackLastVersion = loadedJack.getVersion();
-    database.begin();
-    loadedJack = database.bindToSession(loadedJack);
+    db.begin();
+    loadedJack = db.bindToSession(loadedJack);
     loadedJack.field("occupation", "agent");
     loadedJack.save();
-    database.commit();
-    Assert.assertTrue(jackLastVersion != database.bindToSession(loadedJack).getVersion());
+    db.commit();
+    Assert.assertTrue(jackLastVersion != db.bindToSession(loadedJack).getVersion());
 
-    loadedJack = database.load(jack.getIdentity());
-    Assert.assertTrue(jackLastVersion != database.bindToSession(loadedJack).getVersion());
+    loadedJack = db.load(jack.getIdentity());
+    Assert.assertTrue(jackLastVersion != db.bindToSession(loadedJack).getVersion());
 
-    database.close();
+    db.close();
 
-    database = acquireSession();
-    loadedJack = database.load(jack.getIdentity());
-    Assert.assertTrue(jackLastVersion != database.bindToSession(loadedJack).getVersion());
-    database.close();
+    db = acquireSession();
+    loadedJack = db.load(jack.getIdentity());
+    Assert.assertTrue(jackLastVersion != db.bindToSession(loadedJack).getVersion());
+    db.close();
   }
 
   @SuppressWarnings("unchecked")
   @Test
   public void createLinkInTx() {
-    database = createSessionInstance();
+    db = createSessionInstance();
 
-    SchemaClass profile = database.getMetadata().getSchema().createClass("MyProfile", 1);
-    SchemaClass edge = database.getMetadata().getSchema().createClass("MyEdge", 1);
+    SchemaClass profile = db.getMetadata().getSchema().createClass("MyProfile", 1);
+    SchemaClass edge = db.getMetadata().getSchema().createClass("MyEdge", 1);
     profile
-        .createProperty(database, "name", PropertyType.STRING)
-        .setMin(database, "3")
-        .setMax(database, "30")
-        .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
-    profile.createProperty(database, "surname", PropertyType.STRING).setMin(database, "3")
-        .setMax(database, "30");
-    profile.createProperty(database, "in", PropertyType.LINKSET, edge);
-    profile.createProperty(database, "out", PropertyType.LINKSET, edge);
-    edge.createProperty(database, "in", PropertyType.LINK, profile);
-    edge.createProperty(database, "out", PropertyType.LINK, profile);
+        .createProperty(db, "name", PropertyType.STRING)
+        .setMin(db, "3")
+        .setMax(db, "30")
+        .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+    profile.createProperty(db, "surname", PropertyType.STRING).setMin(db, "3")
+        .setMax(db, "30");
+    profile.createProperty(db, "in", PropertyType.LINKSET, edge);
+    profile.createProperty(db, "out", PropertyType.LINKSET, edge);
+    edge.createProperty(db, "in", PropertyType.LINK, profile);
+    edge.createProperty(db, "out", PropertyType.LINK, profile);
 
-    database.begin();
+    db.begin();
 
-    EntityImpl kim = new EntityImpl("MyProfile").field("name", "Kim").field("surname", "Bauer");
-    EntityImpl teri = new EntityImpl("MyProfile").field("name", "Teri")
+    EntityImpl kim = ((EntityImpl) db.newEntity("MyProfile")).field("name", "Kim")
         .field("surname", "Bauer");
-    EntityImpl jack = new EntityImpl("MyProfile").field("name", "Jack")
+    EntityImpl teri = ((EntityImpl) db.newEntity("MyProfile")).field("name", "Teri")
+        .field("surname", "Bauer");
+    EntityImpl jack = ((EntityImpl) db.newEntity("MyProfile")).field("name", "Jack")
         .field("surname", "Bauer");
 
-    EntityImpl myedge = new EntityImpl("MyEdge").field("in", kim).field("out", jack);
+    EntityImpl myedge = ((EntityImpl) db.newEntity("MyEdge")).field("in", kim).field("out", jack);
     myedge.save();
     ((HashSet<EntityImpl>) kim.field("out", new HashSet<RID>()).field("out")).add(myedge);
     ((HashSet<EntityImpl>) jack.field("in", new HashSet<RID>()).field("in")).add(myedge);
@@ -379,9 +383,9 @@ public class TransactionConsistencyTest extends BaseDBTest {
     jack.save();
     kim.save();
     teri.save();
-    database.commit();
+    db.commit();
 
-    ResultSet result = database.command("select from MyProfile ");
+    ResultSet result = db.command("select from MyProfile ");
 
     Assert.assertTrue(result.stream().findAny().isPresent());
   }
@@ -389,12 +393,15 @@ public class TransactionConsistencyTest extends BaseDBTest {
   @SuppressWarnings("unchecked")
   @Test
   public void loadRecordTest() {
-    database.begin();
+    db.begin();
 
-    EntityImpl kim = new EntityImpl("Profile").field("name", "Kim").field("surname", "Bauer");
-    EntityImpl teri = new EntityImpl("Profile").field("name", "Teri").field("surname", "Bauer");
-    EntityImpl jack = new EntityImpl("Profile").field("name", "Jack").field("surname", "Bauer");
-    EntityImpl chloe = new EntityImpl("Profile").field("name", "Chloe")
+    EntityImpl kim = ((EntityImpl) db.newEntity("Profile")).field("name", "Kim")
+        .field("surname", "Bauer");
+    EntityImpl teri = ((EntityImpl) db.newEntity("Profile")).field("name", "Teri")
+        .field("surname", "Bauer");
+    EntityImpl jack = ((EntityImpl) db.newEntity("Profile")).field("name", "Jack")
+        .field("surname", "Bauer");
+    EntityImpl chloe = ((EntityImpl) db.newEntity("Profile")).field("name", "Chloe")
         .field("surname", "O'Brien");
 
     ((HashSet<EntityImpl>) jack.field("following", new HashSet<EntityImpl>())
@@ -412,7 +419,7 @@ public class TransactionConsistencyTest extends BaseDBTest {
     ((HashSet<EntityImpl>) chloe.field("following")).add(teri);
     ((HashSet<EntityImpl>) chloe.field("following")).add(kim);
 
-    var schema = database.getSchema();
+    var schema = db.getSchema();
     var profileClusterIds =
         Arrays.asList(ArrayUtils.toObject(schema.getClass("Profile").getClusterIds()));
 
@@ -421,7 +428,7 @@ public class TransactionConsistencyTest extends BaseDBTest {
     teri.save();
     chloe.save();
 
-    database.commit();
+    db.commit();
 
     Assert.assertListContainsObject(
         profileClusterIds, jack.getIdentity().getClusterId(), "Cluster id not found");
@@ -432,40 +439,40 @@ public class TransactionConsistencyTest extends BaseDBTest {
     Assert.assertListContainsObject(
         profileClusterIds, chloe.getIdentity().getClusterId(), "Cluster id not found");
 
-    database.load(chloe.getIdentity());
+    db.load(chloe.getIdentity());
   }
 
   @Test
   public void testTransactionPopulateDelete() {
-    if (!database.getMetadata().getSchema().existsClass("MyFruit")) {
-      SchemaClass fruitClass = database.getMetadata().getSchema().createClass("MyFruit");
-      fruitClass.createProperty(database, "name", PropertyType.STRING);
-      fruitClass.createProperty(database, "color", PropertyType.STRING);
-      fruitClass.createProperty(database, "flavor", PropertyType.STRING);
+    if (!db.getMetadata().getSchema().existsClass("MyFruit")) {
+      SchemaClass fruitClass = db.getMetadata().getSchema().createClass("MyFruit");
+      fruitClass.createProperty(db, "name", PropertyType.STRING);
+      fruitClass.createProperty(db, "color", PropertyType.STRING);
+      fruitClass.createProperty(db, "flavor", PropertyType.STRING);
 
-      database
+      db
           .getMetadata()
           .getSchema()
           .getClass("MyFruit")
           .getProperty("name")
-          .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
-      database
+          .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+      db
           .getMetadata()
           .getSchema()
           .getClass("MyFruit")
           .getProperty("color")
-          .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
-      database
+          .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+      db
           .getMetadata()
           .getSchema()
           .getClass("MyFruit")
           .getProperty("flavor")
-          .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+          .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
     }
 
     int chunkSize = 10;
     for (int initialValue = 0; initialValue < 10; initialValue++) {
-      Assert.assertEquals(database.countClusterElements("MyFruit"), 0);
+      Assert.assertEquals(db.countClusterElements("MyFruit"), 0);
 
       System.out.println(
           "[testTransactionPopulateDelete] Populating chunk "
@@ -476,10 +483,10 @@ public class TransactionConsistencyTest extends BaseDBTest {
 
       // do insert
       List<EntityImpl> v = new ArrayList<>();
-      database.begin();
+      db.begin();
       for (int i = initialValue * chunkSize; i < (initialValue * chunkSize) + chunkSize; i++) {
         EntityImpl d =
-            new EntityImpl("MyFruit")
+            ((EntityImpl) db.newEntity("MyFruit"))
                 .field("name", "" + i)
                 .field("color", "FOO")
                 .field("flavor", "BAR" + i);
@@ -490,7 +497,7 @@ public class TransactionConsistencyTest extends BaseDBTest {
       System.out.println(
           "[testTransactionPopulateDelete] Committing chunk " + initialValue + "...");
 
-      database.commit();
+      db.commit();
 
       System.out.println(
           "[testTransactionPopulateDelete] Committed chunk "
@@ -500,15 +507,15 @@ public class TransactionConsistencyTest extends BaseDBTest {
               + ")...");
 
       // do delete
-      database.begin();
+      db.begin();
       for (EntityImpl entries : v) {
-        database.delete(database.bindToSession(entries));
+        db.delete(db.bindToSession(entries));
       }
-      database.commit();
+      db.commit();
 
       System.out.println("[testTransactionPopulateDelete] Deleted executed successfully");
 
-      Assert.assertEquals(database.countClusterElements("MyFruit"), 0);
+      Assert.assertEquals(db.countClusterElements("MyFruit"), 0);
     }
 
     System.out.println("[testTransactionPopulateDelete] End of the test");
@@ -516,122 +523,122 @@ public class TransactionConsistencyTest extends BaseDBTest {
 
   @Test
   public void testConsistencyOnDelete() {
-    if (database.getMetadata().getSchema().getClass("Foo") == null) {
-      database.createVertexClass("Foo");
+    if (db.getMetadata().getSchema().getClass("Foo") == null) {
+      db.createVertexClass("Foo");
     }
 
-    database.begin();
+    db.begin();
     // Step 1
     // Create several foo's
-    var v = database.newVertex("Foo");
+    var v = db.newVertex("Foo");
     v.setProperty("address", "test1");
     v.save();
 
-    v = database.newVertex("Foo");
+    v = db.newVertex("Foo");
     v.setProperty("address", "test2");
     v.save();
 
-    v = database.newVertex("Foo");
+    v = db.newVertex("Foo");
     v.setProperty("address", "test3");
     v.save();
-    database.commit();
+    db.commit();
 
     // remove those foos in a transaction
     // Step 3a
     var result =
-        database.query("select * from Foo where address = 'test1'").entityStream().toList();
+        db.query("select * from Foo where address = 'test1'").entityStream().toList();
     Assert.assertEquals(result.size(), 1);
     // Step 4a
-    database.begin();
-    database.delete(database.bindToSession(result.get(0)));
-    database.commit();
+    db.begin();
+    db.delete(db.bindToSession(result.get(0)));
+    db.commit();
 
     // Step 3b
-    result = database.query("select * from Foo where address = 'test2'").entityStream().toList();
+    result = db.query("select * from Foo where address = 'test2'").entityStream().toList();
     Assert.assertEquals(result.size(), 1);
     // Step 4b
-    database.begin();
-    database.delete(database.bindToSession(result.get(0)));
-    database.commit();
+    db.begin();
+    db.delete(db.bindToSession(result.get(0)));
+    db.commit();
 
     // Step 3c
-    result = database.query("select * from Foo where address = 'test3'").entityStream().toList();
+    result = db.query("select * from Foo where address = 'test3'").entityStream().toList();
     Assert.assertEquals(result.size(), 1);
     // Step 4c
-    database.begin();
-    database.delete(database.bindToSession(result.get(0)));
-    database.commit();
+    db.begin();
+    db.delete(db.bindToSession(result.get(0)));
+    db.commit();
   }
 
   @Test
   public void deletesWithinTransactionArentWorking() {
-    if (database.getClass("Foo") == null) {
-      database.createVertexClass("Foo");
+    if (db.getClass("Foo") == null) {
+      db.createVertexClass("Foo");
     }
-    if (database.getClass("Bar") == null) {
-      database.createVertexClass("Bar");
+    if (db.getClass("Bar") == null) {
+      db.createVertexClass("Bar");
     }
-    if (database.getClass("Sees") == null) {
-      database.createEdgeClass("Sees");
+    if (db.getClass("Sees") == null) {
+      db.createEdgeClass("Sees");
     }
 
     // Commenting out the transaction will result in the test succeeding.
-    var foo = database.newVertex("Foo");
+    var foo = db.newVertex("Foo");
     foo.setProperty("prop", "test1");
-    database.begin();
+    db.begin();
     foo.save();
-    database.commit();
+    db.commit();
 
     // Comment out these two lines and the test will succeed. The issue appears to be related to
     // an edge
     // connecting a deleted vertex during a transaction
-    var bar = database.newVertex("Bar");
+    var bar = db.newVertex("Bar");
     bar.setProperty("prop", "test1");
-    database.begin();
+    db.begin();
     bar.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    foo = database.bindToSession(foo);
-    bar = database.bindToSession(bar);
-    var sees = database.newRegularEdge(foo, bar, "Sees");
+    db.begin();
+    foo = db.bindToSession(foo);
+    bar = db.bindToSession(bar);
+    var sees = db.newRegularEdge(foo, bar, "Sees");
     sees.save();
-    database.commit();
+    db.commit();
 
-    var foos = database.query("select * from Foo").stream().toList();
+    var foos = db.query("select * from Foo").stream().toList();
     Assert.assertEquals(foos.size(), 1);
 
-    database.begin();
-    database.delete(database.bindToSession(foos.get(0).toEntity()));
-    database.commit();
+    db.begin();
+    db.delete(db.bindToSession(foos.get(0).toEntity()));
+    db.commit();
   }
 
   public void transactionRollbackConstistencyTest() {
-    SchemaClass vertexClass = database.getMetadata().getSchema().createClass("TRVertex");
-    SchemaClass edgeClass = database.getMetadata().getSchema().createClass("TREdge");
-    vertexClass.createProperty(database, "in", PropertyType.LINKSET, edgeClass);
-    vertexClass.createProperty(database, "out", PropertyType.LINKSET, edgeClass);
-    edgeClass.createProperty(database, "in", PropertyType.LINK, vertexClass);
-    edgeClass.createProperty(database, "out", PropertyType.LINK, vertexClass);
+    SchemaClass vertexClass = db.getMetadata().getSchema().createClass("TRVertex");
+    SchemaClass edgeClass = db.getMetadata().getSchema().createClass("TREdge");
+    vertexClass.createProperty(db, "in", PropertyType.LINKSET, edgeClass);
+    vertexClass.createProperty(db, "out", PropertyType.LINKSET, edgeClass);
+    edgeClass.createProperty(db, "in", PropertyType.LINK, vertexClass);
+    edgeClass.createProperty(db, "out", PropertyType.LINK, vertexClass);
 
-    SchemaClass personClass = database.getMetadata().getSchema()
+    SchemaClass personClass = db.getMetadata().getSchema()
         .createClass("TRPerson", vertexClass);
-    personClass.createProperty(database, "name", PropertyType.STRING)
-        .createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE);
-    personClass.createProperty(database, "surname", PropertyType.STRING)
-        .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
-    personClass.createProperty(database, "version", PropertyType.INTEGER);
+    personClass.createProperty(db, "name", PropertyType.STRING)
+        .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
+    personClass.createProperty(db, "surname", PropertyType.STRING)
+        .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+    personClass.createProperty(db, "version", PropertyType.INTEGER);
 
-    database.close();
+    db.close();
 
     final int cnt = 4;
 
-    database = createSessionInstance();
-    database.begin();
+    db = createSessionInstance();
+    db.begin();
     List<Entity> inserted = new ArrayList<>();
 
     for (int i = 0; i < cnt; i++) {
-      EntityImpl person = new EntityImpl("TRPerson");
+      EntityImpl person = ((EntityImpl) db.newEntity("TRPerson"));
       person.field("name", Character.toString((char) ('A' + i)));
       person.field("surname", Character.toString((char) ('A' + (i % 3))));
       person.field("myversion", 0);
@@ -639,29 +646,29 @@ public class TransactionConsistencyTest extends BaseDBTest {
       person.field("out", new HashSet<EntityImpl>());
 
       if (i >= 1) {
-        EntityImpl edge = new EntityImpl("TREdge");
+        EntityImpl edge = ((EntityImpl) db.newEntity("TREdge"));
         edge.field("in", person.getIdentity());
         edge.field("out", inserted.get(i - 1));
         (person.<Set<EntityImpl>>getProperty("out")).add(edge);
-        (database.bindToSession(inserted.get(i - 1)).<Set<EntityImpl>>getProperty("in")).add(
+        (db.bindToSession(inserted.get(i - 1)).<Set<EntityImpl>>getProperty("in")).add(
             edge);
         edge.save();
       }
       inserted.add(person);
       person.save();
     }
-    database.commit();
+    db.commit();
 
-    final ResultSet result1 = database.command("select from TRPerson");
+    final ResultSet result1 = db.command("select from TRPerson");
     Assert.assertEquals(result1.stream().count(), cnt);
 
     try {
-      database.executeInTx(
+      db.executeInTx(
           () -> {
             List<Entity> inserted2 = new ArrayList<>();
 
             for (int i = 0; i < cnt; i++) {
-              EntityImpl person = new EntityImpl("TRPerson");
+              EntityImpl person = ((EntityImpl) db.newEntity("TRPerson"));
               person.field("name", Character.toString((char) ('a' + i)));
               person.field("surname", Character.toString((char) ('a' + (i % 3))));
               person.field("myversion", 0);
@@ -669,7 +676,7 @@ public class TransactionConsistencyTest extends BaseDBTest {
               person.field("out", new HashSet<EntityImpl>());
 
               if (i >= 1) {
-                EntityImpl edge = new EntityImpl("TREdge");
+                EntityImpl edge = ((EntityImpl) db.newEntity("TREdge"));
                 edge.field("in", person.getIdentity());
                 edge.field("out", inserted2.get(i - 1));
                 (person.<Set<EntityImpl>>getProperty("out")).add(edge);
@@ -683,14 +690,14 @@ public class TransactionConsistencyTest extends BaseDBTest {
 
             for (int i = 0; i < cnt; i++) {
               if (i != cnt - 1) {
-                var doc = database.bindToSession((EntityImpl) inserted.get(i));
+                var doc = db.bindToSession((EntityImpl) inserted.get(i));
                 doc.setProperty("myversion", 2);
                 doc.save();
               }
             }
 
             var doc = ((EntityImpl) inserted.get(cnt - 1));
-            database.bindToSession(doc).delete();
+            db.bindToSession(doc).delete();
 
             throw new IllegalStateException();
           });
@@ -699,30 +706,30 @@ public class TransactionConsistencyTest extends BaseDBTest {
       Assert.assertTrue(true);
     }
 
-    final ResultSet result2 = database.command("select from TRPerson");
+    final ResultSet result2 = db.command("select from TRPerson");
     Assert.assertNotNull(result2);
     Assert.assertEquals(result2.stream().count(), cnt);
   }
 
   @Test
   public void testQueryIsolation() {
-    database.begin();
-    var v = database.newVertex();
+    db.begin();
+    var v = db.newVertex();
 
     v.setProperty("purpose", "testQueryIsolation");
     v.save();
 
     var result =
-        database
+        db
             .query("select from V where purpose = 'testQueryIsolation'")
             .entityStream()
             .toList();
     Assert.assertEquals(result.size(), 1);
 
-    database.commit();
+    db.commit();
 
     result =
-        database
+        db
             .query("select from V where purpose = 'testQueryIsolation'")
             .entityStream()
             .toList();
@@ -738,19 +745,19 @@ public class TransactionConsistencyTest extends BaseDBTest {
   @SuppressWarnings("unused")
   @Test
   public void testRollbackWithRemove() {
-    var account = database.newEntity("Account");
+    var account = db.newEntity("Account");
     account.setProperty("name", "John Grisham");
-    database.begin();
-    account = database.save(account);
-    database.commit();
+    db.begin();
+    account = db.save(account);
+    db.commit();
 
-    database.begin();
-    account = database.bindToSession(account);
-    var address1 = database.newEntity("Address");
+    db.begin();
+    account = db.bindToSession(account);
+    var address1 = db.newEntity("Address");
     address1.setProperty("street", "Mulholland drive");
     address1.save();
 
-    var address2 = database.newEntity("Address");
+    var address2 = db.newEntity("Address");
     address2.setProperty("street", "Via Veneto");
 
     List<Entity> addresses = new ArrayList<>();
@@ -759,11 +766,11 @@ public class TransactionConsistencyTest extends BaseDBTest {
 
     account.setProperty("addresses", addresses);
 
-    account = database.save(account);
-    database.commit();
+    account = db.save(account);
+    db.commit();
 
-    database.begin();
-    account = database.bindToSession(account);
+    db.begin();
+    account = db.bindToSession(account);
     String originalName = account.getProperty("name");
     Assert.assertEquals(account.<List<Identifiable>>getProperty("addresses").size(), 2);
     account
@@ -772,22 +779,22 @@ public class TransactionConsistencyTest extends BaseDBTest {
     Assert.assertEquals(account.<List<Identifiable>>getProperty("addresses").size(), 1);
     account.setProperty(
         "name", "New Name"); // change an attribute to see if the change is rolled back
-    account = database.save(account);
+    account = db.save(account);
 
     Assert.assertEquals(
         account.<List<Identifiable>>getProperty("addresses").size(),
         1); // before rollback this is fine because one of the books was removed
 
-    database.rollback(); // rollback the transaction
+    db.rollback(); // rollback the transaction
 
-    account = database.bindToSession(account);
+    account = db.bindToSession(account);
     Assert.assertEquals(
         account.<List<Identifiable>>getProperty("addresses").size(),
         2); // this is fine, author still linked to 2 books
     Assert.assertEquals(account.getProperty("name"), originalName); // name is restored
 
     int bookCount = 0;
-    for (var b : database.browseClass("Address")) {
+    for (var b : db.browseClass("Address")) {
       var street = b.getProperty("street");
       if ("Mulholland drive".equals(street) || "Via Veneto".equals(street)) {
         bookCount++;
@@ -798,28 +805,28 @@ public class TransactionConsistencyTest extends BaseDBTest {
   }
 
   public void testTransactionsCache() {
-    Assert.assertFalse(database.getTransaction().isActive());
-    Schema schema = database.getMetadata().getSchema();
+    Assert.assertFalse(db.getTransaction().isActive());
+    Schema schema = db.getMetadata().getSchema();
     SchemaClass classA = schema.createClass("TransA");
-    classA.createProperty(database, "name", PropertyType.STRING);
-    EntityImpl doc = new EntityImpl(classA);
+    classA.createProperty(db, "name", PropertyType.STRING);
+    EntityImpl doc = ((EntityImpl) db.newEntity(classA));
     doc.field("name", "test1");
 
-    database.begin();
+    db.begin();
     doc.save();
-    database.commit();
+    db.commit();
     RID orid = doc.getIdentity();
-    database.begin();
-    Assert.assertTrue(database.getTransaction().isActive());
-    doc = orid.getRecord();
+    db.begin();
+    Assert.assertTrue(db.getTransaction().isActive());
+    doc = orid.getRecord(db);
     Assert.assertEquals(doc.field("name"), "test1");
     doc.field("name", "test2");
-    doc = orid.getRecord();
+    doc = orid.getRecord(db);
     Assert.assertEquals(doc.field("name"), "test2");
     // There is NO SAVE!
-    database.commit();
+    db.commit();
 
-    doc = orid.getRecord();
+    doc = orid.getRecord(db);
     Assert.assertEquals(doc.field("name"), "test1");
   }
 }

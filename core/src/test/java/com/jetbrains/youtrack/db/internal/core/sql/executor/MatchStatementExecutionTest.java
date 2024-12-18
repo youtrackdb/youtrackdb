@@ -86,7 +86,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     int nodes = 1000;
     for (int i = 0; i < nodes; i++) {
       db.begin();
-      EntityImpl doc = new EntityImpl("IndexedVertex");
+      EntityImpl doc = (EntityImpl) db.newEntity("IndexedVertex");
       doc.field("uid", i);
       doc.save();
       db.commit();
@@ -280,7 +280,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     for (EntityImpl doc : qResult) {
       assertEquals(1, doc.fieldNames().length);
       Identifiable personId = doc.field("person");
-      EntityImpl person = personId.getRecord();
+      EntityImpl person = personId.getRecord(db);
       String name = person.field("name");
       assertTrue(name.startsWith("n"));
     }
@@ -298,7 +298,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     for (EntityImpl doc : qResult) {
       assertEquals(1, doc.fieldNames().length);
       Identifiable personId = doc.field("person");
-      EntityImpl person = personId.getRecord();
+      EntityImpl person = personId.getRecord(db);
       String name = person.field("name");
       assertTrue(name.equals("n1") || name.equals("n2"));
     }
@@ -350,7 +350,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     for (EntityImpl doc : qResult) {
       assertEquals(1, doc.fieldNames().length);
       Identifiable personId = doc.field("person");
-      EntityImpl person = personId.getRecord();
+      EntityImpl person = personId.getRecord(db);
       String name = person.field("name");
       assertTrue(name.equals("n1") || name.equals("n2"));
     }
@@ -738,7 +738,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     List<Identifiable> qResult = collectIdentifiable(db.command(query));
     assertEquals(1, qResult.size());
-    return qResult.get(0).getRecord();
+    return qResult.get(0).getRecord(db);
   }
 
   private EntityImpl getManagerArrows(String personName) {
@@ -756,7 +756,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     List<Identifiable> qResult = collectIdentifiable(db.command(query));
     assertEquals(1, qResult.size());
-    return qResult.get(0).getRecord();
+    return qResult.get(0).getRecord(db);
   }
 
   @Test
@@ -792,7 +792,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     List<Identifiable> qResult = collectIdentifiable(db.command(query));
     assertEquals(1, qResult.size());
-    return qResult.get(0).getRecord();
+    return qResult.get(0).getRecord(db);
   }
 
   private EntityImpl getManager2Arrows(String personName) {
@@ -811,7 +811,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     List<Identifiable> qResult = collectIdentifiable(db.command(query));
     assertEquals(1, qResult.size());
-    return qResult.get(0).getRecord();
+    return qResult.get(0).getRecord(db);
   }
 
   @Test
@@ -820,7 +820,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     // sub-departments without a manager
     List<Identifiable> managedByA = getManagedBy("a");
     assertEquals(1, managedByA.size());
-    assertEquals("p1", ((EntityImpl) managedByA.get(0).getRecord()).field("name"));
+    assertEquals("p1", ((EntityImpl) managedByA.get(0).getRecord(db)).field("name"));
 
     List<Identifiable> managedByB = getManagedBy("b");
     assertEquals(5, managedByB.size());
@@ -832,7 +832,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
     for (Identifiable id : managedByB) {
-      EntityImpl doc = id.getRecord();
+      EntityImpl doc = id.getRecord(db);
       String name = doc.field("name");
       names.add(name);
     }
@@ -863,7 +863,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     // sub-departments without a manager
     List<Identifiable> managedByA = getManagedByArrows("a");
     assertEquals(1, managedByA.size());
-    assertEquals("p1", ((EntityImpl) managedByA.get(0).getRecord()).field("name"));
+    assertEquals("p1", ((EntityImpl) managedByA.get(0).getRecord(db)).field("name"));
 
     List<Identifiable> managedByB = getManagedByArrows("b");
     assertEquals(5, managedByB.size());
@@ -875,7 +875,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
     for (Identifiable id : managedByB) {
-      EntityImpl doc = id.getRecord();
+      EntityImpl doc = id.getRecord(db);
       String name = doc.field("name");
       names.add(name);
     }
@@ -904,7 +904,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     // sub-departments without a manager
     List<Identifiable> managedByA = getManagedBy2("a");
     assertEquals(1, managedByA.size());
-    assertEquals("p1", ((EntityImpl) managedByA.get(0).getRecord()).field("name"));
+    assertEquals("p1", ((EntityImpl) managedByA.get(0).getRecord(db)).field("name"));
 
     List<Identifiable> managedByB = getManagedBy2("b");
     assertEquals(5, managedByB.size());
@@ -916,7 +916,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
     for (Identifiable id : managedByB) {
-      EntityImpl doc = id.getRecord();
+      EntityImpl doc = id.getRecord(db);
       String name = doc.field("name");
       names.add(name);
     }
@@ -947,7 +947,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     // sub-departments without a manager
     List<Identifiable> managedByA = getManagedBy2Arrows("a");
     assertEquals(1, managedByA.size());
-    assertEquals("p1", ((EntityImpl) managedByA.get(0).getRecord()).field("name"));
+    assertEquals("p1", ((EntityImpl) managedByA.get(0).getRecord(db)).field("name"));
 
     List<Identifiable> managedByB = getManagedBy2Arrows("b");
     assertEquals(5, managedByB.size());
@@ -959,7 +959,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
     for (Identifiable id : managedByB) {
-      EntityImpl doc = id.getRecord();
+      EntityImpl doc = id.getRecord(db);
       String name = doc.field("name");
       names.add(name);
     }
@@ -1023,9 +1023,9 @@ public class MatchStatementExecutionTest extends DbTestBase {
     List<EntityImpl> result = collect(db.command(query));
     assertEquals(1, result.size());
     EntityImpl doc = result.get(0);
-    EntityImpl friend1 = ((Identifiable) doc.field("friend1")).getRecord();
-    EntityImpl friend2 = ((Identifiable) doc.field("friend2")).getRecord();
-    EntityImpl friend3 = ((Identifiable) doc.field("friend3")).getRecord();
+    EntityImpl friend1 = ((Identifiable) doc.field("friend1")).getRecord(db);
+    EntityImpl friend2 = ((Identifiable) doc.field("friend2")).getRecord(db);
+    EntityImpl friend3 = ((Identifiable) doc.field("friend3")).getRecord(db);
     assertEquals(0, friend1.<Object>field("uid"));
     assertEquals(1, friend2.<Object>field("uid"));
     assertEquals(2, friend3.<Object>field("uid"));
@@ -1045,9 +1045,9 @@ public class MatchStatementExecutionTest extends DbTestBase {
     List<EntityImpl> result = collect(db.command(query));
     assertEquals(1, result.size());
     EntityImpl doc = result.get(0);
-    EntityImpl friend1 = ((Identifiable) doc.field("friend1")).getRecord();
-    EntityImpl friend2 = ((Identifiable) doc.field("friend2")).getRecord();
-    EntityImpl friend3 = ((Identifiable) doc.field("friend3")).getRecord();
+    EntityImpl friend1 = ((Identifiable) doc.field("friend1")).getRecord(db);
+    EntityImpl friend2 = ((Identifiable) doc.field("friend2")).getRecord(db);
+    EntityImpl friend3 = ((Identifiable) doc.field("friend3")).getRecord(db);
     assertEquals(0, friend1.<Object>field("uid"));
     assertEquals(1, friend2.<Object>field("uid"));
     assertEquals(2, friend3.<Object>field("uid"));
@@ -1067,9 +1067,9 @@ public class MatchStatementExecutionTest extends DbTestBase {
     List<EntityImpl> result = collect(db.command(query));
     assertEquals(1, result.size());
     EntityImpl doc = result.get(0);
-    EntityImpl friend1 = ((Identifiable) doc.field("friend1")).getRecord();
-    EntityImpl friend2 = ((Identifiable) doc.field("friend2")).getRecord();
-    EntityImpl friend3 = ((Identifiable) doc.field("friend3")).getRecord();
+    EntityImpl friend1 = ((Identifiable) doc.field("friend1")).getRecord(db);
+    EntityImpl friend2 = ((Identifiable) doc.field("friend2")).getRecord(db);
+    EntityImpl friend3 = ((Identifiable) doc.field("friend3")).getRecord(db);
     assertEquals(0, friend1.<Object>field("uid"));
     assertEquals(1, friend2.<Object>field("uid"));
     assertEquals(2, friend3.<Object>field("uid"));
@@ -1147,7 +1147,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     assertEquals(2, result.size());
     for (Identifiable d : result) {
       assertEquals(
-          ((EntityImpl) ((EntityImpl) d.getRecord()).field("friend1")).<Object>field("uid"), 1);
+          ((EntityImpl) ((EntityImpl) d.getRecord(db)).field("friend1")).<Object>field("uid"), 1);
     }
   }
 
@@ -1163,7 +1163,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     assertEquals(1, result.size());
     for (Identifiable d : result) {
       assertEquals(
-          ((EntityImpl) ((EntityImpl) d.getRecord()).field("friend1")).<Object>field("uid"), 1);
+          ((EntityImpl) ((EntityImpl) d.getRecord(db)).field("friend1")).<Object>field("uid"), 1);
     }
   }
 
@@ -1367,7 +1367,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
     for (Identifiable id : managedByB) {
-      EntityImpl doc = id.getRecord();
+      EntityImpl doc = id.getRecord(db);
       String name = doc.field("name");
       names.add(name);
     }
@@ -1405,7 +1405,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
     for (Identifiable id : managedByB) {
-      EntityImpl doc = id.getRecord();
+      EntityImpl doc = id.getRecord(db);
       String name = doc.field("name");
       names.add(name);
     }
@@ -1423,7 +1423,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     for (EntityImpl doc : qResult) {
       assertEquals(2, doc.fieldNames().length);
       Identifiable personId = doc.field("person");
-      EntityImpl person = personId.getRecord();
+      EntityImpl person = personId.getRecord(db);
       String name = person.field("name");
       assertTrue(name.startsWith("n"));
     }
@@ -1440,7 +1440,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     for (EntityImpl doc : qResult) {
       assertEquals(2, doc.fieldNames().length);
       Identifiable personId = doc.field("person");
-      EntityImpl person = personId.getRecord();
+      EntityImpl person = personId.getRecord(db);
       String name = person.field("name");
       assertTrue(name.startsWith("n"));
     }

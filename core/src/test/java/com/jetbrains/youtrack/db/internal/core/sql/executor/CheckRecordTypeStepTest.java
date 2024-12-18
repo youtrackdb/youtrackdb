@@ -33,7 +33,7 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
             List<Result> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
-                result.add(new ResultInternal(ctx.getDatabase(), new EntityImpl(className)));
+                result.add(new ResultInternal(ctx.getDatabase(), db.newEntity(className)));
               }
               done = true;
             }
@@ -65,7 +65,7 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
               for (int i = 0; i < 10; i++) {
                 result.add(
                     new ResultInternal(ctx.getDatabase(),
-                        new EntityImpl(i % 2 == 0 ? parentClass : childClass)));
+                        (EntityImpl) db.newEntity(i % 2 == 0 ? parentClass : childClass)));
               }
               done = true;
             }
@@ -97,7 +97,7 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
               for (int i = 0; i < 10; i++) {
                 result.add(
                     new ResultInternal(ctx.getDatabase(),
-                        new EntityImpl(i % 2 == 0 ? firstClassName : secondClassName)));
+                        (EntityImpl) db.newEntity(i % 2 == 0 ? firstClassName : secondClassName)));
               }
               done = true;
             }

@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.HashSet;
 import java.util.Set;
@@ -21,10 +21,10 @@ public class RecordLazySetPersistentTest extends DbTestBase {
     db.activateOnCurrentThread();
     db.begin();
     {
-      EntityImpl doc1 = new EntityImpl();
+      EntityImpl doc1 = (EntityImpl) db.newEntity();
       doc1.field("linkset", new HashSet<EntityImpl>());
       Set<EntityImpl> linkset = doc1.field("linkset");
-      EntityImpl doc2 = new EntityImpl();
+      EntityImpl doc2 = (EntityImpl) db.newEntity();
       doc2.save(db.getClusterNameById(db.getDefaultClusterId()));
       orid2 = doc2.getIdentity();
       linkset.add(doc2);
@@ -62,10 +62,10 @@ public class RecordLazySetPersistentTest extends DbTestBase {
     db.activateOnCurrentThread();
     db.begin();
     {
-      EntityImpl doc1 = new EntityImpl();
+      EntityImpl doc1 = (EntityImpl) db.newEntity();
       doc1.field("linkset", new HashSet<Identifiable>());
       Set<Identifiable> linkset = doc1.field("linkset");
-      EntityImpl doc2 = new EntityImpl();
+      EntityImpl doc2 = (EntityImpl) db.newEntity();
       doc2.save(db.getClusterNameById(db.getDefaultClusterId()));
       orid2 = doc2.getIdentity();
       linkset.add(doc2);

@@ -21,6 +21,7 @@ package com.jetbrains.youtrack.db.internal.core.metadata.sequence;
 
 import com.jetbrains.youtrack.db.api.exception.SequenceLimitReachedException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 
 /**
@@ -35,13 +36,13 @@ public class SequenceOrdered extends Sequence {
     super(entity);
   }
 
-  public SequenceOrdered(Sequence.CreateParams params, String name) {
-    super(params, name);
+  public SequenceOrdered(DatabaseSessionInternal db, CreateParams params, String name) {
+    super(db, params, name);
   }
 
   @Override
-  public long nextWork() throws SequenceLimitReachedException {
-    return callRetry(
+  public long nextWork(DatabaseSessionInternal session) throws SequenceLimitReachedException {
+    return callRetry(session,
         (db, entity) -> {
           long newValue;
           Long limitValue = getLimitValue(entity);
@@ -87,24 +88,22 @@ public class SequenceOrdered extends Sequence {
           }
 
           return newValue;
-        },
-        "next");
+        }, "next");
   }
 
   @Override
-  protected long currentWork() {
-    return callRetry((db, entity) -> getValue(entity), "current");
+  protected long currentWork(DatabaseSessionInternal session) {
+    return callRetry(session, (db, entity) -> getValue(entity), "current");
   }
 
   @Override
-  public long resetWork() {
-    return callRetry(
+  public long resetWork(DatabaseSessionInternal session) {
+    return callRetry(session,
         (db, entity) -> {
           long newValue = getStart(entity);
           setValue(entity, newValue);
           return newValue;
-        },
-        "reset");
+        }, "reset");
   }
 
   @Override

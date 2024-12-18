@@ -19,40 +19,40 @@
  */
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string;
 
-import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.StringParser;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.fetch.FetchHelper;
 import com.jetbrains.youtrack.db.internal.core.fetch.FetchPlan;
 import com.jetbrains.youtrack.db.internal.core.fetch.json.JSONFetchContext;
 import com.jetbrains.youtrack.db.internal.core.fetch.json.JSONFetchListener;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordStringable;
-import com.jetbrains.youtrack.db.api.record.Blob;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImplEmbedded;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
@@ -290,9 +290,9 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
             && record instanceof EntityImpl) {
           fieldTypes = FieldTypesString.loadFieldTypesV0(fieldTypes, fieldValueAsString);
         } else {
-          if (fieldName.equals(DocumentHelper.ATTRIBUTE_TYPE)) {
+          if (fieldName.equals(EntityHelper.ATTRIBUTE_TYPE)) {
             if (record == null
-                || RecordInternal.getRecordType(record) != fieldValueAsString.charAt(0)) {
+                || RecordInternal.getRecordType(db, record) != fieldValueAsString.charAt(0)) {
               // CREATE THE RIGHT RECORD INSTANCE
               record =
                   YouTrackDBEnginesManager.instance()
@@ -304,7 +304,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
             }
           } else {
             if (needReload
-                && fieldName.equals(DocumentHelper.ATTRIBUTE_RID)
+                && fieldName.equals(EntityHelper.ATTRIBUTE_RID)
                 && record instanceof EntityImpl) {
               if (fieldValue != null && !fieldValue.isEmpty()) {
                 try {
@@ -318,7 +318,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
                 }
               }
             } else {
-              if (fieldName.equals(DocumentHelper.ATTRIBUTE_CLASS)
+              if (fieldName.equals(EntityHelper.ATTRIBUTE_CLASS)
                   && record instanceof EntityImpl) {
                 className = "null".equals(fieldValueAsString) ? null : fieldValueAsString;
                 EntityInternalUtils.fillClassNameIfNeeded(((EntityImpl) record), className);
@@ -329,7 +329,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
       }
 
       if (record == null) {
-        record = new EntityImpl();
+        record = new EntityImpl(db);
         RecordInternal.unsetDirty(record);
       }
 
@@ -372,15 +372,15 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
       String fieldValue,
       String fieldValueAsString) {
     // RECORD ATTRIBUTES
-    if (fieldName.equals(DocumentHelper.ATTRIBUTE_RID)) {
+    if (fieldName.equals(EntityHelper.ATTRIBUTE_RID)) {
       RecordInternal.setIdentity(record, new RecordId(fieldValueAsString));
     } else {
-      if (fieldName.equals(DocumentHelper.ATTRIBUTE_VERSION)) {
+      if (fieldName.equals(EntityHelper.ATTRIBUTE_VERSION)) {
         RecordInternal.setVersion(record, Integer.parseInt(fieldValue));
       } else {
-        if (fieldName.equals(DocumentHelper.ATTRIBUTE_CLASS)) {
+        if (fieldName.equals(EntityHelper.ATTRIBUTE_CLASS)) {
         } else {
-          if (fieldName.equals(DocumentHelper.ATTRIBUTE_TYPE)) {
+          if (fieldName.equals(EntityHelper.ATTRIBUTE_TYPE)) {
           } else {
             if (fieldName.equals(FieldTypesString.ATTRIBUTE_FIELD_TYPES)
                 && record instanceof EntityImpl) {
@@ -498,33 +498,34 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
     }
   }
 
-  public void toString(final Record iRecord, final JSONWriter json, final String iFormat) {
+  public static void toString(DatabaseSessionInternal db, final Record iRecord,
+      final JSONWriter json,
+      final String iFormat) {
     try {
       final FormatSettings settings = new FormatSettings(iFormat);
 
       json.beginObject();
 
       JSONFetchContext context = new JSONFetchContext(json, settings);
-      context.writeSignature(json, iRecord);
+      context.writeSignature(db, json, iRecord);
 
       if (iRecord instanceof EntityImpl) {
         final FetchPlan fp = FetchHelper.buildFetchPlan(settings.fetchPlan);
 
-        FetchHelper.fetch(iRecord, null, fp, new JSONFetchListener(), context, iFormat);
+        FetchHelper.fetch(db, iRecord, null, fp, new JSONFetchListener(), context, iFormat);
       } else {
         if (iRecord instanceof RecordStringable record) {
 
           // STRINGABLE
-          json.writeAttribute(settings.indentLevel, true, "value", record.value());
+          json.writeAttribute(db, settings.indentLevel, true, "value", record.value());
 
         } else {
           if (iRecord instanceof Blob record) {
             // BYTES
-            json.writeAttribute(
+            json.writeAttribute(db,
                 settings.indentLevel,
                 true,
-                "value",
-                Base64.getEncoder().encodeToString(((RecordAbstract) record).toStream()));
+                "value", Base64.getEncoder().encodeToString(((RecordAbstract) record).toStream()));
           } else {
             throw new SerializationException(
                 "Error on marshalling record of type '"
@@ -543,7 +544,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
 
   @Override
   public StringBuilder toString(
-      final Record record,
+      DatabaseSessionInternal db, final Record record,
       final StringBuilder output,
       final String format,
       boolean autoDetectCollectionType) {
@@ -555,20 +556,20 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
       json.beginObject();
 
       final JSONFetchContext context = new JSONFetchContext(json, settings);
-      context.writeSignature(json, record);
+      context.writeSignature(db, json, record);
 
       if (record instanceof EntityImpl) {
         final FetchPlan fp = FetchHelper.buildFetchPlan(settings.fetchPlan);
 
-        FetchHelper.fetch(record, null, fp, new JSONFetchListener(), context, format);
+        FetchHelper.fetch(db, record, null, fp, new JSONFetchListener(), context, format);
       } else {
         if (record instanceof RecordStringable recordStringable) {
           // STRINGABLE
-          json.writeAttribute(settings.indentLevel, true, "value", recordStringable.value());
+          json.writeAttribute(db, settings.indentLevel, true, "value", recordStringable.value());
         } else {
           if (record instanceof Blob recordBlob) {
             // BYTES
-            json.writeAttribute(
+            json.writeAttribute(db,
                 settings.indentLevel,
                 true,
                 "value",
@@ -718,7 +719,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
           if (pos > -1)
           // CREATE DOCUMENT
           {
-            return new EntityImpl(
+            return new EntityImpl(db,
                 iFieldValueAsString.substring(1, pos),
                 new RecordId(iFieldValueAsString.substring(pos + 1)));
           } else {
@@ -726,7 +727,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
             return new RecordId(iFieldValueAsString);
           }
         case EMBEDDED:
-          return fromString(db, iFieldValueAsString, new EntityImplEmbedded(), null);
+          return fromString(db, iFieldValueAsString, new EntityImplEmbedded(db), null);
         case DATE:
           if (iFieldValueAsString == null || iFieldValueAsString.isEmpty()) {
             return null;
@@ -814,7 +815,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
 
     if (fields.length == 0) {
       if (iNoMap) {
-        EntityImpl res = new EntityImpl();
+        EntityImpl res = new EntityImpl(db);
         EntityInternalUtils.addOwner(res, iRecord);
         return res;
       } else {
@@ -875,7 +876,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
     boolean shouldReload = rid.isTemporary();
 
     final EntityImpl recordInternal =
-        (EntityImpl) fromString(db, iFieldValue, new EntityImpl(), null, iOptions,
+        (EntityImpl) fromString(db, iFieldValue, new EntityImpl(db), null, iOptions,
             shouldReload);
 
     if (shouldBeDeserializedAsEmbedded(recordInternal, iType)) {

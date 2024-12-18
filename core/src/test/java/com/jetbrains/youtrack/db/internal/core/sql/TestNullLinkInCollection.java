@@ -2,11 +2,11 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import static org.junit.Assert.assertEquals;
 
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -28,7 +28,7 @@ public class TestNullLinkInCollection extends DbTestBase {
   public void testLinkListRemovedRecord() {
 
     db.begin();
-    EntityImpl doc = new EntityImpl("Test");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Test"));
     List<RecordId> docs = new ArrayList<>();
     docs.add(new RecordId(10, 20));
     doc.field("items", docs, PropertyType.LINKLIST);
@@ -43,7 +43,7 @@ public class TestNullLinkInCollection extends DbTestBase {
   @Test
   public void testLinkSetRemovedRecord() {
     db.begin();
-    EntityImpl doc = new EntityImpl("Test");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Test"));
     Set<RecordId> docs = new HashSet<>();
     docs.add(new RecordId(10, 20));
     doc.field("items", docs, PropertyType.LINKSET);

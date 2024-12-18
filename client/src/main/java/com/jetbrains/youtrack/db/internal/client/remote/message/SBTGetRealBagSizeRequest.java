@@ -19,19 +19,19 @@
  */
 package com.jetbrains.youtrack.db.internal.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryRequest;
+import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.CollectionNetworkSerializer;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.Change;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.ChangeSerializationHelper;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.Change;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ChangeSerializationHelper;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
@@ -65,7 +65,7 @@ public class SBTGetRealBagSizeRequest implements BinaryRequest<SBTGetRealBagSize
         new byte
             [IntegerSerializer.INT_SIZE
             + changeSerializer.getChangesSerializedSize(changes.size())];
-    changeSerializer.serializeChanges(changes, keySerializer, stream, 0);
+    ChangeSerializationHelper.serializeChanges(database, changes, keySerializer, stream, 0);
     network.writeBytes(stream);
   }
 
@@ -75,7 +75,7 @@ public class SBTGetRealBagSizeRequest implements BinaryRequest<SBTGetRealBagSize
     collectionPointer = CollectionNetworkSerializer.INSTANCE.readCollectionPointer(channel);
     byte[] stream = channel.readBytes();
     final ChangeSerializationHelper changeSerializer = ChangeSerializationHelper.INSTANCE;
-    changes = changeSerializer.deserializeChanges(stream, 0);
+    changes = ChangeSerializationHelper.deserializeChanges(db, stream, 0);
   }
 
   @Override

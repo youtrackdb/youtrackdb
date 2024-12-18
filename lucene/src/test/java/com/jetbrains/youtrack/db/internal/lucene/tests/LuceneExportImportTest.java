@@ -51,7 +51,7 @@ public class LuceneExportImportTest extends LuceneBaseTest {
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
 
-    EntityImpl doc = new EntityImpl("City");
+    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "Rome");
 
     db.begin();

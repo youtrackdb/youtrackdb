@@ -382,8 +382,8 @@ public class TokenHandlerImpl implements OTokenHandler {
     return true;
   }
 
-  protected YouTrackDBJwtHeader deserializeWebHeader(final byte[] decodedHeader) {
-    final EntityImpl entity = new EntityImpl();
+  protected static YouTrackDBJwtHeader deserializeWebHeader(final byte[] decodedHeader) {
+    final EntityImpl entity = new EntityImpl(null);
     entity.fromJSON(new String(decodedHeader, StandardCharsets.UTF_8));
     final YouTrackDBJwtHeader header = new YouTrackDBJwtHeader();
     header.setType(entity.field("typ"));
@@ -392,11 +392,12 @@ public class TokenHandlerImpl implements OTokenHandler {
     return header;
   }
 
-  protected JwtPayload deserializeWebPayload(final String type, final byte[] decodedPayload) {
+  protected static JwtPayload deserializeWebPayload(final String type,
+      final byte[] decodedPayload) {
     if (!"YouTrackDB".equals(type)) {
       throw new SystemException("Payload class not registered:" + type);
     }
-    final EntityImpl entity = new EntityImpl();
+    final EntityImpl entity = new EntityImpl(null);
     entity.fromJSON(new String(decodedPayload, StandardCharsets.UTF_8));
     final YouTrackDBJwtPayload payload = new YouTrackDBJwtPayload();
     payload.setUserName(entity.field("username"));
@@ -414,24 +415,24 @@ public class TokenHandlerImpl implements OTokenHandler {
     return payload;
   }
 
-  protected byte[] serializeWebHeader(final TokenHeader header) throws Exception {
+  protected static byte[] serializeWebHeader(final TokenHeader header) throws Exception {
     if (header == null) {
       throw new IllegalArgumentException("Token header is null");
     }
 
-    EntityImpl entity = new EntityImpl();
+    EntityImpl entity = new EntityImpl(null);
     entity.field("typ", header.getType());
     entity.field("alg", header.getAlgorithm());
     entity.field("kid", header.getKeyId());
     return entity.toJSON().getBytes(StandardCharsets.UTF_8);
   }
 
-  protected byte[] serializeWebPayload(final JwtPayload payload) throws Exception {
+  protected static byte[] serializeWebPayload(final JwtPayload payload) throws Exception {
     if (payload == null) {
       throw new IllegalArgumentException("Token payload is null");
     }
 
-    final EntityImpl entity = new EntityImpl();
+    final EntityImpl entity = new EntityImpl(null);
     entity.field("username", payload.getUserName());
     entity.field("iss", payload.getIssuer());
     entity.field("exp", payload.getExpiry());

@@ -43,7 +43,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DbTestBase {
     var indexName =
         class_
             .createProperty(db, "name", PropertyType.STRING)
-            .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
+            .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
     index = db.getIndex(indexName);
   }
 
@@ -76,7 +76,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DbTestBase {
 
   private EntityImpl fetchDocumentFromIndex(String o) {
     try (Stream<RID> stream = index.getInternal().getRids(db, o)) {
-      return (EntityImpl) stream.findFirst().map(RID::getRecord).orElse(null);
+      return (EntityImpl) stream.findFirst().map(rid -> rid.getRecord(db)).orElse(null);
     }
   }
 

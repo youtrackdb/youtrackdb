@@ -1,15 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.sql.functions.graph;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Direction;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.Direction;
-import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionConfigurableAbstract;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ public abstract class SQLFunctionMove extends SQLFunctionConfigurableAbstract {
   }
 
   protected abstract Object move(
-      final DatabaseSession db, final Identifiable iRecord, final String[] iLabels);
+      final DatabaseSessionInternal db, final Identifiable iRecord, final String[] iLabels);
 
   public String getSyntax(DatabaseSession session) {
     return "Syntax error: " + name + "([<labels>])";
@@ -44,11 +44,7 @@ public abstract class SQLFunctionMove extends SQLFunctionConfigurableAbstract {
       final Object[] iParameters,
       final CommandContext iContext) {
 
-    DatabaseSession db =
-        iContext != null
-            ? iContext.getDatabase()
-            : DatabaseRecordThreadLocal.instance().getIfDefined();
-
+    var db = iContext.getDatabase();
     final String[] labels;
     if (iParameters != null && iParameters.length > 0 && iParameters[0] != null) {
       labels =
@@ -77,14 +73,14 @@ public abstract class SQLFunctionMove extends SQLFunctionConfigurableAbstract {
         iContext);
   }
 
-  protected Object v2v(
-      final DatabaseSession graph,
+  protected static Object v2v(
+      final DatabaseSessionInternal graph,
       final Identifiable iRecord,
       final Direction iDirection,
       final String[] iLabels) {
     if (iRecord != null) {
       try {
-        Entity rec = iRecord.getRecord();
+        Entity rec = iRecord.getRecord(graph);
         if (rec.isVertex()) {
           return rec.asVertex().get().getVertices(iDirection, iLabels);
         } else {
@@ -98,14 +94,14 @@ public abstract class SQLFunctionMove extends SQLFunctionConfigurableAbstract {
     }
   }
 
-  protected Object v2e(
+  protected static Object v2e(
       final DatabaseSession graph,
       final Identifiable iRecord,
       final Direction iDirection,
       final String[] iLabels) {
     if (iRecord != null) {
       try {
-        Entity rec = iRecord.getRecord();
+        Entity rec = iRecord.getRecord(graph);
         if (rec.isVertex()) {
           return rec.asVertex().get().getEdges(iDirection, iLabels);
         } else {
@@ -119,7 +115,7 @@ public abstract class SQLFunctionMove extends SQLFunctionConfigurableAbstract {
     }
   }
 
-  protected Object e2v(
+  protected static Object e2v(
       final DatabaseSession graph,
       final Identifiable iRecord,
       final Direction iDirection,
@@ -127,7 +123,7 @@ public abstract class SQLFunctionMove extends SQLFunctionConfigurableAbstract {
     if (iRecord != null) {
 
       try {
-        Entity rec = iRecord.getRecord();
+        Entity rec = iRecord.getRecord(graph);
         if (rec.isEdge()) {
           if (iDirection == Direction.BOTH) {
             List results = new ArrayList();

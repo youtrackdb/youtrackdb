@@ -13,7 +13,7 @@ public class TestSqlForeach extends DbTestBase {
     db.getMetadata().getSchema().createClass("Test");
 
     db.begin();
-    EntityImpl doc = new EntityImpl("Test");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Test"));
     db.save(doc);
     db.commit();
 

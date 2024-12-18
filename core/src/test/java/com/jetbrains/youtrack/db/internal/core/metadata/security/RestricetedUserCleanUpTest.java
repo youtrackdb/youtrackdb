@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,7 +25,7 @@ public class RestricetedUserCleanUpTest extends DbTestBase {
     db.begin();
     SecurityUserIml auser = security.createUser("auser", "wherever", new String[]{});
     SecurityUserIml reader = security.getUser("admin");
-    EntityImpl doc = new EntityImpl("TestRecord");
+    EntityImpl doc = (EntityImpl) db.newEntity("TestRecord");
     Set<Identifiable> users = new HashSet<Identifiable>();
     users.add(auser.getIdentity(db));
     users.add(reader.getIdentity(db));

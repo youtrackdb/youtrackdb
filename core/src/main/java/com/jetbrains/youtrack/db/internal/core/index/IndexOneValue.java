@@ -72,7 +72,7 @@ public abstract class IndexOneValue extends IndexAbstract {
   }
 
   @Override
-  public Stream<RID> getRidsIgnoreTx(DatabaseSessionInternal session, Object key) {
+  public Stream<RID> getRidsIgnoreTx(DatabaseSessionInternal db, Object key) {
     key = getCollatingValue(key);
 
     acquireSharedLock();
@@ -81,7 +81,7 @@ public abstract class IndexOneValue extends IndexAbstract {
       while (true) {
         try {
           if (apiVersion == 0) {
-            final RID rid = (RID) storage.getIndexValue(session, indexId, key);
+            final RID rid = (RID) storage.getIndexValue(db, indexId, key);
             stream = Stream.ofNullable(rid);
           } else if (apiVersion == 1) {
             stream = storage.getIndexValues(indexId, key);
@@ -101,13 +101,13 @@ public abstract class IndexOneValue extends IndexAbstract {
   }
 
   @Override
-  public Stream<RID> getRids(DatabaseSessionInternal session, Object key) {
+  public Stream<RID> getRids(DatabaseSessionInternal db, Object key) {
     key = getCollatingValue(key);
 
-    Stream<RID> stream = getRidsIgnoreTx(session, key);
+    Stream<RID> stream = getRidsIgnoreTx(db, key);
 
     final FrontendTransactionIndexChanges indexChanges =
-        session.getTransaction().getIndexChangesInternal(getName());
+        db.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
     }
@@ -130,7 +130,7 @@ public abstract class IndexOneValue extends IndexAbstract {
   }
 
   @Override
-  public Stream<RawPair<Object, RID>> streamEntries(DatabaseSessionInternal session,
+  public Stream<RawPair<Object, RID>> streamEntries(DatabaseSessionInternal db,
       Collection<?> keys, boolean ascSortOrder) {
     final List<Object> sortedKeys = new ArrayList<>(keys);
     final Comparator<Object> comparator;
@@ -157,8 +157,7 @@ public abstract class IndexOneValue extends IndexAbstract {
                         while (true) {
                           try {
                             if (apiVersion == 0) {
-                              final RID rid = (RID) storage.getIndexValue(session, indexId,
-                                  collatedKey);
+                              final RID rid = (RID) storage.getIndexValue(db, indexId, collatedKey);
                               if (rid == null) {
                                 return Stream.empty();
                               }
@@ -181,7 +180,7 @@ public abstract class IndexOneValue extends IndexAbstract {
                     })
                 .filter(Objects::nonNull));
     final FrontendTransactionIndexChanges indexChanges =
-        session.getTransaction().getIndexChangesInternal(getName());
+        db.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
     }
@@ -208,7 +207,7 @@ public abstract class IndexOneValue extends IndexAbstract {
 
   @Override
   public Stream<RawPair<Object, RID>> streamEntriesBetween(
-      DatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
+      DatabaseSessionInternal db, Object fromKey, boolean fromInclusive, Object toKey,
       boolean toInclusive, boolean ascOrder) {
     fromKey = getCollatingValue(fromKey);
     toKey = getCollatingValue(toKey);
@@ -220,7 +219,7 @@ public abstract class IndexOneValue extends IndexAbstract {
           stream =
               IndexStreamSecurityDecorator.decorateStream(
                   this,
-                  storage.iterateIndexEntriesBetween(session,
+                  storage.iterateIndexEntriesBetween(db,
                       indexId, fromKey, fromInclusive, toKey, toInclusive, ascOrder, null));
           break;
         } catch (InvalidIndexEngineIdException ignore) {
@@ -232,7 +231,7 @@ public abstract class IndexOneValue extends IndexAbstract {
     }
 
     final FrontendTransactionIndexChanges indexChanges =
-        session.getTransaction().getIndexChangesInternal(getName());
+        db.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
     }
@@ -519,7 +518,7 @@ public abstract class IndexOneValue extends IndexAbstract {
   }
 
   @Override
-  public IndexOneValue put(DatabaseSessionInternal session, Object key,
+  public IndexOneValue put(DatabaseSessionInternal db, Object key,
       final Identifiable value) {
     final RecordId rid = (RecordId) value.getIdentity();
 
@@ -534,7 +533,7 @@ public abstract class IndexOneValue extends IndexAbstract {
     }
     key = getCollatingValue(key);
 
-    FrontendTransaction singleTx = session.getTransaction();
+    FrontendTransaction singleTx = db.getTransaction();
     singleTx.addIndexEntry(
         this, super.getName(), FrontendTransactionIndexChanges.OPERATION.PUT, key,
         value.getIdentity());

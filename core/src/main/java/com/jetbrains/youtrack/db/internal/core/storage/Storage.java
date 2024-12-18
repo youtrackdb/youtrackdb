@@ -32,7 +32,7 @@ import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.memory.DirectMemoryStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
 import com.jetbrains.youtrack.db.internal.core.util.Backupable;
 import java.io.IOException;
@@ -193,7 +193,7 @@ public interface Storage extends Backupable, StorageInfo {
   /**
    * Execute the command request and return the result back.
    */
-  Object command(DatabaseSessionInternal database, CommandRequestText iCommand);
+  Object command(DatabaseSessionInternal db, CommandRequestText iCommand);
 
   /**
    * Returns a pair of long values telling the begin and end positions of data in the requested
@@ -235,7 +235,7 @@ public interface Storage extends Backupable, StorageInfo {
 
   boolean isAssigningClusterIds();
 
-  SBTreeCollectionManager getSBtreeCollectionManager();
+  BTreeCollectionManager getSBtreeCollectionManager();
 
   CurrentStorageComponentsFactory getComponentsFactory();
 

@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.db.record.impl;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
@@ -21,8 +21,8 @@ public class DirtyManagerReferenceCleanTest extends DbTestBase {
   @Test
   public void testReferDeletedDocument() {
     db.begin();
-    EntityImpl doc = new EntityImpl();
-    EntityImpl doc1 = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
+    EntityImpl doc1 = (EntityImpl) db.newEntity();
     doc1.field("aa", "aa");
     doc.field("ref", doc1);
     doc.field("bb");
@@ -36,7 +36,7 @@ public class DirtyManagerReferenceCleanTest extends DbTestBase {
     doc1 = doc.field("ref");
     doc1.delete();
     doc.field("ab", "ab");
-    Assert.assertFalse(RecordInternal.getDirtyManager(doc).getUpdateRecords().contains(doc1));
+    Assert.assertFalse(RecordInternal.getDirtyManager(db, doc).getUpdateRecords().contains(doc1));
     db.commit();
   }
 }

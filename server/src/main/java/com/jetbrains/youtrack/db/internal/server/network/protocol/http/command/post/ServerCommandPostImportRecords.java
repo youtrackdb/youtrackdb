@@ -24,9 +24,9 @@ import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerCSVAbstract;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandDocumentAbstract;
 import java.io.BufferedReader;
 import java.io.StringReader;
@@ -43,7 +43,7 @@ public class ServerCommandPostImportRecords extends ServerCommandDocumentAbstrac
   private static final String[] NAMES = {"POST|importRecords/*"};
 
   @Override
-  public boolean execute(final OHttpRequest iRequest, HttpResponse iResponse) throws Exception {
+  public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
     final String[] urlParts =
         checkSyntax(
             iRequest.getUrl(),
@@ -98,7 +98,7 @@ public class ServerCommandPostImportRecords extends ServerCommandDocumentAbstrac
               break;
             }
 
-            final EntityImpl entity = new EntityImpl(cls);
+            final EntityImpl entity = new EntityImpl(db, cls);
             final String row = parsedRow.trim();
             final List<String> cells = StringSerializerHelper.smartSplit(row, CSV_SEPARATOR);
 

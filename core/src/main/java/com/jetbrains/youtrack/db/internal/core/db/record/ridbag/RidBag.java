@@ -20,33 +20,33 @@
 
 package com.jetbrains.youtrack.db.internal.core.db.record.ridbag;
 
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.collection.DataContainer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.UUIDSerializer;
 import com.jetbrains.youtrack.db.internal.common.util.Sizeable;
-import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
-import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMultiValue;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMultiValue;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.embedded.EmbeddedRidBag;
-import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BytesContainer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.string.StringBuilderSerializable;
-import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.SBTreeBonsai;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeBasedRidBag;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.Change;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.RemoteTreeRidBag;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.Change;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeRidBag;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.EdgeBTree;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Iterator;
@@ -67,7 +67,7 @@ import javax.annotation.Nonnull;
  *   <li><b>Embedded</b> stores its content directly to the entity that owns it.<br>
  *       It better fits for cases when only small amount of links are stored to the bag.<br>
  *   <li><b>Tree-based</b> implementation stores its content in a separate data structure called
- *       {@link SBTreeBonsai}.<br>
+ *       {@link EdgeBTree}.<br>
  *       It fits great for cases when you have a huge amount of links.<br>
  * </ul>
  *
@@ -124,13 +124,13 @@ public class RidBag
   public RidBag(DatabaseSessionInternal session, BonsaiCollectionPointer pointer,
       Map<Identifiable, Change> changes, UUID uuid) {
     initThresholds(session);
-    delegate = new SBTreeRidBag(pointer, changes);
+    delegate = new BTreeBasedRidBag(pointer, changes);
     this.uuid = uuid;
   }
 
-  private RidBag(DatabaseSessionInternal session, final byte[] stream) {
-    initThresholds(session);
-    fromStream(stream);
+  private RidBag(DatabaseSessionInternal db, final byte[] stream) {
+    initThresholds(db);
+    fromStream(db, stream);
   }
 
   public RidBag(DatabaseSessionInternal session, RidBagDelegate delegate) {
@@ -149,7 +149,7 @@ public class RidBag
     copy.bottomThreshold = bottomThreshold;
     copy.uuid = uuid;
 
-    if (delegate instanceof SBTreeRidBag)
+    if (delegate instanceof BTreeBasedRidBag)
     // ALREADY MULTI-THREAD
     {
       copy.delegate = delegate;
@@ -219,15 +219,15 @@ public class RidBag
     return bottomThreshold >= size();
   }
 
-  public int toStream(BytesContainer bytesContainer) throws SerializationException {
+  public int toStream(DatabaseSessionInternal db, BytesContainer bytesContainer)
+      throws SerializationException {
 
     checkAndConvert();
 
     final UUID oldUuid = uuid;
-    final SBTreeCollectionManager sbTreeCollectionManager =
-        DatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager();
-    if (sbTreeCollectionManager != null) {
-      uuid = sbTreeCollectionManager.listenForChanges(this);
+    final BTreeCollectionManager bTreeCollectionManager = db.getSbTreeCollectionManager();
+    if (bTreeCollectionManager != null) {
+      uuid = bTreeCollectionManager.listenForChanges(this);
     } else {
       uuid = null;
     }
@@ -258,7 +258,7 @@ public class RidBag
       offset += UUIDSerializer.UUID_SIZE;
     }
 
-    delegate.serialize(stream, offset, oldUuid);
+    delegate.serialize(db, stream, offset, oldUuid);
     return pointer;
   }
 
@@ -301,7 +301,7 @@ public class RidBag
   private void convertToTree() {
     RidBagDelegate oldDelegate = delegate;
     boolean isTransactionModified = oldDelegate.isTransactionModified();
-    delegate = new SBTreeRidBag();
+    delegate = new BTreeBasedRidBag();
 
     final RecordElement owner = oldDelegate.getOwner();
     delegate.disableTracking(owner);
@@ -321,9 +321,10 @@ public class RidBag
   }
 
   @Override
-  public StringBuilderSerializable toStream(StringBuilder output) throws SerializationException {
+  public StringBuilderSerializable toStream(DatabaseSessionInternal db, StringBuilder output)
+      throws SerializationException {
     final BytesContainer container = new BytesContainer();
-    toStream(container);
+    toStream(db, container);
     output.append(Base64.getEncoder().encodeToString(container.fitBytes()));
     return this;
   }
@@ -338,23 +339,23 @@ public class RidBag
   }
 
   @Override
-  public StringBuilderSerializable fromStream(StringBuilder input)
+  public StringBuilderSerializable fromStream(DatabaseSessionInternal db, StringBuilder input)
       throws SerializationException {
     final byte[] stream = Base64.getDecoder().decode(input.toString());
-    fromStream(stream);
+    fromStream(db, stream);
     return this;
   }
 
-  public void fromStream(final byte[] stream) {
-    fromStream(new BytesContainer(stream));
+  public void fromStream(DatabaseSessionInternal db, final byte[] stream) {
+    fromStream(db, new BytesContainer(stream));
   }
 
-  public void fromStream(BytesContainer stream) {
+  public void fromStream(DatabaseSessionInternal db, BytesContainer stream) {
     final byte first = stream.bytes[stream.offset++];
     if ((first & 1) == 1) {
       delegate = new EmbeddedRidBag();
     } else {
-      delegate = new SBTreeRidBag();
+      delegate = new BTreeBasedRidBag();
     }
 
     if ((first & 2) == 2) {
@@ -362,7 +363,7 @@ public class RidBag
       stream.skip(UUIDSerializer.UUID_SIZE);
     }
 
-    stream.skip(delegate.deserialize(stream.bytes, stream.offset) - stream.offset);
+    stream.skip(delegate.deserialize(db, stream.bytes, stream.offset) - stream.offset);
   }
 
   @Override
@@ -413,9 +414,9 @@ public class RidBag
     if (newPointer.isValid()) {
       if (isEmbedded()) {
         replaceWithSBTree(newPointer);
-      } else if (delegate instanceof SBTreeRidBag) {
-        ((SBTreeRidBag) delegate).setCollectionPointer(newPointer);
-        ((SBTreeRidBag) delegate).clearChanges();
+      } else if (delegate instanceof BTreeBasedRidBag) {
+        ((BTreeBasedRidBag) delegate).setCollectionPointer(newPointer);
+        ((BTreeBasedRidBag) delegate).clearChanges();
       }
     }
   }
@@ -426,7 +427,7 @@ public class RidBag
     } else if (delegate instanceof RemoteTreeRidBag) {
       return ((RemoteTreeRidBag) delegate).getCollectionPointer();
     } else {
-      return ((SBTreeRidBag) delegate).getCollectionPointer();
+      return ((BTreeBasedRidBag) delegate).getCollectionPointer();
     }
   }
 
@@ -435,8 +436,8 @@ public class RidBag
    */
   public boolean tryMerge(final RidBag otherValue, boolean iMergeSingleItemsOfMultiValueFields) {
     if (!isEmbedded() && !otherValue.isEmbedded()) {
-      final SBTreeRidBag thisTree = (SBTreeRidBag) delegate;
-      final SBTreeRidBag otherTree = (SBTreeRidBag) otherValue.delegate;
+      final BTreeBasedRidBag thisTree = (BTreeBasedRidBag) delegate;
+      final BTreeBasedRidBag otherTree = (BTreeBasedRidBag) otherValue.delegate;
       if (thisTree.getCollectionPointer().equals(otherTree.getCollectionPointer())) {
 
         thisTree.mergeChanges(otherTree);
@@ -481,7 +482,7 @@ public class RidBag
     if (topThreshold < 0) {
       if (DatabaseRecordThreadLocal.instance().isDefined()
           && !DatabaseRecordThreadLocal.instance().get().isRemote()) {
-        delegate = new SBTreeRidBag();
+        delegate = new BTreeBasedRidBag();
       } else {
         delegate = new EmbeddedRidBag();
       }

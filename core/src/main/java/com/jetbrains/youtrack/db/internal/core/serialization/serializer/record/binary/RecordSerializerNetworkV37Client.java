@@ -1,14 +1,14 @@
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.UUIDSerializer;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.BonsaiBucketPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.Change;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ChangeSerializationHelper;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.RemoteTreeRidBag;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.Change;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.ChangeSerializationHelper;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.RidBagBucketPointer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -33,7 +33,7 @@ public class RecordSerializerNetworkV37Client extends RecordSerializerNetworkV37
 
       if (size > 0) {
         for (int i = 0; i < size; i++) {
-          Identifiable id = readOptimizedLink(bytes);
+          Identifiable id = readOptimizedLink(db, bytes);
           if (id.equals(NULL_RECORD_ID)) {
             bag.add(null);
           } else {
@@ -57,7 +57,7 @@ public class RecordSerializerNetworkV37Client extends RecordSerializerNetworkV37
       Map<Identifiable, Change> changes = new HashMap<>();
       int size = VarIntSerializer.readAsInteger(bytes);
       while (size-- > 0) {
-        Identifiable link = readOptimizedLink(bytes);
+        Identifiable link = readOptimizedLink(db, bytes);
         byte type = bytes.bytes[bytes.offset];
         bytes.skip(1);
         int change = VarIntSerializer.readAsInteger(bytes);
@@ -66,7 +66,7 @@ public class RecordSerializerNetworkV37Client extends RecordSerializerNetworkV37
       BonsaiCollectionPointer pointer = null;
       if (fileId != -1) {
         pointer =
-            new BonsaiCollectionPointer(fileId, new BonsaiBucketPointer(pageIndex, pageOffset));
+            new BonsaiCollectionPointer(fileId, new RidBagBucketPointer(pageIndex, pageOffset));
       }
       return new RidBag(db, new RemoteTreeRidBag(pointer));
     }

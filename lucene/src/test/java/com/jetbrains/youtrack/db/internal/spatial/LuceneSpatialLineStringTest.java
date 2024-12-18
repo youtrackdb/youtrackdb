@@ -48,7 +48,7 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
 
     db.command("CREATE INDEX Place.location ON Place(location) SPATIAL ENGINE LUCENE").close();
 
-    EntityImpl linestring1 = new EntityImpl("Place");
+    EntityImpl linestring1 = ((EntityImpl) db.newEntity("Place"));
     linestring1.field("name", "LineString1");
     linestring1.field(
         "location",
@@ -60,7 +60,7 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
               }
             }));
 
-    EntityImpl linestring2 = new EntityImpl("Place");
+    EntityImpl linestring2 = ((EntityImpl) db.newEntity("Place"));
     linestring2.field("name", "LineString2");
     linestring2.field(
         "location",
@@ -87,7 +87,7 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
   }
 
   public EntityImpl createLineString(List<List<Double>> coordinates) {
-    EntityImpl location = new EntityImpl("OLineString");
+    EntityImpl location = ((EntityImpl) db.newEntity("OLineString"));
     location.field("coordinates", coordinates);
     return location;
   }

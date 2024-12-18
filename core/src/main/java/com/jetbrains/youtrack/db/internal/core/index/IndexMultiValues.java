@@ -24,7 +24,6 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.comparator.DefaultComparator;
 import com.jetbrains.youtrack.db.internal.common.stream.Streams;
-import com.jetbrains.youtrack.db.internal.common.types.ModifiableBoolean;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.InvalidIndexEngineIdException;
@@ -34,8 +33,6 @@ import com.jetbrains.youtrack.db.internal.core.index.comparator.DescComparator;
 import com.jetbrains.youtrack.db.internal.core.index.iterator.PureTxMultiValueBetweenIndexBackwardSplititerator;
 import com.jetbrains.youtrack.db.internal.core.index.iterator.PureTxMultiValueBetweenIndexForwardSpliterator;
 import com.jetbrains.youtrack.db.internal.core.index.multivalue.MultiValuesTransformer;
-import com.jetbrains.youtrack.db.internal.core.index.multivalue.MultivalueEntityRemover;
-import com.jetbrains.youtrack.db.internal.core.index.multivalue.MultivalueIndexKeyUpdaterImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransaction;
@@ -76,7 +73,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
   }
 
   @Override
-  public Stream<RID> getRidsIgnoreTx(DatabaseSessionInternal session, Object key) {
+  public Stream<RID> getRidsIgnoreTx(DatabaseSessionInternal db, Object key) {
     final Object collatedKey = getCollatingValue(key);
     Stream<RID> backedStream;
     acquireSharedLock();
@@ -87,16 +84,13 @@ public abstract class IndexMultiValues extends IndexAbstract {
           if (apiVersion == 0) {
             //noinspection unchecked
             final Collection<RID> values =
-                (Collection<RID>) storage.getIndexValue(session, indexId, collatedKey);
+                (Collection<RID>) storage.getIndexValue(db, indexId, collatedKey);
             if (values != null) {
-              //noinspection resource
               stream = values.stream();
             } else {
-              //noinspection resource
               stream = Stream.empty();
             }
           } else if (apiVersion == 1) {
-            //noinspection resource
             stream = storage.getIndexValues(indexId, collatedKey);
           } else {
             throw new IllegalStateException("Invalid version of index API - " + apiVersion);
@@ -114,11 +108,11 @@ public abstract class IndexMultiValues extends IndexAbstract {
   }
 
   @Override
-  public Stream<RID> getRids(DatabaseSessionInternal session, Object key) {
+  public Stream<RID> getRids(DatabaseSessionInternal db, Object key) {
     final Object collatedKey = getCollatingValue(key);
-    Stream<RID> backedStream = getRidsIgnoreTx(session, key);
+    Stream<RID> backedStream = getRidsIgnoreTx(db, key);
     final FrontendTransactionIndexChanges indexChanges =
-        session.getTransaction().getIndexChangesInternal(getName());
+        db.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return backedStream;
     }
@@ -136,7 +130,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
             txChanges.stream().map(Identifiable::getIdentity)));
   }
 
-  public IndexMultiValues put(DatabaseSessionInternal session, Object key,
+  public IndexMultiValues put(DatabaseSessionInternal db, Object key,
       final Identifiable singleValue) {
     final RecordId rid = (RecordId) singleValue.getIdentity();
 
@@ -152,19 +146,19 @@ public abstract class IndexMultiValues extends IndexAbstract {
 
     key = getCollatingValue(key);
 
-    FrontendTransaction singleTx = session.getTransaction();
+    FrontendTransaction singleTx = db.getTransaction();
     singleTx.addIndexEntry(
         this, super.getName(), FrontendTransactionIndexChanges.OPERATION.PUT, key, singleValue);
     return this;
   }
 
   @Override
-  public void doPut(DatabaseSessionInternal session, AbstractPaginatedStorage storage,
+  public void doPut(DatabaseSessionInternal db, AbstractPaginatedStorage storage,
       Object key,
       RID rid)
       throws InvalidIndexEngineIdException {
     if (apiVersion == 0) {
-      doPutV0(session, indexId, storage, im.getValueContainerAlgorithm(), getName(), key, rid);
+      throw new UnsupportedOperationException("Index API of version 0 is not supported");
     } else if (apiVersion == 1) {
       doPutV1(storage, indexId, key, rid);
     } else {
@@ -175,22 +169,6 @@ public abstract class IndexMultiValues extends IndexAbstract {
   @Override
   public boolean isNativeTxSupported() {
     return true;
-  }
-
-  private static void doPutV0(
-      DatabaseSessionInternal session, final int indexId,
-      final AbstractPaginatedStorage storage,
-      String valueContainerAlgorithm,
-      String indexName,
-      Object key,
-      RID identity)
-      throws InvalidIndexEngineIdException {
-    int binaryFormatVersion = storage.getConfiguration().getBinaryFormatVersion();
-    final IndexKeyUpdater<Object> creator =
-        new MultivalueIndexKeyUpdaterImpl(
-            identity, valueContainerAlgorithm, binaryFormatVersion, indexName);
-
-    storage.updateIndexEntry(session, indexId, key, creator);
   }
 
   private static void doPutV1(
@@ -211,7 +189,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
       Object key, RID rid)
       throws InvalidIndexEngineIdException {
     if (apiVersion == 0) {
-      return doRemoveV0(session, indexId, storage, key, rid);
+      throw new UnsupportedOperationException("Index API of version 0 is not supported");
     }
 
     if (apiVersion == 1) {
@@ -219,25 +197,6 @@ public abstract class IndexMultiValues extends IndexAbstract {
     }
 
     throw new IllegalStateException("Invalid API version, " + apiVersion);
-  }
-
-  private static boolean doRemoveV0(
-      DatabaseSessionInternal session, int indexId, AbstractPaginatedStorage storage, Object key,
-      Identifiable value)
-      throws InvalidIndexEngineIdException {
-    Set<Identifiable> values;
-    //noinspection unchecked
-    values = (Set<Identifiable>) storage.getIndexValue(session, indexId, key);
-
-    if (values == null) {
-      return false;
-    }
-
-    final ModifiableBoolean removed = new ModifiableBoolean(false);
-    final IndexKeyUpdater<Object> creator = new MultivalueEntityRemover(value, removed);
-    storage.updateIndexEntry(session, indexId, key, creator);
-
-    return removed.getValue();
   }
 
   private static boolean doRemoveV1(
@@ -248,7 +207,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
 
   @Override
   public Stream<RawPair<Object, RID>> streamEntriesBetween(
-      DatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
+      DatabaseSessionInternal db, Object fromKey, boolean fromInclusive, Object toKey,
       boolean toInclusive, boolean ascOrder) {
     fromKey = getCollatingValue(fromKey);
     toKey = getCollatingValue(toKey);
@@ -260,13 +219,12 @@ public abstract class IndexMultiValues extends IndexAbstract {
           stream =
               IndexStreamSecurityDecorator.decorateStream(
                   this,
-                  storage.iterateIndexEntriesBetween(session,
+                  storage.iterateIndexEntriesBetween(db,
                       indexId,
                       fromKey,
                       fromInclusive,
                       toKey,
-                      toInclusive,
-                      ascOrder, MultiValuesTransformer.INSTANCE));
+                      toInclusive, ascOrder, MultiValuesTransformer.INSTANCE));
           break;
         } catch (InvalidIndexEngineIdException ignore) {
           doReloadIndexEngine();
@@ -277,7 +235,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
     }
 
     final FrontendTransactionIndexChanges indexChanges =
-        session.getTransaction().getIndexChangesInternal(getName());
+        db.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
     }
@@ -415,7 +373,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
   }
 
   @Override
-  public Stream<RawPair<Object, RID>> streamEntries(DatabaseSessionInternal session,
+  public Stream<RawPair<Object, RID>> streamEntries(DatabaseSessionInternal db,
       Collection<?> keys, boolean ascSortOrder) {
     final List<Object> sortedKeys = new ArrayList<>(keys);
     final Comparator<Object> comparator;
@@ -429,9 +387,9 @@ public abstract class IndexMultiValues extends IndexAbstract {
 
     Stream<RawPair<Object, RID>> stream =
         IndexStreamSecurityDecorator.decorateStream(
-            this, sortedKeys.stream().flatMap(key1 -> streamForKey(session, key1)));
+            this, sortedKeys.stream().flatMap(key1 -> streamForKey(db, key1)));
 
-    final FrontendTransactionIndexChanges indexChanges = session.getTransaction()
+    final FrontendTransactionIndexChanges indexChanges = db.getTransaction()
         .getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
@@ -468,7 +426,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
     return null;
   }
 
-  private Stream<RawPair<Object, RID>> streamForKey(DatabaseSessionInternal session,
+  private Stream<RawPair<Object, RID>> streamForKey(DatabaseSessionInternal db,
       Object key) {
     key = getCollatingValue(key);
 
@@ -480,7 +438,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
           if (apiVersion == 0) {
             //noinspection unchecked,resource
             return Optional.ofNullable(
-                    (Collection<RID>) storage.getIndexValue(session, indexId, key))
+                    (Collection<RID>) storage.getIndexValue(db, indexId, key))
                 .map((rids) -> rids.stream().map((rid) -> new RawPair<>(entryKey, rid)))
                 .orElse(Stream.empty());
           } else if (apiVersion == 1) {

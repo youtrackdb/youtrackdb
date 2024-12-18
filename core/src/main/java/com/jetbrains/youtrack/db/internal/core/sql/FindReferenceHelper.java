@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
@@ -77,7 +76,7 @@ public class FindReferenceHelper {
 
     final List<EntityImpl> result = new ArrayList<EntityImpl>();
     for (Entry<RID, Set<RID>> entry : map.entrySet()) {
-      final EntityImpl entity = new EntityImpl();
+      final EntityImpl entity = new EntityImpl(db);
       result.add(entity);
 
       entity.field("rid", entry.getKey());
@@ -88,16 +87,16 @@ public class FindReferenceHelper {
   }
 
   private static void browseCluster(
-      final DatabaseSession iDatabase,
+      final DatabaseSessionInternal db,
       final Set<RID> iSourceRIDs,
       final Map<RID, Set<RID>> map,
       final String iClusterName) {
-    for (Record record : ((DatabaseSessionInternal) iDatabase).browseCluster(iClusterName)) {
+    for (Record record : ((DatabaseSessionInternal) db).browseCluster(iClusterName)) {
       if (record instanceof EntityImpl) {
         try {
           for (String fieldName : ((EntityImpl) record).fieldNames()) {
             Object value = ((EntityImpl) record).field(fieldName);
-            checkObject(iSourceRIDs, map, value, record);
+            checkObject(db, iSourceRIDs, map, value, record);
           }
         } catch (Exception e) {
           LogManager.instance()
@@ -124,31 +123,31 @@ public class FindReferenceHelper {
   }
 
   private static void checkObject(
-      final Set<RID> iSourceRIDs,
+      DatabaseSessionInternal db, final Set<RID> iSourceRIDs,
       final Map<RID, Set<RID>> map,
       final Object value,
       final Record iRootObject) {
     if (value instanceof Identifiable) {
-      checkRecord(iSourceRIDs, map, (Identifiable) value, iRootObject);
+      checkRecord(db, iSourceRIDs, map, (Identifiable) value, iRootObject);
     } else if (value instanceof Collection<?>) {
-      checkCollection(iSourceRIDs, map, (Collection<?>) value, iRootObject);
+      checkCollection(db, iSourceRIDs, map, (Collection<?>) value, iRootObject);
     } else if (value instanceof Map<?, ?>) {
-      checkMap(iSourceRIDs, map, (Map<?, ?>) value, iRootObject);
+      checkMap(db, iSourceRIDs, map, (Map<?, ?>) value, iRootObject);
     }
   }
 
   private static void checkCollection(
-      final Set<RID> iSourceRIDs,
+      DatabaseSessionInternal db, final Set<RID> iSourceRIDs,
       final Map<RID, Set<RID>> map,
       final Collection<?> values,
       final Record iRootObject) {
     for (Object value : values) {
-      checkObject(iSourceRIDs, map, value, iRootObject);
+      checkObject(db, iSourceRIDs, map, value, iRootObject);
     }
   }
 
   private static void checkMap(
-      final Set<RID> iSourceRIDs,
+      DatabaseSessionInternal db, final Set<RID> iSourceRIDs,
       final Map<RID, Set<RID>> map,
       final Map<?, ?> values,
       final Record iRootObject) {
@@ -159,24 +158,24 @@ public class FindReferenceHelper {
       it = values.values().iterator();
     }
     while (it.hasNext()) {
-      checkObject(iSourceRIDs, map, it.next(), iRootObject);
+      checkObject(db, iSourceRIDs, map, it.next(), iRootObject);
     }
   }
 
   private static void checkRecord(
-      final Set<RID> iSourceRIDs,
+      DatabaseSessionInternal db, final Set<RID> iSourceRIDs,
       final Map<RID, Set<RID>> map,
       final Identifiable value,
       final Record iRootObject) {
     if (iSourceRIDs.contains(value.getIdentity())) {
       map.get(value.getIdentity()).add(iRootObject.getIdentity());
     } else if (!((RecordId) value.getIdentity()).isValid()
-        && value.getRecord() instanceof EntityImpl) {
+        && value.getRecord(db) instanceof EntityImpl) {
       // embedded entity
-      EntityImpl entity = value.getRecord();
+      EntityImpl entity = value.getRecord(db);
       for (String fieldName : entity.fieldNames()) {
         Object fieldValue = entity.field(fieldName);
-        checkObject(iSourceRIDs, map, fieldValue, iRootObject);
+        checkObject(db, iSourceRIDs, map, fieldValue, iRootObject);
       }
     }
   }

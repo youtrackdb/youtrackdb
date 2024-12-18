@@ -48,7 +48,7 @@ public class ModifiableDistributedConfiguration extends DistributedConfiguration
     synchronized (configuration) {
       EntityImpl servers = configuration.field(SERVERS);
       if (servers == null) {
-        servers = new EntityImpl();
+        servers = new EntityImpl(null);
         configuration.field(SERVERS, servers, PropertyType.EMBEDDED);
       }
 
@@ -284,7 +284,7 @@ public class ModifiableDistributedConfiguration extends DistributedConfiguration
       return clusters;
     }
 
-    cluster = new EntityImpl();
+    cluster = new EntityImpl(null);
     EntityInternalUtils.addOwner(cluster, clusters);
     clusters.field(iClusterName, cluster, PropertyType.EMBEDDED);
 

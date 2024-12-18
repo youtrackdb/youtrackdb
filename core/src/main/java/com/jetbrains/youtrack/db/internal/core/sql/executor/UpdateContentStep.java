@@ -1,17 +1,17 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInputParameter;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLJson;
@@ -57,9 +57,10 @@ public class UpdateContentStep extends AbstractExecutionStep {
     // REPLACE ALL THE CONTENT
     EntityImpl fieldsToPreserve = null;
 
+    var db = ctx.getDatabase();
     SchemaClass clazz = record.getSchemaType().orElse(null);
     if (clazz != null && ((SchemaImmutableClass) clazz).isRestricted()) {
-      fieldsToPreserve = new EntityImpl();
+      fieldsToPreserve = new EntityImpl(db);
 
       final SchemaClass restricted =
           ctx.getDatabase()
@@ -83,12 +84,12 @@ public class UpdateContentStep extends AbstractExecutionStep {
     }
 
     SchemaClass recordClass =
-        EntityInternalUtils.getImmutableSchemaClass(ctx.getDatabase(), record.getRecord());
+        EntityInternalUtils.getImmutableSchemaClass(ctx.getDatabase(), record.getRecord(db));
     if (recordClass != null && recordClass.isSubClassOf("V")) {
       for (String fieldName : record.getPropertyNamesInternal()) {
         if (fieldName.startsWith("in_") || fieldName.startsWith("out_")) {
           if (fieldsToPreserve == null) {
-            fieldsToPreserve = new EntityImpl();
+            fieldsToPreserve = new EntityImpl(db);
           }
           fieldsToPreserve.field(fieldName, record.<Object>getPropertyInternal(fieldName));
         }
@@ -97,21 +98,21 @@ public class UpdateContentStep extends AbstractExecutionStep {
       for (String fieldName : record.getPropertyNamesInternal()) {
         if (fieldName.equals("in") || fieldName.equals("out")) {
           if (fieldsToPreserve == null) {
-            fieldsToPreserve = new EntityImpl();
+            fieldsToPreserve = new EntityImpl(db);
           }
           fieldsToPreserve.field(fieldName, record.<Object>getPropertyInternal(fieldName));
         }
       }
     }
-    EntityImpl entity = record.getRecord();
+    EntityImpl entity = record.getRecord(db);
     if (json != null) {
-      entity.merge(json.toDocument(record, ctx), false, false);
+      entity.merge(json.toEntity(record, ctx), false, false);
     } else if (inputParameter != null) {
       Object val = inputParameter.getValue(ctx.getInputParameters());
       if (val instanceof Entity) {
-        entity.merge(((Entity) val).getRecord(), false, false);
+        entity.merge(((Entity) val).getRecord(db), false, false);
       } else if (val instanceof Map<?, ?> map) {
-        var mapDoc = new EntityImpl();
+        var mapDoc = new EntityImpl(db);
         //noinspection unchecked
         mapDoc.fromMap((Map<String, ?>) map);
         entity.merge(mapDoc, false, false);

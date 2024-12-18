@@ -2,12 +2,12 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.query.Result;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +29,10 @@ public class SQLIsNotDefinedCondition extends SQLBooleanExpression {
   @Override
   public boolean evaluate(Identifiable currentRecord, CommandContext ctx) {
     try {
-      Object elem = currentRecord.getRecord();
+      var db = ctx.getDatabase();
+      Object elem = currentRecord.getRecord(db);
       if (elem instanceof Entity) {
-        return !expression.isDefinedFor((Entity) elem);
+        return !expression.isDefinedFor(db, (Entity) elem);
       }
     } catch (RecordNotFoundException rnf) {
       return true;

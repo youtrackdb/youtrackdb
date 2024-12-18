@@ -1,8 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
+import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.Edge;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.record.Edge;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
@@ -11,7 +13,7 @@ import javax.annotation.Nullable;
 public interface EdgeInternal extends Edge, EntityInternal {
 
   @Nullable
-  EntityImpl getBaseDocument();
+  EntityImpl getBaseEntity();
 
   @Override
   default Set<String> getPropertyNames() {
@@ -45,6 +47,33 @@ public interface EdgeInternal extends Edge, EntityInternal {
     return getPropertyInternal(name);
   }
 
+  @Nullable
+  @Override
+  default Entity getElementProperty(String name) {
+    checkPropertyName(name);
+
+    var baseEntity = getBaseEntity();
+    if (baseEntity == null) {
+      return null;
+    }
+
+    return baseEntity.getElementProperty(name);
+  }
+
+  @Nullable
+  @Override
+  default Blob getBlobProperty(String propertyName) {
+    checkPropertyName(propertyName);
+
+    var baseEntity = getBaseEntity();
+    if (baseEntity == null) {
+      return null;
+    }
+
+    return baseEntity.getBlobProperty(propertyName);
+  }
+
+
   static void checkPropertyName(String name) {
     if (name.equals(DIRECTION_OUT) || name.equals(DIRECTION_IN)) {
       throw new IllegalArgumentException(
@@ -54,7 +83,7 @@ public interface EdgeInternal extends Edge, EntityInternal {
 
   @Override
   default boolean isUnloaded() {
-    var baseEntity = getBaseDocument();
+    var baseEntity = getBaseEntity();
     if (baseEntity != null) {
       return baseEntity.isUnloaded();
     }
@@ -63,7 +92,7 @@ public interface EdgeInternal extends Edge, EntityInternal {
 
   @Override
   default boolean exists() {
-    var baseEntity = getBaseDocument();
+    var baseEntity = getBaseEntity();
     if (baseEntity == null) {
       return false;
     }
@@ -81,7 +110,7 @@ public interface EdgeInternal extends Edge, EntityInternal {
   @Override
   default boolean hasProperty(final String propertyName) {
     checkPropertyName(propertyName);
-    var baseEntity = getBaseDocument();
+    var baseEntity = getBaseEntity();
     if (baseEntity == null) {
       return false;
     }
@@ -107,7 +136,7 @@ public interface EdgeInternal extends Edge, EntityInternal {
   default Identifiable getLinkProperty(String name) {
     checkPropertyName(name);
 
-    var baseEntity = getBaseDocument();
+    var baseEntity = getBaseEntity();
     if (baseEntity == null) {
       return null;
     }
@@ -117,7 +146,7 @@ public interface EdgeInternal extends Edge, EntityInternal {
 
   @Override
   default Set<String> getPropertyNamesInternal() {
-    var baseEntity = getBaseDocument();
+    var baseEntity = getBaseEntity();
     if (baseEntity == null) {
       return Collections.emptySet();
     }
@@ -125,7 +154,7 @@ public interface EdgeInternal extends Edge, EntityInternal {
   }
 
   default <RET> RET getPropertyInternal(String name) {
-    var baseEntity = getBaseDocument();
+    var baseEntity = getBaseEntity();
     if (baseEntity == null) {
       return null;
     }
@@ -135,7 +164,7 @@ public interface EdgeInternal extends Edge, EntityInternal {
 
   @Override
   default <RET> RET getPropertyInternal(String name, boolean lazyLoading) {
-    var baseEntity = getBaseDocument();
+    var baseEntity = getBaseEntity();
     if (baseEntity == null) {
       return null;
     }
@@ -145,7 +174,7 @@ public interface EdgeInternal extends Edge, EntityInternal {
 
   @Override
   default <RET> RET getPropertyOnLoadValue(String name) {
-    var baseEntity = getBaseDocument();
+    var baseEntity = getBaseEntity();
     if (baseEntity == null) {
       return null;
     }
@@ -156,7 +185,7 @@ public interface EdgeInternal extends Edge, EntityInternal {
   @Nullable
   @Override
   default Identifiable getLinkPropertyInternal(String name) {
-    var baseEntity = getBaseDocument();
+    var baseEntity = getBaseEntity();
     if (baseEntity == null) {
       return null;
     }
@@ -166,14 +195,9 @@ public interface EdgeInternal extends Edge, EntityInternal {
 
   @Override
   default void setPropertyInternal(String name, Object value) {
-    var baseEntity = getBaseDocument();
+    var baseEntity = getBaseEntity();
     if (baseEntity == null) {
-      promoteToRegularEdge();
-      baseEntity = getBaseDocument();
-
-      if (baseEntity == null) {
-        throw new UnsupportedOperationException("This edge is not backed by a entity.");
-      }
+      throw new UnsupportedOperationException("This edge is not backed by a entity.");
     }
 
     baseEntity.setPropertyInternal(name, value);
@@ -181,14 +205,9 @@ public interface EdgeInternal extends Edge, EntityInternal {
 
   @Override
   default void setPropertyInternal(String name, Object value, PropertyType... type) {
-    var baseEntity = getBaseDocument();
+    var baseEntity = getBaseEntity();
     if (baseEntity == null) {
-      promoteToRegularEdge();
-
-      baseEntity = getBaseDocument();
-      if (baseEntity == null) {
-        throw new UnsupportedOperationException("This edge is not backed by a entity.");
-      }
+      throw new UnsupportedOperationException("This edge is not backed by a entity.");
     }
 
     baseEntity.setPropertyInternal(name, value, type);
@@ -196,7 +215,7 @@ public interface EdgeInternal extends Edge, EntityInternal {
 
   @Override
   default <RET> RET removePropertyInternal(String name) {
-    var baseEntity = getBaseDocument();
+    var baseEntity = getBaseEntity();
     if (baseEntity == null) {
       throw new UnsupportedOperationException("This edge is not backed by a entity.");
     }
@@ -204,5 +223,4 @@ public interface EdgeInternal extends Edge, EntityInternal {
     return baseEntity.removePropertyInternal(name);
   }
 
-  void promoteToRegularEdge();
 }

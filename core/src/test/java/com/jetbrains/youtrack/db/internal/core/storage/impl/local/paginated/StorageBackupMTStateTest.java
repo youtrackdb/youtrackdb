@@ -210,7 +210,7 @@ public class StorageBackupMTStateTest {
 
     cls.createIndex(db, cls.getName() + "IdIndex", SchemaClass.INDEX_TYPE.UNIQUE, "id");
     cls.createIndex(db,
-        cls.getName() + "IntValueIndex", SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "intValue");
+        cls.getName() + "IntValueIndex", SchemaClass.INDEX_TYPE.NOTUNIQUE, "intValue");
 
     classInstancesCounters.put(cls.getName(), new AtomicInteger());
 
@@ -310,7 +310,7 @@ public class StorageBackupMTStateTest {
         classCounter = classInstancesCounters.get(className);
       } while (classCounter == null);
 
-      final EntityImpl doc = new EntityImpl(className);
+      final EntityImpl doc = ((EntityImpl) db.newEntity(className));
       docId = classCounter.getAndIncrement();
 
       doc.field("id", docId);

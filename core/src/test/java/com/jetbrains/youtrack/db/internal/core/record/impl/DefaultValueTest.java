@@ -4,13 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.util.Date;
 import org.junit.Test;
@@ -26,10 +26,10 @@ public class DefaultValueTest extends DbTestBase {
     Property prop = classA.createProperty(db, "name", PropertyType.STRING);
     prop.setDefaultValue(db, "uuid()");
 
-    EntityImpl doc = new EntityImpl("ClassC");
+    EntityImpl doc = (EntityImpl) db.newEntity("ClassC");
 
     byte[] val = doc.toStream();
-    EntityImpl doc1 = new EntityImpl();
+    EntityImpl doc1 = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc1);
     doc1.fromStream(val);
     doc1.deserializeFields();
@@ -47,7 +47,7 @@ public class DefaultValueTest extends DbTestBase {
     some.setDefaultValue(db, "uuid()");
 
     db.begin();
-    EntityImpl doc = new EntityImpl(classA);
+    EntityImpl doc = (EntityImpl) db.newEntity(classA);
     EntityImpl saved = db.save(doc);
     db.commit();
 
@@ -79,7 +79,7 @@ public class DefaultValueTest extends DbTestBase {
     String value = "2000-01-01 00:00:00";
 
     db.begin();
-    EntityImpl doc = new EntityImpl(classA);
+    EntityImpl doc = (EntityImpl) db.newEntity(classA);
     EntityImpl saved = db.save(doc);
     db.commit();
 
@@ -109,7 +109,7 @@ public class DefaultValueTest extends DbTestBase {
     prop.setDefaultValue(db, DateHelper.getDateTimeFormatInstance().format(new Date()));
 
     db.begin();
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.fromJSON("{'@class':'ClassA','other':'other'}");
     EntityImpl saved = db.save(doc);
     db.commit();
@@ -130,7 +130,7 @@ public class DefaultValueTest extends DbTestBase {
 
     String value1 = DateHelper.getDateTimeFormatInstance().format(new Date());
     db.begin();
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.fromJSON("{'@class':'ClassA','date':'" + value1 + "','other':'other'}");
     EntityImpl saved = db.save(doc);
     db.commit();
@@ -152,7 +152,7 @@ public class DefaultValueTest extends DbTestBase {
     prop.setDefaultValue(db, DateHelper.getDateTimeFormatInstance().format(new Date()));
 
     db.begin();
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.fromJSON("{'@class':'ClassA','other':'other'}");
     EntityImpl saved = db.save(doc);
     db.commit();
@@ -174,7 +174,7 @@ public class DefaultValueTest extends DbTestBase {
     prop.setDefaultValue(db, DateHelper.getDateTimeFormatInstance().format(new Date()));
 
     String value1 = DateHelper.getDateTimeFormatInstance().format(new Date());
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.fromJSON("{'@class':'ClassA','date':'" + value1 + "','other':'other'}");
     db.begin();
     EntityImpl saved = db.save(doc);
@@ -196,7 +196,7 @@ public class DefaultValueTest extends DbTestBase {
     prop.setDefaultValue(db, DateHelper.getDateTimeFormatInstance().format(new Date()));
 
     db.begin();
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.fromJSON("{'@class':'ClassA','other':'other'}");
     EntityImpl saved = db.save(doc);
     db.commit();
@@ -209,7 +209,7 @@ public class DefaultValueTest extends DbTestBase {
     assertTrue(saved.field("date") instanceof Date);
     assertNotNull(saved.field("other"));
     String val = DateHelper.getDateTimeFormatInstance().format(doc.field("date"));
-    EntityImpl doc1 = new EntityImpl();
+    EntityImpl doc1 = (EntityImpl) db.newEntity();
     doc1.fromJSON("{'@class':'ClassA','date':'" + val + "','other':'other1'}");
     saved.merge(doc1, true, true);
 

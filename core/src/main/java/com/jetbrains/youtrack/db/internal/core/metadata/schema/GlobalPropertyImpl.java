@@ -51,14 +51,14 @@ public class GlobalPropertyImpl implements GlobalProperty {
     return type;
   }
 
-  public void fromDocument(final EntityImpl entity) {
+  public void fromEntity(final EntityImpl entity) {
     this.name = entity.field("name");
     this.type = PropertyType.valueOf(entity.field("type"));
     this.id = entity.field("id");
   }
 
-  public EntityImpl toDocument() {
-    final EntityImpl entity = new EntityImpl();
+  public EntityImpl toEntity() {
+    final EntityImpl entity = new EntityImpl(null);
     entity.field("name", name);
     entity.field("type", type.name());
     entity.field("id", id);

@@ -39,7 +39,7 @@ public class ExternalCollectionsTest extends DbTestBase {
     list.add(0);
 
     db.begin();
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = ((EntityImpl) db.newEntity());
     document.field("list", list);
     Assert.assertEquals(document.field("list"), list);
     document.save();
@@ -62,7 +62,7 @@ public class ExternalCollectionsTest extends DbTestBase {
     final List<Integer> list = new ArrayList<>();
     list.add(0);
 
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = ((EntityImpl) db.newEntity());
     document.field("list", list);
     Assert.assertEquals(document.field("list"), list);
     document.save();
@@ -84,7 +84,7 @@ public class ExternalCollectionsTest extends DbTestBase {
     list.add(0);
 
     db.begin();
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = ((EntityImpl) db.newEntity());
     document.field("list", list);
     Assert.assertEquals(document.field("list"), list);
     document.save();
@@ -104,7 +104,7 @@ public class ExternalCollectionsTest extends DbTestBase {
     final List<Integer> list = new ArrayList<>();
     list.add(0);
 
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = ((EntityImpl) db.newEntity());
     document.field("list", list);
     Assert.assertEquals(document.field("list"), list);
     document.save();

@@ -40,96 +40,96 @@ public class SQLDropIndexTest extends BaseDBTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     final SchemaClass oClass = schema.createClass("SQLDropIndexTestClass");
-    oClass.createProperty(database, "prop1", EXPECTED_PROP1_TYPE);
-    oClass.createProperty(database, "prop2", EXPECTED_PROP2_TYPE);
+    oClass.createProperty(db, "prop1", EXPECTED_PROP1_TYPE);
+    oClass.createProperty(db, "prop2", EXPECTED_PROP2_TYPE);
   }
 
   @AfterClass
   public void afterClass() throws Exception {
-    if (database.isClosed()) {
-      database = createSessionInstance();
+    if (db.isClosed()) {
+      db = createSessionInstance();
     }
 
-    database.command("delete from SQLDropIndexTestClass").close();
-    database.command("drop class SQLDropIndexTestClass").close();
+    db.command("delete from SQLDropIndexTestClass").close();
+    db.command("drop class SQLDropIndexTestClass").close();
 
     super.afterClass();
   }
 
   @Test
   public void testOldSyntax() throws Exception {
-    database.command("CREATE INDEX SQLDropIndexTestClass.prop1 UNIQUE").close();
+    db.command("CREATE INDEX SQLDropIndexTestClass.prop1 UNIQUE").close();
 
     Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("SQLDropIndexTestClass")
-            .getClassIndex(database, "SQLDropIndexTestClass.prop1");
+            .getClassIndex(db, "SQLDropIndexTestClass.prop1");
     Assert.assertNotNull(index);
 
-    database.command("DROP INDEX SQLDropIndexTestClass.prop1").close();
+    db.command("DROP INDEX SQLDropIndexTestClass.prop1").close();
 
     index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("SQLDropIndexTestClass")
-            .getClassIndex(database, "SQLDropIndexTestClass.prop1");
+            .getClassIndex(db, "SQLDropIndexTestClass.prop1");
     Assert.assertNull(index);
   }
 
   @Test(dependsOnMethods = "testOldSyntax")
   public void testDropCompositeIndex() throws Exception {
-    database
+    db
         .command(
             "CREATE INDEX SQLDropIndexCompositeIndex ON SQLDropIndexTestClass (prop1, prop2)"
                 + " UNIQUE")
         .close();
 
     Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("SQLDropIndexTestClass")
-            .getClassIndex(database, "SQLDropIndexCompositeIndex");
+            .getClassIndex(db, "SQLDropIndexCompositeIndex");
     Assert.assertNotNull(index);
 
-    database.command("DROP INDEX SQLDropIndexCompositeIndex").close();
+    db.command("DROP INDEX SQLDropIndexCompositeIndex").close();
 
     index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("SQLDropIndexTestClass")
-            .getClassIndex(database, "SQLDropIndexCompositeIndex");
+            .getClassIndex(db, "SQLDropIndexCompositeIndex");
     Assert.assertNull(index);
   }
 
   @Test(dependsOnMethods = "testDropCompositeIndex")
   public void testDropIndexWorkedCorrectly() {
     Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("SQLDropIndexTestClass")
-            .getClassIndex(database, "SQLDropIndexTestClass.prop1");
+            .getClassIndex(db, "SQLDropIndexTestClass.prop1");
     Assert.assertNull(index);
     index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("SQLDropIndexTestClass")
-            .getClassIndex(database, "SQLDropIndexWithoutClass");
+            .getClassIndex(db, "SQLDropIndexWithoutClass");
     Assert.assertNull(index);
     index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("SQLDropIndexTestClass")
-            .getClassIndex(database, "SQLDropIndexCompositeIndex");
+            .getClassIndex(db, "SQLDropIndexCompositeIndex");
     Assert.assertNull(index);
   }
 }

@@ -91,7 +91,7 @@ public class RecordSerializerBinaryTest {
   @Test
   public void testGetTypedPropertyOfTypeAny() {
     db.begin();
-    EntityImpl doc = new EntityImpl("TestClass");
+    EntityImpl doc = (EntityImpl) db.newEntity("TestClass");
     Integer setValue = 15;
     doc.setProperty("TestPropAny", setValue);
     db.save(doc);
@@ -108,7 +108,7 @@ public class RecordSerializerBinaryTest {
 
   @Test
   public void testGetTypedFiledSimple() {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     Integer setValue = 16;
     doc.setProperty("TestField", setValue);
     byte[] serializedDoc = serializer.toStream((DatabaseSessionInternal) db, doc);
@@ -140,8 +140,8 @@ public class RecordSerializerBinaryTest {
   @Test
   public void testGetFieldNamesFromEmbedded() {
     db.begin();
-    EntityImpl root = new EntityImpl();
-    EntityImpl embedded = new EntityImpl("TestClass");
+    EntityImpl root = (EntityImpl) db.newEntity();
+    EntityImpl embedded = (EntityImpl) db.newEntity("TestClass");
     Integer setValue = 17;
     embedded.setProperty("TestField", setValue);
     embedded.setProperty("TestField2", "TestValue");
@@ -168,8 +168,8 @@ public class RecordSerializerBinaryTest {
   @Test
   public void testGetTypedFieldEmbedded() {
     db.begin();
-    EntityImpl root = new EntityImpl();
-    EntityImpl embedded = new EntityImpl("TestClass");
+    EntityImpl root = (EntityImpl) db.newEntity();
+    EntityImpl embedded = (EntityImpl) db.newEntity("TestClass");
     Integer setValue = 17;
     embedded.setProperty("TestField", setValue);
 
@@ -213,8 +213,8 @@ public class RecordSerializerBinaryTest {
   @Test
   public void testGetTypedFieldFromEmbedded() {
     db.begin();
-    EntityImpl root = new EntityImpl();
-    EntityImpl embedded = new EntityImpl("TestClass");
+    EntityImpl root = (EntityImpl) db.newEntity();
+    EntityImpl embedded = (EntityImpl) db.newEntity("TestClass");
     Integer setValue = 17;
     embedded.setProperty("TestField", setValue);
 
@@ -240,9 +240,9 @@ public class RecordSerializerBinaryTest {
   @Test
   public void testGetTypedEmbeddedFromEmbedded() {
     db.begin();
-    EntityImpl root = new EntityImpl("TestClass");
-    EntityImpl embedded = new EntityImpl("TestClass");
-    EntityImpl embeddedLevel2 = new EntityImpl("TestClass");
+    EntityImpl root = (EntityImpl) db.newEntity("TestClass");
+    EntityImpl embedded = (EntityImpl) db.newEntity("TestClass");
+    EntityImpl embeddedLevel2 = (EntityImpl) db.newEntity("TestClass");
     Integer setValue = 17;
     embeddedLevel2.setProperty("InnerTestFields", setValue);
     embedded.setProperty("TestEmbedded", embeddedLevel2);
@@ -265,8 +265,8 @@ public class RecordSerializerBinaryTest {
 
   @Test
   public void testGetFieldFromEmbeddedList() {
-    EntityImpl root = new EntityImpl();
-    EntityImpl embeddedListElement = new EntityImpl();
+    EntityImpl root = (EntityImpl) db.newEntity();
+    EntityImpl embeddedListElement = (EntityImpl) db.newEntity();
     Integer setValue = 19;
     Integer setValue2 = 21;
     embeddedListElement.field("InnerTestFields", setValue);
@@ -295,11 +295,11 @@ public class RecordSerializerBinaryTest {
 
   @Test
   public void testGetFieldFromEmbeddedMap() {
-    EntityImpl root = new EntityImpl();
+    EntityImpl root = (EntityImpl) db.newEntity();
     Integer setValue = 23;
     Integer setValue2 = 27;
     Map<String, Object> map = new HashMap<>();
-    EntityImpl embeddedListElement = new EntityImpl();
+    EntityImpl embeddedListElement = (EntityImpl) db.newEntity();
     embeddedListElement.field("InnerTestFields", setValue);
     map.put("first", embeddedListElement);
     map.put("second", setValue2);

@@ -1,22 +1,22 @@
 package com.jetbrains.youtrack.db.internal.core.command;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.command.script.CommandExecutorFunction;
 import com.jetbrains.youtrack.db.internal.core.command.script.CommandFunction;
 import com.jetbrains.youtrack.db.internal.core.command.traverse.AbstractScriptExecutor;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
-import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.RetryExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ScriptExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.RetryStep;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ScriptExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.LocalResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBeginStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCommitStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLetStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.LocalResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -135,7 +135,7 @@ public class SqlScriptExecutor extends AbstractScriptExecutor {
       CommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
     final CommandExecutorFunction command = new CommandExecutorFunction();
-    command.parse(new CommandFunction(functionName));
+    command.parse(context.getDatabase(), new CommandFunction(functionName));
     return command.executeInContext(context, iArgs);
   }
 }

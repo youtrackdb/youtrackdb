@@ -64,9 +64,9 @@ public class RemoteProtocolCommandsTest extends BaseDBTest {
   // This is not supported anymore direct record operations are removed from the storage, only tx is
   // available
   public void testRawCreateWithoutIDTest() {
-    SchemaClass clazz = this.database.getMetadata().getSchema().createClass("RidCreationTestClass");
-    AbstractPaginatedStorage storage = (AbstractPaginatedStorage) this.database.getStorage();
-    EntityImpl doc = new EntityImpl("RidCreationTestClass");
+    SchemaClass clazz = this.db.getMetadata().getSchema().createClass("RidCreationTestClass");
+    AbstractPaginatedStorage storage = (AbstractPaginatedStorage) this.db.getStorage();
+    EntityImpl doc = ((EntityImpl) db.newEntity("RidCreationTestClass"));
     doc.field("test", "test");
     RecordId bad = new RecordId(-1, -1);
     StorageOperationResult<PhysicalPosition> res =

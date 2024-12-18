@@ -19,12 +19,13 @@
  */
 package com.jetbrains.youtrack.db.internal.core.security;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ImmutableUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
@@ -35,7 +36,6 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInterna
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityRole;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecuritySystemUserIml;
-import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.authenticator.DatabaseUserAuthenticator;
@@ -357,7 +357,7 @@ public class DefaultSecuritySystem implements SecuritySystem {
 
   // SecuritySystem (via OServerSecurity)
   public EntityImpl getConfig() {
-    EntityImpl jsonConfig = new EntityImpl();
+    EntityImpl jsonConfig = new EntityImpl(null);
 
     try {
       jsonConfig.field("enabled", enabled);
@@ -429,7 +429,7 @@ public class DefaultSecuritySystem implements SecuritySystem {
                   return new ImmutableUser(sessionInternal,
                       0,
                       new SecuritySystemUserIml(sessionInternal,
-                          resultset.next().getEntity().orElseThrow().getRecord(), dbName));
+                          resultset.next().getEntity().orElseThrow().getRecord(session), dbName));
                 }
                 return null;
               },
@@ -902,7 +902,7 @@ public class DefaultSecuritySystem implements SecuritySystem {
             final byte[] buffer = new byte[(int) file.length()];
             fis.read(buffer);
 
-            securityEntity = new EntityImpl().fromJSON(new String(buffer), "noMap");
+            securityEntity = new EntityImpl(null).fromJSON(new String(buffer), "noMap");
           } finally {
             if (fis != null) {
               fis.close();

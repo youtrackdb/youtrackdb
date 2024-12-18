@@ -3,21 +3,21 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.common.util.Resettable;
-import com.jetbrains.youtrack.db.api.schema.Collate;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.id.ContextualRecordId;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.Collate;
+import com.jetbrains.youtrack.db.internal.common.util.Resettable;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.ContextualRecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.AggregationContext;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -71,14 +71,17 @@ public class SQLSuffixIdentifier extends SimpleNode {
     if (star) {
       return iCurrentRecord;
     }
+
+    var db = ctx.getDatabase();
     if (identifier != null) {
       String varName = identifier.getStringValue();
-      if (ctx != null && varName.equalsIgnoreCase("$parent")) {
+      if (varName.equalsIgnoreCase("$parent")) {
         return ctx.getParent();
       }
-      if (varName.startsWith("$") && ctx != null && ctx.getVariable(varName) != null) {
+      if (varName.startsWith("$") && ctx.getVariable(varName) != null) {
         return ctx.getVariable(varName);
       }
+
 
       if (iCurrentRecord != null) {
         if (iCurrentRecord instanceof ContextualRecordId) {
@@ -88,7 +91,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
           }
         }
         try {
-          Entity rec = iCurrentRecord.getRecord();
+          Entity rec = iCurrentRecord.getRecord(db);
           if (rec.isUnloaded()) {
             rec = ctx.getDatabase().bindToSession(rec);
           }
@@ -109,7 +112,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
         Entity rec =
             iCurrentRecord instanceof Entity
                 ? (Entity) iCurrentRecord
-                : iCurrentRecord.getRecord();
+                : iCurrentRecord.getRecord(db);
         return recordAttribute.evaluate(rec, ctx);
       } catch (RecordNotFoundException rnf) {
         return null;
@@ -365,7 +368,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
       entity = (Entity) target;
     } else {
       try {
-        Record rec = target.getRecord();
+        Record rec = target.getRecord(ctx.getDatabase());
         if (rec instanceof Entity) {
           entity = (Entity) rec;
         }
@@ -456,9 +459,9 @@ public class SQLSuffixIdentifier extends SimpleNode {
     return true;
   }
 
-  public boolean isDefinedFor(Entity currentRecord) {
+  public boolean isDefinedFor(DatabaseSessionInternal db, Entity currentRecord) {
     if (identifier != null) {
-      return ((EntityImpl) currentRecord.getRecord()).containsField(identifier.getStringValue());
+      return ((EntityImpl) currentRecord.getRecord(db)).containsField(identifier.getStringValue());
     }
     return true;
   }

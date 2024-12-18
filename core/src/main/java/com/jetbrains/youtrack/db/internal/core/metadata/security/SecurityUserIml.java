@@ -19,15 +19,15 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
-import com.jetbrains.youtrack.db.api.security.SecurityUser;
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
 import com.jetbrains.youtrack.db.api.exception.SecurityException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule.ResourceGeneric;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityManager;
@@ -61,18 +61,18 @@ public class SecurityUserIml extends Identity implements SecurityUser {
   public SecurityUserIml() {
   }
 
-  public SecurityUserIml(DatabaseSessionInternal session, final String iName) {
-    super(CLASS_NAME);
-    getDocument(session).field("name", iName);
-    setAccountStatus(session, STATUSES.ACTIVE);
+  public SecurityUserIml(DatabaseSessionInternal db, final String iName) {
+    super(db, CLASS_NAME);
+    getDocument(db).field("name", iName);
+    setAccountStatus(db, STATUSES.ACTIVE);
   }
 
-  public SecurityUserIml(DatabaseSessionInternal session, String iUserName,
+  public SecurityUserIml(DatabaseSessionInternal db, String iUserName,
       final String iUserPassword) {
-    super("OUser");
-    getDocument(session).field("name", iUserName);
-    setPassword(session, iUserPassword);
-    setAccountStatus(session, STATUSES.ACTIVE);
+    super(db, "OUser");
+    getDocument(db).field("name", iUserName);
+    setPassword(db, iUserPassword);
+    setAccountStatus(db, STATUSES.ACTIVE);
   }
 
   /**
@@ -82,7 +82,7 @@ public class SecurityUserIml extends Identity implements SecurityUser {
     fromStream((DatabaseSessionInternal) session, iSource);
   }
 
-  public static final String encryptPassword(final String iPassword) {
+  public static String encryptPassword(final String iPassword) {
     return SecurityManager.createHash(
         iPassword,
         GlobalConfiguration.SECURITY_USER_PASSWORD_DEFAULT_ALGORITHM.getValueAsString(),
@@ -113,19 +113,19 @@ public class SecurityUserIml extends Identity implements SecurityUser {
   }
 
   @Override
-  public void fromStream(DatabaseSessionInternal session, final EntityImpl entity) {
-    if (getDocument(session) != null) {
+  public void fromStream(DatabaseSessionInternal db, final EntityImpl entity) {
+    if (getDocument(db) != null) {
       return;
     }
 
-    setDocument(session, entity);
+    setDocument(db, entity);
 
     roles = new HashSet<>();
     final Collection<Identifiable> loadedRoles = entity.field("roles");
     if (loadedRoles != null) {
       for (final Identifiable d : loadedRoles) {
         if (d != null) {
-          Role role = createRole(session, d.getRecord());
+          Role role = createRole(db, d.getRecord(db));
           if (role != null) {
             roles.add(role);
           }
@@ -135,7 +135,7 @@ public class SecurityUserIml extends Identity implements SecurityUser {
                   this,
                   "User '%s' is declared to have a role that does not exist in the database. "
                       + " Ignoring it.",
-                  getName(session));
+                  getName(db));
         }
       }
     }

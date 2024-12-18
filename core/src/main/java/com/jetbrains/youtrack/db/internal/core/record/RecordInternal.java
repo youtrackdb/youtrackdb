@@ -20,11 +20,11 @@
 
 package com.jetbrains.youtrack.db.internal.core.record;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DirtyManager;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
@@ -105,11 +105,11 @@ public class RecordInternal {
   /**
    * Internal only. Return the record type.
    */
-  public static byte getRecordType(final Record record) {
+  public static byte getRecordType(DatabaseSessionInternal db, final Record record) {
     if (record instanceof RecordAbstract) {
       return ((RecordAbstract) record).getRecordType();
     }
-    final RecordAbstract rec = record.getRecord();
+    final RecordAbstract rec = record.getRecord(db);
     return rec.getRecordType();
   }
 
@@ -133,16 +133,17 @@ public class RecordInternal {
     ((RecordAbstract) record).recordFormat = serializer;
   }
 
-  public static DirtyManager getDirtyManager(Record record) {
+  public static DirtyManager getDirtyManager(DatabaseSessionInternal db, Record record) {
     if (!(record instanceof RecordAbstract)) {
-      record = record.getRecord();
+      record = record.getRecord(db);
     }
     return ((RecordAbstract) record).getDirtyManager();
   }
 
-  public static void setDirtyManager(Record record, final DirtyManager dirtyManager) {
+  public static void setDirtyManager(DatabaseSessionInternal db, Record record,
+      final DirtyManager dirtyManager) {
     if (!(record instanceof RecordAbstract)) {
-      record = record.getRecord();
+      record = record.getRecord(db);
     }
     ((RecordAbstract) record).setDirtyManager(dirtyManager);
   }

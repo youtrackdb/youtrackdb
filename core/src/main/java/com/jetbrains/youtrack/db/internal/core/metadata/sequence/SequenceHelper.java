@@ -19,6 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.sequence;
 
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence.CreateParams;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence.SEQUENCE_TYPE;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 
@@ -37,10 +39,10 @@ public class SequenceHelper {
   }
 
   public static Sequence createSequence(
-      SEQUENCE_TYPE sequenceType, Sequence.CreateParams params, String name) {
+      DatabaseSessionInternal db, SEQUENCE_TYPE sequenceType, CreateParams params, String name) {
     return switch (sequenceType) {
-      case ORDERED -> new SequenceOrdered(params, name);
-      case CACHED -> new SequenceCached(params, name);
+      case ORDERED -> new SequenceOrdered(db, params, name);
+      case CACHED -> new SequenceCached(db, params, name);
     };
   }
 

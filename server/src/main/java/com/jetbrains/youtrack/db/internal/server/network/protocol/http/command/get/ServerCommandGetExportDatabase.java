@@ -24,7 +24,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseExport;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
 import java.io.IOException;
 import java.net.SocketException;
@@ -37,7 +37,7 @@ public class ServerCommandGetExportDatabase extends ServerCommandAuthenticatedDb
   private static final String[] NAMES = {"GET|export/*"};
 
   @Override
-  public boolean execute(final OHttpRequest iRequest, final HttpResponse iResponse)
+  public boolean execute(final HttpRequest iRequest, final HttpResponse iResponse)
       throws Exception {
     String[] urlParts =
         checkSyntax(iRequest.getUrl(), 2, "Syntax error: export/<database>/[<name>][?params*]");
@@ -48,7 +48,7 @@ public class ServerCommandGetExportDatabase extends ServerCommandAuthenticatedDb
     return false;
   }
 
-  protected void exportStandard(final OHttpRequest iRequest, final HttpResponse iResponse)
+  protected void exportStandard(final HttpRequest iRequest, final HttpResponse iResponse)
       throws InterruptedException, IOException {
     iRequest.getData().commandInfo = "Database export";
     final DatabaseSessionInternal database = getProfiledDatabaseInstance(iRequest);

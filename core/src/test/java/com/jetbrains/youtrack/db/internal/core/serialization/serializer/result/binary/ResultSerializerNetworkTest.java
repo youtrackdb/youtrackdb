@@ -49,7 +49,7 @@ public class ResultSerializerNetworkTest {
         original.setProperty("set", "set");
 
         BytesContainer bytes = new BytesContainer();
-        serializer.serialize(original, bytes);
+        serializer.serialize(db, original, bytes);
 
         bytes.offset = 0;
         ResultInternal deserialized = serializer.deserialize(db, bytes);

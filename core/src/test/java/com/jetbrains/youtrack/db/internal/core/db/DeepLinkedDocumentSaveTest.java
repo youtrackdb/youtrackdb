@@ -17,10 +17,10 @@ public class DeepLinkedDocumentSaveTest extends DbTestBase {
     db.getMetadata().getSchema().createClass("Test");
 
     db.begin();
-    EntityImpl doc = new EntityImpl("Test");
+    EntityImpl doc = (EntityImpl) db.newEntity("Test");
     docs.add(doc);
     for (int i = 0; i < 3000; i++) {
-      docs.add(doc = new EntityImpl("Test").field("linked", doc));
+      docs.add(doc = ((EntityImpl) db.newEntity("Test")).field("linked", doc));
     }
     db.save(doc);
     db.commit();

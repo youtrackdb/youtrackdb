@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * Maintains information about current HTTP request.
  */
-public abstract class HttpRequestAbstract implements OHttpRequest {
+public abstract class HttpRequestAbstract implements HttpRequest {
 
   private final ContextConfiguration configuration;
   private final InputStream in;

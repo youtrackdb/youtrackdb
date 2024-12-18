@@ -53,7 +53,7 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
   @Test
   public void testRollback() {
 
-    EntityImpl doc = new EntityImpl("Foo");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Foo"));
     doc.field("name", "Test");
     doc.field("bar", "abc");
     db.begin();
@@ -74,7 +74,7 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
   public void txRemoveTest() {
     db.begin();
 
-    EntityImpl doc = new EntityImpl("Foo");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Foo"));
     doc.field("name", "Test");
     doc.field("bar", "abc");
 
@@ -124,7 +124,7 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
     db.begin();
     Assert.assertEquals(0, index.getInternal().size(db));
 
-    EntityImpl doc = new EntityImpl("Foo");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Foo"));
     doc.field("name", "Test");
     doc.field("bar", "abc");
 
@@ -187,11 +187,11 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
     db.begin();
     Assert.assertEquals(0, index.getInternal().size(db));
 
-    EntityImpl doc = new EntityImpl("Foo");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Foo"));
     doc.field("name", "Test");
     doc.field("bar", "abc");
 
-    EntityImpl doc1 = new EntityImpl("Foo");
+    EntityImpl doc1 = ((EntityImpl) db.newEntity("Foo"));
     doc1.field("name", "Test");
     doc1.field("bar", "abc");
 

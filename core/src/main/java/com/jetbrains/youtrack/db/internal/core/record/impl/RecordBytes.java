@@ -19,12 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
-import com.jetbrains.youtrack.db.api.exception.DatabaseException;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
@@ -44,34 +43,24 @@ public class RecordBytes extends RecordAbstract implements Blob {
 
   private static final byte[] EMPTY_SOURCE = new byte[]{};
 
-  public RecordBytes() {
-    setup(DatabaseRecordThreadLocal.instance().getIfDefined());
-  }
-
-  public RecordBytes(final DatabaseSessionInternal iDatabase) {
-    setup(iDatabase);
-    DatabaseRecordThreadLocal.instance().set(iDatabase);
+  public RecordBytes(DatabaseSessionInternal session) {
+    setup(session);
   }
 
   public RecordBytes(final DatabaseSessionInternal iDatabase, final byte[] iSource) {
-    this(iSource);
-    DatabaseRecordThreadLocal.instance().set(iDatabase);
-  }
-
-  public RecordBytes(final byte[] iSource) {
     super(iSource);
     dirty = true;
     contentChanged = true;
-    setup(DatabaseRecordThreadLocal.instance().getIfDefined());
+    DatabaseRecordThreadLocal.instance().set(iDatabase);
   }
 
-  public RecordBytes(final RecordId iRecordId) {
+  public RecordBytes(DatabaseSessionInternal session, final RecordId iRecordId) {
     recordId = iRecordId.copy();
-    setup(DatabaseRecordThreadLocal.instance().getIfDefined());
+    setup(session);
   }
 
   public RecordBytes copy() {
-    return (RecordBytes) copyTo(new RecordBytes());
+    return (RecordBytes) copyTo(new RecordBytes(getSession()));
   }
 
   @Override

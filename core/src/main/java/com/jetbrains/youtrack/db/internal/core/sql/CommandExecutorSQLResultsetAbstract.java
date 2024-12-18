@@ -19,24 +19,24 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClass;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClassDescendentOrder;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClusters;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
@@ -147,7 +147,8 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
   /**
    * Compile the filter conditions only the first time.
    */
-  public CommandExecutorSQLResultsetAbstract parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLResultsetAbstract parse(DatabaseSessionInternal db,
+      final CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
 
     init(textRequest);
@@ -276,7 +277,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     return request.getResultListener().getResult();
   }
 
-  protected Object getResult(DatabaseSessionInternal session) {
+  protected Object getResult(DatabaseSessionInternal db) {
     try {
       if (tempResult != null) {
         int fetched = 0;
@@ -286,16 +287,16 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
             if (!(d instanceof Identifiable))
             // NON-DOCUMENT AS RESULT, COMES FROM EXPAND? CREATE A DOCUMENT AT THE FLY
             {
-              d = new EntityImpl().field("value", d);
+              d = new EntityImpl(db).field("value", d);
             } else {
-              d = ((Identifiable) d).getRecord();
+              d = ((Identifiable) d).getRecord(db);
             }
 
             if (limit > -1 && fetched >= limit) {
               break;
             }
 
-            if (!pushResult(session, d)) {
+            if (!pushResult(db, d)) {
               break;
             }
 
@@ -310,9 +311,8 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     }
   }
 
-  protected boolean pushResult(DatabaseSessionInternal session, Object rec) {
+  protected boolean pushResult(DatabaseSessionInternal db, Object rec) {
     if (rec instanceof RecordAbstract record) {
-      final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
       if (db != null) {
         var cached = db.getLocalCache().findRecord(record.getIdentity());
         if (cached != record) {
@@ -326,7 +326,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
       }
     }
 
-    return request.getResultListener().result(session, rec);
+    return request.getResultListener().result(db, rec);
   }
 
   protected boolean handleResult(final Identifiable iRecord, final CommandContext iContext) {

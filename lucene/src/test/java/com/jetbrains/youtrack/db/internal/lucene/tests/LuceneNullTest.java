@@ -24,7 +24,7 @@ public class LuceneNullTest extends LuceneBaseTest {
   public void testNullChangeToNotNullWithLists() {
 
     db.begin();
-    EntityImpl doc = new EntityImpl("Test");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Test"));
     db.save(doc);
     db.commit();
 
@@ -44,7 +44,7 @@ public class LuceneNullTest extends LuceneBaseTest {
   @Test
   public void testNotNullChangeToNullWithLists() {
 
-    EntityImpl doc = new EntityImpl("Test");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Test"));
 
     db.begin();
     doc.field("names", new String[]{"foo"});

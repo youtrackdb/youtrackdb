@@ -27,7 +27,7 @@ public class LuceneFreezeReleaseTest extends BaseLuceneTest {
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE").close();
 
     db.begin();
-    db.save(new EntityImpl("Person").field("name", "John"));
+    db.save(((EntityImpl) db.newEntity("Person")).field("name", "John"));
     db.commit();
 
     ResultSet results = db.query("select from Person where name lucene 'John'");
@@ -40,7 +40,7 @@ public class LuceneFreezeReleaseTest extends BaseLuceneTest {
     db.release();
 
     db.begin();
-    db.save(new EntityImpl("Person").field("name", "John"));
+    db.save(((EntityImpl) db.newEntity("Person")).field("name", "John"));
     db.commit();
 
     results = db.query("select from Person where name lucene 'John'");
@@ -62,7 +62,7 @@ public class LuceneFreezeReleaseTest extends BaseLuceneTest {
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE").close();
 
     db.begin();
-    db.save(new EntityImpl("Person").field("name", "John"));
+    db.save(((EntityImpl) db.newEntity("Person")).field("name", "John"));
     db.commit();
 
       ResultSet results = db.query("select from Person where name lucene 'John'");
@@ -79,7 +79,7 @@ public class LuceneFreezeReleaseTest extends BaseLuceneTest {
       db.release();
 
       db.begin();
-      db.save(new EntityImpl("Person").field("name", "John"));
+    db.save(((EntityImpl) db.newEntity("Person")).field("name", "John"));
       db.commit();
 
       results = db.query("select from Person where name lucene 'John'");

@@ -19,8 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command;
 
-import com.jetbrains.youtrack.db.internal.core.db.ExecutionThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.ExecutionThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -104,7 +104,7 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
   protected byte[] toStream(final MemoryStream buffer) {
     buffer.setUtf8(text);
 
-    if (parameters == null || parameters.size() == 0) {
+    if (parameters == null || parameters.isEmpty()) {
       // simple params are absent
       buffer.set(false);
       // composite keys are absent
@@ -123,14 +123,14 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
 
       buffer.set(!params.isEmpty());
       if (!params.isEmpty()) {
-        final EntityImpl param = new EntityImpl();
+        final EntityImpl param = new EntityImpl(null);
         param.field("parameters", params);
         buffer.set(param.toStream());
       }
 
       buffer.set(!compositeKeyParams.isEmpty());
       if (!compositeKeyParams.isEmpty()) {
-        final EntityImpl compositeKey = new EntityImpl();
+        final EntityImpl compositeKey = new EntityImpl(null);
         compositeKey.field("compositeKeyParams", compositeKeyParams);
         buffer.set(compositeKey.toStream());
       }
@@ -148,7 +148,7 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
     final boolean simpleParams = buffer.getAsBoolean();
     if (simpleParams) {
       final byte[] paramBuffer = buffer.getAsByteArray();
-      final EntityImpl param = new EntityImpl();
+      final EntityImpl param = new EntityImpl(db);
       if (serializer != null) {
         serializer.fromStream(db, paramBuffer, param, null);
       } else {
@@ -187,7 +187,7 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
     final boolean compositeKeyParamsPresent = buffer.getAsBoolean();
     if (compositeKeyParamsPresent) {
       final byte[] paramBuffer = buffer.getAsByteArray();
-      final EntityImpl param = new EntityImpl();
+      final EntityImpl param = new EntityImpl(db);
       if (serializer != null) {
         serializer.fromStream(db, paramBuffer, param, null);
       } else {

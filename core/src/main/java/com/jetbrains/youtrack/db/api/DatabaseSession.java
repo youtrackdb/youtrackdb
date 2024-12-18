@@ -403,6 +403,8 @@ public interface DatabaseSession extends AutoCloseable {
 
   Entity newEntity(final String className);
 
+  Entity newEntity(final SchemaClass cls);
+
   /**
    * Creates a new Edge of type E
    *

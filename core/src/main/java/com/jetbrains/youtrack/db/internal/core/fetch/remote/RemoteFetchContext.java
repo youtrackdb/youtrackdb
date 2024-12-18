@@ -17,9 +17,10 @@
 package com.jetbrains.youtrack.db.internal.core.fetch.remote;
 
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.FetchException;
 import com.jetbrains.youtrack.db.internal.core.fetch.FetchContext;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 
 /**
@@ -43,7 +44,8 @@ public class RemoteFetchContext implements FetchContext {
   }
 
   public void onBeforeArray(
-      EntityImpl iRootRecord, String iFieldName, Object iUserObject, Identifiable[] iArray)
+      DatabaseSessionInternal db, EntityImpl iRootRecord, String iFieldName, Object iUserObject,
+      Identifiable[] iArray)
       throws FetchException {
   }
 
@@ -52,13 +54,13 @@ public class RemoteFetchContext implements FetchContext {
   }
 
   public void onBeforeDocument(
-      EntityImpl iRecord, final EntityImpl entity, String iFieldName,
+      DatabaseSessionInternal db, EntityImpl iRecord, final EntityImpl entity, String iFieldName,
       final Object iUserObject)
       throws FetchException {
   }
 
   public void onBeforeCollection(
-      EntityImpl iRootRecord,
+      DatabaseSessionInternal db, EntityImpl iRootRecord,
       String iFieldName,
       final Object iUserObject,
       final Iterable<?> iterable)
@@ -69,7 +71,8 @@ public class RemoteFetchContext implements FetchContext {
       throws FetchException {
   }
 
-  public void onAfterFetch(EntityImpl iRootRecord) throws FetchException {
+  public void onAfterFetch(DatabaseSessionInternal db, EntityImpl iRootRecord)
+      throws FetchException {
   }
 
   public void onAfterDocument(

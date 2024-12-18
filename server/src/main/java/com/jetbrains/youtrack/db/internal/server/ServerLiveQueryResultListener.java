@@ -43,17 +43,17 @@ class ServerLiveQueryResultListener implements LiveQueryBatchResultListener {
   }
 
   @Override
-  public void onCreate(DatabaseSession database, Result data) {
+  public void onCreate(DatabaseSessionInternal database, Result data) {
     addEvent(new LiveQueryResult(LiveQueryResult.CREATE_EVENT, data, null));
   }
 
   @Override
-  public void onUpdate(DatabaseSession database, Result before, Result after) {
+  public void onUpdate(DatabaseSessionInternal database, Result before, Result after) {
     addEvent(new LiveQueryResult(LiveQueryResult.UPDATE_EVENT, after, before));
   }
 
   @Override
-  public void onDelete(DatabaseSession database, Result data) {
+  public void onDelete(DatabaseSessionInternal database, Result data) {
     addEvent(new LiveQueryResult(LiveQueryResult.DELETE_EVENT, data, null));
   }
 

@@ -52,7 +52,7 @@ public class SessionPoolRemoteTest {
     DatabaseSessionInternal db = (DatabaseSessionInternal) pool.acquire();
     db.createClass("Test");
     db.begin();
-    db.save(new EntityImpl("Test"));
+    db.save(((EntityImpl) db.newEntity("Test")));
     db.close();
     db = (DatabaseSessionInternal) pool.acquire();
     assertEquals(0, db.countClass("Test"));

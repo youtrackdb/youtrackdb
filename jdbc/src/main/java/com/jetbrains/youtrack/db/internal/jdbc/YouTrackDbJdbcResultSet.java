@@ -413,7 +413,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
       Object value = result.getProperty(columnLabel);
 
       if (value instanceof RID) {
-        value = ((RID) value).getRecord();
+        value = ((RID) value).getRecord(statement.database);
       }
 
       if (value instanceof Blob) {

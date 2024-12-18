@@ -226,23 +226,10 @@ public class ChainedIndexProxy<T> implements IndexInternal {
     }
 
     switch (indexType) {
-      case UNIQUE_HASH_INDEX:
-      case NOTUNIQUE_HASH_INDEX:
-        if (isComposite) {
-          return -1;
-        } else {
-          priority += 10;
-        }
-        break;
       case UNIQUE:
       case NOTUNIQUE:
         priority += 5;
         break;
-      case PROXY:
-      case FULLTEXT:
-        //noinspection deprecation
-      case DICTIONARY:
-      case DICTIONARY_HASH_INDEX:
       case SPATIAL:
         return -1;
     }
@@ -326,9 +313,9 @@ public class ChainedIndexProxy<T> implements IndexInternal {
   }
 
   @Override
-  public Stream<RID> getRidsIgnoreTx(DatabaseSessionInternal session, Object key) {
+  public Stream<RID> getRidsIgnoreTx(DatabaseSessionInternal db, Object key) {
     final List<RID> lastIndexResult;
-    try (Stream<RID> stream = lastIndex.getInternal().getRids(session, key)) {
+    try (Stream<RID> stream = lastIndex.getInternal().getRids(db, key)) {
       lastIndexResult = stream.collect(Collectors.toList());
     }
 
@@ -338,9 +325,9 @@ public class ChainedIndexProxy<T> implements IndexInternal {
   }
 
   @Override
-  public Stream<RID> getRids(DatabaseSessionInternal session, Object key) {
+  public Stream<RID> getRids(DatabaseSessionInternal db, Object key) {
     final List<RID> lastIndexResult;
-    try (Stream<RID> stream = lastIndex.getInternal().getRids(session, key)) {
+    try (Stream<RID> stream = lastIndex.getInternal().getRids(db, key)) {
       lastIndexResult = stream.collect(Collectors.toList());
     }
 
@@ -498,7 +485,7 @@ public class ChainedIndexProxy<T> implements IndexInternal {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
-  public Index put(DatabaseSessionInternal session, Object key, Identifiable value) {
+  public Index put(DatabaseSessionInternal db, Object key, Identifiable value) {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
@@ -732,19 +719,19 @@ public class ChainedIndexProxy<T> implements IndexInternal {
   }
 
   @Override
-  public Stream<RawPair<Object, RID>> streamEntries(DatabaseSessionInternal session,
+  public Stream<RawPair<Object, RID>> streamEntries(DatabaseSessionInternal db,
       Collection<?> keys, boolean ascSortOrder) {
-    return applyTailIndexes(lastIndex.getInternal().streamEntries(session, keys, ascSortOrder));
+    return applyTailIndexes(lastIndex.getInternal().streamEntries(db, keys, ascSortOrder));
   }
 
   @Override
   public Stream<RawPair<Object, RID>> streamEntriesBetween(
-      DatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
+      DatabaseSessionInternal db, Object fromKey, boolean fromInclusive, Object toKey,
       boolean toInclusive, boolean ascOrder) {
     return applyTailIndexes(
         lastIndex
             .getInternal()
-            .streamEntriesBetween(session, fromKey, fromInclusive, toKey, toInclusive, ascOrder));
+            .streamEntriesBetween(db, fromKey, fromInclusive, toKey, toInclusive, ascOrder));
   }
 
   @Override
@@ -773,7 +760,7 @@ public class ChainedIndexProxy<T> implements IndexInternal {
   }
 
   @Override
-  public void doPut(DatabaseSessionInternal session, AbstractPaginatedStorage storage,
+  public void doPut(DatabaseSessionInternal db, AbstractPaginatedStorage storage,
       Object key,
       RID rid) {
     throw new UnsupportedOperationException("Not allowed operation");

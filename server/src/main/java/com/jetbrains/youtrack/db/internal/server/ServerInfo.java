@@ -59,7 +59,7 @@ public class ServerInfo {
       throws IOException {
     final DateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    json.beginCollection(1, true, "connections");
+    json.beginCollection(null, 1, true, "connections");
 
     final List<ClientConnection> conns = server.getClientConnectionManager().getConnections();
     for (ClientConnection c : conns) {
@@ -130,15 +130,15 @@ public class ServerInfo {
 
   public static void getGlobalProperties(final YouTrackDBServer server, final JSONWriter json)
       throws IOException {
-    json.beginCollection(2, true, "globalProperties");
+    json.beginCollection(null, 2, true, "globalProperties");
 
     for (GlobalConfiguration c : GlobalConfiguration.values()) {
       json.beginObject(3, true, null);
-      json.writeAttribute(4, false, "key", c.getKey());
-      json.writeAttribute(4, false, "description", c.getDescription());
-      json.writeAttribute(4, false, "value", c.isHidden() ? "<hidden>" : c.getValue());
-      json.writeAttribute(4, false, "defaultValue", c.getDefValue());
-      json.writeAttribute(4, false, "canChange", c.isChangeableAtRuntime());
+      json.writeAttribute(null, 4, false, "key", c.getKey());
+      json.writeAttribute(null, 4, false, "description", c.getDescription());
+      json.writeAttribute(null, 4, false, "value", c.isHidden() ? "<hidden>" : c.getValue());
+      json.writeAttribute(null, 4, false, "defaultValue", c.getDefValue());
+      json.writeAttribute(null, 4, false, "canChange", c.isChangeableAtRuntime());
       json.endObject(3, true);
     }
 
@@ -147,14 +147,14 @@ public class ServerInfo {
 
   public static void getProperties(final YouTrackDBServer server, final JSONWriter json)
       throws IOException {
-    json.beginCollection(2, true, "properties");
+    json.beginCollection(null, 2, true, "properties");
 
     ServerEntryConfiguration[] confProperties = server.getConfiguration().properties;
     if (confProperties != null) {
       for (ServerEntryConfiguration entry : confProperties) {
         json.beginObject(3, true, null);
-        json.writeAttribute(4, false, "name", entry.name);
-        json.writeAttribute(4, false, "value", entry.value);
+        json.writeAttribute(null, 4, false, "name", entry.name);
+        json.writeAttribute(null, 4, false, "value", entry.value);
         json.endObject(3, true);
       }
     }
@@ -163,7 +163,7 @@ public class ServerInfo {
 
   public static void getStorages(final YouTrackDBServer server, final JSONWriter json)
       throws IOException {
-    json.beginCollection(1, true, "storages");
+    json.beginCollection(null, 1, true, "storages");
     Collection<Storage> storages = server.getDatabases().getStorages();
     for (Storage s : storages) {
       json.beginObject(2);
@@ -184,7 +184,7 @@ public class ServerInfo {
 
   public static void getDatabases(final YouTrackDBServer server, final JSONWriter json)
       throws IOException {
-    json.beginCollection(1, true, "dbs");
+    json.beginCollection(null, 1, true, "dbs");
     // TODO:get this info from somewhere else
     //    if (!server.getDatabasePoolFactory().isClosed()) {
     //      Collection<PartitionedDatabasePool> dbPools =
@@ -204,7 +204,7 @@ public class ServerInfo {
       final String iAttributeName,
       final Object iAttributeValue)
       throws IOException {
-    json.writeAttribute(
+    json.writeAttribute(null,
         iLevel, true, iAttributeName, iAttributeValue != null ? iAttributeValue.toString() : "-");
   }
 }

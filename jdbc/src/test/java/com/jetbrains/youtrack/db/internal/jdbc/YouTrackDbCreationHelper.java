@@ -14,16 +14,15 @@
 package com.jetbrains.youtrack.db.internal.jdbc;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
-import com.jetbrains.youtrack.db.api.record.Vertex;
-import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,7 +41,7 @@ public class YouTrackDbCreationHelper {
 
     db.begin();
     for (int i = 1; i <= documents; i++) {
-      EntityImpl doc = new EntityImpl();
+      EntityImpl doc = ((EntityImpl) db.newEntity());
       doc.setClassName("Item");
       doc = createItem(i, doc);
       ((DatabaseSessionInternal) db).save(doc, "Item");
@@ -95,7 +94,7 @@ public class YouTrackDbCreationHelper {
       throws IOException {
     int articleSerial = 0;
     for (int a = 1; a <= totAuthors; ++a) {
-      EntityImpl author = new EntityImpl("Author");
+      EntityImpl author = ((EntityImpl) db.newEntity("Author"));
       List<EntityImpl> articles = new ArrayList<>(totArticles);
       author.field("articles", articles);
 
@@ -104,7 +103,7 @@ public class YouTrackDbCreationHelper {
       author.field("rating", new Random().nextDouble());
 
       for (int i = 1; i <= totArticles; ++i) {
-        EntityImpl article = new EntityImpl("Article");
+        EntityImpl article = ((EntityImpl) db.newEntity("Article"));
 
         Calendar instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         Date time = instance.getTime();
@@ -125,7 +124,7 @@ public class YouTrackDbCreationHelper {
   public static EntityImpl createArticleWithAttachmentSplitted(DatabaseSession db)
       throws IOException {
 
-    EntityImpl article = new EntityImpl("Article");
+    EntityImpl article = ((EntityImpl) db.newEntity("Article"));
     Calendar instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
     Date time = instance.getTime();
@@ -190,7 +189,7 @@ public class YouTrackDbCreationHelper {
     final File f = new File(filePath);
     if (f.exists()) {
       BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(f));
-      Blob record = new RecordBytes();
+      Blob record = database.newBlob();
       record.fromInputStream(inputStream);
       return record;
     }
@@ -228,7 +227,7 @@ public class YouTrackDbCreationHelper {
               throw new RuntimeException(e);
             }
 
-            Blob recordChunk = new RecordBytes(chunk);
+            Blob recordChunk = database.newBlob();
 
             database.save(recordChunk);
             binaryChuncks.add(recordChunk.getIdentity());

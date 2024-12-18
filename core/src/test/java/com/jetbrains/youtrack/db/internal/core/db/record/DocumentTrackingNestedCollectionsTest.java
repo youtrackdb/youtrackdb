@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +25,7 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
 
     db.begin();
     RID orid;
-    EntityImpl document = new EntityImpl();
+    EntityImpl document = (EntityImpl) db.newEntity();
     Set objects = new HashSet();
 
     document.field("objects", objects);
@@ -45,7 +45,7 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
     objects = document.field("objects");
     subObjects = (Set) objects.iterator().next();
 
-    EntityImpl nestedDoc = new EntityImpl();
+    EntityImpl nestedDoc = (EntityImpl) db.newEntity();
     subObjects.add(nestedDoc);
 
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
@@ -62,14 +62,14 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
   public void testChangesValuesNestedTrackingSet() {
 
     db.begin();
-    EntityImpl document = new EntityImpl();
+    EntityImpl document = (EntityImpl) db.newEntity();
     Set objects = new HashSet();
 
     document.field("objects", objects);
     Set subObjects = new HashSet();
     objects.add(subObjects);
 
-    EntityImpl nestedDoc = new EntityImpl();
+    EntityImpl nestedDoc = (EntityImpl) db.newEntity();
     subObjects.add(nestedDoc);
 
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
@@ -95,14 +95,14 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
   public void testChangesValuesNestedTrackingList() {
 
     db.begin();
-    EntityImpl document = new EntityImpl();
+    EntityImpl document = (EntityImpl) db.newEntity();
     List objects = new ArrayList();
 
     document.field("objects", objects);
     List subObjects = new ArrayList();
     objects.add(subObjects);
 
-    EntityImpl nestedDoc = new EntityImpl();
+    EntityImpl nestedDoc = (EntityImpl) db.newEntity();
     subObjects.add(nestedDoc);
 
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
@@ -113,7 +113,7 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
     objects = document.field("objects");
     subObjects = (List) objects.iterator().next();
     subObjects.add("one");
-    subObjects.add(new EntityImpl());
+    subObjects.add((EntityImpl) db.newEntity());
 
     assertTrue(document.isDirty());
     List<MultiValueChangeEvent<Object, Object>> multiValueChangeEvents =
@@ -128,14 +128,14 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
   @Test
   public void testChangesValuesNestedTrackingMap() {
     db.begin();
-    EntityImpl document = new EntityImpl();
+    EntityImpl document = (EntityImpl) db.newEntity();
     Map objects = new HashMap();
 
     document.field("objects", objects);
     Map subObjects = new HashMap();
     objects.put("first", subObjects);
 
-    EntityImpl nestedDoc = new EntityImpl();
+    EntityImpl nestedDoc = (EntityImpl) db.newEntity();
     subObjects.put("one", nestedDoc);
 
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
@@ -146,7 +146,7 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
     objects = document.field("objects");
     subObjects = (Map) objects.values().iterator().next();
     subObjects.put("one", "String");
-    subObjects.put("two", new EntityImpl());
+    subObjects.put("two", (EntityImpl) db.newEntity());
 
     assertTrue(document.isDirty());
     List<MultiValueChangeEvent<Object, Object>> multiValueChangeEvents =

@@ -67,7 +67,7 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
     var schema = db.getMetadata().getSchema();
 
     // Rome
-    EntityImpl doc = new EntityImpl("City");
+    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "Rome");
     doc.field("tags", Arrays.asList("Beautiful", "Touristic", "Sunny"));
 
@@ -87,7 +87,7 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
     assertThat(doc.<String>field("name")).isEqualTo("Rome");
 
     // London
-    doc = new EntityImpl("City");
+    doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "London");
     doc.field("tags", Arrays.asList("Beautiful", "Touristic", "Sunny"));
 
@@ -137,7 +137,7 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
     db.begin();
     var schema = db.getMetadata().getSchema();
 
-    EntityImpl doc = new EntityImpl("Person");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Person"));
     doc.field("name", "Enrico");
     doc.field("tags", Arrays.asList("Funny", "Tall", "Geek"));
 
@@ -153,7 +153,7 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
 
     assertThat(coll).hasSize(3);
 
-    doc = new EntityImpl("Person");
+    doc = ((EntityImpl) db.newEntity("Person"));
     doc.field("name", "Jared");
     doc.field("tags", Arrays.asList("Funny", "Tall"));
 

@@ -1,8 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 
@@ -15,14 +16,15 @@ public class DocumentSerializerDeltaDistributed extends DocumentSerializerDelta 
     return INSTANCE;
   }
 
-  protected void deserializeDeltaLinkBag(BytesContainer bytes, RidBag toUpdate) {
+  protected void deserializeDeltaLinkBag(DatabaseSessionInternal db, BytesContainer bytes,
+      RidBag toUpdate) {
     boolean isTree = deserializeByte(bytes) == 1;
     long rootChanges = VarIntSerializer.readAsLong(bytes);
     while (rootChanges-- > 0) {
       byte change = deserializeByte(bytes);
       switch (change) {
         case CREATED: {
-          RecordId link = readOptimizedLink(bytes);
+          RecordId link = readOptimizedLink(db, bytes);
           if (toUpdate != null) {
             toUpdate.add(link);
           }
@@ -32,7 +34,7 @@ public class DocumentSerializerDeltaDistributed extends DocumentSerializerDelta 
           break;
         }
         case REMOVED: {
-          RecordId link = readOptimizedLink(bytes);
+          RecordId link = readOptimizedLink(db, bytes);
           if (toUpdate != null) {
             toUpdate.remove(link);
           }
@@ -49,7 +51,8 @@ public class DocumentSerializerDeltaDistributed extends DocumentSerializerDelta 
     }
   }
 
-  protected void serializeDeltaLinkBag(BytesContainer bytes, RidBag value) {
+  protected void serializeDeltaLinkBag(DatabaseSessionInternal db, BytesContainer bytes,
+      RidBag value) {
     serializeByte(bytes, value.isEmbedded() ? (byte) 0 : 1);
     MultiValueChangeTimeLine<Identifiable, Identifiable> timeline =
         value.getTransactionTimeLine();
@@ -60,14 +63,14 @@ public class DocumentSerializerDeltaDistributed extends DocumentSerializerDelta 
       switch (event.getChangeType()) {
         case ADD:
           serializeByte(bytes, CREATED);
-          writeOptimizedLink(bytes, event.getValue());
+          writeOptimizedLink(db, bytes, event.getValue());
           break;
         case UPDATE:
           throw new UnsupportedOperationException(
               "update do not happen in sets, it will be like and add");
         case REMOVE:
           serializeByte(bytes, REMOVED);
-          writeOptimizedLink(bytes, event.getOldValue());
+          writeOptimizedLink(db, bytes, event.getOldValue());
           break;
       }
     }

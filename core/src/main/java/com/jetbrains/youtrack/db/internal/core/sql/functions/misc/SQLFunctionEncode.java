@@ -15,14 +15,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.misc;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionAbstract;
 import java.util.Base64;
@@ -57,7 +57,7 @@ public class SQLFunctionEncode extends SQLFunctionAbstract {
       data = (byte[]) candidate;
     } else if (candidate instanceof RecordId) {
       try {
-        final RecordAbstract rec = ((RecordId) candidate).getRecord();
+        final RecordAbstract rec = ((RecordId) candidate).getRecord(iContext.getDatabase());
         if (rec instanceof Blob) {
           data = rec.toStream();
         }

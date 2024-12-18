@@ -19,22 +19,22 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexAbstract;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
@@ -73,7 +73,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
   private boolean unsafe = false;
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLInsert parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLInsert parse(DatabaseSessionInternal db, final CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
 
     String queryText = textRequest.getText();
@@ -140,7 +140,6 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
       }
 
       if (clusterName != null && className == null) {
-        DatabaseSessionInternal db = getDatabase();
         final int clusterId = db.getClusterIdByName(clusterName);
         if (clusterId >= 0) {
           clazz = db.getMetadata().getSchema().getClassByClusterId(clusterId);
@@ -180,11 +179,11 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
 
         if (parserGetLastWord().equals(KEYWORD_CONTENT)) {
           newRecords = null;
-          parseContent();
+          parseContent(db);
           sourceClauseProcessed = true;
         } else if (parserGetLastWord().equals(KEYWORD_SET)) {
           final List<Pair<String, Object>> fields = new ArrayList<Pair<String, Object>>();
-          parseSetFields(clazz, fields);
+          parseSetFields(db, clazz, fields);
 
           newRecords.add(Pair.convertToMap(fields));
 
@@ -219,7 +218,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
   /**
    * Execute the INSERT and return the EntityImpl object created.
    */
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     final DatabaseSessionInternal database = getDatabase();
     if (newRecords == null && content == null && subQuery == null) {
       throw new CommandExecutionException(
@@ -253,14 +252,14 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
       }
 
       // RETURN LAST ENTRY
-      return prepareReturnItem(new EntityImpl(result));
+      return prepareReturnItem(db, new EntityImpl(db, result));
     } else {
       // CREATE NEW DOCUMENTS
       final List<EntityImpl> docs = new ArrayList<EntityImpl>();
       if (newRecords != null) {
         for (Map<String, Object> candidate : newRecords) {
           final EntityImpl entity =
-              className != null ? new EntityImpl(className) : new EntityImpl();
+              className != null ? new EntityImpl(db, className) : new EntityImpl(db);
           SQLHelper.bindParameters(entity, candidate, commandParameters, context);
 
           saveRecord(entity);
@@ -268,20 +267,20 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
         }
 
         if (docs.size() == 1) {
-          return prepareReturnItem(docs.get(0));
+          return prepareReturnItem(db, docs.get(0));
         } else {
-          return prepareReturnResult(docs);
+          return prepareReturnResult(db, docs);
         }
       } else if (content != null) {
         final EntityImpl entity =
-            className != null ? new EntityImpl(className) : new EntityImpl();
+            className != null ? new EntityImpl(db, className) : new EntityImpl(db);
         entity.merge(content, true, false);
         saveRecord(entity);
-        return prepareReturnItem(entity);
+        return prepareReturnItem(db, entity);
       } else if (subQuery != null) {
-        subQuery.execute(querySession);
+        subQuery.execute(db);
         if (queryResult != null) {
-          return prepareReturnResult(queryResult);
+          return prepareReturnResult(db, queryResult);
         }
 
         return saved.longValue();
@@ -320,9 +319,9 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
   }
 
   @Override
-  public boolean result(DatabaseSessionInternal querySession, final Object iRecord) {
+  public boolean result(DatabaseSessionInternal db, final Object iRecord) {
     SchemaClass oldClass = null;
-    RecordAbstract oldRecord = ((Identifiable) iRecord).getRecord();
+    RecordAbstract oldRecord = ((Identifiable) iRecord).getRecord(db);
 
     if (oldRecord instanceof EntityImpl) {
       oldClass = EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) oldRecord));
@@ -355,7 +354,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
           if (field.startsWith("out_") || field.startsWith("in_")) {
             Object edges = entity.getPropertyInternal(field);
             if (edges instanceof Identifiable) {
-              EntityImpl edgeRec = ((Identifiable) edges).getRecord();
+              EntityImpl edgeRec = ((Identifiable) edges).getRecord(db);
               SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(edgeRec);
               if (clazz != null && clazz.isSubClassOf("E")) {
                 entity.removeProperty(field);
@@ -363,7 +362,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
             } else if (edges instanceof Iterable) {
               for (Object edge : (Iterable) edges) {
                 if (edge instanceof Identifiable) {
-                  Entity edgeRec = ((Identifiable) edge).getRecord();
+                  Entity edgeRec = ((Identifiable) edge).getRecord(db);
                   if (edgeRec.getSchemaType().isPresent()
                       && edgeRec.getSchemaType().get().isSubClassOf("E")) {
                     entity.removeProperty(field);
@@ -391,18 +390,18 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
   public void end() {
   }
 
-  protected Object prepareReturnResult(List<EntityImpl> res) {
+  protected Object prepareReturnResult(DatabaseSessionInternal db, List<EntityImpl> res) {
     if (returnExpression == null) {
       return res; // No transformation
     }
     final ArrayList<Object> ret = new ArrayList<Object>();
     for (EntityImpl resItem : res) {
-      ret.add(prepareReturnItem(resItem));
+      ret.add(prepareReturnItem(db, resItem));
     }
     return ret;
   }
 
-  protected Object prepareReturnItem(EntityImpl item) {
+  protected Object prepareReturnItem(DatabaseSessionInternal db, EntityImpl item) {
     if (returnExpression == null) {
       return item; // No transformation
     }
@@ -412,7 +411,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
     if (res instanceof Identifiable) {
       return res;
     } else { // wrapping entity
-      final EntityImpl wrappingDoc = new EntityImpl("result", res);
+      final EntityImpl wrappingDoc = new EntityImpl(db, "result", res);
       wrappingDoc.field(
           "rid", item.getIdentity()); // passing record id.In many cases usable on client side
       wrappingDoc.field("version", item.getVersion()); // passing record version

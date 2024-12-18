@@ -44,11 +44,11 @@ public class RemoteBasicSecurityTest {
     youTrackDB.execute(
         "create database test memory users (admin identified by 'admin' role admin, reader"
             + " identified by 'reader' role reader, writer identified by 'writer' role writer)");
-    try (DatabaseSession session = youTrackDB.open("test", "admin", "admin")) {
-      session.createClass("one");
-      session.begin();
-      session.save(new EntityImpl("one"));
-      session.commit();
+    try (DatabaseSession db = youTrackDB.open("test", "admin", "admin")) {
+      db.createClass("one");
+      db.begin();
+      db.save(((EntityImpl) db.newEntity("one")));
+      db.commit();
     }
     youTrackDB.close();
   }
@@ -58,11 +58,11 @@ public class RemoteBasicSecurityTest {
     // CREATE A SEPARATE CONTEXT TO MAKE SURE IT LOAD STAFF FROM SCRATCH
     try (YouTrackDB writerOrient = new YouTrackDBImpl("remote:localhost",
         YouTrackDBConfig.defaultConfig())) {
-      try (DatabaseSession writer = writerOrient.open("test", "writer", "writer")) {
-        writer.begin();
-        writer.save(new EntityImpl("one"));
-        writer.commit();
-        try (ResultSet rs = writer.query("select from one")) {
+      try (DatabaseSession db = writerOrient.open("test", "writer", "writer")) {
+        db.begin();
+        db.save(((EntityImpl) db.newEntity("one")));
+        db.commit();
+        try (ResultSet rs = db.query("select from one")) {
           assertEquals(2, rs.stream().count());
         }
       }

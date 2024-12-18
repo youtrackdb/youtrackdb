@@ -42,29 +42,29 @@ public class DateTest extends BaseDBTest {
   public void testDateConversion() throws ParseException {
     final long begin = System.currentTimeMillis();
 
-    database.createClass("Order");
-    database.begin();
-    EntityImpl doc1 = new EntityImpl("Order");
+    db.createClass("Order");
+    db.begin();
+    EntityImpl doc1 = ((EntityImpl) db.newEntity("Order"));
     doc1.field("context", "test");
     doc1.field("date", new Date());
     doc1.save();
 
-    EntityImpl doc2 = new EntityImpl("Order");
+    EntityImpl doc2 = ((EntityImpl) db.newEntity("Order"));
     doc2.field("context", "test");
     doc2.field("date", System.currentTimeMillis());
     doc2.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    doc2 = database.bindToSession(doc2);
+    db.begin();
+    doc2 = db.bindToSession(doc2);
     Assert.assertTrue(doc2.field("date", PropertyType.DATE) instanceof Date);
     Assert.assertTrue(doc2.field("date", Date.class) instanceof Date);
 
     ResultSet result =
-        database.command("select * from Order where date >= ? and context = 'test'", begin);
+        db.command("select * from Order where date >= ? and context = 'test'", begin);
 
     Assert.assertEquals(result.stream().count(), 2);
-    database.rollback();
+    db.rollback();
   }
 
   @Test
@@ -72,17 +72,17 @@ public class DateTest extends BaseDBTest {
     final long begin = System.currentTimeMillis();
 
     String dateAsString =
-        database.getStorage().getConfiguration().getDateFormatInstance().format(begin);
+        db.getStorage().getConfiguration().getDateFormatInstance().format(begin);
 
-    database.begin();
-    EntityImpl doc = new EntityImpl("Order");
+    db.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("Order"));
     doc.field("context", "testPrecision");
     doc.field("date", DateHelper.now(), PropertyType.DATETIME);
     doc.save();
-    database.commit();
+    db.commit();
 
     List<Result> result =
-        database
+        db
             .command(
                 "select * from Order where date >= ? and context = 'testPrecision'", dateAsString)
             .stream()
@@ -93,7 +93,7 @@ public class DateTest extends BaseDBTest {
 
   @Test
   public void testDateTypes() throws ParseException {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = ((EntityImpl) db.newEntity());
     doc.field("context", "test");
     doc.field("date", System.currentTimeMillis(), PropertyType.DATE);
 
@@ -105,18 +105,18 @@ public class DateTest extends BaseDBTest {
    */
   @Test
   public void testDateGregorianCalendar() throws ParseException {
-    database.command("CREATE CLASS TimeTest EXTENDS V").close();
+    db.command("CREATE CLASS TimeTest EXTENDS V").close();
 
     final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     final Date date = df.parse("1200-11-11 00:00:00.000");
 
-    database.begin();
-    database
+    db.begin();
+    db
         .command("CREATE VERTEX TimeTest SET firstname = ?, birthDate = ?", "Robert", date)
         .close();
-    database.commit();
+    db.commit();
 
-    ResultSet result = database.query("select from TimeTest where firstname = ?", "Robert");
+    ResultSet result = db.query("select from TimeTest where firstname = ?", "Robert");
     Assert.assertEquals(result.next().getProperty("birthDate"), date);
     Assert.assertFalse(result.hasNext());
   }

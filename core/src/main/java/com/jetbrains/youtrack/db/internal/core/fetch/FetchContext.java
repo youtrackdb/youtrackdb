@@ -17,8 +17,9 @@
 package com.jetbrains.youtrack.db.internal.core.fetch;
 
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.FetchException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.FetchException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 
 /**
@@ -28,10 +29,10 @@ public interface FetchContext {
 
   void onBeforeFetch(final EntityImpl iRootRecord) throws FetchException;
 
-  void onAfterFetch(final EntityImpl iRootRecord) throws FetchException;
+  void onAfterFetch(DatabaseSessionInternal db, final EntityImpl iRootRecord) throws FetchException;
 
   void onBeforeArray(
-      final EntityImpl iRootRecord,
+      DatabaseSessionInternal db, final EntityImpl iRootRecord,
       final String iFieldName,
       final Object iUserObject,
       final Identifiable[] iArray)
@@ -42,7 +43,7 @@ public interface FetchContext {
       throws FetchException;
 
   void onBeforeCollection(
-      final EntityImpl iRootRecord,
+      DatabaseSessionInternal db, final EntityImpl iRootRecord,
       final String iFieldName,
       final Object iUserObject,
       final Iterable<?> iterable)
@@ -60,7 +61,7 @@ public interface FetchContext {
       throws FetchException;
 
   void onBeforeDocument(
-      final EntityImpl iRecord,
+      DatabaseSessionInternal db, final EntityImpl iRecord,
       final EntityImpl entity,
       final String iFieldName,
       final Object iUserObject)

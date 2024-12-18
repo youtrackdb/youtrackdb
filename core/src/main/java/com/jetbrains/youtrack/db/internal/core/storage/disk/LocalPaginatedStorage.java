@@ -23,11 +23,15 @@ package com.jetbrains.youtrack.db.internal.core.storage.disk;
 import static com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WriteAheadLog.MASTER_RECORD_EXTENSION;
 import static com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WriteAheadLog.WAL_SEGMENT_EXTENSION;
 
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.BackupInProgressException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.ModificationOperationProhibitedException;
+import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import com.jetbrains.youtrack.db.internal.common.collection.closabledictionary.ClosableLinkedContainer;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.ThreadInterruptedException;
-import com.jetbrains.youtrack.db.api.exception.ModificationOperationProhibitedException;
 import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
-import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.exception.ErrorCode;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
@@ -42,18 +46,14 @@ import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.compression.impl.ZIPCompressionUtil;
-import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBEmbedded;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.engine.local.EngineLocalPaginated;
-import com.jetbrains.youtrack.db.api.exception.BackupInProgressException;
 import com.jetbrains.youtrack.db.internal.core.exception.InvalidInstanceIdException;
 import com.jetbrains.youtrack.db.internal.core.exception.InvalidStorageEncryptionKeyException;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
-import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.engine.v1.CellBTreeMultiValueIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.storage.ChecksumMode;
@@ -80,11 +80,7 @@ import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.MetaDataRecord;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WriteAheadLog;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.cas.CASDiskWriteAheadLog;
-import com.jetbrains.youtrack.db.internal.core.storage.index.engine.HashTableIndexEngine;
-import com.jetbrains.youtrack.db.internal.core.storage.index.engine.SBTreeIndexEngine;
-import com.jetbrains.youtrack.db.internal.core.storage.index.versionmap.VersionPositionMap;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.IndexRIDContainer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManagerShared;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManagerShared;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -189,15 +185,8 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
       IV_EXT,
       CASDiskWriteAheadLog.WAL_SEGMENT_EXTENSION,
       CASDiskWriteAheadLog.MASTER_RECORD_EXTENSION,
-      HashTableIndexEngine.BUCKET_FILE_EXTENSION,
-      HashTableIndexEngine.METADATA_FILE_EXTENSION,
-      HashTableIndexEngine.TREE_FILE_EXTENSION,
-      HashTableIndexEngine.NULL_BUCKET_FILE_EXTENSION,
       ClusterPositionMap.DEF_EXTENSION,
-      SBTreeIndexEngine.DATA_FILE_EXTENSION,
-      IndexRIDContainer.INDEX_FILE_EXTENSION,
-      SBTreeCollectionManagerShared.FILE_EXTENSION,
-      SBTreeIndexEngine.NULL_BUCKET_FILE_EXTENSION,
+      BTreeCollectionManagerShared.FILE_EXTENSION,
       ClusterBasedStorageConfiguration.MAP_FILE_EXTENSION,
       ClusterBasedStorageConfiguration.DATA_FILE_EXTENSION,
       ClusterBasedStorageConfiguration.TREE_DATA_FILE_EXTENSION,
@@ -205,8 +194,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
       CellBTreeMultiValueIndexEngine.DATA_FILE_EXTENSION,
       CellBTreeMultiValueIndexEngine.M_CONTAINER_EXTENSION,
       DoubleWriteLogGL.EXTENSION,
-      FreeSpaceMap.DEF_EXTENSION,
-      VersionPositionMap.DEF_EXTENSION
+      FreeSpaceMap.DEF_EXTENSION
   };
 
   private static final int ONE_KB = 1024;
@@ -329,7 +317,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
 
   @Override
   public final List<String> backup(
-      final OutputStream out,
+      DatabaseSessionInternal db, final OutputStream out,
       final Map<String, Object> options,
       final Callable<Object> callable,
       final CommandOutputListener iOutput,
@@ -341,7 +329,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
         throw new IllegalArgumentException("Backup output is null");
       }
 
-      freeze(false);
+      freeze(db, false);
       try {
         if (callable != null) {
           try {
@@ -387,7 +375,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
         }
 
       } finally {
-        release();
+        release(db);
       }
     } catch (final RuntimeException e) {
       throw logAndPrepareForRethrow(e);

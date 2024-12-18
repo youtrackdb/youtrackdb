@@ -20,9 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
-import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import java.util.Map;
@@ -83,14 +81,6 @@ public interface IndexManager {
   @Deprecated
   Index getIndex(final String iName);
 
-  /**
-   * Returns the auto-sharding index defined for the class, if any.
-   *
-   * @param className Class name
-   * @deprecated Manual indexes are deprecated and will be removed
-   */
-  @Deprecated
-  Index getClassAutoShardingIndex(String className);
 
   /**
    * Checks if index with specified name exists in database.
@@ -176,14 +166,6 @@ public interface IndexManager {
   @Deprecated
   void setDefaultClusterName(String defaultClusterName);
 
-  /**
-   * Return a dictionary index. Could be helpful to store different kinds of configurations.
-   *
-   * @return a dictionary
-   * @deprecated Manual indexes are deprecated and will be removed
-   */
-  @Deprecated
-  Dictionary<Record> getDictionary();
 
   /**
    * Returns a record where configurations are saved.

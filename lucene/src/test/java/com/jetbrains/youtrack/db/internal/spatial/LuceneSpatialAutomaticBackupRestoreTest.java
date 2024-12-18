@@ -129,11 +129,11 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
 
   protected EntityImpl newCity(String name, final Double longitude, final Double latitude) {
     EntityImpl city =
-        new EntityImpl("City")
+        ((EntityImpl) db.newEntity("City"))
             .field("name", name)
             .field(
                 "location",
-                new EntityImpl("OPoint")
+                ((EntityImpl) db.newEntity("OPoint"))
                     .field(
                         "coordinates",
                         new ArrayList<Double>() {
@@ -175,7 +175,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
             getClass().getClassLoader().getResourceAsStream("automatic-backup.json"));
 
     EntityImpl doc =
-        new EntityImpl();
+        ((EntityImpl) db.newEntity());
     doc.fromJSON(jsonConfig);
     doc.field("enabled", true)
         .field("targetFileName", "${DBNAME}.json")

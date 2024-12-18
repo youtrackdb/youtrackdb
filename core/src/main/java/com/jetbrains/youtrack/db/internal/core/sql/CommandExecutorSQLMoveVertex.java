@@ -19,21 +19,19 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
-import com.jetbrains.youtrack.db.internal.common.types.ModifiableBoolean;
-import com.jetbrains.youtrack.db.internal.common.util.Pair;
-import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
-import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.internal.common.util.Pair;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionRuntime;
@@ -60,7 +58,8 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
   private int batch = 100;
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLMoveVertex parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLMoveVertex parse(DatabaseSessionInternal db,
+      final CommandRequest iRequest) {
     final var database = getDatabase();
 
     init((CommandRequestText) iRequest);
@@ -105,10 +104,10 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
 
       } else if (temp.equals(KEYWORD_SET)) {
         fields = new ArrayList<Pair<String, Object>>();
-        parseSetFields(clazz, fields);
+        parseSetFields(db, clazz, fields);
 
       } else if (temp.equals(KEYWORD_MERGE)) {
-        merge = parseJSON();
+        merge = parseJSON(db);
 
       } else if (temp.equals(KEYWORD_BATCH)) {
         temp = parserNextWord(true);
@@ -129,19 +128,13 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
   /**
    * Executes the command and return the EntityImpl object created.
    */
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
-
-    DatabaseSessionInternal db = getDatabase();
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
 
     db.begin();
-
     if (className == null && clusterName == null) {
       throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
-
-    ModifiableBoolean shutdownGraph = new ModifiableBoolean();
-    final boolean txAlreadyBegun = getDatabase().getTransaction().isActive();
 
     final Set<Identifiable> sourceRIDs =
         SQLEngine.getInstance().parseRIDTarget(db, source, context, iArgs);
@@ -158,7 +151,7 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
       var oldVertex = ((RecordId) fromVertex.getIdentity()).copy();
       var newVertex = fromVertex.moveTo(className, clusterName);
 
-      final EntityImpl newVertexDoc = newVertex.getRecord();
+      final EntityImpl newVertexDoc = newVertex.getRecord(db);
 
       if (fields != null) {
         // EVALUATE FIELDS
@@ -166,7 +159,7 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
           if (f.getValue() instanceof SQLFunctionRuntime) {
             f.setValue(
                 ((SQLFunctionRuntime) f.getValue())
-                    .getValue(newVertex.getRecord(), null, context));
+                    .getValue(newVertex.getRecord(db), null, context));
           }
         }
 
@@ -182,7 +175,7 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
 
       // PUT THE MOVE INTO THE RESULT
       result.add(
-          new EntityImpl()
+          new EntityImpl(db)
               .setTrackingChanges(false)
               .field("old", oldVertex, PropertyType.LINK)
               .field("new", newVertex, PropertyType.LINK));

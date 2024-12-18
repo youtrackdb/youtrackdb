@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.
 
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
 import java.io.IOException;
 
@@ -30,7 +30,7 @@ public class ServerCommandGetConnect extends ServerCommandAuthenticatedDbAbstrac
   private static final String[] NAMES = {"GET|connect/*", "HEAD|connect/*"};
 
   @Override
-  public boolean execute(final OHttpRequest iRequest, HttpResponse iResponse) throws Exception {
+  public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
     final String[] urlParts =
         checkSyntax(iRequest.getUrl(), 2, "Syntax error: connect/<database>[/<user>/<password>]");
 
@@ -49,7 +49,7 @@ public class ServerCommandGetConnect extends ServerCommandAuthenticatedDbAbstrac
   }
 
   @Override
-  public boolean beforeExecute(OHttpRequest iRequest, HttpResponse iResponse) throws IOException {
+  public boolean beforeExecute(HttpRequest iRequest, HttpResponse iResponse) throws IOException {
     final String[] urlParts =
         checkSyntax(iRequest.getUrl(), 2, "Syntax error: connect/<database>[/<user>/<password>]");
 

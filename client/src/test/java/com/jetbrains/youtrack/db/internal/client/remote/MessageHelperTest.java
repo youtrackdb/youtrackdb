@@ -45,7 +45,7 @@ public class MessageHelperTest {
     int id = db.getClusterIdByName("V");
     try {
       MockChannel channel = new MockChannel();
-      EntityImpl doc = new EntityImpl();
+      EntityImpl doc = ((EntityImpl) db.newEntity());
       RidBag bags = new RidBag(db);
       bags.add(new RecordId(id, 0));
       doc.field("bag", bags);
@@ -66,7 +66,7 @@ public class MessageHelperTest {
       assertThat(newDoc.getClassName()).isEqualTo("Test");
       assertThat((RidBag) newDoc.field("bag")).hasSize(1);
 
-      DirtyManager dirtyManager = RecordInternal.getDirtyManager(newDoc);
+      DirtyManager dirtyManager = RecordInternal.getDirtyManager(db, newDoc);
       assertThat(dirtyManager.getNewRecords()).isNull();
 
     } finally {

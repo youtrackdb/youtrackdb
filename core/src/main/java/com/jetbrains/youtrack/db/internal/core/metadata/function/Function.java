@@ -19,6 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.function;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
@@ -26,10 +28,8 @@ import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.ScriptExecutor;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.RetryQueryException;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.type.EntityWrapper;
@@ -50,9 +50,9 @@ public class Function extends EntityWrapper {
   /**
    * Creates a new function.
    */
-  public Function(DatabaseSessionInternal session) {
-    super(CLASS_NAME);
-    setLanguage(session, "SQL");
+  public Function(DatabaseSessionInternal db) {
+    super(db, CLASS_NAME);
+    setLanguage(db, "SQL");
   }
 
   /**
@@ -67,10 +67,11 @@ public class Function extends EntityWrapper {
   /**
    * Loads a function.
    *
+   * @param db
    * @param iRid RID of the function to load
    */
-  public Function(final RecordId iRid) {
-    super(iRid.getRecord());
+  public Function(DatabaseSessionInternal db, final RecordId iRid) {
+    super(iRid.getRecord(db));
   }
 
   public String getName(DatabaseSession session) {

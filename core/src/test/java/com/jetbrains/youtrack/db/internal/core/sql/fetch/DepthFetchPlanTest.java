@@ -18,9 +18,9 @@ public class DepthFetchPlanTest extends DbTestBase {
     db.getMetadata().getSchema().createClass("Test");
 
     db.begin();
-    EntityImpl doc = new EntityImpl("Test");
-    EntityImpl doc1 = new EntityImpl("Test");
-    EntityImpl doc2 = new EntityImpl("Test");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Test"));
+    EntityImpl doc1 = ((EntityImpl) db.newEntity("Test"));
+    EntityImpl doc2 = ((EntityImpl) db.newEntity("Test"));
     doc.field("name", "name");
     db.save(doc);
     db.commit();
@@ -42,7 +42,7 @@ public class DepthFetchPlanTest extends DbTestBase {
     doc2 = db.bindToSession(doc2);
     FetchContext context = new RemoteFetchContext();
     CountFetchListener listener = new CountFetchListener();
-    FetchHelper.fetch(
+    FetchHelper.fetch(db,
         doc2, doc2, FetchHelper.buildFetchPlan("ref:1 *:-2"), listener, context, "");
 
     assertEquals(1, listener.count);
@@ -53,10 +53,10 @@ public class DepthFetchPlanTest extends DbTestBase {
     db.getMetadata().getSchema().createClass("Test");
 
     db.begin();
-    EntityImpl doc = new EntityImpl("Test");
-    EntityImpl doc1 = new EntityImpl("Test");
-    EntityImpl doc2 = new EntityImpl("Test");
-    EntityImpl doc3 = new EntityImpl("Test");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Test"));
+    EntityImpl doc1 = ((EntityImpl) db.newEntity("Test"));
+    EntityImpl doc2 = ((EntityImpl) db.newEntity("Test"));
+    EntityImpl doc3 = ((EntityImpl) db.newEntity("Test"));
     doc.field("name", "name");
     db.save(doc);
     db.commit();
@@ -87,7 +87,8 @@ public class DepthFetchPlanTest extends DbTestBase {
     doc3 = db.bindToSession(doc3);
     FetchContext context = new RemoteFetchContext();
     CountFetchListener listener = new CountFetchListener();
-    FetchHelper.fetch(doc3, doc3, FetchHelper.buildFetchPlan("[*]ref:-1"), listener, context, "");
+    FetchHelper.fetch(db, doc3, doc3, FetchHelper.buildFetchPlan("[*]ref:-1"), listener, context,
+        "");
     assertEquals(3, listener.count);
   }
 

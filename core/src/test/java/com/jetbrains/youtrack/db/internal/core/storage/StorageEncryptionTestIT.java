@@ -51,10 +51,10 @@ public class StorageEncryptionTestIT {
         cls.createProperty(session, "value", PropertyType.STRING);
 
         cls.createIndex(session, "EncryptedTree", SchemaClass.INDEX_TYPE.UNIQUE, "id");
-        cls.createIndex(session, "EncryptedHash", SchemaClass.INDEX_TYPE.UNIQUE_HASH_INDEX, "id");
+        cls.createIndex(session, "EncryptedHash", SchemaClass.INDEX_TYPE.UNIQUE, "id");
 
         for (int i = 0; i < 10_000; i++) {
-          final EntityImpl document = new EntityImpl(cls);
+          final EntityImpl document = ((EntityImpl) session.newEntity(cls));
           document.setProperty("id", i);
           document.setProperty(
               "value",
@@ -187,13 +187,13 @@ public class StorageEncryptionTestIT {
               .addGlobalConfigurationParameter(GlobalConfiguration.STORAGE_ENCRYPTION_KEY,
                   "T1JJRU5UREJfSVNfQ09PTA==")
               .build();
-      try (var session =
+      try (var db =
           (DatabaseSessionInternal) youTrackDB.open("encryption", "admin", "admin",
               youTrackDBConfig)) {
-        final Schema schema = session.getMetadata().getSchema();
+        final Schema schema = db.getMetadata().getSchema();
         final SchemaClass cls = schema.createClass("EncryptedData");
 
-        final EntityImpl document = new EntityImpl(cls);
+        final EntityImpl document = ((EntityImpl) db.newEntity(cls));
         document.setProperty("id", 10);
         document.setProperty(
             "value",
@@ -203,7 +203,7 @@ public class StorageEncryptionTestIT {
                 + " ");
         document.save();
 
-        try (ResultSet resultSet = session.query("select from EncryptedData where id = ?", 10)) {
+        try (ResultSet resultSet = db.query("select from EncryptedData where id = ?", 10)) {
           assertTrue(resultSet.hasNext());
         }
       }

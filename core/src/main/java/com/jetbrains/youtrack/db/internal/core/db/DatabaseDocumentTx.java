@@ -32,7 +32,6 @@ import com.jetbrains.youtrack.db.internal.core.cache.LocalRecordCache;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
 import com.jetbrains.youtrack.db.internal.core.db.record.CurrentStorageComponentsFactory;
-import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClass;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
@@ -52,8 +51,8 @@ import com.jetbrains.youtrack.db.internal.core.shutdown.ShutdownHandler;
 import com.jetbrains.youtrack.db.internal.core.storage.RecordMetadata;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageInfo;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransaction;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx.NonTxReadMode;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
@@ -230,7 +229,17 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public SBTreeCollectionManager getSbTreeCollectionManager() {
+  public Entity newEmbededEntity(String className) {
+    return internal.newEmbededEntity(className);
+  }
+
+  @Override
+  public Entity newEmbededEntity() {
+    return internal.newEmbededEntity();
+  }
+
+  @Override
+  public BTreeCollectionManager getSbTreeCollectionManager() {
     if (internal == null) {
       return null;
     }
@@ -393,11 +402,6 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   public DatabaseDocumentTx copy() {
     checkOpenness();
     return new DatabaseDocumentTx(this.internal.copy(), this.baseUrl);
-  }
-
-  @Override
-  public void checkIfActive() {
-    internal.checkIfActive();
   }
 
   @Override
@@ -572,24 +576,15 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
     return internal.newEntity(className);
   }
 
-  public void setUseLightweightEdges(boolean b) {
-    internal.setUseLightweightEdges(b);
+  @Override
+  public Entity newEntity(SchemaClass cls) {
+    return null;
   }
 
   @Override
   public EntityImpl newInstance() {
     checkOpenness();
     return internal.newInstance();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  @Deprecated
-  public Dictionary<Record> getDictionary() {
-    checkOpenness();
-    return internal.getDictionary();
   }
 
   @Override
@@ -1138,7 +1133,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
 
   @Override
   public Blob newBlob() {
-    return new RecordBytes();
+    return new RecordBytes(this);
   }
 
   public EdgeInternal newLightweightEdgeInternal(String iClassName, Vertex from, Vertex to) {

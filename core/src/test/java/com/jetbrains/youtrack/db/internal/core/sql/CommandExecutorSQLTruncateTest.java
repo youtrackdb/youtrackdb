@@ -18,17 +18,17 @@ public class CommandExecutorSQLTruncateTest extends DbTestBase {
     db.getMetadata().getSchema().createClass("ab", vcl);
 
     db.begin();
-    EntityImpl doc = new EntityImpl("A");
+    EntityImpl doc = (EntityImpl) db.newEntity("A");
     db.save(doc);
     db.commit();
 
     db.begin();
-    doc = new EntityImpl("ab");
+    doc = (EntityImpl) db.newEntity("ab");
     db.save(doc);
     db.commit();
 
     ResultSet ret = db.command("truncate class A ");
-    assertEquals((long) ret.next().getProperty("count"), 1L);
+    assertEquals(1L, (long) ret.next().getProperty("count"));
   }
 
   @Test
@@ -36,7 +36,7 @@ public class CommandExecutorSQLTruncateTest extends DbTestBase {
     db.getMetadata().getSchema().createClass("A");
 
     db.begin();
-    EntityImpl doc = new EntityImpl("A");
+    EntityImpl doc = (EntityImpl) db.newEntity("A");
     db.save(doc);
     db.commit();
 
@@ -56,18 +56,18 @@ public class CommandExecutorSQLTruncateTest extends DbTestBase {
     db.getMetadata().getSchema().createClass("ab", vcl);
 
     db.begin();
-    EntityImpl doc = new EntityImpl("A");
+    EntityImpl doc = (EntityImpl) db.newEntity("A");
     db.save(doc);
     db.commit();
 
     db.begin();
-    doc = new EntityImpl("ab");
+    doc = (EntityImpl) db.newEntity("ab");
     db.save(doc);
     db.commit();
 
     try (ResultSet res = db.command("truncate class A POLYMORPHIC")) {
-      assertEquals((long) res.next().getProperty("count"), 1L);
-      assertEquals((long) res.next().getProperty("count"), 1L);
+      assertEquals(1L, (long) res.next().getProperty("count"));
+      assertEquals(1L, (long) res.next().getProperty("count"));
     }
   }
 }

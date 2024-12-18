@@ -25,7 +25,6 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.fetch.remote.RemoteFetchListener;
@@ -72,7 +71,7 @@ public class LiveCommandResultListener extends AbstractCommandResultListener
   }
 
   @Override
-  public boolean result(DatabaseSessionInternal querySession, final Object iRecord) {
+  public boolean result(DatabaseSessionInternal db, final Object iRecord) {
     final NetworkProtocolBinary protocol = ((NetworkProtocolBinary) connection.getProtocol());
     if (empty.compareAndSet(true, false)) {
       try {
@@ -92,10 +91,10 @@ public class LiveCommandResultListener extends AbstractCommandResultListener
       } catch (IOException ignored) {
       }
     }
+
     try {
-      fetchRecord(
-          iRecord,
-          new RemoteFetchListener() {
+      fetchRecord(db,
+          iRecord, new RemoteFetchListener() {
             @Override
             protected void sendRecord(RecordAbstract iLinked) {
               if (!alreadySent.contains(iLinked.getIdentity())) {
@@ -112,7 +111,7 @@ public class LiveCommandResultListener extends AbstractCommandResultListener
       alreadySent.add(((Identifiable) iRecord).getIdentity());
       protocol.channel.writeByte((byte) 1); // ONE MORE RECORD
       NetworkProtocolBinary.writeIdentifiable(
-          protocol.channel, connection, ((Identifiable) iRecord).getRecord());
+          protocol.channel, connection, ((Identifiable) iRecord).getRecord(db));
       protocol.channel.flush();
     } catch (IOException e) {
       return false;
@@ -124,13 +123,14 @@ public class LiveCommandResultListener extends AbstractCommandResultListener
     return empty.get();
   }
 
-  public void onLiveResult(int iToken, RecordOperation iOp) throws BaseException {
+  public void onLiveResult(DatabaseSessionInternal db, int iToken, RecordOperation iOp)
+      throws BaseException {
     boolean sendFail = true;
     do {
       List<ClientConnection> connections = session.getConnections();
       if (connections.size() == 0) {
         try {
-          DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().get();
+
           LogManager.instance()
               .warn(this, "Unsubscribing live query for connection " + connection);
           LiveQueryHook.unsubscribe(iToken, db);
@@ -154,7 +154,7 @@ public class LiveCommandResultListener extends AbstractCommandResultListener
           out.writeByte('r');
           out.writeByte(iOp.type);
           out.writeInt(iToken);
-          out.writeByte(RecordInternal.getRecordType(iOp.record));
+          out.writeByte(RecordInternal.getRecordType(db, iOp.record));
           writeVersion(out, iOp.record.getVersion());
           writeRID(out, iOp.record.getIdentity());
           writeBytes(out, NetworkProtocolBinary.getRecordBytes(connection, iOp.record));
@@ -172,7 +172,6 @@ public class LiveCommandResultListener extends AbstractCommandResultListener
         session.removeConnection(curConnection);
         connections = session.getConnections();
         if (connections.isEmpty()) {
-          DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().get();
           LiveQueryHook.unsubscribe(iToken, db);
           break;
         }
@@ -259,6 +258,6 @@ public class LiveCommandResultListener extends AbstractCommandResultListener
   }
 
   @Override
-  public void linkdedBySimpleValue(EntityImpl entity) {
+  public void linkdedBySimpleValue(DatabaseSessionInternal db, EntityImpl entity) {
   }
 }

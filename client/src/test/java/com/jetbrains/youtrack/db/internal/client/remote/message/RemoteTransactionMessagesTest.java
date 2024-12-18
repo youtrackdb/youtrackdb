@@ -14,8 +14,8 @@ import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkFactory;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
-import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.BonsaiBucketPointer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.RidBagBucketPointer;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges.OPERATION;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChangesPerKey;
@@ -47,7 +47,7 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
   public void testBeginTransactionWriteRead() throws IOException {
 
     List<RecordOperation> operations = new ArrayList<>();
-    operations.add(new RecordOperation(new EntityImpl(), RecordOperation.CREATED));
+    operations.add(new RecordOperation(new EntityImpl(db), RecordOperation.CREATED));
     Map<String, FrontendTransactionIndexChanges> changes = new HashMap<>();
     FrontendTransactionIndexChanges change = new FrontendTransactionIndexChanges();
     change.cleared = false;
@@ -88,7 +88,7 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
   @Test
   public void testFullCommitTransactionWriteRead() throws IOException {
     List<RecordOperation> operations = new ArrayList<>();
-    operations.add(new RecordOperation(new EntityImpl(), RecordOperation.CREATED));
+    operations.add(new RecordOperation(new EntityImpl(db), RecordOperation.CREATED));
     Map<String, FrontendTransactionIndexChanges> changes = new HashMap<>();
     FrontendTransactionIndexChanges change = new FrontendTransactionIndexChanges();
     change.cleared = false;
@@ -132,7 +132,7 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
 
     Map<UUID, BonsaiCollectionPointer> changes = new HashMap<>();
     UUID val = UUID.randomUUID();
-    changes.put(val, new BonsaiCollectionPointer(10, new BonsaiBucketPointer(30, 40)));
+    changes.put(val, new BonsaiCollectionPointer(10, new RidBagBucketPointer(30, 40)));
     var updatedRids = new HashMap<RecordId, RecordId>();
 
     updatedRids.put(new RecordId(10, 20), new RecordId(10, 30));
@@ -181,11 +181,11 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
   public void testTransactionFetchResponseWriteRead() throws IOException {
 
     List<RecordOperation> operations = new ArrayList<>();
-    operations.add(new RecordOperation(new EntityImpl(), RecordOperation.CREATED));
-    var docOne = new EntityImpl();
+    operations.add(new RecordOperation(new EntityImpl(db), RecordOperation.CREATED));
+    var docOne = new EntityImpl(db);
     RecordInternal.setIdentity(docOne, new RecordId(10, 2));
 
-    var docTwo = new EntityImpl();
+    var docTwo = new EntityImpl(db);
     RecordInternal.setIdentity(docTwo, new RecordId(10, 1));
 
     operations.add(
@@ -241,11 +241,11 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
   public void testTransactionFetchResponse38WriteRead() throws IOException {
 
     List<RecordOperation> operations = new ArrayList<>();
-    operations.add(new RecordOperation(new EntityImpl(), RecordOperation.CREATED));
+    operations.add(new RecordOperation(new EntityImpl(db), RecordOperation.CREATED));
     operations.add(
-        new RecordOperation(new EntityImpl(new RecordId(10, 2)), RecordOperation.UPDATED));
+        new RecordOperation(new EntityImpl(db, new RecordId(10, 2)), RecordOperation.UPDATED));
     operations.add(
-        new RecordOperation(new EntityImpl(new RecordId(10, 1)), RecordOperation.DELETED));
+        new RecordOperation(new EntityImpl(db, new RecordId(10, 1)), RecordOperation.DELETED));
     Map<String, FrontendTransactionIndexChanges> changes = new HashMap<>();
     FrontendTransactionIndexChanges change = new FrontendTransactionIndexChanges();
     change.cleared = false;

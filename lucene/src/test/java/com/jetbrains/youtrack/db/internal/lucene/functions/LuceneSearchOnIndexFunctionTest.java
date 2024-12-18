@@ -130,7 +130,7 @@ public class LuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
     final String query = "SELECT from Song where SEARCH_INDEX('Song.title', '*EVE*', ?) = true";
 
     db.query(query, "{'allowLeadingWildcard': true}").close();
-    db.query(query, new EntityImpl("allowLeadingWildcard", Boolean.TRUE)).close();
+    db.query(query, new EntityImpl(db, "allowLeadingWildcard", Boolean.TRUE)).close();
 
     Map<String, Object> mdMap = new HashMap();
     mdMap.put("allowLeadingWildcard", true);

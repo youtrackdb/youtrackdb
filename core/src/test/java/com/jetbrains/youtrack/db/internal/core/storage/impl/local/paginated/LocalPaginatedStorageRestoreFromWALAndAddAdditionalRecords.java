@@ -312,7 +312,7 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
         SchemaClass classTwo = baseDB.getMetadata().getSchema().getClass("TestTwo");
 
         for (int i = 0; i < 10000; i++) {
-          EntityImpl docOne = new EntityImpl(classOne);
+          EntityImpl docOne = ((EntityImpl) baseDB.newEntity(classOne));
           docOne.field("intProp", random.nextInt());
 
           byte[] stringData = new byte[256];
@@ -332,7 +332,7 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
           firstDocs.add(docOne.getIdentity());
 
           if (random.nextBoolean()) {
-            EntityImpl docTwo = new EntityImpl(classTwo);
+            EntityImpl docTwo = ((EntityImpl) baseDB.newEntity(classTwo));
 
             List<String> stringList = new ArrayList<String>();
 
@@ -381,7 +381,7 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
     private void saveDoc(EntityImpl document) {
       DatabaseRecordThreadLocal.instance().set(baseDB);
 
-      EntityImpl testDoc = new EntityImpl();
+      EntityImpl testDoc = ((EntityImpl) baseDB.newEntity());
       document.copyTo(testDoc);
       document.save();
 

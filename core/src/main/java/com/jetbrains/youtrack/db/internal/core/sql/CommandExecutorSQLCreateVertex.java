@@ -48,7 +48,8 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
   private List<Pair<String, Object>> fields;
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLCreateVertex parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLCreateVertex parse(DatabaseSessionInternal db,
+      final CommandRequest iRequest) {
 
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
 
@@ -75,10 +76,10 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
 
         } else if (temp.equals(KEYWORD_SET)) {
           fields = new ArrayList<Pair<String, Object>>();
-          parseSetFields(clazz, fields);
+          parseSetFields(db, clazz, fields);
 
         } else if (temp.equals(KEYWORD_CONTENT)) {
-          parseContent();
+          parseContent(db);
 
         } else if (className == null && temp.length() > 0) {
           className = temp;
@@ -122,7 +123,7 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
   /**
    * Execute the command and return the EntityImpl object created.
    */
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     if (clazz == null) {
       throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -137,24 +138,24 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
       for (final Pair<String, Object> f : fields) {
         if (f.getValue() instanceof SQLFunctionRuntime) {
           f.setValue(
-              ((SQLFunctionRuntime) f.getValue()).getValue(vertex.getRecord(), null, context));
+              ((SQLFunctionRuntime) f.getValue()).getValue(vertex.getRecord(db), null, context));
         }
       }
     }
 
-    SQLHelper.bindParameters(vertex.getRecord(), fields, new CommandParameters(iArgs), context);
+    SQLHelper.bindParameters(vertex.getRecord(db), fields, new CommandParameters(iArgs), context);
 
     if (content != null) {
-      ((EntityImpl) vertex.getRecord()).merge(content, true, false);
+      ((EntityImpl) vertex.getRecord(db)).merge(content, true, false);
     }
 
     if (clusterName != null) {
-      vertex.getBaseDocument().save(clusterName);
+      vertex.getBaseEntity().save(clusterName);
     } else {
       vertex.save();
     }
 
-    return vertex.getRecord();
+    return vertex.getRecord(db);
   }
 
   @Override

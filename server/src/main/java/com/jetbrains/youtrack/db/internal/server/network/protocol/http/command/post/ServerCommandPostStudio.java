@@ -19,18 +19,18 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.post;
 
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.util.PatternConst;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerStringAbstract;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
@@ -46,7 +46,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
 
   private static final String[] NAMES = {"POST|studio/*"};
 
-  public boolean execute(final OHttpRequest iRequest, HttpResponse iResponse) throws Exception {
+  public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
     DatabaseSessionInternal db = null;
 
     try {
@@ -77,7 +77,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
           rid = value;
         } else if ("1".equals(pairs[0])) {
           className = value;
-        } else if (pairs[0].startsWith(DocumentHelper.ATTRIBUTE_CLASS)) {
+        } else if (pairs[0].startsWith(EntityHelper.ATTRIBUTE_CLASS)) {
           className = value;
         } else if (pairs[0].startsWith("@") || pairs[0].equals("id")) {
           continue;
@@ -108,7 +108,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
   }
 
   private void executeClassProperties(
-      final OHttpRequest iRequest,
+      final HttpRequest iRequest,
       final HttpResponse iResponse,
       final DatabaseSessionInternal db,
       final String operation,
@@ -197,7 +197,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
   }
 
   private void executeClasses(
-      final OHttpRequest iRequest,
+      final HttpRequest iRequest,
       final HttpResponse iResponse,
       final DatabaseSessionInternal db,
       final String operation,
@@ -257,7 +257,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
   }
 
   private void executeClusters(
-      final OHttpRequest iRequest,
+      final HttpRequest iRequest,
       final HttpResponse iResponse,
       final DatabaseSessionInternal db,
       final String operation,
@@ -292,7 +292,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
   }
 
   private void executeDocument(
-      DatabaseSessionInternal db, final OHttpRequest iRequest,
+      DatabaseSessionInternal db, final HttpRequest iRequest,
       final HttpResponse iResponse,
       final String operation,
       final String rid,
@@ -306,7 +306,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
         throw new IllegalArgumentException("Record ID not found in request");
       }
 
-      EntityImpl entity = new EntityImpl(className, new RecordId(rid));
+      EntityImpl entity = new EntityImpl(db, className, new RecordId(rid));
       // BIND ALL CHANGED FIELDS
       for (Entry<String, String> f : fields.entrySet()) {
         final Object oldValue = entity.rawField(f.getKey());
@@ -348,7 +348,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
     } else if ("add".equals(operation)) {
       iRequest.getData().commandInfo = "Studio create entity";
 
-      final EntityImpl entity = new EntityImpl(className);
+      final EntityImpl entity = new EntityImpl(db, className);
 
       // BIND ALL CHANGED FIELDS
       for (Entry<String, String> f : fields.entrySet()) {
@@ -370,7 +370,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
         throw new IllegalArgumentException("Record ID not found in request");
       }
 
-      final EntityImpl entity = new RecordId(rid).getRecord();
+      final EntityImpl entity = new RecordId(rid).getRecord(db);
       entity.delete();
       iResponse.send(
           HttpUtils.STATUS_OK_CODE,
@@ -385,7 +385,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
   }
 
   private static void executeClassIndexes(
-      final OHttpRequest iRequest,
+      final HttpRequest iRequest,
       final HttpResponse iResponse,
       final DatabaseSessionInternal db,
       final String operation,

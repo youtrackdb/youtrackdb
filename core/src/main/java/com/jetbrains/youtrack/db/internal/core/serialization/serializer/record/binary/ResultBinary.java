@@ -15,17 +15,17 @@
  */
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.Vertex;
-import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.Result;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
@@ -93,6 +93,8 @@ public class ResultBinary implements Result {
 
   @Override
   public <T> T getProperty(String name) {
+    assert db != null && db.assertIfNotActive();
+
     BytesContainer bytes = new BytesContainer(this.bytes);
     bytes.skip(offset);
     return serializer.deserializeFieldTyped(db, bytes, name, id == null, schema, null);
@@ -122,10 +124,12 @@ public class ResultBinary implements Result {
 
   @Override
   public Set<String> getPropertyNames() {
+    assert db != null && db.assertIfNotActive();
+
     final BytesContainer container = new BytesContainer(bytes);
     container.skip(offset);
     // TODO: use something more correct that new EntityImpl
-    String[] fields = serializer.getFieldNames(new EntityImpl(), container, id == null);
+    String[] fields = serializer.getFieldNames(new EntityImpl(db), container, id == null);
     return new HashSet<>(Arrays.asList(fields));
   }
 
@@ -152,17 +156,24 @@ public class ResultBinary implements Result {
 
   @Override
   public Optional<Entity> getEntity() {
-    return Optional.of(toDocument());
+    return Optional.of(toEntity());
   }
 
   @Override
   public Entity asEntity() {
-    return toDocument();
+    return toEntity();
   }
 
   @Override
   public Entity toEntity() {
-    return toDocument();
+    assert db != null && db.assertIfNotActive();
+
+    EntityImpl entity = new EntityImpl(db);
+    BytesContainer bytes = new BytesContainer(this.bytes);
+    bytes.skip(offset);
+
+    serializer.deserialize(db, entity, bytes);
+    return entity;
   }
 
   @Override
@@ -177,7 +188,7 @@ public class ResultBinary implements Result {
 
   @Override
   public Optional<Record> getRecord() {
-    return Optional.of(toDocument());
+    return Optional.of(toEntity());
   }
 
   @Override
@@ -199,14 +210,5 @@ public class ResultBinary implements Result {
   public boolean hasProperty(String varName) {
     throw new UnsupportedOperationException(
         "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
-  }
-
-  private EntityImpl toDocument() {
-    EntityImpl entity = new EntityImpl();
-    BytesContainer bytes = new BytesContainer(this.bytes);
-    bytes.skip(offset);
-
-    serializer.deserialize(db, entity, bytes);
-    return entity;
   }
 }

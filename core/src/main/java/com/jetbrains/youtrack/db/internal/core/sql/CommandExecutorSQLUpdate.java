@@ -19,7 +19,15 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.exception.ConcurrentModificationException;
+import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
@@ -29,15 +37,8 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.exception.ConcurrentModificationException;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
 import com.jetbrains.youtrack.db.internal.core.query.Query;
@@ -48,7 +49,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilter;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItem;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLUpdateStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
-import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -93,7 +93,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
   private boolean updateEdge = false;
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLUpdate parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLUpdate parse(DatabaseSessionInternal db, final CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
 
     String queryText = textRequest.getText();
@@ -177,13 +177,13 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         word = parserGetLastWord();
 
         if (word.equals(KEYWORD_CONTENT)) {
-          parseContent();
+          parseContent(db);
         } else if (word.equals(KEYWORD_MERGE)) {
-          parseMerge();
+          parseMerge(db);
         } else if (word.equals(KEYWORD_SET)) {
-          parseSetFields(clazz, setEntries);
+          parseSetFields(db, clazz, setEntries);
         } else if (word.equals(KEYWORD_ADD)) {
-          parseAddFields();
+          parseAddFields(db);
         } else if (word.equals(KEYWORD_PUT)) {
           parsePutFields();
         } else if (word.equals(KEYWORD_REMOVE)) {
@@ -296,7 +296,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     return ((SQLUpdateStatement) preParsedStatement).target.toString();
   }
 
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     if (subjectName == null) {
       throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -325,10 +325,10 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       // IF UPDATE DOES NOT PRODUCE RESULTS AND UPSERT MODE IS ENABLED, CREATE DOCUMENT AND APPLY
       // SET/ADD/PUT/MERGE and so on
       final EntityImpl entity =
-          subjectName != null ? new EntityImpl(subjectName) : new EntityImpl();
+          subjectName != null ? new EntityImpl(db, subjectName) : new EntityImpl(db);
       // locks by result(entity)
       try {
-        result(querySession, entity);
+        result(db, entity);
       } catch (RecordDuplicatedException e) {
         if (upsertMode)
         // UPDATE THE NEW RECORD
@@ -363,10 +363,10 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
    * Update current record.
    */
   @SuppressWarnings("unchecked")
-  public boolean result(DatabaseSessionInternal querySession, final Object iRecord) {
-    final EntityImpl record = ((Identifiable) iRecord).getRecord();
+  public boolean result(DatabaseSessionInternal db, final Object iRecord) {
+    final EntityImpl record = ((Identifiable) iRecord).getRecord(db);
 
-    if (updateEdge && !isRecordInstanceOf(iRecord, "E")) {
+    if (updateEdge && !isRecordInstanceOf(db, iRecord, "E")) {
       throw new CommandExecutionException(
           "Using UPDATE EDGE on a record that is not an instance of E");
     }
@@ -381,16 +381,16 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
     returnHandler.beforeUpdate(record);
 
-    boolean updated = handleContent(record);
+    boolean updated = handleContent(db, record);
     updated |= handleMerge(record);
     updated |= handleSetEntries(record);
     updated |= handleIncrementEntries(record);
-    updated |= handleAddEntries(querySession, record);
-    updated |= handlePutEntries(querySession, record);
-    updated |= handleRemoveEntries(querySession, record);
+    updated |= handleAddEntries(db, record);
+    updated |= handlePutEntries(db, record);
+    updated |= handleRemoveEntries(db, record);
 
     if (updated) {
-      handleUpdateEdge(querySession, record);
+      handleUpdateEdge(db, record);
       record.setDirty();
       record.save();
       returnHandler.afterUpdate(record);
@@ -403,18 +403,20 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
   /**
    * checks if an object is an Identifiable and an instance of a particular (schema) class
    *
-   * @param iRecord     The record object
+   * @param db
+   * @param iRecord         The record object
    * @param youTrackDbClass The schema class
    * @return
    */
-  private boolean isRecordInstanceOf(Object iRecord, String youTrackDbClass) {
+  private boolean isRecordInstanceOf(DatabaseSessionInternal db, Object iRecord,
+      String youTrackDbClass) {
     if (iRecord == null) {
       return false;
     }
     if (!(iRecord instanceof Identifiable)) {
       return false;
     }
-    EntityImpl record = ((Identifiable) iRecord).getRecord();
+    EntityImpl record = ((Identifiable) iRecord).getRecord(db);
     if (iRecord == null) {
       return false;
     }
@@ -437,7 +439,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     Object prevOut = record.getOriginalValue("out");
     Object prevIn = record.getOriginalValue("in");
 
-    validateOutInForEdge(record, currentOut, currentIn);
+    validateOutInForEdge(db, record, currentOut, currentIn);
 
     changeVertexEdgePointer(db, record, (Identifiable) prevIn, (Identifiable) currentIn, "in");
     changeVertexEdgePointer(db, record, (Identifiable) prevOut, (Identifiable) currentOut,
@@ -462,14 +464,14 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         edgeClassName = "";
       }
       String vertexFieldName = direction + "_" + edgeClassName;
-      EntityImpl prevOutDoc = prevVertex.getRecord();
+      EntityImpl prevOutDoc = prevVertex.getRecord(db);
       RidBag prevBag = prevOutDoc.field(vertexFieldName);
       if (prevBag != null) {
         prevBag.remove(edge);
         prevOutDoc.save();
       }
 
-      EntityImpl currentVertexDoc = currentVertex.getRecord();
+      EntityImpl currentVertexDoc = currentVertex.getRecord(db);
       RidBag currentBag = currentVertexDoc.field(vertexFieldName);
       if (currentBag == null) {
         currentBag = new RidBag(db);
@@ -479,12 +481,13 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     }
   }
 
-  private void validateOutInForEdge(EntityImpl record, Object currentOut, Object currentIn) {
-    if (!isRecordInstanceOf(currentOut, "V")) {
+  private void validateOutInForEdge(DatabaseSessionInternal db, EntityImpl record,
+      Object currentOut, Object currentIn) {
+    if (!isRecordInstanceOf(db, currentOut, "V")) {
       throw new CommandExecutionException(
           "Error updating edge: 'out' is not a vertex - " + currentOut);
     }
-    if (!isRecordInstanceOf(currentIn, "V")) {
+    if (!isRecordInstanceOf(db, currentIn, "V")) {
       throw new CommandExecutionException(
           "Error updating edge: 'in' is not a vertex - " + currentIn);
     }
@@ -525,10 +528,10 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     return Role.PERMISSION_UPDATE;
   }
 
-  protected void parseMerge() {
+  protected void parseMerge(DatabaseSessionInternal db) {
     if (!parserIsEnded() && !parserGetLastWord().equals(KEYWORD_WHERE)) {
       final String contentAsString = parserRequiredWord(false, "entity to merge expected").trim();
-      merge = new EntityImpl();
+      merge = new EntityImpl(db);
       merge.fromJSON(contentAsString);
       parserSkipWhiteSpaces();
     }
@@ -612,11 +615,11 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     }
   }
 
-  private boolean handleContent(EntityImpl record) {
+  private boolean handleContent(DatabaseSessionInternal db, EntityImpl record) {
     boolean updated = false;
     if (content != null) {
       // REPLACE ALL THE CONTENT
-      final EntityImpl fieldsToPreserve = new EntityImpl();
+      final EntityImpl fieldsToPreserve = new EntityImpl(db);
 
       final SchemaClass restricted =
           getDatabase()
@@ -915,7 +918,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     return value;
   }
 
-  private void parseAddFields() {
+  private void parseAddFields(DatabaseSessionInternal db) {
     String fieldName;
     String fieldValue;
 
@@ -928,16 +931,17 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       parserRequiredKeyword("=");
       fieldValue = parserRequiredWord(false, "Value expected", " =><,\r\n");
 
-      final Object v = convertValue(clazz, fieldName, getFieldValueCountingParameters(fieldValue));
+      final Object v = convertValue(db, clazz, fieldName,
+          getFieldValueCountingParameters(fieldValue));
 
       // INSERT TRANSFORMED FIELD VALUE
-      addEntries.add(new Pair<String, Object>(fieldName, v));
+      addEntries.add(new Pair<>(fieldName, v));
       parserSkipWhiteSpaces();
 
       firstLap = false;
     }
 
-    if (addEntries.size() == 0) {
+    if (addEntries.isEmpty()) {
       throwSyntaxErrorException(
           "Entries to add <field> = <value> are missed. Example: name = 'Bill', salary = 300.2.");
     }

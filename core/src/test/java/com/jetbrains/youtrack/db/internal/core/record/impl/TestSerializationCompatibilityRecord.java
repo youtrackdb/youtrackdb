@@ -20,7 +20,7 @@ public class TestSerializationCompatibilityRecord extends DbTestBase {
             .getSchema()
             .createClass("Test", db.getMetadata().getSchema().getClass("V"));
     db.begin();
-    EntityImpl doc = new EntityImpl("Test");
+    EntityImpl doc = (EntityImpl) db.newEntity("Test");
     Map<String, RID> map = new HashMap<String, RID>();
     map.put("some", new RecordId(10, 20));
     doc.field("map", map, PropertyType.LINKMAP);

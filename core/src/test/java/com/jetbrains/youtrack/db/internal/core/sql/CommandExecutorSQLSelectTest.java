@@ -224,11 +224,11 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     db.command("ALTER PROPERTY CollateOnLinked.name collate ci").close();
 
     db.begin();
-    EntityImpl doc = new EntityImpl("CollateOnLinked");
+    EntityImpl doc = (EntityImpl) db.newEntity("CollateOnLinked");
     doc.field("name", "foo");
     doc.save();
 
-    EntityImpl doc2 = new EntityImpl("CollateOnLinked2");
+    EntityImpl doc2 = (EntityImpl) db.newEntity("CollateOnLinked2");
     doc2.field("linked", doc.getIdentity());
     doc2.save();
     db.commit();
@@ -355,7 +355,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
             + " flkjas;lkj a;ldskjf laksdj asdklasdjf lskdaj fladsd";
     for (int i = 0; i < ORDER_SKIP_LIMIT_ITEMS; i++) {
       db.begin();
-      EntityImpl doc = new EntityImpl("MassiveOrderSkipLimit");
+      EntityImpl doc = (EntityImpl) db.newEntity("MassiveOrderSkipLimit");
       doc.field("nnum", i);
       doc.field("aaa", fieldValue);
       doc.field("bbb", fieldValue);
@@ -374,10 +374,10 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
     for (int i = 0; i < 5; i++) {
       db.begin();
-      EntityImpl doc = new EntityImpl("ExpandSkipLimit");
+      EntityImpl doc = (EntityImpl) db.newEntity("ExpandSkipLimit");
       doc.field("nnum", i);
       doc.save();
-      EntityImpl parent = new EntityImpl("ExpandSkipLimit");
+      EntityImpl parent = (EntityImpl) db.newEntity("ExpandSkipLimit");
       parent.field("parent", true);
       parent.field("num", i);
       parent.field("linked", doc);

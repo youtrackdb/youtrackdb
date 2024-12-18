@@ -19,26 +19,26 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.parser.StringParser;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.IndexAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
@@ -75,7 +75,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
   }
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLDelete parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLDelete parse(DatabaseSessionInternal db, final CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
 
     String queryText = textRequest.getText();
@@ -202,7 +202,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
     return ((SQLDeleteStatement) preParsedStatement).fromClause.toString();
   }
 
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     if (query == null && indexName == null) {
       throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -218,7 +218,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
 
       Object prevLockValue = query.getContext().getVariable("$locking");
 
-      query.execute(querySession, iArgs);
+      query.execute(db, iArgs);
 
       query.getContext().setVariable("$locking", prevLockValue);
 
@@ -237,13 +237,11 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
       if (compiledFilter != null) {
         compiledFilter.bindParameters(iArgs);
       }
-
-      final DatabaseSessionInternal database = getDatabase();
       final IndexInternal index =
-          database
+          db
               .getMetadata()
               .getIndexManagerInternal()
-              .getIndex(database, indexName)
+              .getIndex(db, indexName)
               .getInternal();
       if (index == null) {
         throw new CommandExecutionException("Target index '" + indexName + "' not found");
@@ -257,23 +255,23 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
       if (compiledFilter == null || compiledFilter.getRootCondition() == null) {
         if (returning.equalsIgnoreCase("COUNT")) {
           // RETURNS ONLY THE COUNT
-          final long total = index.size(database);
-          index.clear(database);
+          final long total = index.size(db);
+          index.clear(db);
           return total;
         } else {
           // RETURNS ALL THE DELETED RECORDS
-          Iterator<RawPair<Object, RID>> cursor = index.stream(database).iterator();
+          Iterator<RawPair<Object, RID>> cursor = index.stream(db).iterator();
 
           while (cursor.hasNext()) {
             final RawPair<Object, RID> entry = cursor.next();
             Identifiable rec = entry.second;
-            rec = rec.getRecord();
+            rec = rec.getRecord(db);
             if (rec != null) {
               allDeletedRecords.add((Record) rec);
             }
           }
 
-          index.clear(database);
+          index.clear(db);
 
           return allDeletedRecords;
         }
@@ -284,7 +282,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
         {
           key =
               getIndexKey(
-                  database, index.getDefinition(), compiledFilter.getRootCondition().getRight());
+                  db, index.getDefinition(), compiledFilter.getRootCondition().getRight());
         } else if (KEYWORD_RID.equalsIgnoreCase(
             compiledFilter.getRootCondition().getLeft().toString())) {
           // BY RID
@@ -294,7 +292,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
             instanceof SQLFilterCondition leftCondition) {
           // KEY AND VALUE
           if (KEYWORD_KEY.equalsIgnoreCase(leftCondition.getLeft().toString())) {
-            key = getIndexKey(database, index.getDefinition(), leftCondition.getRight());
+            key = getIndexKey(db, index.getDefinition(), leftCondition.getRight());
           }
 
           final SQLFilterCondition rightCondition =
@@ -307,9 +305,9 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
         final boolean result;
         if (value != VALUE_NOT_FOUND) {
           assert key != null;
-          result = index.remove(database, key, (Identifiable) value);
+          result = index.remove(db, key, (Identifiable) value);
         } else {
-          result = index.remove(database, key);
+          result = index.remove(db, key);
         }
 
         if (returning.equalsIgnoreCase("COUNT")) {
@@ -333,8 +331,8 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
   /**
    * Deletes the current record.
    */
-  public boolean result(DatabaseSessionInternal querySession, final Object iRecord) {
-    final RecordAbstract record = ((Identifiable) iRecord).getRecord();
+  public boolean result(DatabaseSessionInternal db, final Object iRecord) {
+    final RecordAbstract record = ((Identifiable) iRecord).getRecord(db);
 
     if (record instanceof EntityImpl
         && compiledFilter != null

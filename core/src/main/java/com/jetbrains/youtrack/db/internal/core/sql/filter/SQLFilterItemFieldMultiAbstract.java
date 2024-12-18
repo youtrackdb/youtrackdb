@@ -19,14 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.filter;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.Collate;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.query.QueryRuntimeValueMulti;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +59,8 @@ public abstract class SQLFilterItemFieldMultiAbstract extends SQLFilterItemAbstr
 
     if (names.size() == 1) {
       return transformValue(
-          iRecord, iContext, DocumentHelper.getIdentifiableValue(iRecord, names.get(0)));
+          iRecord, iContext,
+          EntityHelper.getIdentifiableValue(iContext.getDatabase(), iRecord, names.getFirst()));
     }
 
     final String[] fieldNames = entity.fieldNames();

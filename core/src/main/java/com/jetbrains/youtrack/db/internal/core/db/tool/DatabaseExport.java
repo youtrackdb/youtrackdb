@@ -165,7 +165,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
 
     final Set<RID> brokenRids = new HashSet<>();
 
-    writer.beginCollection(level, true, "records");
+    writer.beginCollection(database, level, true, "records");
     int exportedClusters = 0;
     int maxClusterId = getMaxClusterId();
     for (int i = 0; exportedClusters <= maxClusterId; ++i) {
@@ -257,7 +257,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
             + brokenRids.size()
             + " records were detected as broken\n");
 
-    writer.beginCollection(level, true, "brokenRids");
+    writer.beginCollection(database, level, true, "brokenRids");
 
     boolean firsBrokenRid = true;
     for (final RID rid : brokenRids) {
@@ -326,7 +326,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
   private void exportClusters() throws IOException {
     listener.onMessage("\nExporting clusters...");
 
-    writer.beginCollection(1, true, "clusters");
+    writer.beginCollection(database, 1, true, "clusters");
     int exportedClusters = 0;
 
     int maxClusterId = getMaxClusterId();
@@ -343,8 +343,8 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
       // CHECK IF THE CLUSTER IS INCLUDED
       writer.beginObject(2, true, null);
 
-      writer.writeAttribute(0, false, "name", clusterName);
-      writer.writeAttribute(0, false, "id", clusterId);
+      writer.writeAttribute(database, 0, false, "name", clusterName);
+      writer.writeAttribute(database, 0, false, "id", clusterId);
 
       exportedClusters++;
       writer.endObject(2, false);
@@ -359,26 +359,29 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
     listener.onMessage("\nExporting database info...");
 
     writer.beginObject(1, true, "info");
-    writer.writeAttribute(2, true, "name", database.getName().replace('\\', '/'));
-    writer.writeAttribute(2, true, "default-cluster-id", database.getDefaultClusterId());
-    writer.writeAttribute(2, true, "exporter-version", EXPORTER_VERSION);
-    writer.writeAttribute(2, true, "engine-version", YouTrackDBConstants.getVersion());
+    writer.writeAttribute(database, 2, true,
+        "name", database.getName().replace('\\', '/'));
+    writer.writeAttribute(database, 2, true,
+        "default-cluster-id", database.getDefaultClusterId());
+    writer.writeAttribute(database, 2, true,
+        "exporter-version", EXPORTER_VERSION);
+    writer.writeAttribute(database, 2, true,
+        "engine-version", YouTrackDBConstants.getVersion());
     final String engineBuild = YouTrackDBConstants.getBuildNumber();
     if (engineBuild != null) {
-      writer.writeAttribute(2, true, "engine-build", engineBuild);
+      writer.writeAttribute(database, 2, true, "engine-build", engineBuild);
     }
-    writer.writeAttribute(2, true, "storage-config-version", StorageConfiguration.CURRENT_VERSION);
-    writer.writeAttribute(2, true, "schema-version", SchemaShared.CURRENT_VERSION_NUMBER);
-    writer.writeAttribute(
+    writer.writeAttribute(database, 2, true, "storage-config-version",
+        StorageConfiguration.CURRENT_VERSION);
+    writer.writeAttribute(database, 2, true, "schema-version", SchemaShared.CURRENT_VERSION_NUMBER);
+    writer.writeAttribute(database,
         2,
         true,
-        "schemaRecordId",
-        database.getStorageInfo().getConfiguration().getSchemaRecordId());
-    writer.writeAttribute(
+        "schemaRecordId", database.getStorageInfo().getConfiguration().getSchemaRecordId());
+    writer.writeAttribute(database,
         2,
         true,
-        "indexMgrRecordId",
-        database.getStorageInfo().getConfiguration().getIndexMgrRecordId());
+        "indexMgrRecordId", database.getStorageInfo().getConfiguration().getIndexMgrRecordId());
     writer.endObject(1, true);
 
     listener.onMessage("OK");
@@ -386,7 +389,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
 
   private void exportIndexDefinitions() throws IOException {
     listener.onMessage("\nExporting index info...");
-    writer.beginCollection(1, true, "indexes");
+    writer.beginCollection(database, 1, true, "indexes");
 
     final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
     indexManager.reload(database);
@@ -403,37 +406,38 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
       // CHECK TO FILTER CLASS
       listener.onMessage("\n- Index " + index.getName() + "...");
       writer.beginObject(2, true, null);
-      writer.writeAttribute(3, true, "name", index.getName());
-      writer.writeAttribute(3, true, "type", index.getType());
+      writer.writeAttribute(database, 3, true, "name", index.getName());
+      writer.writeAttribute(database, 3, true, "type", index.getType());
       if (index.getAlgorithm() != null) {
-        writer.writeAttribute(3, true, "algorithm", index.getAlgorithm());
+        writer.writeAttribute(database, 3, true, "algorithm", index.getAlgorithm());
       }
 
       if (!index.getClusters().isEmpty()) {
-        writer.writeAttribute(3, true, "clustersToIndex", index.getClusters());
+        writer.writeAttribute(database, 3, true, "clustersToIndex", index.getClusters());
       }
 
       if (index.getDefinition() != null) {
         writer.beginObject(4, true, "definition");
 
-        writer.writeAttribute(5, true, "defClass", index.getDefinition().getClass().getName());
-        writer.writeAttribute(5, true, "stream",
-            index.getDefinition().toStream(new EntityImpl()));
+        writer.writeAttribute(database, 5, true, "defClass",
+            index.getDefinition().getClass().getName());
+        writer.writeAttribute(database, 5, true,
+            "stream", index.getDefinition().toStream(database, new EntityImpl(database)));
 
         writer.endObject(4, true);
       }
 
       final var metadata = index.getMetadata();
       if (metadata != null) {
-        var entity = new EntityImpl();
+        var entity = new EntityImpl(database);
         entity.fromMap(metadata);
 
-        writer.writeAttribute(4, true, "metadata", entity);
+        writer.writeAttribute(database, 4, true, "metadata", entity);
       }
 
       final EntityImpl configuration = index.getConfiguration(database);
       if (configuration.field("blueprintsIndexClass") != null) {
-        writer.writeAttribute(
+        writer.writeAttribute(database,
             4, true, "blueprintsIndexClass", configuration.field("blueprintsIndexClass"));
       }
 
@@ -460,17 +464,17 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
     for (Index index : indexes) {
       if (!index.isAutomatic()) {
         if (manualIndexes == 0) {
-          writer.beginCollection(1, true, "manualIndexes");
+          writer.beginCollection(database, 1, true, "manualIndexes");
         }
 
         listener.onMessage("\n- Exporting index " + index.getName() + " ...");
 
         writer.beginObject(2, true, null);
-        writer.writeAttribute(3, true, "name", index.getName());
+        writer.writeAttribute(database, 3, true, "name", index.getName());
 
         ResultSet indexContent = database.query("select from index:" + index.getName());
 
-        writer.beginCollection(3, true, "content");
+        writer.beginCollection(database, 3, true, "content");
 
         int i = 0;
         while (indexContent.hasNext()) {
@@ -481,7 +485,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
 
           final IndexDefinition indexDefinition = index.getDefinition();
 
-          exportEntry = new EntityImpl();
+          exportEntry = new EntityImpl(database);
           exportEntry.setLazyLoad(false);
 
           if (indexDefinition instanceof RuntimeKeyIndexDefinition
@@ -525,10 +529,10 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
     writer.beginObject(1, true, "schema");
     final Schema schema = (database.getMetadata()).getImmutableSchemaSnapshot();
     //noinspection deprecation
-    writer.writeAttribute(2, true, "version", schema.getVersion());
-    writer.writeAttribute(2, false, "blob-clusters", database.getBlobClusterIds());
+    writer.writeAttribute(database, 2, true, "version", schema.getVersion());
+    writer.writeAttribute(database, 2, false, "blob-clusters", database.getBlobClusterIds());
     if (!schema.getClasses().isEmpty()) {
-      writer.beginCollection(2, true, "classes");
+      writer.beginCollection(database, 2, true, "classes");
 
       final List<SchemaClass> classes = new ArrayList<>(schema.getClasses());
       Collections.sort(classes);
@@ -536,62 +540,64 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
       for (SchemaClass cls : classes) {
         // CHECK TO FILTER CLASS
         writer.beginObject(3, true, null);
-        writer.writeAttribute(0, false, "name", cls.getName());
-        writer.writeAttribute(0, false, "cluster-ids", cls.getClusterIds());
+        writer.writeAttribute(database, 0, false, "name", cls.getName());
+        writer.writeAttribute(database, 0, false, "cluster-ids", cls.getClusterIds());
         if (cls.isStrictMode()) {
-          writer.writeAttribute(0, false, "strictMode", cls.isStrictMode());
+          writer.writeAttribute(database, 0, false, "strictMode", cls.isStrictMode());
         }
         if (!cls.getSuperClasses().isEmpty()) {
-          writer.writeAttribute(0, false, "super-classes", cls.getSuperClassesNames());
+          writer.writeAttribute(database, 0, false, "super-classes", cls.getSuperClassesNames());
         }
         if (cls.getShortName() != null) {
-          writer.writeAttribute(0, false, "short-name", cls.getShortName());
+          writer.writeAttribute(database, 0, false, "short-name", cls.getShortName());
         }
         if (cls.isAbstract()) {
-          writer.writeAttribute(0, false, "abstract", cls.isAbstract());
+          writer.writeAttribute(database, 0, false, "abstract", cls.isAbstract());
         }
-        writer.writeAttribute(
+        writer.writeAttribute(database,
             0, false, "cluster-selection", cls.getClusterSelectionStrategyName()); // @SINCE 1.7
 
         if (!cls.properties(database).isEmpty()) {
-          writer.beginCollection(4, true, "properties");
+          writer.beginCollection(database, 4, true, "properties");
 
           final List<Property> properties = new ArrayList<>(cls.declaredProperties());
           Collections.sort(properties);
 
           for (Property p : properties) {
             writer.beginObject(5, true, null);
-            writer.writeAttribute(0, false, "name", p.getName());
-            writer.writeAttribute(0, false, "type", p.getType().toString());
+            writer.writeAttribute(database, 0, false, "name", p.getName());
+            writer.writeAttribute(database, 0, false, "type", p.getType().toString());
             if (p.isMandatory()) {
-              writer.writeAttribute(0, false, "mandatory", p.isMandatory());
+              writer.writeAttribute(database, 0, false, "mandatory", p.isMandatory());
             }
             if (p.isReadonly()) {
-              writer.writeAttribute(0, false, "readonly", p.isReadonly());
+              writer.writeAttribute(database, 0, false, "readonly", p.isReadonly());
             }
             if (p.isNotNull()) {
-              writer.writeAttribute(0, false, "not-null", p.isNotNull());
+              writer.writeAttribute(database, 0, false, "not-null", p.isNotNull());
             }
             if (p.getLinkedClass() != null) {
-              writer.writeAttribute(0, false, "linked-class", p.getLinkedClass().getName());
+              writer.writeAttribute(database, 0, false, "linked-class",
+                  p.getLinkedClass().getName());
             }
             if (p.getLinkedType() != null) {
-              writer.writeAttribute(0, false, "linked-type", p.getLinkedType().toString());
+              writer.writeAttribute(database, 0, false, "linked-type",
+                  p.getLinkedType().toString());
             }
             if (p.getMin() != null) {
-              writer.writeAttribute(0, false, "min", p.getMin());
+              writer.writeAttribute(database, 0, false, "min", p.getMin());
             }
             if (p.getMax() != null) {
-              writer.writeAttribute(0, false, "max", p.getMax());
+              writer.writeAttribute(database, 0, false, "max", p.getMax());
             }
             if (p.getCollate() != null) {
-              writer.writeAttribute(0, false, "collate", p.getCollate().getName());
+              writer.writeAttribute(database, 0, false, "collate", p.getCollate().getName());
             }
             if (p.getDefaultValue() != null) {
-              writer.writeAttribute(0, false, "default-value", p.getDefaultValue());
+              writer.writeAttribute(database, 0, false, "default-value", p.getDefaultValue());
             }
             if (p.getRegexp() != null) {
-              writer.writeAttribute(0, false, "regexp", p.getRegexp());
+              writer.writeAttribute(database, 0, false, "regexp", p.getRegexp());
             }
             final Set<String> customKeys = p.getCustomKeys();
             final Map<String, String> custom = new HashMap<>();
@@ -600,7 +606,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
             }
 
             if (!custom.isEmpty()) {
-              writer.writeAttribute(0, false, "customFields", custom);
+              writer.writeAttribute(database, 0, false, "customFields", custom);
             }
 
             writer.endObject(0, false);
@@ -614,7 +620,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
         }
 
         if (!custom.isEmpty()) {
-          writer.writeAttribute(0, false, "customFields", custom);
+          writer.writeAttribute(database, 0, false, "customFields", custom);
         }
         writer.endObject(3, true);
       }
@@ -638,7 +644,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
         }
 
         final String format = RecordAbstract.BASE_FORMAT + ",dateAsLong";
-        RecordSerializerJSON.INSTANCE.toString(rec, writer, format);
+        RecordSerializerJSON.toString(database, rec, writer, format);
 
         recordExported++;
         recordNum++;

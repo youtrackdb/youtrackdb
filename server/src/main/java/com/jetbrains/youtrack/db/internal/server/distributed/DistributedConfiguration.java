@@ -846,7 +846,7 @@ public class DistributedConfiguration {
     }
 
     if (cfg == null) {
-      return new EntityImpl();
+      return new EntityImpl(null);
     }
 
     return cfg;

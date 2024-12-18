@@ -22,111 +22,111 @@ public class TruncateClusterTest extends BaseDBTest {
   public void testSimpleCluster() {
     final String clusterName = "TruncateCluster";
 
-    final int clusterId = database.addCluster(clusterName);
-    final EntityImpl document = new EntityImpl();
+    final int clusterId = db.addCluster(clusterName);
+    final EntityImpl document = ((EntityImpl) db.newEntity());
 
-    database.begin();
+    db.begin();
     document.save(clusterName);
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(database.countClusterElements(clusterId), 1);
+    Assert.assertEquals(db.countClusterElements(clusterId), 1);
 
-    database.truncateCluster(clusterName);
+    db.truncateCluster(clusterName);
 
-    Assert.assertEquals(database.countClusterElements(clusterId), 0);
+    Assert.assertEquals(db.countClusterElements(clusterId), 0);
 
-    database.dropCluster(clusterId);
+    db.dropCluster(clusterId);
   }
 
   public void testClusterWithIndex() {
     final String clusterName = "TruncateClusterWithIndex";
-    final int clusterId = database.addCluster(clusterName);
+    final int clusterId = db.addCluster(clusterName);
 
     final String className = "TruncateClusterClass";
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
 
     final SchemaClass clazz = schema.createClass(className);
-    clazz.addClusterId(database, clusterId);
+    clazz.addClusterId(db, clusterId);
 
-    clazz.createProperty(database, "value", PropertyType.STRING);
-    clazz.createIndex(database, "TruncateClusterIndex", SchemaClass.INDEX_TYPE.UNIQUE, "value");
+    clazz.createProperty(db, "value", PropertyType.STRING);
+    clazz.createIndex(db, "TruncateClusterIndex", SchemaClass.INDEX_TYPE.UNIQUE, "value");
 
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = ((EntityImpl) db.newEntity());
     document.field("value", "val");
 
-    database.begin();
+    db.begin();
     document.save(clusterName);
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(database.countClass(className), 1);
-    Assert.assertEquals(database.countClusterElements(clusterId), 1);
+    Assert.assertEquals(db.countClass(className), 1);
+    Assert.assertEquals(db.countClusterElements(clusterId), 1);
 
-    ResultSet indexQuery = database.query("select from TruncateClusterClass where value='val'");
+    ResultSet indexQuery = db.query("select from TruncateClusterClass where value='val'");
     Assert.assertEquals(indexQuery.stream().count(), 1);
 
-    database.truncateCluster(clusterName);
+    db.truncateCluster(clusterName);
 
-    Assert.assertEquals(database.countClass(className), 0);
-    Assert.assertEquals(database.countClusterElements(clusterId), 0);
+    Assert.assertEquals(db.countClass(className), 0);
+    Assert.assertEquals(db.countClusterElements(clusterId), 0);
 
-    indexQuery = database.query("select from TruncateClusterClass where value='val'");
+    indexQuery = db.query("select from TruncateClusterClass where value='val'");
 
     Assert.assertEquals(indexQuery.stream().count(), 0);
   }
 
   public void testSimpleClusterIsAbsent() {
     final String clusterName = "TruncateClusterIsAbsent";
-    final int clusterId = database.addCluster(clusterName);
+    final int clusterId = db.addCluster(clusterName);
 
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = ((EntityImpl) db.newEntity());
 
-    database.begin();
+    db.begin();
     document.save(clusterName);
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(database.countClusterElements(clusterId), 1);
+    Assert.assertEquals(db.countClusterElements(clusterId), 1);
     try {
-      database.truncateCluster("Wrong" + clusterName);
+      db.truncateCluster("Wrong" + clusterName);
 
       Assert.fail();
     } catch (BaseException e) {
       Assert.assertTrue(true);
     }
 
-    Assert.assertEquals(database.countClusterElements(clusterId), 1);
-    database.dropCluster(clusterId);
+    Assert.assertEquals(db.countClusterElements(clusterId), 1);
+    db.dropCluster(clusterId);
   }
 
   public void testClusterInClassIsAbsent() {
     final String clusterName = "TruncateClusterInClassIsAbsent";
 
-    final int clusterId = database.addCluster(clusterName);
+    final int clusterId = db.addCluster(clusterName);
 
     final String className = "TruncateClusterIsAbsentClass";
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
 
     final SchemaClassInternal clazz = (SchemaClassInternal) schema.createClass(className);
-    clazz.addClusterId(database, clusterId);
+    clazz.addClusterId(db, clusterId);
 
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = ((EntityImpl) db.newEntity());
 
-    database.begin();
+    db.begin();
     document.save(clusterName);
-    database.commit();
+    db.commit();
 
-    Assert.assertEquals(database.countClusterElements(clusterId), 1);
-    Assert.assertEquals(database.countClass(className), 1);
+    Assert.assertEquals(db.countClusterElements(clusterId), 1);
+    Assert.assertEquals(db.countClass(className), 1);
 
     try {
-      clazz.truncateCluster(database, "Wrong" + clusterName);
+      clazz.truncateCluster(db, "Wrong" + clusterName);
       Assert.fail();
     } catch (BaseException e) {
       Assert.assertTrue(true);
     }
 
-    Assert.assertEquals(database.countClusterElements(clusterId), 1);
-    Assert.assertEquals(database.countClass(className), 1);
+    Assert.assertEquals(db.countClusterElements(clusterId), 1);
+    Assert.assertEquals(db.countClass(className), 1);
 
-    database.dropCluster(clusterId);
+    db.dropCluster(clusterId);
   }
 }

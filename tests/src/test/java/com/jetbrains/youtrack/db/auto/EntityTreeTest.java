@@ -66,17 +66,17 @@ public class EntityTreeTest extends BaseDBTest {
   public void testPersonSaving() {
     addGaribaldiAndBonaparte();
 
-    database.begin();
+    db.begin();
     Assert.assertTrue(
-        database.query("select from Profile where nick = 'NBonaparte'").stream()
+        db.query("select from Profile where nick = 'NBonaparte'").stream()
             .findAny()
             .isPresent());
-    database.commit();
+    db.commit();
   }
 
   @Test(dependsOnMethods = "testPersonSaving")
   public void testCityEquality() {
-    database.begin();
+    db.begin();
     List<EntityImpl> resultset =
         executeQuery("select from profile where location.city.name = 'Rome'");
     Assert.assertEquals(resultset.size(), 2);
@@ -88,33 +88,33 @@ public class EntityTreeTest extends BaseDBTest {
     Assert.assertSame(
         p1.getElementProperty("location").getElementProperty("city"),
         p2.getElementProperty("location").getElementProperty("city"));
-    database.commit();
+    db.commit();
   }
 
   @Test(dependsOnMethods = "testCityEquality")
   public void testSaveCircularLink() {
-    database.begin();
-    var winston = database.newInstance("Profile");
+    db.begin();
+    var winston = db.newInstance("Profile");
 
     winston.setProperty("nick", "WChurcill");
     winston.setProperty("name", "Winston");
     winston.setProperty("surname", "Churcill");
 
-    var country = database.newInstance("Country");
+    var country = db.newInstance("Country");
     country.setProperty("name", "England");
 
-    var city = database.newInstance("City");
+    var city = db.newInstance("City");
     city.setProperty("name", "London");
     city.setProperty("country", country);
 
-    var address = database.newInstance("Address");
+    var address = db.newInstance("Address");
     address.setProperty("type", "Residence");
     address.setProperty("city", city);
     address.setProperty("street", "unknown");
 
     winston.setProperty("location", address);
 
-    var nicholas = database.newInstance("Profile");
+    var nicholas = db.newInstance("Profile");
     nicholas.setProperty("nick", "NChurcill");
     nicholas.setProperty("name", "Nicholas");
     nicholas.setProperty("surname", "Churcill");
@@ -124,8 +124,8 @@ public class EntityTreeTest extends BaseDBTest {
     nicholas.setProperty("invitedBy", winston);
     winston.setProperty("invitedBy", nicholas);
 
-    database.save(nicholas);
-    database.commit();
+    db.save(nicholas);
+    db.commit();
   }
 
   @Test(dependsOnMethods = "testSaveCircularLink")
@@ -136,7 +136,7 @@ public class EntityTreeTest extends BaseDBTest {
   @SuppressWarnings("unchecked")
   @Test(dependsOnMethods = "testSaveMultiCircular")
   public void testQueryMultiCircular() {
-    database.begin();
+    db.begin();
     List<EntityImpl> result =
         executeQuery("select * from Profile where name = 'Barack' and surname = 'Obama'");
 
@@ -147,64 +147,64 @@ public class EntityTreeTest extends BaseDBTest {
         for (Identifiable follower : followers) {
           Assert.assertTrue(
               ((Collection<Identifiable>)
-                  Objects.requireNonNull(follower.getEntity().getProperty("followings")))
+                  Objects.requireNonNull(follower.getEntity(db).getProperty("followings")))
                   .contains(profile));
         }
       }
     }
-    database.commit();
+    db.commit();
   }
 
   @Test
   public void testSetFieldSize() {
-    database.begin();
-    var test = database.newInstance("JavaComplexTestClass");
+    db.begin();
+    var test = db.newInstance("JavaComplexTestClass");
     test.setProperty("set", new HashSet<>());
 
     for (int i = 0; i < 100; i++) {
-      var child = database.newInstance("Child");
+      var child = db.newInstance("Child");
       child.setProperty("name", String.valueOf(i));
       test.<Set<Identifiable>>getProperty("set").add(child);
     }
     Assert.assertNotNull(test.<Set<Identifiable>>getProperty("set"));
     Assert.assertEquals(test.<Set<Identifiable>>getProperty("set").size(), 100);
 
-    database.save(test);
-    database.commit();
+    db.save(test);
+    db.commit();
 
     // Assert.assertEquals(test.<Set<Identifiable>>getProperty("set").size(), 100);
     RID rid = test.getIdentity();
-    database.close();
-    database = createSessionInstance();
+    db.close();
+    db = createSessionInstance();
 
-    database.begin();
-    test = database.load(rid);
+    db.begin();
+    test = db.load(rid);
     Assert.assertNotNull(test.<Set<Identifiable>>getProperty("set"));
     for (Identifiable identifiable : test.<Set<Identifiable>>getProperty("set")) {
-      var child = identifiable.getEntity();
+      var child = identifiable.getEntity(db);
       Assert.assertNotNull(child.<String>getProperty("name"));
       Assert.assertTrue(Integer.parseInt(child.getProperty("name")) < 100);
       Assert.assertTrue(Integer.parseInt(child.getProperty("name")) >= 0);
     }
     Assert.assertEquals(test.<Set<Identifiable>>getProperty("set").size(), 100);
-    database.delete(database.bindToSession(test));
-    database.commit();
+    db.delete(db.bindToSession(test));
+    db.commit();
   }
 
   @Test(dependsOnMethods = "testQueryMultiCircular")
   public void testCollectionsRemove() {
-    var a = database.newInstance("JavaComplexTestClass");
+    var a = db.newInstance("JavaComplexTestClass");
 
     // LIST TEST
-    var first = database.newInstance("Child");
+    var first = db.newInstance("Child");
     first.setProperty("name", "1");
-    var second = database.newInstance("Child");
+    var second = db.newInstance("Child");
     second.setProperty("name", "2");
-    var third = database.newInstance("Child");
+    var third = db.newInstance("Child");
     third.setProperty("name", "3");
-    var fourth = database.newInstance("Child");
+    var fourth = db.newInstance("Child");
     fourth.setProperty("name", "4");
-    var fifth = database.newInstance("Child");
+    var fifth = db.newInstance("Child");
     fifth.setProperty("name", "5");
 
     var set = new HashSet<Identifiable>();
@@ -231,38 +231,38 @@ public class EntityTreeTest extends BaseDBTest {
     Assert.assertEquals(a.<Set<Identifiable>>getProperty("set").size(), 4);
     Assert.assertEquals(a.<List<Identifiable>>getProperty("list").size(), 4);
 
-    database.begin();
-    a = database.save(a);
-    database.commit();
+    db.begin();
+    a = db.save(a);
+    db.commit();
 
-    database.begin();
-    a = database.bindToSession(a);
+    db.begin();
+    a = db.bindToSession(a);
     RID rid = a.getIdentity();
     Assert.assertEquals(a.<Set<Identifiable>>getProperty("set").size(), 4);
     Assert.assertEquals(a.<List<Identifiable>>getProperty("list").size(), 4);
-    database.commit();
+    db.commit();
 
-    database.close();
+    db.close();
 
-    database = createSessionInstance();
+    db = createSessionInstance();
 
-    database.begin();
-    var loadedObj = database.loadEntity(rid);
+    db.begin();
+    var loadedObj = db.loadEntity(rid);
 
     Assert.assertEquals(loadedObj.<Set<Object>>getProperty("set").size(), 4);
     Assert.assertEquals(loadedObj.<Set<Identifiable>>getProperty("set").size(), 4);
 
-    database.delete(rid);
-    database.commit();
+    db.delete(rid);
+    db.commit();
   }
 
   @Test
   public void childNLevelUpdateTest() {
-    database.begin();
-    var p = database.newInstance("Planet");
-    var near = database.newInstance("Planet");
-    var sat = database.newInstance("Satellite");
-    var satNear = database.newInstance("Satellite");
+    db.begin();
+    var p = db.newInstance("Planet");
+    var near = db.newInstance("Planet");
+    var sat = db.newInstance("Satellite");
+    var satNear = db.newInstance("Satellite");
     sat.setProperty("diameter", 50);
     sat.setProperty("near", near);
     satNear.setProperty("diameter", 10);
@@ -270,82 +270,82 @@ public class EntityTreeTest extends BaseDBTest {
     near.setProperty("satellites", Collections.singletonList(satNear));
     p.setProperty("satellites", Collections.singletonList(sat));
 
-    database.save(p);
-    database.commit();
+    db.save(p);
+    db.commit();
 
-    database.begin();
+    db.begin();
     RID rid = p.getIdentity();
-    p = database.load(rid);
-    sat = p.<List<Identifiable>>getProperty("satellites").get(0).getEntity();
+    p = db.load(rid);
+    sat = p.<List<Identifiable>>getProperty("satellites").get(0).getEntity(db);
     near = sat.getElementProperty("near");
-    satNear = near.<List<Identifiable>>getProperty("satellites").get(0).getEntity();
+    satNear = near.<List<Identifiable>>getProperty("satellites").get(0).getEntity(db);
     Assert.assertEquals(satNear.<Long>getProperty("diameter"), 10);
 
     satNear.setProperty("diameter", 100);
     satNear.save();
 
-    database.save(p);
-    database.commit();
+    db.save(p);
+    db.commit();
 
-    database.begin();
-    p = database.load(rid);
-    sat = p.<List<Identifiable>>getProperty("satellites").get(0).getEntity();
+    db.begin();
+    p = db.load(rid);
+    sat = p.<List<Identifiable>>getProperty("satellites").get(0).getEntity(db);
     near = sat.getElementProperty("near");
-    satNear = near.<List<Identifiable>>getProperty("satellites").get(0).getEntity();
+    satNear = near.<List<Identifiable>>getProperty("satellites").get(0).getEntity(db);
     Assert.assertEquals(satNear.<Long>getProperty("diameter"), 100);
-    database.commit();
+    db.commit();
   }
 
   @Test(dependsOnMethods = "childNLevelUpdateTest")
   public void childMapUpdateTest() {
-    database.begin();
-    var p = database.newInstance("Planet");
+    db.begin();
+    var p = db.newInstance("Planet");
     p.setProperty("name", "Earth");
     p.setProperty("distanceSun", 1000);
 
-    var sat = database.newInstance("Satellite");
+    var sat = db.newInstance("Satellite");
     sat.setProperty("diameter", 50);
     sat.setProperty("name", "Moon");
 
     p.setProperty("satellitesMap", Collections.singletonMap(sat.<String>getProperty("name"), sat));
-    database.save(p);
-    database.commit();
+    db.save(p);
+    db.commit();
 
-    database.begin();
-    p = database.bindToSession(p);
+    db.begin();
+    p = db.bindToSession(p);
     Assert.assertEquals(p.<Integer>getProperty("distanceSun"), 1000);
     Assert.assertEquals(p.getProperty("name"), "Earth");
     RID rid = p.getIdentity();
 
-    p = database.load(rid);
-    sat = p.<Map<String, Identifiable>>getProperty("satellitesMap").get("Moon").getEntity();
+    p = db.load(rid);
+    sat = p.<Map<String, Identifiable>>getProperty("satellitesMap").get("Moon").getEntity(db);
     Assert.assertEquals(p.<Integer>getProperty("distanceSun"), 1000);
     Assert.assertEquals(p.getProperty("name"), "Earth");
     Assert.assertEquals(sat.<Long>getProperty("diameter"), 50);
     sat.setProperty("diameter", 500);
 
-    database.save(p);
-    database.commit();
+    db.save(p);
+    db.commit();
 
-    database.begin();
-    p = database.load(rid);
-    sat = p.<Map<String, Identifiable>>getProperty("satellitesMap").get("Moon").getEntity();
+    db.begin();
+    p = db.load(rid);
+    sat = p.<Map<String, Identifiable>>getProperty("satellitesMap").get("Moon").getEntity(db);
     Assert.assertEquals(sat.<Long>getProperty("diameter"), 500);
     Assert.assertEquals(p.<Integer>getProperty("distanceSun"), 1000);
     Assert.assertEquals(p.getProperty("name"), "Earth");
-    database.commit();
+    db.commit();
   }
 
   @Test(dependsOnMethods = "childMapUpdateTest")
   public void childMapNLevelUpdateTest() {
-    var jupiter = database.newInstance("Planet");
+    var jupiter = db.newInstance("Planet");
     jupiter.setProperty("name", "Jupiter");
     jupiter.setProperty("distanceSun", 3000);
-    var mercury = database.newInstance("Planet");
+    var mercury = db.newInstance("Planet");
     mercury.setProperty("name", "Mercury");
     mercury.setProperty("distanceSun", 5000);
-    var jupiterMoon = database.newInstance("Satellite");
-    var mercuryMoon = database.newInstance("Satellite");
+    var jupiterMoon = db.newInstance("Satellite");
+    var mercuryMoon = db.newInstance("Satellite");
     jupiterMoon.setProperty("diameter", 50);
     jupiterMoon.setProperty("near", mercury);
     jupiterMoon.setProperty("name", "JupiterMoon");
@@ -359,24 +359,24 @@ public class EntityTreeTest extends BaseDBTest {
         "satellitesMap",
         Collections.singletonMap(jupiterMoon.<String>getProperty("name"), jupiterMoon));
 
-    database.begin();
-    database.save(jupiter);
-    database.commit();
+    db.begin();
+    db.save(jupiter);
+    db.commit();
 
-    database.begin();
+    db.begin();
     RID rid = jupiter.getIdentity();
-    jupiter = database.load(rid);
+    jupiter = db.load(rid);
     jupiterMoon =
         jupiter
             .<Map<String, Identifiable>>getProperty("satellitesMap")
             .get("JupiterMoon")
-            .getEntity();
+            .getEntity(db);
     mercury = jupiterMoon.getElementProperty("near");
     mercuryMoon =
         mercury
             .<Map<String, Identifiable>>getProperty("satellitesMap")
             .get("MercuryMoon")
-            .getEntity();
+            .getEntity(db);
     Assert.assertEquals(mercuryMoon.<Long>getProperty("diameter"), 10);
     Assert.assertEquals(mercuryMoon.getProperty("name"), "MercuryMoon");
     Assert.assertEquals(jupiterMoon.<Long>getProperty("diameter"), 50);
@@ -386,25 +386,25 @@ public class EntityTreeTest extends BaseDBTest {
     Assert.assertEquals(mercury.getProperty("name"), "Mercury");
     Assert.assertEquals(mercury.<Integer>getProperty("distanceSun"), 5000);
     mercuryMoon.setProperty("diameter", 100);
-    database.save(jupiter);
-    database.commit();
+    db.save(jupiter);
+    db.commit();
 
-    database.close();
-    database = createSessionInstance();
+    db.close();
+    db = createSessionInstance();
 
-    database.begin();
-    jupiter = database.load(rid);
+    db.begin();
+    jupiter = db.load(rid);
     jupiterMoon =
         jupiter
             .<Map<String, Identifiable>>getProperty("satellitesMap")
             .get("JupiterMoon")
-            .getEntity();
+            .getEntity(db);
     mercury = jupiterMoon.getElementProperty("near");
     mercuryMoon =
         mercury
             .<Map<String, Identifiable>>getProperty("satellitesMap")
             .get("MercuryMoon")
-            .getEntity();
+            .getEntity(db);
     Assert.assertEquals(mercuryMoon.<Long>getProperty("diameter"), 100);
     Assert.assertEquals(mercuryMoon.getProperty("name"), "MercuryMoon");
     Assert.assertEquals(jupiterMoon.<Long>getProperty("diameter"), 50);
@@ -413,65 +413,65 @@ public class EntityTreeTest extends BaseDBTest {
     Assert.assertEquals(jupiter.<Integer>getProperty("distanceSun"), 3000);
     Assert.assertEquals(mercury.getProperty("name"), "Mercury");
     Assert.assertEquals(mercury.<Integer>getProperty("distanceSun"), 5000);
-    database.commit();
-    database.close();
+    db.commit();
+    db.close();
   }
 
   @Test
   public void iteratorShouldTerminate() {
-    database.begin();
+    db.begin();
 
-    var person = database.newEntity("Profile");
+    var person = db.newEntity("Profile");
     person.setProperty("nick", "Guy1");
     person.setProperty("name", "Guy");
     person.setProperty("surname", "Ritchie");
 
-    person = database.save(person);
-    database.commit();
+    person = db.save(person);
+    db.commit();
 
-    database.begin();
-    database.delete(database.bindToSession(person));
-    database.commit();
+    db.begin();
+    db.delete(db.bindToSession(person));
+    db.commit();
 
-    database.begin();
-    var person2 = database.newEntity("Profile");
+    db.begin();
+    var person2 = db.newEntity("Profile");
     person2.setProperty("nick", "Guy2");
     person2.setProperty("name", "Guy");
     person2.setProperty("surname", "Brush");
-    database.save(person2);
+    db.save(person2);
 
-    var it = database.browseClass("Profile");
+    var it = db.browseClass("Profile");
     while (it.hasNext()) {
       it.next();
     }
 
-    database.commit();
+    db.commit();
   }
 
   @Test
   public void testSave() {
-    database.begin();
-    var parent1 = database.newEntity("RefParent");
-    parent1 = database.save(parent1);
-    var parent2 = database.newEntity("RefParent");
-    parent2 = database.save(parent2);
+    db.begin();
+    var parent1 = db.newEntity("RefParent");
+    parent1 = db.save(parent1);
+    var parent2 = db.newEntity("RefParent");
+    parent2 = db.save(parent2);
 
-    var child1 = database.newEntity("RefChild");
+    var child1 = db.newEntity("RefChild");
     parent1.setProperty("children", Collections.singleton(child1));
-    parent1 = database.save(parent1);
+    parent1 = db.save(parent1);
 
-    var child2 = database.newEntity("RefChild");
+    var child2 = db.newEntity("RefChild");
     parent2.setProperty("children", Collections.singleton(child2));
-    database.save(parent2);
-    database.commit();
+    db.save(parent2);
+    db.commit();
 
-    database.begin();
-    parent1 = database.load(parent1.getIdentity());
-    parent2 = database.load(parent2.getIdentity());
+    db.begin();
+    parent1 = db.load(parent1.getIdentity());
+    parent2 = db.load(parent2.getIdentity());
 
-    var child3 = database.newEntity("RefChild");
+    var child3 = db.newEntity("RefChild");
 
-    var otherThing = database.newEntity("OtherThing");
+    var otherThing = db.newEntity("OtherThing");
     child3.setProperty("otherThing", otherThing);
 
     otherThing.setProperty("relationToParent1", parent1);
@@ -480,54 +480,54 @@ public class EntityTreeTest extends BaseDBTest {
     parent1.<Set<Identifiable>>getProperty("children").add(child3);
     parent2.<Set<Identifiable>>getProperty("children").add(child3);
 
-    database.save(parent1);
-    database.save(parent2);
+    db.save(parent1);
+    db.save(parent2);
 
-    database.commit();
+    db.commit();
   }
 
   private void createCascadeDeleteClass() {
-    var schema = database.getSchema();
+    var schema = db.getSchema();
     if (schema.existsClass("JavaCascadeDeleteTestClass")) {
       schema.dropClass("JavaCascadeDeleteTestClass");
     }
 
     var child = schema.getClass("Child");
     SchemaClass clazz = schema.createClass("JavaCascadeDeleteTestClass");
-    clazz.createProperty(database, "simpleClass", PropertyType.LINK,
+    clazz.createProperty(db, "simpleClass", PropertyType.LINK,
         schema.getClass("JavaSimpleTestClass"));
-    clazz.createProperty(database, "binary", PropertyType.LINK);
-    clazz.createProperty(database, "name", PropertyType.STRING);
-    clazz.createProperty(database, "set", PropertyType.LINKSET, child);
-    clazz.createProperty(database, "children", PropertyType.LINKMAP, child);
-    clazz.createProperty(database, "list", PropertyType.LINKLIST, child);
+    clazz.createProperty(db, "binary", PropertyType.LINK);
+    clazz.createProperty(db, "name", PropertyType.STRING);
+    clazz.createProperty(db, "set", PropertyType.LINKSET, child);
+    clazz.createProperty(db, "children", PropertyType.LINKMAP, child);
+    clazz.createProperty(db, "list", PropertyType.LINKLIST, child);
   }
 
   private void createPlanetClasses() {
-    var schema = database.getSchema();
+    var schema = db.getSchema();
     var satellite = schema.createClass("Satellite");
     var planet = schema.createClass("Planet");
 
-    planet.createProperty(database, "name", PropertyType.STRING);
-    planet.createProperty(database, "distanceSun", PropertyType.INTEGER);
-    planet.createProperty(database, "satellites", PropertyType.LINKLIST, satellite);
-    planet.createProperty(database, "satellitesMap", PropertyType.LINKMAP, satellite);
+    planet.createProperty(db, "name", PropertyType.STRING);
+    planet.createProperty(db, "distanceSun", PropertyType.INTEGER);
+    planet.createProperty(db, "satellites", PropertyType.LINKLIST, satellite);
+    planet.createProperty(db, "satellitesMap", PropertyType.LINKMAP, satellite);
 
-    satellite.createProperty(database, "name", PropertyType.STRING);
-    satellite.createProperty(database, "diameter", PropertyType.LONG);
-    satellite.createProperty(database, "near", PropertyType.LINK, planet);
+    satellite.createProperty(db, "name", PropertyType.STRING);
+    satellite.createProperty(db, "diameter", PropertyType.LONG);
+    satellite.createProperty(db, "near", PropertyType.LINK, planet);
   }
 
   private void createRefClasses() {
-    var schema = database.getSchema();
+    var schema = db.getSchema();
     var refParent = schema.createClass("RefParent");
     var refChild = schema.createClass("RefChild");
     var otherThing = schema.createClass("OtherThing");
 
-    refParent.createProperty(database, "children", PropertyType.LINKSET, refChild);
-    refChild.createProperty(database, "otherThing", PropertyType.LINK, otherThing);
+    refParent.createProperty(db, "children", PropertyType.LINKSET, refChild);
+    refChild.createProperty(db, "otherThing", PropertyType.LINK, otherThing);
 
-    otherThing.createProperty(database, "relationToParent1", PropertyType.LINK, refParent);
-    otherThing.createProperty(database, "relationToParent2", PropertyType.LINK, refParent);
+    otherThing.createProperty(db, "relationToParent1", PropertyType.LINK, refParent);
+    otherThing.createProperty(db, "relationToParent2", PropertyType.LINK, refParent);
   }
 }

@@ -2,10 +2,12 @@ package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
 import static org.junit.Assert.assertEquals;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
@@ -16,10 +18,9 @@ import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
-import com.jetbrains.youtrack.db.internal.core.serialization.DocumentSerializable;
+import com.jetbrains.youtrack.db.internal.core.serialization.EntitySerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -124,7 +125,7 @@ public class TestPropertyTypeDetection extends DbTestBase {
 
     assertEquals(PropertyType.EMBEDDEDLIST, PropertyType.getTypeByClass(String[].class));
 
-    assertEquals(PropertyType.EMBEDDED, PropertyType.getTypeByClass(DocumentSerializable.class));
+    assertEquals(PropertyType.EMBEDDED, PropertyType.getTypeByClass(EntitySerializable.class));
 
     assertEquals(PropertyType.EMBEDDED, PropertyType.getTypeByClass(DocumentSer.class));
 
@@ -160,7 +161,7 @@ public class TestPropertyTypeDetection extends DbTestBase {
 
     assertEquals(PropertyType.INTEGER, PropertyType.getTypeByValue(new BigInteger("20")));
 
-    assertEquals(PropertyType.LINK, PropertyType.getTypeByValue(new EntityImpl()));
+    assertEquals(PropertyType.LINK, PropertyType.getTypeByValue((EntityImpl) db.newEntity()));
 
     assertEquals(PropertyType.LINK, PropertyType.getTypeByValue(new ChangeableRecordId()));
 
@@ -168,19 +169,21 @@ public class TestPropertyTypeDetection extends DbTestBase {
 
     assertEquals(
         PropertyType.EMBEDDEDLIST,
-        PropertyType.getTypeByValue(new TrackedList<Object>(new EntityImpl())));
+        PropertyType.getTypeByValue(new TrackedList<Object>((EntityImpl) db.newEntity())));
 
     assertEquals(PropertyType.EMBEDDEDSET, PropertyType.getTypeByValue(new HashSet<Object>()));
 
     assertEquals(PropertyType.EMBEDDEDMAP,
         PropertyType.getTypeByValue(new HashMap<Object, Object>()));
 
-    assertEquals(PropertyType.LINKSET, PropertyType.getTypeByValue(new LinkSet(new EntityImpl())));
+    assertEquals(PropertyType.LINKSET,
+        PropertyType.getTypeByValue(new LinkSet((EntityImpl) db.newEntity())));
 
     assertEquals(PropertyType.LINKLIST,
-        PropertyType.getTypeByValue(new LinkList(new EntityImpl())));
+        PropertyType.getTypeByValue(new LinkList((EntityImpl) db.newEntity())));
 
-    assertEquals(PropertyType.LINKMAP, PropertyType.getTypeByValue(new LinkMap(new EntityImpl())));
+    assertEquals(PropertyType.LINKMAP,
+        PropertyType.getTypeByValue(new LinkMap((EntityImpl) db.newEntity())));
 
     assertEquals(PropertyType.LINKBAG, PropertyType.getTypeByValue(new RidBag(db)));
 
@@ -204,7 +207,7 @@ public class TestPropertyTypeDetection extends DbTestBase {
     assertEquals(PropertyType.LINKMAP, PropertyType.getTypeByValue(linkmap));
 
     Map<String, Record> linkmap2 = new HashMap<String, Record>();
-    linkmap2.put("some", new EntityImpl());
+    linkmap2.put("some", (EntityImpl) db.newEntity());
     assertEquals(PropertyType.LINKMAP, PropertyType.getTypeByValue(linkmap2));
 
     List<RecordId> linkList = new ArrayList<RecordId>();
@@ -212,7 +215,7 @@ public class TestPropertyTypeDetection extends DbTestBase {
     assertEquals(PropertyType.LINKLIST, PropertyType.getTypeByValue(linkList));
 
     List<Record> linkList2 = new ArrayList<Record>();
-    linkList2.add(new EntityImpl());
+    linkList2.add((EntityImpl) db.newEntity());
     assertEquals(PropertyType.LINKLIST, PropertyType.getTypeByValue(linkList2));
 
     Set<RecordId> linkSet = new HashSet<RecordId>();
@@ -220,11 +223,11 @@ public class TestPropertyTypeDetection extends DbTestBase {
     assertEquals(PropertyType.LINKSET, PropertyType.getTypeByValue(linkSet));
 
     Set<Record> linkSet2 = new HashSet<Record>();
-    linkSet2.add(new EntityImpl());
+    linkSet2.add((EntityImpl) db.newEntity());
     assertEquals(PropertyType.LINKSET, PropertyType.getTypeByValue(linkSet2));
 
-    EntityImpl document = new EntityImpl();
-    EntityInternalUtils.addOwner(document, new EntityImpl());
+    EntityImpl document = (EntityImpl) db.newEntity();
+    EntityInternalUtils.addOwner(document, (EntityImpl) db.newEntity());
     assertEquals(PropertyType.EMBEDDED, PropertyType.getTypeByValue(document));
   }
 
@@ -241,10 +244,10 @@ public class TestPropertyTypeDetection extends DbTestBase {
     }
   }
 
-  public class DocumentSer implements DocumentSerializable {
+  public class DocumentSer implements EntitySerializable {
 
     @Override
-    public EntityImpl toDocument() {
+    public EntityImpl toEntity(DatabaseSessionInternal db) {
       // TODO Auto-generated method stub
       return null;
     }

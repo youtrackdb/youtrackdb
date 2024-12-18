@@ -56,7 +56,6 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.CurrentStorageComponentsFactory;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
 import com.jetbrains.youtrack.db.internal.core.exception.SessionNotActivatedException;
 import com.jetbrains.youtrack.db.internal.core.exception.TransactionBlockedException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
@@ -79,6 +78,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeDelegate;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeEntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImplEmbedded;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexEntityImpl;
@@ -88,8 +88,7 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.R
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.RawBuffer;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageInfo;
-import com.jetbrains.youtrack.db.internal.core.storage.StorageOperationResult;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransaction;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransaction.TXSTATUS;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
@@ -184,12 +183,14 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   public void callOnOpenListeners() {
+    assert assertIfNotActive();
     wakeupOnOpenDbLifecycleListeners();
   }
 
   protected abstract void loadMetadata();
 
   public void callOnCloseListeners() {
+    assert assertIfNotActive();
     wakeupOnCloseDbLifecycleListeners();
     wakeupOnCloseListeners();
   }
@@ -225,6 +226,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * {@inheritDoc}
    */
   public <RET extends Record> RET getRecord(final Identifiable iIdentifiable) {
+    assert assertIfNotActive();
     if (iIdentifiable instanceof Record) {
       return (RET) iIdentifiable;
     }
@@ -241,12 +243,14 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   public DatabaseSessionInternal cleanOutRecord(final RID iRecord, final int iVersion) {
+    assert assertIfNotActive();
     delete(iRecord, iVersion);
     return this;
   }
 
   public <REC extends Record> RecordIteratorCluster<REC> browseCluster(
       final String iClusterName, final Class<REC> iClass) {
+    assert assertIfNotActive();
     return (RecordIteratorCluster<REC>) browseCluster(iClusterName);
   }
 
@@ -262,7 +266,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
       final long endClusterPosition,
       final boolean loadTombstones) {
     checkSecurity(Rule.ResourceGeneric.CLUSTER, Role.PERMISSION_READ, iClusterName);
-    checkIfActive();
+    assert assertIfNotActive();
     final int clusterId = getClusterIdByName(iClusterName);
     return new RecordIteratorCluster<REC>(
         this, clusterId, startClusterPosition, endClusterPosition);
@@ -275,7 +279,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
       long startClusterPosition,
       long endClusterPosition) {
     checkSecurity(Rule.ResourceGeneric.CLUSTER, Role.PERMISSION_READ, iClusterName);
-    checkIfActive();
+    assert assertIfNotActive();
     final int clusterId = getClusterIdByName(iClusterName);
     //noinspection deprecation
     return new RecordIteratorCluster<>(this, clusterId, startClusterPosition, endClusterPosition);
@@ -286,7 +290,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   public CommandRequest command(final CommandRequest iCommand) {
     checkSecurity(Rule.ResourceGeneric.COMMAND, Role.PERMISSION_READ);
-    checkIfActive();
+    assert assertIfNotActive();
     final CommandRequestInternal command = (CommandRequestInternal) iCommand;
     try {
       command.reset();
@@ -300,7 +304,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * {@inheritDoc}
    */
   public <RET extends List<?>> RET query(final Query<?> iCommand, final Object... iArgs) {
-    checkIfActive();
+    assert assertIfNotActive();
     iCommand.reset();
     return iCommand.execute(this, iArgs);
   }
@@ -317,6 +321,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   @Override
   public long countClusterElements(final int[] iClusterIds) {
+    assert assertIfNotActive();
     return countClusterElements(iClusterIds, false);
   }
 
@@ -325,6 +330,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   @Override
   public long countClusterElements(final int iClusterId) {
+    assert assertIfNotActive();
     return countClusterElements(iClusterId, false);
   }
 
@@ -332,6 +338,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * {@inheritDoc}
    */
   public MetadataDefault getMetadata() {
+    assert assertIfNotActive();
     checkOpenness();
     return metadata;
   }
@@ -341,6 +348,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   @Override
   public DatabaseSessionInternal getDatabaseOwner() {
+    assert assertIfNotActive();
     DatabaseSessionInternal current = databaseOwner;
     while (current != null && current != this && current.getDatabaseOwner() != current) {
       current = current.getDatabaseOwner();
@@ -353,6 +361,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   @Override
   public DatabaseSessionInternal setDatabaseOwner(DatabaseSessionInternal iOwner) {
+    assert assertIfNotActive();
     databaseOwner = iOwner;
     return this;
   }
@@ -361,6 +370,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * {@inheritDoc}
    */
   public boolean isRetainRecords() {
+    assert assertIfNotActive();
     return retainRecords;
   }
 
@@ -368,6 +378,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * {@inheritDoc}
    */
   public DatabaseSession setRetainRecords(boolean retainRecords) {
+    assert assertIfNotActive();
     this.retainRecords = retainRecords;
     return this;
   }
@@ -376,13 +387,9 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * {@inheritDoc}
    */
   public DatabaseSession setStatus(final STATUS status) {
-    checkIfActive();
+    assert assertIfNotActive();
     this.status = status;
     return this;
-  }
-
-  public void setStatusInternal(final STATUS status) {
-    this.status = status;
   }
 
   /**
@@ -396,6 +403,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * {@inheritDoc}
    */
   public SecurityUser geCurrentUser() {
+    assert assertIfNotActive();
     return user;
   }
 
@@ -403,7 +411,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * {@inheritDoc}
    */
   public void setUser(final SecurityUser user) {
-    checkIfActive();
+    assert assertIfNotActive();
     if (user instanceof SecurityUserIml) {
       final Metadata metadata = getMetadata();
       if (metadata != null) {
@@ -418,8 +426,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   public void reloadUser() {
+    assert assertIfNotActive();
     if (user != null) {
-      activateOnCurrentThread();
       if (user.checkIfAllowed(this, Rule.ResourceGeneric.CLASS, SecurityUserIml.CLASS_NAME,
           Role.PERMISSION_READ)
           != null) {
@@ -444,6 +452,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * {@inheritDoc}
    */
   public boolean isMVCC() {
+    assert assertIfNotActive();
     return true;
   }
 
@@ -457,19 +466,10 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   /**
    * {@inheritDoc}
    */
-  @Deprecated
-  public Dictionary<Record> getDictionary() {
-    checkOpenness();
-    return metadata.getIndexManagerInternal().getDictionary(this);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
   public void registerHook(final RecordHook iHookImpl,
       final RecordHook.HOOK_POSITION iPosition) {
     checkOpenness();
-    checkIfActive();
+    assert assertIfNotActive();
 
     final Map<RecordHook, RecordHook.HOOK_POSITION> tmp =
         new LinkedHashMap<RecordHook, RecordHook.HOOK_POSITION>(hooks);
@@ -489,6 +489,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * {@inheritDoc}
    */
   public void registerHook(final RecordHook iHookImpl) {
+    assert assertIfNotActive();
     registerHook(iHookImpl, RecordHook.HOOK_POSITION.REGULAR);
   }
 
@@ -496,7 +497,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * {@inheritDoc}
    */
   public void unregisterHook(final RecordHook iHookImpl) {
-    checkIfActive();
+    assert assertIfNotActive();
     if (iHookImpl != null) {
       iHookImpl.onUnregister();
       hooks.remove(iHookImpl);
@@ -509,6 +510,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   @Override
   public LocalRecordCache getLocalCache() {
+    assert assertIfNotActive();
     return localCache;
   }
 
@@ -516,6 +518,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * {@inheritDoc}
    */
   public Map<RecordHook, RecordHook.HOOK_POSITION> getHooks() {
+    assert assertIfNotActive();
     return unmodifiableHooks;
   }
 
@@ -527,6 +530,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * @return True if the input record is changed, otherwise false
    */
   public RecordHook.RESULT callbackHooks(final RecordHook.TYPE type, final Identifiable id) {
+    assert assertIfNotActive();
     if (id == null || hooks.isEmpty() || id.getIdentity().getClusterId() == 0) {
       return RecordHook.RESULT.RECORD_NOT_CHANGED;
     }
@@ -542,7 +546,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     try {
       final Record rec;
       try {
-        rec = id.getRecord();
+        rec = id.getRecord(this);
       } catch (RecordNotFoundException e) {
         return RecordHook.RESULT.RECORD_NOT_CHANGED;
       }
@@ -568,7 +572,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
             }
         }
 
-        final RecordHook.RESULT res = hook.onTrigger(type, rec);
+        final RecordHook.RESULT res = hook.onTrigger(this, type, rec);
 
         if (res == RecordHook.RESULT.RECORD_CHANGED) {
           recordChanged = true;
@@ -602,6 +606,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * {@inheritDoc}
    */
   public boolean isValidationEnabled() {
+    assert assertIfNotActive();
     return (Boolean) get(ATTRIBUTES_INTERNAL.VALIDATION.VALIDATION);
   }
 
@@ -609,12 +614,13 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * {@inheritDoc}
    */
   public void setValidationEnabled(final boolean iEnabled) {
+    assert assertIfNotActive();
     set(ATTRIBUTES_INTERNAL.VALIDATION, iEnabled);
   }
 
   @Override
   public ContextConfiguration getConfiguration() {
-    checkIfActive();
+    assert assertIfNotActive();
     if (getStorageInfo() != null) {
       return getStorageInfo().getConfiguration().getContextConfiguration();
     }
@@ -628,40 +634,43 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public STATUS getStatus() {
+    assert assertIfNotActive();
     return status;
   }
 
   @Override
   public String getName() {
+    assert assertIfNotActive();
     return getStorageInfo() != null ? getStorageInfo().getName() : url;
   }
 
   @Override
   public String getURL() {
+    assert assertIfNotActive();
     return url != null ? url : getStorageInfo().getURL();
   }
 
   @Override
   public int getDefaultClusterId() {
-    checkIfActive();
+    assert assertIfNotActive();
     return getStorageInfo().getDefaultClusterId();
   }
 
   @Override
   public int getClusters() {
-    checkIfActive();
+    assert assertIfNotActive();
     return getStorageInfo().getClusters();
   }
 
   @Override
   public boolean existsCluster(final String iClusterName) {
-    checkIfActive();
+    assert assertIfNotActive();
     return getStorageInfo().getClusterNames().contains(iClusterName.toLowerCase(Locale.ENGLISH));
   }
 
   @Override
   public Collection<String> getClusterNames() {
-    checkIfActive();
+    assert assertIfNotActive();
     return getStorageInfo().getClusterNames();
   }
 
@@ -671,7 +680,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
       return -1;
     }
 
-    checkIfActive();
+    assert assertIfNotActive();
     return getStorageInfo().getClusterIdByName(iClusterName.toLowerCase(Locale.ENGLISH));
   }
 
@@ -681,11 +690,12 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
       return null;
     }
 
-    checkIfActive();
+    assert assertIfNotActive();
     return getStorageInfo().getPhysicalClusterNameById(iClusterId);
   }
 
   public void checkForClusterPermissions(final String iClusterName) {
+    assert assertIfNotActive();
     // CHECK FOR ORESTRICTED
     final Set<SchemaClass> classes =
         getMetadata().getImmutableSchemaSnapshot().getClassesRelyOnCluster(iClusterName);
@@ -703,6 +713,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public Object setProperty(final String iName, final Object iValue) {
+    assert assertIfNotActive();
     if (iValue == null) {
       return properties.remove(iName.toLowerCase(Locale.ENGLISH));
     } else {
@@ -712,17 +723,19 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public Object getProperty(final String iName) {
+    assert assertIfNotActive();
     return properties.get(iName.toLowerCase(Locale.ENGLISH));
   }
 
   @Override
   public Iterator<Map.Entry<String, Object>> getProperties() {
+    assert assertIfNotActive();
     return properties.entrySet().iterator();
   }
 
   @Override
   public Object get(final ATTRIBUTES iAttribute) {
-    checkIfActive();
+    assert assertIfNotActive();
 
     if (iAttribute == null) {
       throw new IllegalArgumentException("attribute is null");
@@ -742,7 +755,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public Object get(ATTRIBUTES_INTERNAL attribute) {
-    checkIfActive();
+    assert assertIfNotActive();
 
     if (attribute == null) {
       throw new IllegalArgumentException("attribute is null");
@@ -758,7 +771,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
 
   public FrontendTransaction getTransaction() {
-    checkIfActive();
+    assert assertIfNotActive();
     return currentTx;
   }
 
@@ -769,6 +782,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   @Override
   public Schema getSchema() {
+    assert assertIfNotActive();
     return getMetadata().getSchema();
   }
 
@@ -777,13 +791,13 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   @SuppressWarnings("unchecked")
   @Override
   public <RET extends Record> RET load(final RID recordId) {
-    checkIfActive();
+    assert assertIfNotActive();
     return (RET) currentTx.loadRecord(recordId);
   }
 
   @Override
   public boolean exists(RID rid) {
-    checkIfActive();
+    assert assertIfNotActive();
     return currentTx.exists(rid);
   }
 
@@ -792,7 +806,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   public void delete(final RID iRecord) {
     checkOpenness();
-    checkIfActive();
+    assert assertIfNotActive();
 
     final Record rec = load(iRecord);
     delete(rec);
@@ -800,16 +814,19 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public BinarySerializerFactory getSerializerFactory() {
+    assert assertIfNotActive();
     return componentsFactory.binarySerializerFactory;
   }
 
   @Override
   public void setPrefetchRecords(boolean prefetchRecords) {
+    assert assertIfNotActive();
     this.prefetchRecords = prefetchRecords;
   }
 
   @Override
   public boolean isPrefetchRecords() {
+    assert assertIfNotActive();
     return prefetchRecords;
   }
 
@@ -830,10 +847,10 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     }
 
     checkOpenness();
-    checkIfActive();
+    assert assertIfNotActive();
 
     // unwrap the record if wrapper is passed
-    record = record.getRecord();
+    record = record.getRecord(this);
 
     var txRecord = currentTx.getRecord(rid);
     if (txRecord == record) {
@@ -865,7 +882,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   @Nonnull
   public final <RET extends RecordAbstract> RET executeReadRecord(final RecordId rid) {
     checkOpenness();
-    checkIfActive();
+    assert assertIfNotActive();
 
     getMetadata().makeThreadLocalSchemaSnapshot();
     try {
@@ -932,7 +949,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
         RecordInternal.unsetDirty(record);
       }
 
-      if (RecordInternal.getRecordType(record) != recordBuffer.recordType) {
+      if (RecordInternal.getRecordType(this, record) != recordBuffer.recordType) {
         throw new DatabaseException("Record type is different from the one in the database");
       }
 
@@ -978,6 +995,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   public int assignAndCheckCluster(Record record, String clusterName) {
+    assert assertIfNotActive();
+
     RecordId rid = (RecordId) record.getIdentity();
     // if provided a cluster name use it.
     if (rid.getClusterId() <= RID.CLUSTER_POS_INVALID && clusterName != null) {
@@ -1059,7 +1078,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   public int begin(TransactionOptimistic transaction) {
     checkOpenness();
-    checkIfActive();
+    assert assertIfNotActive();
 
     // CHECK IT'S NOT INSIDE A HOOK
     if (!inHook.isEmpty()) {
@@ -1087,10 +1106,12 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   protected TransactionOptimistic newTxInstance() {
+    assert assertIfNotActive();
     return new TransactionOptimistic(this);
   }
 
   public void setDefaultTransactionMode() {
+    assert assertIfNotActive();
     if (!(currentTx instanceof FrontendTransactionNoTx)) {
       currentTx = new FrontendTransactionNoTx(this);
     }
@@ -1100,16 +1121,19 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * Creates a new EntityImpl.
    */
   public EntityImpl newInstance() {
-    return new EntityImpl(Entity.DEFAULT_CLASS_NAME, this);
+    assert assertIfNotActive();
+    return new EntityImpl(this, Entity.DEFAULT_CLASS_NAME);
   }
 
   @Override
   public Blob newBlob(byte[] bytes) {
+    assert assertIfNotActive();
     return new RecordBytes(this, bytes);
   }
 
   @Override
   public Blob newBlob() {
+    assert assertIfNotActive();
     return new RecordBytes(this);
   }
 
@@ -1121,24 +1145,40 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   @Override
   public EntityImpl newInstance(final String className) {
+    assert assertIfNotActive();
     return new EntityImpl(this, className);
   }
 
   @Override
   public Entity newEntity() {
+    assert assertIfNotActive();
     return newInstance();
   }
 
   @Override
   public Entity newEntity(String className) {
+    assert assertIfNotActive();
     return newInstance(className);
   }
 
+  @Override
+  public Entity newEmbededEntity(String className) {
+    return new EntityImplEmbedded(className, this);
+  }
+
+  @Override
+  public Entity newEmbededEntity() {
+    return new EntityImplEmbedded(this);
+  }
+
+
   public Entity newEntity(SchemaClass clazz) {
+    assert assertIfNotActive();
     return newInstance(clazz.getName());
   }
 
   public Vertex newVertex(final String iClassName) {
+    assert assertIfNotActive();
     return new VertexEntityImpl(this, iClassName);
   }
 
@@ -1148,6 +1188,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public Vertex newVertex(SchemaClass type) {
+    assert assertIfNotActive();
     if (type == null) {
       return newVertex("V");
     }
@@ -1156,6 +1197,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public EdgeInternal newRegularEdge(Vertex from, Vertex to, String type) {
+    assert assertIfNotActive();
     SchemaClass cl = getMetadata().getImmutableSchemaSnapshot().getClass(type);
     if (cl == null || !cl.isEdgeType()) {
       throw new IllegalArgumentException(type + " is not a regular edge class");
@@ -1170,6 +1212,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public Edge newLightweightEdge(Vertex from, Vertex to, @Nonnull String type) {
+    assert assertIfNotActive();
     SchemaClass cl = getMetadata().getImmutableSchemaSnapshot().getClass(type);
     if (cl == null || !cl.isEdgeType()) {
       throw new IllegalArgumentException(type + " is not a lightweight edge class");
@@ -1184,6 +1227,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public Edge newRegularEdge(Vertex from, Vertex to, SchemaClass type) {
+    assert assertIfNotActive();
     if (type == null) {
       return newRegularEdge(from, to, "E");
     }
@@ -1193,6 +1237,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public Edge newLightweightEdge(Vertex from, Vertex to, @Nonnull SchemaClass type) {
+    assert assertIfNotActive();
     return newLightweightEdge(from, to, type.getName());
   }
 
@@ -1221,14 +1266,14 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     }
 
     try {
-      outEntity = toVertex.getRecord();
+      outEntity = toVertex.getRecord(this);
     } catch (RecordNotFoundException e) {
       throw new IllegalArgumentException(
           "source vertex is invalid (rid=" + toVertex.getIdentity() + ")");
     }
 
     try {
-      inEntity = inVertex.getRecord();
+      inEntity = inVertex.getRecord(this);
     } catch (RecordNotFoundException e) {
       throw new IllegalArgumentException(
           "source vertex is invalid (rid=" + inVertex.getIdentity() + ")");
@@ -1256,20 +1301,22 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
     if (createLightweightEdge) {
       edge = newLightweightEdgeInternal(className, toVertex, inVertex);
-      VertexInternal.createLink(toVertex.getRecord(), inVertex.getRecord(), outFieldName);
-      VertexInternal.createLink(inVertex.getRecord(), toVertex.getRecord(), inFieldName);
+      VertexInternal.createLink(this, toVertex.getRecord(this), inVertex.getRecord(this),
+          outFieldName);
+      VertexInternal.createLink(this, inVertex.getRecord(this), toVertex.getRecord(this),
+          inFieldName);
     } else {
       edge = newEdgeInternal(className);
-      edge.setPropertyInternal(EdgeInternal.DIRECTION_OUT, toVertex.getRecord());
-      edge.setPropertyInternal(Edge.DIRECTION_IN, inEntity.getRecord());
+      edge.setPropertyInternal(EdgeInternal.DIRECTION_OUT, toVertex.getRecord(this));
+      edge.setPropertyInternal(Edge.DIRECTION_IN, inEntity.getRecord(this));
 
       if (!outEntityModified) {
         // OUT-VERTEX ---> IN-VERTEX/EDGE
-        VertexInternal.createLink(outEntity, edge.getRecord(), outFieldName);
+        VertexInternal.createLink(this, outEntity, edge.getRecord(this), outFieldName);
       }
 
       // IN-VERTEX ---> OUT-VERTEX/EDGE
-      VertexInternal.createLink(inEntity, edge.getRecord(), inFieldName);
+      VertexInternal.createLink(this, inEntity, edge.getRecord(this), inFieldName);
     }
     // OK
 
@@ -1278,8 +1325,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   private boolean checkDeletedInTx(Vertex currentVertex) {
     RID id;
-    if (!currentVertex.getRecord().exists()) {
-      id = currentVertex.getRecord().getIdentity();
+    if (!currentVertex.getRecord(this).exists()) {
+      id = currentVertex.getRecord(this).getIdentity();
     } else {
       return false;
     }
@@ -1296,6 +1343,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * {@inheritDoc}
    */
   public RecordIteratorClass<EntityImpl> browseClass(final String iClassName) {
+    assert assertIfNotActive();
     return browseClass(iClassName, true);
   }
 
@@ -1304,6 +1352,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   public RecordIteratorClass<EntityImpl> browseClass(
       final String iClassName, final boolean iPolymorphic) {
+    assert assertIfNotActive();
     if (getMetadata().getImmutableSchemaSnapshot().getClass(iClassName) == null) {
       throw new IllegalArgumentException(
           "Class '" + iClassName + "' not found in current database");
@@ -1318,6 +1367,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   @Override
   public RecordIteratorCluster<Record> browseCluster(final String iClusterName) {
+    assert assertIfNotActive();
     checkSecurity(Rule.ResourceGeneric.CLUSTER, Role.PERMISSION_READ, iClusterName);
 
     return new RecordIteratorCluster<>(this, getClusterIdByName(iClusterName));
@@ -1328,6 +1378,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   @Override
   public Iterable<SessionListener> getListeners() {
+    assert assertIfNotActive();
     return getListenersCopy();
   }
 
@@ -1341,6 +1392,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
       long startClusterPosition,
       long endClusterPosition,
       boolean loadTombstones) {
+    assert assertIfNotActive();
     checkSecurity(Rule.ResourceGeneric.CLUSTER, Role.PERMISSION_READ, iClusterName);
 
     return new RecordIteratorCluster<EntityImpl>(
@@ -1371,6 +1423,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   @Override
   public <RET extends Record> RET save(final Record record) {
+    assert assertIfNotActive();
     return save(record, null);
   }
 
@@ -1401,6 +1454,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   @Override
   public <RET extends Record> RET save(Record record, String clusterName) {
+    assert assertIfNotActive();
+
     checkOpenness();
 
     if (record instanceof Edge edge) {
@@ -1410,7 +1465,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     }
 
     // unwrap the record if wrapper is passed
-    record = record.getRecord();
+    record = record.getRecord(this);
 
     if (record.isUnloaded()) {
       throw new DatabaseException(
@@ -1464,6 +1519,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * Returns the number of the records of the class iClassName.
    */
   public long countClass(final String iClassName) {
+    assert assertIfNotActive();
     return countClass(iClassName, true);
   }
 
@@ -1472,6 +1528,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * polymorphic is true.
    */
   public long countClass(final String iClassName, final boolean iPolymorphic) {
+    assert assertIfNotActive();
     final SchemaImmutableClass cls =
         (SchemaImmutableClass) getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
     if (cls == null) {
@@ -1483,6 +1540,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   protected long countClass(final SchemaImmutableClass cls, final boolean iPolymorphic) {
     checkOpenness();
+    assert assertIfNotActive();
 
     long totalOnDb = cls.countImpl(iPolymorphic);
 
@@ -1539,7 +1597,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   @Override
   public boolean commit() {
     checkOpenness();
-    checkIfActive();
+    assert assertIfNotActive();
 
     if (currentTx.getStatus() == TXSTATUS.ROLLBACKING) {
       throw new RollbackException("Transaction is rolling back");
@@ -1601,6 +1659,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   protected void beforeCommitOperations() {
+    assert assertIfNotActive();
     for (SessionListener listener : browseListeners()) {
       try {
         listener.onBeforeTxCommit(this);
@@ -1624,6 +1683,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   public void afterCommitOperations() {
+    assert assertIfNotActive();
     for (SessionListener listener : browseListeners()) {
       try {
         listener.onAfterTxCommit(this);
@@ -1642,6 +1702,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   protected void beforeRollbackOperations() {
+    assert assertIfNotActive();
     for (SessionListener listener : browseListeners()) {
       try {
         listener.onBeforeTxRollback(this);
@@ -1653,6 +1714,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   protected void afterRollbackOperations() {
+    assert assertIfNotActive();
     for (SessionListener listener : browseListeners()) {
       try {
         listener.onAfterTxRollback(this);
@@ -1668,14 +1730,16 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   @Override
   public void rollback() {
+    assert assertIfNotActive();
     rollback(false);
   }
 
   @Override
   public void rollback(boolean force) throws TransactionException {
     checkOpenness();
-    if (currentTx.isActive()) {
+    assert assertIfNotActive();
 
+    if (currentTx.isActive()) {
       if (!force && currentTx.amountOfNestedTxs() > 1) {
         // This just decrement the counter no real rollback here
         currentTx.rollback();
@@ -1700,10 +1764,12 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public CurrentStorageComponentsFactory getStorageVersions() {
+    assert assertIfNotActive();
     return componentsFactory;
   }
 
   public RecordSerializer getSerializer() {
+    assert assertIfNotActive();
     return serializer;
   }
 
@@ -1713,11 +1779,13 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * @param serializer the serializer to set.
    */
   public void setSerializer(RecordSerializer serializer) {
+    assert assertIfNotActive();
     this.serializer = serializer;
   }
 
   @Override
   public void resetInitialization() {
+    assert assertIfNotActive();
     for (RecordHook h : hooks.keySet()) {
       h.onUnregister();
     }
@@ -1731,6 +1799,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   public void checkSecurity(final int operation, final Identifiable record, String cluster) {
+    assert assertIfNotActive();
     if (cluster == null) {
       cluster = getClusterNameById(record.getIdentity().getClusterId());
     }
@@ -1791,49 +1860,10 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     return inHook.add(id);
   }
 
-  protected void callbackHookFailure(Record record, boolean wasNew, byte[] stream) {
-    if (stream != null && stream.length > 0) {
-      callbackHooks(
-          wasNew ? RecordHook.TYPE.CREATE_FAILED : RecordHook.TYPE.UPDATE_FAILED, record);
-    }
-  }
-
-  protected void callbackHookSuccess(
-      final Record record,
-      final boolean wasNew,
-      final byte[] stream,
-      final StorageOperationResult<Integer> operationResult) {
-    if (stream != null && stream.length > 0) {
-      final RecordHook.TYPE hookType;
-      if (!operationResult.isMoved()) {
-        hookType = wasNew ? RecordHook.TYPE.AFTER_CREATE : RecordHook.TYPE.AFTER_UPDATE;
-      } else {
-        hookType =
-            wasNew ? RecordHook.TYPE.CREATE_REPLICATED : RecordHook.TYPE.UPDATE_REPLICATED;
-      }
-      callbackHooks(hookType, record);
-    }
-  }
-
-  protected void callbackHookFinalize(
-      final Record record, final boolean wasNew, final byte[] stream) {
-    if (stream != null && stream.length > 0) {
-      final RecordHook.TYPE hookType;
-      hookType = wasNew ? RecordHook.TYPE.FINALIZE_CREATION : RecordHook.TYPE.FINALIZE_UPDATE;
-      callbackHooks(hookType, record);
-
-      clearDocumentTracking(record);
-    }
-  }
-
-  protected static void clearDocumentTracking(final Record record) {
-    if (record instanceof EntityImpl && ((EntityImpl) record).isTrackingChanges()) {
-      EntityInternalUtils.clearTrackData((EntityImpl) record);
-    }
-  }
-
   protected void checkRecordClass(
       final SchemaClass recordClass, final String iClusterName, final RecordId rid) {
+    assert assertIfNotActive();
+
     final SchemaClass clusterIdClass =
         metadata.getImmutableSchemaSnapshot().getClassByClusterId(rid.getClusterId());
     if (recordClass == null && clusterIdClass != null
@@ -1851,25 +1881,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   protected void init() {
+    assert assertIfNotActive();
     currentTx = new FrontendTransactionNoTx(this);
-  }
-
-  public void checkIfActive() {
-    final DatabaseRecordThreadLocal tl = DatabaseRecordThreadLocal.instance();
-    DatabaseSessionInternal currentDatabase = tl.get();
-    //noinspection deprecation
-    if (currentDatabase instanceof DatabaseDocumentTx databaseDocumentTx) {
-      currentDatabase = databaseDocumentTx.internal;
-    }
-    if (currentDatabase != this) {
-      throw new IllegalStateException(
-          "The current database instance ("
-              + this
-              + ") is not active on the current thread ("
-              + Thread.currentThread()
-              + "). Current active database is: "
-              + currentDatabase);
-    }
   }
 
   @Override
@@ -1890,6 +1903,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   public int[] getBlobClusterIds() {
+    assert assertIfNotActive();
     return getMetadata().getSchema().getBlobClusters().toIntArray();
   }
 
@@ -1915,15 +1929,13 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public SharedContext getSharedContext() {
+    assert assertIfNotActive();
     return sharedContext;
   }
 
 
-  public void setUseLightweightEdges(boolean b) {
-    this.setCustom("useLightweightEdges", b);
-  }
-
   public EdgeInternal newLightweightEdgeInternal(String iClassName, Vertex from, Vertex to) {
+    assert assertIfNotActive();
     SchemaImmutableClass clazz =
         (SchemaImmutableClass) getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
 
@@ -1931,6 +1943,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   public Edge newRegularEdge(String iClassName, Vertex from, Vertex to) {
+    assert assertIfNotActive();
     SchemaClass cl = getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
 
     if (cl == null || !cl.isEdgeType()) {
@@ -1941,6 +1954,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   public synchronized void queryStarted(String id, QueryDatabaseState state) {
+    assert assertIfNotActive();
+
     if (this.activeQueries.size() > 1 && this.activeQueries.size() % 10 == 0) {
       String msg =
           "This database instance has "
@@ -1961,12 +1976,16 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   public void queryClosed(String id) {
+    assert assertIfNotActive();
+
     QueryDatabaseState removed = this.activeQueries.remove(id);
     getListeners().forEach((it) -> it.onCommandEnd(this, removed.getResultSet()));
 
   }
 
   protected synchronized void closeActiveQueries() {
+    assert assertIfNotActive();
+
     while (!activeQueries.isEmpty()) {
       this.activeQueries
           .values()
@@ -1977,10 +1996,14 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   public Map<String, QueryDatabaseState> getActiveQueries() {
+    assert assertIfNotActive();
+
     return activeQueries;
   }
 
   public ResultSet getActiveQuery(String id) {
+    assert assertIfNotActive();
+
     QueryDatabaseState state = activeQueries.get(id);
     if (state != null) {
       return state.getResultSet();
@@ -1991,28 +2014,33 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public boolean isClusterEdge(int cluster) {
+    assert assertIfNotActive();
     SchemaClass clazz = getMetadata().getImmutableSchemaSnapshot().getClassByClusterId(cluster);
     return clazz != null && clazz.isEdgeType();
   }
 
   @Override
   public boolean isClusterVertex(int cluster) {
+    assert assertIfNotActive();
     SchemaClass clazz = getMetadata().getImmutableSchemaSnapshot().getClassByClusterId(cluster);
     return clazz != null && clazz.isVertexType();
   }
 
 
   public Map<UUID, BonsaiCollectionPointer> getCollectionsChanges() {
+    assert assertIfNotActive();
+
     if (collectionsChanges == null) {
       collectionsChanges = new HashMap<>();
     }
+
     return collectionsChanges;
   }
 
   @Override
   public void executeInTx(Runnable runnable) {
     var ok = false;
-    checkIfActive();
+    assert assertIfNotActive();
     begin();
     try {
       runnable.run();
@@ -2026,7 +2054,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   public <T> void executeInTxBatches(
       Iterable<T> iterable, int batchSize, BiConsumer<DatabaseSession, T> consumer) {
     var ok = false;
-    checkIfActive();
+    assert assertIfNotActive();
     int counter = 0;
 
     begin();
@@ -2049,6 +2077,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public <T> void forEachInTx(Iterator<T> iterator, BiConsumer<DatabaseSession, T> consumer) {
+    assert assertIfNotActive();
+
     forEachInTx(iterator, (db, t) -> {
       consumer.accept(db, t);
       return true;
@@ -2057,11 +2087,15 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public <T> void forEachInTx(Iterable<T> iterable, BiConsumer<DatabaseSession, T> consumer) {
+    assert assertIfNotActive();
+
     forEachInTx(iterable.iterator(), consumer);
   }
 
   @Override
   public <T> void forEachInTx(Stream<T> stream, BiConsumer<DatabaseSession, T> consumer) {
+    assert assertIfNotActive();
+
     try (Stream<T> s = stream) {
       forEachInTx(s.iterator(), consumer);
     }
@@ -2071,7 +2105,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   public <T> void forEachInTx(Iterator<T> iterator,
       BiFunction<DatabaseSession, T, Boolean> consumer) {
     var ok = false;
-    checkIfActive();
+    assert assertIfNotActive();
 
     begin();
     try {
@@ -2093,12 +2127,16 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   @Override
   public <T> void forEachInTx(Iterable<T> iterable,
       BiFunction<DatabaseSession, T, Boolean> consumer) {
+    assert assertIfNotActive();
+
     forEachInTx(iterable.iterator(), consumer);
   }
 
   @Override
   public <T> void forEachInTx(Stream<T> stream,
       BiFunction<DatabaseSession, T, Boolean> consumer) {
+    assert assertIfNotActive();
+
     try (stream) {
       forEachInTx(stream.iterator(), consumer);
     }
@@ -2122,7 +2160,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   public <T> void executeInTxBatches(
       Iterator<T> iterator, int batchSize, BiConsumer<DatabaseSession, T> consumer) {
     var ok = false;
-    checkIfActive();
+    assert assertIfNotActive();
     int counter = 0;
 
     begin();
@@ -2146,6 +2184,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   @Override
   public <T> void executeInTxBatches(
       Iterator<T> iterator, BiConsumer<DatabaseSession, T> consumer) {
+    assert assertIfNotActive();
+
     executeInTxBatches(
         iterator,
         getConfiguration().getValueAsInteger(GlobalConfiguration.TX_BATCH_SIZE),
@@ -2155,6 +2195,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   @Override
   public <T> void executeInTxBatches(
       Iterable<T> iterable, BiConsumer<DatabaseSession, T> consumer) {
+    assert assertIfNotActive();
+
     executeInTxBatches(
         iterable,
         getConfiguration().getValueAsInteger(GlobalConfiguration.TX_BATCH_SIZE),
@@ -2164,6 +2206,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   @Override
   public <T> void executeInTxBatches(
       Stream<T> stream, int batchSize, BiConsumer<DatabaseSession, T> consumer) {
+    assert assertIfNotActive();
+
     try (stream) {
       executeInTxBatches(stream.iterator(), batchSize, consumer);
     }
@@ -2171,6 +2215,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public <T> void executeInTxBatches(Stream<T> stream, BiConsumer<DatabaseSession, T> consumer) {
+    assert assertIfNotActive();
+
     try (stream) {
       executeInTxBatches(stream.iterator(), consumer);
     }
@@ -2178,7 +2224,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public <T> T computeInTx(Supplier<T> supplier) {
-    checkIfActive();
+    assert assertIfNotActive();
     var ok = false;
     begin();
     try {
@@ -2192,6 +2238,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public int activeTxCount() {
+    assert assertIfNotActive();
+
     var transaction = getTransaction();
 
     if (transaction.isActive()) {

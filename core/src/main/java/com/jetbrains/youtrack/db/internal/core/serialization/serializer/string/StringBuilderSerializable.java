@@ -19,11 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.string;
 
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 
 public interface StringBuilderSerializable {
 
-  StringBuilderSerializable toStream(StringBuilder iOutput) throws SerializationException;
+  StringBuilderSerializable toStream(DatabaseSessionInternal db, StringBuilder iOutput)
+      throws SerializationException;
 
-  StringBuilderSerializable fromStream(StringBuilder iInput) throws SerializationException;
+  StringBuilderSerializable fromStream(DatabaseSessionInternal db, StringBuilder iInput)
+      throws SerializationException;
 }

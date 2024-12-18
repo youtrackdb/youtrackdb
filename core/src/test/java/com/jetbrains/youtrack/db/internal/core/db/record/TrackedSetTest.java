@@ -1,6 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent.ChangeType;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -21,7 +22,7 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testAddOne() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -38,7 +39,7 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testAddTwo() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -50,7 +51,7 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testAddThree() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -64,7 +65,7 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testAddFour() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -85,7 +86,7 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testRemoveNotificationOne() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -109,7 +110,7 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testRemoveNotificationTwo() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -128,7 +129,7 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testRemoveNotificationFour() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -148,7 +149,7 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testClearOne() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -181,7 +182,7 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testClearThree() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -200,7 +201,7 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testReturnOriginalState() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
 
     final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
     trackedSet.add("value1");
@@ -236,13 +237,18 @@ public class TrackedSetTest extends DbTestBase {
 
       private static final long serialVersionUID = 1L;
 
+      public NotSerializableEntityImpl(
+          DatabaseSessionInternal database) {
+        super(database);
+      }
+
       private void writeObject(ObjectOutputStream oos) throws IOException {
         throw new NotSerializableException();
       }
     }
 
     final TrackedSet<String> beforeSerialization =
-        new TrackedSet<String>(new NotSerializableEntityImpl());
+        new TrackedSet<String>(new NotSerializableEntityImpl(db));
     beforeSerialization.add("firstVal");
     beforeSerialization.add("secondVal");
 
@@ -261,7 +267,7 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testStackOverflowOnRecursion() {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl doc = (EntityImpl) db.newEntity();
     final TrackedSet<EntityImpl> trackedSet = new TrackedSet<>(doc);
     trackedSet.add(doc);
   }

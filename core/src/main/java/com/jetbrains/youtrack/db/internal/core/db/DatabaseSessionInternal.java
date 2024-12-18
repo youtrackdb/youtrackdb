@@ -40,7 +40,6 @@ import com.jetbrains.youtrack.db.internal.core.cache.LocalRecordCache;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
 import com.jetbrains.youtrack.db.internal.core.db.record.CurrentStorageComponentsFactory;
-import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClass;
@@ -59,8 +58,8 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.R
 import com.jetbrains.youtrack.db.internal.core.storage.RecordMetadata;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageInfo;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransaction;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionData;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx;
@@ -98,10 +97,14 @@ public interface DatabaseSessionInternal extends DatabaseSession {
 
   <RET extends Entity> RET newInstance();
 
+  Entity newEmbededEntity(String className);
+
+  Entity newEmbededEntity();
+
   /**
    * Internal. Gets an instance of sb-tree collection manager for current database.
    */
-  SBTreeCollectionManager getSbTreeCollectionManager();
+  BTreeCollectionManager getSbTreeCollectionManager();
 
   /**
    * @return the factory of binary serializers.
@@ -155,8 +158,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
 
   void recycle(Record record);
 
-  void checkIfActive();
-
 
   boolean assertIfNotActive();
 
@@ -192,8 +193,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
   EdgeInternal newLightweightEdgeInternal(String iClassName, Vertex from, Vertex to);
 
   Edge newRegularEdge(String iClassName, Vertex from, Vertex to);
-
-  void setUseLightweightEdges(boolean b);
 
   DatabaseSessionInternal cleanOutRecord(RID rid, int version);
 
@@ -801,15 +800,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
 
   @Deprecated
   RecordMetadata getRecordMetadata(final RID rid);
-
-  /**
-   * Returns the Dictionary manual index.
-   *
-   * @return Dictionary instance
-   * @deprecated Manual indexes are prohibited and will be removed
-   */
-  @Deprecated
-  Dictionary<Record> getDictionary();
 
   void rollback(boolean force) throws TransactionException;
 

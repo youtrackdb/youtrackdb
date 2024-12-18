@@ -47,7 +47,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
     for (int i = 0; i < 10; i++) {
       db.begin();
       db.save(
-          new EntityImpl("Person")
+          ((EntityImpl) db.newEntity("Person"))
               .field("name", names.get(i))
               .field("surname", "Reese")
               // from today back one day a time

@@ -144,7 +144,7 @@ public class MultipleDBTest extends BaseDBTest {
               long start = System.currentTimeMillis();
               for (int j = 0; j < operations_write; j++) {
 
-                EntityImpl dummy = new EntityImpl("DummyObject");
+                EntityImpl dummy = ((EntityImpl) db.newEntity("DummyObject"));
                 dummy.field("name", "name" + j);
 
                 db.begin();

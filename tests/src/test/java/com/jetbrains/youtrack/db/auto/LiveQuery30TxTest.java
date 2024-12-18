@@ -23,6 +23,7 @@ import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,19 +48,19 @@ public class LiveQuery30TxTest extends BaseDBTest implements CommandOutputListen
     public int unsubscribe;
 
     @Override
-    public void onCreate(DatabaseSession database, Result data) {
+    public void onCreate(DatabaseSessionInternal database, Result data) {
       ops.add(new Pair<>("create", data));
       latch.countDown();
     }
 
     @Override
-    public void onUpdate(DatabaseSession database, Result before, Result after) {
+    public void onUpdate(DatabaseSessionInternal database, Result before, Result after) {
       ops.add(new Pair<>("update", after));
       latch.countDown();
     }
 
     @Override
-    public void onDelete(DatabaseSession database, Result data) {
+    public void onDelete(DatabaseSessionInternal database, Result data) {
       ops.add(new Pair<>("delete", data));
       latch.countDown();
     }
@@ -84,22 +85,22 @@ public class LiveQuery30TxTest extends BaseDBTest implements CommandOutputListen
   public void checkLiveQueryTx() throws IOException, InterruptedException {
     final String className1 = "LiveQuery30Test_checkLiveQueryTx_1";
     final String className2 = "LiveQuery30Test_checkLiveQueryTx_2";
-    database.getMetadata().getSchema().createClass(className1);
-    database.getMetadata().getSchema().createClass(className2);
+    db.getMetadata().getSchema().createClass(className1);
+    db.getMetadata().getSchema().createClass(className2);
 
     MyLiveQueryListener listener = new MyLiveQueryListener();
 
-    LiveQueryMonitor monitor = database.live("live select from " + className1, listener);
+    LiveQueryMonitor monitor = db.live("live select from " + className1, listener);
     Assert.assertNotNull(monitor);
-    database.begin();
-    database.command("insert into " + className1 + " set name = 'foo', surname = 'bar'");
-    database.command("insert into  " + className1 + " set name = 'foo', surname = 'baz'");
-    database.command("insert into " + className2 + " set name = 'foo'");
-    database.commit();
+    db.begin();
+    db.command("insert into " + className1 + " set name = 'foo', surname = 'bar'");
+    db.command("insert into  " + className1 + " set name = 'foo', surname = 'baz'");
+    db.command("insert into " + className2 + " set name = 'foo'");
+    db.commit();
     latch.await(1, TimeUnit.MINUTES);
 
     monitor.unSubscribe();
-    database.command("insert into " + className1 + " set name = 'foo', surname = 'bax'");
+    db.command("insert into " + className1 + " set name = 'foo', surname = 'bax'");
     Assert.assertEquals(listener.ops.size(), 2);
     for (Pair doc : listener.ops) {
       Assert.assertEquals(doc.getKey(), "create");

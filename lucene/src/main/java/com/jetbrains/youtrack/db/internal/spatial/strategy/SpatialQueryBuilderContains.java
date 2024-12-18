@@ -13,7 +13,8 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial.strategy;
 
-import com.jetbrains.youtrack.db.internal.spatial.engine.OLuceneSpatialIndexContainer;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.spatial.engine.LuceneSpatialIndexContainer;
 import com.jetbrains.youtrack.db.internal.spatial.query.SpatialQueryContext;
 import com.jetbrains.youtrack.db.internal.spatial.shape.ShapeBuilder;
 import java.util.Map;
@@ -33,12 +34,13 @@ public class SpatialQueryBuilderContains extends SpatialQueryBuilderAbstract {
 
   public static final String NAME = "contains";
 
-  public SpatialQueryBuilderContains(OLuceneSpatialIndexContainer manager, ShapeBuilder factory) {
+  public SpatialQueryBuilderContains(LuceneSpatialIndexContainer manager, ShapeBuilder factory) {
     super(manager, factory);
   }
 
   @Override
-  public SpatialQueryContext build(Map<String, Object> query) throws Exception {
+  public SpatialQueryContext build(DatabaseSessionInternal db, Map<String, Object> query)
+      throws Exception {
     Shape shape = parseShape(query);
     SpatialStrategy strategy = manager.strategy();
 
@@ -55,7 +57,7 @@ public class SpatialQueryBuilderContains extends SpatialQueryBuilderAbstract {
             .add(new MatchAllDocsQuery(), BooleanClause.Occur.SHOULD)
             .build();
 
-    return new SpatialQueryContext(null, manager.searcher(), q);
+    return new SpatialQueryContext(null, manager.searcher(db.getStorage()), q);
   }
 
   @Override

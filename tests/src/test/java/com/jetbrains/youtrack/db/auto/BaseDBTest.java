@@ -67,42 +67,42 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
   protected List<EntityImpl> executeQuery(String sql, DatabaseSessionInternal db,
       Object... args) {
     return db.query(sql, args).stream()
-        .map(Result::toEntity)
+        .map(result -> result.toEntity())
         .map(element -> (EntityImpl) element)
         .toList();
   }
 
   protected List<EntityImpl> executeQuery(String sql, DatabaseSessionInternal db, Map args) {
     return db.query(sql, args).stream()
-        .map(Result::toEntity)
+        .map(result -> result.toEntity())
         .map(element -> (EntityImpl) element)
         .toList();
   }
 
   protected List<EntityImpl> executeQuery(String sql, DatabaseSessionInternal db) {
     return db.query(sql).stream()
-        .map(Result::toEntity)
+        .map(result -> result.toEntity())
         .map(element -> (EntityImpl) element)
         .toList();
   }
 
   protected List<EntityImpl> executeQuery(String sql, Object... args) {
-    return database.query(sql, args).stream()
-        .map(Result::toEntity)
+    return db.query(sql, args).stream()
+        .map(result -> result.toEntity())
         .map(element -> (EntityImpl) element)
         .toList();
   }
 
   protected List<EntityImpl> executeQuery(String sql, Map<?, ?> args) {
-    return database.query(sql, args).stream()
-        .map(Result::toEntity)
+    return db.query(sql, args).stream()
+        .map(result -> result.toEntity())
         .map(element -> (EntityImpl) element)
         .toList();
   }
 
   protected List<EntityImpl> executeQuery(String sql) {
-    return database.query(sql).stream()
-        .map(Result::toEntity)
+    return db.query(sql).stream()
+        .map(result -> result.toEntity())
         .map(element -> (EntityImpl) element)
         .toList();
   }
@@ -110,25 +110,25 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
   protected void addBarackObamaAndFollowers() {
     createProfileClass();
 
-    database.begin();
-    if (database.query("select from Profile where name = 'Barack' and surname = 'Obama'").stream()
+    db.begin();
+    if (db.query("select from Profile where name = 'Barack' and surname = 'Obama'").stream()
         .findAny()
         .isEmpty()) {
 
-      var bObama = database.newEntity("Profile");
+      var bObama = db.newEntity("Profile");
       bObama.setProperty("nick", "ThePresident");
       bObama.setProperty("name", "Barack");
       bObama.setProperty("surname", "Obama");
       bObama.setProperty("followings", Collections.emptySet());
 
-      var follower1 = database.newEntity("Profile");
+      var follower1 = db.newEntity("Profile");
       follower1.setProperty("nick", "PresidentSon1");
       follower1.setProperty("name", "Malia Ann");
       follower1.setProperty("surname", "Obama");
       follower1.setProperty("followings", Collections.singleton(bObama));
       follower1.setProperty("followers", Collections.emptySet());
 
-      var follower2 = database.newEntity("Profile");
+      var follower2 = db.newEntity("Profile");
       follower2.setProperty("nick", "PresidentSon2");
       follower2.setProperty("name", "Natasha");
       follower2.setProperty("surname", "Obama");
@@ -143,7 +143,7 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
       bObama.save();
     }
 
-    database.commit();
+    db.commit();
   }
 
   protected void fillInAccountData() {
@@ -156,19 +156,19 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
     createAccountClass();
 
     final Set<Integer> accountClusterIds =
-        Arrays.stream(database.getMetadata().getSchema().getClass("Account").getClusterIds())
+        Arrays.stream(db.getMetadata().getSchema().getClass("Account").getClusterIds())
             .asLongStream()
             .mapToObj(i -> (int) i)
             .collect(HashSet::new, HashSet::add, HashSet::addAll);
 
-    if (database.query("select count(*) as count from Account").stream()
+    if (db.query("select count(*) as count from Account").stream()
         .findFirst()
         .orElseThrow()
         .<Long>getProperty("count")
         == 0) {
       for (var id : ids) {
-        database.begin();
-        var element = database.newEntity("Account");
+        db.begin();
+        var element = db.newEntity("Account");
         element.setProperty("id", id);
         element.setProperty("name", "Gipsy");
         element.setProperty("location", "Italy");
@@ -186,7 +186,7 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
         if (!remoteDB) {
           Assert.assertTrue(accountClusterIds.contains(element.getIdentity().getClusterId()));
         }
-        database.commit();
+        db.commit();
       }
     }
   }
@@ -196,20 +196,20 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
     createCountryClass();
     createCityClass();
 
-    database.executeInTx(
+    db.executeInTx(
         () -> {
           addGaribaldiAndBonaparte();
           addBarackObamaAndFollowers();
 
           var count =
-              database.query("select count(*) as count from Profile").stream()
+              db.query("select count(*) as count from Profile").stream()
                   .findFirst()
                   .orElseThrow()
                   .<Long>getProperty("count");
 
           if (count < 1_000) {
             for (int i = 0; i < 1_000 - count; i++) {
-              var profile = database.newEntity("Profile");
+              var profile = db.newEntity("Profile");
               profile.setProperty("nick", "generatedNick" + i);
               profile.setProperty("name", "generatedName" + i);
               profile.setProperty("surname", "generatedSurname" + i);
@@ -220,33 +220,33 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
   }
 
   protected void addGaribaldiAndBonaparte() {
-    database.executeInTx(
+    db.executeInTx(
         () -> {
-          if (database.query("select from Profile where nick = 'NBonaparte'").stream()
+          if (db.query("select from Profile where nick = 'NBonaparte'").stream()
               .findAny()
               .isPresent()) {
             return;
           }
 
           var rome = addRome();
-          var garibaldi = database.newInstance("Profile");
+          var garibaldi = db.newInstance("Profile");
           garibaldi.setProperty("nick", "GGaribaldi");
           garibaldi.setProperty("name", "Giuseppe");
           garibaldi.setProperty("surname", "Garibaldi");
 
-          var gAddress = database.newInstance("Address");
+          var gAddress = db.newInstance("Address");
           gAddress.setProperty("type", "Residence");
           gAddress.setProperty("street", "Piazza Navona, 1");
           gAddress.setProperty("city", rome);
           garibaldi.setProperty("location", gAddress);
 
-          var bonaparte = database.newInstance("Profile");
+          var bonaparte = db.newInstance("Profile");
           bonaparte.setProperty("nick", "NBonaparte");
           bonaparte.setProperty("name", "Napoleone");
           bonaparte.setProperty("surname", "Bonaparte");
           bonaparte.setProperty("invitedBy", garibaldi);
 
-          var bnAddress = database.newInstance("Address");
+          var bnAddress = db.newInstance("Address");
           bnAddress.setProperty("type", "Residence");
           bnAddress.setProperty("street", "Piazza di Spagna, 111");
           bnAddress.setProperty("city", rome);
@@ -257,10 +257,10 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
   }
 
   private Entity addRome() {
-    return database.computeInTx(
+    return db.computeInTx(
         () -> {
           var italy = addItaly();
-          var city = database.newInstance("City");
+          var city = db.newInstance("City");
           city.setProperty("name", "Rome");
           city.setProperty("country", italy);
           city.save();
@@ -270,9 +270,9 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
   }
 
   private Entity addItaly() {
-    return database.computeInTx(
+    return db.computeInTx(
         () -> {
-          var italy = database.newEntity("Country");
+          var italy = db.newEntity("Country");
           italy.setProperty("name", "Italy");
           italy.save();
 
@@ -284,7 +284,7 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
     fillInAccountData();
     createCompanyClass();
 
-    if (database.query("select count(*) as count from Company").stream()
+    if (db.query("select count(*) as count from Company").stream()
         .findFirst()
         .orElseThrow()
         .<Long>getProperty("count")
@@ -295,172 +295,172 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
     var address = createRedmondAddress();
 
     for (int i = 0; i < TOT_COMPANY_RECORDS; ++i) {
-      database.begin();
-      var company = database.newInstance("Company");
+      db.begin();
+      var company = db.newInstance("Company");
       company.setProperty("id", i);
       company.setProperty("name", "Microsoft" + i);
       company.setProperty("employees", 100000 + i);
       company.setProperty("salary", 1000000000.0f + i);
 
       var addresses = new ArrayList<Entity>();
-      addresses.add(database.bindToSession(address));
+      addresses.add(db.bindToSession(address));
       company.setProperty("addresses", addresses);
-      database.save(company);
-      database.commit();
+      db.save(company);
+      db.commit();
     }
   }
 
   protected Entity createRedmondAddress() {
-    database.begin();
-    var washington = database.newInstance("Country");
+    db.begin();
+    var washington = db.newInstance("Country");
     washington.setProperty("name", "Washington");
     washington.save();
 
-    var redmond = database.newInstance("City");
+    var redmond = db.newInstance("City");
     redmond.setProperty("name", "Redmond");
     redmond.setProperty("country", washington);
     redmond.save();
 
-    var address = database.newInstance("Address");
+    var address = db.newInstance("Address");
     address.setProperty("type", "Headquarter");
     address.setProperty("city", redmond);
     address.setProperty("street", "WA 98073-9717");
     address.save();
 
-    database.commit();
+    db.commit();
     return address;
   }
 
   protected SchemaClass createCountryClass() {
-    if (database.getClass("Country") != null) {
-      return database.getClass("Country");
+    if (db.getClass("Country") != null) {
+      return db.getClass("Country");
     }
 
-    var cls = database.createClass("Country");
-    cls.createProperty(database, "name", PropertyType.STRING);
+    var cls = db.createClass("Country");
+    cls.createProperty(db, "name", PropertyType.STRING);
     return cls;
   }
 
   protected SchemaClass createCityClass() {
     var countryCls = createCountryClass();
 
-    if (database.getClass("City") != null) {
-      return database.getClass("City");
+    if (db.getClass("City") != null) {
+      return db.getClass("City");
     }
 
-    var cls = database.createClass("City");
-    cls.createProperty(database, "name", PropertyType.STRING);
-    cls.createProperty(database, "country", PropertyType.LINK, countryCls);
+    var cls = db.createClass("City");
+    cls.createProperty(db, "name", PropertyType.STRING);
+    cls.createProperty(db, "country", PropertyType.LINK, countryCls);
 
     return cls;
   }
 
   protected SchemaClass createAddressClass() {
-    if (database.getClass("Address") != null) {
-      return database.getClass("Address");
+    if (db.getClass("Address") != null) {
+      return db.getClass("Address");
     }
 
     var cityCls = createCityClass();
-    var cls = database.createClass("Address");
-    cls.createProperty(database, "type", PropertyType.STRING);
-    cls.createProperty(database, "street", PropertyType.STRING);
-    cls.createProperty(database, "city", PropertyType.LINK, cityCls);
+    var cls = db.createClass("Address");
+    cls.createProperty(db, "type", PropertyType.STRING);
+    cls.createProperty(db, "street", PropertyType.STRING);
+    cls.createProperty(db, "city", PropertyType.LINK, cityCls);
 
     return cls;
   }
 
   protected SchemaClass createAccountClass() {
-    if (database.getClass("Account") != null) {
-      return database.getClass("Account");
+    if (db.getClass("Account") != null) {
+      return db.getClass("Account");
     }
 
     var addressCls = createAddressClass();
-    var cls = database.createClass("Account");
-    cls.createProperty(database, "id", PropertyType.INTEGER);
-    cls.createProperty(database, "name", PropertyType.STRING);
-    cls.createProperty(database, "surname", PropertyType.STRING);
-    cls.createProperty(database, "birthDate", PropertyType.DATE);
-    cls.createProperty(database, "salary", PropertyType.FLOAT);
-    cls.createProperty(database, "addresses", PropertyType.LINKLIST, addressCls);
-    cls.createProperty(database, "thumbnail", PropertyType.BINARY);
-    cls.createProperty(database, "photo", PropertyType.BINARY);
+    var cls = db.createClass("Account");
+    cls.createProperty(db, "id", PropertyType.INTEGER);
+    cls.createProperty(db, "name", PropertyType.STRING);
+    cls.createProperty(db, "surname", PropertyType.STRING);
+    cls.createProperty(db, "birthDate", PropertyType.DATE);
+    cls.createProperty(db, "salary", PropertyType.FLOAT);
+    cls.createProperty(db, "addresses", PropertyType.LINKLIST, addressCls);
+    cls.createProperty(db, "thumbnail", PropertyType.BINARY);
+    cls.createProperty(db, "photo", PropertyType.BINARY);
 
     return cls;
   }
 
   protected void createCompanyClass() {
-    if (database.getClass("Company") != null) {
+    if (db.getClass("Company") != null) {
       return;
     }
 
     createAccountClass();
-    var cls = database.createClassIfNotExist("Company", "Account");
-    cls.createProperty(database, "employees", PropertyType.INTEGER);
+    var cls = db.createClassIfNotExist("Company", "Account");
+    cls.createProperty(db, "employees", PropertyType.INTEGER);
   }
 
   protected void createProfileClass() {
-    if (database.getClass("Profile") != null) {
+    if (db.getClass("Profile") != null) {
       return;
     }
 
     var addressCls = createAddressClass();
-    var cls = database.createClass("Profile");
-    cls.createProperty(database, "nick", PropertyType.STRING)
-        .setMin(database, "3")
-        .setMax(database, "30")
-        .createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE,
+    var cls = db.createClass("Profile");
+    cls.createProperty(db, "nick", PropertyType.STRING)
+        .setMin(db, "3")
+        .setMax(db, "30")
+        .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE,
             Map.of("ignoreNullValues", true));
-    cls.createProperty(database, "followings", PropertyType.LINKSET, cls);
-    cls.createProperty(database, "followers", PropertyType.LINKSET, cls);
-    cls.createProperty(database, "name", PropertyType.STRING)
-        .setMin(database, "3")
-        .setMax(database, "30")
-        .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+    cls.createProperty(db, "followings", PropertyType.LINKSET, cls);
+    cls.createProperty(db, "followers", PropertyType.LINKSET, cls);
+    cls.createProperty(db, "name", PropertyType.STRING)
+        .setMin(db, "3")
+        .setMax(db, "30")
+        .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
-    cls.createProperty(database, "surname", PropertyType.STRING).setMin(database, "3")
-        .setMax(database, "30");
-    cls.createProperty(database, "location", PropertyType.LINK, addressCls);
-    cls.createProperty(database, "hash", PropertyType.LONG);
-    cls.createProperty(database, "invitedBy", PropertyType.LINK, cls);
-    cls.createProperty(database, "value", PropertyType.INTEGER);
+    cls.createProperty(db, "surname", PropertyType.STRING).setMin(db, "3")
+        .setMax(db, "30");
+    cls.createProperty(db, "location", PropertyType.LINK, addressCls);
+    cls.createProperty(db, "hash", PropertyType.LONG);
+    cls.createProperty(db, "invitedBy", PropertyType.LINK, cls);
+    cls.createProperty(db, "value", PropertyType.INTEGER);
 
-    cls.createProperty(database, "registeredOn", PropertyType.DATETIME)
-        .setMin(database, "2010-01-01 00:00:00");
-    cls.createProperty(database, "lastAccessOn", PropertyType.DATETIME)
-        .setMin(database, "2010-01-01 00:00:00");
-    cls.createProperty(database, "photo", PropertyType.TRANSIENT);
+    cls.createProperty(db, "registeredOn", PropertyType.DATETIME)
+        .setMin(db, "2010-01-01 00:00:00");
+    cls.createProperty(db, "lastAccessOn", PropertyType.DATETIME)
+        .setMin(db, "2010-01-01 00:00:00");
+    cls.createProperty(db, "photo", PropertyType.TRANSIENT);
   }
 
   protected SchemaClass createInheritanceTestAbstractClass() {
-    if (database.getClass("InheritanceTestAbstractClass") != null) {
-      return database.getClass("InheritanceTestAbstractClass");
+    if (db.getClass("InheritanceTestAbstractClass") != null) {
+      return db.getClass("InheritanceTestAbstractClass");
     }
 
-    var cls = database.createClass("InheritanceTestAbstractClass");
-    cls.createProperty(database, "cField", PropertyType.INTEGER);
+    var cls = db.createClass("InheritanceTestAbstractClass");
+    cls.createProperty(db, "cField", PropertyType.INTEGER);
     return cls;
   }
 
   protected SchemaClass createInheritanceTestBaseClass() {
-    if (database.getClass("InheritanceTestBaseClass") != null) {
-      return database.getClass("InheritanceTestBaseClass");
+    if (db.getClass("InheritanceTestBaseClass") != null) {
+      return db.getClass("InheritanceTestBaseClass");
     }
 
     var abstractCls = createInheritanceTestAbstractClass();
-    var cls = database.createClass("InheritanceTestBaseClass", abstractCls.getName());
-    cls.createProperty(database, "aField", PropertyType.STRING);
+    var cls = db.createClass("InheritanceTestBaseClass", abstractCls.getName());
+    cls.createProperty(db, "aField", PropertyType.STRING);
 
     return cls;
   }
 
   protected void createInheritanceTestClass() {
-    if (database.getClass("InheritanceTestClass") != null) {
+    if (db.getClass("InheritanceTestClass") != null) {
       return;
     }
 
     var baseCls = createInheritanceTestBaseClass();
-    var cls = database.createClass("InheritanceTestClass", baseCls.getName());
-    cls.createProperty(database, "bField", PropertyType.STRING);
+    var cls = db.createClass("InheritanceTestClass", baseCls.getName());
+    cls.createProperty(db, "bField", PropertyType.STRING);
   }
 
   protected void createBasicTestSchema() {
@@ -474,149 +474,149 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
     createAnimalRaceClass();
     createWhizClass();
 
-    if (database.getClusterIdByName("csv") == -1) {
-      database.addCluster("csv");
+    if (db.getClusterIdByName("csv") == -1) {
+      db.addCluster("csv");
     }
 
-    if (database.getClusterIdByName("flat") == -1) {
-      database.addCluster("flat");
+    if (db.getClusterIdByName("flat") == -1) {
+      db.addCluster("flat");
     }
 
-    if (database.getClusterIdByName("binary") == -1) {
-      database.addCluster("binary");
+    if (db.getClusterIdByName("binary") == -1) {
+      db.addCluster("binary");
     }
   }
 
   private void createWhizClass() {
     SchemaClass account = createAccountClass();
-    if (database.getMetadata().getSchema().existsClass("Whiz")) {
+    if (db.getMetadata().getSchema().existsClass("Whiz")) {
       return;
     }
 
-    SchemaClass whiz = database.getMetadata().getSchema()
+    SchemaClass whiz = db.getMetadata().getSchema()
         .createClass("Whiz", 1, (SchemaClass[]) null);
-    whiz.createProperty(database, "id", PropertyType.INTEGER);
-    whiz.createProperty(database, "account", PropertyType.LINK, account);
-    whiz.createProperty(database, "date", PropertyType.DATE).setMin(database, "2010-01-01");
-    whiz.createProperty(database, "text", PropertyType.STRING).setMandatory(database, true)
-        .setMin(database, "1")
-        .setMax(database, "140");
-    whiz.createProperty(database, "replyTo", PropertyType.LINK, account);
+    whiz.createProperty(db, "id", PropertyType.INTEGER);
+    whiz.createProperty(db, "account", PropertyType.LINK, account);
+    whiz.createProperty(db, "date", PropertyType.DATE).setMin(db, "2010-01-01");
+    whiz.createProperty(db, "text", PropertyType.STRING).setMandatory(db, true)
+        .setMin(db, "1")
+        .setMax(db, "140");
+    whiz.createProperty(db, "replyTo", PropertyType.LINK, account);
   }
 
   private void createAnimalRaceClass() {
-    if (database.getMetadata().getSchema().existsClass("AnimalRace")) {
+    if (db.getMetadata().getSchema().existsClass("AnimalRace")) {
       return;
     }
 
     SchemaClass animalRace =
-        database.getMetadata().getSchema().createClass("AnimalRace", 1, (SchemaClass[]) null);
-    animalRace.createProperty(database, "name", PropertyType.STRING);
-    SchemaClass animal = database.getMetadata().getSchema()
+        db.getMetadata().getSchema().createClass("AnimalRace", 1, (SchemaClass[]) null);
+    animalRace.createProperty(db, "name", PropertyType.STRING);
+    SchemaClass animal = db.getMetadata().getSchema()
         .createClass("Animal", 1, (SchemaClass[]) null);
-    animal.createProperty(database, "races", PropertyType.LINKSET, animalRace);
-    animal.createProperty(database, "name", PropertyType.STRING);
+    animal.createProperty(db, "races", PropertyType.LINKSET, animalRace);
+    animal.createProperty(db, "name", PropertyType.STRING);
   }
 
   private void createStrictTestClass() {
-    if (database.getMetadata().getSchema().existsClass("StrictTest")) {
+    if (db.getMetadata().getSchema().existsClass("StrictTest")) {
       return;
     }
 
     SchemaClass strictTest =
-        database.getMetadata().getSchema().createClass("StrictTest", 1, (SchemaClass[]) null);
-    strictTest.setStrictMode(database, true);
-    strictTest.createProperty(database, "id", PropertyType.INTEGER).isMandatory();
-    strictTest.createProperty(database, "name", PropertyType.STRING);
+        db.getMetadata().getSchema().createClass("StrictTest", 1, (SchemaClass[]) null);
+    strictTest.setStrictMode(db, true);
+    strictTest.createProperty(db, "id", PropertyType.INTEGER).isMandatory();
+    strictTest.createProperty(db, "name", PropertyType.STRING);
   }
 
   protected void createComplexTestClass() {
-    if (database.getSchema().existsClass("JavaComplexTestClass")) {
-      database.getSchema().dropClass("JavaComplexTestClass");
+    if (db.getSchema().existsClass("JavaComplexTestClass")) {
+      db.getSchema().dropClass("JavaComplexTestClass");
     }
-    if (database.getSchema().existsClass("Child")) {
-      database.getSchema().dropClass("Child");
+    if (db.getSchema().existsClass("Child")) {
+      db.getSchema().dropClass("Child");
     }
 
-    var childCls = database.createClass("Child");
-    childCls.createProperty(database, "name", PropertyType.STRING);
+    var childCls = db.createClass("Child");
+    childCls.createProperty(db, "name", PropertyType.STRING);
 
-    var cls = database.createClass("JavaComplexTestClass");
+    var cls = db.createClass("JavaComplexTestClass");
 
-    cls.createProperty(database, "embeddedDocument", PropertyType.EMBEDDED);
-    cls.createProperty(database, "document", PropertyType.LINK);
-    cls.createProperty(database, "byteArray", PropertyType.LINK);
-    cls.createProperty(database, "name", PropertyType.STRING);
-    cls.createProperty(database, "child", PropertyType.LINK, childCls);
-    cls.createProperty(database, "stringMap", PropertyType.EMBEDDEDMAP);
-    cls.createProperty(database, "stringListMap", PropertyType.EMBEDDEDMAP);
-    cls.createProperty(database, "list", PropertyType.LINKLIST, childCls);
-    cls.createProperty(database, "set", PropertyType.LINKSET, childCls);
-    cls.createProperty(database, "duplicationTestSet", PropertyType.LINKSET, childCls);
-    cls.createProperty(database, "children", PropertyType.LINKMAP, childCls);
-    cls.createProperty(database, "stringSet", PropertyType.EMBEDDEDSET);
-    cls.createProperty(database, "embeddedList", PropertyType.EMBEDDEDLIST);
-    cls.createProperty(database, "embeddedSet", PropertyType.EMBEDDEDSET);
-    cls.createProperty(database, "embeddedChildren", PropertyType.EMBEDDEDMAP);
-    cls.createProperty(database, "mapObject", PropertyType.EMBEDDEDMAP);
+    cls.createProperty(db, "embeddedDocument", PropertyType.EMBEDDED);
+    cls.createProperty(db, "document", PropertyType.LINK);
+    cls.createProperty(db, "byteArray", PropertyType.LINK);
+    cls.createProperty(db, "name", PropertyType.STRING);
+    cls.createProperty(db, "child", PropertyType.LINK, childCls);
+    cls.createProperty(db, "stringMap", PropertyType.EMBEDDEDMAP);
+    cls.createProperty(db, "stringListMap", PropertyType.EMBEDDEDMAP);
+    cls.createProperty(db, "list", PropertyType.LINKLIST, childCls);
+    cls.createProperty(db, "set", PropertyType.LINKSET, childCls);
+    cls.createProperty(db, "duplicationTestSet", PropertyType.LINKSET, childCls);
+    cls.createProperty(db, "children", PropertyType.LINKMAP, childCls);
+    cls.createProperty(db, "stringSet", PropertyType.EMBEDDEDSET);
+    cls.createProperty(db, "embeddedList", PropertyType.EMBEDDEDLIST);
+    cls.createProperty(db, "embeddedSet", PropertyType.EMBEDDEDSET);
+    cls.createProperty(db, "embeddedChildren", PropertyType.EMBEDDEDMAP);
+    cls.createProperty(db, "mapObject", PropertyType.EMBEDDEDMAP);
   }
 
   protected void createSimpleTestClass() {
-    if (database.getSchema().existsClass("JavaSimpleTestClass")) {
-      database.getSchema().dropClass("JavaSimpleTestClass");
+    if (db.getSchema().existsClass("JavaSimpleTestClass")) {
+      db.getSchema().dropClass("JavaSimpleTestClass");
     }
 
-    var cls = database.createClass("JavaSimpleTestClass");
-    cls.createProperty(database, "text", PropertyType.STRING).setDefaultValue(database, "initTest");
-    cls.createProperty(database, "numberSimple", PropertyType.INTEGER)
-        .setDefaultValue(database, "0");
-    cls.createProperty(database, "longSimple", PropertyType.LONG).setDefaultValue(database, "0");
-    cls.createProperty(database, "doubleSimple", PropertyType.DOUBLE)
-        .setDefaultValue(database, "0");
-    cls.createProperty(database, "floatSimple", PropertyType.FLOAT).setDefaultValue(database, "0");
-    cls.createProperty(database, "byteSimple", PropertyType.BYTE).setDefaultValue(database, "0");
-    cls.createProperty(database, "shortSimple", PropertyType.SHORT).setDefaultValue(database, "0");
-    cls.createProperty(database, "dateField", PropertyType.DATETIME);
+    var cls = db.createClass("JavaSimpleTestClass");
+    cls.createProperty(db, "text", PropertyType.STRING).setDefaultValue(db, "initTest");
+    cls.createProperty(db, "numberSimple", PropertyType.INTEGER)
+        .setDefaultValue(db, "0");
+    cls.createProperty(db, "longSimple", PropertyType.LONG).setDefaultValue(db, "0");
+    cls.createProperty(db, "doubleSimple", PropertyType.DOUBLE)
+        .setDefaultValue(db, "0");
+    cls.createProperty(db, "floatSimple", PropertyType.FLOAT).setDefaultValue(db, "0");
+    cls.createProperty(db, "byteSimple", PropertyType.BYTE).setDefaultValue(db, "0");
+    cls.createProperty(db, "shortSimple", PropertyType.SHORT).setDefaultValue(db, "0");
+    cls.createProperty(db, "dateField", PropertyType.DATETIME);
   }
 
   protected void generateGraphData() {
-    if (database.getSchema().existsClass("GraphVehicle")) {
+    if (db.getSchema().existsClass("GraphVehicle")) {
       return;
     }
 
-    SchemaClass vehicleClass = database.createVertexClass("GraphVehicle");
-    database.createClass("GraphCar", vehicleClass.getName());
-    database.createClass("GraphMotocycle", "GraphVehicle");
+    SchemaClass vehicleClass = db.createVertexClass("GraphVehicle");
+    db.createClass("GraphCar", vehicleClass.getName());
+    db.createClass("GraphMotocycle", "GraphVehicle");
 
-    database.begin();
-    var carNode = database.newVertex("GraphCar");
+    db.begin();
+    var carNode = db.newVertex("GraphCar");
     carNode.setProperty("brand", "Hyundai");
     carNode.setProperty("model", "Coupe");
     carNode.setProperty("year", 2003);
     carNode.save();
 
-    var motoNode = database.newVertex("GraphMotocycle");
+    var motoNode = db.newVertex("GraphMotocycle");
     motoNode.setProperty("brand", "Yamaha");
     motoNode.setProperty("model", "X-City 250");
     motoNode.setProperty("year", 2009);
     motoNode.save();
 
-    database.commit();
+    db.commit();
 
-    database.begin();
-    carNode = database.bindToSession(carNode);
-    motoNode = database.bindToSession(motoNode);
-    database.newRegularEdge(carNode, motoNode).save();
+    db.begin();
+    carNode = db.bindToSession(carNode);
+    motoNode = db.bindToSession(motoNode);
+    db.newRegularEdge(carNode, motoNode).save();
 
     List<Result> result =
-        database.query("select from GraphVehicle").stream().collect(Collectors.toList());
+        db.query("select from GraphVehicle").stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 2);
     for (Result v : result) {
       Assert.assertTrue(v.getEntity().get().getSchemaType().get().isSubClassOf(vehicleClass));
     }
 
-    database.commit();
-    result = database.query("select from GraphVehicle").stream().toList();
+    db.commit();
+    result = db.query("select from GraphVehicle").stream().toList();
     Assert.assertEquals(result.size(), 2);
 
     Edge edge1 = null;
@@ -629,10 +629,10 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
           && v.getEntity().get().getSchemaType().get().getName().equals("GraphCar")) {
         Assert.assertEquals(
             CollectionUtils.size(
-                database.<Vertex>load(v.getIdentity().get()).getEdges(Direction.OUT)),
+                db.<Vertex>load(v.getIdentity().get()).getEdges(Direction.OUT)),
             1);
         edge1 =
-            database
+            db
                 .<Vertex>load(v.getIdentity().get())
                 .getEdges(Direction.OUT)
                 .iterator()
@@ -640,10 +640,10 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
       } else {
         Assert.assertEquals(
             CollectionUtils.size(
-                database.<Vertex>load(v.getIdentity().get()).getEdges(Direction.IN)),
+                db.<Vertex>load(v.getIdentity().get()).getEdges(Direction.IN)),
             1);
         edge2 =
-            database.<Vertex>load(v.getIdentity().get()).getEdges(Direction.IN).iterator()
+            db.<Vertex>load(v.getIdentity().get()).getEdges(Direction.IN).iterator()
                 .next();
       }
     }

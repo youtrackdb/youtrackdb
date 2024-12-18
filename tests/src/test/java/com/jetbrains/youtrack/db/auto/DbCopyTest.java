@@ -46,13 +46,13 @@ public class DbCopyTest extends BaseDBTest implements CommandOutputListener {
   @Test
   public void checkCopy() throws IOException {
     final String className = "DbCopyTest";
-    database.getMetadata().getSchema().createClass(className);
+    db.getMetadata().getSchema().createClass(className);
 
     Thread thread =
         new Thread() {
           @Override
           public void run() {
-            final DatabaseSessionInternal otherDB = database.copy();
+            final DatabaseSessionInternal otherDB = db.copy();
             otherDB.activateOnCurrentThread();
             for (int i = 0; i < 5; i++) {
               otherDB.begin();
@@ -72,11 +72,11 @@ public class DbCopyTest extends BaseDBTest implements CommandOutputListener {
     thread.start();
 
     for (int i = 0; i < 20; i++) {
-      database.begin();
-      EntityImpl doc = database.newInstance(className);
+      db.begin();
+      EntityImpl doc = db.newInstance(className);
       doc.field("num", i);
       doc.save();
-      database.commit();
+      db.commit();
       try {
         Thread.sleep(10);
       } catch (InterruptedException e) {
@@ -90,10 +90,10 @@ public class DbCopyTest extends BaseDBTest implements CommandOutputListener {
       Assert.fail();
     }
 
-    database.begin();
-    ResultSet result = database.query("SELECT FROM " + className);
+    db.begin();
+    ResultSet result = db.query("SELECT FROM " + className);
     Assert.assertEquals(result.stream().count(), 25);
-    database.commit();
+    db.commit();
   }
 
   @Override

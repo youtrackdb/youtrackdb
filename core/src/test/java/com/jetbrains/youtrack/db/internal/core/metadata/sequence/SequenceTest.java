@@ -2,17 +2,17 @@ package com.jetbrains.youtrack.db.internal.core.metadata.sequence;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.jetbrains.youtrack.db.api.DatabaseType;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.YourTracks;
-import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.api.exception.SequenceLimitReachedException;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.DatabaseType;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.exception.ConcurrentModificationException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.SequenceException;
+import com.jetbrains.youtrack.db.api.exception.SequenceLimitReachedException;
 import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.SequenceException;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -89,11 +89,11 @@ public class SequenceTest {
         "mySeq", Sequence.SEQUENCE_TYPE.ORDERED, new Sequence.CreateParams().setDefaults());
     Sequence myseq = sequences.getSequence("MYSEQ");
 
-    assertThat(myseq.current()).isEqualTo(0);
-    assertThat(myseq.next()).isEqualTo(1);
-    assertThat(myseq.current()).isEqualTo(1);
-    assertThat(myseq.next()).isEqualTo(2);
-    assertThat(myseq.current()).isEqualTo(2);
+    assertThat(myseq.current(db)).isEqualTo(0);
+    assertThat(myseq.next(db)).isEqualTo(1);
+    assertThat(myseq.current(db)).isEqualTo(1);
+    assertThat(myseq.next(db)).isEqualTo(2);
+    assertThat(myseq.current(db)).isEqualTo(2);
   }
 
   @Test
@@ -104,10 +104,10 @@ public class SequenceTest {
     sequences.createSequence("mySeq", Sequence.SEQUENCE_TYPE.ORDERED, params);
     Sequence myseq = sequences.getSequence("MYSEQ");
 
-    assertThat(myseq.current()).isEqualTo(0);
-    assertThat(myseq.next()).isEqualTo(30);
-    assertThat(myseq.current()).isEqualTo(30);
-    assertThat(myseq.next()).isEqualTo(60);
+    assertThat(myseq.current(db)).isEqualTo(0);
+    assertThat(myseq.next(db)).isEqualTo(30);
+    assertThat(myseq.current(db)).isEqualTo(30);
+    assertThat(myseq.next(db)).isEqualTo(60);
   }
 
   @Test
@@ -126,36 +126,36 @@ public class SequenceTest {
     db.commit();
 
     db.begin();
-    assertThat(myseq.current()).isEqualTo(0);
+    assertThat(myseq.current(db)).isEqualTo(0);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(30);
+    assertThat(myseq.next(db)).isEqualTo(30);
     db.commit();
 
     db.begin();
-    assertThat(myseq.current()).isEqualTo(30);
+    assertThat(myseq.current(db)).isEqualTo(30);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(60);
+    assertThat(myseq.next(db)).isEqualTo(60);
     db.commit();
 
     db.begin();
-    assertThat(myseq.current()).isEqualTo(60);
+    assertThat(myseq.current(db)).isEqualTo(60);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(90);
+    assertThat(myseq.next(db)).isEqualTo(90);
     db.commit();
 
     db.begin();
-    assertThat(myseq.current()).isEqualTo(90);
-    assertThat(myseq.next()).isEqualTo(120);
+    assertThat(myseq.current(db)).isEqualTo(90);
+    assertThat(myseq.next(db)).isEqualTo(120);
     db.commit();
 
     db.begin();
-    assertThat(myseq.current()).isEqualTo(120);
+    assertThat(myseq.current(db)).isEqualTo(120);
     db.commit();
   }
 
@@ -195,8 +195,8 @@ public class SequenceTest {
     Sequence.CreateParams params = new Sequence.CreateParams().setStart(0L);
     sequences.createSequence("mySeq", Sequence.SEQUENCE_TYPE.ORDERED, params);
     Sequence myseq = sequences.getSequence("MYSEQ");
-    assertThat(myseq.current()).isEqualTo(0);
-    assertThat(myseq.next()).isEqualTo(1);
+    assertThat(myseq.current(db)).isEqualTo(0);
+    assertThat(myseq.next(db)).isEqualTo(1);
   }
 
   @Test
@@ -222,7 +222,7 @@ public class SequenceTest {
 
             for (int j = 0; j < count / threads; j++) {
               try {
-                mtSeq1.next();
+                mtSeq1.next(db);
                 success.incrementAndGet();
               } catch (Exception e) {
                 e.printStackTrace();
@@ -237,7 +237,7 @@ public class SequenceTest {
     assertThat(errors.get()).isEqualTo(0);
     assertThat(success.get()).isEqualTo(1000);
     //    assertThat(mtSeq.getDocument().getVersion()).isEqualTo(1001);
-    assertThat(mtSeq.current()).isEqualTo(1000);
+    assertThat(mtSeq.current(db)).isEqualTo(1000);
   }
 
   @Test
@@ -265,7 +265,7 @@ public class SequenceTest {
                 try {
 
                   databaseDocument.begin();
-                  mtSeq1.next();
+                  mtSeq1.next(db);
                   databaseDocument.commit();
                   success.incrementAndGet();
                   break;
@@ -296,7 +296,7 @@ public class SequenceTest {
 
     assertThat(errors.get()).isEqualTo(0);
     assertThat(success.get()).isEqualTo(1000);
-    assertThat(mtSeq.current()).isEqualTo(1000);
+    assertThat(mtSeq.current(db)).isEqualTo(1000);
   }
 
   @Test
@@ -359,23 +359,23 @@ public class SequenceTest {
 
     db.begin();
     Sequence myseq = sequences.getSequence("MYSEQ");
-    assertThat(myseq.current()).isEqualTo(0);
+    assertThat(myseq.current(db)).isEqualTo(0);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(10);
+    assertThat(myseq.next(db)).isEqualTo(10);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(20);
+    assertThat(myseq.next(db)).isEqualTo(20);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(30);
+    assertThat(myseq.next(db)).isEqualTo(30);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(0);
+    assertThat(myseq.next(db)).isEqualTo(0);
     db.commit();
 
     db.begin();
@@ -399,11 +399,11 @@ public class SequenceTest {
 
     db.begin();
     Sequence myseq = sequences.getSequence("MYSEQ");
-    assertThat(myseq.current()).isEqualTo(30);
-    assertThat(myseq.next()).isEqualTo(20);
-    assertThat(myseq.next()).isEqualTo(10);
-    assertThat(myseq.next()).isEqualTo(0);
-    assertThat(myseq.next()).isEqualTo(30);
+    assertThat(myseq.current(db)).isEqualTo(30);
+    assertThat(myseq.next(db)).isEqualTo(20);
+    assertThat(myseq.next(db)).isEqualTo(10);
+    assertThat(myseq.next(db)).isEqualTo(0);
+    assertThat(myseq.next(db)).isEqualTo(30);
     db.commit();
 
     db.begin();
@@ -422,11 +422,11 @@ public class SequenceTest {
 
     db.begin();
     Sequence myseq = sequences.getSequence("MYSEQ");
-    assertThat(myseq.current()).isEqualTo(0);
-    assertThat(myseq.next()).isEqualTo(1);
-    assertThat(myseq.next()).isEqualTo(2);
-    assertThat(myseq.next()).isEqualTo(3);
-    assertThat(myseq.next()).isEqualTo(4);
+    assertThat(myseq.current(db)).isEqualTo(0);
+    assertThat(myseq.next(db)).isEqualTo(1);
+    assertThat(myseq.next(db)).isEqualTo(2);
+    assertThat(myseq.next(db)).isEqualTo(3);
+    assertThat(myseq.next(db)).isEqualTo(4);
     db.commit();
 
     db.begin();
@@ -449,31 +449,31 @@ public class SequenceTest {
 
     db.begin();
     Sequence myseq = sequences.getSequence("MYSEQ");
-    assertThat(myseq.current()).isEqualTo(6);
+    assertThat(myseq.current(db)).isEqualTo(6);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(5);
+    assertThat(myseq.next(db)).isEqualTo(5);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(4);
+    assertThat(myseq.next(db)).isEqualTo(4);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(3);
+    assertThat(myseq.next(db)).isEqualTo(3);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(2);
+    assertThat(myseq.next(db)).isEqualTo(2);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(1);
+    assertThat(myseq.next(db)).isEqualTo(1);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(0);
+    assertThat(myseq.next(db)).isEqualTo(0);
     db.commit();
 
     db.begin();
@@ -496,11 +496,11 @@ public class SequenceTest {
 
     db.begin();
     Sequence myseq = sequences.getSequence("MYSEQ");
-    assertThat(myseq.current()).isEqualTo(0);
-    assertThat(myseq.next()).isEqualTo(10);
-    assertThat(myseq.next()).isEqualTo(20);
-    assertThat(myseq.next()).isEqualTo(30);
-    assertThat(myseq.next()).isEqualTo(0);
+    assertThat(myseq.current(db)).isEqualTo(0);
+    assertThat(myseq.next(db)).isEqualTo(10);
+    assertThat(myseq.next(db)).isEqualTo(20);
+    assertThat(myseq.next(db)).isEqualTo(30);
+    assertThat(myseq.next(db)).isEqualTo(0);
     db.commit();
 
     db.begin();
@@ -522,11 +522,11 @@ public class SequenceTest {
 
     db.begin();
     Sequence myseq = sequences.getSequence("MYSEQ");
-    assertThat(myseq.current()).isEqualTo(6);
-    assertThat(myseq.next()).isEqualTo(5);
-    assertThat(myseq.next()).isEqualTo(4);
-    assertThat(myseq.next()).isEqualTo(3);
-    assertThat(myseq.next()).isEqualTo(2);
+    assertThat(myseq.current(db)).isEqualTo(6);
+    assertThat(myseq.next(db)).isEqualTo(5);
+    assertThat(myseq.next(db)).isEqualTo(4);
+    assertThat(myseq.next(db)).isEqualTo(3);
+    assertThat(myseq.next(db)).isEqualTo(2);
     db.commit();
 
     db.begin();
@@ -550,11 +550,11 @@ public class SequenceTest {
 
     db.begin();
     Sequence myseq = sequences.getSequence("MYSEQ");
-    assertThat(myseq.current()).isEqualTo(30);
-    assertThat(myseq.next()).isEqualTo(20);
-    assertThat(myseq.next()).isEqualTo(10);
-    assertThat(myseq.next()).isEqualTo(0);
-    assertThat(myseq.next()).isEqualTo(30);
+    assertThat(myseq.current(db)).isEqualTo(30);
+    assertThat(myseq.next(db)).isEqualTo(20);
+    assertThat(myseq.next(db)).isEqualTo(10);
+    assertThat(myseq.next(db)).isEqualTo(0);
+    assertThat(myseq.next(db)).isEqualTo(30);
     db.commit();
 
     db.begin();
@@ -581,26 +581,26 @@ public class SequenceTest {
     db.commit();
 
     db.begin();
-    assertThat(myseq.current()).isEqualTo(0);
+    assertThat(myseq.current(db)).isEqualTo(0);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(10);
+    assertThat(myseq.next(db)).isEqualTo(10);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(20);
+    assertThat(myseq.next(db)).isEqualTo(20);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(30);
+    assertThat(myseq.next(db)).isEqualTo(30);
     db.commit();
 
     db.executeInTx(
         () -> {
           Byte exceptionsCought = 0;
           try {
-            myseq.next();
+            myseq.next(db);
           } catch (SequenceLimitReachedException exc) {
             exceptionsCought++;
           }
@@ -623,26 +623,26 @@ public class SequenceTest {
     sequences.createSequence("mySeq", Sequence.SEQUENCE_TYPE.ORDERED, params);
     db.begin();
     Sequence myseq = sequences.getSequence("MYSEQ");
-    assertThat(myseq.current()).isEqualTo(0);
+    assertThat(myseq.current(db)).isEqualTo(0);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(10);
+    assertThat(myseq.next(db)).isEqualTo(10);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(20);
+    assertThat(myseq.next(db)).isEqualTo(20);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(30);
+    assertThat(myseq.next(db)).isEqualTo(30);
     db.commit();
 
     db.executeInTx(
         () -> {
           Byte exceptionsCought = 0;
           try {
-            myseq.next();
+            myseq.next(db);
           } catch (SequenceLimitReachedException exc) {
             exceptionsCought++;
           }
@@ -667,15 +667,15 @@ public class SequenceTest {
 
     db.begin();
     Sequence myseq = sequences.getSequence("MYSEQ");
-    assertThat(myseq.current()).isEqualTo(0);
-    assertThat(myseq.next()).isEqualTo(1);
-    assertThat(myseq.next()).isEqualTo(2);
-    assertThat(myseq.next()).isEqualTo(3);
+    assertThat(myseq.current(db)).isEqualTo(0);
+    assertThat(myseq.next(db)).isEqualTo(1);
+    assertThat(myseq.next(db)).isEqualTo(2);
+    assertThat(myseq.next(db)).isEqualTo(3);
     db.commit();
 
     db.begin();
-    Sequence newSeq = new SequenceCached(myseq.entityRid.getRecord());
-    long val = newSeq.current();
+    Sequence newSeq = new SequenceCached(myseq.entityRid.getRecord(db));
+    long val = newSeq.current(db);
     assertThat(val).isEqualTo(5);
     db.commit();
 
@@ -683,7 +683,7 @@ public class SequenceTest {
         () -> {
           Byte exceptionsCought = 0;
           try {
-            newSeq.next();
+            newSeq.next(db);
           } catch (SequenceLimitReachedException exc) {
             exceptionsCought++;
           }
@@ -709,17 +709,17 @@ public class SequenceTest {
 
     db.begin();
     Sequence myseq = sequences.getSequence("MYSEQ");
-    assertThat(myseq.current()).isEqualTo(0);
-    assertThat(myseq.next()).isEqualTo(1);
-    assertThat(myseq.next()).isEqualTo(2);
-    assertThat(myseq.next()).isEqualTo(3);
+    assertThat(myseq.current(db)).isEqualTo(0);
+    assertThat(myseq.next(db)).isEqualTo(1);
+    assertThat(myseq.next(db)).isEqualTo(2);
+    assertThat(myseq.next(db)).isEqualTo(3);
     db.commit();
 
     db.executeInTx(
         () -> {
           Byte exceptionsCought = 0;
           try {
-            myseq.next();
+            myseq.next(db);
           } catch (SequenceLimitReachedException exc) {
             exceptionsCought++;
           }
@@ -729,15 +729,15 @@ public class SequenceTest {
 
     db.begin();
     params = new Sequence.CreateParams().resetNull().setTurnLimitOff(true);
-    myseq.updateParams(params);
+    myseq.updateParams(db, params);
     db.commit();
 
     db.begin();
     // there is reset after update params, so go from begining
-    assertThat(myseq.next()).isEqualTo(4);
-    assertThat(myseq.next()).isEqualTo(5);
-    assertThat(myseq.next()).isEqualTo(6);
-    assertThat(myseq.next()).isEqualTo(7);
+    assertThat(myseq.next(db)).isEqualTo(4);
+    assertThat(myseq.next(db)).isEqualTo(5);
+    assertThat(myseq.next(db)).isEqualTo(6);
+    assertThat(myseq.next(db)).isEqualTo(7);
     db.commit();
 
     db.begin();
@@ -758,22 +758,22 @@ public class SequenceTest {
 
     db.begin();
     Sequence myseq = sequences.getSequence("MYSEQ");
-    assertThat(myseq.current()).isEqualTo(0);
-    assertThat(myseq.next()).isEqualTo(1);
-    assertThat(myseq.next()).isEqualTo(2);
-    assertThat(myseq.next()).isEqualTo(3);
+    assertThat(myseq.current(db)).isEqualTo(0);
+    assertThat(myseq.next(db)).isEqualTo(1);
+    assertThat(myseq.next(db)).isEqualTo(2);
+    assertThat(myseq.next(db)).isEqualTo(3);
     db.commit();
 
     db.begin();
     params = new Sequence.CreateParams().resetNull().setLimitValue(3L);
-    myseq.updateParams(params);
+    myseq.updateParams(db, params);
     db.commit();
 
     db.executeInTx(
         () -> {
           Byte exceptionsCought = 0;
           try {
-            myseq.next();
+            myseq.next(db);
           } catch (SequenceLimitReachedException exc) {
             exceptionsCought++;
           }
@@ -800,26 +800,26 @@ public class SequenceTest {
 
     db.begin();
     Sequence myseq = sequences.getSequence("MYSEQ");
-    assertThat(myseq.current()).isEqualTo(0);
+    assertThat(myseq.current(db)).isEqualTo(0);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(1);
+    assertThat(myseq.next(db)).isEqualTo(1);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(2);
+    assertThat(myseq.next(db)).isEqualTo(2);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(3);
+    assertThat(myseq.next(db)).isEqualTo(3);
     db.commit();
 
     db.executeInTx(
         () -> {
           Byte exceptionsCought = 0;
           try {
-            myseq.next();
+            myseq.next(db);
           } catch (SequenceLimitReachedException exc) {
             exceptionsCought++;
           }
@@ -828,24 +828,24 @@ public class SequenceTest {
 
     db.begin();
     params = new Sequence.CreateParams().resetNull().setTurnLimitOff(true);
-    myseq.updateParams(params);
+    myseq.updateParams(db, params);
     db.commit();
 
     db.begin();
     // there is reset after update params, so go from begining
-    assertThat(myseq.next()).isEqualTo(4);
+    assertThat(myseq.next(db)).isEqualTo(4);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(5);
+    assertThat(myseq.next(db)).isEqualTo(5);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(6);
+    assertThat(myseq.next(db)).isEqualTo(6);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(7);
+    assertThat(myseq.next(db)).isEqualTo(7);
     sequences.dropSequence("MYSEQ");
     db.commit();
   }
@@ -863,31 +863,31 @@ public class SequenceTest {
 
     db.begin();
     Sequence myseq = sequences.getSequence("MYSEQ");
-    assertThat(myseq.current()).isEqualTo(0);
+    assertThat(myseq.current(db)).isEqualTo(0);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(1);
+    assertThat(myseq.next(db)).isEqualTo(1);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(2);
+    assertThat(myseq.next(db)).isEqualTo(2);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(3);
+    assertThat(myseq.next(db)).isEqualTo(3);
     db.commit();
 
     db.begin();
     params = new Sequence.CreateParams().resetNull().setLimitValue(3L);
-    myseq.updateParams(params);
+    myseq.updateParams(db, params);
     db.commit();
 
     db.executeInTx(
         () -> {
           Byte exceptionsCought = 0;
           try {
-            myseq.next();
+            myseq.next(db);
           } catch (SequenceLimitReachedException exc) {
             exceptionsCought++;
           }
@@ -913,54 +913,54 @@ public class SequenceTest {
 
     db.begin();
     Sequence myseq = sequences.getSequence("MYSEQ");
-    assertThat(myseq.next()).isEqualTo(1);
+    assertThat(myseq.next(db)).isEqualTo(1);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(2);
+    assertThat(myseq.next(db)).isEqualTo(2);
     db.commit();
 
     db.begin();
     params = new Sequence.CreateParams().resetNull().setRecyclable(true).setCacheSize(3);
-    myseq.updateParams(params);
+    myseq.updateParams(db, params);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(3);
+    assertThat(myseq.next(db)).isEqualTo(3);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(4);
+    assertThat(myseq.next(db)).isEqualTo(4);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(5);
-    assertThat(myseq.next()).isEqualTo(6);
-    assertThat(myseq.next()).isEqualTo(7);
-    assertThat(myseq.next()).isEqualTo(8);
+    assertThat(myseq.next(db)).isEqualTo(5);
+    assertThat(myseq.next(db)).isEqualTo(6);
+    assertThat(myseq.next(db)).isEqualTo(7);
+    assertThat(myseq.next(db)).isEqualTo(8);
     db.commit();
 
     db.begin();
     params = new Sequence.CreateParams().resetNull().setLimitValue(11L);
-    myseq.updateParams(params);
+    myseq.updateParams(db, params);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(9);
-    assertThat(myseq.next()).isEqualTo(10);
-    assertThat(myseq.next()).isEqualTo(11);
-    assertThat(myseq.next()).isEqualTo(0);
-    assertThat(myseq.next()).isEqualTo(1);
+    assertThat(myseq.next(db)).isEqualTo(9);
+    assertThat(myseq.next(db)).isEqualTo(10);
+    assertThat(myseq.next(db)).isEqualTo(11);
+    assertThat(myseq.next(db)).isEqualTo(0);
+    assertThat(myseq.next(db)).isEqualTo(1);
     db.commit();
 
     db.begin();
     params = new Sequence.CreateParams().resetNull().setLimitValue(12L);
-    myseq.updateParams(params);
+    myseq.updateParams(db, params);
     db.commit();
 
     db.begin();
-    assertThat(myseq.next()).isEqualTo(2);
-    assertThat(myseq.next()).isEqualTo(3);
+    assertThat(myseq.next(db)).isEqualTo(2);
+    assertThat(myseq.next(db)).isEqualTo(3);
     db.commit();
 
     db.begin();

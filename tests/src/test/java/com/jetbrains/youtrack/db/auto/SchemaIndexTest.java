@@ -25,56 +25,56 @@ public class SchemaIndexTest extends BaseDBTest {
   public void beforeMethod() throws Exception {
     super.beforeMethod();
 
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     final SchemaClass superTest = schema.createClass("SchemaSharedIndexSuperTest");
     final SchemaClass test = schema.createClass("SchemaIndexTest", superTest);
-    test.createProperty(database, "prop1", PropertyType.DOUBLE);
-    test.createProperty(database, "prop2", PropertyType.DOUBLE);
+    test.createProperty(db, "prop1", PropertyType.DOUBLE);
+    test.createProperty(db, "prop2", PropertyType.DOUBLE);
   }
 
   @AfterMethod
   public void tearDown() throws Exception {
-    if (database.getMetadata().getSchema().existsClass("SchemaIndexTest")) {
-      database.command("drop class SchemaIndexTest").close();
+    if (db.getMetadata().getSchema().existsClass("SchemaIndexTest")) {
+      db.command("drop class SchemaIndexTest").close();
     }
-    database.command("drop class SchemaSharedIndexSuperTest").close();
+    db.command("drop class SchemaSharedIndexSuperTest").close();
   }
 
   @Test
   public void testDropClass() throws Exception {
-    database
+    db
         .command(
             "CREATE INDEX SchemaSharedIndexCompositeIndex ON SchemaIndexTest (prop1, prop2) UNIQUE")
         .close();
-    database.getMetadata().getIndexManagerInternal().reload(database);
+    db.getMetadata().getIndexManagerInternal().reload(db);
     Assert.assertNotNull(
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "SchemaSharedIndexCompositeIndex"));
+            .getIndex(db, "SchemaSharedIndexCompositeIndex"));
 
-    database.getMetadata().getSchema().dropClass("SchemaIndexTest");
-    database.getMetadata().getIndexManagerInternal().reload(database);
+    db.getMetadata().getSchema().dropClass("SchemaIndexTest");
+    db.getMetadata().getIndexManagerInternal().reload(db);
 
-    Assert.assertNull(database.getMetadata().getSchema().getClass("SchemaIndexTest"));
-    Assert.assertNotNull(database.getMetadata().getSchema().getClass("SchemaSharedIndexSuperTest"));
+    Assert.assertNull(db.getMetadata().getSchema().getClass("SchemaIndexTest"));
+    Assert.assertNotNull(db.getMetadata().getSchema().getClass("SchemaSharedIndexSuperTest"));
 
     Assert.assertNull(
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "SchemaSharedIndexCompositeIndex"));
+            .getIndex(db, "SchemaSharedIndexCompositeIndex"));
   }
 
   @Test
   public void testDropSuperClass() throws Exception {
-    database
+    db
         .command(
             "CREATE INDEX SchemaSharedIndexCompositeIndex ON SchemaIndexTest (prop1, prop2) UNIQUE")
         .close();
 
     try {
-      database.getMetadata().getSchema().dropClass("SchemaSharedIndexSuperTest");
+      db.getMetadata().getSchema().dropClass("SchemaSharedIndexSuperTest");
       Assert.fail();
     } catch (SchemaException e) {
       Assert.assertTrue(
@@ -84,18 +84,18 @@ public class SchemaIndexTest extends BaseDBTest {
                       + " classes"));
     }
 
-    Assert.assertNotNull(database.getMetadata().getSchema().getClass("SchemaIndexTest"));
-    Assert.assertNotNull(database.getMetadata().getSchema().getClass("SchemaSharedIndexSuperTest"));
+    Assert.assertNotNull(db.getMetadata().getSchema().getClass("SchemaIndexTest"));
+    Assert.assertNotNull(db.getMetadata().getSchema().getClass("SchemaSharedIndexSuperTest"));
 
     Assert.assertNotNull(
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "SchemaSharedIndexCompositeIndex"));
+            .getIndex(db, "SchemaSharedIndexCompositeIndex"));
   }
 
   public void testPolymorphicIdsPropagationAfterClusterAddRemove() {
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
 
     SchemaClass polymorpicIdsPropagationSuperSuper =
         schema.getClass("polymorpicIdsPropagationSuperSuper");
@@ -114,45 +114,45 @@ public class SchemaIndexTest extends BaseDBTest {
       polymorpicIdsPropagation = schema.createClass("polymorpicIdsPropagation");
     }
 
-    polymorpicIdsPropagation.setSuperClass(database, polymorpicIdsPropagationSuper);
-    polymorpicIdsPropagationSuper.setSuperClass(database, polymorpicIdsPropagationSuperSuper);
+    polymorpicIdsPropagation.setSuperClass(db, polymorpicIdsPropagationSuper);
+    polymorpicIdsPropagationSuper.setSuperClass(db, polymorpicIdsPropagationSuperSuper);
 
-    polymorpicIdsPropagationSuperSuper.createProperty(database, "value", PropertyType.STRING);
-    polymorpicIdsPropagationSuperSuper.createIndex(database,
+    polymorpicIdsPropagationSuperSuper.createProperty(db, "value", PropertyType.STRING);
+    polymorpicIdsPropagationSuperSuper.createIndex(db,
         "PolymorpicIdsPropagationSuperSuperIndex", SchemaClass.INDEX_TYPE.UNIQUE, "value");
 
     int counter = 0;
 
     for (int i = 0; i < 10; i++) {
-      database.begin();
-      EntityImpl document = new EntityImpl("polymorpicIdsPropagation");
+      db.begin();
+      EntityImpl document = ((EntityImpl) db.newEntity("polymorpicIdsPropagation"));
       document.field("value", "val" + counter);
       document.save();
-      database.commit();
+      db.commit();
 
       counter++;
     }
 
-    final int clusterId2 = database.addCluster("polymorpicIdsPropagationSuperSuper2");
+    final int clusterId2 = db.addCluster("polymorpicIdsPropagationSuperSuper2");
 
     for (int i = 0; i < 10; i++) {
-      EntityImpl document = new EntityImpl();
+      EntityImpl document = ((EntityImpl) db.newEntity());
       document.field("value", "val" + counter);
 
-      database.begin();
+      db.begin();
       document.save("polymorpicIdsPropagationSuperSuper2");
-      database.commit();
+      db.commit();
 
       counter++;
     }
 
-    polymorpicIdsPropagation.addCluster(database, "polymorpicIdsPropagationSuperSuper2");
+    polymorpicIdsPropagation.addCluster(db, "polymorpicIdsPropagationSuperSuper2");
 
     assertContains(polymorpicIdsPropagationSuperSuper.getPolymorphicClusterIds(), clusterId2);
     assertContains(polymorpicIdsPropagationSuper.getPolymorphicClusterIds(), clusterId2);
 
     try (ResultSet result =
-        database.query("select from polymorpicIdsPropagationSuperSuper where value = 'val12'")) {
+        db.query("select from polymorpicIdsPropagationSuperSuper where value = 'val12'")) {
 
       Assert.assertTrue(result.hasNext());
 
@@ -160,28 +160,28 @@ public class SchemaIndexTest extends BaseDBTest {
       Assert.assertFalse(result.hasNext());
       Assert.assertEquals(doc.getProperty("@class"), "polymorpicIdsPropagation");
     }
-    polymorpicIdsPropagation.removeClusterId(database, clusterId2);
+    polymorpicIdsPropagation.removeClusterId(db, clusterId2);
 
     assertDoesNotContain(polymorpicIdsPropagationSuperSuper.getPolymorphicClusterIds(), clusterId2);
     assertDoesNotContain(polymorpicIdsPropagationSuper.getPolymorphicClusterIds(), clusterId2);
 
     try (ResultSet result =
-        database.query("select from polymorpicIdsPropagationSuperSuper  where value = 'val12'")) {
+        db.query("select from polymorpicIdsPropagationSuperSuper  where value = 'val12'")) {
 
       Assert.assertFalse(result.hasNext());
     }
   }
 
   public void testIndexWithNumberProperties() {
-    SchemaClass oclass = database.getMetadata().getSchema()
+    SchemaClass oclass = db.getMetadata().getSchema()
         .createClass("SchemaIndexTest_numberclass");
-    oclass.createProperty(database, "1", PropertyType.STRING).setMandatory(database, false);
-    oclass.createProperty(database, "2", PropertyType.STRING).setMandatory(database, false);
-    oclass.createIndex(database, "SchemaIndexTest_numberclass_1_2", SchemaClass.INDEX_TYPE.UNIQUE,
+    oclass.createProperty(db, "1", PropertyType.STRING).setMandatory(db, false);
+    oclass.createProperty(db, "2", PropertyType.STRING).setMandatory(db, false);
+    oclass.createIndex(db, "SchemaIndexTest_numberclass_1_2", SchemaClass.INDEX_TYPE.UNIQUE,
         "1",
         "2");
 
-    database.getMetadata().getSchema().dropClass(oclass.getName());
+    db.getMetadata().getSchema().dropClass(oclass.getName());
   }
 
   private void assertContains(int[] clusterIds, int clusterId) {

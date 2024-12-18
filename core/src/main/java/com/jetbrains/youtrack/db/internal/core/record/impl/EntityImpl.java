@@ -21,7 +21,6 @@ package com.jetbrains.youtrack.db.internal.core.record.impl;
 
 import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.DB_CUSTOM_SUPPORT;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
@@ -30,6 +29,7 @@ import com.jetbrains.youtrack.db.api.exception.SchemaException;
 import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import com.jetbrains.youtrack.db.api.exception.ValidationException;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
@@ -140,12 +140,6 @@ public class EntityImpl extends RecordAbstract
   PropertyAccess propertyAccess;
   PropertyEncryption propertyEncryption;
 
-  /**
-   * Internal constructor used on unmarshalling.
-   */
-  public EntityImpl() {
-    setup(DatabaseRecordThreadLocal.instance().getIfDefined());
-  }
 
   /**
    * Internal constructor used on unmarshalling.
@@ -155,8 +149,8 @@ public class EntityImpl extends RecordAbstract
     setup(database);
   }
 
-  public EntityImpl(DatabaseSession database, RecordId rid) {
-    setup((DatabaseSessionInternal) database);
+  public EntityImpl(DatabaseSessionInternal database, RecordId rid) {
+    setup(database);
     this.recordId = rid.copy();
   }
 
@@ -167,9 +161,9 @@ public class EntityImpl extends RecordAbstract
    * @param iSource Raw stream
    */
   @Deprecated
-  public EntityImpl(final byte[] iSource) {
+  public EntityImpl(DatabaseSessionInternal session, final byte[] iSource) {
     source = iSource;
-    setup(DatabaseRecordThreadLocal.instance().getIfDefined());
+    setup(session);
   }
 
   /**
@@ -178,25 +172,11 @@ public class EntityImpl extends RecordAbstract
    *
    * @param iSource Raw stream as InputStream
    */
-  public EntityImpl(final InputStream iSource) throws IOException {
+  public EntityImpl(DatabaseSessionInternal session, final InputStream iSource) throws IOException {
     final ByteArrayOutputStream out = new ByteArrayOutputStream();
     IOUtils.copyStream(iSource, out);
     source = out.toByteArray();
-    setup(DatabaseRecordThreadLocal.instance().getIfDefined());
-  }
-
-  /**
-   * Creates a new instance in memory linked by the Record Id to the persistent one. New instances
-   * are not persistent until {@link #save()} is called.
-   *
-   * @param recordId Record Id
-   */
-  public EntityImpl(final RecordId recordId) {
-    setup(DatabaseRecordThreadLocal.instance().getIfDefined());
-    this.recordId = recordId.copy();
-    status = STATUS.NOT_LOADED;
-    dirty = false;
-    contentChanged = false;
+    setup(session);
   }
 
   /**
@@ -206,8 +186,9 @@ public class EntityImpl extends RecordAbstract
    * @param iClassName Class name
    * @param recordId   Record Id
    */
-  public EntityImpl(final String iClassName, final RecordId recordId) {
-    this(iClassName);
+  public EntityImpl(DatabaseSessionInternal session, final String iClassName,
+      final RecordId recordId) {
+    this(session, iClassName);
 
     this.recordId = recordId.copy();
 
@@ -229,22 +210,6 @@ public class EntityImpl extends RecordAbstract
     status = STATUS.NOT_LOADED;
   }
 
-  /**
-   * Creates a new instance in memory of the specified class. New instances are not persistent until
-   * {@link #save()} is called.
-   *
-   * @param iClassName Class name
-   */
-  public EntityImpl(final String iClassName) {
-    setup(DatabaseRecordThreadLocal.instance().getIfDefined());
-    setClassName(iClassName);
-  }
-
-  public EntityImpl(final String iClassName, DatabaseSessionInternal session) {
-    assert session == null || session.assertIfNotActive();
-    setup(session);
-    setClassName(iClassName);
-  }
 
   /**
    * Creates a new instance in memory of the specified class. New instances are not persistent until
@@ -266,8 +231,8 @@ public class EntityImpl extends RecordAbstract
    *
    * @param iClass SchemaClass instance
    */
-  public EntityImpl(final SchemaClass iClass) {
-    this(iClass != null ? iClass.getName() : null);
+  public EntityImpl(DatabaseSessionInternal session, final SchemaClass iClass) {
+    this(session, iClass != null ? iClass.getName() : null);
   }
 
   /**
@@ -275,10 +240,9 @@ public class EntityImpl extends RecordAbstract
    *
    * @param iFields Array of field pairs
    */
-  public EntityImpl(final Object[] iFields) {
-    this(DEFAULT_CLASS_NAME);
+  public EntityImpl(DatabaseSessionInternal session, final Object[] iFields) {
+    this(session, DEFAULT_CLASS_NAME);
 
-    setup(DatabaseRecordThreadLocal.instance().getIfDefined());
     if (iFields != null && iFields.length > 0) {
       for (int i = 0; i < iFields.length; i += 2) {
         field(iFields[i].toString(), iFields[i + 1]);
@@ -292,8 +256,9 @@ public class EntityImpl extends RecordAbstract
    *
    * @param iFieldMap Map of Object/Object
    */
-  public EntityImpl(final Map<?, Object> iFieldMap) {
-    setup(DatabaseRecordThreadLocal.instance().getIfDefined());
+  public EntityImpl(DatabaseSessionInternal session, final Map<?, Object> iFieldMap) {
+    setup(session);
+
     if (iFieldMap != null && !iFieldMap.isEmpty()) {
       for (Entry<?, Object> entry : iFieldMap.entrySet()) {
         field(entry.getKey().toString(), entry.getValue());
@@ -304,8 +269,9 @@ public class EntityImpl extends RecordAbstract
   /**
    * Fills a entity passing the field names/values pair, where the first pair is mandatory.
    */
-  public EntityImpl(final String iFieldName, final Object iFieldValue, final Object... iFields) {
-    this(iFields);
+  public EntityImpl(DatabaseSessionInternal session, final String iFieldName,
+      final Object iFieldValue, final Object... iFields) {
+    this(session, iFields);
     field(iFieldName, iFieldValue);
   }
 
@@ -478,6 +444,43 @@ public class EntityImpl extends RecordAbstract
     return getPropertyInternal(fieldName);
   }
 
+  @Nullable
+  @Override
+  public Entity getElementProperty(String name) {
+    {
+      var property = getProperty(name);
+
+      return switch (property) {
+        case null -> null;
+        case Entity entity -> entity;
+        case Identifiable identifiable -> identifiable.getEntity(getSession());
+        default -> throw new DatabaseException(
+            "Property "
+                + name
+                + " is not an entity property, it is a "
+                + property.getClass().getName());
+      };
+
+    }
+  }
+
+  @Nullable
+  @Override
+  public Blob getBlobProperty(String propertyName) {
+    var property = getProperty(propertyName);
+
+    return switch (property) {
+      case null -> null;
+      case Blob blob -> blob;
+      case Identifiable identifiable -> identifiable.getBlob(getSession());
+      default -> throw new DatabaseException(
+          "Property "
+              + propertyName
+              + " is not a blob property, it is a "
+              + property.getClass().getName());
+    };
+  }
+
   @Override
   public <RET> RET getPropertyInternal(String name) {
     return getPropertyInternal(name, isLazyLoad());
@@ -490,8 +493,8 @@ public class EntityImpl extends RecordAbstract
     }
 
     checkForBinding();
-    RET value = (RET) DocumentHelper.getIdentifiableValue(this, name);
-    if (!name.startsWith("@")
+    RET value = (RET) EntityHelper.getIdentifiableValue(getSession(), this, name);
+    if (!(!name.isEmpty() && name.charAt(0) == '@')
         && lazyLoad
         && value instanceof RID rid
         && (rid.isPersistent() || rid.isNew())
@@ -505,7 +508,7 @@ public class EntityImpl extends RecordAbstract
         track((Identifiable) newValue);
         value = newValue;
         if (trackingChanges) {
-          RecordInternal.setDirtyManager((Record) value, this.getDirtyManager());
+          RecordInternal.setDirtyManager(getSession(), (Record) value, this.getDirtyManager());
         }
         EntityEntry entry = fields.get(name);
         entry.disableTracking(this, entry.value);
@@ -627,7 +630,7 @@ public class EntityImpl extends RecordAbstract
       return null;
     }
 
-    return (RET) DocumentHelper.getIdentifiableValue(this, iFieldName);
+    return (RET) EntityHelper.getIdentifiableValue(getSession(), this, iFieldName);
   }
 
   /**
@@ -677,25 +680,25 @@ public class EntityImpl extends RecordAbstract
     final char begin = name.charAt(0);
     if (begin == '@') {
       switch (name.toLowerCase(Locale.ROOT)) {
-        case DocumentHelper.ATTRIBUTE_CLASS -> {
+        case EntityHelper.ATTRIBUTE_CLASS -> {
           setClassName(value.toString());
           return;
         }
-        case DocumentHelper.ATTRIBUTE_RID -> {
+        case EntityHelper.ATTRIBUTE_RID -> {
           if (status == STATUS.UNMARSHALLING) {
             recordId = new RecordId(value.toString());
           } else {
             throw new DatabaseException(
-                "Attribute " + DocumentHelper.ATTRIBUTE_RID + " is read-only");
+                "Attribute " + EntityHelper.ATTRIBUTE_RID + " is read-only");
           }
 
         }
-        case DocumentHelper.ATTRIBUTE_VERSION -> {
+        case EntityHelper.ATTRIBUTE_VERSION -> {
           if (status == STATUS.UNMARSHALLING) {
             setVersion(Integer.parseInt(value.toString()));
           }
           throw new DatabaseException(
-              "Attribute " + DocumentHelper.ATTRIBUTE_VERSION + " is read-only");
+              "Attribute " + EntityHelper.ATTRIBUTE_VERSION + " is read-only");
         }
       }
     }
@@ -722,7 +725,7 @@ public class EntityImpl extends RecordAbstract
 
     PropertyType fieldType = deriveFieldType(name, entry, type);
     if (value != null && fieldType != null) {
-      value = DocumentHelper.convertField(getSessionIfDefined(), this, name, fieldType, null,
+      value = EntityHelper.convertField(getSessionIfDefined(), this, name, fieldType, null,
           value);
     } else {
       if (value instanceof Enum) {
@@ -838,16 +841,16 @@ public class EntityImpl extends RecordAbstract
     checkForBinding();
     checkForFields();
 
-    if (DocumentHelper.ATTRIBUTE_CLASS.equalsIgnoreCase(name)) {
+    if (EntityHelper.ATTRIBUTE_CLASS.equalsIgnoreCase(name)) {
       setClassName(null);
     } else {
-      if (DocumentHelper.ATTRIBUTE_RID.equalsIgnoreCase(name)) {
+      if (EntityHelper.ATTRIBUTE_RID.equalsIgnoreCase(name)) {
         throw new DatabaseException(
-            "Attribute " + DocumentHelper.ATTRIBUTE_RID + " is read-only");
-      } else if (DocumentHelper.ATTRIBUTE_VERSION.equalsIgnoreCase(name)) {
-        if (DocumentHelper.ATTRIBUTE_VERSION.equalsIgnoreCase(name)) {
+            "Attribute " + EntityHelper.ATTRIBUTE_RID + " is read-only");
+      } else if (EntityHelper.ATTRIBUTE_VERSION.equalsIgnoreCase(name)) {
+        if (EntityHelper.ATTRIBUTE_VERSION.equalsIgnoreCase(name)) {
           throw new DatabaseException(
-              "Attribute " + DocumentHelper.ATTRIBUTE_VERSION + " is read-only");
+              "Attribute " + EntityHelper.ATTRIBUTE_VERSION + " is read-only");
         }
       }
     }
@@ -883,37 +886,37 @@ public class EntityImpl extends RecordAbstract
     return (RET) oldValue;
   }
 
-  private static void validateFieldsSecurity(DatabaseSessionInternal internal,
+  private static void validateFieldsSecurity(DatabaseSessionInternal db,
       EntityImpl iRecord)
       throws ValidationException {
-    if (internal == null) {
+    if (db == null) {
       return;
     }
 
     iRecord.checkForBinding();
-    iRecord = (EntityImpl) iRecord.getRecord();
+    iRecord = (EntityImpl) iRecord.getRecord(db);
 
-    SecurityInternal security = internal.getSharedContext().getSecurity();
+    SecurityInternal security = db.getSharedContext().getSecurity();
     for (Entry<String, EntityEntry> mapEntry : iRecord.fields.entrySet()) {
       EntityEntry entry = mapEntry.getValue();
       if (entry != null && (entry.isTxChanged() || entry.isTxTrackedModified())) {
-        if (!security.isAllowedWrite(internal, iRecord, mapEntry.getKey())) {
+        if (!security.isAllowedWrite(db, iRecord, mapEntry.getKey())) {
           throw new SecurityException(
               String.format(
                   "Change of field '%s' is not allowed for user '%s'",
                   iRecord.getClassName() + "." + mapEntry.getKey(),
-                  internal.geCurrentUser().getName(internal)));
+                  db.geCurrentUser().getName(db)));
         }
       }
     }
   }
 
   private static void validateField(
-      DatabaseSessionInternal session, ImmutableSchema schema, EntityImpl iRecord,
+      DatabaseSessionInternal db, ImmutableSchema schema, EntityImpl iRecord,
       ImmutableProperty p)
       throws ValidationException {
     iRecord.checkForBinding();
-    iRecord = (EntityImpl) iRecord.getRecord();
+    iRecord = (EntityImpl) iRecord.getRecord(db);
 
     final Object fieldValue;
     EntityEntry entry = iRecord.fields.get(p.getName());
@@ -1004,7 +1007,7 @@ public class EntityImpl extends RecordAbstract
           validateLinkCollection(schema, p, (Iterable<Object>) fieldValue, entry);
           break;
         case EMBEDDED:
-          validateEmbedded(p, fieldValue);
+          validateEmbedded(db, p, fieldValue);
           break;
         case EMBEDDEDLIST:
           if (!(fieldValue instanceof List)) {
@@ -1017,12 +1020,12 @@ public class EntityImpl extends RecordAbstract
           }
           if (p.getLinkedClass() != null) {
             for (Object item : ((List<?>) fieldValue)) {
-              validateEmbedded(p, item);
+              validateEmbedded(db, p, item);
             }
           } else {
             if (p.getLinkedType() != null) {
               for (Object item : ((List<?>) fieldValue)) {
-                validateType(session, p, item);
+                validateType(db, p, item);
               }
             }
           }
@@ -1037,12 +1040,12 @@ public class EntityImpl extends RecordAbstract
           }
           if (p.getLinkedClass() != null) {
             for (Object item : ((Set<?>) fieldValue)) {
-              validateEmbedded(p, item);
+              validateEmbedded(db, p, item);
             }
           } else {
             if (p.getLinkedType() != null) {
               for (Object item : ((Set<?>) fieldValue)) {
-                validateType(session, p, item);
+                validateType(db, p, item);
               }
             }
           }
@@ -1057,12 +1060,12 @@ public class EntityImpl extends RecordAbstract
           }
           if (p.getLinkedClass() != null) {
             for (Entry<?, ?> colleEntry : ((Map<?, ?>) fieldValue).entrySet()) {
-              validateEmbedded(p, colleEntry.getValue());
+              validateEmbedded(db, p, colleEntry.getValue());
             }
           } else {
             if (p.getLinkedType() != null) {
               for (Entry<?, ?> collEntry : ((Map<?, ?>) fieldValue).entrySet()) {
-                validateType(session, p, collEntry.getValue());
+                validateType(db, p, collEntry.getValue());
               }
             }
           }
@@ -1172,7 +1175,7 @@ public class EntityImpl extends RecordAbstract
         // check if the field is actually changed by equal.
         // this is due to a limitation in the merge algorithm used server side marking all
         // non-simple fields as dirty
-        Object orgVal = entry.getOnLoadValue(session);
+        Object orgVal = entry.getOnLoadValue(db);
         boolean simple =
             fieldValue != null ? PropertyType.isSimpleType(fieldValue)
                 : PropertyType.isSimpleType(orgVal);
@@ -1291,7 +1294,8 @@ public class EntityImpl extends RecordAbstract
     }
   }
 
-  private static void validateEmbedded(final Property p, final Object fieldValue) {
+  private static void validateEmbedded(DatabaseSessionInternal db, final Property p,
+      final Object fieldValue) {
     if (fieldValue == null) {
       return;
     }
@@ -1315,7 +1319,7 @@ public class EntityImpl extends RecordAbstract
                   + fieldValue);
         }
 
-        final Record embeddedRecord = embedded.getRecord();
+        final Record embeddedRecord = embedded.getRecord(db);
         if (embeddedRecord instanceof EntityImpl entity) {
           final SchemaClass embeddedClass = p.getLinkedClass();
           if (entity.isVertex()) {
@@ -1406,7 +1410,7 @@ public class EntityImpl extends RecordAbstract
   public EntityImpl copy() {
     checkForBinding();
 
-    var entity = new EntityImpl();
+    var entity = new EntityImpl(getSession());
     RecordInternal.unsetDirty(entity);
     var newEntity = (EntityImpl) copyTo(entity);
     newEntity.dirty = true;
@@ -1454,7 +1458,7 @@ public class EntityImpl extends RecordAbstract
         var originalEntry = entry.getValue();
         EntityEntry entityEntry = originalEntry.clone();
         destination.fields.put(entry.getKey(), entityEntry);
-        entityEntry.value = DocumentHelper.cloneValue(getSession(), destination,
+        entityEntry.value = EntityHelper.cloneValue(getSession(), destination,
             entry.getValue().value);
       }
     } else {
@@ -1482,15 +1486,12 @@ public class EntityImpl extends RecordAbstract
 
     final DatabaseSessionInternal currentDb = DatabaseRecordThreadLocal.instance()
         .getIfDefined();
-    return DocumentHelper.hasSameContentOf(this, currentDb, iOther, currentDb, null);
+    return EntityHelper.hasSameContentOf(this, currentDb, iOther, currentDb, null);
   }
 
   @Override
   public byte[] toStream() {
     checkForBinding();
-    if (recordFormat == null) {
-      setup(DatabaseRecordThreadLocal.instance().getIfDefined());
-    }
 
     STATUS prev = status;
     status = STATUS.MARSHALLING;
@@ -1520,12 +1521,12 @@ public class EntityImpl extends RecordAbstract
 
     final RecordId id = getIdentity();
     if (id.isValid()) {
-      map.put(DocumentHelper.ATTRIBUTE_RID, id);
+      map.put(EntityHelper.ATTRIBUTE_RID, id);
     }
 
     final String className = getClassName();
     if (className != null) {
-      map.put(DocumentHelper.ATTRIBUTE_CLASS, className);
+      map.put(EntityHelper.ATTRIBUTE_CLASS, className);
     }
 
     return map;
@@ -1615,7 +1616,7 @@ public class EntityImpl extends RecordAbstract
     }
 
     // NOT FOUND, PARSE THE FIELD NAME
-    return DocumentHelper.getFieldValue(getSession(), this, iFieldName);
+    return EntityHelper.getFieldValue(getSession(), this, iFieldName);
   }
 
   /**
@@ -1668,7 +1669,7 @@ public class EntityImpl extends RecordAbstract
 
     RET value = this.rawField(iFieldName);
 
-    if (!iFieldName.startsWith("@")
+    if (!(!iFieldName.isEmpty() && iFieldName.charAt(0) == '@')
         && lazyLoad
         && value instanceof RID
         && (((RID) value).isPersistent() || ((RID) value).isNew())
@@ -1681,7 +1682,7 @@ public class EntityImpl extends RecordAbstract
         track((Identifiable) newValue);
         value = newValue;
         if (this.trackingChanges) {
-          RecordInternal.setDirtyManager((Record) value, this.getDirtyManager());
+          RecordInternal.setDirtyManager(getSession(), (Record) value, this.getDirtyManager());
         }
         if (!iFieldName.contains(".")) {
           EntityEntry entry = fields.get(iFieldName);
@@ -1710,7 +1711,7 @@ public class EntityImpl extends RecordAbstract
 
     if (value != null) {
       value =
-          DocumentHelper.convertField(getSession()
+          EntityHelper.convertField(getSession()
               , this, iFieldName, PropertyType.getTypeByClass(iFieldType), iFieldType, value);
     }
 
@@ -1752,7 +1753,7 @@ public class EntityImpl extends RecordAbstract
             newValue =
                 Collections.unmodifiableSet(
                     (Set<?>)
-                        DocumentHelper.convertField(getSession(), this, iFieldName, iFieldType,
+                        EntityHelper.convertField(getSession(), this, iFieldName, iFieldType,
                             null,
                             value));
           } else {
@@ -1761,7 +1762,7 @@ public class EntityImpl extends RecordAbstract
               newValue =
                   Collections.unmodifiableList(
                       (List<?>)
-                          DocumentHelper.convertField(session, this, iFieldName,
+                          EntityHelper.convertField(session, this, iFieldName,
                               iFieldType, null, value));
             } else {
               if ((iFieldType == PropertyType.EMBEDDEDMAP || iFieldType == PropertyType.LINKMAP)
@@ -1769,7 +1770,7 @@ public class EntityImpl extends RecordAbstract
                 newValue =
                     Collections.unmodifiableMap(
                         (Map<?, ?>)
-                            DocumentHelper.convertField(session,
+                            EntityHelper.convertField(session,
                                 this, iFieldName, iFieldType, null, value));
               } else {
                 newValue = PropertyType.convert(session, value, iFieldType.getDefaultJavaType());
@@ -1895,15 +1896,15 @@ public class EntityImpl extends RecordAbstract
     }
 
     switch (iFieldName) {
-      case DocumentHelper.ATTRIBUTE_CLASS -> {
+      case EntityHelper.ATTRIBUTE_CLASS -> {
         setClassName(iPropertyValue.toString());
         return this;
       }
-      case DocumentHelper.ATTRIBUTE_RID -> {
+      case EntityHelper.ATTRIBUTE_RID -> {
         recordId.fromString(iPropertyValue.toString());
         return this;
       }
-      case DocumentHelper.ATTRIBUTE_VERSION -> {
+      case EntityHelper.ATTRIBUTE_VERSION -> {
         if (iPropertyValue != null) {
           int v;
 
@@ -1950,7 +1951,7 @@ public class EntityImpl extends RecordAbstract
                 }
 
                 final String indexPart = subFieldName.substring(1, subFieldNameLen - 1);
-                final Object indexPartObject = DocumentHelper.getIndexPart(null, indexPart);
+                final Object indexPartObject = EntityHelper.getIndexPart(null, indexPart);
                 final String indexAsString =
                     indexPartObject == null ? null : indexPartObject.toString();
 
@@ -2025,7 +2026,7 @@ public class EntityImpl extends RecordAbstract
     PropertyType fieldType = deriveFieldType(iFieldName, entry, iFieldType);
     if (iPropertyValue != null && fieldType != null) {
       iPropertyValue =
-          DocumentHelper.convertField(getSession(), this, iFieldName, fieldType, null,
+          EntityHelper.convertField(getSession(), this, iFieldName, fieldType, null,
               iPropertyValue);
     } else {
       if (iPropertyValue instanceof Enum) {
@@ -2156,10 +2157,10 @@ public class EntityImpl extends RecordAbstract
     checkForBinding();
     checkForFields();
 
-    if (DocumentHelper.ATTRIBUTE_CLASS.equalsIgnoreCase(iFieldName)) {
+    if (EntityHelper.ATTRIBUTE_CLASS.equalsIgnoreCase(iFieldName)) {
       setClassName(null);
     } else {
-      if (DocumentHelper.ATTRIBUTE_RID.equalsIgnoreCase(iFieldName)) {
+      if (EntityHelper.ATTRIBUTE_RID.equalsIgnoreCase(iFieldName)) {
         recordId = new ChangeableRecordId();
       }
     }
@@ -2221,7 +2222,7 @@ public class EntityImpl extends RecordAbstract
     }
 
     return mergeMap(
-        ((EntityImpl) iOther.getRecord()).fields,
+        ((EntityImpl) iOther.getRecord(getSession())).fields,
         iUpdateOnlyMode,
         iMergeSingleItemsOfMultiValueFields);
   }
@@ -2835,7 +2836,7 @@ public class EntityImpl extends RecordAbstract
     if (iFields != null && iFields.length > 0) {
       // EXTRACT REAL FIELD NAMES
       for (final String f : iFields) {
-        if (f != null && !f.startsWith("@")) {
+        if (f != null && !(!f.isEmpty() && f.charAt(0) == '@')) {
           int pos1 = f.indexOf('[');
           int pos2 = f.indexOf('.');
           if (pos1 > -1 || pos2 > -1) {
@@ -2867,7 +2868,7 @@ public class EntityImpl extends RecordAbstract
       if (fields != null && !fields.isEmpty()) {
         boolean allFound = true;
         for (String f : iFields) {
-          if (f != null && !f.startsWith("@") && !fields.containsKey(f)) {
+          if (f != null && !(!f.isEmpty() && f.charAt(0) == '@') && !fields.containsKey(f)) {
             allFound = false;
             break;
           }
@@ -2890,7 +2891,7 @@ public class EntityImpl extends RecordAbstract
 
     if (iFields != null && iFields.length > 0) {
       for (String field : iFields) {
-        if (field != null && field.startsWith("@"))
+        if (field != null && !field.isEmpty() && field.charAt(0) == '@')
         // ATTRIBUTE
         {
           return true;
@@ -3469,7 +3470,7 @@ public class EntityImpl extends RecordAbstract
       } else {
         if (value instanceof Map) {
           entry.disableTracking(this, value);
-          EntityImpl newValue = new EntityImpl(linkedClass);
+          EntityImpl newValue = new EntityImpl(getSession(), linkedClass);
           //noinspection rawtypes
           newValue.fromMap((Map) value);
           entry.value = newValue;
@@ -3974,7 +3975,7 @@ public class EntityImpl extends RecordAbstract
         if (defValue != null && /*defValue.length() > 0 && */ !containsField(prop.getName())) {
           Object curFieldValue = SQLHelper.parseDefaultValue(session, this, defValue);
           Object fieldValue =
-              DocumentHelper.convertField(session,
+              EntityHelper.convertField(session,
                   this, prop.getName(), prop.getType(), null, curFieldValue);
           rawField(prop.getName(), fieldValue, prop.getType());
         }

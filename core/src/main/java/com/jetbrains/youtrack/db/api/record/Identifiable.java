@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.api.record;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-
 import java.util.Comparator;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -46,18 +46,18 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @throws RecordNotFoundException if the record does not exist
    */
   @Nonnull
-  <T extends Record> T getRecord();
+  <T extends Record> T getRecord(DatabaseSession db);
 
   /**
    * Returns the record instance, or null if the record does not exist.
    *
    * @return Record instance or null if the record does not exist
-   * @see #getRecord()
+   * @see #getRecord(DatabaseSession)
    */
   @Nullable
-  default <T extends Record> T getRecordSilently() {
+  default <T extends Record> T getRecordSilently(DatabaseSession db) {
     try {
-      return getRecord();
+      return getRecord(db);
     } catch (RecordNotFoundException e) {
       return null;
     }
@@ -70,8 +70,8 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @throws DatabaseException if the record is not an element.
    */
   @Nonnull
-  default Entity getEntity() {
-    var record = getRecord();
+  default Entity getEntity(DatabaseSession db) {
+    var record = getRecord(db);
     if (record instanceof Entity element) {
       return element;
     }
@@ -84,12 +84,12 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * exist.
    *
    * @return Record instance or null if the record does not exist
-   * @see #getEntity()
+   * @see #getEntity(DatabaseSession)
    */
   @Nullable
-  default Entity getElementSilently() {
+  default Entity getElementSilently(DatabaseSession db) {
     try {
-      return getEntity();
+      return getEntity(db);
     } catch (RecordNotFoundException e) {
       return null;
     }
@@ -102,8 +102,8 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @throws DatabaseException if the record is not a blob.
    */
   @Nonnull
-  default Blob getBlob() {
-    var record = getRecord();
+  default Blob getBlob(DatabaseSession db) {
+    var record = getRecord(db);
     if (record instanceof Blob blob) {
       return blob;
     }
@@ -116,12 +116,12 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * exist.
    *
    * @return Record instance or null if the record does not exist
-   * @see #getBlob()
+   * @see #getBlob(DatabaseSession)
    */
   @Nullable
-  default Blob getBlobSilently() {
+  default Blob getBlobSilently(DatabaseSession db) {
     try {
-      return getBlob();
+      return getBlob(db);
     } catch (RecordNotFoundException e) {
       return null;
     }
@@ -134,8 +134,8 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @throws DatabaseException if the record is not an edge.
    */
   @Nonnull
-  default Edge getEdge() {
-    var record = getRecord();
+  default Edge getEdge(DatabaseSession db) {
+    var record = getRecord(db);
     if (record instanceof Edge edge) {
       return edge;
     }
@@ -148,12 +148,12 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * exist.
    *
    * @return Record instance or null if the record does not exist
-   * @see #getEdge()
+   * @see #getEdge(DatabaseSession)
    */
   @Nullable
-  default Edge getEdgeSilently() {
+  default Edge getEdgeSilently(DatabaseSession db) {
     try {
-      return getEdge();
+      return getEdge(db);
     } catch (RecordNotFoundException e) {
       return null;
     }
@@ -166,8 +166,8 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @throws DatabaseException if the record is not a vertex.
    */
   @Nonnull
-  default Vertex getVertex() {
-    var record = getRecord();
+  default Vertex getVertex(DatabaseSession db) {
+    var record = getRecord(db);
     if (record instanceof Vertex vertex) {
       return vertex;
     }
@@ -180,12 +180,12 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * exist.
    *
    * @return Record instance or null if the record does not exist
-   * @see #getVertex()
+   * @see #getVertex(DatabaseSession)
    */
   @Nullable
-  default Vertex getVertexSilently() {
+  default Vertex getVertexSilently(DatabaseSession db) {
     try {
-      return getVertex();
+      return getVertex(db);
     } catch (RecordNotFoundException e) {
       return null;
     }

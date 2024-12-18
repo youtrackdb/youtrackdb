@@ -248,7 +248,7 @@ public class SchedulerTest {
       Map<Object, Object> args = new HashMap<>();
       args.put("note", "test");
 
-      new ScheduledEventBuilder()
+      new ScheduledEventBuilder(db)
           .setName(db, "test")
           .setRule(db, "0/1 * * * * ?")
           .setFunction(db, func)

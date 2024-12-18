@@ -26,7 +26,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
 import java.io.IOException;
 import java.util.Map;
@@ -39,7 +39,7 @@ public class ServerCommandPostProperty extends ServerCommandAuthenticatedDbAbstr
   private static final String[] NAMES = {"POST|property/*"};
 
   @Override
-  public boolean execute(final OHttpRequest iRequest, HttpResponse iResponse) throws Exception {
+  public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
     try (DatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
       if (iRequest.getContent() == null || iRequest.getContent().length() <= 0) {
         return addSingleProperty(iRequest, iResponse, db);
@@ -51,7 +51,7 @@ public class ServerCommandPostProperty extends ServerCommandAuthenticatedDbAbstr
 
   @SuppressWarnings("unused")
   protected boolean addSingleProperty(
-      final OHttpRequest iRequest, final HttpResponse iResponse,
+      final HttpRequest iRequest, final HttpResponse iResponse,
       final DatabaseSessionInternal db)
       throws InterruptedException, IOException {
     String[] urlParts =
@@ -127,7 +127,7 @@ public class ServerCommandPostProperty extends ServerCommandAuthenticatedDbAbstr
 
   @SuppressWarnings({"unchecked", "unused"})
   protected boolean addMultipreProperties(
-      final OHttpRequest iRequest, final HttpResponse iResponse,
+      final HttpRequest iRequest, final HttpResponse iResponse,
       final DatabaseSessionInternal db)
       throws InterruptedException, IOException {
     String[] urlParts =
@@ -142,7 +142,7 @@ public class ServerCommandPostProperty extends ServerCommandAuthenticatedDbAbstr
 
     final SchemaClass cls = db.getMetadata().getSchema().getClass(urlParts[2]);
 
-    final EntityImpl propertiesDoc = new EntityImpl();
+    final EntityImpl propertiesDoc = new EntityImpl(db);
     propertiesDoc.fromJSON(iRequest.getContent());
 
     for (String propertyName : propertiesDoc.fieldNames()) {

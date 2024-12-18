@@ -94,7 +94,7 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
           int i = 0;
           while ((line = lnr.readLine()) != null) {
             String[] nextLine = line.split(",");
-            EntityImpl doc = new EntityImpl("Place");
+            EntityImpl doc = ((EntityImpl) db.newEntity("Place"));
             doc.field("name", nextLine[3]);
             doc.field("country", nextLine[1]);
             try {

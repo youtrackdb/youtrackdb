@@ -113,9 +113,6 @@ public class SQLWhereClause extends SimpleNode {
         Map<String, Object> conditions = getEqualityOperations(condition, ctx);
 
         for (Index index : indexes) {
-          if (index.getType().equals(SchemaClass.INDEX_TYPE.FULLTEXT.name())) {
-            continue;
-          }
           List<String> indexedFields = index.getDefinition().getFields();
           int nMatchingKeys = 0;
           for (String indexedField : indexedFields) {

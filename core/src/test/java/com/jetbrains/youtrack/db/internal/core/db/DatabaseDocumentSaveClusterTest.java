@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -18,7 +18,7 @@ public class DatabaseDocumentSaveClusterTest extends DbTestBase {
     db.getMetadata().getSchema().createClass("test");
     db.addCluster("test_one");
 
-    db.save(new EntityImpl("test"), "test_one");
+    db.save((EntityImpl) db.newEntity("test"), "test_one");
   }
 
   @Test(expected = SchemaException.class)
@@ -36,7 +36,7 @@ public class DatabaseDocumentSaveClusterTest extends DbTestBase {
     int res = db.addCluster("test_one");
     clazz.addCluster(db, "test_one");
 
-    Record saved = db.computeInTx(() -> db.save(new EntityImpl("test"), "test_one"));
+    Record saved = db.computeInTx(() -> db.save(db.newEntity("test"), "test_one"));
     Assert.assertEquals(saved.getIdentity().getClusterId(), res);
   }
 
@@ -46,7 +46,7 @@ public class DatabaseDocumentSaveClusterTest extends DbTestBase {
     int res = db.addCluster("test_one");
     clazz.addCluster(db, "test_one");
 
-    Record saved = db.computeInTx(() -> db.save(new EntityImpl("test"), "test_one"));
+    Record saved = db.computeInTx(() -> db.save((EntityImpl) db.newEntity("test"), "test_one"));
     Assert.assertEquals(saved.getIdentity().getClusterId(), res);
     db.getMetadata().getSchema().dropClass(clazz.getName());
     Assert.assertFalse(db.existsCluster("test_one"));

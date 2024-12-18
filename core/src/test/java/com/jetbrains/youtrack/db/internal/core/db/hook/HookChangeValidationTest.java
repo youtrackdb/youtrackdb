@@ -2,12 +2,12 @@ package com.jetbrains.youtrack.db.internal.core.db.hook;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.exception.ValidationException;
-import com.jetbrains.youtrack.db.internal.core.hook.DocumentHookAbstract;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.hook.DocumentHookAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class HookChangeValidationTest extends DbTestBase {
             return DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE;
           }
         });
-    EntityImpl doc = new EntityImpl(classA);
+    EntityImpl doc = (EntityImpl) db.newEntity(classA);
     doc.field("property1", "value1-create");
     doc.field("property2", "value2-create");
     doc.field("property3", "value3-create");
@@ -86,7 +86,7 @@ public class HookChangeValidationTest extends DbTestBase {
         });
 
     db.begin();
-    EntityImpl doc = new EntityImpl(classA);
+    EntityImpl doc = (EntityImpl) db.newEntity(classA);
     doc.field("property1", "value1-create");
     doc.field("property2", "value2-create");
     doc.field("property3", "value3-create");

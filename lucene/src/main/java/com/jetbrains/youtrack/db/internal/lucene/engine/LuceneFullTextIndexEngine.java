@@ -19,16 +19,16 @@ package com.jetbrains.youtrack.db.internal.lucene.engine;
 import static com.jetbrains.youtrack.db.internal.lucene.builder.LuceneQueryBuilder.EMPTY_METADATA;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.id.ContextualRecordId;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
+import com.jetbrains.youtrack.db.internal.core.index.IndexEngineException;
 import com.jetbrains.youtrack.db.internal.core.index.IndexKeyUpdater;
 import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
-import com.jetbrains.youtrack.db.internal.core.index.IndexEngineException;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValidator;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValuesTransformer;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
@@ -73,8 +73,8 @@ public class LuceneFullTextIndexEngine extends LuceneIndexEngineAbstract {
   }
 
   @Override
-  public void init(IndexMetadata im) {
-    super.init(im);
+  public void init(DatabaseSessionInternal db, IndexMetadata im) {
+    super.init(db, im);
     queryBuilder = new LuceneQueryBuilder(im.getMetadata());
   }
 
@@ -113,29 +113,30 @@ public class LuceneFullTextIndexEngine extends LuceneIndexEngineAbstract {
   }
 
   @Override
-  public boolean remove(final AtomicOperation atomicOperation, final Object key) {
-    return remove(key);
+  public boolean remove(Storage storage, final AtomicOperation atomicOperation,
+      final Object key) {
+    return remove(storage, key);
   }
 
   @Override
-  public Object get(DatabaseSessionInternal session, final Object key) {
-    return getInTx(session, key, null);
+  public Object get(DatabaseSessionInternal db, final Object key) {
+    return getInTx(db, key, null);
   }
 
   @Override
   public void update(
-      DatabaseSessionInternal session, final AtomicOperation atomicOperation,
+      DatabaseSessionInternal db, final AtomicOperation atomicOperation,
       final Object key,
       final IndexKeyUpdater<Object> updater) {
-    put(session, atomicOperation, key, updater.update(null, bonsayFileId).getValue());
+    put(db, atomicOperation, key, updater.update(null, bonsayFileId).getValue());
   }
 
   @Override
-  public void put(DatabaseSessionInternal session, final AtomicOperation atomicOperation,
+  public void put(DatabaseSessionInternal db, final AtomicOperation atomicOperation,
       final Object key, final Object value) {
     updateLastAccess();
-    openIfClosed();
-    final Document doc = buildDocument(session, key, (Identifiable) value);
+    openIfClosed(db.getStorage());
+    final Document doc = buildDocument(db, key, (Identifiable) value);
     addDocument(doc);
   }
 
@@ -151,13 +152,13 @@ public class LuceneFullTextIndexEngine extends LuceneIndexEngineAbstract {
 
   @Override
   public Stream<RawPair<Object, com.jetbrains.youtrack.db.api.record.RID>> iterateEntriesBetween(
-      DatabaseSessionInternal session, Object rangeFrom,
+      DatabaseSessionInternal db, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
       boolean toInclusive,
       boolean ascSortOrder,
       IndexEngineValuesTransformer transformer) {
-    return LuceneIndexTransformer.transformToStream((LuceneResultSet) get(session, rangeFrom),
+    return LuceneIndexTransformer.transformToStream((LuceneResultSet) get(db, rangeFrom),
         rangeFrom);
   }
 
@@ -168,10 +169,11 @@ public class LuceneFullTextIndexEngine extends LuceneIndexEngineAbstract {
       final Map<String, ?> metadata) {
     // sort
     final List<SortField> fields = LuceneIndexEngineUtils.buildSortFields(metadata);
-    final IndexSearcher luceneSearcher = searcher();
+    var db = context.getDatabase();
+    final IndexSearcher luceneSearcher = searcher(db.getStorage());
     final LuceneQueryContext queryContext =
         new LuceneQueryContext(context, luceneSearcher, query, fields).withChanges(changes);
-    return new LuceneResultSet(this, queryContext, metadata);
+    return new LuceneResultSet(db, this, queryContext, metadata);
   }
 
   @Override
@@ -198,17 +200,7 @@ public class LuceneFullTextIndexEngine extends LuceneIndexEngineAbstract {
   }
 
   @Override
-  public void updateUniqueIndexVersion(Object key) {
-    // not implemented
-  }
-
-  @Override
-  public int getUniqueIndexVersion(Object key) {
-    return 0; // not implemented
-  }
-
-  @Override
-  public Document buildDocument(DatabaseSessionInternal session, Object key,
+  public Document buildDocument(DatabaseSessionInternal db, Object key,
       Identifiable value) {
     if (indexDefinition.isAutomatic()) {
       //      builder.newBuild(index, key, value);
@@ -264,10 +256,10 @@ public class LuceneFullTextIndexEngine extends LuceneIndexEngineAbstract {
   }
 
   @Override
-  public Set<Identifiable> getInTx(DatabaseSessionInternal session, Object key,
+  public Set<Identifiable> getInTx(DatabaseSessionInternal db, Object key,
       LuceneTxChanges changes) {
     updateLastAccess();
-    openIfClosed();
+    openIfClosed(db.getStorage());
     try {
       if (key instanceof LuceneKeyAndMetadata q) {
         Query query = queryBuilder.query(indexDefinition, q.key, q.metadata, queryAnalyzer());

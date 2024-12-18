@@ -19,20 +19,19 @@
  */
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string;
 
-import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
-import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
-import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
-import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
+import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
+import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
@@ -307,8 +306,8 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
   }
 
   @Override
-  public byte[] toStream(DatabaseSessionInternal session, RecordAbstract iRecord) {
-    final byte[] result = super.toStream(session, iRecord);
+  public byte[] toStream(DatabaseSessionInternal db, RecordAbstract iRecord) {
+    final byte[] result = super.toStream(db, iRecord);
     if (result == null || result.length > 0) {
       return result;
     }
@@ -335,7 +334,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
 
   @Override
   protected StringBuilder toString(
-      Record iRecord,
+      DatabaseSessionInternal db, Record iRecord,
       final StringBuilder iOutput,
       final String iFormat,
       final boolean autoDetectCollectionType) {
@@ -517,16 +516,6 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
           } else if (fieldValue instanceof Map<?, ?> && type == null) {
             final int size = MultiValue.getSize(fieldValue);
 
-            Boolean autoConvertLinks = null;
-            if (fieldValue instanceof LinkMap) {
-              autoConvertLinks = ((LinkMap) fieldValue).isAutoConvertToRecord();
-              if (autoConvertLinks)
-              // DISABLE AUTO CONVERT
-              {
-                ((LinkMap) fieldValue).setAutoConvertToRecord(false);
-              }
-            }
-
             if (size > 0) {
               final Object firstValue = MultiValue.getFirstValue(fieldValue);
 
@@ -548,12 +537,6 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
             if (type == null) {
               type = PropertyType.EMBEDDEDMAP;
             }
-
-            if (fieldValue instanceof LinkMap && autoConvertLinks)
-            // REPLACE PREVIOUS SETTINGS
-            {
-              ((LinkMap) fieldValue).setAutoConvertToRecord(true);
-            }
           }
         }
       }
@@ -570,11 +553,10 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
 
       iOutput.append(fieldName);
       iOutput.append(FIELD_VALUE_SEPARATOR);
-      fieldToStream(record, iOutput, type, linkedClass, linkedType, fieldName, fieldValue, true);
+      fieldToStream(db, record, iOutput, type, linkedClass, linkedType, fieldName, fieldValue);
 
       i++;
     }
-
 
     return iOutput;
   }

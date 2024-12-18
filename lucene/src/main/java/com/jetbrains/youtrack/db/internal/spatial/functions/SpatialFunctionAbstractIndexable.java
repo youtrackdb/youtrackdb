@@ -98,8 +98,9 @@ public abstract class SpatialFunctionAbstractIndexable extends SpatialFunctionAb
     Map<String, Object> queryParams = new HashMap<>();
     queryParams.put(SpatialQueryBuilderAbstract.GEO_FILTER, operator());
     Object shape;
+    var db = ctx.getDatabase();
     if (args[1].getValue() instanceof SQLJson json) {
-      EntityImpl doc = new EntityImpl();
+      EntityImpl doc = new EntityImpl(db);
       doc.fromJSON(json.toString());
       shape = doc.toMap();
     } else {

@@ -60,9 +60,9 @@ public class TokenHandlerImplTest extends BaseMemoryInternalDatabase {
     header.setAlgorithm("some");
     header.setKeyId("the_key");
     TokenHandlerImpl handler = new TokenHandlerImpl();
-    byte[] headerbytes = handler.serializeWebHeader(header);
+    byte[] headerbytes = TokenHandlerImpl.serializeWebHeader(header);
 
-    TokenHeader des = handler.deserializeWebHeader(headerbytes);
+    TokenHeader des = TokenHandlerImpl.deserializeWebHeader(headerbytes);
     assertNotNull(des);
     assertEquals(header.getType(), des.getType());
     assertEquals(header.getKeyId(), des.getKeyId());
@@ -84,9 +84,9 @@ public class TokenHandlerImplTest extends BaseMemoryInternalDatabase {
     payload.setUserRid(new RecordId(3, 4));
 
     TokenHandlerImpl handler = new TokenHandlerImpl();
-    byte[] payloadbytes = handler.serializeWebPayload(payload);
+    byte[] payloadbytes = TokenHandlerImpl.serializeWebPayload(payload);
 
-    JwtPayload des = handler.deserializeWebPayload(ptype, payloadbytes);
+    JwtPayload des = TokenHandlerImpl.deserializeWebPayload(ptype, payloadbytes);
     assertNotNull(des);
     assertEquals(payload.getAudience(), des.getAudience());
     assertEquals(payload.getExpiry(), des.getExpiry());

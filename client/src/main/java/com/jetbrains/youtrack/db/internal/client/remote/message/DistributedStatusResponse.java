@@ -42,7 +42,7 @@ public class DistributedStatusResponse implements BinaryResponse {
   @Override
   public void read(DatabaseSessionInternal db, ChannelDataInput network,
       StorageRemoteSession session) throws IOException {
-    clusterConfig = new EntityImpl(network.readBytes());
+    clusterConfig = new EntityImpl(db, network.readBytes());
   }
 
   public void write(DatabaseSessionInternal session, ChannelDataOutput channel,

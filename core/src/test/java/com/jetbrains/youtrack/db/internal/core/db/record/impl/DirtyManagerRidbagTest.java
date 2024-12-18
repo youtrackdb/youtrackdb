@@ -2,8 +2,8 @@ package com.jetbrains.youtrack.db.internal.core.db.record.impl;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DirtyManager;
@@ -18,14 +18,14 @@ public class DirtyManagerRidbagTest extends DbTestBase {
     Object value = GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValue();
     GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(-1);
     try {
-      EntityImpl doc = new EntityImpl();
+      EntityImpl doc = (EntityImpl) db.newEntity();
       doc.field("test", "ddd");
       RidBag bag = new RidBag(db);
-      EntityImpl doc1 = new EntityImpl();
+      EntityImpl doc1 = (EntityImpl) db.newEntity();
       bag.add(doc1);
       doc.field("bag", bag);
       EntityInternalUtils.convertAllMultiValuesToTrackedVersions(doc);
-      DirtyManager manager = RecordInternal.getDirtyManager(doc1);
+      DirtyManager manager = RecordInternal.getDirtyManager(db, doc1);
       assertEquals(2, manager.getNewRecords().size());
     } finally {
       GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(value);

@@ -17,12 +17,13 @@
 package com.jetbrains.youtrack.db.internal.core.fetch.json;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.FetchException;
 import com.jetbrains.youtrack.db.internal.core.fetch.FetchContext;
 import com.jetbrains.youtrack.db.internal.core.fetch.FetchListener;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import java.io.IOException;
@@ -37,7 +38,7 @@ public class JSONFetchListener implements FetchListener {
   }
 
   public void processStandardField(
-      final EntityImpl iRecord,
+      DatabaseSessionInternal db, final EntityImpl iRecord,
       final Object iFieldValue,
       final String iFieldName,
       final FetchContext iContext,
@@ -47,13 +48,12 @@ public class JSONFetchListener implements FetchListener {
     try {
       ((JSONFetchContext) iContext)
           .getJsonWriter()
-          .writeAttribute(
+          .writeAttribute(db,
               ((JSONFetchContext) iContext).getIndentLevel() + 1,
               true,
               iFieldName,
               iFieldValue,
-              iFormat,
-              filedType);
+              iFormat, filedType);
     } catch (IOException e) {
       throw BaseException.wrapException(
           new FetchException(
@@ -62,15 +62,15 @@ public class JSONFetchListener implements FetchListener {
     }
   }
 
-  public void processStandardCollectionValue(final Object iFieldValue, final FetchContext iContext)
+  public void processStandardCollectionValue(DatabaseSessionInternal db, final Object iFieldValue,
+      final FetchContext iContext)
       throws FetchException {
     try {
       ((JSONFetchContext) iContext)
           .getJsonWriter()
-          .writeValue(
+          .writeValue(db,
               ((JSONFetchContext) iContext).getIndentLevel(),
-              true,
-              JSONWriter.encode(iFieldValue));
+              true, JSONWriter.encode(iFieldValue));
     } catch (IOException e) {
       LogManager.instance().error(this, "Error on processStandardCollectionValue", e);
     }
@@ -98,14 +98,14 @@ public class JSONFetchListener implements FetchListener {
   }
 
   public void parseLinked(
-      final EntityImpl iRootRecord,
+      DatabaseSessionInternal db, final EntityImpl iRootRecord,
       final Identifiable iLinked,
       final Object iUserObject,
       final String iFieldName,
       final FetchContext iContext)
       throws FetchException {
     try {
-      ((JSONFetchContext) iContext).writeLinkedAttribute(iLinked, iFieldName);
+      ((JSONFetchContext) iContext).writeLinkedAttribute(db, iLinked, iFieldName);
     } catch (IOException e) {
       throw BaseException.wrapException(
           new FetchException(
@@ -120,7 +120,7 @@ public class JSONFetchListener implements FetchListener {
   }
 
   public void parseLinkedCollectionValue(
-      EntityImpl iRootRecord,
+      DatabaseSessionInternal db, EntityImpl iRootRecord,
       Identifiable iLinked,
       Object iUserObject,
       String iFieldName,
@@ -128,9 +128,9 @@ public class JSONFetchListener implements FetchListener {
       throws FetchException {
     try {
       if (((JSONFetchContext) iContext).isInCollection(iRootRecord)) {
-        ((JSONFetchContext) iContext).writeLinkedValue(iLinked, iFieldName);
+        ((JSONFetchContext) iContext).writeLinkedValue(db, iLinked);
       } else {
-        ((JSONFetchContext) iContext).writeLinkedAttribute(iLinked, iFieldName);
+        ((JSONFetchContext) iContext).writeLinkedAttribute(db, iLinked, iFieldName);
       }
     } catch (IOException e) {
       throw BaseException.wrapException(

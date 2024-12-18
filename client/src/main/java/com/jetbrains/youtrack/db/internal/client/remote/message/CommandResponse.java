@@ -19,6 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.client.remote.message;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.FetchPlanResults;
 import com.jetbrains.youtrack.db.internal.client.remote.SimpleValueFetchPlanCommandListener;
@@ -28,11 +31,8 @@ import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
@@ -127,7 +127,7 @@ public final class CommandResponse implements BinaryResponse {
   }
 
   public void serializeValue(
-      DatabaseSessionInternal session,
+      DatabaseSessionInternal db,
       ChannelDataOutput channel,
       final SimpleValueFetchPlanCommandListener listener,
       Object result,
@@ -144,31 +144,31 @@ public final class CommandResponse implements BinaryResponse {
         // RECORD
         channel.writeByte((byte) 'r');
         if (load && result instanceof RecordId) {
-          result = ((RecordId) result).getRecord();
+          result = ((RecordId) result).getRecord(db);
         }
 
         if (listener != null) {
-          listener.result(session, result);
+          listener.result(db, result);
         }
         if (identifiable instanceof Record record) {
-          if (record.isNotBound(session)) {
-            identifiable = session.bindToSession(record);
+          if (record.isNotBound(db)) {
+            identifiable = db.bindToSession(record);
           }
         }
 
-        MessageHelper.writeIdentifiable(session, channel, identifiable, recordSerializer);
+        MessageHelper.writeIdentifiable(db, channel, identifiable, recordSerializer);
       } else {
         if (result instanceof EntityWrapper) {
           // RECORD
           channel.writeByte((byte) 'r');
-          final EntityImpl entity = ((EntityWrapper) result).getDocument(session);
+          final EntityImpl entity = ((EntityWrapper) result).getDocument(db);
           if (listener != null) {
-            listener.result(session, entity);
+            listener.result(db, entity);
           }
-          MessageHelper.writeIdentifiable(session, channel, entity, recordSerializer);
+          MessageHelper.writeIdentifiable(db, channel, entity, recordSerializer);
         } else {
           if (!isRecordResultSet) {
-            writeSimpleValue(session, channel, listener, result, protocolVersion, recordSerializer);
+            writeSimpleValue(db, channel, listener, result, protocolVersion, recordSerializer);
           } else {
             if (MultiValue.isMultiValue(result)) {
               final byte collectionType = result instanceof Set ? (byte) 's' : (byte) 'l';
@@ -177,17 +177,17 @@ public final class CommandResponse implements BinaryResponse {
               for (Object o : MultiValue.getMultiValueIterable(result)) {
                 try {
                   if (load && o instanceof RecordId) {
-                    o = ((RecordId) o).getRecord();
+                    o = ((RecordId) o).getRecord(db);
                   }
                   if (listener != null) {
-                    listener.result(session, o);
+                    listener.result(db, o);
                   }
 
-                  MessageHelper.writeIdentifiable(session, channel, (Identifiable) o,
+                  MessageHelper.writeIdentifiable(db, channel, (Identifiable) o,
                       recordSerializer);
                 } catch (Exception e) {
                   LogManager.instance().warn(this, "Cannot serialize record: " + o);
-                  MessageHelper.writeIdentifiable(session, channel, null, recordSerializer);
+                  MessageHelper.writeIdentifiable(db, channel, null, recordSerializer);
                   // WRITE NULL RECORD TO AVOID BREAKING PROTOCOL
                 }
               }
@@ -198,14 +198,14 @@ public final class CommandResponse implements BinaryResponse {
                   for (Object o : MultiValue.getMultiValueIterable(result)) {
                     try {
                       if (load && o instanceof RecordId) {
-                        o = ((RecordId) o).getRecord();
+                        o = ((RecordId) o).getRecord(db);
                       }
                       if (listener != null) {
-                        listener.result(session, o);
+                        listener.result(db, o);
                       }
 
                       channel.writeByte((byte) 1); // ONE MORE RECORD
-                      MessageHelper.writeIdentifiable(session,
+                      MessageHelper.writeIdentifiable(db,
                           channel, (Identifiable) o, recordSerializer);
                     } catch (Exception e) {
                       LogManager.instance().warn(this, "Cannot serialize record: " + o);
@@ -220,13 +220,13 @@ public final class CommandResponse implements BinaryResponse {
                   for (Object o : MultiValue.getMultiValueIterable(result)) {
                     try {
                       if (load && o instanceof RecordId) {
-                        o = ((RecordId) o).getRecord();
+                        o = ((RecordId) o).getRecord(db);
                       }
                       if (listener != null) {
-                        listener.result(session, o);
+                        listener.result(db, o);
                       }
 
-                      MessageHelper.writeIdentifiable(session,
+                      MessageHelper.writeIdentifiable(db,
                           channel, (Identifiable) o, recordSerializer);
                     } catch (Exception e) {
                       LogManager.instance().warn(this, "Cannot serialize record: " + o);
@@ -236,7 +236,7 @@ public final class CommandResponse implements BinaryResponse {
 
               } else {
                 // ANY OTHER (INCLUDING LITERALS)
-                writeSimpleValue(session, channel, listener, result, protocolVersion,
+                writeSimpleValue(db, channel, listener, result, protocolVersion,
                     recordSerializer);
               }
             }
@@ -247,7 +247,7 @@ public final class CommandResponse implements BinaryResponse {
   }
 
   private static void writeSimpleValue(
-      DatabaseSessionInternal session, ChannelDataOutput channel,
+      DatabaseSessionInternal db, ChannelDataOutput channel,
       SimpleValueFetchPlanCommandListener listener,
       Object result,
       int protocolVersion,
@@ -256,21 +256,21 @@ public final class CommandResponse implements BinaryResponse {
 
     if (protocolVersion >= ChannelBinaryProtocol.PROTOCOL_VERSION_35) {
       channel.writeByte((byte) 'w');
-      EntityImpl entity = new EntityImpl();
+      EntityImpl entity = new EntityImpl(db);
       entity.field("result", result);
-      MessageHelper.writeIdentifiable(session, channel, entity, recordSerializer);
+      MessageHelper.writeIdentifiable(db, channel, entity, recordSerializer);
       if (listener != null) {
-        listener.linkdedBySimpleValue(entity);
+        listener.linkdedBySimpleValue(db, entity);
       }
     } else {
       channel.writeByte((byte) 'a');
       final StringBuilder value = new StringBuilder(64);
       if (listener != null) {
-        EntityImpl entity = new EntityImpl();
+        EntityImpl entity = new EntityImpl(db);
         entity.field("result", result);
-        listener.linkdedBySimpleValue(entity);
+        listener.linkdedBySimpleValue(db, entity);
       }
-      RecordSerializerStringAbstract.fieldTypeToString(
+      RecordSerializerStringAbstract.fieldTypeToString(db,
           value, PropertyType.getTypeByClass(result.getClass()), result);
       channel.writeString(value.toString());
     }
@@ -301,7 +301,7 @@ public final class CommandResponse implements BinaryResponse {
             case 1:
               // PUT AS PART OF THE RESULT SET. INVOKE THE LISTENER
               if (addNextRecord) {
-                addNextRecord = listener.result(database, record);
+                addNextRecord = listener.result(db, record);
                 var cachedRecord = database.getLocalCache().findRecord(record.getIdentity());
                 if (cachedRecord != record) {
                   if (cachedRecord != null) {

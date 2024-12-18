@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,7 +55,7 @@ public class PropertyIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testGetDocumentValueToIndex() {
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl document = (EntityImpl) db.newEntity();
 
     document.field("fOne", "15");
     document.field("fTwo", 10);
@@ -83,7 +83,7 @@ public class PropertyIndexDefinitionTest extends DbTestBase {
     propertyIndex = new PropertyIndexDefinition("tesClass", "fOne", PropertyType.INTEGER);
 
     db.begin();
-    final EntityImpl docToStore = propertyIndex.toStream(new EntityImpl());
+    final EntityImpl docToStore = propertyIndex.toStream(db, (EntityImpl) db.newEntity());
     db.save(docToStore);
     db.commit();
 
@@ -97,7 +97,7 @@ public class PropertyIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testIndexReload() {
-    final EntityImpl docToStore = propertyIndex.toStream(new EntityImpl());
+    final EntityImpl docToStore = propertyIndex.toStream(db, (EntityImpl) db.newEntity());
 
     final PropertyIndexDefinition result = new PropertyIndexDefinition();
     result.fromStream(docToStore);

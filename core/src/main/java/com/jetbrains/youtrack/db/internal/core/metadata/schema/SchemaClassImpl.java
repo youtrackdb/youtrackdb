@@ -45,7 +45,6 @@ import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sharding.auto.AutoShardingClusterSelectionStrategy;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
@@ -521,7 +520,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
     }
   }
 
-  public void fromStream(EntityImpl entity) {
+  public void fromStream(DatabaseSession db, EntityImpl entity) {
     subclasses = null;
     superClasses.clear();
 
@@ -582,7 +581,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
 
     if (storedProperties != null) {
       for (Identifiable id : storedProperties) {
-        EntityImpl p = id.getRecord();
+        EntityImpl p = id.getRecord(db);
         String name = p.field("name");
         // To lower case ?
         if (properties.containsKey(name)) {
@@ -606,8 +605,8 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
 
   protected abstract PropertyImpl createPropertyInstance();
 
-  public EntityImpl toStream() {
-    EntityImpl entity = new EntityImpl();
+  public EntityImpl toStream(DatabaseSessionInternal db) {
+    EntityImpl entity = new EntityImpl(db);
     entity.field("name", name);
     entity.field("shortName", shortName);
     entity.field("description", description);
@@ -620,7 +619,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
 
     final Set<EntityImpl> props = new LinkedHashSet<EntityImpl>();
     for (final Property p : properties.values()) {
-      props.add(((PropertyImpl) p).toStream());
+      props.add(((PropertyImpl) p).toStream(db));
     }
     entity.field("properties", props, PropertyType.EMBEDDEDSET);
 
@@ -1319,17 +1318,6 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
     return isSubClassOf(VERTEX_CLASS_NAME);
   }
 
-  public void onPostIndexManagement(DatabaseSessionInternal session) {
-    if (clusterSelection instanceof AutoShardingClusterSelectionStrategy) {
-      // REMOVE AUTO SHARDING CLUSTER SELECTION
-      acquireSchemaWriteLock(session);
-      try {
-        this.clusterSelection = owner.getClusterSelectionFactory().newInstanceOfDefaultClass();
-      } finally {
-        releaseSchemaWriteLock(session);
-      }
-    }
-  }
 
   @Override
   public void getIndexesInternal(DatabaseSession session, final Collection<Index> indexes) {
@@ -1502,7 +1490,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
   }
 
   protected void checkAllLikedObjects(
-      DatabaseSessionInternal database, String propertyName, PropertyType type,
+      DatabaseSessionInternal db, String propertyName, PropertyType type,
       SchemaClass linkedClass) {
     final StringBuilder builder = new StringBuilder(256);
     builder.append("select from ");
@@ -1513,7 +1501,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
       builder.append(" and ").append(getEscapedName(propertyName, true)).append(".size() > 0");
     }
 
-    try (final ResultSet res = database.command(builder.toString())) {
+    try (final ResultSet res = db.command(builder.toString())) {
       while (res.hasNext()) {
         Result item = res.next();
         switch (type) {
@@ -1524,7 +1512,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
             try {
               Collection emb = item.toEntity().getProperty(propertyName);
               emb.stream()
-                  .filter(x -> !matchesType(x, linkedClass))
+                  .filter(x -> !matchesType(db, x, linkedClass))
                   .findFirst()
                   .ifPresent(
                       x -> {
@@ -1548,7 +1536,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
           case EMBEDDED:
           case LINK:
             Object elem = item.getProperty(propertyName);
-            if (!matchesType(elem, linkedClass)) {
+            if (!matchesType(db, elem, linkedClass)) {
               throw new SchemaException(
                   "The database contains some schema-less data in the property '"
                       + name
@@ -1566,13 +1554,13 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
     }
   }
 
-  protected static boolean matchesType(Object x, SchemaClass linkedClass) {
+  protected static boolean matchesType(DatabaseSession db, Object x, SchemaClass linkedClass) {
     if (x instanceof Result) {
       x = ((Result) x).toEntity();
     }
     if (x instanceof RID) {
       try {
-        x = ((RID) x).getRecord();
+        x = ((RID) x).getRecord(db);
       } catch (RecordNotFoundException e) {
         return true;
       }
@@ -1874,8 +1862,8 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
     return s;
   }
 
-  public EntityImpl toNetworkStream() {
-    EntityImpl entity = new EntityImpl();
+  public EntityImpl toNetworkStream(DatabaseSessionInternal db) {
+    EntityImpl entity = new EntityImpl(db);
     entity.setTrackingChanges(false);
     entity.field("name", name);
     entity.field("shortName", shortName);
@@ -1889,7 +1877,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
 
     final Set<EntityImpl> props = new LinkedHashSet<EntityImpl>();
     for (final Property p : properties.values()) {
-      props.add(((PropertyImpl) p).toNetworkStream());
+      props.add(((PropertyImpl) p).toNetworkStream(db));
     }
     entity.field("properties", props, PropertyType.EMBEDDEDSET);
 

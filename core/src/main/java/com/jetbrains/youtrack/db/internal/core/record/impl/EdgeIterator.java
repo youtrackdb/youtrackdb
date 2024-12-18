@@ -19,20 +19,20 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Direction;
+import com.jetbrains.youtrack.db.api.record.Edge;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.iterator.LazyWrapperIterator;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
-import com.jetbrains.youtrack.db.api.record.Edge;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.record.Direction;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import java.util.Iterator;
 
 /**
@@ -44,6 +44,7 @@ public class EdgeIterator extends LazyWrapperIterator<Edge> {
   private final Vertex targetVertex;
   private final Pair<Direction, String> connection;
   private final String[] labels;
+  private final DatabaseSessionInternal db;
 
   public EdgeIterator(
       final Vertex iSourceVertex,
@@ -51,8 +52,8 @@ public class EdgeIterator extends LazyWrapperIterator<Edge> {
       final Iterator<?> iterator,
       final Pair<Direction, String> connection,
       final String[] iLabels,
-      final int iSize) {
-    this(iSourceVertex, null, iMultiValue, iterator, connection, iLabels, iSize);
+      final int iSize, DatabaseSessionInternal db) {
+    this(iSourceVertex, null, iMultiValue, iterator, connection, iLabels, iSize, db);
   }
 
   public EdgeIterator(
@@ -62,12 +63,13 @@ public class EdgeIterator extends LazyWrapperIterator<Edge> {
       final Iterator<?> iterator,
       final Pair<Direction, String> connection,
       final String[] iLabels,
-      final int iSize) {
+      final int iSize, DatabaseSessionInternal db) {
     super(iterator, iSize, iMultiValue);
     this.sourceVertex = iSourceVertex;
     this.targetVertex = iTargetVertex;
     this.connection = connection;
     this.labels = iLabels;
+    this.db = db;
   }
 
   public Edge createGraphElement(final Object iObject) {
@@ -84,7 +86,7 @@ public class EdgeIterator extends LazyWrapperIterator<Edge> {
 
     final Record record;
     try {
-      record = rec.getRecord();
+      record = rec.getRecord(db);
     } catch (RecordNotFoundException rnf) {
       // SKIP IT
       LogManager.instance().warn(this, "Record (%s) is null", rec);

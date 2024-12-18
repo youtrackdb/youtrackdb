@@ -23,7 +23,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 
 public interface StringSerializer {
 
-  StringBuilder toStream(StringBuilder iOutput, Object iSource);
+  StringBuilder toStream(DatabaseSessionInternal db, StringBuilder iOutput, Object iSource);
 
   Object fromStream(DatabaseSessionInternal db, String iSource);
 

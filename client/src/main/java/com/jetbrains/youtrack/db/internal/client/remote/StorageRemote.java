@@ -144,8 +144,8 @@ import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageProxy;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.RecordSerializationContext;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionInternal;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
@@ -195,12 +195,12 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
 
   private CONNECTION_STRATEGY connectionStrategy = CONNECTION_STRATEGY.STICKY;
 
-  private final SBTreeCollectionManagerRemote sbTreeCollectionManager =
-      new SBTreeCollectionManagerRemote();
+  private final BTreeCollectionManagerRemote sbTreeCollectionManager =
+      new BTreeCollectionManagerRemote();
   private final RemoteURLs serverURLs;
   private final Map<String, StorageCluster> clusterMap = new ConcurrentHashMap<String, StorageCluster>();
   private final ExecutorService asynchExecutor;
-  private final EntityImpl clusterConfiguration = new EntityImpl();
+  private final EntityImpl clusterConfiguration = new EntityImpl(null);
   private final AtomicInteger users = new AtomicInteger(0);
   private final ContextConfiguration clientConfiguration;
   private final int connectionRetry;
@@ -671,7 +671,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     }
   }
 
-  public SBTreeCollectionManager getSBtreeCollectionManager() {
+  public BTreeCollectionManager getSBtreeCollectionManager() {
     return sbTreeCollectionManager;
   }
 
@@ -818,7 +818,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   private void updateCollectionsFromChanges(
-      final SBTreeCollectionManager collectionManager,
+      final BTreeCollectionManager collectionManager,
       final Map<UUID, BonsaiCollectionPointer> changes) {
     if (collectionManager != null) {
       for (Entry<UUID, BonsaiCollectionPointer> coll : changes.entrySet()) {
@@ -935,7 +935,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   public List<String> backup(
-      OutputStream out,
+      DatabaseSessionInternal db, OutputStream out,
       Map<String, Object> options,
       Callable<Object> callable,
       final CommandOutputListener iListener,
@@ -1060,16 +1060,16 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   /**
    * Execute the command remotely and get the results back.
    */
-  public Object command(DatabaseSessionInternal database, final CommandRequestText iCommand) {
+  public Object command(DatabaseSessionInternal db, final CommandRequestText iCommand) {
 
     final boolean live = iCommand instanceof LiveQuery;
     final boolean asynch =
         iCommand instanceof CommandRequestAsynch
             && ((CommandRequestAsynch) iCommand).isAsynchronous();
 
-    CommandRequest request = new CommandRequest(database, asynch, iCommand, live);
+    CommandRequest request = new CommandRequest(db, asynch, iCommand, live);
     CommandResponse response =
-        networkOperation((DatabaseSessionRemote) database, request,
+        networkOperation((DatabaseSessionRemote) db, request,
             "Error on executing command: " + iCommand);
     return response.getResult();
   }

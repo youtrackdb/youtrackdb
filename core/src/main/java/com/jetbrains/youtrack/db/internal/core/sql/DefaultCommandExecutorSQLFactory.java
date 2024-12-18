@@ -16,9 +16,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchStatement;
+import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLProfileStorageStatement;
 import java.util.Collections;
 import java.util.HashMap;
@@ -166,7 +165,6 @@ public class DefaultCommandExecutorSQLFactory implements CommandExecutorSQLFacto
         CommandExecutorSQLTransactional.KEYWORD_TRANSACTIONAL,
         CommandExecutorSQLTransactional.class);
 
-    commands.put(SQLMatchStatement.KEYWORD_MATCH, SQLMatchStatement.class);
     commands.put(
         CommandExecutorSQLOptimizeDatabase.KEYWORD_OPTIMIZE,
         CommandExecutorSQLOptimizeDatabase.class);

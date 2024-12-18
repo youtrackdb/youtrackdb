@@ -126,7 +126,7 @@ public class SystemDBImporter extends Thread {
         while (result.hasNext()) {
           Result entity = result.next();
           try {
-            Entity copy = new EntityImpl();
+            Entity copy = new EntityImpl(db);
 
             if (entity.hasProperty("date")) {
               copy.setProperty("date", entity.getProperty("date"), PropertyType.DATETIME);

@@ -17,6 +17,7 @@ package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.query.LegacyResultSet;
@@ -46,7 +47,8 @@ public class LiveQueryTest extends BaseDBTest implements CommandOutputListener {
     public int unsubscribe;
 
     @Override
-    public void onLiveResult(int iLiveToken, RecordOperation iOp) throws BaseException {
+    public void onLiveResult(DatabaseSessionInternal db, int iLiveToken, RecordOperation iOp)
+        throws BaseException {
       ops.add(iOp);
       latch.countDown();
     }
@@ -71,26 +73,26 @@ public class LiveQueryTest extends BaseDBTest implements CommandOutputListener {
   public void checkLiveQuery1() throws IOException, InterruptedException {
     final String className1 = "LiveQueryTest1_1";
     final String className2 = "LiveQueryTest1_2";
-    database.getMetadata().getSchema().createClass(className1);
-    database.getMetadata().getSchema().createClass(className2);
+    db.getMetadata().getSchema().createClass(className1);
+    db.getMetadata().getSchema().createClass(className2);
 
     MyLiveQueryListener listener = new MyLiveQueryListener();
 
     LegacyResultSet<EntityImpl> tokens =
-        database.query(new LiveQuery<EntityImpl>("live select from " + className1, listener));
+        db.query(new LiveQuery<EntityImpl>("live select from " + className1, listener));
     Assert.assertEquals(tokens.size(), 1);
     EntityImpl tokenDoc = tokens.get(0);
     int token = tokenDoc.field("token");
     Assert.assertNotNull(token);
 
-    database.command("insert into " + className1 + " set name = 'foo', surname = 'bar'").close();
-    database.command("insert into  " + className1 + " set name = 'foo', surname = 'baz'").close();
+    db.command("insert into " + className1 + " set name = 'foo', surname = 'bar'").close();
+    db.command("insert into  " + className1 + " set name = 'foo', surname = 'baz'").close();
     /// TODO check
-    database.command("insert into " + className2 + " set name = 'foo'").close();
+    db.command("insert into " + className2 + " set name = 'foo'").close();
     latch.await(1, TimeUnit.MINUTES);
 
-    database.command("live unsubscribe " + token).close();
-    database.command("insert into " + className1 + " set name = 'foo', surname = 'bax'").close();
+    db.command("live unsubscribe " + token).close();
+    db.command("insert into " + className1 + " set name = 'foo', surname = 'bax'").close();
     Assert.assertEquals(listener.ops.size(), 2);
     for (RecordOperation doc : listener.ops) {
       Assert.assertEquals(doc.type, RecordOperation.CREATED);

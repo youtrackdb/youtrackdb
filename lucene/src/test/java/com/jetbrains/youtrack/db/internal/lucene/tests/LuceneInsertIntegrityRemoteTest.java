@@ -55,7 +55,7 @@ public class LuceneInsertIntegrityRemoteTest extends LuceneBaseTest {
     db.getMetadata().reload();
     var schema = db.getMetadata().getSchema();
 
-    EntityImpl doc = new EntityImpl("City");
+    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "Rome");
 
     db.begin();

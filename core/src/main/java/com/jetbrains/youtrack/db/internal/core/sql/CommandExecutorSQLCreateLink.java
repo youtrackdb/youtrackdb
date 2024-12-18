@@ -19,20 +19,20 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
-import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
-import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
+import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
@@ -63,7 +63,8 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
   private PropertyType linkType;
   private boolean inverse = false;
 
-  public CommandExecutorSQLCreateLink parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLCreateLink parse(DatabaseSessionInternal db,
+      final CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
 
     String queryText = textRequest.getText();
@@ -193,7 +194,7 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
   /**
    * Execute the CREATE LINK.
    */
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     if (destField == null) {
       throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -207,7 +208,6 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
               + "' was found");
     }
 
-    final var db = database.getDatabaseOwner();
 
     SchemaClass sourceClass =
         database.getMetadata().getImmutableSchemaSnapshot().getClass(sourceClassName);
@@ -224,7 +224,7 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
     Object value;
 
     String cmd = "select from ";
-    if (!DocumentHelper.ATTRIBUTE_RID.equals(destField)) {
+    if (!EntityHelper.ATTRIBUTE_RID.equals(destField)) {
       cmd = "select from " + destClassName + " where " + destField + " = ";
     }
 
@@ -269,7 +269,7 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
             // SEARCH THE DESTINATION RECORD
             target = null;
 
-            if (!DocumentHelper.ATTRIBUTE_RID.equals(destField) && value instanceof String) {
+            if (!EntityHelper.ATTRIBUTE_RID.equals(destField) && value instanceof String) {
               if (((String) value).length() == 0) {
                 value = null;
               } else {

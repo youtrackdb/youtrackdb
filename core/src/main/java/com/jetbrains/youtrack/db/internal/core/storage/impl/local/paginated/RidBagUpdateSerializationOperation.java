@@ -20,15 +20,15 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
-import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.SBTreeBonsai;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.Change;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.Change;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.EdgeBTree;
 import java.io.IOException;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -42,7 +42,7 @@ public class RidBagUpdateSerializationOperation implements RecordSerializationOp
 
   private final BonsaiCollectionPointer collectionPointer;
 
-  private final SBTreeCollectionManager collectionManager;
+  private final BTreeCollectionManager collectionManager;
 
   public RidBagUpdateSerializationOperation(
       final NavigableMap<Identifiable, Change> changedValues,
@@ -60,7 +60,7 @@ public class RidBagUpdateSerializationOperation implements RecordSerializationOp
       return;
     }
 
-    SBTreeBonsai<Identifiable, Integer> tree = loadTree();
+    EdgeBTree<Identifiable, Integer> tree = loadTree();
     try {
       for (Map.Entry<Identifiable, Change> entry : changedValues.entrySet()) {
         Integer storedCounter = tree.get(entry.getKey());
@@ -81,7 +81,7 @@ public class RidBagUpdateSerializationOperation implements RecordSerializationOp
     changedValues.clear();
   }
 
-  private SBTreeBonsai<Identifiable, Integer> loadTree() {
+  private EdgeBTree<Identifiable, Integer> loadTree() {
     return collectionManager.loadSBTree(collectionPointer);
   }
 

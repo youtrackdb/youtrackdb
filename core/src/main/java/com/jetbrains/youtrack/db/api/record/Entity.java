@@ -22,7 +22,6 @@ package com.jetbrains.youtrack.db.api.record;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -67,21 +66,7 @@ public interface Entity extends Record {
    * @throws DatabaseException if the property is not an Entity
    */
   @Nullable
-  default Entity getElementProperty(String name) {
-    var property = getProperty(name);
-
-    return switch (property) {
-      case null -> null;
-      case Entity entity -> entity;
-      case Identifiable identifiable -> identifiable.getEntity();
-      default -> throw new DatabaseException(
-          "Property "
-              + name
-              + " is not an entity property, it is a "
-              + property.getClass().getName());
-    };
-
-  }
+  Entity getElementProperty(String name);
 
   /**
    * Returns the property value as an Vertex. If the property is a link, it will be loaded and
@@ -135,20 +120,7 @@ public interface Entity extends Record {
    * @throws DatabaseException if the property is not an Blob
    */
   @Nullable
-  default Blob getBlobProperty(String propertyName) {
-    var property = getProperty(propertyName);
-
-    return switch (property) {
-      case null -> null;
-      case Blob blob -> blob;
-      case Identifiable identifiable -> identifiable.getBlob();
-      default -> throw new DatabaseException(
-          "Property "
-              + propertyName
-              + " is not a blob property, it is a "
-              + property.getClass().getName());
-    };
-  }
+  Blob getBlobProperty(String propertyName);
 
   /**
    * Gets a property value on time of transaction start. This will work for scalar values, and

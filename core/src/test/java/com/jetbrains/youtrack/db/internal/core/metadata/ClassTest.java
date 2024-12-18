@@ -109,13 +109,13 @@ public class ClassTest extends BaseMemoryInternalDatabase {
     classTwo.addClusterId(db, clusterId);
 
     db.begin();
-    EntityImpl document = new EntityImpl("ClassTwo");
+    EntityImpl document = (EntityImpl) db.newEntity("ClassTwo");
     document.save("classthree");
 
-    document = new EntityImpl("ClassTwo");
+    document = (EntityImpl) db.newEntity("ClassTwo");
     document.save();
 
-    document = new EntityImpl("ClassOne");
+    document = (EntityImpl) db.newEntity("ClassOne");
     document.save();
     db.commit();
 

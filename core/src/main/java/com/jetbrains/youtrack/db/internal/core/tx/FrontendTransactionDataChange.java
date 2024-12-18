@@ -2,7 +2,6 @@ package com.jetbrains.youtrack.db.internal.core.tx;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -22,24 +21,24 @@ public class FrontendTransactionDataChange {
   private int version;
   private boolean contentChanged;
 
-  public FrontendTransactionDataChange(DatabaseSessionInternal session, RecordOperation operation) {
+  public FrontendTransactionDataChange(DatabaseSessionInternal db, RecordOperation operation) {
     this.type = operation.type;
     var rec = operation.record;
-    this.recordType = RecordInternal.getRecordType(rec);
+    this.recordType = RecordInternal.getRecordType(db, rec);
     this.id = rec.getIdentity();
     this.version = rec.getVersion();
     switch (operation.type) {
       case RecordOperation.CREATED:
         this.record = Optional.of(
-            RecordSerializerNetworkDistributed.INSTANCE.toStream(session, rec));
+            RecordSerializerNetworkDistributed.INSTANCE.toStream(db, rec));
         this.contentChanged = RecordInternal.isContentChanged(rec);
         break;
       case RecordOperation.UPDATED:
         if (recordType == EntityImpl.RECORD_TYPE) {
           record = Optional.of(
-              DocumentSerializerDelta.instance().serializeDelta((EntityImpl) rec));
+              DocumentSerializerDelta.instance().serializeDelta(db, (EntityImpl) rec));
         } else {
-          record = Optional.of(RecordSerializerNetworkDistributed.INSTANCE.toStream(session, rec));
+          record = Optional.of(RecordSerializerNetworkDistributed.INSTANCE.toStream(db, rec));
         }
         this.contentChanged = RecordInternal.isContentChanged(rec);
         break;

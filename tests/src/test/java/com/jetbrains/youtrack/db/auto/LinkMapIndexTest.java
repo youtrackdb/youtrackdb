@@ -35,27 +35,27 @@ public class LinkMapIndexTest extends BaseDBTest {
   @BeforeClass
   public void setupSchema() {
     final SchemaClass linkMapIndexTestClass =
-        database.getMetadata().getSchema().createClass("LinkMapIndexTestClass");
-    linkMapIndexTestClass.createProperty(database, "linkMap", PropertyType.LINKMAP);
+        db.getMetadata().getSchema().createClass("LinkMapIndexTestClass");
+    linkMapIndexTestClass.createProperty(db, "linkMap", PropertyType.LINKMAP);
 
-    linkMapIndexTestClass.createIndex(database, "mapIndexTestKey", SchemaClass.INDEX_TYPE.NOTUNIQUE,
+    linkMapIndexTestClass.createIndex(db, "mapIndexTestKey", SchemaClass.INDEX_TYPE.NOTUNIQUE,
         "linkMap");
-    linkMapIndexTestClass.createIndex(database,
+    linkMapIndexTestClass.createIndex(db,
         "mapIndexTestValue", SchemaClass.INDEX_TYPE.NOTUNIQUE, "linkMap by value");
   }
 
   @AfterClass
   public void destroySchema() {
-    database = createSessionInstance();
-    database.getMetadata().getSchema().dropClass("LinkMapIndexTestClass");
-    database.close();
+    db = createSessionInstance();
+    db.getMetadata().getSchema().dropClass("LinkMapIndexTestClass");
+    db.close();
   }
 
   @AfterMethod
   public void afterMethod() throws Exception {
-    database.begin();
-    database.command("delete from LinkMapIndexTestClass").close();
-    database.commit();
+    db.begin();
+    db.command("delete from LinkMapIndexTestClass").close();
+    db.commit();
 
     super.afterMethod();
   }
@@ -63,25 +63,25 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMap() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
     Map<String, RID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    database.commit();
+    db.commit();
 
     final Index keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
 
     Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -98,7 +98,7 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     final Index valueIndexMap = getIndex("mapIndexTestValue");
 
-    Assert.assertEquals(valueIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndexMap.getInternal().keyStream()) {
       valuesIterator = valueStream.iterator();
@@ -116,32 +116,32 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapInTx() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
     try {
-      database.begin();
+      db.begin();
       Map<String, RID> map = new HashMap<>();
 
       map.put("key1", docOne.getIdentity());
       map.put("key2", docTwo.getIdentity());
 
-      final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
+      final EntityImpl document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
       document.field("linkMap", map);
       document.save();
-      database.commit();
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     final Index keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
 
     Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -156,7 +156,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final Index valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -175,23 +175,23 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateOne() {
     checkEmbeddedDB();
 
-    database.begin();
+    db.begin();
 
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
     Map<String, RID> mapOne = new HashMap<>();
 
     mapOne.put("key1", docOne.getIdentity());
     mapOne.put("key2", docTwo.getIdentity());
 
-    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", mapOne);
     document.save();
 
@@ -202,10 +202,10 @@ public class LinkMapIndexTest extends BaseDBTest {
     document.field("linkMap", mapTwo);
     document.save();
 
-    database.commit();
+    db.commit();
 
     final Index keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -220,7 +220,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final Index valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -239,12 +239,12 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateOneTx() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
     try {
       final Map<String, RID> mapTwo = new HashMap<>();
@@ -252,18 +252,18 @@ public class LinkMapIndexTest extends BaseDBTest {
       mapTwo.put("key3", docOne.getIdentity());
       mapTwo.put("key2", docTwo.getIdentity());
 
-      final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
+      final EntityImpl document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
       document.field("linkMap", mapTwo);
       document.save();
 
-      database.commit();
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     final Index keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -278,7 +278,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final Index valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -297,28 +297,28 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateOneTxRollback() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
     Map<String, RID> mapOne = new HashMap<>();
 
     mapOne.put("key1", docOne.getIdentity());
     mapOne.put("key2", docTwo.getIdentity());
 
-    EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
+    EntityImpl document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", mapOne);
     document.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    document = database.bindToSession(document);
+    db.begin();
+    document = db.bindToSession(document);
     final Map<String, RID> mapTwo = new HashMap<>();
 
     mapTwo.put("key3", docTwo.getIdentity());
@@ -326,10 +326,10 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     document.field("linkMap", mapTwo);
     document.save();
-    database.rollback();
+    db.rollback();
 
     final Index keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -344,7 +344,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final Index valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -363,35 +363,35 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapAddItem() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
     Map<String, RID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    database
+    db.begin();
+    db
         .command(
             "UPDATE " + document.getIdentity() + " set linkMap['key3'] = " + docThree.getIdentity())
         .close();
-    database.commit();
+    db.commit();
 
     final Index keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(database), 3);
+    Assert.assertEquals(keyIndexMap.getInternal().size(db), 3);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -406,7 +406,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final Index valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(database), 3);
+    Assert.assertEquals(valueIndexMap.getInternal().size(db), 3);
 
     final Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -426,39 +426,39 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapAddItemTx() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
     Map<String, RID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    database.commit();
+    db.commit();
 
     try {
-      database.begin();
-      final EntityImpl loadedDocument = database.load(document.getIdentity());
+      db.begin();
+      final EntityImpl loadedDocument = db.load(document.getIdentity());
       loadedDocument.<Map<String, RID>>field("linkMap").put("key3", docThree.getIdentity());
       loadedDocument.save();
-      database.commit();
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     final Index keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(database), 3);
+    Assert.assertEquals(keyIndexMap.getInternal().size(db), 3);
 
     final Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -474,7 +474,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final Index valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(database), 3);
+    Assert.assertEquals(valueIndexMap.getInternal().size(db), 3);
 
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -494,34 +494,34 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapAddItemTxRollback() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
     Map<String, RID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    final EntityImpl loadedDocument = database.load(document.getIdentity());
+    db.begin();
+    final EntityImpl loadedDocument = db.load(document.getIdentity());
     loadedDocument.<Map<String, RID>>field("linkMap").put("key3", docThree.getIdentity());
     loadedDocument.save();
-    database.rollback();
+    db.rollback();
 
     final Index keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
 
     final Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -536,7 +536,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final Index valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
 
     final Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -555,36 +555,36 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateItem() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
     Map<String, RID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    database
+    db.begin();
+    db
         .command(
             "UPDATE " + document.getIdentity() + " set linkMap['key2'] = " + docThree.getIdentity())
         .close();
-    database.commit();
+    db.commit();
 
     final Index keyIndexMap = getIndex("mapIndexTestKey");
 
-    Assert.assertEquals(keyIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
     final Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndexMap.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
@@ -598,7 +598,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final Index valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -617,41 +617,41 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateItemInTx() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
     Map<String, RID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    database.commit();
+    db.commit();
 
     try {
-      database.begin();
-      final EntityImpl loadedDocument = database.load(document.getIdentity());
+      db.begin();
+      final EntityImpl loadedDocument = db.load(document.getIdentity());
       loadedDocument.<Map<String, RID>>field("linkMap").put("key2", docThree.getIdentity());
       loadedDocument.save();
-      database.commit();
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     final Index keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
 
-    Assert.assertEquals(keyIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
     final Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndexMap.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
@@ -665,7 +665,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final Index valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
 
     final Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -684,34 +684,34 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateItemInTxRollback() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
     Map<String, RID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    final EntityImpl loadedDocument = database.load(document.getIdentity());
+    db.begin();
+    final EntityImpl loadedDocument = db.load(document.getIdentity());
     loadedDocument.<Map<String, RID>>field("linkMap").put("key2", docThree.getIdentity());
     loadedDocument.save();
-    database.rollback();
+    db.rollback();
 
     final Index keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -726,7 +726,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final Index valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -745,15 +745,15 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapRemoveItem() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
     Map<String, RID> map = new HashMap<>();
 
@@ -761,17 +761,17 @@ public class LinkMapIndexTest extends BaseDBTest {
     map.put("key2", docTwo.getIdentity());
     map.put("key3", docThree.getIdentity());
 
-    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    database.command("UPDATE " + document.getIdentity() + " remove linkMap = 'key2'").close();
-    database.commit();
+    db.begin();
+    db.command("UPDATE " + document.getIdentity() + " remove linkMap = 'key2'").close();
+    db.commit();
 
     final Index keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
 
     final Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -786,7 +786,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final Index valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -805,15 +805,15 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapRemoveItemInTx() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
     Map<String, RID> map = new HashMap<>();
 
@@ -821,24 +821,24 @@ public class LinkMapIndexTest extends BaseDBTest {
     map.put("key2", docTwo.getIdentity());
     map.put("key3", docThree.getIdentity());
 
-    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    database.commit();
+    db.commit();
 
     try {
-      database.begin();
-      final EntityImpl loadedDocument = database.load(document.getIdentity());
+      db.begin();
+      final EntityImpl loadedDocument = db.load(document.getIdentity());
       loadedDocument.<Map<String, RID>>field("linkMap").remove("key2");
       loadedDocument.save();
-      database.commit();
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     final Index keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -853,7 +853,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final Index valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -872,15 +872,15 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapRemoveItemInTxRollback() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
     Map<String, RID> map = new HashMap<>();
 
@@ -888,19 +888,19 @@ public class LinkMapIndexTest extends BaseDBTest {
     map.put("key2", docTwo.getIdentity());
     map.put("key3", docThree.getIdentity());
 
-    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    final EntityImpl loadedDocument = database.load(document.getIdentity());
+    db.begin();
+    final EntityImpl loadedDocument = db.load(document.getIdentity());
     loadedDocument.<Map<String, RID>>field("linkMap").remove("key2");
     loadedDocument.save();
-    database.rollback();
+    db.rollback();
 
     final Index keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(database), 3);
+    Assert.assertEquals(keyIndexMap.getInternal().size(db), 3);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -915,7 +915,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final Index valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(database), 3);
+    Assert.assertEquals(valueIndexMap.getInternal().size(db), 3);
 
     final Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -935,99 +935,99 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapRemove() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
     Map<String, RID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    database.bindToSession(document).delete();
-    database.commit();
+    db.begin();
+    db.bindToSession(document).delete();
+    db.commit();
 
     final Index keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(database), 0);
+    Assert.assertEquals(keyIndexMap.getInternal().size(db), 0);
 
     final Index valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(database), 0);
+    Assert.assertEquals(valueIndexMap.getInternal().size(db), 0);
   }
 
   public void testIndexMapRemoveInTx() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
     Map<String, RID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    database.commit();
+    db.commit();
 
     try {
-      database.begin();
-      database.bindToSession(document).delete();
-      database.commit();
+      db.begin();
+      db.bindToSession(document).delete();
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     final Index keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(database), 0);
+    Assert.assertEquals(keyIndexMap.getInternal().size(db), 0);
 
     final Index valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(database), 0);
+    Assert.assertEquals(valueIndexMap.getInternal().size(db), 0);
   }
 
   public void testIndexMapRemoveInTxRollback() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
     Map<String, RID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    database.bindToSession(document).delete();
-    database.rollback();
+    db.begin();
+    db.bindToSession(document).delete();
+    db.rollback();
 
     final Index keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
 
     final Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -1042,7 +1042,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final Index valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(database), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
 
     final Iterator<Object> valuesIterator;
     try (Stream<Object> valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -1060,32 +1060,32 @@ public class LinkMapIndexTest extends BaseDBTest {
 
   public void testIndexMapSQL() {
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
     Map<String, RID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
+    EntityImpl document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    database.commit();
+    db.commit();
 
     final List<EntityImpl> resultByKey =
-        database.query(
+        db.query(
             new SQLSynchQuery<EntityImpl>(
                 "select * from LinkMapIndexTestClass where linkMap containskey ?"),
             "key1");
     Assert.assertNotNull(resultByKey);
     Assert.assertEquals(resultByKey.size(), 1);
 
-    document = database.bindToSession(document);
+    document = db.bindToSession(document);
     Assert.assertEquals(map, document.field("linkMap"));
 
     final List<EntityImpl> resultByValue =

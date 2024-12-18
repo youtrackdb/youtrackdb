@@ -26,7 +26,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
 import java.io.IOException;
 import java.util.Date;
@@ -39,7 +39,7 @@ public class ServerCommandGetFileDownload extends ServerCommandAuthenticatedDbAb
   private static final String[] NAMES = {"GET|fileDownload/*"};
 
   @Override
-  public boolean execute(OHttpRequest iRequest, HttpResponse iResponse) throws Exception {
+  public boolean execute(HttpRequest iRequest, HttpResponse iResponse) throws Exception {
     String[] urlParts =
         checkSyntax(
             iRequest.getUrl(),
@@ -133,7 +133,7 @@ public class ServerCommandGetFileDownload extends ServerCommandAuthenticatedDbAb
   }
 
   protected void sendBinaryFieldFileContent(
-      final OHttpRequest iRequest,
+      final HttpRequest iRequest,
       final HttpResponse iResponse,
       final int iCode,
       final String iReason,

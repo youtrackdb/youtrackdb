@@ -19,14 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule.ResourceGeneric;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.io.Serial;
@@ -84,30 +84,30 @@ public class Role extends Identity implements SecurityRole {
   public Role() {
   }
 
-  public Role(DatabaseSession session, final String iName, final Role iParent,
+  public Role(DatabaseSessionInternal db, final String iName, final Role iParent,
       final ALLOW_MODES iAllowMode) {
-    this(session, iName, iParent, iAllowMode, null);
+    this(db, iName, iParent, iAllowMode, null);
   }
 
   public Role(
-      DatabaseSession session, final String iName,
+      DatabaseSessionInternal db, final String iName,
       final Role iParent,
       final ALLOW_MODES iAllowMode,
       Map<String, SecurityPolicy> policies) {
-    super(CLASS_NAME);
-    getDocument(session).field("name", iName);
+    super(db, CLASS_NAME);
+    getDocument(db).field("name", iName);
 
     parentRole = iParent;
-    getDocument(session).field("inheritedRole",
-        iParent != null ? iParent.getIdentity(session) : null);
+    getDocument(db).field("inheritedRole",
+        iParent != null ? iParent.getIdentity(db) : null);
     if (policies != null) {
       Map<String, Identifiable> p = new HashMap<>();
       policies.forEach((k, v) -> p.put(k,
-          ((SecurityPolicyImpl) v).getElement((DatabaseSessionInternal) session)));
-      getDocument(session).setProperty("policies", p);
+          ((SecurityPolicyImpl) v).getElement(db)));
+      getDocument(db).setProperty("policies", p);
     }
 
-    updateRolesDocumentContent(session);
+    updateRolesDocumentContent(db);
   }
 
   /**
@@ -495,8 +495,8 @@ public class Role extends Identity implements SecurityRole {
   }
 
   @Override
-  public Map<String, SecurityPolicy> getPolicies(DatabaseSession session) {
-    Map<String, Identifiable> policies = getDocument(session).getProperty("policies");
+  public Map<String, SecurityPolicy> getPolicies(DatabaseSession db) {
+    Map<String, Identifiable> policies = getDocument(db).getProperty("policies");
     if (policies == null) {
       return null;
     }
@@ -504,7 +504,7 @@ public class Role extends Identity implements SecurityRole {
     policies.forEach(
         (key, value) -> {
           try {
-            Entity rec = value.getRecord();
+            Entity rec = value.getRecord(db);
             result.put(key, new SecurityPolicyImpl(rec));
           } catch (RecordNotFoundException rnf) {
             // ignore
@@ -514,8 +514,8 @@ public class Role extends Identity implements SecurityRole {
   }
 
   @Override
-  public SecurityPolicy getPolicy(DatabaseSession session, String resource) {
-    Map<String, Identifiable> policies = getDocument(session).getProperty("policies");
+  public SecurityPolicy getPolicy(DatabaseSession db, String resource) {
+    Map<String, Identifiable> policies = getDocument(db).getProperty("policies");
     if (policies == null) {
       return null;
     }
@@ -525,7 +525,7 @@ public class Role extends Identity implements SecurityRole {
     }
     Entity policy;
     try {
-      policy = entry.getRecord();
+      policy = entry.getRecord(db);
 
     } catch (RecordNotFoundException rnf) {
       return null;

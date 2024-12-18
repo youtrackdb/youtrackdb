@@ -54,9 +54,9 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends BaseLuceneTest {
     db.close();
     db = openDatabase();
     Schema schema = db.getMetadata().getSchema();
-    EntityImpl doc = new EntityImpl("City");
+    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "");
-    EntityImpl doc1 = new EntityImpl("City");
+    EntityImpl doc1 = ((EntityImpl) db.newEntity("City"));
     doc1.field("name", "");
     db.begin();
     doc = db.save(doc);

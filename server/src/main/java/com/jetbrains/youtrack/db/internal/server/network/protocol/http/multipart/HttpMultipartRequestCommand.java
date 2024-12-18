@@ -16,9 +16,10 @@
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.multipart;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
 import java.io.IOException;
 import java.util.HashMap;
@@ -41,11 +42,11 @@ public abstract class HttpMultipartRequestCommand<B, F>
   }
 
   public HashMap<String, String> parse(
-      final OHttpRequest iRequest,
+      final HttpRequest iRequest,
       final HttpResponse iResponse,
       final HttpMultipartContentParser<B> standardContentParser,
       final HttpMultipartContentParser<F> fileContentParser,
-      final DatabaseSession database)
+      final DatabaseSessionInternal db)
       throws Exception {
     char currChar;
     boolean endRequest = false;
@@ -79,9 +80,9 @@ public abstract class HttpMultipartRequestCommand<B, F>
             iRequest.getMultipartStream().setSkipInput(in);
             contentIn.reset();
             if (headers.get(HttpUtils.MULTIPART_CONTENT_FILENAME) != null) {
-              parseFileContent(iRequest, fileContentParser, headers, contentIn, database);
+              parseFileContent(iRequest, fileContentParser, headers, contentIn, db);
             } else {
-              parseBaseContent(iRequest, standardContentParser, headers, contentIn, database);
+              parseBaseContent(iRequest, standardContentParser, headers, contentIn, db);
             }
             break;
           }
@@ -107,7 +108,7 @@ public abstract class HttpMultipartRequestCommand<B, F>
   }
 
   protected boolean readBoundaryCrLf(
-      final OHttpRequest iRequest, final HttpResponse iResponse, char currChar, boolean endRequest)
+      final HttpRequest iRequest, final HttpResponse iResponse, char currChar, boolean endRequest)
       throws IOException {
     int in;
     if (currChar == '\r') {
@@ -143,7 +144,7 @@ public abstract class HttpMultipartRequestCommand<B, F>
   }
 
   protected void readBoundary(
-      final OHttpRequest iRequest, final HttpResponse iResponse, char currChar)
+      final HttpRequest iRequest, final HttpResponse iResponse, char currChar)
       throws IOException {
     int in;
     int boundaryCursor = 0;
@@ -178,7 +179,7 @@ public abstract class HttpMultipartRequestCommand<B, F>
   }
 
   protected void parsePartHeaders(
-      final OHttpRequest iRequest,
+      final HttpRequest iRequest,
       final HttpResponse iResponse,
       char currChar,
       boolean endRequest,
@@ -215,7 +216,7 @@ public abstract class HttpMultipartRequestCommand<B, F>
   }
 
   protected char parseHeader(
-      final OHttpRequest iRequest,
+      final HttpRequest iRequest,
       final HttpResponse iResponse,
       HashMap<String, String> headers,
       final String headerName)
@@ -274,35 +275,35 @@ public abstract class HttpMultipartRequestCommand<B, F>
   }
 
   protected void parseBaseContent(
-      final OHttpRequest iRequest,
+      final HttpRequest iRequest,
       final HttpMultipartContentParser<B> contentParser,
       final HashMap<String, String> headers,
       final HttpMultipartContentInputStream in,
-      DatabaseSession database)
+      DatabaseSessionInternal db)
       throws Exception {
-    B result = contentParser.parse(iRequest, headers, in, database);
+    B result = contentParser.parse(iRequest, headers, in, db);
     parseStatus = STATUS.STATUS_EXPECTED_END_REQUEST;
     processBaseContent(iRequest, result, headers);
   }
 
   protected void parseFileContent(
-      final OHttpRequest iRequest,
+      final HttpRequest iRequest,
       final HttpMultipartContentParser<F> contentParser,
       final HashMap<String, String> headers,
       final HttpMultipartContentInputStream in,
-      DatabaseSession database)
+      DatabaseSessionInternal db)
       throws Exception {
-    F result = contentParser.parse(iRequest, headers, in, database);
+    F result = contentParser.parse(iRequest, headers, in, db);
     parseStatus = STATUS.STATUS_EXPECTED_END_REQUEST;
     processFileContent(iRequest, result, headers);
   }
 
   protected abstract void processBaseContent(
-      final OHttpRequest iRequest, B iContentResult, HashMap<String, String> headers)
+      final HttpRequest iRequest, B iContentResult, HashMap<String, String> headers)
       throws Exception;
 
   protected abstract void processFileContent(
-      final OHttpRequest iRequest, F iContentResult, HashMap<String, String> headers)
+      final HttpRequest iRequest, F iContentResult, HashMap<String, String> headers)
       throws Exception;
 
   protected abstract String getFileParamenterName();

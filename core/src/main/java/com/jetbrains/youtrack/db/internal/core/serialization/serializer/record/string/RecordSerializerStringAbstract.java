@@ -128,7 +128,8 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
   }
 
   public static void fieldTypeToString(
-      final StringBuilder iBuffer, PropertyType iType, final Object iValue) {
+      DatabaseSessionInternal db, final StringBuilder iBuffer, PropertyType iType,
+      final Object iValue) {
     if (iValue == null) {
       return;
     }
@@ -259,7 +260,6 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
             null,
             null,
             iValue,
-            true,
             true);
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.embedSet2string"),
@@ -274,7 +274,6 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
             null,
             null,
             iValue,
-            true,
             false);
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.embedList2string"),
@@ -287,9 +286,8 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
             DatabaseRecordThreadLocal.instance().getIfDefined(),
             iBuffer,
             null,
-            null,
-            iValue,
-            true);
+            iValue
+        );
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.embedMap2string"),
             "Serialize embeddedmap to string",
@@ -298,9 +296,9 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
 
       case EMBEDDED:
         if (iValue instanceof EntityImpl) {
-          RecordSerializerSchemaAware2CSV.INSTANCE.toString((EntityImpl) iValue, iBuffer, null);
+          RecordSerializerSchemaAware2CSV.INSTANCE.toString(db, (EntityImpl) iValue, iBuffer, null);
         } else {
-          StringSerializerEmbedded.INSTANCE.toStream(iBuffer, iValue);
+          StringSerializerEmbedded.INSTANCE.toStream(db, iBuffer, iValue);
         }
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.embed2string"),
@@ -309,7 +307,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
         break;
 
       case CUSTOM:
-        StringSerializerAnyStreamable.INSTANCE.toStream(iBuffer, iValue);
+        StringSerializerAnyStreamable.INSTANCE.toStream(db, iBuffer, iValue);
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.custom2string"),
             "Serialize custom to string",
@@ -758,8 +756,9 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
       DatabaseSessionInternal db, String iContent, RecordAbstract iRecord, String[] iFields);
 
   public StringBuilder toString(
-      final Record iRecord, final StringBuilder iOutput, final String iFormat) {
-    return toString(iRecord, iOutput, iFormat, true);
+      DatabaseSessionInternal db, final Record iRecord, final StringBuilder iOutput,
+      final String iFormat) {
+    return toString(db, iRecord, iOutput, iFormat, true);
   }
 
   public Record fromString(DatabaseSessionInternal db, final String iSource) {
@@ -789,11 +788,11 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
     }
   }
 
-  public byte[] toStream(DatabaseSessionInternal session, final RecordAbstract iRecord) {
+  public byte[] toStream(DatabaseSessionInternal db, final RecordAbstract iRecord) {
     final long timer = PROFILER.startChrono();
 
     try {
-      return toString(iRecord, new StringBuilder(2048), null, true)
+      return toString(db, iRecord, new StringBuilder(2048), null, true)
           .toString()
           .getBytes(StandardCharsets.UTF_8);
     } finally {
@@ -806,7 +805,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
   }
 
   protected abstract StringBuilder toString(
-      final Record iRecord,
+      DatabaseSessionInternal db, final Record iRecord,
       final StringBuilder iOutput,
       final String iFormat,
       boolean autoDetectCollectionType);

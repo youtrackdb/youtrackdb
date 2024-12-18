@@ -38,36 +38,36 @@ public class SQLCreateIndexTest extends BaseDBTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     final SchemaClass oClass = schema.createClass("sqlCreateIndexTestClass");
-    oClass.createProperty(database, "prop1", EXPECTED_PROP1_TYPE);
-    oClass.createProperty(database, "prop2", EXPECTED_PROP2_TYPE);
-    oClass.createProperty(database, "prop3", PropertyType.EMBEDDEDMAP, PropertyType.INTEGER);
-    oClass.createProperty(database, "prop5", PropertyType.EMBEDDEDLIST, PropertyType.INTEGER);
-    oClass.createProperty(database, "prop6", PropertyType.EMBEDDEDLIST);
-    oClass.createProperty(database, "prop7", PropertyType.EMBEDDEDMAP);
-    oClass.createProperty(database, "prop8", PropertyType.INTEGER);
-    oClass.createProperty(database, "prop9", PropertyType.LINKBAG);
+    oClass.createProperty(db, "prop1", EXPECTED_PROP1_TYPE);
+    oClass.createProperty(db, "prop2", EXPECTED_PROP2_TYPE);
+    oClass.createProperty(db, "prop3", PropertyType.EMBEDDEDMAP, PropertyType.INTEGER);
+    oClass.createProperty(db, "prop5", PropertyType.EMBEDDEDLIST, PropertyType.INTEGER);
+    oClass.createProperty(db, "prop6", PropertyType.EMBEDDEDLIST);
+    oClass.createProperty(db, "prop7", PropertyType.EMBEDDEDMAP);
+    oClass.createProperty(db, "prop8", PropertyType.INTEGER);
+    oClass.createProperty(db, "prop9", PropertyType.LINKBAG);
   }
 
   @AfterClass
   public void afterClass() throws Exception {
-    if (database.isClosed()) {
-      database = createSessionInstance();
+    if (db.isClosed()) {
+      db = createSessionInstance();
     }
 
-    database.command("delete from sqlCreateIndexTestClass").close();
-    database.command("drop class sqlCreateIndexTestClass").close();
+    db.command("delete from sqlCreateIndexTestClass").close();
+    db.command("drop class sqlCreateIndexTestClass").close();
 
     super.afterClass();
   }
 
   @Test
   public void testOldSyntax() throws Exception {
-    database.command("CREATE INDEX sqlCreateIndexTestClass.prop1 UNIQUE").close();
+    db.command("CREATE INDEX sqlCreateIndexTestClass.prop1 UNIQUE").close();
 
     final Index index =
-        database
+        db
             .getMetadata()
             .getIndexManager()
             .getIndex("sqlCreateIndexTestClass.prop1");
@@ -84,18 +84,18 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
   @Test
   public void testCreateCompositeIndex() throws Exception {
-    database
+    db
         .command(
             "CREATE INDEX sqlCreateIndexCompositeIndex ON sqlCreateIndexTestClass (prop1, prop2)"
                 + " UNIQUE")
         .close();
 
     final Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(database, "sqlCreateIndexCompositeIndex");
+            .getClassIndex(db, "sqlCreateIndexCompositeIndex");
 
     Assert.assertNotNull(index);
 
@@ -110,17 +110,17 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
   @Test
   public void testCreateEmbeddedMapIndex() throws Exception {
-    database
+    db
         .command(
             "CREATE INDEX sqlCreateIndexEmbeddedMapIndex ON sqlCreateIndexTestClass (prop3) UNIQUE")
         .close();
 
     final Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(database, "sqlCreateIndexEmbeddedMapIndex");
+            .getClassIndex(db, "sqlCreateIndexEmbeddedMapIndex");
 
     Assert.assertNotNull(index);
 
@@ -137,14 +137,14 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
   @Test
   public void testOldStileCreateEmbeddedMapIndex() throws Exception {
-    database.command("CREATE INDEX sqlCreateIndexTestClass.prop3 UNIQUE").close();
+    db.command("CREATE INDEX sqlCreateIndexTestClass.prop3 UNIQUE").close();
 
     final Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(database, "sqlCreateIndexTestClass.prop3");
+            .getClassIndex(db, "sqlCreateIndexTestClass.prop3");
 
     Assert.assertNotNull(index);
 
@@ -162,7 +162,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
   @Test
   public void testCreateEmbeddedMapWrongSpecifierIndexOne() throws Exception {
     try {
-      database
+      db
           .command(
               "CREATE INDEX sqlCreateIndexEmbeddedMapWrongSpecifierIndex ON sqlCreateIndexTestClass"
                   + " (prop3 by ttt) UNIQUE")
@@ -171,11 +171,11 @@ public class SQLCreateIndexTest extends BaseDBTest {
     } catch (CommandSQLParsingException e) {
     }
     final Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(database, "sqlCreateIndexEmbeddedMapWrongSpecifierIndex");
+            .getClassIndex(db, "sqlCreateIndexEmbeddedMapWrongSpecifierIndex");
 
     Assert.assertNull(index, "Index created while wrong query was executed");
   }
@@ -183,7 +183,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
   @Test
   public void testCreateEmbeddedMapWrongSpecifierIndexTwo() throws Exception {
     try {
-      database
+      db
           .command(
               "CREATE INDEX sqlCreateIndexEmbeddedMapWrongSpecifierIndex ON sqlCreateIndexTestClass"
                   + " (prop3 b value) UNIQUE")
@@ -193,11 +193,11 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
     }
     final Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(database, "sqlCreateIndexEmbeddedMapWrongSpecifierIndex");
+            .getClassIndex(db, "sqlCreateIndexEmbeddedMapWrongSpecifierIndex");
 
     Assert.assertNull(index, "Index created while wrong query was executed");
   }
@@ -205,7 +205,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
   @Test
   public void testCreateEmbeddedMapWrongSpecifierIndexThree() throws Exception {
     try {
-      database
+      db
           .command(
               "CREATE INDEX sqlCreateIndexEmbeddedMapWrongSpecifierIndex ON sqlCreateIndexTestClass"
                   + " (prop3 by value t) UNIQUE")
@@ -215,29 +215,29 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
     }
     final Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(database, "sqlCreateIndexEmbeddedMapWrongSpecifierIndex");
+            .getClassIndex(db, "sqlCreateIndexEmbeddedMapWrongSpecifierIndex");
 
     Assert.assertNull(index, "Index created while wrong query was executed");
   }
 
   @Test
   public void testCreateEmbeddedMapByKeyIndex() throws Exception {
-    database
+    db
         .command(
             "CREATE INDEX sqlCreateIndexEmbeddedMapByKeyIndex ON sqlCreateIndexTestClass (prop3 by"
                 + " key) UNIQUE")
         .close();
 
     final Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(database, "sqlCreateIndexEmbeddedMapByKeyIndex");
+            .getClassIndex(db, "sqlCreateIndexEmbeddedMapByKeyIndex");
 
     Assert.assertNotNull(index);
 
@@ -254,18 +254,18 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
   @Test
   public void testCreateEmbeddedMapByValueIndex() throws Exception {
-    database
+    db
         .command(
             "CREATE INDEX sqlCreateIndexEmbeddedMapByValueIndex ON sqlCreateIndexTestClass (prop3"
                 + " by value) UNIQUE")
         .close();
 
     final Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(database, "sqlCreateIndexEmbeddedMapByValueIndex");
+            .getClassIndex(db, "sqlCreateIndexEmbeddedMapByValueIndex");
 
     Assert.assertNotNull(index);
 
@@ -282,18 +282,18 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
   @Test
   public void testCreateEmbeddedListIndex() throws Exception {
-    database
+    db
         .command(
             "CREATE INDEX sqlCreateIndexEmbeddedListIndex ON sqlCreateIndexTestClass (prop5)"
                 + " NOTUNIQUE")
         .close();
 
     final Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(database, "sqlCreateIndexEmbeddedListIndex");
+            .getClassIndex(db, "sqlCreateIndexEmbeddedListIndex");
 
     Assert.assertNotNull(index);
 
@@ -306,17 +306,17 @@ public class SQLCreateIndexTest extends BaseDBTest {
   }
 
   public void testCreateRidBagIndex() throws Exception {
-    database
+    db
         .command(
             "CREATE INDEX sqlCreateIndexRidBagIndex ON sqlCreateIndexTestClass (prop9) NOTUNIQUE")
         .close();
 
     final Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(database, "sqlCreateIndexRidBagIndex");
+            .getClassIndex(db, "sqlCreateIndexRidBagIndex");
 
     Assert.assertNotNull(index);
 
@@ -329,14 +329,14 @@ public class SQLCreateIndexTest extends BaseDBTest {
   }
 
   public void testCreateOldStileEmbeddedListIndex() throws Exception {
-    database.command("CREATE INDEX sqlCreateIndexTestClass.prop5 NOTUNIQUE").close();
+    db.command("CREATE INDEX sqlCreateIndexTestClass.prop5 NOTUNIQUE").close();
 
     final Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(database, "sqlCreateIndexTestClass.prop5");
+            .getClassIndex(db, "sqlCreateIndexTestClass.prop5");
 
     Assert.assertNotNull(index);
 
@@ -349,14 +349,14 @@ public class SQLCreateIndexTest extends BaseDBTest {
   }
 
   public void testCreateOldStileRidBagIndex() throws Exception {
-    database.command("CREATE INDEX sqlCreateIndexTestClass.prop9 NOTUNIQUE").close();
+    db.command("CREATE INDEX sqlCreateIndexTestClass.prop9 NOTUNIQUE").close();
 
     final Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(database, "sqlCreateIndexTestClass.prop9");
+            .getClassIndex(db, "sqlCreateIndexTestClass.prop9");
 
     Assert.assertNotNull(index);
 
@@ -371,7 +371,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
   @Test
   public void testCreateEmbeddedListWithoutLinkedTypeIndex() throws Exception {
     try {
-      database
+      db
           .command(
               "CREATE INDEX sqlCreateIndexEmbeddedListWithoutLinkedTypeIndex ON"
                   + " sqlCreateIndexTestClass (prop6) UNIQUE")
@@ -385,11 +385,11 @@ public class SQLCreateIndexTest extends BaseDBTest {
                       + " collections that are going to be indexed."));
     }
     final Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(database, "sqlCreateIndexEmbeddedListWithoutLinkedTypeIndex");
+            .getClassIndex(db, "sqlCreateIndexEmbeddedListWithoutLinkedTypeIndex");
 
     Assert.assertNull(index, "Index created while wrong query was executed");
   }
@@ -397,7 +397,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
   @Test
   public void testCreateEmbeddedMapWithoutLinkedTypeIndex() throws Exception {
     try {
-      database
+      db
           .command(
               "CREATE INDEX sqlCreateIndexEmbeddedMapWithoutLinkedTypeIndex ON"
                   + " sqlCreateIndexTestClass (prop7 by value) UNIQUE")
@@ -411,11 +411,11 @@ public class SQLCreateIndexTest extends BaseDBTest {
                       + " collections that are going to be indexed."));
     }
     final Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(database, "sqlCreateIndexEmbeddedMapWithoutLinkedTypeIndex");
+            .getClassIndex(db, "sqlCreateIndexEmbeddedMapWithoutLinkedTypeIndex");
 
     Assert.assertNull(index, "Index created while wrong query was executed");
   }
@@ -429,14 +429,14 @@ public class SQLCreateIndexTest extends BaseDBTest {
             + ", "
             + EXPECTED_PROP2_TYPE;
 
-    database.command(query).close();
+    db.command(query).close();
 
     final Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(database, "sqlCreateIndexCompositeIndex2");
+            .getClassIndex(db, "sqlCreateIndexCompositeIndex2");
 
     Assert.assertNotNull(index);
 
@@ -459,7 +459,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
             + EXPECTED_PROP1_TYPE;
 
     try {
-      database.command(new CommandSQL(query)).execute(database);
+      db.command(new CommandSQL(query)).execute(db);
       Assert.fail();
     } catch (CommandExecutionException e) {
       Assert.assertTrue(
@@ -476,28 +476,28 @@ public class SQLCreateIndexTest extends BaseDBTest {
       Assert.assertEquals(cause.getClass(), IllegalArgumentException.class);
     }
     final Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(database, "sqlCreateIndexCompositeIndex3");
+            .getClassIndex(db, "sqlCreateIndexCompositeIndex3");
 
     Assert.assertNull(index, "Index created while wrong query was executed");
   }
 
   public void testCompositeIndexWithMetadata() {
-    database
+    db
         .command(
             "CREATE INDEX sqlCreateIndexCompositeIndexWithMetadata ON sqlCreateIndexTestClass"
                 + " (prop1, prop2) UNIQUE metadata {v1:23, v2:\"val2\"}")
         .close();
 
     final Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(database, "sqlCreateIndexCompositeIndexWithMetadata");
+            .getClassIndex(db, "sqlCreateIndexCompositeIndexWithMetadata");
 
     Assert.assertNotNull(index);
 
@@ -516,17 +516,17 @@ public class SQLCreateIndexTest extends BaseDBTest {
   }
 
   public void testOldIndexWithMetadata() {
-    database
+    db
         .command(
             "CREATE INDEX sqlCreateIndexTestClass.prop8 NOTUNIQUE  metadata {v1:23, v2:\"val2\"}")
         .close();
 
     final Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(database, "sqlCreateIndexTestClass.prop8");
+            .getClassIndex(db, "sqlCreateIndexTestClass.prop8");
 
     Assert.assertNotNull(index);
 
@@ -552,14 +552,14 @@ public class SQLCreateIndexTest extends BaseDBTest {
             + EXPECTED_PROP2_TYPE
             + " metadata {v1:23, v2:\"val2\"}";
 
-    database.command(query).close();
+    db.command(query).close();
 
     final Index index =
-        database
+        db
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(database, "sqlCreateIndexCompositeIndex2WithConfig");
+            .getClassIndex(db, "sqlCreateIndexCompositeIndex2WithConfig");
 
     Assert.assertNotNull(index);
 

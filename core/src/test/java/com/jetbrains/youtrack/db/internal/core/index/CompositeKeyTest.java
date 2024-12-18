@@ -77,7 +77,7 @@ public class CompositeKeyTest extends DbTestBase {
 
     compositeKey.addKey("a");
 
-    assertEquals(compositeKey.getKeys().size(), 1);
+    assertEquals(1, compositeKey.getKeys().size());
     assertTrue(compositeKey.getKeys().contains("a"));
   }
 
@@ -93,7 +93,7 @@ public class CompositeKeyTest extends DbTestBase {
 
     compositeKey.addKey(compositeKeyToAdd);
 
-    assertEquals(compositeKey.getKeys().size(), 3);
+    assertEquals(3, compositeKey.getKeys().size());
     assertTrue(compositeKey.getKeys().contains("a"));
     assertTrue(compositeKey.getKeys().contains("b"));
   }
@@ -108,7 +108,7 @@ public class CompositeKeyTest extends DbTestBase {
     anotherCompositeKey.addKey("a");
     anotherCompositeKey.addKey("b");
 
-    assertEquals(compositeKey.compareTo(anotherCompositeKey), 0);
+    assertEquals(0, compositeKey.compareTo(anotherCompositeKey));
   }
 
   @Test
@@ -122,7 +122,7 @@ public class CompositeKeyTest extends DbTestBase {
     anotherCompositeKey.addKey("b");
     anotherCompositeKey.addKey("c");
 
-    assertEquals(compositeKey.compareTo(anotherCompositeKey), 0);
+    assertEquals(0, compositeKey.compareTo(anotherCompositeKey));
   }
 
   @Test
@@ -136,7 +136,7 @@ public class CompositeKeyTest extends DbTestBase {
     anotherCompositeKey.addKey("a");
     anotherCompositeKey.addKey("b");
 
-    assertEquals(compositeKey.compareTo(anotherCompositeKey), 0);
+    assertEquals(0, compositeKey.compareTo(anotherCompositeKey));
   }
 
   @Test
@@ -148,7 +148,7 @@ public class CompositeKeyTest extends DbTestBase {
     anotherCompositeKey.addKey("a");
     anotherCompositeKey.addKey("b");
 
-    assertEquals(compositeKey.compareTo(anotherCompositeKey), 1);
+    assertEquals(1, compositeKey.compareTo(anotherCompositeKey));
   }
 
   @Test
@@ -161,7 +161,7 @@ public class CompositeKeyTest extends DbTestBase {
 
     anotherCompositeKey.addKey("b");
 
-    assertEquals(compositeKey.compareTo(anotherCompositeKey), -1);
+    assertEquals(-1, compositeKey.compareTo(anotherCompositeKey));
   }
 
   @Test
@@ -170,7 +170,7 @@ public class CompositeKeyTest extends DbTestBase {
     compositeKey.addKey("name4");
     final CompositeKey anotherCompositeKey = new CompositeKey();
     anotherCompositeKey.addKey("name5");
-    assertEquals(compositeKey.compareTo(anotherCompositeKey), -1);
+    assertEquals(-1, compositeKey.compareTo(anotherCompositeKey));
   }
 
   @Test
@@ -184,8 +184,8 @@ public class CompositeKeyTest extends DbTestBase {
     compositeKeyTwo.addKey(3);
     compositeKeyTwo.addKey(1);
 
-    assertEquals(compositeKeyOne.compareTo(compositeKeyTwo), -1);
-    assertEquals(compositeKeyTwo.compareTo(compositeKeyOne), 1);
+    assertEquals(-1, compositeKeyOne.compareTo(compositeKeyTwo));
+    assertEquals(1, compositeKeyTwo.compareTo(compositeKeyOne));
   }
 
   @Test
@@ -199,8 +199,8 @@ public class CompositeKeyTest extends DbTestBase {
     compositeKeyTwo.addKey(2);
     compositeKeyTwo.addKey(3);
 
-    assertEquals(compositeKeyOne.compareTo(compositeKeyTwo), 0);
-    assertEquals(compositeKeyTwo.compareTo(compositeKeyOne), 0);
+    assertEquals(0, compositeKeyOne.compareTo(compositeKeyTwo));
+    assertEquals(0, compositeKeyTwo.compareTo(compositeKeyOne));
   }
 
   @Test
@@ -217,9 +217,9 @@ public class CompositeKeyTest extends DbTestBase {
     compositeKeyThree.addKey(2);
     compositeKeyThree.addKey(null);
 
-    assertEquals(compositeKeyOne.compareTo(compositeKeyTwo), 1);
-    assertEquals(compositeKeyTwo.compareTo(compositeKeyOne), -1);
-    assertEquals(compositeKeyTwo.compareTo(compositeKeyThree), 0);
+    assertEquals(1, compositeKeyOne.compareTo(compositeKeyTwo));
+    assertEquals(-1, compositeKeyTwo.compareTo(compositeKeyOne));
+    assertEquals(0, compositeKeyTwo.compareTo(compositeKeyThree));
   }
 
   @Test
@@ -239,9 +239,9 @@ public class CompositeKeyTest extends DbTestBase {
     compositeKeyThree.addKey(null);
     compositeKeyThree.addKey(3);
 
-    assertEquals(compositeKeyOne.compareTo(compositeKeyTwo), 1);
-    assertEquals(compositeKeyTwo.compareTo(compositeKeyOne), -1);
-    assertEquals(compositeKeyTwo.compareTo(compositeKeyThree), 0);
+    assertEquals(1, compositeKeyOne.compareTo(compositeKeyTwo));
+    assertEquals(-1, compositeKeyTwo.compareTo(compositeKeyOne));
+    assertEquals(0, compositeKeyTwo.compareTo(compositeKeyThree));
   }
 
   @Test
@@ -251,7 +251,7 @@ public class CompositeKeyTest extends DbTestBase {
     compositeKeyOne.addKey(null);
     compositeKeyOne.addKey(2);
 
-    EntityImpl document = compositeKeyOne.toDocument();
+    EntityImpl document = compositeKeyOne.toEntity(db);
 
     final CompositeKey compositeKeyTwo = new CompositeKey();
     compositeKeyTwo.fromDocument(document);
@@ -347,7 +347,7 @@ public class CompositeKeyTest extends DbTestBase {
     RecordSerializerNetworkV37 serializer = RecordSerializerNetworkV37.INSTANCE;
     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
     DataOutputStream out = new DataOutputStream(outStream);
-    compositeKey.toStream(serializer, out);
+    compositeKey.toStream(db, serializer, out);
     ByteArrayInputStream inStream = new ByteArrayInputStream(outStream.toByteArray());
     DataInputStream in = new DataInputStream(inStream);
     CompositeKey deserializedCompositeKey = new CompositeKey();

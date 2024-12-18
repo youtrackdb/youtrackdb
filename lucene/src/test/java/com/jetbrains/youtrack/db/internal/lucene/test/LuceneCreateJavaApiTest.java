@@ -110,7 +110,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
   @Test
   public void testCreateIndexEmbeddedMapJSON() {
     db.begin();
-    var songDoc = new EntityImpl(SONG_CLASS);
+    var songDoc = ((EntityImpl) db.newEntity(SONG_CLASS));
     songDoc.fromJSON(
         "{\n"
             + "    \"description\": \"Capital\",\n"
@@ -154,7 +154,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
     entries.put("text", "Hello Rome how are you today?");
     entries.put("text2", "Hello Bolzano how are you today?");
 
-    final EntityImpl doc = new EntityImpl(SONG_CLASS);
+    final EntityImpl doc = ((EntityImpl) db.newEntity(SONG_CLASS));
     doc.field("description", "Capital", PropertyType.STRING);
     doc.field("String" + PropertyType.EMBEDDEDMAP.getName(), entries, PropertyType.EMBEDDEDMAP,
         PropertyType.STRING);

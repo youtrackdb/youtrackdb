@@ -222,17 +222,6 @@ public abstract class SchemaShared implements CloseableInStorage {
   }
 
 
-  /**
-   * Callback invoked when the schema is loaded, after all the initializations.
-   */
-  public void onPostIndexManagement(DatabaseSessionInternal session) {
-    for (SchemaClass c : classes.values()) {
-      if (c instanceof SchemaClassImpl) {
-        ((SchemaClassImpl) c).onPostIndexManagement(session);
-      }
-    }
-  }
-
   public SchemaClass createClass(DatabaseSessionInternal database, final String className) {
     return createClass(database, className, null, (int[]) null);
   }
@@ -505,7 +494,7 @@ public abstract class SchemaShared implements CloseableInStorage {
         hasGlobalProperties = true;
         for (EntityImpl oDocument : globalProperties) {
           GlobalPropertyImpl prop = new GlobalPropertyImpl();
-          prop.fromDocument(oDocument);
+          prop.fromEntity(oDocument);
           ensurePropertiesSize(prop.getId());
           properties.set(prop.getId(), prop);
           propertiesByNameType.put(prop.getName() + "|" + prop.getType().name(), prop);
@@ -523,10 +512,10 @@ public abstract class SchemaShared implements CloseableInStorage {
         SchemaClassImpl cls;
         if (classes.containsKey(name.toLowerCase(Locale.ENGLISH))) {
           cls = (SchemaClassImpl) classes.get(name.toLowerCase(Locale.ENGLISH));
-          cls.fromStream(c);
+          cls.fromStream(session, c);
         } else {
           cls = createClassInstance(name);
-          cls.fromStream(c);
+          cls.fromStream(session, c);
         }
 
         newClasses.put(cls.getName().toLowerCase(Locale.ENGLISH), cls);
@@ -607,25 +596,24 @@ public abstract class SchemaShared implements CloseableInStorage {
   protected abstract SchemaClassImpl createClassInstance(String name);
 
 
-  public EntityImpl toNetworkStream() {
+  public EntityImpl toNetworkStream(DatabaseSessionInternal db) {
     lock.readLock().lock();
     try {
-      EntityImpl entity = new EntityImpl();
+      EntityImpl entity = new EntityImpl(db);
       entity.setTrackingChanges(false);
       entity.field("schemaVersion", CURRENT_VERSION_NUMBER);
 
       Set<EntityImpl> cc = new HashSet<EntityImpl>();
       for (SchemaClass c : classes.values()) {
-        cc.add(((SchemaClassImpl) c).toNetworkStream());
+        cc.add(((SchemaClassImpl) c).toNetworkStream(db));
       }
 
       entity.field("classes", cc, PropertyType.EMBEDDEDSET);
 
-
       List<EntityImpl> globalProperties = new ArrayList<EntityImpl>();
       for (GlobalProperty globalProperty : properties) {
         if (globalProperty != null) {
-          globalProperties.add(((GlobalPropertyImpl) globalProperty).toDocument());
+          globalProperties.add(((GlobalPropertyImpl) globalProperty).toEntity());
         }
       }
       entity.field("globalProperties", globalProperties, PropertyType.EMBEDDEDLIST);
@@ -653,15 +641,14 @@ public abstract class SchemaShared implements CloseableInStorage {
 
       Set<EntityImpl> classesEntities = new HashSet<EntityImpl>();
       for (SchemaClassImpl c : realClases) {
-        classesEntities.add(c.toStream());
+        classesEntities.add(c.toStream(db));
       }
       entity.field("classes", classesEntities, PropertyType.EMBEDDEDSET);
-
 
       List<EntityImpl> globalProperties = new ArrayList<EntityImpl>();
       for (GlobalProperty globalProperty : properties) {
         if (globalProperty != null) {
-          globalProperties.add(((GlobalPropertyImpl) globalProperty).toDocument());
+          globalProperties.add(((GlobalPropertyImpl) globalProperty).toEntity());
         }
       }
       entity.field("globalProperties", globalProperties, PropertyType.EMBEDDEDLIST);
@@ -726,7 +713,7 @@ public abstract class SchemaShared implements CloseableInStorage {
     try {
       EntityImpl entity =
           database.computeInTx(
-              () -> database.save(new EntityImpl(), MetadataDefault.CLUSTER_INTERNAL_NAME));
+              () -> database.save(new EntityImpl(database), MetadataDefault.CLUSTER_INTERNAL_NAME));
       this.identity = entity.getIdentity();
       database.getStorage().setSchemaRecordId(entity.getIdentity().toString());
       snapshot = new ImmutableSchema(this, database);

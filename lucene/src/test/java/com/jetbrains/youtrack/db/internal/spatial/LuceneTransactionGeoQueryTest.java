@@ -13,6 +13,7 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -44,8 +45,8 @@ public class LuceneTransactionGeoQueryTest extends LuceneBaseTest {
     db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
 
     Index idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
-    EntityImpl rome = newCity("Rome", 12.5, 41.9);
-    EntityImpl london = newCity("London", -0.1275, 51.507222);
+    EntityImpl rome = newCity(db, "Rome", 12.5, 41.9);
+    EntityImpl london = newCity(db, "London", -0.1275, 51.507222);
 
     db.begin();
 
@@ -91,7 +92,7 @@ public class LuceneTransactionGeoQueryTest extends LuceneBaseTest {
     db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
 
     Index idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
-    EntityImpl rome = newCity("Rome", 12.5, 41.9);
+    EntityImpl rome = newCity(db, "Rome", 12.5, 41.9);
 
     db.begin();
 
@@ -136,8 +137,9 @@ public class LuceneTransactionGeoQueryTest extends LuceneBaseTest {
     db.commit();
   }
 
-  protected static EntityImpl newCity(String name, final Double longitude, final Double latitude) {
-    EntityImpl location = new EntityImpl("OPoint");
+  protected static EntityImpl newCity(DatabaseSession db, String name, final Double longitude,
+      final Double latitude) {
+    EntityImpl location = ((EntityImpl) db.newEntity("OPoint"));
     location.field(
         "coordinates",
         new ArrayList<Double>() {
@@ -147,7 +149,7 @@ public class LuceneTransactionGeoQueryTest extends LuceneBaseTest {
           }
         });
 
-    EntityImpl city = new EntityImpl("City");
+    EntityImpl city = ((EntityImpl) db.newEntity("City"));
     city.field("name", name);
     city.field("location", location);
     return city;

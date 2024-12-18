@@ -92,7 +92,7 @@ public abstract class AbstractIndexDefinition implements IndexDefinition {
     nullValuesIgnored = value;
   }
 
-  protected void serializeToStream(EntityImpl entity) {
+  protected void serializeToStream(DatabaseSessionInternal db, EntityImpl entity) {
   }
 
   protected void serializeFromStream(EntityImpl entity) {

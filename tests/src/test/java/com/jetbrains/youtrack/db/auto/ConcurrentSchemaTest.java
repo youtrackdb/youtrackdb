@@ -51,10 +51,12 @@ public class ConcurrentSchemaTest extends BaseDBTest {
         try {
           final String clsName = "ConcurrentClassTest-" + id + "-" + i;
 
-          SchemaClass cls = database.getMetadata().getSchema().createClass(clsName);
+          SchemaClass cls = ConcurrentSchemaTest.this.db.getMetadata().getSchema()
+              .createClass(clsName);
 
           Assert.assertEquals(cls.getName(), clsName);
-          Assert.assertTrue(database.getMetadata().getSchema().existsClass(clsName));
+          Assert.assertTrue(
+              ConcurrentSchemaTest.this.db.getMetadata().getSchema().existsClass(clsName));
 
           db.command("select from " + clsName).close();
 
@@ -82,9 +84,11 @@ public class ConcurrentSchemaTest extends BaseDBTest {
         try {
           final String clsName = "ConcurrentClassTest-" + id + "-" + i;
 
-          Assert.assertTrue(database.getMetadata().getSchema().existsClass(clsName));
-          database.getMetadata().getSchema().dropClass(clsName);
-          Assert.assertFalse(database.getMetadata().getSchema().existsClass(clsName));
+          Assert.assertTrue(
+              ConcurrentSchemaTest.this.db.getMetadata().getSchema().existsClass(clsName));
+          ConcurrentSchemaTest.this.db.getMetadata().getSchema().dropClass(clsName);
+          Assert.assertFalse(
+              ConcurrentSchemaTest.this.db.getMetadata().getSchema().existsClass(clsName));
 
           counter.decrementAndGet();
         } finally {
@@ -116,7 +120,7 @@ public class ConcurrentSchemaTest extends BaseDBTest {
     for (int id = 0; id < THREADS; ++id) {
       for (int i = 0; i < CYCLES; ++i) {
         final String clsName = "ConcurrentClassTest-" + id + "-" + i;
-        Assert.assertTrue(database.getMetadata().getSchema().existsClass(clsName));
+        Assert.assertTrue(db.getMetadata().getSchema().existsClass(clsName));
       }
     }
 

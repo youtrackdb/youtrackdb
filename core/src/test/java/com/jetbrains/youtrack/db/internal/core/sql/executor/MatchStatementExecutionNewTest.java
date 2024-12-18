@@ -70,7 +70,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     db.executeInTx(
         () -> {
           for (int i = 0; i < nodes; i++) {
-            EntityImpl doc = new EntityImpl("IndexedVertex");
+            EntityImpl doc = (EntityImpl) db.newEntity("IndexedVertex");
             doc.field("uid", i);
             doc.save();
           }
@@ -294,7 +294,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
       Assert.assertEquals(1, item.getPropertyNames().size());
       Entity personId = db.load(item.getProperty("person"));
 
-      EntityImpl person = personId.getRecord();
+      EntityImpl person = personId.getRecord(db);
       String name = person.field("name");
       Assert.assertTrue(name.equals("n1") || name.equals("n2"));
     }
@@ -901,7 +901,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     Result item = qResult.next();
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
-    return item.getEntity().get().getRecord();
+    return item.getEntity().get().getRecord(db);
   }
 
   private EntityImpl getManagerArrows(String personName) {
@@ -923,7 +923,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     Result item = qResult.next();
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
-    return item.getEntity().get().getRecord();
+    return item.getEntity().get().getRecord(db);
   }
 
   @Test
@@ -2179,16 +2179,16 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
         Assert.assertEquals(0, thePath.size());
       } else if (bname.equals("aaa")) {
         Assert.assertEquals(1, thePath.size());
-        Assert.assertEquals("bbb", ((Entity) thePath.get(0).getRecord()).getProperty("name"));
+        Assert.assertEquals("bbb", ((Entity) thePath.get(0).getRecord(db)).getProperty("name"));
       } else if (bname.equals("ccc")) {
         Assert.assertEquals(2, thePath.size());
-        Assert.assertEquals("bbb", ((Entity) thePath.get(0).getRecord()).getProperty("name"));
-        Assert.assertEquals("ccc", ((Entity) thePath.get(1).getRecord()).getProperty("name"));
+        Assert.assertEquals("bbb", ((Entity) thePath.get(0).getRecord(db)).getProperty("name"));
+        Assert.assertEquals("ccc", ((Entity) thePath.get(1).getRecord(db)).getProperty("name"));
       } else if (bname.equals("ddd")) {
         Assert.assertEquals(3, thePath.size());
-        Assert.assertEquals("bbb", ((Entity) thePath.get(0).getRecord()).getProperty("name"));
-        Assert.assertEquals("ccc", ((Entity) thePath.get(1).getRecord()).getProperty("name"));
-        Assert.assertEquals("ddd", ((Entity) thePath.get(2).getRecord()).getProperty("name"));
+        Assert.assertEquals("bbb", ((Entity) thePath.get(0).getRecord(db)).getProperty("name"));
+        Assert.assertEquals("ccc", ((Entity) thePath.get(1).getRecord(db)).getProperty("name"));
+        Assert.assertEquals("ddd", ((Entity) thePath.get(2).getRecord(db)).getProperty("name"));
       }
     }
     Assert.assertFalse(result.hasNext());

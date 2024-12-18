@@ -20,9 +20,9 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
 import com.jetbrains.youtrack.db.api.schema.Collate;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -117,7 +117,7 @@ public interface IndexDefinition extends IndexCallback {
    * @return Entity that contains internal index state.
    */
   @Nonnull
-  EntityImpl toStream(@Nonnull EntityImpl entity);
+  EntityImpl toStream(DatabaseSessionInternal db, @Nonnull EntityImpl entity);
 
   /**
    * Deserialize internal index state from entity.

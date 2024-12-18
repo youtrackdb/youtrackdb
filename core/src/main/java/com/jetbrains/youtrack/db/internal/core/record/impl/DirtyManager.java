@@ -21,6 +21,7 @@ package com.jetbrains.youtrack.db.internal.core.record.impl;
 
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import java.util.Collections;
@@ -105,8 +106,8 @@ public class DirtyManager {
     }
   }
 
-  public void track(Record pointing, Identifiable pointed) {
-    getReal().internalTrack(pointing, pointed);
+  public void track(DatabaseSessionInternal db, Record pointing, Identifiable pointed) {
+    getReal().internalTrack(db, pointing, pointed);
   }
 
   public void unTrack(Record pointing, Identifiable pointed) {
@@ -116,9 +117,9 @@ public class DirtyManager {
   private void internalUnTrack(Record pointing, Identifiable pointed) {
   }
 
-  private void internalTrack(Record pointing, Identifiable pointed) {
+  private void internalTrack(DatabaseSessionInternal db, Record pointing, Identifiable pointed) {
     if (pointed instanceof Record) {
-      RecordInternal.setDirtyManager((Record) pointed, this);
+      RecordInternal.setDirtyManager(db, (Record) pointed, this);
     }
   }
 

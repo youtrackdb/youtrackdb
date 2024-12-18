@@ -45,7 +45,7 @@ public class TransactionAtomicTest extends BaseDBTest {
     DatabaseSessionInternal db1 = acquireSession();
     DatabaseSessionInternal db2 = acquireSession();
 
-    EntityImpl record1 = new EntityImpl();
+    EntityImpl record1 = ((EntityImpl) db.newEntity());
 
     db2.begin();
     record1
@@ -74,26 +74,26 @@ public class TransactionAtomicTest extends BaseDBTest {
     db2.activateOnCurrentThread();
     db2.close();
 
-    database.activateOnCurrentThread();
+    db.activateOnCurrentThread();
   }
 
   @Test
   public void testMVCC() throws IOException {
 
-    EntityImpl doc = new EntityImpl("Account");
-    database.begin();
+    EntityImpl doc = ((EntityImpl) db.newEntity("Account"));
+    db.begin();
     doc.field("version", 0);
     doc.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    doc = database.bindToSession(doc);
+    db.begin();
+    doc = db.bindToSession(doc);
     doc.setDirty();
     doc.field("testmvcc", true);
     RecordInternal.setVersion(doc, doc.getVersion() + 1);
     try {
       doc.save();
-      database.commit();
+      db.commit();
       Assert.fail();
     } catch (ConcurrentModificationException e) {
       Assert.assertTrue(true);
@@ -102,13 +102,13 @@ public class TransactionAtomicTest extends BaseDBTest {
 
   @Test
   public void testTransactionPreListenerRollback() throws IOException {
-    EntityImpl record1 = new EntityImpl();
+    EntityImpl record1 = ((EntityImpl) db.newEntity());
 
-    database.begin();
+    db.begin();
     record1
         .field("value", "This is the first version")
-        .save(database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
+        .save(db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
     final SessionListener listener =
         new SessionListener() {
@@ -139,48 +139,49 @@ public class TransactionAtomicTest extends BaseDBTest {
           }
         };
 
-    database.registerListener(listener);
-    database.begin();
+    db.registerListener(listener);
+    db.begin();
 
     try {
-      database.commit();
+      db.commit();
       Assert.fail();
     } catch (TransactionException e) {
       Assert.assertTrue(true);
     } finally {
-      database.unregisterListener(listener);
+      db.unregisterListener(listener);
     }
   }
 
   @Test
   public void testTransactionWithDuplicateUniqueIndexValues() {
-    SchemaClass fruitClass = database.getMetadata().getSchema().getClass("Fruit");
+    SchemaClass fruitClass = db.getMetadata().getSchema().getClass("Fruit");
 
     if (fruitClass == null) {
-      fruitClass = database.getMetadata().getSchema().createClass("Fruit");
+      fruitClass = db.getMetadata().getSchema().createClass("Fruit");
 
-      fruitClass.createProperty(database, "name", PropertyType.STRING);
-      fruitClass.createProperty(database, "color", PropertyType.STRING);
+      fruitClass.createProperty(db, "name", PropertyType.STRING);
+      fruitClass.createProperty(db, "color", PropertyType.STRING);
 
-      database
+      db
           .getMetadata()
           .getSchema()
           .getClass("Fruit")
           .getProperty("color")
-          .createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE);
+          .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
     }
 
-    Assert.assertEquals(database.countClusterElements("Fruit"), 0);
+    Assert.assertEquals(db.countClusterElements("Fruit"), 0);
 
     try {
-      database.begin();
+      db.begin();
 
-      EntityImpl apple = new EntityImpl("Fruit").field("name", "Apple").field("color", "Red");
-      EntityImpl orange = new EntityImpl("Fruit").field("name", "Orange")
+      EntityImpl apple = ((EntityImpl) db.newEntity("Fruit")).field("name", "Apple")
+          .field("color", "Red");
+      EntityImpl orange = ((EntityImpl) db.newEntity("Fruit")).field("name", "Orange")
           .field("color", "Orange");
-      EntityImpl banana = new EntityImpl("Fruit").field("name", "Banana")
+      EntityImpl banana = ((EntityImpl) db.newEntity("Fruit")).field("name", "Banana")
           .field("color", "Yellow");
-      EntityImpl kumquat = new EntityImpl("Fruit").field("name", "Kumquat")
+      EntityImpl kumquat = ((EntityImpl) db.newEntity("Fruit")).field("name", "Kumquat")
           .field("color", "Orange");
 
       apple.save();
@@ -188,7 +189,7 @@ public class TransactionAtomicTest extends BaseDBTest {
       banana.save();
       kumquat.save();
 
-      database.commit();
+      db.commit();
 
       Assert.assertEquals(apple.getIdentity().getClusterId(), fruitClass.getClusterIds()[0]);
       Assert.assertEquals(orange.getIdentity().getClusterId(), fruitClass.getClusterIds()[0]);
@@ -199,43 +200,43 @@ public class TransactionAtomicTest extends BaseDBTest {
 
     } catch (RecordDuplicatedException e) {
       Assert.assertTrue(true);
-      database.rollback();
+      db.rollback();
     }
 
-    Assert.assertEquals(database.countClusterElements("Fruit"), 0);
+    Assert.assertEquals(db.countClusterElements("Fruit"), 0);
   }
 
   @Test
   public void testTransactionalSQL() {
-    long prev = database.countClass("Account");
+    long prev = db.countClass("Account");
 
-    database.begin();
-    database
+    db.begin();
+    db
         .command(new CommandSQL("transactional insert into Account set name = 'txTest1'"))
-        .execute(database);
-    database.commit();
+        .execute(db);
+    db.commit();
 
-    Assert.assertEquals(database.countClass("Account"), prev + 1);
+    Assert.assertEquals(db.countClass("Account"), prev + 1);
   }
 
   @Test
   public void testTransactionalSQLJoinTx() {
-    long prev = database.countClass("Account");
+    long prev = db.countClass("Account");
 
-    database.begin();
-    database
+    db.begin();
+    db
         .command(new CommandSQL("transactional insert into Account set name = 'txTest2'"))
-        .execute(database);
+        .execute(db);
 
-    Assert.assertTrue(database.getTransaction().isActive());
+    Assert.assertTrue(db.getTransaction().isActive());
 
     if (!remoteDB) {
-      Assert.assertEquals(database.countClass("Account"), prev + 1);
+      Assert.assertEquals(db.countClass("Account"), prev + 1);
     }
 
-    database.commit();
+    db.commit();
 
-    Assert.assertFalse(database.getTransaction().isActive());
-    Assert.assertEquals(database.countClass("Account"), prev + 1);
+    Assert.assertFalse(db.getTransaction().isActive());
+    Assert.assertEquals(db.countClass("Account"), prev + 1);
   }
 }

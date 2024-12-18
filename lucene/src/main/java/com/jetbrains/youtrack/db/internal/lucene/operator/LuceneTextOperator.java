@@ -229,14 +229,14 @@ public class LuceneTextOperator extends QueryTargetOperator {
   }
 
   protected LuceneFullTextIndex involvedIndex(
-      DatabaseSessionInternal session, Identifiable iRecord,
+      DatabaseSessionInternal db, Identifiable iRecord,
       EntityImpl iCurrentResult,
       SQLFilterCondition iCondition,
       Object iLeft,
       Object iRight) {
 
     try {
-      EntityImpl doc = iRecord.getRecord();
+      EntityImpl doc = iRecord.getRecord(db);
       if (doc.getClassName() != null) {
         var cls = getDatabase().getMetadata().getSchemaInternal()
             .getClassInternal(doc.getClassName());
@@ -255,7 +255,7 @@ public class LuceneTextOperator extends QueryTargetOperator {
             cls = oClass;
           }
         }
-        Set<Index> classInvolvedIndexes = cls.getInvolvedIndexesInternal(session,
+        Set<Index> classInvolvedIndexes = cls.getInvolvedIndexesInternal(db,
             fields(iCondition));
         LuceneFullTextIndex idx = null;
         for (Index classInvolvedIndex : classInvolvedIndexes) {

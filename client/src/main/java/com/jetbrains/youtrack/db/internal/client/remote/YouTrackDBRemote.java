@@ -269,7 +269,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
   public EntityImpl getServerInfo(String username, String password) {
     ServerInfoRequest request = new ServerInfoRequest();
     ServerInfoResponse response = connectAndSend(null, username, password, request);
-    EntityImpl res = new EntityImpl();
+    EntityImpl res = new EntityImpl(null);
     res.fromJSON(response.getResult());
 
     return res;

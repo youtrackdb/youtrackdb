@@ -19,11 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command.traverse;
 
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
@@ -61,19 +61,19 @@ public class TraverseContext extends BasicCommandContext {
     if ("DEPTH".startsWith(name)) {
       return getDepth();
     } else if (name.startsWith("PATH")) {
-      return DocumentHelper.getFieldValue(getDatabase(), getPath(),
+      return EntityHelper.getFieldValue(getDatabase(), getPath(),
           iName.substring("PATH".length()));
     } else if (name.startsWith("STACK")) {
 
       Object result =
-          DocumentHelper.getFieldValue(getDatabase(), memory.getUnderlying(),
+          EntityHelper.getFieldValue(getDatabase(), memory.getUnderlying(),
               iName.substring("STACK".length()));
       if (result instanceof ArrayDeque) {
         result = ((ArrayDeque) result).clone();
       }
       return result;
     } else if (name.startsWith("HISTORY")) {
-      return DocumentHelper.getFieldValue(getDatabase(), history,
+      return EntityHelper.getFieldValue(getDatabase(), history,
           iName.substring("HISTORY".length()));
     } else
     // DELEGATE

@@ -20,6 +20,8 @@
 
 package com.jetbrains.youtrack.db.internal.core.metadata.sequence;
 
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.MetadataUpdateListener;
@@ -27,8 +29,6 @@ import com.jetbrains.youtrack.db.internal.core.exception.SequenceException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence.SEQUENCE_TYPE;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -57,7 +57,7 @@ public class SequenceLibraryImpl {
 
           final Sequence sequence =
               SequenceHelper.createSequence((EntityImpl) res.getEntity().get());
-          sequences.put(sequence.getName().toUpperCase(Locale.ENGLISH), sequence);
+          sequences.put(sequence.getName(db).toUpperCase(Locale.ENGLISH), sequence);
         }
       }
     }
@@ -93,17 +93,17 @@ public class SequenceLibraryImpl {
   }
 
   public synchronized Sequence createSequence(
-      final DatabaseSessionInternal database,
+      final DatabaseSessionInternal db,
       final String iName,
       final SEQUENCE_TYPE sequenceType,
       final Sequence.CreateParams params) {
-    init(database);
-    reloadIfNeeded(database);
+    init(db);
+    reloadIfNeeded(db);
 
     final String key = iName.toUpperCase(Locale.ENGLISH);
     validateSequenceNoExists(key);
 
-    final Sequence sequence = SequenceHelper.createSequence(sequenceType, params, iName);
+    final Sequence sequence = SequenceHelper.createSequence(db, sequenceType, params, iName);
     sequences.put(key, sequence);
 
     return sequence;

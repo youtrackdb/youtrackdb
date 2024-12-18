@@ -49,7 +49,7 @@ public class LuceneCreateIndexTest extends BaseLuceneTest {
                 + "\"}")
         .close();
 
-    EntityImpl doc = new EntityImpl("Song");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Song"));
 
     doc.field("title", "Local");
     doc.field("author", "Local");

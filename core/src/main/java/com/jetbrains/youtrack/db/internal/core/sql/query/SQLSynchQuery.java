@@ -65,7 +65,7 @@ public class SQLSynchQuery<T extends Object> extends SQLAsynchQuery<T>
     result.clear();
   }
 
-  public boolean result(DatabaseSessionInternal querySession, final Object iRecord) {
+  public boolean result(DatabaseSessionInternal db, final Object iRecord) {
     if (iRecord != null) {
       result.add((T) iRecord);
     }

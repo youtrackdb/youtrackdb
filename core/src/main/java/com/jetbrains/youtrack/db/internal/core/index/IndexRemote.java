@@ -177,7 +177,7 @@ public abstract class IndexRemote implements Index {
     }
   }
 
-  public IndexRemote put(DatabaseSessionInternal session, final Object key,
+  public IndexRemote put(DatabaseSessionInternal db, final Object key,
       final Identifiable value) {
     final RecordId rid = (RecordId) value.getIdentity();
 

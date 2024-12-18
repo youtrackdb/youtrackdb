@@ -36,7 +36,7 @@ public class Commit37Request implements BinaryRequest<Commit37Response> {
   }
 
   public Commit37Request(
-      DatabaseSessionInternal session, long txId,
+      DatabaseSessionInternal db, long txId,
       boolean hasContent,
       boolean usingLong,
       Iterable<RecordOperation> operations,
@@ -52,12 +52,12 @@ public class Commit37Request implements BinaryRequest<Commit37Response> {
         request.setType(txEntry.type);
         request.setVersion(txEntry.record.getVersion());
         request.setId(txEntry.record.getIdentity());
-        request.setRecordType(RecordInternal.getRecordType(txEntry.record));
+        request.setRecordType(RecordInternal.getRecordType(db, txEntry.record));
         switch (txEntry.type) {
           case RecordOperation.CREATED:
           case RecordOperation.UPDATED:
             request.setRecord(
-                RecordSerializerNetworkV37Client.INSTANCE.toStream(session, txEntry.record));
+                RecordSerializerNetworkV37Client.INSTANCE.toStream(db, txEntry.record));
             request.setContentChanged(RecordInternal.isContentChanged(txEntry.record));
             break;
         }
@@ -72,7 +72,7 @@ public class Commit37Request implements BinaryRequest<Commit37Response> {
   }
 
   @Override
-  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
+  public void write(DatabaseSessionInternal db, ChannelDataOutput network,
       StorageRemoteSession session) throws IOException {
     // from 3.0 the the serializer is bound to the protocol
     RecordSerializerNetworkV37Client serializer = RecordSerializerNetworkV37Client.INSTANCE;
@@ -89,7 +89,7 @@ public class Commit37Request implements BinaryRequest<Commit37Response> {
       network.writeByte((byte) 0);
 
       // SEND MANUAL INDEX CHANGES
-      MessageHelper.writeTransactionIndexChanges(network, serializer, indexChanges);
+      MessageHelper.writeTransactionIndexChanges(db, network, serializer, indexChanges);
     }
   }
 

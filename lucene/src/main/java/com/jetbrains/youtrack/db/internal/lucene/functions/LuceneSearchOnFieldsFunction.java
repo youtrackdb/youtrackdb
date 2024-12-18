@@ -52,9 +52,10 @@ public class LuceneSearchOnFieldsFunction extends LuceneSearchFunctionTemplate {
       Object[] params,
       CommandContext ctx) {
 
+    var db = ctx.getDatabase();
     if (iThis instanceof RID) {
       try {
-        iThis = ((RID) iThis).getRecord();
+        iThis = ((RID) iThis).getRecord(db);
       } catch (RecordNotFoundException rnf) {
         return false;
       }

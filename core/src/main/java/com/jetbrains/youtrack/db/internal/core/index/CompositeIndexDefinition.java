@@ -21,9 +21,9 @@ package com.jetbrains.youtrack.db.internal.core.index;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.schema.Collate;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLCreateIndex;
 import it.unimi.dsi.fastutil.ints.IntCollection;
@@ -428,21 +428,21 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
    * {@inheritDoc}
    */
   @Override
-  public @Nonnull EntityImpl toStream(@Nonnull EntityImpl entity) {
-    serializeToStream(entity);
+  public @Nonnull EntityImpl toStream(DatabaseSessionInternal db, @Nonnull EntityImpl entity) {
+    serializeToStream(db, entity);
     return entity;
   }
 
   @Override
-  protected void serializeToStream(EntityImpl entity) {
-    super.serializeToStream(entity);
+  protected void serializeToStream(DatabaseSessionInternal db, EntityImpl entity) {
+    super.serializeToStream(db, entity);
 
     final List<EntityImpl> inds = new ArrayList<>(indexDefinitions.size());
     final List<String> indClasses = new ArrayList<>(indexDefinitions.size());
 
     entity.setPropertyInternal("className", className);
     for (final IndexDefinition indexDefinition : indexDefinitions) {
-      final EntityImpl indexEntity = indexDefinition.toStream(new EntityImpl());
+      final EntityImpl indexEntity = indexDefinition.toStream(db, new EntityImpl(db));
       inds.add(indexEntity);
 
       indClasses.add(indexDefinition.getClass().getName());

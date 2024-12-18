@@ -137,6 +137,6 @@ public interface Profiler extends Service {
   }
 
   default EntityImpl getContext() {
-    return new EntityImpl().field("enterprise", false);
+    return new EntityImpl(null).field("enterprise", false);
   }
 }

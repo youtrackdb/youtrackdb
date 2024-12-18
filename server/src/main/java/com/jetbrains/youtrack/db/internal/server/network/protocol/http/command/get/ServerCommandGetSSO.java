@@ -4,7 +4,7 @@ import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAbstract;
 import java.io.StringWriter;
 
@@ -21,7 +21,7 @@ public class ServerCommandGetSSO extends ServerCommandAbstract {
   }
 
   @Override
-  public boolean execute(final OHttpRequest iRequest, final HttpResponse iResponse)
+  public boolean execute(final HttpRequest iRequest, final HttpResponse iResponse)
       throws Exception {
     getJSON(iResponse);
 
@@ -35,7 +35,7 @@ public class ServerCommandGetSSO extends ServerCommandAbstract {
 
       json.beginObject();
 
-      json.writeAttribute("enabled", getServer().getSecurity().isSingleSignOnSupported());
+      json.writeAttribute(null, "enabled", getServer().getSecurity().isSingleSignOnSupported());
 
       json.endObject();
 

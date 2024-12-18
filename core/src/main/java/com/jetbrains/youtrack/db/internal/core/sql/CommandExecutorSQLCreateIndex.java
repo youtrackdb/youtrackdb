@@ -78,7 +78,8 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
   private Map<String, ?> metadata = null;
   private String[] collates;
 
-  public CommandExecutorSQLCreateIndex parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLCreateIndex parse(DatabaseSessionInternal db,
+      final CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
 
     String queryText = textRequest.getText();
@@ -221,7 +222,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
       if (configPos > -1) {
         final String configString =
             parserText.substring(configPos + KEYWORD_METADATA.length()).trim();
-        var doc = new EntityImpl();
+        var doc = new EntityImpl(db);
         doc.fromJSON(configString);
         metadata = doc.toMap();
       }
@@ -275,7 +276,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
    * Execute the CREATE INDEX.
    */
   @SuppressWarnings("rawtypes")
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     if (indexName == null) {
       throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");

@@ -42,22 +42,22 @@ public class CollectionIndexTest extends BaseDBTest {
 
   @BeforeClass
   public void setupSchema() {
-    if (database.getMetadata().getSchema().existsClass("Collector")) {
-      database.getMetadata().getSchema().dropClass("Collector");
+    if (db.getMetadata().getSchema().existsClass("Collector")) {
+      db.getMetadata().getSchema().dropClass("Collector");
     }
-    final SchemaClass collector = database.createClass("Collector");
-    collector.createProperty(database, "id", PropertyType.STRING);
+    final SchemaClass collector = db.createClass("Collector");
+    collector.createProperty(db, "id", PropertyType.STRING);
     collector
-        .createProperty(database, "stringCollection", PropertyType.EMBEDDEDLIST,
+        .createProperty(db, "stringCollection", PropertyType.EMBEDDEDLIST,
             PropertyType.STRING)
-        .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+        .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
   }
 
   @AfterMethod
   public void afterMethod() throws Exception {
-    database.begin();
-    database.command("delete from Collector").close();
-    database.commit();
+    db.begin();
+    db.command("delete from Collector").close();
+    db.commit();
 
     super.afterMethod();
   }
@@ -65,15 +65,15 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollection() {
     checkEmbeddedDB();
 
-    database.begin();
-    Entity collector = database.newEntity("Collector");
+    db.begin();
+    Entity collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
 
-    database.save(collector);
-    database.commit();
+    db.save(collector);
+    db.commit();
 
     final Index index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -92,18 +92,18 @@ public class CollectionIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     try {
-      database.begin();
-      Entity collector = database.newEntity("Collector");
+      db.begin();
+      Entity collector = db.newEntity("Collector");
       collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
-      database.save(collector);
-      database.commit();
+      db.save(collector);
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     final Index index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -120,16 +120,16 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdate() {
     checkEmbeddedDB();
 
-    database.begin();
-    Entity collector = database.newEntity("Collector");
+    db.begin();
+    Entity collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
-    collector = database.save(collector);
+    collector = db.save(collector);
     collector.setProperty("stringCollection", Arrays.asList("spam", "bacon"));
-    database.save(collector);
-    database.commit();
+    db.save(collector);
+    db.commit();
 
     final Index index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -147,25 +147,25 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateInTx() {
     checkEmbeddedDB();
 
-    Entity collector = database.newEntity("Collector");
+    Entity collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
-    database.begin();
-    collector = database.save(collector);
-    database.commit();
+    db.begin();
+    collector = db.save(collector);
+    db.commit();
     try {
-      database.begin();
-      collector = database.bindToSession(collector);
+      db.begin();
+      collector = db.bindToSession(collector);
       collector.setProperty("stringCollection", Arrays.asList("spam", "bacon"));
-      database.save(collector);
-      database.commit();
+      db.save(collector);
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     final Index index = getIndex("Collector.stringCollection");
 
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
@@ -182,21 +182,21 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateInTxRollback() {
     checkEmbeddedDB();
 
-    database.begin();
-    Entity collector = database.newEntity("Collector");
+    db.begin();
+    Entity collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
-    collector = database.save(collector);
-    database.commit();
+    collector = db.save(collector);
+    db.commit();
 
-    database.begin();
-    collector = database.bindToSession(collector);
+    db.begin();
+    collector = db.bindToSession(collector);
     collector.setProperty("stringCollection", Arrays.asList("spam", "bacon"));
-    database.save(collector);
-    database.rollback();
+    db.save(collector);
+    db.rollback();
 
     final Index index = getIndex("Collector.stringCollection");
 
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -214,24 +214,24 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateAddItem() {
     checkEmbeddedDB();
 
-    Entity collector = database.newEntity("Collector");
+    Entity collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
 
-    database.begin();
-    collector = database.save(collector);
-    database.commit();
+    db.begin();
+    collector = db.save(collector);
+    db.commit();
 
-    database.begin();
-    database
+    db.begin();
+    db
         .command(
             "UPDATE "
                 + collector.getIdentity()
                 + " set stringCollection = stringCollection || 'cookies'")
         .close();
-    database.commit();
+    db.commit();
 
     final Index index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(database), 3);
+    Assert.assertEquals(index.getInternal().size(db), 3);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -249,26 +249,26 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateAddItemInTx() {
     checkEmbeddedDB();
 
-    Entity collector = database.newEntity("Collector");
+    Entity collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
-    database.begin();
-    collector = database.save(collector);
-    database.commit();
+    db.begin();
+    collector = db.save(collector);
+    db.commit();
 
     try {
-      database.begin();
-      Entity loadedCollector = database.load(collector.getIdentity());
+      db.begin();
+      Entity loadedCollector = db.load(collector.getIdentity());
       loadedCollector.<List<String>>getProperty("stringCollection").add("cookies");
-      database.save(loadedCollector);
-      database.commit();
+      db.save(loadedCollector);
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     final Index index = getIndex("Collector.stringCollection");
 
-    Assert.assertEquals(index.getInternal().size(database), 3);
+    Assert.assertEquals(index.getInternal().size(db), 3);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -286,20 +286,20 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateAddItemInTxRollback() {
     checkEmbeddedDB();
 
-    Entity collector = database.newEntity("Collector");
+    Entity collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
-    database.begin();
-    collector = database.save(collector);
-    database.commit();
+    db.begin();
+    collector = db.save(collector);
+    db.commit();
 
-    database.begin();
-    Entity loadedCollector = database.load(collector.getIdentity());
+    db.begin();
+    Entity loadedCollector = db.load(collector.getIdentity());
     loadedCollector.<List<String>>getProperty("stringCollection").add("cookies");
-    database.save(loadedCollector);
-    database.rollback();
+    db.save(loadedCollector);
+    db.rollback();
 
     final Index index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -317,25 +317,25 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateRemoveItemInTx() {
     checkEmbeddedDB();
 
-    Entity collector = database.newEntity("Collector");
+    Entity collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
-    database.begin();
-    collector = database.save(collector);
-    database.commit();
+    db.begin();
+    collector = db.save(collector);
+    db.commit();
 
     try {
-      database.begin();
-      Entity loadedCollector = database.load(collector.getIdentity());
+      db.begin();
+      Entity loadedCollector = db.load(collector.getIdentity());
       loadedCollector.<List<String>>getProperty("stringCollection").remove("spam");
-      database.save(loadedCollector);
-      database.commit();
+      db.save(loadedCollector);
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     final Index index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(database), 1);
+    Assert.assertEquals(index.getInternal().size(db), 1);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -353,20 +353,20 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateRemoveItemInTxRollback() {
     checkEmbeddedDB();
 
-    Entity collector = database.newEntity("Collector");
+    Entity collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
-    database.begin();
-    collector = database.save(collector);
-    database.commit();
+    db.begin();
+    collector = db.save(collector);
+    db.commit();
 
-    database.begin();
-    Entity loadedCollector = database.load(collector.getIdentity());
+    db.begin();
+    Entity loadedCollector = db.load(collector.getIdentity());
     loadedCollector.<List<String>>getProperty("stringCollection").remove("spam");
-    database.save(loadedCollector);
-    database.rollback();
+    db.save(loadedCollector);
+    db.rollback();
 
     final Index index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -384,17 +384,17 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateRemoveItem() {
     checkEmbeddedDB();
 
-    Entity collector = database.newEntity("Collector");
+    Entity collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
-    database.begin();
-    collector = database.save(collector);
-    database.commit();
+    db.begin();
+    collector = db.save(collector);
+    db.commit();
 
-    database.begin();
-    database
+    db.begin();
+    db
         .command("UPDATE " + collector.getIdentity() + " remove stringCollection = 'spam'")
         .close();
-    database.commit();
+    db.commit();
 
     final Index index = getIndex("Collector.stringCollection");
 
@@ -414,55 +414,55 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionRemove() {
     checkEmbeddedDB();
 
-    Entity collector = database.newEntity("Collector");
+    Entity collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
-    database.begin();
-    collector = database.save(collector);
-    database.delete(collector);
-    database.commit();
+    db.begin();
+    collector = db.save(collector);
+    db.delete(collector);
+    db.commit();
 
     final Index index = getIndex("Collector.stringCollection");
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testIndexCollectionRemoveInTx() {
     checkEmbeddedDB();
 
-    Entity collector = database.newEntity("Collector");
+    Entity collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
-    database.begin();
-    collector = database.save(collector);
-    database.commit();
+    db.begin();
+    collector = db.save(collector);
+    db.commit();
     try {
-      database.begin();
-      database.delete(database.bindToSession(collector));
-      database.commit();
+      db.begin();
+      db.delete(db.bindToSession(collector));
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     final Index index = getIndex("Collector.stringCollection");
 
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testIndexCollectionRemoveInTxRollback() {
     checkEmbeddedDB();
 
-    Entity collector = database.newEntity("Collector");
+    Entity collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
-    database.begin();
-    collector = database.save(collector);
-    database.commit();
+    db.begin();
+    collector = db.save(collector);
+    db.commit();
 
-    database.begin();
-    database.delete(database.bindToSession(collector));
-    database.rollback();
+    db.begin();
+    db.delete(db.bindToSession(collector));
+    db.rollback();
 
     final Index index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -478,12 +478,12 @@ public class CollectionIndexTest extends BaseDBTest {
   }
 
   public void testIndexCollectionSQL() {
-    Entity collector = database.newEntity("Collector");
+    Entity collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
 
-    database.begin();
-    database.save(collector);
-    database.commit();
+    db.begin();
+    db.save(collector);
+    db.commit();
 
     List<EntityImpl> result =
         executeQuery("select * from Collector where stringCollection contains ?", "eggs");

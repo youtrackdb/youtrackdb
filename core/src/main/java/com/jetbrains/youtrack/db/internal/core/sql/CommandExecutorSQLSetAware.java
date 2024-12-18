@@ -16,15 +16,15 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
-import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.common.util.Pair;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,9 +45,9 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
   protected EntityImpl content = null;
   protected int parameterCounter = 0;
 
-  protected void parseContent() {
+  protected void parseContent(DatabaseSessionInternal db) {
     if (!parserIsEnded() && !parserGetLastWord().equals(KEYWORD_WHERE)) {
-      content = parseJSON();
+      content = parseJSON(db);
     }
 
     if (content == null) {
@@ -55,12 +55,13 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
     }
   }
 
-  protected void parseSetFields(final SchemaClass iClass, final List<Pair<String, Object>> fields) {
+  protected void parseSetFields(DatabaseSessionInternal db, final SchemaClass iClass,
+      final List<Pair<String, Object>> fields) {
     String fieldName;
     String fieldValue;
 
     while (!parserIsEnded()
-        && (fields.size() == 0
+        && (fields.isEmpty()
         || parserGetLastSeparator() == ','
         || parserGetCurrentChar() == ',')) {
       fieldName = parserRequiredWord(false, "Field name expected");
@@ -73,7 +74,8 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
       fieldValue = parserRequiredWord(false, "Value expected", " =><,\r\n");
 
       // INSERT TRANSFORMED FIELD VALUE
-      final Object v = convertValue(iClass, fieldName, getFieldValueCountingParameters(fieldValue));
+      final Object v = convertValue(db, iClass, fieldName,
+          getFieldValueCountingParameters(fieldValue));
 
       fields.add(new Pair(fieldName, v));
       parserSkipWhiteSpaces();
@@ -144,7 +146,8 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
     return null;
   }
 
-  protected Object convertValue(SchemaClass iClass, String fieldName, Object v) {
+  protected static Object convertValue(DatabaseSessionInternal db, SchemaClass iClass,
+      String fieldName, Object v) {
     if (iClass != null) {
       // CHECK TYPE AND CONVERT IF NEEDED
       final Property p = iClass.getProperty(fieldName);
@@ -155,24 +158,24 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
           case EMBEDDED:
             // CONVERT MAP IN DOCUMENTS ASSIGNING THE CLASS TAKEN FROM SCHEMA
             if (v instanceof Map) {
-              v = createDocumentFromMap(embeddedType, (Map<String, Object>) v);
+              v = createEntityFromMap(db, embeddedType, (Map<String, Object>) v);
             }
             break;
 
           case EMBEDDEDSET:
             // CONVERT MAPS IN DOCUMENTS ASSIGNING THE CLASS TAKEN FROM SCHEMA
             if (v instanceof Map) {
-              return createDocumentFromMap(embeddedType, (Map<String, Object>) v);
+              return createEntityFromMap(db, embeddedType, (Map<String, Object>) v);
             } else if (MultiValue.isMultiValue(v)) {
               final Set set = new HashSet();
 
               for (Object o : MultiValue.getMultiValueIterable(v)) {
                 if (o instanceof Map) {
                   final EntityImpl entity =
-                      createDocumentFromMap(embeddedType, (Map<String, Object>) o);
+                      createEntityFromMap(db, embeddedType, (Map<String, Object>) o);
                   set.add(entity);
                 } else if (o instanceof Identifiable) {
-                  set.add(((Identifiable) o).getRecord());
+                  set.add(((Identifiable) o).getRecord(db));
                 } else {
                   set.add(o);
                 }
@@ -185,17 +188,17 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
           case EMBEDDEDLIST:
             // CONVERT MAPS IN DOCUMENTS ASSIGNING THE CLASS TAKEN FROM SCHEMA
             if (v instanceof Map) {
-              return createDocumentFromMap(embeddedType, (Map<String, Object>) v);
+              return createEntityFromMap(db, embeddedType, (Map<String, Object>) v);
             } else if (MultiValue.isMultiValue(v)) {
               final List set = new ArrayList();
 
               for (Object o : MultiValue.getMultiValueIterable(v)) {
                 if (o instanceof Map) {
                   final EntityImpl entity =
-                      createDocumentFromMap(embeddedType, (Map<String, Object>) o);
+                      createEntityFromMap(db, embeddedType, (Map<String, Object>) o);
                   set.add(entity);
                 } else if (o instanceof Identifiable) {
-                  set.add(((Identifiable) o).getRecord());
+                  set.add(((Identifiable) o).getRecord(db));
                 } else {
                   set.add(o);
                 }
@@ -213,10 +216,10 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
               for (Map.Entry<String, Object> entry : ((Map<String, Object>) v).entrySet()) {
                 if (entry.getValue() instanceof Map) {
                   final EntityImpl entity =
-                      createDocumentFromMap(embeddedType, (Map<String, Object>) entry.getValue());
+                      createEntityFromMap(db, embeddedType, (Map<String, Object>) entry.getValue());
                   map.put(entry.getKey(), entity);
                 } else if (entry.getValue() instanceof Identifiable) {
-                  map.put(entry.getKey(), ((Identifiable) entry.getValue()).getRecord());
+                  map.put(entry.getKey(), ((Identifiable) entry.getValue()).getRecord(db));
                 } else {
                   map.put(entry.getKey(), entry.getValue());
                 }
@@ -231,8 +234,9 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
     return v;
   }
 
-  private EntityImpl createDocumentFromMap(SchemaClass embeddedType, Map<String, Object> o) {
-    final EntityImpl entity = new EntityImpl();
+  private static EntityImpl createEntityFromMap(DatabaseSessionInternal db,
+      SchemaClass embeddedType, Map<String, Object> o) {
+    final EntityImpl entity = new EntityImpl(db);
     if (embeddedType != null) {
       entity.setClassName(embeddedType.getName());
     }
@@ -255,9 +259,9 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
     return SQLHelper.parseValue(this, fieldValue, context, true);
   }
 
-  protected EntityImpl parseJSON() {
+  protected EntityImpl parseJSON(DatabaseSessionInternal db) {
     final String contentAsString = parserRequiredWord(false, "JSON expected").trim();
-    final EntityImpl json = new EntityImpl();
+    final EntityImpl json = new EntityImpl(db);
     json.fromJSON(contentAsString);
     parserSkipWhiteSpaces();
     return json;

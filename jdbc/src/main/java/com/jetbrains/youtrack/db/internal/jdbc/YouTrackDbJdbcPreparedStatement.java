@@ -342,7 +342,7 @@ public class YouTrackDbJdbcPreparedStatement extends YouTrackDbJdbcStatement imp
 
   public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException {
     try {
-      RecordBytes record = new RecordBytes();
+      var record = database.newBlob();
       try {
         record.fromInputStream(x);
       } catch (IOException e) {

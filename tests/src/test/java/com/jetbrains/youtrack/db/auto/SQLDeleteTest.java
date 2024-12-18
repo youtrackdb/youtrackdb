@@ -31,25 +31,25 @@ public class SQLDeleteTest extends BaseDBTest {
 
   @Test
   public void deleteWithWhereOperator() {
-    database.begin();
-    database.command("insert into Profile (sex, salary) values ('female', 2100)").close();
-    database.commit();
+    db.begin();
+    db.command("insert into Profile (sex, salary) values ('female', 2100)").close();
+    db.commit();
 
-    final Long total = database.countClass("Profile");
+    final Long total = db.countClass("Profile");
 
     ResultSet resultset =
-        database.query("select from Profile where sex = 'female' and salary = 2100");
+        db.query("select from Profile where sex = 'female' and salary = 2100");
     long queryCount = resultset.stream().count();
 
-    database.begin();
+    db.begin();
     ResultSet result =
-        database.command("delete from Profile where sex = 'female' and salary = 2100");
-    database.commit();
+        db.command("delete from Profile where sex = 'female' and salary = 2100");
+    db.commit();
     long count = result.next().getProperty("count");
 
     Assert.assertEquals(count, queryCount);
 
-    Assert.assertEquals(database.countClass("Profile"), total - count);
+    Assert.assertEquals(db.countClass("Profile"), total - count);
   }
 
   @Test

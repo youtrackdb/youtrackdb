@@ -35,63 +35,63 @@ public class LinkBagIndexTest extends BaseDBTest {
   @BeforeClass
   public void setupSchema() {
     final SchemaClass ridBagIndexTestClass =
-        database.getMetadata().getSchema().createClass("RidBagIndexTestClass");
+        db.getMetadata().getSchema().createClass("RidBagIndexTestClass");
 
-    ridBagIndexTestClass.createProperty(database, "ridBag", PropertyType.LINKBAG);
+    ridBagIndexTestClass.createProperty(db, "ridBag", PropertyType.LINKBAG);
 
-    ridBagIndexTestClass.createIndex(database, "ridBagIndex", SchemaClass.INDEX_TYPE.NOTUNIQUE,
+    ridBagIndexTestClass.createIndex(db, "ridBagIndex", SchemaClass.INDEX_TYPE.NOTUNIQUE,
         "ridBag");
 
-    database.close();
+    db.close();
   }
 
   @AfterClass
   public void destroySchema() {
-    if (database.isClosed()) {
-      database = acquireSession();
+    if (db.isClosed()) {
+      db = acquireSession();
     }
 
-    database.getMetadata().getSchema().dropClass("RidBagIndexTestClass");
-    database.close();
+    db.getMetadata().getSchema().dropClass("RidBagIndexTestClass");
+    db.close();
   }
 
   @AfterMethod
   public void afterMethod() {
-    database.begin();
-    database.command("DELETE FROM RidBagIndexTestClass").close();
-    database.commit();
+    db.begin();
+    db.command("DELETE FROM RidBagIndexTestClass").close();
+    db.commit();
 
-    ResultSet result = database.query("select from RidBagIndexTestClass");
+    ResultSet result = db.query("select from RidBagIndexTestClass");
     Assert.assertEquals(result.stream().count(), 0);
 
-    if (!database.getStorage().isRemote()) {
+    if (!db.getStorage().isRemote()) {
       final Index index = getIndex("ridBagIndex");
-      Assert.assertEquals(index.getInternal().size(database), 0);
+      Assert.assertEquals(index.getInternal().size(db), 0);
     }
   }
 
   public void testIndexRidBag() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl document = new EntityImpl("RidBagIndexTestClass");
-    final RidBag ridBag = new RidBag(database);
+    final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
+    final RidBag ridBag = new RidBag(db);
     ridBag.add(docOne);
     ridBag.add(docTwo);
 
     document.field("ridBag", ridBag);
 
     document.save();
-    database.commit();
+    db.commit();
 
     final Index index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -110,28 +110,28 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagInTx() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
     try {
-      final EntityImpl document = new EntityImpl("RidBagIndexTestClass");
-      final RidBag ridBag = new RidBag(database);
+      final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
+      final RidBag ridBag = new RidBag(db);
       ridBag.add(docOne);
       ridBag.add(docTwo);
 
       document.field("ridBag", ridBag);
       document.save();
-      database.commit();
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     final Index index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -150,39 +150,39 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagUpdate() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    EntityImpl document = new EntityImpl("RidBagIndexTestClass");
-    final RidBag ridBagOne = new RidBag(database);
+    EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
+    final RidBag ridBagOne = new RidBag(db);
     ridBagOne.add(docOne);
     ridBagOne.add(docTwo);
 
     document.field("ridBag", ridBagOne);
 
     document.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    final RidBag ridBagTwo = new RidBag(database);
+    db.begin();
+    final RidBag ridBagTwo = new RidBag(db);
     ridBagTwo.add(docOne);
     ridBagTwo.add(docThree);
 
-    document = database.bindToSession(document);
+    document = db.bindToSession(document);
     document.field("ridBag", ridBagTwo);
 
-    database.bindToSession(document).save();
-    database.commit();
+    db.bindToSession(document).save();
+    db.commit();
 
     final Index index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -201,44 +201,44 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagUpdateInTx() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    EntityImpl document = new EntityImpl("RidBagIndexTestClass");
-    final RidBag ridBagOne = new RidBag(database);
+    EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
+    final RidBag ridBagOne = new RidBag(db);
     ridBagOne.add(docOne);
     ridBagOne.add(docTwo);
 
     document.field("ridBag", ridBagOne);
 
     document.save();
-    database.commit();
+    db.commit();
 
     try {
-      database.begin();
+      db.begin();
 
-      document = database.bindToSession(document);
-      final RidBag ridBagTwo = new RidBag(database);
+      document = db.bindToSession(document);
+      final RidBag ridBagTwo = new RidBag(db);
       ridBagTwo.add(docOne);
       ridBagTwo.add(docThree);
 
       document.field("ridBag", ridBagTwo);
       document.save();
-      database.commit();
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     final Index index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -257,37 +257,37 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagUpdateInTxRollback() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final RidBag ridBagOne = new RidBag(database);
+    final RidBag ridBagOne = new RidBag(db);
     ridBagOne.add(docOne);
     ridBagOne.add(docTwo);
 
-    EntityImpl document = new EntityImpl("RidBagIndexTestClass");
+    EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     document.field("ridBag", ridBagOne);
     document.save();
-    Assert.assertTrue(database.commit());
+    Assert.assertTrue(db.commit());
 
-    database.begin();
-    document = database.bindToSession(document);
-    final RidBag ridBagTwo = new RidBag(database);
+    db.begin();
+    document = db.bindToSession(document);
+    final RidBag ridBagTwo = new RidBag(db);
     ridBagTwo.add(docOne);
     ridBagTwo.add(docThree);
 
     document.field("ridBag", ridBagTwo);
     document.save();
-    database.rollback();
+    db.rollback();
 
     final Index index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -306,37 +306,37 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagUpdateAddItem() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl document = new EntityImpl("RidBagIndexTestClass");
-    final RidBag ridBag = new RidBag(database);
+    final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
+    final RidBag ridBag = new RidBag(db);
     ridBag.add(docOne);
     ridBag.add(docTwo);
     document.field("ridBag", ridBag);
 
     document.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    database
+    db.begin();
+    db
         .command(
             "UPDATE "
                 + document.getIdentity()
                 + " set ridBag = ridBag || "
                 + docThree.getIdentity())
         .close();
-    database.commit();
+    db.commit();
 
     final Index index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(database), 3);
+    Assert.assertEquals(index.getInternal().size(db), 3);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -356,40 +356,40 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagUpdateAddItemInTx() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl document = new EntityImpl("RidBagIndexTestClass");
-    final RidBag ridBag = new RidBag(database);
+    final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
+    final RidBag ridBag = new RidBag(db);
     ridBag.add(docOne);
     ridBag.add(docTwo);
 
     document.field("ridBag", ridBag);
 
     document.save();
-    database.commit();
+    db.commit();
 
     try {
-      database.begin();
-      docThree = database.bindToSession(docThree);
-      EntityImpl loadedDocument = database.load(document.getIdentity());
+      db.begin();
+      docThree = db.bindToSession(docThree);
+      EntityImpl loadedDocument = db.load(document.getIdentity());
       loadedDocument.<RidBag>field("ridBag").add(docThree);
       loadedDocument.save();
-      database.commit();
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     final Index index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(database), 3);
+    Assert.assertEquals(index.getInternal().size(db), 3);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -409,36 +409,36 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagUpdateAddItemInTxRollback() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl document = new EntityImpl("RidBagIndexTestClass");
-    final RidBag ridBag = new RidBag(database);
+    final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
+    final RidBag ridBag = new RidBag(db);
     ridBag.add(docOne);
     ridBag.add(docTwo);
 
     document.field("ridBag", ridBag);
 
     document.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    docThree = database.bindToSession(docThree);
-    EntityImpl loadedDocument = database.load(document.getIdentity());
+    db.begin();
+    docThree = db.bindToSession(docThree);
+    EntityImpl loadedDocument = db.load(document.getIdentity());
     loadedDocument.<RidBag>field("ridBag").add(docThree);
     loadedDocument.save();
-    database.rollback();
+    db.rollback();
 
     final Index index = getIndex("ridBagIndex");
 
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
       keyIterator = keyStream.iterator();
@@ -456,36 +456,36 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagUpdateRemoveItemInTx() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl document = new EntityImpl("RidBagIndexTestClass");
-    final RidBag ridBag = new RidBag(database);
+    final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
+    final RidBag ridBag = new RidBag(db);
     ridBag.add(docOne);
     ridBag.add(docTwo);
     document.field("ridBag", ridBag);
 
     document.save();
-    database.commit();
+    db.commit();
 
     try {
-      database.begin();
-      EntityImpl loadedDocument = database.load(document.getIdentity());
+      db.begin();
+      EntityImpl loadedDocument = db.load(document.getIdentity());
       loadedDocument.<RidBag>field("ridBag").remove(docTwo);
       loadedDocument.save();
-      database.commit();
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     final Index index = getIndex("ridBagIndex");
 
-    Assert.assertEquals(index.getInternal().size(database), 1);
+    Assert.assertEquals(index.getInternal().size(db), 1);
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
       keyIterator = keyStream.iterator();
@@ -502,29 +502,29 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagUpdateRemoveItemInTxRollback() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl document = new EntityImpl("RidBagIndexTestClass");
-    final RidBag ridBag = new RidBag(database);
+    final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
+    final RidBag ridBag = new RidBag(db);
     ridBag.add(docOne);
     ridBag.add(docTwo);
     document.field("ridBag", ridBag);
     document.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    EntityImpl loadedDocument = database.load(document.getIdentity());
+    db.begin();
+    EntityImpl loadedDocument = db.load(document.getIdentity());
     loadedDocument.<RidBag>field("ridBag").remove(docTwo);
     loadedDocument.save();
-    database.rollback();
+    db.rollback();
 
     final Index index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -543,31 +543,31 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagUpdateRemoveItem() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl document = new EntityImpl("RidBagIndexTestClass");
-    final RidBag ridBag = new RidBag(database);
+    final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
+    final RidBag ridBag = new RidBag(db);
     ridBag.add(docOne);
     ridBag.add(docTwo);
 
     document.field("ridBag", ridBag);
     document.save();
-    database.commit();
+    db.commit();
 
     //noinspection deprecation
-    database.begin();
-    database
+    db.begin();
+    db
         .command("UPDATE " + document.getIdentity() + " remove ridBag = " + docTwo.getIdentity())
         .close();
-    database.commit();
+    db.commit();
 
     final Index index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(database), 1);
+    Assert.assertEquals(index.getInternal().size(db), 1);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -585,86 +585,86 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagRemove() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl document = new EntityImpl("RidBagIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
 
-    final RidBag ridBag = new RidBag(database);
+    final RidBag ridBag = new RidBag(db);
     ridBag.add(docOne);
     ridBag.add(docTwo);
 
     document.field("ridBag", ridBag);
     document.save();
     document.delete();
-    database.commit();
+    db.commit();
 
     final Index index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testIndexRidBagRemoveInTx() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl document = new EntityImpl("RidBagIndexTestClass");
+    final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
 
-    final RidBag ridBag = new RidBag(database);
+    final RidBag ridBag = new RidBag(db);
     ridBag.add(docOne);
     ridBag.add(docTwo);
 
     document.field("ridBag", ridBag);
     document.save();
-    database.commit();
+    db.commit();
 
     try {
-      database.begin();
-      database.bindToSession(document).delete();
-      database.commit();
+      db.begin();
+      db.bindToSession(document).delete();
+      db.commit();
     } catch (Exception e) {
-      database.rollback();
+      db.rollback();
       throw e;
     }
 
     final Index index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(database), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
   public void testIndexRidBagRemoveInTxRollback() {
     checkEmbeddedDB();
 
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl document = new EntityImpl("RidBagIndexTestClass");
-    final RidBag ridBag = new RidBag(database);
+    final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
+    final RidBag ridBag = new RidBag(db);
     ridBag.add(docOne);
     ridBag.add(docTwo);
 
     document.field("ridBag", ridBag);
     document.save();
-    database.commit();
+    db.commit();
 
-    database.begin();
-    database.bindToSession(document).delete();
-    database.rollback();
+    db.begin();
+    db.bindToSession(document).delete();
+    db.rollback();
 
     final Index index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(database), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -682,35 +682,35 @@ public class LinkBagIndexTest extends BaseDBTest {
   }
 
   public void testIndexRidBagSQL() {
-    database.begin();
-    final EntityImpl docOne = new EntityImpl();
-    docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
+    db.begin();
+    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docTwo = new EntityImpl();
-    docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    final EntityImpl docThree = new EntityImpl();
-    docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    EntityImpl document = new EntityImpl("RidBagIndexTestClass");
-    final RidBag ridBagOne = new RidBag(database);
+    EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
+    final RidBag ridBagOne = new RidBag(db);
     ridBagOne.add(docOne);
     ridBagOne.add(docTwo);
 
     document.field("ridBag", ridBagOne);
     document.save();
 
-    document = new EntityImpl("RidBagIndexTestClass");
-    RidBag ridBag = new RidBag(database);
+    document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
+    RidBag ridBag = new RidBag(db);
     ridBag.add(docThree);
     ridBag.add(docTwo);
 
     document.field("ridBag", ridBag);
     document.save();
-    database.commit();
+    db.commit();
 
     ResultSet result =
-        database.query(
+        db.query(
             "select * from RidBagIndexTestClass where ridBag contains ?", docOne.getIdentity());
     Result res = result.next();
 

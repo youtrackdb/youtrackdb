@@ -2,9 +2,9 @@ package com.jetbrains.youtrack.db.internal.core.db;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,7 +23,7 @@ public class DefaultClusterTest {
           db.computeInTx(
               () -> {
                 final Vertex vertex = db.newVertex("V");
-                vertex.setProperty("embedded", new EntityImpl());
+                vertex.setProperty("embedded", db.newEntity());
                 db.save(vertex);
                 return vertex;
               });

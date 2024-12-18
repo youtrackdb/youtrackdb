@@ -41,27 +41,27 @@ public class QueryLocalCacheIntegrationTest extends BaseDBTest {
 
   @BeforeMethod
   public void beforeMeth() throws Exception {
-    database.getMetadata().getSchema().createClass("FetchClass");
+    db.getMetadata().getSchema().createClass("FetchClass");
 
-    database
+    db
         .getMetadata()
         .getSchema()
         .createClass("SecondFetchClass")
-        .createProperty(database, "surname", PropertyType.STRING)
-        .setMandatory(database, true);
-    database.getMetadata().getSchema().createClass("OutInFetchClass");
+        .createProperty(db, "surname", PropertyType.STRING)
+        .setMandatory(db, true);
+    db.getMetadata().getSchema().createClass("OutInFetchClass");
 
-    database.begin();
-    EntityImpl singleLinked = new EntityImpl();
-    database.save(singleLinked);
-    EntityImpl doc = new EntityImpl("FetchClass");
+    db.begin();
+    EntityImpl singleLinked = ((EntityImpl) db.newEntity());
+    db.save(singleLinked);
+    EntityImpl doc = ((EntityImpl) db.newEntity("FetchClass"));
     doc.field("name", "first");
-    database.save(doc);
-    EntityImpl doc1 = new EntityImpl("FetchClass");
+    db.save(doc);
+    EntityImpl doc1 = ((EntityImpl) db.newEntity("FetchClass"));
     doc1.field("name", "second");
     doc1.field("linked", singleLinked);
-    database.save(doc1);
-    EntityImpl doc2 = new EntityImpl("FetchClass");
+    db.save(doc1);
+    EntityImpl doc2 = ((EntityImpl) db.newEntity("FetchClass"));
     doc2.field("name", "third");
     List<EntityImpl> linkList = new ArrayList<EntityImpl>();
     linkList.add(doc);
@@ -72,45 +72,45 @@ public class QueryLocalCacheIntegrationTest extends BaseDBTest {
     linkSet.add(doc);
     linkSet.add(doc1);
     doc2.field("linkSet", linkSet);
-    database.save(doc2);
+    db.save(doc2);
 
-    EntityImpl doc3 = new EntityImpl("FetchClass");
+    EntityImpl doc3 = ((EntityImpl) db.newEntity("FetchClass"));
     doc3.field("name", "forth");
     doc3.field("ref", doc2);
     doc3.field("linkSet", linkSet);
     doc3.field("linkList", linkList);
-    database.save(doc3);
+    db.save(doc3);
 
-    EntityImpl doc4 = new EntityImpl("SecondFetchClass");
+    EntityImpl doc4 = ((EntityImpl) db.newEntity("SecondFetchClass"));
     doc4.field("name", "fifth");
     doc4.field("surname", "test");
-    database.save(doc4);
+    db.save(doc4);
 
-    EntityImpl doc5 = new EntityImpl("SecondFetchClass");
+    EntityImpl doc5 = ((EntityImpl) db.newEntity("SecondFetchClass"));
     doc5.field("name", "sixth");
     doc5.field("surname", "test");
-    database.save(doc5);
+    db.save(doc5);
 
-    EntityImpl doc6 = new EntityImpl("OutInFetchClass");
-    RidBag out = new RidBag(database);
+    EntityImpl doc6 = ((EntityImpl) db.newEntity("OutInFetchClass"));
+    RidBag out = new RidBag(db);
     out.add(doc2);
     out.add(doc3);
     doc6.field("out_friend", out);
-    RidBag in = new RidBag(database);
+    RidBag in = new RidBag(db);
     in.add(doc4);
     in.add(doc5);
     doc6.field("in_friend", in);
     doc6.field("name", "myName");
-    database.save(doc6);
+    db.save(doc6);
 
-    database.commit();
+    db.commit();
   }
 
   @AfterMethod
   public void afterMeth() throws Exception {
-    database.getMetadata().getSchema().dropClass("FetchClass");
-    database.getMetadata().getSchema().dropClass("SecondFetchClass");
-    database.getMetadata().getSchema().dropClass("OutInFetchClass");
+    db.getMetadata().getSchema().dropClass("FetchClass");
+    db.getMetadata().getSchema().dropClass("SecondFetchClass");
+    db.getMetadata().getSchema().dropClass("OutInFetchClass");
   }
 
   @Test
@@ -118,7 +118,7 @@ public class QueryLocalCacheIntegrationTest extends BaseDBTest {
     final long times = YouTrackDBEnginesManager.instance().getProfiler().getCounter("Cache.reused");
 
     List<EntityImpl> resultset =
-        database.query(new SQLSynchQuery<EntityImpl>("select * from FetchClass"));
+        db.query(new SQLSynchQuery<EntityImpl>("select * from FetchClass"));
     Assert.assertEquals(
         YouTrackDBEnginesManager.instance().getProfiler().getCounter("Cache.reused"),
         times);
@@ -127,7 +127,7 @@ public class QueryLocalCacheIntegrationTest extends BaseDBTest {
     for (EntityImpl d : resultset) {
       linked = d.field("linked", RID.class);
       if (linked != null) {
-        Assert.assertNull(database.getLocalCache().findRecord(linked));
+        Assert.assertNull(db.getLocalCache().findRecord(linked));
       }
     }
   }

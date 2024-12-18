@@ -36,7 +36,7 @@ import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpReque
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpSession;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -61,7 +61,7 @@ public abstract class ServerCommandAuthenticatedDbAbstract extends ServerCommand
   private volatile OTokenHandler tokenHandler;
 
   @Override
-  public boolean beforeExecute(final OHttpRequest iRequest, HttpResponse iResponse)
+  public boolean beforeExecute(final HttpRequest iRequest, HttpResponse iResponse)
       throws IOException {
     super.beforeExecute(iRequest, iResponse);
 
@@ -197,7 +197,7 @@ public abstract class ServerCommandAuthenticatedDbAbstract extends ServerCommand
   }
 
   @Override
-  public boolean afterExecute(final OHttpRequest iRequest, HttpResponse iResponse)
+  public boolean afterExecute(final HttpRequest iRequest, HttpResponse iResponse)
       throws IOException {
     DatabaseRecordThreadLocal.instance().remove();
     iRequest.getExecutor().setDatabase(null);
@@ -205,7 +205,7 @@ public abstract class ServerCommandAuthenticatedDbAbstract extends ServerCommand
   }
 
   protected boolean authenticate(
-      final OHttpRequest iRequest,
+      final HttpRequest iRequest,
       final HttpResponse iResponse,
       final List<String> iAuthenticationParts,
       final String iDatabaseName)
@@ -250,7 +250,7 @@ public abstract class ServerCommandAuthenticatedDbAbstract extends ServerCommand
   }
 
   protected void sendAuthorizationRequest(
-      final OHttpRequest iRequest, final HttpResponse iResponse, final String iDatabaseName)
+      final HttpRequest iRequest, final HttpResponse iResponse, final String iDatabaseName)
       throws IOException {
     // UNAUTHORIZED
     iRequest.setSessionId(SESSIONID_UNAUTHORIZED);
@@ -283,7 +283,7 @@ public abstract class ServerCommandAuthenticatedDbAbstract extends ServerCommand
     }
   }
 
-  protected DatabaseSessionInternal getProfiledDatabaseInstance(final OHttpRequest iRequest)
+  protected DatabaseSessionInternal getProfiledDatabaseInstance(final HttpRequest iRequest)
       throws InterruptedException {
     if (iRequest.getBearerToken() != null) {
       return getProfiledDatabaseInstanceToken(iRequest);
@@ -292,7 +292,7 @@ public abstract class ServerCommandAuthenticatedDbAbstract extends ServerCommand
     }
   }
 
-  protected DatabaseSessionInternal getProfiledDatabaseInstanceToken(final OHttpRequest iRequest)
+  protected DatabaseSessionInternal getProfiledDatabaseInstanceToken(final HttpRequest iRequest)
       throws InterruptedException {
     // after authentication, if current login user is different compare with current DB user, reset
     // DB user to login user
@@ -318,7 +318,7 @@ public abstract class ServerCommandAuthenticatedDbAbstract extends ServerCommand
   }
 
   protected DatabaseSessionInternal getProfiledDatabaseInstanceBasic(
-      final OHttpRequest iRequest) {
+      final HttpRequest iRequest) {
     final HttpSession session = server.getHttpSessionManager().getSession(iRequest.getSessionId());
 
     if (session == null) {

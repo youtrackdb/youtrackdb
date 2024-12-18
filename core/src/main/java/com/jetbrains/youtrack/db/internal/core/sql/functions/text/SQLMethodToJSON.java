@@ -16,12 +16,12 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.text;
 
-import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.method.misc.AbstractSQLMethod;
 import java.util.Map;
 
@@ -66,7 +66,7 @@ public class SQLMethodToJSON extends AbstractSQLMethod {
       return iParams.length == 1 ? record.toJSON(format) : record.toJSON();
     } else if (iThis instanceof Map) {
 
-      final EntityImpl entity = new EntityImpl();
+      final EntityImpl entity = new EntityImpl(iContext.getDatabase());
       //noinspection unchecked
       entity.fromMap((Map<String, Object>) iThis);
       return iParams.length == 1 ? entity.toJSON(format) : entity.toJSON();

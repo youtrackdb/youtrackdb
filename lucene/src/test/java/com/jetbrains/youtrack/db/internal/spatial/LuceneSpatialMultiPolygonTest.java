@@ -216,7 +216,7 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
 
     EntityImpl location = loadMultiPolygon();
 
-    EntityImpl italy = new EntityImpl("Place");
+    EntityImpl italy = ((EntityImpl) db.newEntity("Place"));
     italy.field("name", "Italy");
     italy.field("location", location);
 

@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
@@ -46,7 +45,7 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
-import com.jetbrains.youtrack.db.internal.core.serialization.DocumentSerializable;
+import com.jetbrains.youtrack.db.internal.core.serialization.EntitySerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.string.StringBuilderSerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.string.StringSerializerEmbedded;
@@ -65,13 +64,15 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
   /**
    * Serialize the link.
    *
+   * @param db
    * @param buffer
    * @param iParentRecord
    * @param iLinked       Can be an instance of RID or a Record<?>
    * @return
    */
   private static Identifiable linkToStream(
-      final StringBuilder buffer, final EntityImpl iParentRecord, Object iLinked) {
+      DatabaseSessionInternal db, final StringBuilder buffer, final EntityImpl iParentRecord,
+      Object iLinked) {
     if (iLinked == null)
     // NULL REFERENCE
     {
@@ -103,7 +104,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       }
 
       // RECORD
-      Record iLinkedRecord = ((Identifiable) iLinked).getRecord();
+      Record iLinkedRecord = ((Identifiable) iLinked).getRecord(db);
       rid = (RecordId) iLinkedRecord.getIdentity();
 
       assert ((RecordId) rid.getIdentity()).isValid() || DatabaseRecordThreadLocal.instance().get()
@@ -263,7 +264,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
     }
   }
 
-  public Map<String, Object> embeddedMapFromStream(
+  public static Map<String, Object> embeddedMapFromStream(
       DatabaseSessionInternal db, final EntityImpl iSourceDocument,
       final PropertyType iLinkedType,
       final String iValue,
@@ -363,14 +364,13 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
   }
 
   public void fieldToStream(
-      final EntityImpl iRecord,
+      DatabaseSessionInternal db, final EntityImpl iRecord,
       final StringBuilder iOutput,
       final PropertyType iType,
       final SchemaClass iLinkedClass,
       final PropertyType iLinkedType,
       final String iName,
-      final Object iValue,
-      final boolean iSaveOnlyDirty) {
+      final Object iValue) {
     if (iValue == null) {
       return;
     }
@@ -390,17 +390,16 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
             && iValue instanceof EntityImpl
             && ((EntityImpl) iValue).isEmbedded()) {
           // WRONG: IT'S EMBEDDED!
-          fieldToStream(
+          fieldToStream(db,
               iRecord,
               iOutput,
               PropertyType.EMBEDDED,
               iLinkedClass,
               iLinkedType,
               iName,
-              iValue,
-              iSaveOnlyDirty);
+              iValue);
         } else {
-          final Object link = linkToStream(iOutput, iRecord, iValue);
+          final Object link = linkToStream(db, iOutput, iRecord, iValue);
           if (link != null)
           // OVERWRITE CONTENT
           {
@@ -455,7 +454,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
             final Identifiable item = it.next();
 
-            final Identifiable newRid = linkToStream(buffer, iRecord, item);
+            final Identifiable newRid = linkToStream(db, buffer, iRecord, item);
             if (newRid != null) {
               ((LazyIterator<Identifiable>) it).update(newRid);
             }
@@ -493,7 +492,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
         } else {
           // LAZY SET
-          coll.toStream(iOutput);
+          coll.toStream(db, iOutput);
         }
 
         PROFILER.stopChrono(
@@ -515,9 +514,9 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
             iOutput.append(StringSerializerHelper.RECORD_SEPARATOR);
           }
 
-          fieldTypeToString(iOutput, PropertyType.STRING, entry.getKey());
+          fieldTypeToString(db, iOutput, PropertyType.STRING, entry.getKey());
           iOutput.append(StringSerializerHelper.ENTRY_SEPARATOR);
-          final Object link = linkToStream(iOutput, iRecord, entry.getValue());
+          final Object link = linkToStream(db, iOutput, iRecord, entry.getValue());
 
           if (link != null && !invalidMap)
           // IDENTITY IS CHANGED, RE-SET INTO THE COLLECTION TO RECOMPUTE THE HASH
@@ -548,17 +547,17 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       case EMBEDDED:
         if (iValue instanceof Record) {
           iOutput.append(StringSerializerHelper.EMBEDDED_BEGIN);
-          toString((Record) iValue, iOutput, null, true);
+          toString(db, (Record) iValue, iOutput, null, true);
           iOutput.append(StringSerializerHelper.EMBEDDED_END);
-        } else if (iValue instanceof DocumentSerializable) {
-          final EntityImpl entity = ((DocumentSerializable) iValue).toDocument();
-          entity.field(DocumentSerializable.CLASS_NAME, iValue.getClass().getName());
+        } else if (iValue instanceof EntitySerializable) {
+          final EntityImpl entity = ((EntitySerializable) iValue).toEntity(db);
+          entity.field(EntitySerializable.CLASS_NAME, iValue.getClass().getName());
 
           iOutput.append(StringSerializerHelper.EMBEDDED_BEGIN);
-          toString(entity, iOutput, null, true);
+          toString(db, entity, iOutput, null, true);
           iOutput.append(StringSerializerHelper.EMBEDDED_END);
 
-        } else if (iValue != null) {
+        } else {
           iOutput.append(iValue);
         }
         PROFILER.stopChrono(
@@ -569,7 +568,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
       case EMBEDDEDLIST:
         embeddedCollectionToStream(
-            null, iOutput, iLinkedClass, iLinkedType, iValue, iSaveOnlyDirty, false);
+            null, iOutput, iLinkedClass, iLinkedType, iValue, false);
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.embedList2string"),
             "Serialize embeddedlist to string",
@@ -578,7 +577,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
       case EMBEDDEDSET:
         embeddedCollectionToStream(
-            null, iOutput, iLinkedClass, iLinkedType, iValue, iSaveOnlyDirty, true);
+            null, iOutput, iLinkedClass, iLinkedType, iValue, true);
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.embedSet2string"),
             "Serialize embeddedset to string",
@@ -586,7 +585,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         break;
 
       case EMBEDDEDMAP: {
-        embeddedMapToStream(null, iOutput, iLinkedClass, iLinkedType, iValue, iSaveOnlyDirty);
+        embeddedMapToStream(null, iOutput, iLinkedType, iValue);
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.embedMap2string"),
             "Serialize embeddedmap to string",
@@ -596,23 +595,21 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
       case LINKBAG: {
         iOutput.append(StringSerializerHelper.BAG_BEGIN);
-        ((RidBag) iValue).toStream(iOutput);
+        ((RidBag) iValue).toStream(db, iOutput);
         iOutput.append(StringSerializerHelper.BAG_END);
         break;
       }
 
       default:
-        fieldTypeToString(iOutput, iType, iValue);
+        fieldTypeToString(db, iOutput, iType, iValue);
     }
   }
 
   public void embeddedMapToStream(
-      DatabaseSession iDatabase,
+      DatabaseSessionInternal db,
       final StringBuilder iOutput,
-      final SchemaClass iLinkedClass,
       PropertyType iLinkedType,
-      final Object iValue,
-      final boolean iSaveOnlyDirty) {
+      final Object iValue) {
     iOutput.append(StringSerializerHelper.MAP_BEGIN);
 
     if (iValue != null) {
@@ -624,42 +621,42 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         }
 
         if (o != null) {
-          fieldTypeToString(iOutput, PropertyType.STRING, o.getKey());
+          fieldTypeToString(db, iOutput, PropertyType.STRING, o.getKey());
           iOutput.append(StringSerializerHelper.ENTRY_SEPARATOR);
 
           if (o.getValue() instanceof EntityImpl
               && ((EntityImpl) o.getValue()).getIdentity().isValid()) {
-            fieldTypeToString(iOutput, PropertyType.LINK, o.getValue());
+            fieldTypeToString(db, iOutput, PropertyType.LINK, o.getValue());
           } else if (o.getValue() instanceof Record
-              || o.getValue() instanceof DocumentSerializable) {
+              || o.getValue() instanceof EntitySerializable) {
             final EntityImpl record;
             if (o.getValue() instanceof EntityImpl) {
               record = (EntityImpl) o.getValue();
-            } else if (o.getValue() instanceof DocumentSerializable) {
-              record = ((DocumentSerializable) o.getValue()).toDocument();
-              record.field(DocumentSerializable.CLASS_NAME, o.getValue().getClass().getName());
+            } else if (o.getValue() instanceof EntitySerializable) {
+              record = ((EntitySerializable) o.getValue()).toEntity(db);
+              record.field(EntitySerializable.CLASS_NAME, o.getValue().getClass().getName());
             } else {
               record = null;
             }
             iOutput.append(StringSerializerHelper.EMBEDDED_BEGIN);
-            toString(record, iOutput, null, true);
+            toString(db, record, iOutput, null, true);
             iOutput.append(StringSerializerHelper.EMBEDDED_END);
           } else if (o.getValue() instanceof Set<?>) {
             // SUB SET
-            fieldTypeToString(iOutput, PropertyType.EMBEDDEDSET, o.getValue());
+            fieldTypeToString(db, iOutput, PropertyType.EMBEDDEDSET, o.getValue());
           } else if (o.getValue() instanceof Collection<?>) {
             // SUB LIST
-            fieldTypeToString(iOutput, PropertyType.EMBEDDEDLIST, o.getValue());
+            fieldTypeToString(db, iOutput, PropertyType.EMBEDDEDLIST, o.getValue());
           } else if (o.getValue() instanceof Map<?, ?>) {
             // SUB MAP
-            fieldTypeToString(iOutput, PropertyType.EMBEDDEDMAP, o.getValue());
+            fieldTypeToString(db, iOutput, PropertyType.EMBEDDEDMAP, o.getValue());
           } else {
             // EMBEDDED LITERALS
             if (iLinkedType == null && o.getValue() != null) {
-              fieldTypeToString(
+              fieldTypeToString(db,
                   iOutput, PropertyType.getTypeByClass(o.getValue().getClass()), o.getValue());
             } else {
-              fieldTypeToString(iOutput, iLinkedType, o.getValue());
+              fieldTypeToString(db, iOutput, iLinkedType, o.getValue());
             }
           }
         }
@@ -737,7 +734,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
           iLinkedClass = StringSerializerHelper.getRecordClassName(item, iLinkedClass);
 
           if (iLinkedClass != null) {
-            EntityImpl entity = new EntityImpl();
+            EntityImpl entity = new EntityImpl(db);
             objectToAdd = fromString(db, item, entity, null);
             EntityInternalUtils.fillClassNameIfNeeded(entity, iLinkedClass.getName());
           } else
@@ -783,13 +780,12 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
     return coll;
   }
 
-  public StringBuilder embeddedCollectionToStream(
-      DatabaseSession iDatabase,
+  public void embeddedCollectionToStream(
+      DatabaseSessionInternal db,
       final StringBuilder iOutput,
       final SchemaClass iLinkedClass,
       final PropertyType iLinkedType,
       final Object iValue,
-      final boolean iSaveOnlyDirty,
       final boolean iSet) {
     iOutput.append(iSet ? StringSerializerHelper.SET_BEGIN : StringSerializerHelper.LIST_BEGIN);
 
@@ -855,19 +851,17 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       }
 
       if (linkedType == PropertyType.EMBEDDED && o instanceof Identifiable) {
-        toString(((Identifiable) o).getRecord(), iOutput, null);
+        toString(db, ((Identifiable) o).getRecord(db), iOutput, null);
       } else if (linkedType != PropertyType.LINK && (linkedClass != null || entity != null)) {
-        toString(entity, iOutput, null, true);
+        toString(db, entity, iOutput, null, true);
       } else {
         // EMBEDDED LITERALS
         if (iLinkedType == null) {
-          if (o != null) {
-            linkedType = PropertyType.getTypeByClass(o.getClass());
-          }
+          linkedType = PropertyType.getTypeByClass(o.getClass());
         } else if (iLinkedType == PropertyType.CUSTOM) {
           iOutput.append(StringSerializerHelper.CUSTOM_TYPE);
         }
-        fieldTypeToString(iOutput, linkedType, o);
+        fieldTypeToString(db, iOutput, linkedType, o);
       }
 
       if (id != null && linkedType != PropertyType.LINK) {
@@ -876,10 +870,9 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
     }
 
     iOutput.append(iSet ? StringSerializerHelper.SET_END : StringSerializerHelper.LIST_END);
-    return iOutput;
   }
 
-  protected boolean isConvertToLinkedMap(Map<?, ?> map, final PropertyType linkedType) {
+  protected static boolean isConvertToLinkedMap(Map<?, ?> map, final PropertyType linkedType) {
     boolean convert = (linkedType == PropertyType.LINK && !(map instanceof LinkMap));
     if (convert) {
       for (Object value : map.values()) {

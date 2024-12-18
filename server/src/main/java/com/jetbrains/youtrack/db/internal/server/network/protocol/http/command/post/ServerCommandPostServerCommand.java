@@ -22,7 +22,7 @@ package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedServerAbstract;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class ServerCommandPostServerCommand extends ServerCommandAuthenticatedSe
   }
 
   @Override
-  public boolean execute(final OHttpRequest iRequest, HttpResponse iResponse) throws Exception {
+  public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
     final String[] urlParts = checkSyntax(iRequest.getUrl(), 1, "Syntax error: servercommand");
 
     // TRY TO GET THE COMMAND FROM THE URL, THEN FROM THE CONTENT
@@ -60,7 +60,7 @@ public class ServerCommandPostServerCommand extends ServerCommandAuthenticatedSe
       // CONTENT REPLACES TEXT
       if (iRequest.getContent().startsWith("{")) {
         // JSON PAYLOAD
-        final EntityImpl entity = new EntityImpl();
+        final EntityImpl entity = new EntityImpl(null);
         entity.fromJSON(iRequest.getContent());
         text = entity.field("command");
         params = entity.field("parameters");

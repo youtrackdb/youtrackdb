@@ -13,11 +13,11 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial.shape;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,10 +65,8 @@ public class RectangleShapeBuilder extends ShapeBuilder<Rectangle> {
   }
 
   @Override
-  public EntityImpl toDoc(final Rectangle shape) {
-
-    EntityImpl doc = new EntityImpl(NAME);
-
+  public EntityImpl toEntitty(final Rectangle shape) {
+    EntityImpl doc = new EntityImpl(null, NAME);
     doc.field(
         COORDINATES,
         new ArrayList<Double>() {
@@ -79,6 +77,7 @@ public class RectangleShapeBuilder extends ShapeBuilder<Rectangle> {
             add(shape.getMaxY());
           }
         });
+
     return doc;
   }
 }

@@ -46,31 +46,31 @@ public class PolymorphicQueryTest extends BaseDBTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    database.command("create class IndexInSubclassesTestBase").close();
-    database.command("create property IndexInSubclassesTestBase.name string").close();
+    db.command("create class IndexInSubclassesTestBase").close();
+    db.command("create property IndexInSubclassesTestBase.name string").close();
 
-    database
+    db
         .command("create class IndexInSubclassesTestChild1 extends IndexInSubclassesTestBase")
         .close();
-    database
+    db
         .command(
             "create index IndexInSubclassesTestChild1.name on IndexInSubclassesTestChild1 (name)"
                 + " notunique")
         .close();
 
-    database
+    db
         .command("create class IndexInSubclassesTestChild2 extends IndexInSubclassesTestBase")
         .close();
-    database
+    db
         .command(
             "create index IndexInSubclassesTestChild2.name on IndexInSubclassesTestChild2 (name)"
                 + " notunique")
         .close();
 
-    database.command("create class IndexInSubclassesTestBaseFail").close();
-    database.command("create property IndexInSubclassesTestBaseFail.name string").close();
+    db.command("create class IndexInSubclassesTestBaseFail").close();
+    db.command("create property IndexInSubclassesTestBaseFail.name string").close();
 
-    database
+    db
         .command(
             "create class IndexInSubclassesTestChild1Fail extends IndexInSubclassesTestBaseFail")
         .close();
@@ -79,36 +79,36 @@ public class PolymorphicQueryTest extends BaseDBTest {
     // IndexInSubclassesTestChild1Fail (name) notunique"))
     // .execute();
 
-    database
+    db
         .command(
             "create class IndexInSubclassesTestChild2Fail extends IndexInSubclassesTestBaseFail")
         .close();
-    database
+    db
         .command(
             "create index IndexInSubclassesTestChild2Fail.name on IndexInSubclassesTestChild2Fail"
                 + " (name) notunique")
         .close();
 
-    database.command("create class GenericCrash").close();
-    database.command("create class SpecificCrash extends GenericCrash").close();
+    db.command("create class GenericCrash").close();
+    db.command("create class SpecificCrash extends GenericCrash").close();
   }
 
   @BeforeMethod
   public void beforeMethod() throws Exception {
     super.beforeMethod();
 
-    database.command("delete from IndexInSubclassesTestBase").close();
-    database.command("delete from IndexInSubclassesTestChild1").close();
-    database.command("delete from IndexInSubclassesTestChild2").close();
+    db.command("delete from IndexInSubclassesTestBase").close();
+    db.command("delete from IndexInSubclassesTestChild1").close();
+    db.command("delete from IndexInSubclassesTestChild2").close();
 
-    database.command("delete from IndexInSubclassesTestBaseFail").close();
-    database.command("delete from IndexInSubclassesTestChild1Fail").close();
-    database.command("delete from IndexInSubclassesTestChild2Fail").close();
+    db.command("delete from IndexInSubclassesTestBaseFail").close();
+    db.command("delete from IndexInSubclassesTestChild1Fail").close();
+    db.command("delete from IndexInSubclassesTestChild2Fail").close();
   }
 
   @Test
   public void testSubclassesIndexes() throws Exception {
-    database.begin();
+    db.begin();
 
     Profiler profiler = YouTrackDBEnginesManager.instance().getProfiler();
 
@@ -126,21 +126,21 @@ public class PolymorphicQueryTest extends BaseDBTest {
     profiler.startRecording();
     for (int i = 0; i < 10000; i++) {
 
-      final EntityImpl doc1 = new EntityImpl("IndexInSubclassesTestChild1");
+      final EntityImpl doc1 = ((EntityImpl) db.newEntity("IndexInSubclassesTestChild1"));
       doc1.field("name", "name" + i);
       doc1.save();
 
-      final EntityImpl doc2 = new EntityImpl("IndexInSubclassesTestChild2");
+      final EntityImpl doc2 = ((EntityImpl) db.newEntity("IndexInSubclassesTestChild2"));
       doc2.field("name", "name" + i);
       doc2.save();
       if (i % 100 == 0) {
-        database.commit();
+        db.commit();
       }
     }
-    database.commit();
+    db.commit();
 
     List<EntityImpl> result =
-        database.query(
+        db.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from IndexInSubclassesTestBase where name > 'name9995' and name <"
                     + " 'name9999' order by name ASC"));
@@ -159,7 +159,7 @@ public class PolymorphicQueryTest extends BaseDBTest {
     Assert.assertEquals(reverted < 0 ? 0 : reverted, indexUsageReverted);
 
     result =
-        database.query(
+        db.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from IndexInSubclassesTestBase where name > 'name9995' and name <"
                     + " 'name9999' order by name DESC"));
@@ -176,7 +176,7 @@ public class PolymorphicQueryTest extends BaseDBTest {
 
   @Test
   public void testBaseWithoutIndexAndSubclassesIndexes() throws Exception {
-    database.begin();
+    db.begin();
 
     Profiler profiler = YouTrackDBEnginesManager.instance().getProfiler();
 
@@ -193,25 +193,25 @@ public class PolymorphicQueryTest extends BaseDBTest {
 
     profiler.startRecording();
     for (int i = 0; i < 10000; i++) {
-      final EntityImpl doc0 = new EntityImpl("IndexInSubclassesTestBase");
+      final EntityImpl doc0 = ((EntityImpl) db.newEntity("IndexInSubclassesTestBase"));
       doc0.field("name", "name" + i);
       doc0.save();
 
-      final EntityImpl doc1 = new EntityImpl("IndexInSubclassesTestChild1");
+      final EntityImpl doc1 = ((EntityImpl) db.newEntity("IndexInSubclassesTestChild1"));
       doc1.field("name", "name" + i);
       doc1.save();
 
-      final EntityImpl doc2 = new EntityImpl("IndexInSubclassesTestChild2");
+      final EntityImpl doc2 = ((EntityImpl) db.newEntity("IndexInSubclassesTestChild2"));
       doc2.field("name", "name" + i);
       doc2.save();
       if (i % 100 == 0) {
-        database.commit();
+        db.commit();
       }
     }
-    database.commit();
+    db.commit();
 
     List<EntityImpl> result =
-        database.query(
+        db.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from IndexInSubclassesTestBase where name > 'name9995' and name <"
                     + " 'name9999' order by name ASC"));
@@ -230,7 +230,7 @@ public class PolymorphicQueryTest extends BaseDBTest {
     Assert.assertEquals(reverted < 0 ? 0 : reverted, indexUsageReverted);
 
     result =
-        database.query(
+        db.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from IndexInSubclassesTestBase where name > 'name9995' and name <"
                     + " 'name9999' order by name DESC"));
@@ -247,25 +247,25 @@ public class PolymorphicQueryTest extends BaseDBTest {
 
   @Test
   public void testSubclassesIndexesFailed() throws Exception {
-    database.begin();
+    db.begin();
 
     Profiler profiler = YouTrackDBEnginesManager.instance().getProfiler();
     profiler.startRecording();
 
     for (int i = 0; i < 10000; i++) {
 
-      final EntityImpl doc1 = new EntityImpl("IndexInSubclassesTestChild1Fail");
+      final EntityImpl doc1 = ((EntityImpl) db.newEntity("IndexInSubclassesTestChild1Fail"));
       doc1.field("name", "name" + i);
       doc1.save();
 
-      final EntityImpl doc2 = new EntityImpl("IndexInSubclassesTestChild2Fail");
+      final EntityImpl doc2 = ((EntityImpl) db.newEntity("IndexInSubclassesTestChild2Fail"));
       doc2.field("name", "name" + i);
       doc2.save();
       if (i % 100 == 0) {
-        database.commit();
+        db.commit();
       }
     }
-    database.commit();
+    db.commit();
 
     long indexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long indexUsageReverted = profiler.getCounter("db.demo.query.indexUseAttemptedAndReverted");
@@ -279,7 +279,7 @@ public class PolymorphicQueryTest extends BaseDBTest {
     }
 
     ResultSet result =
-        database.query(
+        db.query(
             "select from IndexInSubclassesTestBaseFail where name > 'name9995' and name <"
                 + " 'name9999' order by name ASC");
     Assert.assertEquals(result.stream().count(), 6);
@@ -302,15 +302,15 @@ public class PolymorphicQueryTest extends BaseDBTest {
   @Test
   public void testIteratorOnSubclassWithoutValues() {
     for (int i = 0; i < 2; i++) {
-      final EntityImpl doc1 = new EntityImpl("GenericCrash");
-      database.begin();
+      final EntityImpl doc1 = ((EntityImpl) db.newEntity("GenericCrash"));
+      db.begin();
       doc1.field("name", "foo");
       doc1.save();
     }
 
     // crashed with YTIOException, issue #3632
     ResultSet result =
-        database.query("SELECT FROM GenericCrash WHERE @class='GenericCrash' ORDER BY @rid DESC");
+        db.query("SELECT FROM GenericCrash WHERE @class='GenericCrash' ORDER BY @rid DESC");
 
     int count = 0;
     while (result.hasNext()) {

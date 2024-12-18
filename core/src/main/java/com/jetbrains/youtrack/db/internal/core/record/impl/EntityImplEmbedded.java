@@ -1,22 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.record.Edge;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
 public class EntityImplEmbedded extends EntityImpl {
-
-  public EntityImplEmbedded() {
-    super();
-  }
-
-  public EntityImplEmbedded(String clazz) {
-    super(clazz);
-    checkEmbeddable();
-  }
 
   public EntityImplEmbedded(String clazz, DatabaseSessionInternal session) {
     super(session, clazz);
@@ -34,7 +25,7 @@ public class EntityImplEmbedded extends EntityImpl {
 
   @Override
   public EntityImplEmbedded copy() {
-    var entity = new EntityImplEmbedded();
+    var entity = new EntityImplEmbedded(getSession());
     RecordInternal.unsetDirty(entity);
     var newEntity = (EntityImplEmbedded) copyTo(entity);
     newEntity.dirty = true;

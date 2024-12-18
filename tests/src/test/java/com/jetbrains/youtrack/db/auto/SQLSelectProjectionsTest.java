@@ -21,7 +21,7 @@ import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.HashSet;
 import java.util.List;
@@ -53,7 +53,7 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
   @Test
   public void queryProjectionOk() {
     List<EntityImpl> result =
-        database
+        db
             .command(
                 "select nick, followings, followers from Profile where nick is defined and"
                     + " followings is defined and followers is defined")
@@ -71,14 +71,14 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
       Assert.assertEquals(colNames[2], "followers", "document: " + d);
 
       Assert.assertNull(d.getClassName());
-      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(db, d), EntityImpl.RECORD_TYPE);
     }
   }
 
   @Test
   public void queryProjectionObjectLevel() {
     var result =
-        database.query("select nick, followings, followers from Profile").stream()
+        db.query("select nick, followings, followers from Profile").stream()
             .map(r -> (EntityImpl) r.toEntity())
             .toList();
 
@@ -87,14 +87,14 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
     for (EntityImpl d : result) {
       Assert.assertTrue(d.fieldNames().length <= 3);
       Assert.assertNull(d.getClassName());
-      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(db, d), EntityImpl.RECORD_TYPE);
     }
   }
 
   @Test
   public void queryProjectionLinkedAndFunction() {
     List<EntityImpl> result =
-        database
+        db
             .query(
                 "select name.toUpperCase(Locale.ENGLISH), address.city.country.name from"
                     + " Profile")
@@ -112,14 +112,14 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
       }
 
       Assert.assertNull(d.getClassName());
-      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(db, d), EntityImpl.RECORD_TYPE);
     }
   }
 
   @Test
   public void queryProjectionSameFieldTwice() {
     List<EntityImpl> result =
-        database
+        db
             .query(
                 "select name, name.toUpperCase(Locale.ENGLISH) as name2 from Profile where name is"
                     + " not null")
@@ -135,14 +135,14 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
       Assert.assertNotNull(d.field("name2"));
 
       Assert.assertNull(d.getClassName());
-      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(db, d), EntityImpl.RECORD_TYPE);
     }
   }
 
   @Test
   public void queryProjectionStaticValues() {
     List<EntityImpl> result =
-        database
+        db
             .query(
                 "select location.city.country.name as location, address.city.country.name as"
                     + " address from Profile where location.city.country.name is not null")
@@ -158,7 +158,7 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
       Assert.assertNull(d.field("address"));
 
       Assert.assertNull(d.getClassName());
-      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(db, d), EntityImpl.RECORD_TYPE);
     }
   }
 
@@ -175,7 +175,7 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
       Assert.assertEquals(
           d.field("test").toString(), "Mr. " + d.field("name") + " " + d.field("surname") + "!");
 
-      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(db, d), EntityImpl.RECORD_TYPE);
     }
   }
 
@@ -193,7 +193,7 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
       Assert.assertTrue(d.field("name").toString().endsWith("."));
 
       Assert.assertNull(d.getClassName());
-      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(db, d), EntityImpl.RECORD_TYPE);
     }
   }
 
@@ -209,7 +209,7 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
       Assert.assertEquals(d.field("'ciao'"), "ciao");
 
       Assert.assertNull(d.getClassName());
-      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(db, d), EntityImpl.RECORD_TYPE);
     }
   }
 
@@ -223,7 +223,7 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
       Assert.assertTrue(d.fieldNames().length <= 1);
       Assert.assertNotNull(d.field("json"));
 
-      new EntityImpl().fromJSON((String) d.field("json"));
+      new EntityImpl(null).fromJSON((String) d.field("json"));
     }
   }
 
@@ -270,10 +270,10 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
 
       final EntityImpl a0doc = d.field("a0");
       final EntityImpl firstADoc =
-          d.<Iterable<Identifiable>>field("a").iterator().next().getRecord();
+          d.<Iterable<Identifiable>>field("a").iterator().next().getRecord(db);
 
       Assert.assertTrue(
-          DocumentHelper.hasSameContentOf(a0doc, database, firstADoc, database, null));
+          EntityHelper.hasSameContentOf(a0doc, db, firstADoc, db, null));
     }
   }
 
@@ -333,12 +333,12 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
   @Test
   public void testSelectExcludeFunction() {
     try {
-      database.createClass("A");
-      database.createClass("B");
+      db.createClass("A");
+      db.createClass("B");
 
-      database.begin();
-      var rootElement = database.newInstance("A");
-      var childElement = database.newInstance("B");
+      db.begin();
+      var rootElement = db.newInstance("A");
+      var childElement = db.newInstance("B");
 
       rootElement.setProperty("a", "a");
       rootElement.setProperty("b", "b");
@@ -350,7 +350,7 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
       rootElement.setProperty("child", childElement, PropertyType.LINK);
 
       rootElement.save();
-      database.commit();
+      db.commit();
 
       List<EntityImpl> res =
           executeQuery("select a,b, child.exclude('d') as child from " + rootElement.getIdentity());
@@ -361,23 +361,23 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
       Assert.assertNull(res.get(0).<EntityImpl>field("child").field("d"));
       Assert.assertNotNull(res.get(0).<EntityImpl>field("child").field("e"));
     } finally {
-      database.command("drop class A").close();
-      database.command("drop class B").close();
+      db.command("drop class A").close();
+      db.command("drop class B").close();
     }
   }
 
   @Test
   public void testSimpleExpandExclude() {
     try {
-      database.createClass("A");
-      database.createClass("B");
+      db.createClass("A");
+      db.createClass("B");
 
-      database.begin();
-      var rootElement = database.newInstance("A");
+      db.begin();
+      var rootElement = db.newInstance("A");
       rootElement.setProperty("a", "a");
       rootElement.setProperty("b", "b");
 
-      var childElement = database.newInstance("B");
+      var childElement = db.newInstance("B");
       childElement.setProperty("c", "c");
       childElement.setProperty("d", "d");
       childElement.setProperty("e", "e");
@@ -386,7 +386,7 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
       childElement.setProperty("root", List.of(rootElement), PropertyType.LINKLIST);
 
       rootElement.save();
-      database.commit();
+      db.commit();
 
       List<EntityImpl> res =
           executeQuery(
@@ -403,8 +403,8 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
       Assert.assertNotNull(root.<EntityImpl>field("link").field("e"));
 
     } finally {
-      database.command("drop class A").close();
-      database.command("drop class B").close();
+      db.command("drop class A").close();
+      db.command("drop class B").close();
     }
   }
 
@@ -422,7 +422,7 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
 
       rids.add(rid);
 
-      final List<Identifiable> embeddedList = ((EntityImpl) d.getRecord()).field("l");
+      final List<Identifiable> embeddedList = ((EntityImpl) d.getRecord(db)).field("l");
       Assert.assertNotNull(embeddedList);
       Assert.assertFalse(embeddedList.isEmpty());
 

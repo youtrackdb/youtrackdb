@@ -1,15 +1,14 @@
 package com.jetbrains.youtrack.db.internal.core.db.tool;
 
-import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.StorageRecoverEventListener;
 import java.util.Objects;
 import org.junit.Assert;
@@ -95,12 +94,12 @@ public class GraphRecoveringTest {
 
         new GraphRepair().setEventListener(eventListener).repair(session, null, null);
 
-        Assert.assertEquals(eventListener.scannedEdges, 3);
-        Assert.assertEquals(eventListener.removedEdges, 0);
-        Assert.assertEquals(eventListener.scannedVertices, 3);
-        Assert.assertEquals(eventListener.scannedLinks, 6);
-        Assert.assertEquals(eventListener.removedLinks, 0);
-        Assert.assertEquals(eventListener.repairedVertices, 0);
+        Assert.assertEquals(3, eventListener.scannedEdges);
+        Assert.assertEquals(0, eventListener.removedEdges);
+        Assert.assertEquals(3, eventListener.scannedVertices);
+        Assert.assertEquals(6, eventListener.scannedLinks);
+        Assert.assertEquals(0, eventListener.removedLinks);
+        Assert.assertEquals(0, eventListener.repairedVertices);
       }
     }
   }
@@ -118,10 +117,10 @@ public class GraphRecoveringTest {
         session.begin();
         for (var e :
             session.query("select from E").stream()
-                .map(Result::toEntity)
+                .map(result -> result.toEntity())
                 .map(Entity::toEdge)
                 .toList()) {
-          e.<EntityImpl>getRecord().removeField("out");
+          e.<EntityImpl>getRecord(session).removeField("out");
           e.save();
         }
         session.commit();
@@ -130,14 +129,14 @@ public class GraphRecoveringTest {
 
         new GraphRepair().setEventListener(eventListener).repair(session, null, null);
 
-        Assert.assertEquals(eventListener.scannedEdges, 3);
-        Assert.assertEquals(eventListener.removedEdges, 3);
-        Assert.assertEquals(eventListener.scannedVertices, 3);
+        Assert.assertEquals(3, eventListener.scannedEdges);
+        Assert.assertEquals(3, eventListener.removedEdges);
+        Assert.assertEquals(3, eventListener.scannedVertices);
         // This is 3 because 3 referred by the edge are cleaned by the edge delete
-        Assert.assertEquals(eventListener.scannedLinks, 3);
+        Assert.assertEquals(3, eventListener.scannedLinks);
         // This is 3 because 3 referred by the edge are cleaned by the edge delete
-        Assert.assertEquals(eventListener.removedLinks, 3);
-        Assert.assertEquals(eventListener.repairedVertices, 3);
+        Assert.assertEquals(3, eventListener.removedLinks);
+        Assert.assertEquals(3, eventListener.repairedVertices);
       }
     }
   }
@@ -156,13 +155,13 @@ public class GraphRecoveringTest {
         session.begin();
         for (var v :
             session.query("select from V").stream()
-                .map(Result::toEntity)
+                .map(result -> result.toEntity())
                 .filter(Objects::nonNull)
                 .map(Entity::toVertex)
                 .toList()) {
-          for (String f : v.<EntityImpl>getRecord().fieldNames()) {
+          for (String f : v.<EntityImpl>getRecord(session).fieldNames()) {
             if (f.startsWith(Vertex.DIRECTION_OUT_PREFIX)) {
-              v.<EntityImpl>getRecord().removeField(f);
+              v.<EntityImpl>getRecord(session).removeField(f);
               v.save();
             }
           }
@@ -173,15 +172,15 @@ public class GraphRecoveringTest {
 
         new GraphRepair().setEventListener(eventListener).repair(session, null, null);
 
-        Assert.assertEquals(eventListener.scannedEdges, 3);
-        Assert.assertEquals(eventListener.removedEdges, 3);
-        Assert.assertEquals(eventListener.scannedVertices, 3);
+        Assert.assertEquals(3, eventListener.scannedEdges);
+        Assert.assertEquals(3, eventListener.removedEdges);
+        Assert.assertEquals(3, eventListener.scannedVertices);
         // This is 0 because the delete edge does the cleanup
-        Assert.assertEquals(eventListener.scannedLinks, 0);
+        Assert.assertEquals(0, eventListener.scannedLinks);
         // This is 0 because the delete edge does the cleanup
-        Assert.assertEquals(eventListener.removedLinks, 0);
+        Assert.assertEquals(0, eventListener.removedLinks);
         // This is 0 because the delete edge does the cleanup
-        Assert.assertEquals(eventListener.repairedVertices, 0);
+        Assert.assertEquals(0, eventListener.repairedVertices);
       }
     }
   }

@@ -30,7 +30,7 @@ public class UpdateMergeStep extends AbstractExecutionStep {
   private Result mapResult(Result result, CommandContext ctx) {
     if (result instanceof ResultInternal) {
       if (!(result.getEntity().orElse(null) instanceof EntityImpl)) {
-        ((ResultInternal) result).setIdentifiable(result.toEntity().getRecord());
+        ((ResultInternal) result).setIdentifiable(result.toEntity().getRecord(ctx.getDatabase()));
       }
       if (!(result.getEntity().orElse(null) instanceof EntityImpl)) {
         return result;
@@ -41,7 +41,7 @@ public class UpdateMergeStep extends AbstractExecutionStep {
   }
 
   private void handleMerge(EntityImpl record, CommandContext ctx) {
-    record.merge(json.toDocument(record, ctx), true, false);
+    record.merge(json.toEntity(record, ctx), true, false);
   }
 
   @Override

@@ -51,7 +51,7 @@ import org.locationtech.spatial4j.shape.Shape;
  *
  */
 public abstract class LuceneSpatialIndexEngineAbstract extends LuceneIndexEngineAbstract
-    implements OLuceneSpatialIndexContainer {
+    implements LuceneSpatialIndexContainer {
 
   protected final ShapeBuilder factory;
   protected SpatialContext ctx;
@@ -70,13 +70,13 @@ public abstract class LuceneSpatialIndexEngineAbstract extends LuceneIndexEngine
   }
 
   @Override
-  public void init(IndexMetadata im) {
-    super.init(im);
-    strategy = createSpatialStrategy(im.getIndexDefinition(), im.getMetadata());
+  public void init(DatabaseSessionInternal db, IndexMetadata im) {
+    super.init(db, im);
+    strategy = createSpatialStrategy(db, im.getIndexDefinition(), im.getMetadata());
   }
 
   protected abstract SpatialStrategy createSpatialStrategy(
-      IndexDefinition indexDefinition, Map<String, ?> metadata);
+      DatabaseSessionInternal db, IndexDefinition indexDefinition, Map<String, ?> metadata);
 
   @Override
   public IndexWriter createIndexWriter(Directory directory) throws IOException {
@@ -88,13 +88,13 @@ public abstract class LuceneSpatialIndexEngineAbstract extends LuceneIndexEngine
   }
 
   @Override
-  public boolean remove(AtomicOperation atomicOperation, Object key) {
+  public boolean remove(Storage storage, AtomicOperation atomicOperation, Object key) {
     return false;
   }
 
   @Override
   public Stream<RawPair<Object, com.jetbrains.youtrack.db.api.record.RID>> iterateEntriesBetween(
-      DatabaseSessionInternal session, Object rangeFrom,
+      DatabaseSessionInternal db, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
       boolean toInclusive,
@@ -163,7 +163,7 @@ public abstract class LuceneSpatialIndexEngineAbstract extends LuceneIndexEngine
   }
 
   @Override
-  public Document buildDocument(DatabaseSessionInternal session, Object key,
+  public Document buildDocument(DatabaseSessionInternal db, Object key,
       Identifiable value) {
     throw new UnsupportedOperationException();
   }

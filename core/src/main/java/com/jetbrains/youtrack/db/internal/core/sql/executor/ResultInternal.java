@@ -180,7 +180,8 @@ public class ResultInternal implements Result {
     }
 
     if (result instanceof RID) {
-      result = ((RID) result).getRecord();
+      assert session != null && session.assertIfNotActive();
+      result = ((RID) result).getRecord(session);
     }
 
     return result instanceof Entity ? (Entity) result : null;
@@ -203,7 +204,8 @@ public class ResultInternal implements Result {
     }
 
     if (result instanceof RID) {
-      result = ((RID) result).getRecord();
+      assert session != null && session.assertIfNotActive();
+      result = ((RID) result).getRecord(session);
     }
 
     return result instanceof Entity ? ((Entity) result).asVertex().orElse(null) : null;
@@ -226,7 +228,8 @@ public class ResultInternal implements Result {
     }
 
     if (result instanceof RID) {
-      result = ((RID) result).getRecord();
+      assert session != null && session.assertIfNotActive();
+      result = ((RID) result).getRecord(session);
     }
 
     return result instanceof Entity ? ((Entity) result).asEdge().orElse(null) : null;
@@ -249,7 +252,8 @@ public class ResultInternal implements Result {
     }
 
     if (result instanceof RID) {
-      result = ((RID) result).getRecord();
+      assert session != null && session.assertIfNotActive();
+      result = ((RID) result).getRecord(session);
     }
 
     return result instanceof Blob ? (Blob) result : null;
@@ -336,7 +340,8 @@ public class ResultInternal implements Result {
     }
 
     try {
-      identifiable = identifiable.getRecord();
+      assert session != null && session.assertIfNotActive();
+      identifiable = identifiable.getRecord(session);
     } catch (RecordNotFoundException e) {
       identifiable = null;
     }
@@ -367,7 +372,7 @@ public class ResultInternal implements Result {
     if (isEntity()) {
       return getEntity().get();
     }
-    EntityImpl entity = new EntityImpl();
+    EntityImpl entity = new EntityImpl(session);
     for (String s : getPropertyNames()) {
       if (s == null) {
         continue;

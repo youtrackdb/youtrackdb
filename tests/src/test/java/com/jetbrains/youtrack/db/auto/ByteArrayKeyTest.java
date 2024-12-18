@@ -28,18 +28,18 @@ public class ByteArrayKeyTest extends BaseDBTest {
     super.beforeClass();
 
     final SchemaClass byteArrayKeyTest =
-        database.getMetadata().getSchema().createClass("ByteArrayKeyTest");
-    byteArrayKeyTest.createProperty(database, "byteArrayKey", PropertyType.BINARY);
+        db.getMetadata().getSchema().createClass("ByteArrayKeyTest");
+    byteArrayKeyTest.createProperty(db, "byteArrayKey", PropertyType.BINARY);
 
-    byteArrayKeyTest.createIndex(database, "byteArrayKeyIndex", SchemaClass.INDEX_TYPE.UNIQUE,
+    byteArrayKeyTest.createIndex(db, "byteArrayKeyIndex", SchemaClass.INDEX_TYPE.UNIQUE,
         "byteArrayKey");
 
     final SchemaClass compositeByteArrayKeyTest =
-        database.getMetadata().getSchema().createClass("CompositeByteArrayKeyTest");
-    compositeByteArrayKeyTest.createProperty(database, "byteArrayKey", PropertyType.BINARY);
-    compositeByteArrayKeyTest.createProperty(database, "intKey", PropertyType.INTEGER);
+        db.getMetadata().getSchema().createClass("CompositeByteArrayKeyTest");
+    compositeByteArrayKeyTest.createProperty(db, "byteArrayKey", PropertyType.BINARY);
+    compositeByteArrayKeyTest.createProperty(db, "intKey", PropertyType.INTEGER);
 
-    compositeByteArrayKeyTest.createIndex(database,
+    compositeByteArrayKeyTest.createIndex(db,
         "compositeByteArrayKey", SchemaClass.INDEX_TYPE.UNIQUE, "byteArrayKey", "intKey");
   }
 
@@ -53,8 +53,8 @@ public class ByteArrayKeyTest extends BaseDBTest {
             0, 1
         };
 
-    database.begin();
-    EntityImpl doc1 = new EntityImpl("ByteArrayKeyTest");
+    db.begin();
+    EntityImpl doc1 = ((EntityImpl) db.newEntity("ByteArrayKeyTest"));
     doc1.field("byteArrayKey", key1);
     doc1.save();
 
@@ -64,18 +64,18 @@ public class ByteArrayKeyTest extends BaseDBTest {
             9,
             0, 2
         };
-    EntityImpl doc2 = new EntityImpl("ByteArrayKeyTest");
+    EntityImpl doc2 = ((EntityImpl) db.newEntity("ByteArrayKeyTest"));
     doc2.field("byteArrayKey", key2);
     doc2.save();
-    database.commit();
+    db.commit();
 
     Index index =
-        database.getMetadata().getIndexManagerInternal().getIndex(database, "byteArrayKeyIndex");
-    try (Stream<RID> stream = index.getInternal().getRids(database, key1)) {
-      Assert.assertEquals(stream.findAny().map(RID::getRecord).orElse(null), doc1);
+        db.getMetadata().getIndexManagerInternal().getIndex(db, "byteArrayKeyIndex");
+    try (Stream<RID> stream = index.getInternal().getRids(db, key1)) {
+      Assert.assertEquals(stream.findAny().map(rid -> rid.getRecord(db)).orElse(null), doc1);
     }
-    try (Stream<RID> stream = index.getInternal().getRids(database, key2)) {
-      Assert.assertEquals(stream.findAny().map(RID::getRecord).orElse(null), doc2);
+    try (Stream<RID> stream = index.getInternal().getRids(db, key2)) {
+      Assert.assertEquals(stream.findAny().map(rid -> rid.getRecord(db)).orElse(null), doc2);
     }
   }
 
@@ -85,28 +85,28 @@ public class ByteArrayKeyTest extends BaseDBTest {
     byte[] key1 = new byte[]{1, 2, 3};
     byte[] key2 = new byte[]{4, 5, 6};
 
-    database.begin();
-    EntityImpl doc1 = new EntityImpl("CompositeByteArrayKeyTest");
+    db.begin();
+    EntityImpl doc1 = ((EntityImpl) db.newEntity("CompositeByteArrayKeyTest"));
     doc1.field("byteArrayKey", key1);
     doc1.field("intKey", 1);
     doc1.save();
 
-    EntityImpl doc2 = new EntityImpl("CompositeByteArrayKeyTest");
+    EntityImpl doc2 = ((EntityImpl) db.newEntity("CompositeByteArrayKeyTest"));
     doc2.field("byteArrayKey", key2);
     doc2.field("intKey", 2);
     doc2.save();
-    database.commit();
+    db.commit();
 
     Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "compositeByteArrayKey");
-    try (Stream<RID> stream = index.getInternal().getRids(database, new CompositeKey(key1, 1))) {
-      Assert.assertEquals(stream.findAny().map(RID::getRecord).orElse(null), doc1);
+            .getIndex(db, "compositeByteArrayKey");
+    try (Stream<RID> stream = index.getInternal().getRids(db, new CompositeKey(key1, 1))) {
+      Assert.assertEquals(stream.findAny().map(rid -> rid.getRecord(db)).orElse(null), doc1);
     }
-    try (Stream<RID> stream = index.getInternal().getRids(database, new CompositeKey(key2, 2))) {
-      Assert.assertEquals(stream.findAny().map(RID::getRecord).orElse(null), doc2);
+    try (Stream<RID> stream = index.getInternal().getRids(db, new CompositeKey(key2, 2))) {
+      Assert.assertEquals(stream.findAny().map(rid -> rid.getRecord(db)).orElse(null), doc2);
     }
   }
 
@@ -116,28 +116,28 @@ public class ByteArrayKeyTest extends BaseDBTest {
     byte[] key1 = new byte[]{7, 8, 9};
     byte[] key2 = new byte[]{10, 11, 12};
 
-    database.begin();
-    EntityImpl doc1 = new EntityImpl("CompositeByteArrayKeyTest");
+    db.begin();
+    EntityImpl doc1 = ((EntityImpl) db.newEntity("CompositeByteArrayKeyTest"));
     doc1.field("byteArrayKey", key1);
     doc1.field("intKey", 1);
     doc1.save();
 
-    EntityImpl doc2 = new EntityImpl("CompositeByteArrayKeyTest");
+    EntityImpl doc2 = ((EntityImpl) db.newEntity("CompositeByteArrayKeyTest"));
     doc2.field("byteArrayKey", key2);
     doc2.field("intKey", 2);
     doc2.save();
-    database.commit();
+    db.commit();
 
     Index index =
-        database
+        db
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, "compositeByteArrayKey");
-    try (Stream<RID> stream = index.getInternal().getRids(database, new CompositeKey(key1, 1))) {
-      Assert.assertEquals(stream.findAny().map(RID::getRecord).orElse(null), doc1);
+            .getIndex(db, "compositeByteArrayKey");
+    try (Stream<RID> stream = index.getInternal().getRids(db, new CompositeKey(key1, 1))) {
+      Assert.assertEquals(stream.findAny().map(rid -> rid.getRecord(db)).orElse(null), doc1);
     }
-    try (Stream<RID> stream = index.getInternal().getRids(database, new CompositeKey(key2, 2))) {
-      Assert.assertEquals(stream.findAny().map(RID::getRecord).orElse(null), doc2);
+    try (Stream<RID> stream = index.getInternal().getRids(db, new CompositeKey(key2, 2))) {
+      Assert.assertEquals(stream.findAny().map(rid -> rid.getRecord(db)).orElse(null), doc2);
     }
   }
 
@@ -157,11 +157,11 @@ public class ByteArrayKeyTest extends BaseDBTest {
         };
 
     Index autoIndex =
-        database.getMetadata().getIndexManagerInternal().getIndex(database, "byteArrayKeyIndex");
-    try (Stream<RID> stream = autoIndex.getInternal().getRids(database, key1)) {
+        db.getMetadata().getIndexManagerInternal().getIndex(db, "byteArrayKeyIndex");
+    try (Stream<RID> stream = autoIndex.getInternal().getRids(db, key1)) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
-    try (Stream<RID> stream = autoIndex.getInternal().getRids(database, key2)) {
+    try (Stream<RID> stream = autoIndex.getInternal().getRids(db, key2)) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
   }

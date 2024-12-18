@@ -52,7 +52,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
   @Test
   public void testPointIO() throws ParseException, org.locationtech.jts.io.ParseException {
 
-    EntityImpl doc = new EntityImpl("OPoint");
+    EntityImpl doc = ((EntityImpl) db.newEntity("OPoint"));
     doc.field(
         "coordinates",
         new ArrayList<Double>() {
@@ -72,7 +72,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
 
     Assert.assertEquals(p2, p1);
 
-    EntityImpl parsed = builder.toDoc(p2);
+    EntityImpl parsed = builder.toEntitty(p2);
 
     Assert.assertEquals(doc.<PointShapeBuilder>field("coordinates"), parsed.field("coordinates"));
   }
@@ -81,7 +81,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
   @Test
   public void testMultiPointIO() {
 
-    EntityImpl doc = new EntityImpl("OMultiPoint");
+    EntityImpl doc = ((EntityImpl) db.newEntity("OMultiPoint"));
     doc.field(
         "coordinates",
         new ArrayList<List<Double>>() {
@@ -134,7 +134,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
   @Test
   public void testLineStringIO() {
 
-    EntityImpl doc = new EntityImpl("OLineString");
+    EntityImpl doc = ((EntityImpl) db.newEntity("OLineString"));
     doc.field(
         "coordinates",
         new ArrayList<List<Double>>() {
@@ -167,7 +167,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
   @Test
   public void testMultiLineStringIO() {
 
-    EntityImpl doc = new EntityImpl("OMultiLineString");
+    EntityImpl doc = ((EntityImpl) db.newEntity("OMultiLineString"));
     doc.field(
         "coordinates",
         new ArrayList<List<List<Double>>>() {
@@ -210,7 +210,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
   @Test
   public void testPolygonNoHolesIO() {
 
-    EntityImpl doc = new EntityImpl("OPolygon");
+    EntityImpl doc = ((EntityImpl) db.newEntity("OPolygon"));
     doc.field(
         "coordinates",
         new ArrayList<List<List<Double>>>() {
@@ -248,7 +248,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
   @Test
   public void testPolygonHolesIO() {
 
-    EntityImpl doc = new EntityImpl("OPolygon");
+    EntityImpl doc = ((EntityImpl) db.newEntity("OPolygon"));
     doc.field("coordinates", polygonCoordTestHole());
 
     Polygon polygon1 = polygonTestHole();

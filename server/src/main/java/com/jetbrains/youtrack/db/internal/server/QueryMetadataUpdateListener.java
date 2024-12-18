@@ -11,7 +11,7 @@ class QueryMetadataUpdateListener implements MetadataUpdateListener {
   private boolean updated = false;
 
   @Override
-  public void onSchemaUpdate(DatabaseSessionInternal session, String database,
+  public void onSchemaUpdate(DatabaseSessionInternal db, String database,
       SchemaShared schema) {
     updated = true;
   }

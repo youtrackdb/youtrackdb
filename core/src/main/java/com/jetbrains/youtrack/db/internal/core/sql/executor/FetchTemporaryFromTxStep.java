@@ -1,16 +1,16 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
-import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
@@ -52,11 +52,12 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
     Iterable<? extends RecordOperation> iterable =
         ctx.getDatabase().getTransaction().getRecordOperations();
 
+    var db = ctx.getDatabase();
     List<Record> records = new ArrayList<>();
     if (iterable != null) {
       for (RecordOperation op : iterable) {
         Record record = op.record;
-        if (matchesClass(record, className) && !hasCluster(record)) {
+        if (matchesClass(db, record, className) && !hasCluster(record)) {
           records.add(record);
         }
       }
@@ -87,8 +88,8 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
     return rid.getClusterId() >= 0;
   }
 
-  private static boolean matchesClass(Record record, String className) {
-    if (!(record.getRecord() instanceof EntityImpl entity)) {
+  private static boolean matchesClass(DatabaseSessionInternal db, Record record, String className) {
+    if (!(record.getRecord(db) instanceof EntityImpl entity)) {
       return false;
     }
 

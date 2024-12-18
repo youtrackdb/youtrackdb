@@ -15,18 +15,18 @@
 package com.jetbrains.youtrack.db.internal.spatial.engine;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.id.ContextualRecordId;
-import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.core.index.IndexException;
 import com.jetbrains.youtrack.db.internal.core.index.IndexKeyUpdater;
 import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
-import com.jetbrains.youtrack.db.internal.core.index.IndexException;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValidator;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValuesTransformer;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import com.jetbrains.youtrack.db.internal.lucene.engine.LuceneIndexEngine;
@@ -47,7 +47,7 @@ import org.apache.lucene.spatial.SpatialStrategy;
  *
  */
 public class LuceneSpatialIndexEngineDelegator
-    implements LuceneIndexEngine, OLuceneSpatialIndexContainer {
+    implements LuceneIndexEngine, LuceneSpatialIndexContainer {
 
   private final Storage storage;
   private final String indexName;
@@ -67,18 +67,19 @@ public class LuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public void init(IndexMetadata im) {
+  public void init(DatabaseSessionInternal db, IndexMetadata im) {
     if (delegate == null) {
       if (SchemaClass.INDEX_TYPE.SPATIAL.name().equalsIgnoreCase(im.getType())) {
         if (im.getIndexDefinition().getFields().size() > 1) {
           delegate =
-              new LuceneLegacySpatialIndexEngine(storage, indexName, id, ShapeFactory.INSTANCE);
+              new LuceneLegacySpatialIndexEngine(this.storage, indexName, id,
+                  ShapeFactory.INSTANCE);
         } else {
           delegate =
-              new LuceneGeoSpatialIndexEngine(storage, indexName, id, ShapeFactory.INSTANCE);
+              new LuceneGeoSpatialIndexEngine(this.storage, indexName, id, ShapeFactory.INSTANCE);
         }
 
-        delegate.init(im);
+        delegate.init(db, im);
       } else {
         throw new IllegalStateException("Invalid index type " + im.getType());
       }
@@ -108,14 +109,14 @@ public class LuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public boolean remove(AtomicOperation atomicOperation, Object key) {
-    return delegate.remove(atomicOperation, key);
+  public boolean remove(Storage storage, AtomicOperation atomicOperation, Object key) {
+    return delegate.remove(storage, atomicOperation, key);
   }
 
   @Override
-  public void clear(AtomicOperation atomicOperation) {
+  public void clear(Storage storage, AtomicOperation atomicOperation) {
 
-    delegate.clear(atomicOperation);
+    delegate.clear(storage, atomicOperation);
   }
 
   @Override
@@ -125,16 +126,16 @@ public class LuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public Object get(DatabaseSessionInternal session, Object key) {
-    return delegate.get(session, key);
+  public Object get(DatabaseSessionInternal db, Object key) {
+    return delegate.get(db, key);
   }
 
   @Override
-  public void put(DatabaseSessionInternal session, AtomicOperation atomicOperation, Object key,
+  public void put(DatabaseSessionInternal db, AtomicOperation atomicOperation, Object key,
       Object value) {
 
     try {
-      delegate.put(session, atomicOperation, key, value);
+      delegate.put(db, atomicOperation, key, value);
     } catch (IOException e) {
       throw BaseException.wrapException(
           new IndexException("Error during insertion of key " + key + " in index " + indexName),
@@ -144,10 +145,10 @@ public class LuceneSpatialIndexEngineDelegator
 
   @Override
   public void update(
-      DatabaseSessionInternal session, AtomicOperation atomicOperation, Object key,
+      DatabaseSessionInternal db, AtomicOperation atomicOperation, Object key,
       IndexKeyUpdater<Object> updater) {
     try {
-      delegate.update(session, atomicOperation, key, updater);
+      delegate.update(db, atomicOperation, key, updater);
     } catch (IOException e) {
       throw BaseException.wrapException(
           new IndexException("Error during update of key " + key + " in index " + indexName), e);
@@ -171,13 +172,13 @@ public class LuceneSpatialIndexEngineDelegator
 
   @Override
   public Stream<RawPair<Object, RID>> iterateEntriesBetween(
-      DatabaseSessionInternal session, Object rangeFrom,
+      DatabaseSessionInternal db, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
       boolean toInclusive,
       boolean ascSortOrder,
       IndexEngineValuesTransformer transformer) {
-    return delegate.iterateEntriesBetween(session
+    return delegate.iterateEntriesBetween(db
         , rangeFrom, fromInclusive, rangeTo, toInclusive, ascSortOrder, transformer);
   }
 
@@ -216,8 +217,8 @@ public class LuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public long size(IndexEngineValuesTransformer transformer) {
-    return delegate.size(transformer);
+  public long size(Storage storage, IndexEngineValuesTransformer transformer) {
+    return delegate.size(storage, transformer);
   }
 
   @Override
@@ -245,9 +246,9 @@ public class LuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public Document buildDocument(DatabaseSessionInternal session, Object key,
+  public Document buildDocument(DatabaseSessionInternal db, Object key,
       Identifiable value) {
-    return delegate.buildDocument(session, key, value);
+    return delegate.buildDocument(db, key, value);
   }
 
   @Override
@@ -266,23 +267,23 @@ public class LuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public boolean remove(Object key) {
-    return delegate.remove(key);
+  public boolean remove(Storage storage, Object key) {
+    return delegate.remove(storage, key);
   }
 
   @Override
-  public boolean remove(Object key, Identifiable value) {
-    return delegate.remove(key, value);
+  public boolean remove(Storage storage, Object key, Identifiable value) {
+    return delegate.remove(storage, key, value);
   }
 
   @Override
-  public IndexSearcher searcher() {
-    return delegate.searcher();
+  public IndexSearcher searcher(Storage storage) {
+    return delegate.searcher(storage);
   }
 
   @Override
-  public void release(IndexSearcher searcher) {
-    delegate.release(searcher);
+  public void release(Storage storage, IndexSearcher searcher) {
+    delegate.release(storage, searcher);
   }
 
   @Override
@@ -296,14 +297,14 @@ public class LuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public Set<Identifiable> getInTx(DatabaseSessionInternal session, Object key,
+  public Set<Identifiable> getInTx(DatabaseSessionInternal db, Object key,
       LuceneTxChanges changes) {
-    return delegate.getInTx(session, key, changes);
+    return delegate.getInTx(db, key, changes);
   }
 
   @Override
-  public long sizeInTx(LuceneTxChanges changes) {
-    return delegate.sizeInTx(changes);
+  public long sizeInTx(LuceneTxChanges changes, Storage storage) {
+    return delegate.sizeInTx(changes, storage);
   }
 
   @Override
@@ -312,8 +313,8 @@ public class LuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public Query deleteQuery(Object key, Identifiable value) {
-    return delegate.deleteQuery(key, value);
+  public Query deleteQuery(Storage storage, Object key, Identifiable value) {
+    return delegate.deleteQuery(storage, key, value);
   }
 
   @Override
@@ -322,13 +323,13 @@ public class LuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public void freeze(boolean throwException) {
-    delegate.freeze(throwException);
+  public void freeze(DatabaseSessionInternal db, boolean throwException) {
+    delegate.freeze(db, throwException);
   }
 
   @Override
-  public void release() {
-    delegate.release();
+  public void release(DatabaseSessionInternal db) {
+    delegate.release(db);
   }
 
   @Override
@@ -339,19 +340,5 @@ public class LuceneSpatialIndexEngineDelegator
   @Override
   public String getIndexNameByKey(Object key) {
     return delegate.getIndexNameByKey(key);
-  }
-
-  @Override
-  public void updateUniqueIndexVersion(final Object key) {
-    // not implemented
-  }
-
-  @Override
-  public int getUniqueIndexVersion(final Object key) {
-    return 0; // not implemented
-  }
-
-  public LuceneIndexEngine getDelegate() {
-    return delegate;
   }
 }

@@ -31,7 +31,7 @@ public class CheckHookCallCountTest extends DbTestBase {
 
     String id = UUID.randomUUID().toString();
     db.begin();
-    EntityImpl first = new EntityImpl(CLASS_NAME);
+    EntityImpl first = (EntityImpl) db.newEntity(CLASS_NAME);
     first.field(FIELD_ID, id);
     first.field(FIELD_STATUS, STATUS);
     db.save(first);
@@ -57,7 +57,7 @@ public class CheckHookCallCountTest extends DbTestBase {
     oClass.createProperty(db, "c", PropertyType.INTEGER);
 
     db.begin();
-    EntityImpl doc = new EntityImpl(oClass);
+    EntityImpl doc = (EntityImpl) db.newEntity(oClass);
     doc.field("a", 2);
     doc.field("b", 2);
     doc.save();
@@ -106,7 +106,7 @@ public class CheckHookCallCountTest extends DbTestBase {
     db.rollback();
 
     db.begin();
-    doc = new EntityImpl(oClass);
+    doc = (EntityImpl) db.newEntity(oClass);
     doc.field("a", 3);
     doc.field("b", 3);
     doc.save();

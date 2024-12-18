@@ -19,13 +19,13 @@
  */
 package com.jetbrains.youtrack.db.internal.core.hook;
 
-import com.jetbrains.youtrack.db.api.record.RecordHook;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.DatabaseSession.STATUS;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.RecordHook;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 
@@ -203,7 +203,8 @@ public abstract class DocumentHookAbstract implements RecordHook {
   public void onRecordFinalizeDeletion(final EntityImpl entity) {
   }
 
-  public RESULT onTrigger(final TYPE iType, final Record iRecord) {
+  @Override
+  public RESULT onTrigger(DatabaseSession db, final TYPE iType, final Record iRecord) {
     if (database.getStatus() != STATUS.OPEN) {
       return RESULT.RECORD_NOT_CHANGED;
     }

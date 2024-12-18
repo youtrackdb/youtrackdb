@@ -8,9 +8,9 @@ import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.OTokenHandler;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAbstract;
 import java.io.IOException;
 import java.util.Locale;
@@ -41,7 +41,7 @@ public class ServerCommandPostAuthToken extends ServerCommandAbstract {
   }
 
   @Override
-  public boolean execute(OHttpRequest iRequest, HttpResponse iResponse) throws Exception {
+  public boolean execute(HttpRequest iRequest, HttpResponse iResponse) throws Exception {
     init();
     String[] urlParts = checkSyntax(iRequest.getUrl(), 2, "Syntax error: token/<database>");
     iRequest.setDatabaseName(urlParts[1]);
@@ -51,7 +51,7 @@ public class ServerCommandPostAuthToken extends ServerCommandAbstract {
     // Parameter names consistent with 4.3.2 (Access Token Request) of RFC 6749
     Map<String, String> content = iRequest.getUrlEncodedContent();
     if (content == null) {
-      EntityImpl result = new EntityImpl().field("error", "missing_auth_data");
+      EntityImpl result = new EntityImpl(null).field("error", "missing_auth_data");
       sendError(iRequest, iResponse, result);
       return false;
     }
@@ -89,15 +89,15 @@ public class ServerCommandPostAuthToken extends ServerCommandAbstract {
         }
 
         // 4.1.4 (Access Token Response) of RFC 6749
-        result = new EntityImpl().field("access_token", signedToken).field("expires_in", 3600);
+        result = new EntityImpl(null).field("access_token", signedToken).field("expires_in", 3600);
 
         iResponse.writeRecord(result, RESPONSE_FORMAT, null);
       } else {
-        result = new EntityImpl().field("error", "unsupported_grant_type");
+        result = new EntityImpl(null).field("error", "unsupported_grant_type");
         sendError(iRequest, iResponse, result);
       }
     } else {
-      result = new EntityImpl().field("error", "unsupported_grant_type");
+      result = new EntityImpl(null).field("error", "unsupported_grant_type");
       sendError(iRequest, iResponse, result);
     }
 
@@ -130,7 +130,7 @@ public class ServerCommandPostAuthToken extends ServerCommandAbstract {
   }
 
   protected void sendError(
-      final OHttpRequest iRequest, final HttpResponse iResponse, final EntityImpl error)
+      final HttpRequest iRequest, final HttpResponse iResponse, final EntityImpl error)
       throws IOException {
     iResponse.send(
         HttpUtils.STATUS_BADREQ_CODE,
@@ -141,7 +141,7 @@ public class ServerCommandPostAuthToken extends ServerCommandAbstract {
   }
 
   protected void sendAuthorizationRequest(
-      final OHttpRequest iRequest, final HttpResponse iResponse, final String iDatabaseName)
+      final HttpRequest iRequest, final HttpResponse iResponse, final String iDatabaseName)
       throws IOException {
 
     String header = null;

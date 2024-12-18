@@ -36,42 +36,42 @@ public class FetchPlanComplexNestedLevelsTest extends BaseDBTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final SchemaClass personTest = database.getMetadata().getSchema().getClass("PersonTest");
+    final SchemaClass personTest = db.getMetadata().getSchema().getClass("PersonTest");
     if (personTest == null) {
-      database
+      db
           .getMetadata()
           .getSchema()
-          .createClass("PersonTest", database.getMetadata().getSchema().getClass("V"));
+          .createClass("PersonTest", db.getMetadata().getSchema().getClass("V"));
     } else if (personTest.getSuperClass() == null) {
-      personTest.setSuperClass(database, database.getMetadata().getSchema().getClass("V"));
+      personTest.setSuperClass(db, db.getMetadata().getSchema().getClass("V"));
     }
 
-    final SchemaClass followTest = database.getMetadata().getSchema().getClass("FollowTest");
+    final SchemaClass followTest = db.getMetadata().getSchema().getClass("FollowTest");
     if (followTest == null) {
-      database
+      db
           .getMetadata()
           .getSchema()
-          .createClass("FollowTest", database.getMetadata().getSchema().getClass("E"));
+          .createClass("FollowTest", db.getMetadata().getSchema().getClass("E"));
     } else if (followTest.getSuperClass() == null) {
-      followTest.setSuperClass(database, database.getMetadata().getSchema().getClass("E"));
+      followTest.setSuperClass(db, db.getMetadata().getSchema().getClass("E"));
     }
 
-    database.begin();
-    database.command("create vertex PersonTest set name = 'A'").close();
-    database.command("create vertex PersonTest set name = 'B'").close();
-    database.command("create vertex PersonTest set name = 'C'").close();
+    db.begin();
+    db.command("create vertex PersonTest set name = 'A'").close();
+    db.command("create vertex PersonTest set name = 'B'").close();
+    db.command("create vertex PersonTest set name = 'C'").close();
 
-    database
+    db
         .command(
             "create edge FollowTest from (select from PersonTest where name = 'A') to (select from"
                 + " PersonTest where name = 'B')")
         .close();
-    database
+    db
         .command(
             "create edge FollowTest from (select from PersonTest where name = 'B') to (select from"
                 + " PersonTest where name = 'C')")
         .close();
-    database.commit();
+    db.commit();
   }
 
   @Test
@@ -86,7 +86,7 @@ public class FetchPlanComplexNestedLevelsTest extends BaseDBTest {
 
     Assert.assertNotNull(json);
 
-    final EntityImpl parsed = new EntityImpl();
+    final EntityImpl parsed = ((EntityImpl) db.newEntity());
     parsed.fromJSON(json);
 
     Assert.assertNotNull(parsed.rawField("out_FollowTest.in.out_FollowTest"));
@@ -103,7 +103,7 @@ public class FetchPlanComplexNestedLevelsTest extends BaseDBTest {
 
     Assert.assertNotNull(json);
 
-    final EntityImpl parsed = new EntityImpl();
+    final EntityImpl parsed = ((EntityImpl) db.newEntity());
     parsed.fromJSON(json);
 
     Assert.assertNotNull(parsed.rawField("out_FollowTest.in.out_FollowTest"));

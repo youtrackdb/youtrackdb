@@ -34,21 +34,22 @@ public interface CommandExecutor {
    * Parse the request. Once parsed the command can be executed multiple times by using the
    * execute() method.
    *
+   * @param db
    * @param iRequest Command request implementation.
    * @return
-   * @see #execute(Map, DatabaseSessionInternal) <Object, Object>...)
+   * @see #execute(DatabaseSessionInternal, Map) <Object, Object>...)
    */
-  <RET extends CommandExecutor> RET parse(CommandRequest iRequest);
+  <RET extends CommandExecutor> RET parse(DatabaseSessionInternal db, CommandRequest iRequest);
 
   /**
    * Execute the requested command parsed previously.
    *
-   * @param iArgs        Optional variable arguments to pass to the command.
-   * @param querySession
+   * @param db
+   * @param iArgs Optional variable arguments to pass to the command.
    * @return
-   * @see #parse(CommandRequest)
+   * @see #parse(DatabaseSessionInternal, CommandRequest)
    */
-  Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession);
+  Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs);
 
   /**
    * Set the listener invoked while the command is executing.

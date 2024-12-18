@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,7 +23,7 @@ public class GetPropertyOnLoadValueTest extends DbTestBase {
   public void testOnloadValue() {
     db.createClass("test");
     db.begin();
-    EntityImpl doc = new EntityImpl("test");
+    EntityImpl doc = (EntityImpl) db.newEntity("test");
     doc.setProperty("name", "John Doe");
     doc.save();
     db.commit();
@@ -101,8 +101,8 @@ public class GetPropertyOnLoadValueTest extends DbTestBase {
     String after = "Goodbye Cruel World";
 
     var byteArrayAfter = after.getBytes();
-    var oBlob = new RecordBytes(byteArrayBefore);
-    var oBlob2 = new RecordBytes(byteArrayAfter);
+    var oBlob = db.newBlob(byteArrayBefore);
+    var oBlob2 = db.newBlob(byteArrayAfter);
     db.createVertexClass("test");
     db.begin();
     VertexEntityImpl doc = (VertexEntityImpl) db.newVertex("test");

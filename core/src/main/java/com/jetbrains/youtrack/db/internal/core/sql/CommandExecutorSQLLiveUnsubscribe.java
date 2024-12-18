@@ -19,11 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHook;
@@ -48,7 +48,7 @@ public class CommandExecutorSQLLiveUnsubscribe extends CommandExecutorSQLAbstrac
     try {
 
       LiveQueryHook.unsubscribe(Integer.parseInt(unsubscribeToken), getDatabase());
-      EntityImpl result = new EntityImpl();
+      EntityImpl result = new EntityImpl(null);
       result.field("unsubscribed", unsubscribeToken);
       result.field("unsubscribe", true);
       result.field("token", unsubscribeToken);
@@ -64,7 +64,7 @@ public class CommandExecutorSQLLiveUnsubscribe extends CommandExecutorSQLAbstrac
                   + e.getClass().getName()
                   + " - "
                   + e.getMessage());
-      EntityImpl result = new EntityImpl();
+      EntityImpl result = new EntityImpl(null);
       result.field("error-unsubscribe", unsubscribeToken);
       result.field("error-description", e.getMessage());
       result.field("error-type", e.getClass().getName());
@@ -80,17 +80,18 @@ public class CommandExecutorSQLLiveUnsubscribe extends CommandExecutorSQLAbstrac
         .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
   }
 
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     if (this.unsubscribeToken != null) {
       return executeUnsubscribe();
     }
-    EntityImpl result = new EntityImpl();
+    EntityImpl result = new EntityImpl(null);
     result.field("error-unsubscribe", "no token");
     return result;
   }
 
   @Override
-  public CommandExecutorSQLLiveUnsubscribe parse(CommandRequest iRequest) {
+  public CommandExecutorSQLLiveUnsubscribe parse(DatabaseSessionInternal db,
+      CommandRequest iRequest) {
     CommandRequestText requestText = (CommandRequestText) iRequest;
     String originalText = requestText.getText();
     String remainingText = requestText.getText().trim().substring(5).trim();

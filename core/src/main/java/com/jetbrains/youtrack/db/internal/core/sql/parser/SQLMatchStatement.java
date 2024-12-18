@@ -2,43 +2,33 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.exception.ErrorCode;
-import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.util.PairLongObject;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
-import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
-import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLResultsetDelegate;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLSelect;
-import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.sql.IterableRecordSource;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.MatchExecutionPlanner;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.PatternEdge;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.PatternNode;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLTarget;
-import com.jetbrains.youtrack.db.internal.core.sql.query.BasicLegacyResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -54,41 +44,41 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
-    IterableRecordSource {
+public final class SQLMatchStatement extends SQLStatement implements IterableRecordSource {
 
   static final String DEFAULT_ALIAS_PREFIX = "$YOUTRACKDB_DEFAULT_ALIAS_";
 
-  private SQLAsynchQuery<EntityImpl> request;
   public static final String KEYWORD_MATCH = "MATCH";
   // parsed data
-  protected List<SQLMatchExpression> matchExpressions = new ArrayList<>();
-  protected List<SQLMatchExpression> notMatchExpressions = new ArrayList<>();
-  protected List<SQLExpression> returnItems = new ArrayList<>();
-  protected List<SQLIdentifier> returnAliases = new ArrayList<>();
-  protected List<SQLNestedProjection> returnNestedProjections = new ArrayList<>();
-  protected boolean returnDistinct = false;
-  protected SQLGroupBy groupBy;
-  protected SQLOrderBy orderBy;
-  protected SQLUnwind unwind;
-  protected SQLSkip skip;
-  protected SQLLimit limit;
+  private List<SQLMatchExpression> matchExpressions = new ArrayList<>();
+  private List<SQLMatchExpression> notMatchExpressions = new ArrayList<>();
+  private List<SQLExpression> returnItems = new ArrayList<>();
+  private List<SQLIdentifier> returnAliases = new ArrayList<>();
+  private List<SQLNestedProjection> returnNestedProjections = new ArrayList<>();
+  boolean returnDistinct = false;
+  SQLGroupBy groupBy;
+  SQLOrderBy orderBy;
+  SQLUnwind unwind;
+  SQLSkip skip;
+  SQLLimit limit;
 
   // post-parsing generated data
-  protected Pattern pattern;
+  Pattern pattern;
 
   private Map<String, SQLWhereClause> aliasFilters;
-  private Map<String, String> aliasClasses;
 
   // execution data
   private CommandContext context;
-  private ProgressListener progressListener;
 
   long threshold = 20;
   private int limitFromProtocol = -1;
 
   public List<SQLNestedProjection> getReturnNestedProjections() {
     return returnNestedProjections;
+  }
+
+  public void setContext(CommandContext context) {
+    this.context = context;
   }
 
   public void setReturnNestedProjections(List<SQLNestedProjection> returnNestedProjections) {
@@ -116,6 +106,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
   }
 
   public static class MatchContext {
+
     int currentEdgeNumber = 0;
 
     Map<String, Iterable> candidates = new LinkedHashMap<String, Iterable>();
@@ -136,8 +127,8 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
       return result;
     }
 
-    public EntityImpl toDoc() {
-      EntityImpl entity = new EntityImpl();
+    public EntityImpl toEntity(DatabaseSessionInternal db) {
+      EntityImpl entity = new EntityImpl(db);
       entity.fromMap(matched);
       return entity;
     }
@@ -201,7 +192,8 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
 
   @Override
   public ResultSet execute(
-      DatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
+      DatabaseSessionInternal db, Map<Object, Object> params, CommandContext parentCtx,
+      boolean usePlanCache) {
     BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
@@ -229,69 +221,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
   // ------------------------------------------------------------------
   // query parsing and optimization
   // ------------------------------------------------------------------
-
-  /**
-   * this method parses the statement
-   *
-   * @param iRequest Command request implementation.
-   * @param <RET>
-   * @return
-   */
-  @Override
-  public <RET extends CommandExecutor> RET parse(CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
-    if (iRequest instanceof SQLSynchQuery) {
-      request = (SQLSynchQuery<EntityImpl>) iRequest;
-    } else if (iRequest instanceof SQLAsynchQuery) {
-      request = (SQLAsynchQuery<EntityImpl>) iRequest;
-    } else {
-      // BUILD A QUERY OBJECT FROM THE COMMAND REQUEST
-      request = new SQLSynchQuery<EntityImpl>(textRequest.getText());
-      if (textRequest.getResultListener() != null) {
-        request.setResultListener(textRequest.getResultListener());
-      }
-    }
-    String queryText = textRequest.getText();
-
-    // please, do not look at this... refactor this ASAP with new executor structure
-    final InputStream is = new ByteArrayInputStream(queryText.getBytes());
-    YouTrackDBSql osql = null;
-    DatabaseSessionInternal db = context.getDatabase();
-    try {
-      if (db == null) {
-        osql = new YouTrackDBSql(is);
-      } else {
-        osql = new YouTrackDBSql(is, db.getStorageInfo().getConfiguration().getCharset());
-      }
-    } catch (UnsupportedEncodingException e) {
-      LogManager.instance()
-          .warn(
-              this,
-              "Invalid charset for database "
-                  + db
-                  + " "
-                  + db.getStorageInfo().getConfiguration().getCharset());
-      osql = new YouTrackDBSql(is);
-    }
-
-    try {
-      SQLMatchStatement result = (SQLMatchStatement) osql.parse();
-      this.matchExpressions = result.matchExpressions;
-      this.notMatchExpressions = result.notMatchExpressions;
-      this.returnItems = result.returnItems;
-      this.returnAliases = result.returnAliases;
-      this.limit = result.limit;
-    } catch (ParseException e) {
-      CommandSQLParsingException ex = new CommandSQLParsingException(e, queryText);
-      ErrorCode.QUERY_PARSE_ERROR.throwException(ex.getMessage(), ex);
-    }
-
-    buildPatterns();
-    pattern.validate();
-    return (RET) this;
-  }
-
-  protected void buildPatterns() {
+  void buildPatterns() {
     assignDefaultAliases(this.matchExpressions);
     pattern = new Pattern();
     for (SQLMatchExpression expr : this.matchExpressions) {
@@ -305,7 +235,6 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     }
 
     this.aliasFilters = aliasFilters;
-    this.aliasClasses = aliasClasses;
 
     rebindFilters(aliasFilters);
   }
@@ -350,82 +279,6 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     }
   }
 
-  // ------------------------------------------------------------------
-  // query execution
-  // ------------------------------------------------------------------
-
-  /**
-   * this method works statefully, using request and context variables from current Match statement.
-   * This method will be deprecated in next releases
-   *
-   * @param iArgs        Optional variable arguments to pass to the command.
-   * @param querySession
-   * @return
-   */
-  @Override
-  public Object execute(Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
-    this.context.setInputParameters(iArgs);
-    this.context.setDatabase(querySession);
-
-    return execute(this.request, this.context, this.progressListener);
-  }
-
-  /**
-   * executes the match statement. This is the preferred execute() method and it has to be used as
-   * the default one in the future. This method works in stateless mode
-   *
-   * @param request
-   * @param context
-   * @return
-   */
-  public Object execute(
-      SQLAsynchQuery<EntityImpl> request,
-      CommandContext context,
-      ProgressListener progressListener) {
-    if (orderBy != null) {
-      throw new CommandExecutionException("ORDER BY is not supported in MATCH on the legacy API");
-    }
-    if (groupBy != null) {
-      throw new CommandExecutionException("GROUP BY is not supported in MATCH on the legacy API");
-    }
-    if (unwind != null) {
-      throw new CommandExecutionException("UNWIND is not supported in MATCH on the legacy API");
-    }
-    if (skip != null) {
-      throw new CommandExecutionException("SKIP is not supported in MATCH on the legacy API");
-    }
-
-    Map<Object, Object> iArgs = context.getInputParameters();
-    try {
-
-      Map<String, Long> estimatedRootEntries =
-          estimateRootEntries(aliasClasses, aliasFilters, context);
-      if (estimatedRootEntries.containsValue(0L)) {
-        return new BasicLegacyResultSet(); // some aliases do not match on any classes
-      }
-
-      List<EdgeTraversal> sortedEdges = getTopologicalSortedSchedule(estimatedRootEntries, pattern);
-      MatchExecutionPlan executionPlan = new MatchExecutionPlan();
-      executionPlan.sortedEdges = sortedEdges;
-
-      calculateMatch(
-          pattern,
-          estimatedRootEntries,
-          new MatchContext(),
-          aliasClasses,
-          aliasFilters,
-          context,
-          request,
-          executionPlan);
-
-      return getResult(request);
-    } finally {
-      if (request.getResultListener() != null) {
-        request.getResultListener().end();
-      }
-    }
-  }
-
   /**
    * Start a depth-first traversal from the starting node, adding all viable unscheduled edges and
    * vertices.
@@ -439,7 +292,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
    * @param resultingSchedule     the schedule being computed i.e. appended to (mutated in this
    *                              function)
    */
-  private void updateScheduleStartingAt(
+  private static void updateScheduleStartingAt(
       PatternNode startNode,
       Set<PatternNode> visitedNodes,
       Set<PatternEdge> visitedEdges,
@@ -645,7 +498,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     return resultingSchedule;
   }
 
-  protected Object getResult(SQLAsynchQuery<EntityImpl> request) {
+  private Object getResult(SQLAsynchQuery<EntityImpl> request) {
     if (request instanceof SQLSynchQuery) {
       return ((SQLSynchQuery<EntityImpl>) request).getResult();
     }
@@ -854,7 +707,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
             continue; // broken graph?, null reference
           }
 
-          if (rightClass != null && !matchesClass(rightValue, rightClass)) {
+          if (rightClass != null && !matchesClass(db, rightValue, rightClass)) {
             continue;
           }
           Iterable<Identifiable> prevMatchedRightValues =
@@ -961,7 +814,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
               continue; // broken graph? null reference
             }
 
-            if (leftClass != null && !matchesClass(leftValue, leftClass)) {
+            if (leftClass != null && !matchesClass(db, leftValue, leftClass)) {
               continue;
             }
             Iterable<Identifiable> prevMatchedRightValues =
@@ -1015,7 +868,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
               SQLWhereClause where = aliasFilters.get(inEdge.out.alias);
               String className = aliasClasses.get(inEdge.out.alias);
               SchemaClass oClass = db.getMetadata().getSchema().getClass(className);
-              if ((oClass == null || matchesClass(leftValue, oClass))
+              if ((oClass == null || matchesClass(db, leftValue, oClass))
                   && (where == null || where.matchesFilters(leftValue, iCommandContext))) {
                 MatchContext childContext =
                     matchContext.copy(inEdge.out.alias, leftValue.getIdentity());
@@ -1040,12 +893,13 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     return true;
   }
 
-  private boolean matchesClass(Identifiable identifiable, SchemaClass oClass) {
+  private static boolean matchesClass(DatabaseSessionInternal db, Identifiable identifiable,
+      SchemaClass oClass) {
     if (identifiable == null) {
       return false;
     }
     try {
-      Record record = identifiable.getRecord();
+      Record record = identifiable.getRecord(db);
       if (record instanceof EntityImpl) {
         SchemaClass schemaClass = EntityInternalUtils.getImmutableSchemaClass(
             ((EntityImpl) record));
@@ -1169,7 +1023,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
       for (Map.Entry<String, Identifiable> entry : matchContext.matched.entrySet()) {
         if (isExplicitAlias(entry.getKey()) && entry.getValue() != null) {
           try {
-            Record record = entry.getValue().getRecord();
+            Record record = entry.getValue().getRecord(db);
             if (request.getResultListener() != null) {
               if (!addSingleResult(request, (BasicCommandContext) ctx, record)) {
                 return false;
@@ -1184,7 +1038,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
       for (Map.Entry<String, Identifiable> entry : matchContext.matched.entrySet()) {
         if (entry.getValue() != null) {
           try {
-            Record record = entry.getValue().getRecord();
+            Record record = entry.getValue().getRecord(db);
             if (request.getResultListener() != null) {
               if (!addSingleResult(request, (BasicCommandContext) ctx, record)) {
                 return false;
@@ -1216,7 +1070,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
       entity.setTrackingChanges(false);
       int i = 0;
 
-      EntityImpl mapDoc = new EntityImpl();
+      EntityImpl mapDoc = new EntityImpl(db);
       mapDoc.setTrackingChanges(false);
       mapDoc.fromMap(matchContext.matched);
       ctx.setVariable("$current", mapDoc);
@@ -1317,9 +1171,10 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     if (returnItems.size() == 1
         && (returnItems.get(0).value instanceof SQLJson)
         && returnAliases.get(0) == null) {
-      EntityImpl result = new EntityImpl();
+      var db = ctx.getDatabase();
+      EntityImpl result = new EntityImpl(db);
       result.setTrackingChanges(false);
-      result.fromMap(((SQLJson) returnItems.get(0).value).toMap(matchContext.toDoc(), ctx));
+      result.fromMap(((SQLJson) returnItems.get(0).value).toMap(matchContext.toEntity(db), ctx));
       return result;
     }
     throw new IllegalStateException("Match RETURN statement is not a plain JSON");
@@ -1548,81 +1403,8 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
   }
 
   @Override
-  public <RET extends CommandExecutor> RET setProgressListener(
-      ProgressListener progressListener) {
-    this.progressListener = progressListener;
-    return (RET) this;
-  }
-
-  @Override
-  public <RET extends CommandExecutor> RET setLimit(int iLimit) {
-    limitFromProtocol = iLimit;
-    return (RET) this;
-  }
-
-  @Override
-  public String getFetchPlan() {
-    return null;
-  }
-
-  @Override
-  public Map<Object, Object> getParameters() {
-    return null;
-  }
-
-  @Override
-  public CommandContext getContext() {
-    return context;
-  }
-
-  @Override
-  public void setContext(CommandContext context) {
-    this.context = context;
-  }
-
-  @Override
   public boolean isIdempotent() {
     return true;
-  }
-
-  @Override
-  public Set<String> getInvolvedClusters() {
-    return Collections.EMPTY_SET;
-  }
-
-  @Override
-  public int getSecurityOperationType() {
-    return Role.PERMISSION_READ;
-  }
-
-  @Override
-  public boolean involveSchema() {
-    return false;
-  }
-
-  @Override
-  public String getSyntax() {
-    return "MATCH <match-statement> [, <match-statement] RETURN <alias>[, <alias>]";
-  }
-
-  @Override
-  public boolean isLocalExecution() {
-    return true;
-  }
-
-  @Override
-  public boolean isCacheable() {
-    return false;
-  }
-
-  @Override
-  public long getDistributedTimeout() {
-    return -1;
-  }
-
-  @Override
-  public Object mergeResults(Map<String, Object> results) throws Exception {
-    return results;
   }
 
   public void toString(Map<Object, Object> params, StringBuilder builder) {
@@ -1738,17 +1520,17 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
   }
 
   @Override
-  public Iterator<Identifiable> iterator(DatabaseSessionInternal querySession,
+  public Iterator<Identifiable> iterator(DatabaseSessionInternal db,
       Map<Object, Object> iArgs) {
     if (context == null) {
       var context = new BasicCommandContext();
-      context.setDatabase(querySession);
+      context.setDatabase(db);
 
       this.context = context;
     }
 
-    Object result = execute(iArgs, querySession);
-    return ((Iterable) result).iterator();
+    var result = execute(db, iArgs);
+    return result.stream().map(x -> (Identifiable) x.getRecordId()).iterator();
   }
 
   @Override

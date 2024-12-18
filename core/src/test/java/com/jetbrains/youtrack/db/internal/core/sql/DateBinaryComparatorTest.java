@@ -27,7 +27,7 @@ public class DateBinaryComparatorTest extends DbTestBase {
     SchemaClass testClass = db.getMetadata().getSchema().createClass("Test");
     testClass.createProperty(db, "date", PropertyType.DATE);
     db.begin();
-    EntityImpl document = new EntityImpl(testClass.getName());
+    EntityImpl document = (EntityImpl) db.newEntity(testClass.getName());
 
     try {
       document.field("date", new SimpleDateFormat(dateFormat).parse(dateValue));

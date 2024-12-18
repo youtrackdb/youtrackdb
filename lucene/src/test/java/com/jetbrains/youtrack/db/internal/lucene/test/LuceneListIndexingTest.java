@@ -70,7 +70,7 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     Schema schema = db.getMetadata().getSchema();
 
     // Rome
-    EntityImpl doc = new EntityImpl("City");
+    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "Rome");
     doc.field(
         "tags",
@@ -98,7 +98,7 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     assertThat(doc.<String>field("name")).isEqualTo("Rome");
 
     // London
-    doc = new EntityImpl("City");
+    doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "London");
     doc.field(
         "tags",
@@ -149,7 +149,7 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
 
     Schema schema = db.getMetadata().getSchema();
 
-    EntityImpl doc = new EntityImpl("Person");
+    EntityImpl doc = ((EntityImpl) db.newEntity("Person"));
     doc.field("name", "Enrico");
     doc.field(
         "tags",
@@ -173,7 +173,7 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
 
     assertThat(coll).hasSize(3);
 
-    doc = new EntityImpl("Person");
+    doc = ((EntityImpl) db.newEntity("Person"));
     doc.field("name", "Jared");
     doc.field(
         "tags",

@@ -72,7 +72,7 @@ public class HttpGraphResponse extends HttpResponseAbstract {
       final String accept,
       final Map<String, Object> iAdditionalProperties,
       final String mode,
-      DatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal db)
       throws IOException {
     if (iRecords == null) {
       return;
@@ -86,7 +86,7 @@ public class HttpGraphResponse extends HttpResponseAbstract {
           accept,
           iAdditionalProperties,
           mode,
-          databaseDocumentInternal);
+          db);
       return;
     }
 
@@ -117,12 +117,12 @@ public class HttpGraphResponse extends HttpResponseAbstract {
         }
 
         try {
-          entry = ((Identifiable) entry).getRecord();
+          entry = ((Identifiable) entry).getRecord(graph);
         } catch (Exception e) {
           // IGNORE IT
           continue;
         }
-        entry = ((Identifiable) entry).getRecord();
+        entry = ((Identifiable) entry).getRecord(graph);
 
         if (entry instanceof Entity element) {
           if (element.isVertex()) {
@@ -150,18 +150,18 @@ public class HttpGraphResponse extends HttpResponseAbstract {
       json.beginObject("graph");
 
       // WRITE VERTICES
-      json.beginCollection("vertices");
+      json.beginCollection(graph, "vertices");
       for (Vertex vertex : vertices) {
         json.beginObject();
 
-        json.writeAttribute("@rid", vertex.getIdentity());
-        json.writeAttribute("@class", vertex.getSchemaType().get().getName());
+        json.writeAttribute(graph, "@rid", vertex.getIdentity());
+        json.writeAttribute(graph, "@class", vertex.getSchemaType().get().getName());
 
         // ADD ALL THE PROPERTIES
         for (String field : ((VertexInternal) vertex).getPropertyNamesInternal()) {
           final Object v = ((VertexInternal) vertex).getPropertyInternal(field);
           if (v != null) {
-            json.writeAttribute(field, v);
+            json.writeAttribute(graph, field, v);
           }
         }
         json.endObject();
@@ -174,7 +174,7 @@ public class HttpGraphResponse extends HttpResponseAbstract {
       }
 
       // WRITE EDGES
-      json.beginCollection("edges");
+      json.beginCollection(graph, "edges");
 
       if (edgeRids.isEmpty()) {
         for (Vertex vertex : vertices) {
@@ -193,17 +193,17 @@ public class HttpGraphResponse extends HttpResponseAbstract {
 
             edgeRids.add(edge.getIdentity());
 
-            printEdge(json, edge);
+            printEdge(graph, json, edge);
           }
         }
       } else {
         for (RID edgeRid : edgeRids) {
           try {
-            Entity elem = edgeRid.getRecord();
+            Entity elem = edgeRid.getRecord(graph);
             Edge edge = elem.asEdge().orElse(null);
 
             if (edge != null) {
-              printEdge(json, edge);
+              printEdge(graph, json, edge);
             }
           } catch (RecordNotFoundException rnf) {
             // ignore
@@ -218,11 +218,11 @@ public class HttpGraphResponse extends HttpResponseAbstract {
 
           final Object v = entry.getValue();
           if (MultiValue.isMultiValue(v)) {
-            json.beginCollection(-1, true, entry.getKey());
+            json.beginCollection(graph, -1, true, entry.getKey());
             formatMultiValue(MultiValue.getMultiValueIterator(v), buffer, null, graph);
             json.endCollection(-1, true);
           } else {
-            json.writeAttribute(entry.getKey(), v);
+            json.writeAttribute(graph, entry.getKey(), v);
           }
 
           if (Thread.currentThread().isInterrupted()) {
@@ -245,18 +245,19 @@ public class HttpGraphResponse extends HttpResponseAbstract {
     }
   }
 
-  private void printEdge(JSONWriter json, Edge edge) throws IOException {
+  private static void printEdge(DatabaseSessionInternal db, JSONWriter json, Edge edge)
+      throws IOException {
     json.beginObject();
-    json.writeAttribute("@rid", edge.getIdentity());
-    json.writeAttribute("@class", edge.getSchemaType().map(x -> x.getName()).orElse(null));
+    json.writeAttribute(db, "@rid", edge.getIdentity());
+    json.writeAttribute(db, "@class", edge.getSchemaType().map(x -> x.getName()).orElse(null));
 
-    json.writeAttribute("out", edge.getVertex(Direction.OUT).getIdentity());
-    json.writeAttribute("in", edge.getVertex(Direction.IN).getIdentity());
+    json.writeAttribute(db, "out", edge.getVertex(Direction.OUT).getIdentity());
+    json.writeAttribute(db, "in", edge.getVertex(Direction.IN).getIdentity());
 
     for (String field : edge.getPropertyNames()) {
       final Object v = edge.getProperty(field);
       if (v != null) {
-        json.writeAttribute(field, v);
+        json.writeAttribute(db, field, v);
       }
     }
 

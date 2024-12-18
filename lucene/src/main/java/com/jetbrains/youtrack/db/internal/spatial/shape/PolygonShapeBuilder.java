@@ -14,10 +14,10 @@
 package com.jetbrains.youtrack.db.internal.spatial.shape;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,9 +100,9 @@ public class PolygonShapeBuilder extends ComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  public EntityImpl toDoc(JtsGeometry shape) {
+  public EntityImpl toEntitty(JtsGeometry shape) {
 
-    EntityImpl doc = new EntityImpl(getName());
+    EntityImpl doc = new EntityImpl(null, getName());
     Polygon polygon = (Polygon) shape.getGeom();
     List<List<List<Double>>> polyCoordinates = coordinatesFromPolygon(polygon);
     doc.field(COORDINATES, polyCoordinates);
@@ -110,12 +110,12 @@ public class PolygonShapeBuilder extends ComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  protected EntityImpl toDoc(JtsGeometry shape, Geometry geometry) {
+  protected EntityImpl toEntitty(JtsGeometry shape, Geometry geometry) {
     if (geometry == null || Double.isNaN(geometry.getCoordinate().getZ())) {
-      return toDoc(shape);
+      return toEntitty(shape);
     }
 
-    EntityImpl doc = new EntityImpl(getName() + "Z");
+    EntityImpl doc = new EntityImpl(null, getName() + "Z");
     Polygon polygon = (Polygon) shape.getGeom();
     List<List<List<Double>>> polyCoordinates = coordinatesFromPolygonZ(geometry);
     doc.field(COORDINATES, polyCoordinates);

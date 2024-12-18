@@ -21,9 +21,9 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
 import com.jetbrains.youtrack.db.api.schema.Collate;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.collate.DefaultCollate;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
 import java.util.ArrayList;
@@ -119,14 +119,14 @@ public class SimpleKeyIndexDefinition extends AbstractIndexDefinition {
   }
 
   @Override
-  public @Nonnull EntityImpl toStream(@Nonnull EntityImpl entity) {
-    serializeToStream(entity);
+  public @Nonnull EntityImpl toStream(DatabaseSessionInternal db, @Nonnull EntityImpl entity) {
+    serializeToStream(db, entity);
     return entity;
   }
 
   @Override
-  protected void serializeToStream(EntityImpl entity) {
-    super.serializeToStream(entity);
+  protected void serializeToStream(DatabaseSessionInternal db, EntityImpl entity) {
+    super.serializeToStream(db, entity);
 
     final List<String> keyTypeNames = new ArrayList<>(keyTypes.length);
 

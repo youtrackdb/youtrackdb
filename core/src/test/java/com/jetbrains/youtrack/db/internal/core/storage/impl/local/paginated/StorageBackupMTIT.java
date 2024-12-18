@@ -262,7 +262,7 @@ public class StorageBackupMTIT {
 
       System.out.println(Thread.currentThread() + " - start writing");
 
-      try (var ignored = youTrackDB.open(dbName, "admin", "admin")) {
+      try (var db = youTrackDB.open(dbName, "admin", "admin")) {
         final Random random = new Random();
         while (!stop) {
           try {
@@ -271,7 +271,7 @@ public class StorageBackupMTIT {
 
             final int num = random.nextInt();
 
-            final EntityImpl document = new EntityImpl("BackupClass");
+            final EntityImpl document = ((EntityImpl) db.newEntity("BackupClass"));
             document.field("num", num);
             document.field("data", data);
 

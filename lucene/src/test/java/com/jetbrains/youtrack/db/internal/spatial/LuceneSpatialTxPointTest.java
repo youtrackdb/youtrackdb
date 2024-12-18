@@ -56,14 +56,14 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
 
     EntityImpl location = newPoint(longitude, latitude);
 
-    EntityImpl city = new EntityImpl("City");
+    EntityImpl city = ((EntityImpl) db.newEntity("City"));
     city.field("name", name);
     city.field("location", location);
     return city;
   }
 
   private EntityImpl newPoint(final Double longitude, final Double latitude) {
-    EntityImpl location = new EntityImpl("OPoint");
+    EntityImpl location = ((EntityImpl) db.newEntity("OPoint"));
     location.field(
         "coordinates",
         new ArrayList<Double>() {

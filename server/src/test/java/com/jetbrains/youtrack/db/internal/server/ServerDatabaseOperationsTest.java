@@ -63,14 +63,14 @@ public class ServerDatabaseOperationsTest {
             " memory users (admin identified by 'admin' role admin)");
     assertTrue(server.existsDatabase(ServerDatabaseOperationsTest.class.getSimpleName()));
 
-    try (DatabaseSession session = server.openDatabase(
+    try (DatabaseSession db = server.openDatabase(
         ServerDatabaseOperationsTest.class.getSimpleName())) {
-      EntityImpl securityConfig = new EntityImpl();
+      EntityImpl securityConfig = ((EntityImpl) db.newEntity());
       securityConfig.fromJSON(
           IOUtils.readStreamAsString(
               this.getClass().getClassLoader().getResourceAsStream("security.json")),
           "noMap");
-      server.getSecurity().reload((DatabaseSessionInternal) session, securityConfig);
+      server.getSecurity().reload((DatabaseSessionInternal) db, securityConfig);
     } finally {
       server.dropDatabase(ServerDatabaseOperationsTest.class.getSimpleName());
     }

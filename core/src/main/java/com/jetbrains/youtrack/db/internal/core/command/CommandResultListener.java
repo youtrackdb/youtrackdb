@@ -29,11 +29,11 @@ public interface CommandResultListener {
   /**
    * This method is called for each result.
    *
-   * @param querySession
-   * @param iRecord      Current record
+   * @param db
+   * @param iRecord Current record
    * @return True to continue the query, otherwise false
    */
-  boolean result(DatabaseSessionInternal querySession, Object iRecord);
+  boolean result(DatabaseSessionInternal db, Object iRecord);
 
   /**
    * Called at the end of processing. This is useful to clean-up local attributes.

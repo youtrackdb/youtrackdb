@@ -57,7 +57,7 @@ public class ProfilerEntry {
   }
 
   public EntityImpl toDocument() {
-    final EntityImpl entity = new EntityImpl();
+    final EntityImpl entity = new EntityImpl(null);
     entity.field("entries", entries);
     entity.field("last", last);
     entity.field("min", min);

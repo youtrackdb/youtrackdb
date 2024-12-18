@@ -23,7 +23,7 @@ import com.jetbrains.youtrack.db.internal.server.config.ServerConfiguration;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpSession;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import java.io.IOException;
 import java.util.Map;
 
@@ -45,14 +45,14 @@ public abstract class ServerCommandAuthenticatedServerAbstract extends ServerCom
   }
 
   @Override
-  public boolean beforeExecute(final OHttpRequest iRequest, final HttpResponse iResponse)
+  public boolean beforeExecute(final HttpRequest iRequest, final HttpResponse iResponse)
       throws IOException {
     super.beforeExecute(iRequest, iResponse);
     return authenticate(iRequest, iResponse, true);
   }
 
   protected boolean authenticate(
-      final OHttpRequest iRequest,
+      final HttpRequest iRequest,
       final HttpResponse iResponse,
       final boolean iAskForAuthentication,
       String resource)
@@ -95,7 +95,7 @@ public abstract class ServerCommandAuthenticatedServerAbstract extends ServerCom
   }
 
   protected boolean authenticate(
-      final OHttpRequest iRequest,
+      final HttpRequest iRequest,
       final HttpResponse iResponse,
       final boolean iAskForAuthentication)
       throws IOException {
@@ -107,12 +107,12 @@ public abstract class ServerCommandAuthenticatedServerAbstract extends ServerCom
   }
 
   protected void sendNotAuthorizedResponse(
-      final OHttpRequest iRequest, final HttpResponse iResponse) throws IOException {
+      final HttpRequest iRequest, final HttpResponse iResponse) throws IOException {
     sendAuthorizationRequest(iRequest, iResponse);
   }
 
   protected void sendAuthorizationRequest(
-      final OHttpRequest iRequest, final HttpResponse iResponse) throws IOException {
+      final HttpRequest iRequest, final HttpResponse iResponse) throws IOException {
     // UNAUTHORIZED
     iRequest.setSessionId(SESSIONID_UNAUTHORIZED);
 
@@ -144,7 +144,7 @@ public abstract class ServerCommandAuthenticatedServerAbstract extends ServerCom
     }
   }
 
-  public String getUser(final OHttpRequest iRequest) {
+  public String getUser(final HttpRequest iRequest) {
     HttpSession session = server.getHttpSessionManager().getSession(iRequest.getSessionId());
     if (session != null) {
       return session.getUserName();

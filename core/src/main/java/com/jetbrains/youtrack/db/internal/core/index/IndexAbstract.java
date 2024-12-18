@@ -43,15 +43,10 @@ import com.jetbrains.youtrack.db.internal.core.index.iterator.IndexCursorStream;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.ReadCache;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.IndexRIDContainer;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges.OPERATION;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChangesPerKey;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChangesPerKey.TransactionIndexEntry;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Collections;
@@ -99,15 +94,14 @@ public abstract class IndexAbstract implements IndexInternal {
     return loadMetadataInternal(
         config,
         config.field(CONFIG_TYPE),
-        config.field(ALGORITHM),
-        config.field(VALUE_CONTAINER_ALGORITHM));
+        config.field(ALGORITHM)
+    );
   }
 
   public static IndexMetadata loadMetadataInternal(
       final EntityImpl config,
       final String type,
-      final String algorithm,
-      final String valueContainerAlgorithm) {
+      final String algorithm) {
     final String indexName = config.field(CONFIG_NAME);
 
     final EntityImpl indexDefinitionEntity = config.field(INDEX_DEFINITION);
@@ -179,7 +173,6 @@ public abstract class IndexAbstract implements IndexInternal {
         clusters,
         type,
         algorithm,
-        valueContainerAlgorithm,
         indexVersion, metadataEntity != null ? metadataEntity.toMap() : null
     );
   }
@@ -220,7 +213,7 @@ public abstract class IndexAbstract implements IndexInternal {
       // do not remove this, it is needed to remove index garbage if such one exists
       try {
         if (apiVersion == 0) {
-          removeValuesContainer();
+          throw new UnsupportedOperationException("Index engine API version 0 is not supported");
         }
       } catch (Exception e) {
         LogManager.instance().error(this, "Error during deletion of index '%s'", e, im.getName());
@@ -233,7 +226,7 @@ public abstract class IndexAbstract implements IndexInternal {
       assert indexId >= 0;
       assert apiVersion >= 0;
 
-      onIndexEngineChange(indexId);
+      onIndexEngineChange(session, indexId);
 
       if (rebuild) {
         fillIndex(session, progressListener, false);
@@ -286,7 +279,7 @@ public abstract class IndexAbstract implements IndexInternal {
           return false;
         }
 
-        onIndexEngineChange(indexId);
+        onIndexEngineChange(session, indexId);
 
       } catch (Exception e) {
         LogManager.instance()
@@ -326,7 +319,7 @@ public abstract class IndexAbstract implements IndexInternal {
   @Override
   public IndexMetadata loadMetadata(final EntityImpl config) {
     return loadMetadataInternal(
-        config, im.getType(), im.getAlgorithm(), im.getValueContainerAlgorithm());
+        config, im.getType(), im.getAlgorithm());
   }
 
   /**
@@ -495,7 +488,7 @@ public abstract class IndexAbstract implements IndexInternal {
       indexId = storage.addIndexEngine(indexMetadata, engineProperties);
       apiVersion = AbstractPaginatedStorage.extractEngineAPIVersion(indexId);
 
-      onIndexEngineChange(indexId);
+      onIndexEngineChange(session, indexId);
     } catch (Exception e) {
       try {
         if (indexId >= 0) {
@@ -664,8 +657,6 @@ public abstract class IndexAbstract implements IndexInternal {
         doReloadIndexEngine();
       }
     }
-
-    removeValuesContainer();
   }
 
   public String getName() {
@@ -740,8 +731,8 @@ public abstract class IndexAbstract implements IndexInternal {
     return im.getVersion();
   }
 
-  public EntityImpl updateConfiguration(DatabaseSessionInternal session) {
-    EntityImpl entity = new EntityImpl(session);
+  public EntityImpl updateConfiguration(DatabaseSessionInternal db) {
+    EntityImpl entity = new EntityImpl(db);
     entity.field(CONFIG_TYPE, im.getType());
     entity.field(CONFIG_NAME, im.getName());
     entity.field(INDEX_VERSION, im.getVersion());
@@ -749,7 +740,7 @@ public abstract class IndexAbstract implements IndexInternal {
     if (im.getIndexDefinition() != null) {
 
       final EntityImpl indexDefEntity = im.getIndexDefinition()
-          .toStream(new EntityImpl(session));
+          .toStream(db, new EntityImpl(db));
       if (!indexDefEntity.hasOwners()) {
         EntityInternalUtils.addOwner(indexDefEntity, entity);
       }
@@ -764,10 +755,9 @@ public abstract class IndexAbstract implements IndexInternal {
 
     entity.field(CONFIG_CLUSTERS, clustersToIndex, PropertyType.EMBEDDEDSET);
     entity.field(ALGORITHM, im.getAlgorithm());
-    entity.field(VALUE_CONTAINER_ALGORITHM, im.getValueContainerAlgorithm());
 
     if (im.getMetadata() != null) {
-      var imEntity = new EntityImpl();
+      var imEntity = new EntityImpl(db);
       imEntity.fromMap(im.getMetadata());
       entity.field(METADATA, imEntity, PropertyType.EMBEDDED);
     }
@@ -988,47 +978,14 @@ public abstract class IndexAbstract implements IndexInternal {
     rwLock.readLock().lock();
   }
 
-  private void removeValuesContainer() {
-    if (im.getAlgorithm().equals(DefaultIndexFactory.SBTREE_BONSAI_VALUE_CONTAINER)) {
-
-      final AtomicOperation atomicOperation =
-          storage.getAtomicOperationsManager().getCurrentOperation();
-
-      final ReadCache readCache = storage.getReadCache();
-      final WriteCache writeCache = storage.getWriteCache();
-
-      if (atomicOperation == null) {
-        try {
-          final String fileName = im.getName() + IndexRIDContainer.INDEX_FILE_EXTENSION;
-          if (writeCache.exists(fileName)) {
-            final long fileId = writeCache.loadFile(fileName);
-            readCache.deleteFile(fileId, writeCache);
-          }
-        } catch (IOException e) {
-          LogManager.instance().error(this, "Cannot delete file for value containers", e);
-        }
-      } else {
-        try {
-          final String fileName = im.getName() + IndexRIDContainer.INDEX_FILE_EXTENSION;
-          if (atomicOperation.isFileExists(fileName)) {
-            final long fileId = atomicOperation.loadFile(fileName);
-            atomicOperation.deleteFile(fileId);
-          }
-        } catch (IOException e) {
-          LogManager.instance().error(this, "Cannot delete file for value containers", e);
-        }
-      }
-    }
-  }
-
-  protected void onIndexEngineChange(final int indexId) {
+  protected void onIndexEngineChange(DatabaseSessionInternal db, final int indexId) {
     while (true) {
       try {
         storage.callIndexEngine(
             false,
             indexId,
             engine -> {
-              engine.init(im);
+              engine.init(db, im);
               return null;
             });
         break;

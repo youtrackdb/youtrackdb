@@ -20,14 +20,14 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Iterator;
 import java.util.Map;
@@ -48,7 +48,8 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
   private boolean verbose = true;
   private final int batch = 1000;
 
-  public CommandExecutorSQLOptimizeDatabase parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLOptimizeDatabase parse(DatabaseSessionInternal db,
+      final CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
 
     String queryText = textRequest.getText();
@@ -93,7 +94,7 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
   /**
    * Execute the ALTER DATABASE.
    */
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     final StringBuilder result = new StringBuilder();
 
     if (optimizeEdges) {

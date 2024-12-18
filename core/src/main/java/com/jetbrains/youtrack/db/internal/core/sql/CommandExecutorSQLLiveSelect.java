@@ -19,16 +19,16 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.exception.SecurityException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.api.exception.SecurityException;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.RestrictedAccessHook;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.RestrictedOperation;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
@@ -56,20 +56,15 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
   public CommandExecutorSQLLiveSelect() {
   }
 
-  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
     try {
-      final DatabaseSessionInternal db = getDatabase();
       execInSeparateDatabase(
-          new CallableFunction() {
-            @Override
-            public Object call(Object iArgument) {
-              return execDb = db.copy();
-            }
-          });
+          iArgument -> execDb = db.copy());
 
       synchronized (random) {
         token = random.nextInt(); // TODO do something better ;-)!
       }
+
       subscribeToLiveQuery(token, db);
       bindDefaultContextVariables();
 
@@ -85,11 +80,11 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
         getContext().beginExecution(timeoutMs, timeoutStrategy);
       }
 
-      EntityImpl result = new EntityImpl();
+      EntityImpl result = new EntityImpl(db);
       result.field("token", token); // TODO change this name...?
 
-      ((LegacyResultSet) getResult(querySession)).add(result);
-      return getResult(querySession);
+      ((LegacyResultSet) getResult(db)).add(result);
+      return getResult(db);
     } finally {
       if (request != null && request.getResultListener() != null) {
         request.getResultListener().end();
@@ -132,14 +127,14 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
             @Override
             public Object call(Object iArgument) {
               execDb.activateOnCurrentThread();
-              ((LiveResultListener) listener).onLiveResult(token, iOp);
+              ((LiveResultListener) listener).onLiveResult(execDb, token, iOp);
               return null;
             }
           });
     }
   }
 
-  protected void execInSeparateDatabase(final CallableFunction iCallback) {
+  protected static void execInSeparateDatabase(final CallableFunction iCallback) {
     final DatabaseSessionInternal prevDb = DatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       iCallback.call(null);
@@ -158,15 +153,15 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
       execDb.checkSecurity(
           Rule.ResourceGeneric.CLASS,
           Role.PERMISSION_READ,
-          ((EntityImpl) value.getRecord()).getClassName());
+          ((EntityImpl) value.getRecord(execDb)).getClassName());
     } catch (SecurityException ignore) {
       return false;
     }
     SecurityInternal security = execDb.getSharedContext().getSecurity();
-    boolean allowedByPolicy = security.canRead(execDb, value.getRecord());
+    boolean allowedByPolicy = security.canRead(execDb, value.getRecord(execDb));
     return allowedByPolicy
         && RestrictedAccessHook.isAllowed(
-        execDb, value.getRecord(), RestrictedOperation.ALLOW_READ, false);
+        execDb, value.getRecord(execDb), RestrictedOperation.ALLOW_READ, false);
   }
 
   private boolean matchesFilters(Identifiable value) {
@@ -174,7 +169,7 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
       return true;
     }
     if (!(value instanceof EntityImpl)) {
-      value = value.getRecord();
+      value = value.getRecord(execDb);
     }
     return !(Boolean.FALSE.equals(
         compiledFilter.evaluate(value, (EntityImpl) value, getContext())));
@@ -238,13 +233,13 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
   }
 
   @Override
-  public CommandExecutorSQLSelect parse(final CommandRequest iRequest) {
+  public CommandExecutorSQLSelect parse(DatabaseSessionInternal db, final CommandRequest iRequest) {
     final CommandRequestText requestText = (CommandRequestText) iRequest;
     final String originalText = requestText.getText();
     final String remainingText = requestText.getText().trim().substring(5).trim();
     requestText.setText(remainingText);
     try {
-      return super.parse(iRequest);
+      return super.parse(db, iRequest);
     } finally {
       requestText.setText(originalText);
     }

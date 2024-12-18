@@ -23,6 +23,7 @@ import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Iterator;
@@ -36,6 +37,11 @@ import java.util.List;
 public class DatabaseRepair extends DatabaseTool {
 
   private boolean removeBrokenLinks = true;
+  private final DatabaseSessionInternal db;
+
+  public DatabaseRepair(DatabaseSessionInternal db) {
+    this.db = db;
+  }
 
   @Override
   protected void parseSetting(final String option, final List<String> items) {
@@ -53,13 +59,13 @@ public class DatabaseRepair extends DatabaseTool {
     long errors = 0;
 
     if (removeBrokenLinks) {
-      errors += removeBrokenLinks();
+      errors += removeBrokenLinks(db);
     }
 
     message("\nRepair database complete (" + errors + " errors)");
   }
 
-  protected long removeBrokenLinks() {
+  protected long removeBrokenLinks(DatabaseSessionInternal db) {
     long fixedLinks = 0L;
     long modifiedEntities = 0L;
     long errors = 0L;
@@ -75,7 +81,7 @@ public class DatabaseRepair extends DatabaseTool {
               final Object fieldValue = entity.rawField(fieldName);
 
               if (fieldValue instanceof Identifiable) {
-                if (fixLink(fieldValue)) {
+                if (fixLink(fieldValue, db)) {
                   entity.field(fieldName, (Identifiable) null);
                   fixedLinks++;
                   changed = true;
@@ -94,7 +100,7 @@ public class DatabaseRepair extends DatabaseTool {
                 final Iterator<Object> it = ((Iterable) fieldValue).iterator();
                 for (int i = 0; it.hasNext(); ++i) {
                   final Object v = it.next();
-                  if (fixLink(v)) {
+                  if (fixLink(v, db)) {
                     it.remove();
                     fixedLinks++;
                     changed = true;
@@ -138,9 +144,10 @@ public class DatabaseRepair extends DatabaseTool {
    * Checks if the link must be fixed.
    *
    * @param fieldValue Field containing the Identifiable (RID or Record)
+   * @param db
    * @return true to fix it, otherwise false
    */
-  protected boolean fixLink(final Object fieldValue) {
+  protected boolean fixLink(final Object fieldValue, DatabaseSessionInternal db) {
     if (fieldValue instanceof Identifiable) {
       final RID id = ((Identifiable) fieldValue).getIdentity();
 
@@ -151,7 +158,7 @@ public class DatabaseRepair extends DatabaseTool {
       if (((RecordId) id).isValid()) {
         if (id.isPersistent()) {
           try {
-            ((Identifiable) fieldValue).getRecord();
+            ((Identifiable) fieldValue).getRecord(db);
           } catch (RecordNotFoundException rnf) {
             return true;
           }

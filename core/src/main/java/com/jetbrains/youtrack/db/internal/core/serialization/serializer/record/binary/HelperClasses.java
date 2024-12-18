@@ -16,6 +16,14 @@
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
@@ -23,33 +31,25 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
 import com.jetbrains.youtrack.db.internal.core.db.StringCache;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMultiValue;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBagDelegate;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.embedded.EmbeddedRidBag;
-import com.jetbrains.youtrack.db.api.exception.DatabaseException;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.RecordSerializationContext;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
-import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.BonsaiBucketPointer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.Change;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.ChangeSerializationHelper;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeRidBag;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeBasedRidBag;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.Change;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ChangeSerializationHelper;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.RidBagBucketPointer;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
 import java.io.IOException;
@@ -228,10 +228,11 @@ public class HelperClasses {
     return pointer;
   }
 
-  public static int writeOptimizedLink(final BytesContainer bytes, Identifiable link) {
+  public static int writeOptimizedLink(DatabaseSessionInternal db, final BytesContainer bytes,
+      Identifiable link) {
     if (!link.getIdentity().isPersistent()) {
       try {
-        link = link.getRecord();
+        link = link.getRecord(db);
       } catch (RecordNotFoundException ignored) {
         // IGNORE IT WILL FAIL THE ASSERT IN CASE
       }
@@ -262,7 +263,8 @@ public class HelperClasses {
   }
 
   public static int writeLinkCollection(
-      final BytesContainer bytes, final Collection<Identifiable> value) {
+      DatabaseSessionInternal db, final BytesContainer bytes,
+      final Collection<Identifiable> value) {
     final int pos = VarIntSerializer.write(bytes, value.size());
 
     for (Identifiable itemValue : value) {
@@ -270,7 +272,7 @@ public class HelperClasses {
       if (itemValue == null) {
         writeNullLink(bytes);
       } else {
-        writeOptimizedLink(bytes, itemValue);
+        writeOptimizedLink(db, bytes, itemValue);
       }
     }
 
@@ -301,7 +303,7 @@ public class HelperClasses {
     return pointer;
   }
 
-  public static int writeLinkMap(final BytesContainer bytes,
+  public static int writeLinkMap(DatabaseSessionInternal db, final BytesContainer bytes,
       final Map<Object, Identifiable> map) {
     final int fullPos = VarIntSerializer.write(bytes, map.size());
     for (Map.Entry<Object, Identifiable> entry : map.entrySet()) {
@@ -309,7 +311,7 @@ public class HelperClasses {
       if (entry.getValue() == null) {
         writeNullLink(bytes);
       } else {
-        writeOptimizedLink(bytes, entry.getValue());
+        writeOptimizedLink(db, bytes, entry.getValue());
       }
     }
     return fullPos;
@@ -345,11 +347,11 @@ public class HelperClasses {
     UUID ownerUuid = ridbag.getTemporaryId();
 
     int positionOffset = bytes.offset;
-    final SBTreeCollectionManager sbTreeCollectionManager =
+    final BTreeCollectionManager bTreeCollectionManager =
         DatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager();
     UUID uuid = null;
-    if (sbTreeCollectionManager != null) {
-      uuid = sbTreeCollectionManager.listenForChanges(ridbag);
+    if (bTreeCollectionManager != null) {
+      uuid = bTreeCollectionManager.listenForChanges(ridbag);
     }
 
     byte configByte = 0;
@@ -408,7 +410,7 @@ public class HelperClasses {
   }
 
   protected static void writeSBTreeRidbag(BytesContainer bytes, RidBag ridbag, UUID ownerUuid) {
-    ((SBTreeRidBag) ridbag.getDelegate()).applyNewEntries();
+    ((BTreeBasedRidBag) ridbag.getDelegate()).applyNewEntries();
 
     BonsaiCollectionPointer pointer = ridbag.getPointer();
 
@@ -448,7 +450,7 @@ public class HelperClasses {
       }
     }
 
-    ((SBTreeRidBag) ridbag.getDelegate()).setCollectionPointer(pointer);
+    ((BTreeBasedRidBag) ridbag.getDelegate()).setCollectionPointer(pointer);
 
     VarIntSerializer.write(bytes, pointer.getFileId());
     VarIntSerializer.write(bytes, pointer.getRootPointer().getPageIndex());
@@ -456,7 +458,7 @@ public class HelperClasses {
     VarIntSerializer.write(bytes, 0);
 
     if (context != null) {
-      ((SBTreeRidBag) ridbag.getDelegate()).handleContextSBTree(context, pointer);
+      ((BTreeBasedRidBag) ridbag.getDelegate()).handleContextSBTree(context, pointer);
       VarIntSerializer.write(bytes, 0);
     } else {
       VarIntSerializer.write(bytes, 0);
@@ -485,7 +487,7 @@ public class HelperClasses {
     VarIntSerializer.write(bytes, id.getClusterPosition());
   }
 
-  public static RidBag readRidbag(DatabaseSessionInternal session, BytesContainer bytes) {
+  public static RidBag readRidbag(DatabaseSessionInternal db, BytesContainer bytes) {
     byte configByte = ByteSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset++);
     boolean isEmbedded = (configByte & 1) != 0;
 
@@ -494,11 +496,11 @@ public class HelperClasses {
 
     RidBag ridbag = null;
     if (isEmbedded) {
-      ridbag = new RidBag(session);
+      ridbag = new RidBag(db);
       int size = VarIntSerializer.readAsInteger(bytes);
       ridbag.getDelegate().setSize(size);
       for (int i = 0; i < size; i++) {
-        Identifiable record = readLinkOptimizedEmbedded(bytes);
+        Identifiable record = readLinkOptimizedEmbedded(db, bytes);
         ridbag.getDelegate().addInternal(record);
       }
     } else {
@@ -511,31 +513,32 @@ public class HelperClasses {
       BonsaiCollectionPointer pointer = null;
       if (fileId != -1) {
         pointer =
-            new BonsaiCollectionPointer(fileId, new BonsaiBucketPointer(pageIndex, pageOffset));
+            new BonsaiCollectionPointer(fileId, new RidBagBucketPointer(pageIndex, pageOffset));
       }
 
       Map<Identifiable, Change> changes = new HashMap<>();
 
       int changesSize = VarIntSerializer.readAsInteger(bytes);
       for (int i = 0; i < changesSize; i++) {
-        Identifiable recId = readLinkOptimizedSBTree(bytes);
+        Identifiable recId = readLinkOptimizedSBTree(db, bytes);
         Change change = deserializeChange(bytes);
         changes.put(recId, change);
       }
 
-      ridbag = new RidBag(session, pointer, changes, uuid);
+      ridbag = new RidBag(db, pointer, changes, uuid);
       ridbag.getDelegate().setSize(-1);
     }
     return ridbag;
   }
 
-  private static Identifiable readLinkOptimizedEmbedded(final BytesContainer bytes) {
+  private static Identifiable readLinkOptimizedEmbedded(DatabaseSessionInternal db,
+      final BytesContainer bytes) {
     RID rid =
         new RecordId(VarIntSerializer.readAsInteger(bytes), VarIntSerializer.readAsLong(bytes));
     Identifiable identifiable = null;
     if (rid.isTemporary()) {
       try {
-        identifiable = rid.getRecord();
+        identifiable = rid.getRecord(db);
       } catch (RecordNotFoundException rnf) {
         identifiable = rid;
       }
@@ -548,13 +551,14 @@ public class HelperClasses {
     return identifiable;
   }
 
-  private static Identifiable readLinkOptimizedSBTree(final BytesContainer bytes) {
+  private static Identifiable readLinkOptimizedSBTree(DatabaseSessionInternal db,
+      final BytesContainer bytes) {
     RID rid =
         new RecordId(VarIntSerializer.readAsInteger(bytes), VarIntSerializer.readAsLong(bytes));
     Identifiable identifiable;
     if (rid.isTemporary()) {
       try {
-        identifiable = rid.getRecord();
+        identifiable = rid.getRecord(db);
       } catch (RecordNotFoundException rnf) {
         identifiable = rid;
       }

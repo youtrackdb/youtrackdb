@@ -19,22 +19,22 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutorNotFoundException;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
-import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemAbstract;
@@ -83,6 +83,7 @@ public class SQLFunctionRuntime extends SQLFilterItemAbstract {
       final Identifiable iCurrentRecord,
       final Object iCurrentResult,
       @Nonnull final CommandContext iContext) {
+    var db = iContext.getDatabase();
     // RESOLVE VALUES USING THE CURRENT RECORD
     for (int i = 0; i < configuredParameters.length; ++i) {
       runtimeParameters[i] = configuredParameters[i];
@@ -120,7 +121,7 @@ public class SQLFunctionRuntime extends SQLFilterItemAbstract {
         runtimeParameters[i] =
             ((SQLPredicate) configuredParameters[i])
                 .evaluate(
-                    iCurrentRecord.getRecord(),
+                    iCurrentRecord.getRecord(db),
                     (iCurrentRecord instanceof EntityImpl ? (EntityImpl) iCurrentResult : null),
                     iContext);
       } else if (configuredParameters[i] instanceof String) {
@@ -131,7 +132,6 @@ public class SQLFunctionRuntime extends SQLFilterItemAbstract {
       }
     }
 
-    var db = iContext.getDatabase();
     if (function.getMaxParams(db) == -1 || function.getMaxParams(db) > 0) {
       if (runtimeParameters.length < function.getMinParams()
           || (function.getMaxParams(db) > -1 && runtimeParameters.length > function.getMaxParams(
@@ -173,7 +173,8 @@ public class SQLFunctionRuntime extends SQLFilterItemAbstract {
   public Object getValue(
       final Identifiable iRecord, Object iCurrentResult, CommandContext iContext) {
     try {
-      final EntityImpl current = iRecord != null ? (EntityImpl) iRecord.getRecord() : null;
+      final EntityImpl current =
+          iRecord != null ? (EntityImpl) iRecord.getRecord(iContext.getDatabase()) : null;
       return execute(current, current, null, iContext);
     } catch (RecordNotFoundException rnf) {
       return null;

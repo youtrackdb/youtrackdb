@@ -25,20 +25,20 @@ public class NonBlockingQueryTest extends BaseDBTest {
   @BeforeClass
   public void beforeClass() throws Exception {
     super.beforeClass();
-    database.command("create class Foo").close();
+    db.command("create class Foo").close();
   }
 
   @BeforeMethod
   @Override
   public void beforeMethod() throws Exception {
     super.beforeMethod();
-    database.command("delete from Foo").close();
+    db.command("delete from Foo").close();
   }
 
   @Test
   public void testClone() {
 
-    DatabaseSessionInternal db = database;
+    DatabaseSessionInternal db = this.db;
 
     db.begin();
     db.command("insert into Foo (a) values ('bar')").close();
@@ -53,7 +53,7 @@ public class NonBlockingQueryTest extends BaseDBTest {
 
   @Test
   public void testNonBlockingQuery() {
-    DatabaseSessionInternal db = database;
+    DatabaseSessionInternal db = this.db;
     final AtomicInteger counter = new AtomicInteger(0); // db.begin();
     for (int i = 0; i < 1000; i++) {
       db.command("insert into Foo (a) values ('bar')").close();
@@ -64,7 +64,7 @@ public class NonBlockingQueryTest extends BaseDBTest {
                 "select from Foo",
                 new CommandResultListener() {
                   @Override
-                  public boolean result(DatabaseSessionInternal querySession, Object iRecord) {
+                  public boolean result(DatabaseSessionInternal db, Object iRecord) {
                     counter.incrementAndGet();
                     return true;
                   }
@@ -93,11 +93,11 @@ public class NonBlockingQueryTest extends BaseDBTest {
 
   @Test
   public void testNonBlockingQueryWithCompositeIndex() {
-    database.command("create property Foo.x integer").close();
-    database.command("create property Foo.y integer").close();
-    database.command("create index Foo_xy_index on Foo (x, y) notunique").close();
+    db.command("create property Foo.x integer").close();
+    db.command("create property Foo.y integer").close();
+    db.command("create index Foo_xy_index on Foo (x, y) notunique").close();
 
-    DatabaseSessionInternal db = database;
+    DatabaseSessionInternal db = this.db;
     final AtomicInteger counter = new AtomicInteger(0); // db.begin();
     for (int i = 0; i < 1000; i++) {
       db.command("insert into Foo (a, x, y) values ('bar', ?, ?)", i, 1000 - i).close();
@@ -108,7 +108,7 @@ public class NonBlockingQueryTest extends BaseDBTest {
                 "select from Foo where x=500 and y=500",
                 new CommandResultListener() {
                   @Override
-                  public boolean result(DatabaseSessionInternal querySession, Object iRecord) {
+                  public boolean result(DatabaseSessionInternal db, Object iRecord) {
                     counter.incrementAndGet();
                     return true;
                   }

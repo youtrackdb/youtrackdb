@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.command.traverse;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +21,7 @@ public class TraverseTest extends DbTestBase {
   public void beforeTest() throws Exception {
     super.beforeTest();
 
-    rootDocument = new EntityImpl();
+    rootDocument = (EntityImpl) db.newEntity();
     traverse = new Traverse(db);
     traverse.target(rootDocument).fields("*");
   }
@@ -29,34 +29,34 @@ public class TraverseTest extends DbTestBase {
   @Test
   public void testDepthTraverse() {
 
-    final EntityImpl aa = new EntityImpl();
-    final EntityImpl ab = new EntityImpl();
-    final EntityImpl ba = new EntityImpl();
-    final EntityImpl bb = new EntityImpl();
-    final EntityImpl a = new EntityImpl();
+    final EntityImpl aa = (EntityImpl) db.newEntity();
+    final EntityImpl ab = (EntityImpl) db.newEntity();
+    final EntityImpl ba = (EntityImpl) db.newEntity();
+    final EntityImpl bb = (EntityImpl) db.newEntity();
+    final EntityImpl a = (EntityImpl) db.newEntity();
     a.setProperty("aa", aa, PropertyType.LINK);
     a.setProperty("ab", ab, PropertyType.LINK);
-    final EntityImpl b = new EntityImpl();
+    final EntityImpl b = (EntityImpl) db.newEntity();
     b.setProperty("ba", ba, PropertyType.LINK);
     b.setProperty("bb", bb, PropertyType.LINK);
 
     rootDocument.setProperty("a", a, PropertyType.LINK);
     rootDocument.setProperty("b", b, PropertyType.LINK);
 
-    final EntityImpl c1 = new EntityImpl();
-    final EntityImpl c1a = new EntityImpl();
+    final EntityImpl c1 = (EntityImpl) db.newEntity();
+    final EntityImpl c1a = (EntityImpl) db.newEntity();
     c1.setProperty("c1a", c1a, PropertyType.LINK);
-    final EntityImpl c1b = new EntityImpl();
+    final EntityImpl c1b = (EntityImpl) db.newEntity();
     c1.setProperty("c1b", c1b, PropertyType.LINK);
-    final EntityImpl c2 = new EntityImpl();
-    final EntityImpl c2a = new EntityImpl();
+    final EntityImpl c2 = (EntityImpl) db.newEntity();
+    final EntityImpl c2a = (EntityImpl) db.newEntity();
     c2.setProperty("c2a", c2a, PropertyType.LINK);
-    final EntityImpl c2b = new EntityImpl();
+    final EntityImpl c2b = (EntityImpl) db.newEntity();
     c2.setProperty("c2b", c2b, PropertyType.LINK);
-    final EntityImpl c3 = new EntityImpl();
-    final EntityImpl c3a = new EntityImpl();
+    final EntityImpl c3 = (EntityImpl) db.newEntity();
+    final EntityImpl c3a = (EntityImpl) db.newEntity();
     c3.setProperty("c3a", c3a, PropertyType.LINK);
-    final EntityImpl c3b = new EntityImpl();
+    final EntityImpl c3b = (EntityImpl) db.newEntity();
     c3.setProperty("c3b", c3b, PropertyType.LINK);
     rootDocument.setProperty("c", new ArrayList<>(Arrays.asList(c1, c2, c3)),
         PropertyType.LINKLIST);
@@ -92,34 +92,34 @@ public class TraverseTest extends DbTestBase {
   public void testBreadthTraverse() throws Exception {
     traverse.setStrategy(Traverse.STRATEGY.BREADTH_FIRST);
 
-    final EntityImpl aa = new EntityImpl();
-    final EntityImpl ab = new EntityImpl();
-    final EntityImpl ba = new EntityImpl();
-    final EntityImpl bb = new EntityImpl();
-    final EntityImpl a = new EntityImpl();
+    final EntityImpl aa = (EntityImpl) db.newEntity();
+    final EntityImpl ab = (EntityImpl) db.newEntity();
+    final EntityImpl ba = (EntityImpl) db.newEntity();
+    final EntityImpl bb = (EntityImpl) db.newEntity();
+    final EntityImpl a = (EntityImpl) db.newEntity();
     a.setProperty("aa", aa, PropertyType.LINK);
     a.setProperty("ab", ab, PropertyType.LINK);
-    final EntityImpl b = new EntityImpl();
+    final EntityImpl b = (EntityImpl) db.newEntity();
     b.setProperty("ba", ba, PropertyType.LINK);
     b.setProperty("bb", bb, PropertyType.LINK);
 
     rootDocument.setProperty("a", a, PropertyType.LINK);
     rootDocument.setProperty("b", b, PropertyType.LINK);
 
-    final EntityImpl c1 = new EntityImpl();
-    final EntityImpl c1a = new EntityImpl();
+    final EntityImpl c1 = (EntityImpl) db.newEntity();
+    final EntityImpl c1a = (EntityImpl) db.newEntity();
     c1.setProperty("c1a", c1a, PropertyType.LINK);
-    final EntityImpl c1b = new EntityImpl();
+    final EntityImpl c1b = (EntityImpl) db.newEntity();
     c1.setProperty("c1b", c1b, PropertyType.LINK);
-    final EntityImpl c2 = new EntityImpl();
-    final EntityImpl c2a = new EntityImpl();
+    final EntityImpl c2 = (EntityImpl) db.newEntity();
+    final EntityImpl c2a = (EntityImpl) db.newEntity();
     c2.setProperty("c2a", c2a, PropertyType.LINK);
-    final EntityImpl c2b = new EntityImpl();
+    final EntityImpl c2b = (EntityImpl) db.newEntity();
     c2.setProperty("c2b", c2b, PropertyType.LINK);
-    final EntityImpl c3 = new EntityImpl();
-    final EntityImpl c3a = new EntityImpl();
+    final EntityImpl c3 = (EntityImpl) db.newEntity();
+    final EntityImpl c3a = (EntityImpl) db.newEntity();
     c3.setProperty("c3a", c3a, PropertyType.LINK);
-    final EntityImpl c3b = new EntityImpl();
+    final EntityImpl c3b = (EntityImpl) db.newEntity();
     c3.setProperty("c3b", c3b, PropertyType.LINK);
     rootDocument.setProperty("c", new ArrayList<>(Arrays.asList(c1, c2, c3)),
         PropertyType.LINKLIST);

@@ -3,8 +3,8 @@ package com.jetbrains.youtrack.db.internal.lucene.functions;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.internal.lucene.tests.LuceneBaseTest;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.lucene.tests.LuceneBaseTest;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -135,7 +135,7 @@ public class LuceneSearchOnClassFunctionTest extends LuceneBaseTest {
     final String query = "SELECT from Song where SEARCH_CLASS('*EVE*', ?) = true";
 
     db.query(query, "{'allowLeadingWildcard': true}").close();
-    db.query(query, new EntityImpl("allowLeadingWildcard", Boolean.TRUE)).close();
+    db.query(query, new EntityImpl(db, "allowLeadingWildcard", Boolean.TRUE)).close();
 
     Map<String, Object> mdMap = new HashMap();
     mdMap.put("allowLeadingWildcard", true);

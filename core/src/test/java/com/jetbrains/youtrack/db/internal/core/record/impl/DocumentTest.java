@@ -8,16 +8,16 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionAbstract;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import java.util.HashMap;
@@ -35,26 +35,26 @@ public class DocumentTest extends DbTestBase {
 
   @Test
   public void testCopyToCopiesEmptyFieldsTypesAndOwners() throws Exception {
-    EntityImpl doc1 = new EntityImpl();
+    EntityImpl doc1 = (EntityImpl) db.newEntity();
 
     EntityImpl doc2 =
-        new EntityImpl()
+        ((EntityImpl) db.newEntity())
             .field("integer2", 123)
             .field("string", "YouTrackDB")
             .field("a", 123.3)
             .setFieldType("integer", PropertyType.INTEGER)
             .setFieldType("string", PropertyType.STRING)
             .setFieldType("binary", PropertyType.BINARY);
-    var owner = new EntityImpl();
+    var owner = (EntityImpl) db.newEntity();
     EntityInternalUtils.addOwner(doc2, owner);
 
-    assertEquals(doc2.<Object>field("integer2"), 123);
-    assertEquals(doc2.field("string"), "YouTrackDB");
+    assertEquals(123, doc2.<Object>field("integer2"));
+    assertEquals("YouTrackDB", doc2.field("string"));
 
     Assertions.assertThat(doc2.<Double>field("a")).isEqualTo(123.3d);
-    assertEquals(doc2.fieldType("integer"), PropertyType.INTEGER);
-    assertEquals(doc2.fieldType("string"), PropertyType.STRING);
-    assertEquals(doc2.fieldType("binary"), PropertyType.BINARY);
+    assertEquals(PropertyType.INTEGER, doc2.fieldType("integer"));
+    assertEquals(PropertyType.STRING, doc2.fieldType("string"));
+    assertEquals(PropertyType.BINARY, doc2.fieldType("binary"));
 
     assertNotNull(doc2.getOwner());
 
@@ -74,20 +74,20 @@ public class DocumentTest extends DbTestBase {
 
   @Test
   public void testNullConstructor() {
-    new EntityImpl((String) null);
-    new EntityImpl((SchemaClass) null);
+    db.newEntity((String) null);
+    db.newEntity((SchemaClass) null);
   }
 
   @Test
   public void testClearResetsFieldTypes() throws Exception {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.setFieldType("integer", PropertyType.INTEGER);
     doc.setFieldType("string", PropertyType.STRING);
     doc.setFieldType("binary", PropertyType.BINARY);
 
-    assertEquals(doc.fieldType("integer"), PropertyType.INTEGER);
-    assertEquals(doc.fieldType("string"), PropertyType.STRING);
-    assertEquals(doc.fieldType("binary"), PropertyType.BINARY);
+    assertEquals(PropertyType.INTEGER, doc.fieldType("integer"));
+    assertEquals(PropertyType.STRING, doc.fieldType("string"));
+    assertEquals(PropertyType.BINARY, doc.fieldType("binary"));
 
     doc.clear();
 
@@ -98,16 +98,16 @@ public class DocumentTest extends DbTestBase {
 
   @Test
   public void testResetResetsFieldTypes() throws Exception {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.setFieldType("integer", PropertyType.INTEGER);
     doc.setFieldType("string", PropertyType.STRING);
     doc.setFieldType("binary", PropertyType.BINARY);
 
-    assertEquals(doc.fieldType("integer"), PropertyType.INTEGER);
-    assertEquals(doc.fieldType("string"), PropertyType.STRING);
-    assertEquals(doc.fieldType("binary"), PropertyType.BINARY);
+    assertEquals(PropertyType.INTEGER, doc.fieldType("integer"));
+    assertEquals(PropertyType.STRING, doc.fieldType("string"));
+    assertEquals(PropertyType.BINARY, doc.fieldType("binary"));
 
-    doc = new EntityImpl();
+    doc = (EntityImpl) db.newEntity();
 
     assertNull(doc.fieldType("integer"));
     assertNull(doc.fieldType("string"));
@@ -116,41 +116,41 @@ public class DocumentTest extends DbTestBase {
 
   @Test
   public void testKeepFieldType() throws Exception {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.field("integer", 10, PropertyType.INTEGER);
     doc.field("string", 20, PropertyType.STRING);
     doc.field("binary", new byte[]{30}, PropertyType.BINARY);
 
-    assertEquals(doc.fieldType("integer"), PropertyType.INTEGER);
-    assertEquals(doc.fieldType("string"), PropertyType.STRING);
-    assertEquals(doc.fieldType("binary"), PropertyType.BINARY);
+    assertEquals(PropertyType.INTEGER, doc.fieldType("integer"));
+    assertEquals(PropertyType.STRING, doc.fieldType("string"));
+    assertEquals(PropertyType.BINARY, doc.fieldType("binary"));
   }
 
   @Test
   public void testKeepFieldTypeSerialization() throws Exception {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.field("integer", 10, PropertyType.INTEGER);
     doc.field("link", new RecordId(1, 2), PropertyType.LINK);
     doc.field("string", 20, PropertyType.STRING);
     doc.field("binary", new byte[]{30}, PropertyType.BINARY);
 
-    assertEquals(doc.fieldType("integer"), PropertyType.INTEGER);
-    assertEquals(doc.fieldType("link"), PropertyType.LINK);
-    assertEquals(doc.fieldType("string"), PropertyType.STRING);
-    assertEquals(doc.fieldType("binary"), PropertyType.BINARY);
+    assertEquals(PropertyType.INTEGER, doc.fieldType("integer"));
+    assertEquals(PropertyType.LINK, doc.fieldType("link"));
+    assertEquals(PropertyType.STRING, doc.fieldType("string"));
+    assertEquals(PropertyType.BINARY, doc.fieldType("binary"));
     RecordSerializer ser = DatabaseSessionAbstract.getDefaultSerializer();
     byte[] bytes = ser.toStream(db, doc);
-    doc = new EntityImpl();
+    doc = (EntityImpl) db.newEntity();
     ser.fromStream(db, bytes, doc, null);
-    assertEquals(doc.fieldType("integer"), PropertyType.INTEGER);
-    assertEquals(doc.fieldType("string"), PropertyType.STRING);
-    assertEquals(doc.fieldType("binary"), PropertyType.BINARY);
-    assertEquals(doc.fieldType("link"), PropertyType.LINK);
+    assertEquals(PropertyType.INTEGER, doc.fieldType("integer"));
+    assertEquals(PropertyType.STRING, doc.fieldType("string"));
+    assertEquals(PropertyType.BINARY, doc.fieldType("binary"));
+    assertEquals(PropertyType.LINK, doc.fieldType("link"));
   }
 
   @Test
   public void testKeepAutoFieldTypeSerialization() throws Exception {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.field("integer", 10);
     doc.field("link", new RecordId(1, 2));
     doc.field("string", "string");
@@ -163,12 +163,12 @@ public class DocumentTest extends DbTestBase {
     assertNull(doc.fieldType("binary"));
     RecordSerializer ser = DatabaseSessionAbstract.getDefaultSerializer();
     byte[] bytes = ser.toStream(db, doc);
-    doc = new EntityImpl();
+    doc = (EntityImpl) db.newEntity();
     ser.fromStream(db, bytes, doc, null);
-    assertEquals(doc.fieldType("integer"), PropertyType.INTEGER);
-    assertEquals(doc.fieldType("string"), PropertyType.STRING);
-    assertEquals(doc.fieldType("binary"), PropertyType.BINARY);
-    assertEquals(doc.fieldType("link"), PropertyType.LINK);
+    assertEquals(PropertyType.INTEGER, doc.fieldType("integer"));
+    assertEquals(PropertyType.STRING, doc.fieldType("string"));
+    assertEquals(PropertyType.BINARY, doc.fieldType("binary"));
+    assertEquals(PropertyType.LINK, doc.fieldType("link"));
   }
 
   @Test
@@ -185,25 +185,25 @@ public class DocumentTest extends DbTestBase {
       clazz.createProperty(db, "link", PropertyType.LINK);
       clazz.createProperty(db, "string", PropertyType.STRING);
       clazz.createProperty(db, "binary", PropertyType.BINARY);
-      EntityImpl doc = new EntityImpl(clazz);
+      EntityImpl doc = (EntityImpl) db.newEntity(clazz);
       doc.field("integer", 10);
       doc.field("link", new RecordId(1, 2));
       doc.field("string", "string");
       doc.field("binary", new byte[]{30});
 
       // the types are from the schema.
-      assertEquals(doc.fieldType("integer"), PropertyType.INTEGER);
-      assertEquals(doc.fieldType("link"), PropertyType.LINK);
-      assertEquals(doc.fieldType("string"), PropertyType.STRING);
-      assertEquals(doc.fieldType("binary"), PropertyType.BINARY);
+      assertEquals(PropertyType.INTEGER, doc.fieldType("integer"));
+      assertEquals(PropertyType.LINK, doc.fieldType("link"));
+      assertEquals(PropertyType.STRING, doc.fieldType("string"));
+      assertEquals(PropertyType.BINARY, doc.fieldType("binary"));
       RecordSerializer ser = DatabaseSessionAbstract.getDefaultSerializer();
       byte[] bytes = ser.toStream(db, doc);
-      doc = new EntityImpl();
+      doc = (EntityImpl) db.newEntity();
       ser.fromStream(db, bytes, doc, null);
-      assertEquals(doc.fieldType("integer"), PropertyType.INTEGER);
-      assertEquals(doc.fieldType("string"), PropertyType.STRING);
-      assertEquals(doc.fieldType("binary"), PropertyType.BINARY);
-      assertEquals(doc.fieldType("link"), PropertyType.LINK);
+      assertEquals(PropertyType.INTEGER, doc.fieldType("integer"));
+      assertEquals(PropertyType.STRING, doc.fieldType("string"));
+      assertEquals(PropertyType.BINARY, doc.fieldType("binary"));
+      assertEquals(PropertyType.LINK, doc.fieldType("link"));
     } finally {
       if (db != null) {
         db.close();
@@ -217,15 +217,15 @@ public class DocumentTest extends DbTestBase {
 
   @Test
   public void testChangeTypeOnValueSet() throws Exception {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.field("link", new RecordId(1, 2));
     RecordSerializer ser = DatabaseSessionAbstract.getDefaultSerializer();
     byte[] bytes = ser.toStream(db, doc);
-    doc = new EntityImpl();
+    doc = (EntityImpl) db.newEntity();
     ser.fromStream(db, bytes, doc, null);
-    assertEquals(doc.fieldType("link"), PropertyType.LINK);
+    assertEquals(PropertyType.LINK, doc.fieldType("link"));
     doc.field("link", new RidBag(db));
-    assertNotEquals(doc.fieldType("link"), PropertyType.LINK);
+    assertNotEquals(PropertyType.LINK, doc.fieldType("link"));
   }
 
   @Test
@@ -243,7 +243,7 @@ public class DocumentTest extends DbTestBase {
       Property property = classA.createProperty(db, "property", PropertyType.STRING);
       property.setReadonly(db, true);
       db.begin();
-      EntityImpl doc = new EntityImpl(classA);
+      EntityImpl doc = (EntityImpl) db.newEntity(classA);
       doc.field("name", "My Name");
       doc.field("property", "value1");
       doc.save();
@@ -284,7 +284,7 @@ public class DocumentTest extends DbTestBase {
       classA.createProperty(db, "property", PropertyType.STRING);
 
       db.begin();
-      EntityImpl doc = new EntityImpl(classA);
+      EntityImpl doc = (EntityImpl) db.newEntity(classA);
       doc.field("name", "My Name");
       doc.field("property", "value1");
       doc.save();
@@ -292,17 +292,17 @@ public class DocumentTest extends DbTestBase {
 
       db.begin();
       doc = db.bindToSession(doc);
-      assertEquals(doc.field("name"), "My Name");
-      assertEquals(doc.field("property"), "value1");
+      assertEquals("My Name", doc.field("name"));
+      assertEquals("value1", doc.field("property"));
       doc.undo();
-      assertEquals(doc.field("name"), "My Name");
-      assertEquals(doc.field("property"), "value1");
+      assertEquals("My Name", doc.field("name"));
+      assertEquals("value1", doc.field("property"));
       doc.field("name", "My Name 2");
       doc.field("property", "value2");
       doc.undo();
       doc.field("name", "My Name 3");
-      assertEquals(doc.field("name"), "My Name 3");
-      assertEquals(doc.field("property"), "value1");
+      assertEquals("My Name 3", doc.field("name"));
+      assertEquals("value1", doc.field("property"));
       doc.save();
       db.commit();
 
@@ -311,18 +311,18 @@ public class DocumentTest extends DbTestBase {
       doc.field("name", "My Name 4");
       doc.field("property", "value4");
       doc.undo("property");
-      assertEquals(doc.field("name"), "My Name 4");
-      assertEquals(doc.field("property"), "value1");
+      assertEquals("My Name 4", doc.field("name"));
+      assertEquals("value1", doc.field("property"));
       doc.save();
       db.commit();
 
       doc = db.bindToSession(doc);
       doc.undo("property");
-      assertEquals(doc.field("name"), "My Name 4");
-      assertEquals(doc.field("property"), "value1");
+      assertEquals("My Name 4", doc.field("name"));
+      assertEquals("value1", doc.field("property"));
       doc.undo();
-      assertEquals(doc.field("name"), "My Name 4");
-      assertEquals(doc.field("property"), "value1");
+      assertEquals("My Name 4", doc.field("name"));
+      assertEquals("value1", doc.field("property"));
     } finally {
       if (db != null) {
         db.close();
@@ -336,28 +336,28 @@ public class DocumentTest extends DbTestBase {
 
   @Test
   public void testMergeNull() {
-    EntityImpl dest = new EntityImpl();
+    EntityImpl dest = (EntityImpl) db.newEntity();
 
-    EntityImpl source = new EntityImpl();
+    EntityImpl source = (EntityImpl) db.newEntity();
     source.field("key", "value");
     source.field("somenull", (Object) null);
 
     dest.merge(source, true, false);
 
-    assertEquals(dest.field("key"), "value");
+    assertEquals("value", dest.field("key"));
 
     assertTrue(dest.containsField("somenull"));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testFailNestedSetNull() {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     doc.field("test.nested", "value");
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testFailNullMapKey() {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     Map<String, String> map = new HashMap<String, String>();
     map.put(null, "dd");
     doc.field("testMap", map);
@@ -366,32 +366,32 @@ public class DocumentTest extends DbTestBase {
 
   @Test
   public void testGetSetProperty() {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     Map<String, String> map = new HashMap<String, String>();
     map.put("foo", "valueInTheMap");
     doc.field("theMap", map);
     doc.setProperty("theMap.foo", "bar");
 
     assertEquals(doc.getProperty("theMap"), map);
-    assertEquals(doc.getProperty("theMap.foo"), "bar");
-    assertEquals(doc.eval("theMap.foo"), "valueInTheMap");
+    assertEquals("bar", doc.getProperty("theMap.foo"));
+    assertEquals("valueInTheMap", doc.eval("theMap.foo"));
 
     //    doc.setProperty("", "foo");
     //    assertEquals(doc.getProperty(""), "foo");
 
     doc.setProperty(",", "comma");
-    assertEquals(doc.getProperty(","), "comma");
+    assertEquals("comma", doc.getProperty(","));
 
     doc.setProperty(",.,/;:'\"", "strange");
-    assertEquals(doc.getProperty(",.,/;:'\""), "strange");
+    assertEquals("strange", doc.getProperty(",.,/;:'\""));
 
     doc.setProperty("   ", "spaces");
-    assertEquals(doc.getProperty("   "), "spaces");
+    assertEquals("spaces", doc.getProperty("   "));
   }
 
   @Test
   public void testNoDirtySameBytes() {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl doc = (EntityImpl) db.newEntity();
     byte[] bytes = new byte[]{0, 1, 2, 3, 4, 5};
     doc.field("bytes", bytes);
     EntityInternalUtils.clearTrackData(doc);

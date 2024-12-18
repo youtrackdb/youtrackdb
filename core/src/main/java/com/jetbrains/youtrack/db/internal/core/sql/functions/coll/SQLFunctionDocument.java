@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.coll;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.HashMap;
 import java.util.List;
@@ -46,10 +46,11 @@ public class SQLFunctionDocument extends SQLFunctionMultiValueAbstract<EntityImp
       final Object[] iParams,
       CommandContext iContext) {
 
+    var db = iContext.getDatabase();
     if (iParams.length > 2)
     // IN LINE MODE
     {
-      context = new EntityImpl();
+      context = new EntityImpl(db);
     }
 
     if (iParams.length == 1) {
@@ -77,7 +78,7 @@ public class SQLFunctionDocument extends SQLFunctionMultiValueAbstract<EntityImp
           if (iParams.length <= 2 && context == null)
           // AGGREGATION MODE (STATEFULL)
           {
-            context = new EntityImpl();
+            context = new EntityImpl(db);
           }
 
           context.field(key, value);
@@ -104,14 +105,7 @@ public class SQLFunctionDocument extends SQLFunctionMultiValueAbstract<EntityImp
   }
 
   protected EntityImpl prepareResult(EntityImpl res) {
-    if (returnDistributedResult()) {
-      final EntityImpl entity = new EntityImpl();
-      entity.field("node", getDistributedStorageId());
-      entity.field("context", res);
-      return entity;
-    } else {
-      return res;
-    }
+    return res;
   }
 
   @SuppressWarnings("unchecked")

@@ -37,15 +37,19 @@ public class TruncateClassStatementExecutionTest extends BaseMemoryInternalDatab
     db.command("truncate class test_class");
 
     db.begin();
-    db.save(new EntityImpl(testClass).field("name", "x").field("data", Arrays.asList(1, 2)));
-    db.save(new EntityImpl(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
+    db.save(((EntityImpl) db.newEntity(testClass)).field("name", "x")
+        .field("data", Arrays.asList(1, 2)));
+    db.save(((EntityImpl) db.newEntity(testClass)).field("name", "y")
+        .field("data", Arrays.asList(3, 0)));
     db.commit();
 
     db.command("truncate class test_class").close();
 
     db.begin();
-    db.save(new EntityImpl(testClass).field("name", "x").field("data", Arrays.asList(5, 6, 7)));
-    db.save(new EntityImpl(testClass).field("name", "y").field("data", Arrays.asList(8, 9, -1)));
+    db.save(((EntityImpl) db.newEntity(testClass)).field("name", "x")
+        .field("data", Arrays.asList(5, 6, 7)));
+    db.save(((EntityImpl) db.newEntity(testClass)).field("name", "y")
+        .field("data", Arrays.asList(8, 9, -1)));
     db.commit();
 
     ResultSet result = db.query("select from test_class");
@@ -196,8 +200,10 @@ public class TruncateClassStatementExecutionTest extends BaseMemoryInternalDatab
     db.command("truncate class test_class");
 
     db.begin();
-    db.save(new EntityImpl(testClass).field("name", "x").field("data", Arrays.asList(1, 2)));
-    db.save(new EntityImpl(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
+    db.save(((EntityImpl) db.newEntity(testClass)).field("name", "x")
+        .field("data", Arrays.asList(1, 2)));
+    db.save(((EntityImpl) db.newEntity(testClass)).field("name", "y")
+        .field("data", Arrays.asList(3, 0)));
     db.commit();
 
     ResultSet result = db.query("select from test_class");

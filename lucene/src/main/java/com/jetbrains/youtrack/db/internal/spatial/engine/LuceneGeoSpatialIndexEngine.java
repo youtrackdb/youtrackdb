@@ -17,8 +17,8 @@ package com.jetbrains.youtrack.db.internal.spatial.engine;
 import static com.jetbrains.youtrack.db.internal.lucene.builder.LuceneQueryBuilder.EMPTY_METADATA;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.ContextualRecordId;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexEngineException;
@@ -52,25 +52,25 @@ public class LuceneGeoSpatialIndexEngine extends LuceneSpatialIndexEngineAbstrac
 
   @Override
   protected SpatialStrategy createSpatialStrategy(
-      IndexDefinition indexDefinition, Map<String, ?> metadata) {
+      DatabaseSessionInternal db, IndexDefinition indexDefinition, Map<String, ?> metadata) {
 
-    return SpatialStrategyFactory.createStrategy(ctx, getDatabase(), indexDefinition);
+    return SpatialStrategyFactory.createStrategy(ctx, db, indexDefinition);
   }
 
   @Override
-  public Object get(DatabaseSessionInternal session, Object key) {
-    return getInTx(session, key, null);
+  public Object get(DatabaseSessionInternal db, Object key) {
+    return getInTx(db, key, null);
   }
 
   @Override
-  public Set<Identifiable> getInTx(DatabaseSessionInternal session, Object key,
+  public Set<Identifiable> getInTx(DatabaseSessionInternal db, Object key,
       LuceneTxChanges changes) {
     updateLastAccess();
-    openIfClosed();
+    openIfClosed(db.getStorage());
     try {
       if (key instanceof Map) {
         //noinspection unchecked
-        return newGeoSearch((Map<String, Object>) key, changes);
+        return newGeoSearch(db, (Map<String, Object>) key, changes);
       }
     } catch (Exception e) {
       if (e instanceof BaseException forward) {
@@ -84,11 +84,12 @@ public class LuceneGeoSpatialIndexEngine extends LuceneSpatialIndexEngineAbstrac
     return new LuceneResultSetEmpty();
   }
 
-  private Set<Identifiable> newGeoSearch(Map<String, Object> key, LuceneTxChanges changes)
+  private Set<Identifiable> newGeoSearch(DatabaseSessionInternal db, Map<String, Object> key,
+      LuceneTxChanges changes)
       throws Exception {
 
-    LuceneQueryContext queryContext = queryStrategy.build(key).withChanges(changes);
-    return new LuceneResultSet(this, queryContext, EMPTY_METADATA);
+    LuceneQueryContext queryContext = queryStrategy.build(db, key).withChanges(changes);
+    return new LuceneResultSet(db, this, queryContext, EMPTY_METADATA);
   }
 
   @Override
@@ -101,7 +102,7 @@ public class LuceneGeoSpatialIndexEngine extends LuceneSpatialIndexEngineAbstrac
     SpatialQueryContext spatialContext = (SpatialQueryContext) queryContext;
     if (spatialContext.spatialArgs != null) {
       updateLastAccess();
-      openIfClosed();
+      openIfClosed(queryContext.getContext().getDatabase().getStorage());
       @SuppressWarnings("deprecation")
       Point docPoint = (Point) ctx.readShape(doc.get(strategy.getFieldName()));
       double docDistDEG =
@@ -115,12 +116,12 @@ public class LuceneGeoSpatialIndexEngine extends LuceneSpatialIndexEngineAbstrac
   }
 
   @Override
-  public void put(DatabaseSessionInternal session, AtomicOperation atomicOperation, Object key,
+  public void put(DatabaseSessionInternal db, AtomicOperation atomicOperation, Object key,
       Object value) {
 
     if (key instanceof Identifiable) {
-      openIfClosed();
-      EntityImpl location = ((Identifiable) key).getRecord();
+      openIfClosed(db.getStorage());
+      EntityImpl location = ((Identifiable) key).getRecord(db);
       updateLastAccess();
       addDocument(newGeoDocument((Identifiable) value, factory.fromDoc(location), location));
     }
@@ -128,7 +129,7 @@ public class LuceneGeoSpatialIndexEngine extends LuceneSpatialIndexEngineAbstrac
 
   @Override
   public void update(
-      DatabaseSessionInternal session, AtomicOperation atomicOperation, Object key,
+      DatabaseSessionInternal db, AtomicOperation atomicOperation, Object key,
       IndexKeyUpdater<Object> updater) {
     throw new UnsupportedOperationException();
   }
@@ -144,9 +145,9 @@ public class LuceneGeoSpatialIndexEngine extends LuceneSpatialIndexEngineAbstrac
   }
 
   @Override
-  public Document buildDocument(DatabaseSessionInternal session, Object key,
+  public Document buildDocument(DatabaseSessionInternal db, Object key,
       Identifiable value) {
-    EntityImpl location = ((Identifiable) key).getRecord();
+    EntityImpl location = ((Identifiable) key).getRecord(db);
     return newGeoDocument(value, factory.fromDoc(location), location);
   }
 
@@ -155,13 +156,4 @@ public class LuceneGeoSpatialIndexEngine extends LuceneSpatialIndexEngineAbstrac
     return false;
   }
 
-  @Override
-  public void updateUniqueIndexVersion(Object key) {
-    // not implemented
-  }
-
-  @Override
-  public int getUniqueIndexVersion(Object key) {
-    return 0; // not implemented
-  }
 }

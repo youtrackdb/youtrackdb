@@ -19,27 +19,26 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.record.ridbag.embedded;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.common.util.Resettable;
 import com.jetbrains.youtrack.db.internal.common.util.Sizeable;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBagDelegate;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.SimpleMultiValueTracker;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.Change;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.Change;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
 import java.util.Collection;
 import java.util.Iterator;
@@ -390,10 +389,9 @@ public class EmbeddedRidBag implements RidBagDelegate {
   }
 
   @Override
-  public int serialize(byte[] stream, int offset, UUID ownerUuid) {
+  public int serialize(DatabaseSessionInternal db, byte[] stream, int offset, UUID ownerUuid) {
     IntegerSerializer.INSTANCE.serializeLiteral(size, stream, offset);
     offset += IntegerSerializer.INT_SIZE;
-    DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
     final int totEntries = entries.length;
     for (int i = 0; i < totEntries; ++i) {
       final Object entry = entries[i];
@@ -422,7 +420,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
   }
 
   @Override
-  public int deserialize(final byte[] stream, int offset) {
+  public int deserialize(DatabaseSessionInternal db, final byte[] stream, int offset) {
     this.size = IntegerSerializer.INSTANCE.deserializeLiteral(stream, offset);
     int entriesSize = IntegerSerializer.INSTANCE.deserializeLiteral(stream, offset);
     offset += IntegerSerializer.INT_SIZE;
@@ -434,7 +432,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
       Identifiable identifiable;
       if (rid.isTemporary()) {
         try {
-          identifiable = rid.getRecord();
+          identifiable = rid.getRecord(db);
         } catch (RecordNotFoundException rnf) {
           LogManager.instance()
               .warn(this, "Found null reference during ridbag deserialization (rid=%s)", rid);
