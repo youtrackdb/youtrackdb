@@ -23,7 +23,6 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
@@ -159,23 +158,6 @@ public class EmbeddedRidBag implements RidBagDelegate {
       removeEvent(nextValue);
     }
 
-    private void swapValueOnCurrent(Identifiable newValue) {
-      if (currentRemoved) {
-        throw new IllegalStateException("Current entity has already been removed");
-      }
-
-      if (currentIndex == -1) {
-        throw new IllegalStateException("Next method was not called for given iterator");
-      }
-
-      final Identifiable oldValue = (Identifiable) entries[currentIndex];
-      entries[currentIndex] = newValue;
-
-      contentWasChanged = true;
-
-      updateEvent(oldValue, oldValue, newValue);
-    }
-
     @Override
     public void reset() {
       currentIndex = -1;
@@ -301,20 +283,6 @@ public class EmbeddedRidBag implements RidBagDelegate {
   @Override
   public Iterator<Identifiable> iterator() {
     return new EntriesIterator();
-  }
-
-  public boolean convertRecords2Links() {
-    for (int i = 0; i < entriesLength; i++) {
-      final Object entry = entries[i];
-
-      if (entry instanceof Identifiable identifiable) {
-        if (identifiable instanceof Record record) {
-          entries[i] = record.getIdentity();
-        }
-      }
-    }
-
-    return true;
   }
 
   @Override

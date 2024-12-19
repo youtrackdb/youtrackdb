@@ -3852,6 +3852,10 @@ public class EntityImpl extends RecordAbstract
           "Cannot create a entity of the abstract class '" + iClass + "'");
     }
 
+    if (recordId.isPersistent()) {
+      throw new UnsupportedOperationException("Cannot change class of persistent record");
+    }
+
     if (iClass == null) {
       className = null;
     } else {
