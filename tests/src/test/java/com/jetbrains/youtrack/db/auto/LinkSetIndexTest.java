@@ -73,10 +73,10 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSet = new HashSet<>();
@@ -109,10 +109,10 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
     db.commit();
 
     try {
@@ -152,13 +152,13 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSetOne = new HashSet<>();
@@ -198,13 +198,13 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     EntityImpl document = ((EntityImpl) db.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSetOne = new HashSet<>();
@@ -253,13 +253,13 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     final Set<Identifiable> linkSetOne = new HashSet<>();
     linkSetOne.add(docOne);
@@ -303,13 +303,13 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSet = new HashSet<>();
@@ -404,13 +404,13 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSet = new HashSet<>();
@@ -449,10 +449,10 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSet = new HashSet<>();
@@ -494,10 +494,10 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSet = new HashSet<>();
@@ -535,10 +535,10 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSet = new HashSet<>();
@@ -576,10 +576,10 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("LinkSetIndexTestClass"));
 
@@ -604,10 +604,10 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("LinkSetIndexTestClass"));
 
@@ -637,10 +637,10 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSet = new HashSet<>();
@@ -678,13 +678,13 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     EntityImpl document = ((EntityImpl) db.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSetOne = new HashSet<>();
