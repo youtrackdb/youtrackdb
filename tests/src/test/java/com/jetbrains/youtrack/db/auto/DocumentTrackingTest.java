@@ -51,14 +51,14 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentEmbeddedListTrackingAfterSave() {
     EntityImpl document = ((EntityImpl) db.newEntity());
 
-    final List<String> list = new ArrayList<String>();
+    final List<String> list = new ArrayList<>();
     list.add("value1");
 
     document.field("embeddedlist", list, PropertyType.EMBEDDEDLIST);
     document.field("val", 1);
 
     db.begin();
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     db.begin();
@@ -76,7 +76,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     Assert.assertNotNull(timeLine.getMultiValueChangeEvents());
 
-    final List<MultiValueChangeEvent> firedEvents = new ArrayList<MultiValueChangeEvent>();
+    final List<MultiValueChangeEvent> firedEvents = new ArrayList<>();
     firedEvents.add(
         new MultiValueChangeEvent(ChangeType.ADD, 1, "value2"));
 
@@ -89,14 +89,14 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentEmbeddedMapTrackingAfterSave() {
     EntityImpl document = ((EntityImpl) db.newEntity());
 
-    final Map<String, String> map = new HashMap<String, String>();
+    final Map<String, String> map = new HashMap<>();
     map.put("key1", "value1");
 
     document.field("embeddedmap", map, PropertyType.EMBEDDEDMAP);
     document.field("val", 1);
 
     db.begin();
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     db.begin();
@@ -114,7 +114,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     Assert.assertNotNull(timeLine.getMultiValueChangeEvents());
 
-    final List<MultiValueChangeEvent> firedEvents = new ArrayList<MultiValueChangeEvent>();
+    final List<MultiValueChangeEvent> firedEvents = new ArrayList<>();
     firedEvents.add(
         new MultiValueChangeEvent(ChangeType.ADD, "key2", "value2"));
 
@@ -127,14 +127,14 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentEmbeddedSetTrackingAfterSave() {
     EntityImpl document = ((EntityImpl) db.newEntity());
 
-    final Set<String> set = new HashSet<String>();
+    final Set<String> set = new HashSet<>();
     set.add("value1");
 
     document.field("embeddedset", set, PropertyType.EMBEDDEDSET);
     document.field("val", 1);
 
     db.begin();
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     db.begin();
@@ -152,7 +152,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     Assert.assertNotNull(timeLine.getMultiValueChangeEvents());
 
-    final List<MultiValueChangeEvent> firedEvents = new ArrayList<MultiValueChangeEvent>();
+    final List<MultiValueChangeEvent> firedEvents = new ArrayList<>();
     firedEvents.add(
         new MultiValueChangeEvent(ChangeType.ADD, "value2", "value2"));
 
@@ -165,19 +165,19 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentLinkSetTrackingAfterSave() {
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     EntityImpl document = ((EntityImpl) db.newEntity());
 
-    final Set<RID> set = new HashSet<RID>();
+    final Set<RID> set = new HashSet<>();
     set.add(docOne.getIdentity());
 
     document.field("linkset", set, PropertyType.LINKSET);
     document.field("val", 1);
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     db.begin();
@@ -200,19 +200,19 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentLinkListTrackingAfterSave() {
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     EntityImpl document = ((EntityImpl) db.newEntity());
 
-    final List<RID> list = new ArrayList<RID>();
+    final List<RID> list = new ArrayList<>();
     list.add(docOne.getIdentity());
 
     document.field("linklist", list, PropertyType.LINKLIST);
     document.field("val", 1);
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     db.begin();
@@ -236,19 +236,19 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentLinkMapTrackingAfterSave() {
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     EntityImpl document = ((EntityImpl) db.newEntity());
 
-    final Map<String, RID> map = new HashMap<String, RID>();
+    final Map<String, RID> map = new HashMap<>();
     map.put("key1", docOne.getIdentity());
 
     document.field("linkmap", map, PropertyType.LINKMAP);
     document.field("val", 1);
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     db.begin();
@@ -271,12 +271,12 @@ public class DocumentTrackingTest extends BaseDBTest {
     db.begin();
     EntityImpl document = ((EntityImpl) db.newEntity());
 
-    final List<String> list = new ArrayList<String>();
+    final List<String> list = new ArrayList<>();
     list.add("value1");
 
     document.field("embeddedlist", list, PropertyType.EMBEDDEDLIST);
     document.field("val", 1);
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     db.begin();
@@ -294,7 +294,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     Assert.assertNotNull(timeLine.getMultiValueChangeEvents());
 
-    final List<MultiValueChangeEvent> firedEvents = new ArrayList<MultiValueChangeEvent>();
+    final List<MultiValueChangeEvent> firedEvents = new ArrayList<>();
     firedEvents.add(
         new MultiValueChangeEvent(ChangeType.ADD, 1, "value2"));
 
@@ -308,12 +308,12 @@ public class DocumentTrackingTest extends BaseDBTest {
     db.begin();
     EntityImpl document = ((EntityImpl) db.newEntity());
 
-    final Map<String, String> map = new HashMap<String, String>();
+    final Map<String, String> map = new HashMap<>();
     map.put("key1", "value1");
 
     document.field("embeddedmap", map, PropertyType.EMBEDDEDMAP);
     document.field("val", 1);
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     db.begin();
@@ -331,7 +331,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     Assert.assertNotNull(timeLine.getMultiValueChangeEvents());
 
-    final List<MultiValueChangeEvent> firedEvents = new ArrayList<MultiValueChangeEvent>();
+    final List<MultiValueChangeEvent> firedEvents = new ArrayList<>();
     firedEvents.add(
         new MultiValueChangeEvent(ChangeType.ADD, "key2", "value2"));
 
@@ -345,12 +345,12 @@ public class DocumentTrackingTest extends BaseDBTest {
     db.begin();
     EntityImpl document = ((EntityImpl) db.newEntity());
 
-    final Set<String> set = new HashSet<String>();
+    final Set<String> set = new HashSet<>();
     set.add("value1");
 
     document.field("embeddedset", set, PropertyType.EMBEDDEDSET);
     document.field("val", 1);
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     db.begin();
@@ -368,7 +368,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     Assert.assertNotNull(timeLine.getMultiValueChangeEvents());
 
-    final List<MultiValueChangeEvent> firedEvents = new ArrayList<MultiValueChangeEvent>();
+    final List<MultiValueChangeEvent> firedEvents = new ArrayList<>();
     firedEvents.add(
         new MultiValueChangeEvent(ChangeType.ADD, "value2", "value2"));
 
@@ -381,19 +381,19 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentLinkSetTrackingAfterSaveCacheDisabled() {
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     EntityImpl document = ((EntityImpl) db.newEntity());
 
-    final Set<RID> set = new HashSet<RID>();
+    final Set<RID> set = new HashSet<>();
     set.add(docOne.getIdentity());
 
     document.field("linkset", set, PropertyType.LINKSET);
     document.field("val", 1);
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     db.begin();
@@ -416,19 +416,19 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentLinkListTrackingAfterSaveCacheDisabled() {
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     EntityImpl document = ((EntityImpl) db.newEntity());
 
-    final List<RID> list = new ArrayList<RID>();
+    final List<RID> list = new ArrayList<>();
     list.add(docOne.getIdentity());
 
     document.field("linklist", list, PropertyType.LINKLIST);
     document.field("val", 1);
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     db.begin();
@@ -451,19 +451,19 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentLinkMapTrackingAfterSaveCacheDisabled() {
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     EntityImpl document = ((EntityImpl) db.newEntity());
 
-    final Map<String, RID> map = new HashMap<String, RID>();
+    final Map<String, RID> map = new HashMap<>();
     map.put("key1", docOne.getIdentity());
 
     document.field("linkmap", map, PropertyType.LINKMAP);
     document.field("val", 1);
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     db.begin();
@@ -485,7 +485,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
     db.begin();
-    final List<String> list = new ArrayList<String>();
+    final List<String> list = new ArrayList<>();
     list.add("value1");
 
     document.field("embeddedlist", list);
@@ -522,7 +522,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentEmbeddedMapTrackingAfterSaveWithClass() {
     EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
-    final Map<String, String> map = new HashMap<String, String>();
+    final Map<String, String> map = new HashMap<>();
     map.put("key1", "value1");
 
     db.begin();
@@ -546,7 +546,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     Assert.assertNotNull(timeLine.getMultiValueChangeEvents());
 
-    final List<MultiValueChangeEvent> firedEvents = new ArrayList<MultiValueChangeEvent>();
+    final List<MultiValueChangeEvent> firedEvents = new ArrayList<>();
     firedEvents.add(
         new MultiValueChangeEvent(ChangeType.ADD, "key2", "value2"));
 
@@ -559,7 +559,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentEmbeddedSetTrackingAfterSaveWithClass() {
     EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
-    final Set<String> set = new HashSet<String>();
+    final Set<String> set = new HashSet<>();
     set.add("value1");
 
     db.begin();
@@ -583,7 +583,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     Assert.assertNotNull(timeLine.getMultiValueChangeEvents());
 
-    final List<MultiValueChangeEvent> firedEvents = new ArrayList<MultiValueChangeEvent>();
+    final List<MultiValueChangeEvent> firedEvents = new ArrayList<>();
     firedEvents.add(
         new MultiValueChangeEvent(ChangeType.ADD, "value2", "value2"));
 
@@ -596,14 +596,14 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentLinkSetTrackingAfterSaveWithClass() {
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
-    final Set<RID> set = new HashSet<RID>();
+    final Set<RID> set = new HashSet<>();
     set.add(docOne.getIdentity());
 
     document.field("linkset", set);
@@ -629,14 +629,14 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentLinkListTrackingAfterSaveWithClass() {
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
-    final List<RID> list = new ArrayList<RID>();
+    final List<RID> list = new ArrayList<>();
     list.add(docOne.getIdentity());
 
     document.field("linklist", list);
@@ -664,14 +664,14 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentLinkMapTrackingAfterSaveWithClass() {
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
-    final Map<String, RID> map = new HashMap<String, RID>();
+    final Map<String, RID> map = new HashMap<>();
     map.put("key1", docOne.getIdentity());
 
     document.field("linkmap", map);
@@ -699,12 +699,12 @@ public class DocumentTrackingTest extends BaseDBTest {
     db.begin();
     EntityImpl document = ((EntityImpl) db.newEntity());
 
-    final Set<String> set = new HashSet<String>();
+    final Set<String> set = new HashSet<>();
     set.add("value1");
 
     document.field("embeddedlist", set);
     document.field("val", 1);
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     db.begin();
@@ -722,12 +722,12 @@ public class DocumentTrackingTest extends BaseDBTest {
     db.begin();
     EntityImpl document = ((EntityImpl) db.newEntity());
 
-    final List<String> list = new ArrayList<String>();
+    final List<String> list = new ArrayList<>();
     list.add("value1");
 
     document.field("embeddedset", list);
     document.field("val", 1);
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     db.begin();
@@ -743,7 +743,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentEmbeddedListTrackingFailAfterReplace() {
     EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
-    final List<String> list = new ArrayList<String>();
+    final List<String> list = new ArrayList<>();
     list.add("value1");
 
     db.begin();
@@ -760,7 +760,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     final List<String> trackedList = document.field("embeddedlist");
     trackedList.add("value2");
 
-    final List<String> newTrackedList = new TrackedList<String>(document);
+    final List<String> newTrackedList = new TrackedList<>(document);
     document.field("embeddedlist", newTrackedList);
     newTrackedList.add("value3");
 
@@ -776,7 +776,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentEmbeddedMapTrackingAfterReplace() {
     EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
-    final Map<String, String> map = new HashMap<String, String>();
+    final Map<String, String> map = new HashMap<>();
     map.put("key1", "value1");
 
     db.begin();
@@ -793,7 +793,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     final Map<String, String> trackedMap = document.field("embeddedmap");
     trackedMap.put("key2", "value2");
 
-    final Map<Object, String> newTrackedMap = new TrackedMap<String>(document);
+    final Map<Object, String> newTrackedMap = new TrackedMap<>(document);
     document.field("embeddedmap", newTrackedMap);
     newTrackedMap.put("key3", "value3");
 
@@ -809,7 +809,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentEmbeddedSetTrackingAfterReplace() {
     EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
-    final Set<String> set = new HashSet<String>();
+    final Set<String> set = new HashSet<>();
     set.add("value1");
 
     db.begin();
@@ -826,7 +826,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     final Set<String> trackedSet = document.field("embeddedset");
     trackedSet.add("value2");
 
-    final Set<String> newTrackedSet = new TrackedSet<String>(document);
+    final Set<String> newTrackedSet = new TrackedSet<>(document);
     document.field("embeddedset", newTrackedSet);
     newTrackedSet.add("value3");
 
@@ -842,7 +842,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testRemoveField() {
     EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
-    final List<String> list = new ArrayList<String>();
+    final List<String> list = new ArrayList<>();
     list.add("value1");
 
     db.begin();
@@ -870,7 +870,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testTrackingChangesSwitchedOff() {
     EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
-    final List<String> list = new ArrayList<String>();
+    final List<String> list = new ArrayList<>();
     list.add("value1");
 
     db.begin();
@@ -898,7 +898,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testTrackingChangesSwitchedOn() {
     EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
-    final List<String> list = new ArrayList<String>();
+    final List<String> list = new ArrayList<>();
     list.add("value1");
 
     db.begin();
@@ -924,7 +924,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     Assert.assertTrue(document.isDirty());
     Assert.assertNotNull(document.getCollectionTimeLine("embeddedlist"));
 
-    final List<MultiValueChangeEvent> firedEvents = new ArrayList<MultiValueChangeEvent>();
+    final List<MultiValueChangeEvent> firedEvents = new ArrayList<>();
     firedEvents.add(
         new MultiValueChangeEvent(ChangeType.ADD, 2, "value3"));
 
@@ -937,7 +937,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testReset() {
     EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
-    final List<String> list = new ArrayList<String>();
+    final List<String> list = new ArrayList<>();
     list.add("value1");
 
     db.begin();
@@ -965,7 +965,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testClear() {
     EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
-    final List<String> list = new ArrayList<String>();
+    final List<String> list = new ArrayList<>();
     list.add("value1");
 
     db.begin();
@@ -993,7 +993,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testUnload() {
     EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
-    final List<String> list = new ArrayList<String>();
+    final List<String> list = new ArrayList<>();
     list.add("value1");
 
     db.begin();
@@ -1020,7 +1020,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testUnsetDirty() {
     EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
-    final List<String> list = new ArrayList<String>();
+    final List<String> list = new ArrayList<>();
     list.add("value1");
 
     db.begin();
@@ -1046,7 +1046,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testRemoveFieldUsingIterator() {
     EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
-    final List<String> list = new ArrayList<String>();
+    final List<String> list = new ArrayList<>();
     list.add("value1");
 
     db.begin();
