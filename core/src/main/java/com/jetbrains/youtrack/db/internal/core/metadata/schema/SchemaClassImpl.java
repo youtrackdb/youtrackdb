@@ -1129,7 +1129,6 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
 
     var sessionInternal = (DatabaseSessionInternal) session;
     final String localName = this.name;
-    final int[] localPolymorphicClusterIds = polymorphicClusterIds;
 
     for (final String fieldToIndex : fields) {
       final String fieldName =
@@ -1151,6 +1150,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
         IndexDefinitionFactory.createIndexDefinition(
             this, Arrays.asList(fields), extractFieldTypes(fields), null, type, algorithm);
 
+    final int[] localPolymorphicClusterIds = polymorphicClusterIds;
     sessionInternal
         .getMetadata()
         .getIndexManagerInternal()

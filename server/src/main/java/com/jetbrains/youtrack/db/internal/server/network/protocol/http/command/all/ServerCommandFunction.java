@@ -21,8 +21,8 @@ package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.server.config.ServerCommandConfiguration;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import java.io.IOException;
 
 public class ServerCommandFunction extends ServerCommandAbstractLogic {

@@ -56,6 +56,7 @@ public class FetchTransaction38Response implements BinaryResponse {
                 .readRecord(database, entity.getIdentity(), false, false, null);
 
         EntityImpl entityFromPersistence = new EntityImpl(db, entity.getIdentity());
+        RecordInternal.unsetDirty(entityFromPersistence);
         entityFromPersistence.fromStream(result.buffer);
         request.setOriginal(
             RecordSerializerNetworkV37Client.INSTANCE.toStream(db, entityFromPersistence));
@@ -125,14 +126,14 @@ public class FetchTransaction38Response implements BinaryResponse {
     do {
       hasEntry = network.readByte();
       if (hasEntry == 1) {
-        RecordOperation38Response entry = readTransactionEntry(network, serializer);
+        RecordOperation38Response entry = readTransactionEntry(network);
         operations.add(entry);
       }
     } while (hasEntry == 1);
   }
 
   static RecordOperation38Response readTransactionEntry(
-      ChannelDataInput channel, RecordSerializer ser) throws IOException {
+      ChannelDataInput channel) throws IOException {
     RecordOperation38Response entry = new RecordOperation38Response();
     entry.setType(channel.readByte());
     entry.setId(channel.readRID());

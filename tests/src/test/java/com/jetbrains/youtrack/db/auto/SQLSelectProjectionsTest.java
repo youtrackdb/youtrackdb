@@ -223,7 +223,7 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
       Assert.assertTrue(d.fieldNames().length <= 1);
       Assert.assertNotNull(d.field("json"));
 
-      new EntityImpl(null).fromJSON((String) d.field("json"));
+      new EntityImpl(db).fromJSON((String) d.field("json"));
     }
   }
 

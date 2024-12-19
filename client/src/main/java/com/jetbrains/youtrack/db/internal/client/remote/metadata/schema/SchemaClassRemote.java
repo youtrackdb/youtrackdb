@@ -1,13 +1,19 @@
 package com.jetbrains.youtrack.db.internal.client.remote.metadata.schema;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
 import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionFactory;
+import com.jetbrains.youtrack.db.internal.core.index.IndexException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
@@ -16,12 +22,15 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 /**
  *
  */
 public class SchemaClassRemote extends SchemaClassImpl {
+
   protected SchemaClassRemote(SchemaShared iOwner, String iName) {
     super(iOwner, iName);
   }
@@ -208,6 +217,62 @@ public class SchemaClassRemote extends SchemaClassImpl {
     } finally {
       releaseSchemaWriteLock(database);
     }
+  }
+
+  @Override
+  public void createIndex(DatabaseSession session, String name, String type,
+      ProgressListener progressListener, Map<String, ?> metadata, String algorithm,
+      String... fields) {
+    if (type == null) {
+      throw new IllegalArgumentException("Index type is null");
+    }
+
+    type = type.toUpperCase(Locale.ENGLISH);
+
+    if (fields.length == 0) {
+      throw new IndexException("List of fields to index cannot be empty.");
+    }
+
+    var sessionInternal = (DatabaseSessionInternal) session;
+    final String localName = this.name;
+
+    for (final String fieldToIndex : fields) {
+      final String fieldName =
+          decodeClassName(IndexDefinitionFactory.extractFieldName(fieldToIndex));
+
+      if (!fieldName.equals("@rid") && !existsProperty(fieldName)) {
+        throw new IndexException(
+            "Index with name '"
+                + name
+                + "' cannot be created on class '"
+                + localName
+                + "' because the field '"
+                + fieldName
+                + "' is absent in class definition");
+      }
+    }
+
+    var queryBuilder = new StringBuilder();
+    queryBuilder.append("create index ").append(name).append(" on ").append(localName).append(" (");
+    for (int i = 0; i < fields.length - 1; i++) {
+      queryBuilder.append(fields[i]).append(", ");
+    }
+
+    queryBuilder.append(fields[fields.length - 1]).append(") ");
+    queryBuilder.append(type);
+
+    if (metadata != null) {
+      var objectMapper = new ObjectMapper();
+      try {
+        var json = objectMapper.writeValueAsString(metadata);
+        queryBuilder.append(" metadata ").append(json);
+      } catch (JsonProcessingException e) {
+        throw BaseException.wrapException(
+            new DatabaseException("Error during conversion of metadata in JSON format"), e);
+      }
+    }
+
+    sessionInternal.command(queryBuilder.toString()).close();
   }
 
   public SchemaClass setName(DatabaseSession session, final String name) {

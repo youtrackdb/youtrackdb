@@ -1,7 +1,6 @@
 package com.jetbrains.youtrack.db.internal.test.server.network.http;
 
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.junit.Assert;
@@ -11,7 +10,6 @@ import org.junit.Test;
  * Test HTTP "function" command.
  */
 public class HttpFunctionTest extends BaseHttpDatabaseTest {
-
   @Test
   public void callFunction() throws Exception {
     // CREATE FUNCTION FIRST
@@ -22,7 +20,7 @@ public class HttpFunctionTest extends BaseHttpDatabaseTest {
                     + " [name,surname] LANGUAGE javascript",
                 CONTENT.TEXT)
             .getResponse();
-    Assert.assertEquals(response1.getReasonPhrase(), response1.getCode(), 200);
+    Assert.assertEquals(response1.getReasonPhrase(), 200, response1.getCode());
 
     ClassicHttpResponse response2 =
         post("function/" + getDatabaseName() + "/hello")
@@ -30,18 +28,15 @@ public class HttpFunctionTest extends BaseHttpDatabaseTest {
             .setUserName("admin")
             .setUserPassword("admin")
             .getResponse();
-    Assert.assertEquals(response2.getReasonPhrase(), response2.getCode(), 200);
+    Assert.assertEquals(response2.getReasonPhrase(), 200, response2.getCode());
 
     String response = EntityUtils.toString(getResponse().getEntity());
 
     Assert.assertNotNull(response);
+    var objectMapper = new ObjectMapper();
+    var result = objectMapper.readTree(response).get("result").iterator().next();
 
-    var responseDoc = new EntityImpl(null);
-    responseDoc.fromJSON(response);
-    EntityImpl result =
-        ((List<EntityImpl>) responseDoc.field("result")).get(0);
-
-    Assert.assertEquals(result.field("value"), "Hello Jay Miner");
+    Assert.assertEquals("Hello Jay Miner", result.get("value").asText());
   }
 
   @Override

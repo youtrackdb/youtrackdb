@@ -29,7 +29,6 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
-import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -76,7 +75,7 @@ public class SQLInsertTest extends BaseDBTest {
 
     for (int i = 0; i < 30; i++) {
       db.begin();
-      ((EntityImpl) db.newEntity("Address")).save();
+      db.newEntity("Address").save();
       db.commit();
     }
     List<Long> positions = getValidPositions(addressId);
@@ -430,12 +429,13 @@ public class SQLInsertTest extends BaseDBTest {
 
     Assert.assertEquals(inserted, 2);
 
-    List<Identifiable> result =
-        db.query(new SQLSynchQuery<Identifiable>("select from UserCopy"));
+    List<Result> result =
+        db.query("select from UserCopy").toList();
+
     Assert.assertEquals(result.size(), 2);
-    for (Identifiable r : result) {
-      Assert.assertEquals(((EntityImpl) r.getRecord(db)).getClassName(), "UserCopy");
-      Assert.assertNotSame(((EntityImpl) r.getRecord(db)).field("name"), "admin");
+    for (var r : result) {
+      Assert.assertEquals(r.asEntity().getClassName(), "UserCopy");
+      Assert.assertNotEquals(((EntityImpl) r.asEntity()).field("name"), "admin");
     }
   }
 

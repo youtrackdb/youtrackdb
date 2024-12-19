@@ -80,11 +80,11 @@ public abstract class HttpResponseAbstract implements HttpResponse {
   private boolean sendStarted = false;
   private String content;
   private int code;
-  private boolean keepAlive = true;
+  private boolean keepAlive;
   private boolean jsonErrorResponse = true;
   private boolean sameSiteCookie = true;
   private ClientConnection connection;
-  private boolean streaming = GlobalConfiguration.NETWORK_HTTP_STREAMING.getValueAsBoolean();
+  private boolean streaming;
 
   public HttpResponseAbstract(
       final OutputStream iOutStream,
@@ -141,7 +141,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
     writeLine("Connection: " + (iKeepAlive ? "Keep-Alive" : "close"));
 
     // SET CONTENT ENCDOING
-    if (contentEncoding != null && contentEncoding.length() > 0) {
+    if (contentEncoding != null && !contentEncoding.isEmpty()) {
       writeLine("Content-Encoding: " + contentEncoding);
     }
 
@@ -168,7 +168,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
 
   @Override
   public void writeResult(final Object result, DatabaseSessionInternal databaseDocumentInternal)
-      throws InterruptedException, IOException {
+      throws IOException {
     writeResult(result, null, null, null, databaseDocumentInternal);
   }
 
@@ -178,7 +178,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       final String iFormat,
       final String iAccept,
       DatabaseSessionInternal databaseDocumentInternal)
-      throws InterruptedException, IOException {
+      throws IOException {
     writeResult(iResult, iFormat, iAccept, null, databaseDocumentInternal);
   }
 
@@ -189,7 +189,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       final String iAccept,
       final Map<String, Object> iAdditionalProperties,
       DatabaseSessionInternal databaseDocumentInternal)
-      throws InterruptedException, IOException {
+      throws IOException {
     writeResult(iResult, iFormat, iAccept, iAdditionalProperties, null, databaseDocumentInternal);
   }
 
@@ -201,33 +201,29 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       final Map<String, Object> iAdditionalProperties,
       final String mode,
       DatabaseSessionInternal db)
-      throws InterruptedException, IOException {
+      throws IOException {
     if (iResult == null) {
       send(HttpUtils.STATUS_OK_NOCONTENT_CODE, "", HttpUtils.CONTENT_TEXT_PLAIN, null, null);
     } else {
       final Object newResult;
 
       if (iResult instanceof Map) {
-        EntityImpl entity = new EntityImpl(null);
-        for (Map.Entry<?, ?> entry : ((Map<?, ?>) iResult).entrySet()) {
-          String key = keyFromMapObject(entry.getKey());
-          entity.field(key, entry.getValue());
-        }
-        newResult = Collections.singleton(entity).iterator();
+        newResult = Collections.singleton(iResult).iterator();
       } else if (MultiValue.isMultiValue(iResult)
           && (MultiValue.getSize(iResult) > 0
           && !((MultiValue.getFirstValue(iResult) instanceof Identifiable)
           || ((MultiValue.getFirstValue(iResult) instanceof Result))))) {
-        newResult = Collections.singleton(new EntityImpl(null).field("value", iResult)).iterator();
+        newResult = Collections.singleton(Map.of("value", iResult)).iterator();
       } else if (iResult instanceof Identifiable) {
         // CONVERT SINGLE VALUE IN A COLLECTION
         newResult = Collections.singleton(iResult).iterator();
       } else if (iResult instanceof Iterable<?>) {
+        //noinspection unchecked
         newResult = ((Iterable<Identifiable>) iResult).iterator();
       } else if (MultiValue.isMultiValue(iResult)) {
         newResult = MultiValue.getMultiValueIterator(iResult);
       } else {
-        newResult = Collections.singleton(new EntityImpl(null).field("value", iResult)).iterator();
+        newResult = Collections.singleton(Map.of("value", iResult)).iterator();
       }
 
       if (newResult == null) {
@@ -305,21 +301,19 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       send(HttpUtils.STATUS_OK_NOCONTENT_CODE, "", HttpUtils.CONTENT_TEXT_PLAIN, null, null);
       return;
     }
-    final int size = MultiValue.getSize(iRecords);
     final Iterator<?> it = MultiValue.getMultiValueIterator(iRecords);
-
     if (accept != null && accept.contains("text/csv")) {
       sendStream(
           HttpUtils.STATUS_OK_CODE,
           HttpUtils.STATUS_OK_DESCRIPTION,
           HttpUtils.CONTENT_CSV,
           "data.csv",
-          new CallableFunction<Void, ChunkedResponse>() {
-
+          new CallableFunction<>() {
             @Override
             public Void call(final ChunkedResponse iArgument) {
-              final LinkedHashSet<String> colNames = new LinkedHashSet<String>();
-              final List<Entity> records = new ArrayList<Entity>();
+              final LinkedHashSet<String> colNames = new LinkedHashSet<>();
+              final List<Entity> records = new ArrayList<>();
+              final List<Map<String, ?>> maps = new ArrayList<>();
 
               // BROWSE ALL THE RECORD TO HAVE THE COMPLETE COLUMN
               // NAMES LIST
@@ -327,18 +321,18 @@ public abstract class HttpResponseAbstract implements HttpResponse {
                 final Object r = it.next();
 
                 if (r instanceof Result result) {
-
-                  records.add(result.toEntity());
-
-                  result
-                      .toEntity()
-                      .getSchemaType()
-                      .ifPresent(x -> x.properties(db)
-                          .forEach(prop -> colNames.add(prop.getName())));
-                  for (String fieldName : result.getPropertyNames()) {
-                    colNames.add(fieldName);
+                  if (result.isEntity()) {
+                    var entity = result.toEntity();
+                    entity
+                        .getSchemaType()
+                        .ifPresent(x -> x.properties(db)
+                            .forEach(prop -> colNames.add(prop.getName())));
+                    records.add(entity);
+                  } else {
+                    maps.add(result.toMap());
                   }
 
+                  colNames.addAll(result.getPropertyNames());
                 } else if (r instanceof Identifiable) {
                   try {
                     final Record rec = ((Identifiable) r).getRecord(db);
@@ -349,10 +343,13 @@ public abstract class HttpResponseAbstract implements HttpResponse {
                   } catch (RecordNotFoundException rnf) {
                     // IGNORE IT
                   }
+                } else if (r instanceof Map<?, ?>) {
+                  //noinspection unchecked
+                  maps.add((Map<String, ?>) r);
                 }
               }
 
-              final List<String> orderedColumns = new ArrayList<String>(colNames);
+              final List<String> orderedColumns = new ArrayList<>(colNames);
 
               try {
                 // WRITE THE HEADER
@@ -384,8 +381,25 @@ public abstract class HttpResponseAbstract implements HttpResponse {
                   iArgument.write(HttpUtils.EOL);
                 }
 
-                iArgument.flush();
+                for (var entity : maps) {
+                  for (int col = 0; col < orderedColumns.size(); ++col) {
+                    if (col > 0) {
+                      iArgument.write(',');
+                    }
 
+                    Object value = entity.get(orderedColumns.get(col));
+                    if (value != null) {
+                      if (!(value instanceof Number)) {
+                        value = "\"" + value + "\"";
+                      }
+
+                      iArgument.write(value.toString().getBytes());
+                    }
+                  }
+                  iArgument.write(HttpUtils.EOL);
+                }
+
+                iArgument.flush();
               } catch (IOException e) {
                 LogManager.instance().error(this, "HTTP response: error on writing records", e);
               }
@@ -513,6 +527,8 @@ public abstract class HttpResponseAbstract implements HttpResponse {
               LogManager.instance()
                   .error(this, "Error transforming record " + identifiable + " to JSON", e);
             }
+          } else if (entry instanceof Map<?, ?>) {
+            buffer.append(JSONWriter.writeValue(db, entry, format));
           } else if (MultiValue.isMultiValue(entry)) {
             buffer.append("[");
             formatMultiValue(
@@ -522,6 +538,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
             buffer.append(JSONWriter.writeValue(db, entry, format));
           }
         }
+
         checkConnection();
       }
     }
@@ -588,7 +605,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
   // Compress content string
   @Override
   public byte[] compress(String jsonStr) {
-    if (jsonStr == null || jsonStr.length() == 0) {
+    if (jsonStr == null || jsonStr.isEmpty()) {
       return null;
     }
     GZIPOutputStream gout = null;
@@ -611,6 +628,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
           baos.close();
         }
       } catch (Exception ex) {
+        //ignore
       }
     }
     return null;
@@ -691,13 +709,6 @@ public abstract class HttpResponseAbstract implements HttpResponse {
   @Override
   public void setJsonErrorResponse(boolean jsonErrorResponse) {
     this.jsonErrorResponse = jsonErrorResponse;
-  }
-
-  private String keyFromMapObject(Object key) {
-    if (key instanceof String) {
-      return (String) key;
-    }
-    return "" + key;
   }
 
   @Override

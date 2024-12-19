@@ -2123,11 +2123,11 @@ public class CRUDTest extends BaseDBTest {
 
     p.setProperty("embeddedDocument", testEmbeddedDocument);
 
+    db.begin();
     EntityImpl testDocument = ((EntityImpl) db.newEntity());
     testDocument.field("testField", "testValue");
 
-    db.begin();
-    testDocument.save(db.getClusterNameById(db.getDefaultClusterId()));
+    testDocument.save();
     db.commit();
 
     db.begin();

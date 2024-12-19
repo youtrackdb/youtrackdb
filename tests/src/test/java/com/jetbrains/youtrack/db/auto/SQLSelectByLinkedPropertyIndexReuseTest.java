@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -32,12 +33,12 @@ import org.testng.annotations.Test;
  * <p>Prefix "lpirt" in class names means "LinkedPropertyIndexReuseTest".
  */
 @SuppressWarnings("SuspiciousMethodCalls")
-@Test(groups = {"index"})
+@Test
 public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseTest {
 
   @Parameters(value = "remote")
-  public SQLSelectByLinkedPropertyIndexReuseTest(boolean remote) {
-    super(remote);
+  public SQLSelectByLinkedPropertyIndexReuseTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeClass
@@ -322,7 +323,7 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
   }
 
   @Test
-  public void testCompositeHashIndexIgnored() {
+  public void testCompositeIndex() {
     long oldIndexUsage = indexUsages();
 
     List<EntityImpl> result =
@@ -331,7 +332,7 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     assertEquals(result.size(), 1);
 
-    assertEquals(indexUsages(), oldIndexUsage);
+    assertEquals(indexUsages(), oldIndexUsage + 2);
   }
 
   private long indexUsages() {

@@ -105,7 +105,7 @@ public class RemoteTransactionHookTest extends DbTestBase {
     database.registerHook(calls);
     database.createClassIfNotExist("SomeTx");
     database.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("SomeTx"));
+    EntityImpl doc = ((EntityImpl) database.newEntity("SomeTx"));
     doc.setProperty("name", "some");
     database.save(doc);
     database.command("insert into SomeTx set name='aa' ").close();
