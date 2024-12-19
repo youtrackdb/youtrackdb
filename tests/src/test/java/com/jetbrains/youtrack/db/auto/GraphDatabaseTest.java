@@ -42,8 +42,7 @@ public class GraphDatabaseTest extends BaseDBTest {
 
   @Parameters(value = "remote")
   public GraphDatabaseTest(@Optional Boolean remote) {
-    //super(remote != null && remote);
-    super(true);
+    super(remote != null && remote);
   }
 
   @Test
@@ -300,7 +299,7 @@ public class GraphDatabaseTest extends BaseDBTest {
 
     EntityImpl doc = ((EntityImpl) db.newEntity());
     doc.field("foo", "bar");
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
 
     vertex.setProperty("emb1", doc);
 
