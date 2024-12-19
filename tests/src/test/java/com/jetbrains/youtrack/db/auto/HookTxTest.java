@@ -21,7 +21,6 @@ import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.RecordHookAbstract;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.testng.Assert;
@@ -196,8 +195,6 @@ public class HookTxTest extends BaseDBTest {
     profile = db.load(profile.getIdentity());
     // TEST HOOKS ON UPDATE
     profile.setProperty("value", profile.<Integer>getProperty("value") + 1000);
-    db.save(profile);
-
     db.commit();
 
     expectedHookState +=
