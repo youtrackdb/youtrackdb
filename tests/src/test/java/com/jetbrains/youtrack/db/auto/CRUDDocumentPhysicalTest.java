@@ -268,9 +268,9 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     EntityImpl coreDoc = ((EntityImpl) db.newEntity());
     EntityImpl linkDoc = ((EntityImpl) db.newEntity());
 
-    linkDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    linkDoc.save();
     coreDoc.field("link", linkDoc);
-    coreDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    coreDoc.save();
     db.commit();
 
     EntityImpl coreDocCopy = db.load(coreDoc.getIdentity());
@@ -358,7 +358,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
 
     final Map<String, HashMap<?, ?>> map3 = new HashMap<>();
     map2.put("map3", (HashMap<?, ?>) map3);
-    newDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    newDoc.save();
     final RecordId rid = newDoc.getIdentity();
     db.commit();
 
@@ -516,7 +516,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     // AFTER TOSTREAM
     Assert.assertTrue(parent.isDirty());
     // CHANGE FIELDS VALUE (Automaticaly set dirty this child)
-    child1.field("child2", ((EntityImpl) db.newEntity()));
+    child1.field("child2", db.newEntity());
     Assert.assertTrue(parent.isDirty());
   }
 
@@ -526,7 +526,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     db.begin();
     EntityImpl doc = ((EntityImpl) db.newEntity());
     doc.field("test", s);
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
     db.commit();
 
     doc = db.bindToSession(doc);
@@ -728,7 +728,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     EntityImpl doc =
         (EntityImpl)
             RecordSerializerSchemaAware2CSV.INSTANCE.fromStream(db,
-                streamOrigin, ((EntityImpl) db.newEntity()), null);
+                streamOrigin, new EntityImpl(db), null);
     doc.field("out");
     final byte[] streamDest = RecordSerializerSchemaAware2CSV.INSTANCE.toStream(db, doc);
     Assert.assertEquals(streamOrigin, streamDest);
@@ -773,8 +773,8 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
 
     db.begin();
     EntityImpl testClass2Document = ((EntityImpl) db.newEntity(testClass2));
-    testClass2Document.field("testClass1Property", ((EntityImpl) db.newEntity(testClass1)));
-    testClass2Document.save("testCreateEmbddedClass2" + SUFFIX);
+    testClass2Document.field("testClass1Property", db.newEntity(testClass1));
+    testClass2Document.save();
     db.commit();
 
     testClass2Document = db.load(testClass2Document.getIdentity());
@@ -794,12 +794,12 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     db.begin();
     for (int i = 0; i < 10; i++) {
       final EntityImpl linkDoc = ((EntityImpl) db.newEntity());
-      linkDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
+      linkDoc.save();
 
       allDocs.add(linkDoc);
     }
     doc.field("linkList", allDocs);
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
     db.commit();
 
     db.begin();
@@ -841,7 +841,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     db.begin();
     {
       doc1 = ((EntityImpl) db.newEntity());
-      doc1.save(db.getClusterNameById(db.getDefaultClusterId()));
+      doc1.save();
     }
     db.commit();
 
