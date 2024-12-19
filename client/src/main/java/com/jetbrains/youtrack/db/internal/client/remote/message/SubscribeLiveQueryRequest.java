@@ -7,7 +7,7 @@ import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetwork;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37Client;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
@@ -55,7 +55,7 @@ public class SubscribeLiveQueryRequest implements BinaryRequest<SubscribeLiveQue
 
   @Override
   public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
-      RecordSerializer serializer)
+      RecordSerializerNetwork serializer)
       throws IOException {
     this.query = channel.readString();
     EntityImpl paramsEntity = new EntityImpl(null);

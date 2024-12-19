@@ -72,6 +72,7 @@ public class ImmutableProperty implements PropertyInternal {
   private final Comparable<Object> minComparable;
   private final Comparable<Object> maxComparable;
   private final Collection<Index> allIndexes;
+  private final boolean isRemote;
 
   public ImmutableProperty(DatabaseSessionInternal session, PropertyInternal property,
       SchemaImmutableClass owner) {
@@ -208,7 +209,12 @@ public class ImmutableProperty implements PropertyInternal {
     }
 
     this.maxComparable = maxComparable;
-    this.allIndexes = property.getAllIndexesInternal(session);
+    if (!session.isRemote()) {
+      this.allIndexes = property.getAllIndexesInternal(session);
+    } else {
+      this.allIndexes = Collections.emptyList();
+    }
+    this.isRemote = session.isRemote();
   }
 
   private <T> T safeConvert(DatabaseSessionInternal session, Object value, Class<T> target,
@@ -387,6 +393,10 @@ public class ImmutableProperty implements PropertyInternal {
 
   @Override
   public Collection<String> getAllIndexes(DatabaseSession session) {
+    if (isRemote) {
+      throw new UnsupportedOperationException("Not supported in remote environment");
+    }
+
     return this.allIndexes.stream().map(Index::getName).toList();
   }
 
@@ -513,6 +523,10 @@ public class ImmutableProperty implements PropertyInternal {
 
   @Override
   public Collection<Index> getAllIndexesInternal(DatabaseSession session) {
+    if (isRemote) {
+      throw new UnsupportedOperationException("Not supported in remote environment");
+    }
+
     return this.allIndexes;
   }
 }

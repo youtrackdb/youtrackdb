@@ -36,6 +36,7 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper.DbRelatedCall;
@@ -71,6 +72,11 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
       DatabaseSessionInternal databaseTwo,
       final CommandOutputListener iListener) {
     super(null, null, iListener);
+
+    if (databaseOne.isRemote() || databaseTwo.isRemote()) {
+      throw new IllegalArgumentException(
+          "Only databases open in local environment are supported for comparison.");
+    }
 
     listener.onMessage(
         "\nComparing two local databases:\n1) "
@@ -211,13 +217,16 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
           ok = false;
         }
       }
-      if (!clazz.getClassIndexes(databaseOne).equals(clazz2.getClassIndexes(databaseTwo))) {
+
+      if (!((SchemaClassInternal) clazz).getClassIndexes(databaseOne)
+          .equals(((SchemaClassInternal) clazz2).getClassIndexes(databaseTwo))) {
         listener.onMessage(
             "\n- ERR: Class definition for "
                 + clazz.getName()
                 + " in DB1 is not equals in indexes in DB2.");
         ok = false;
       }
+
       if (!Arrays.equals(clazz.getClusterIds(), clazz2.getClusterIds())) {
         listener.onMessage(
             "\n- ERR: Class definition for "

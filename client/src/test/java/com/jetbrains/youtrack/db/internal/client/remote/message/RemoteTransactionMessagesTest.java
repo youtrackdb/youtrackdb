@@ -54,7 +54,7 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
     channel.close();
 
     BeginTransactionRequest readRequest = new BeginTransactionRequest();
-    readRequest.read(db, channel, 0, RecordSerializerNetworkFactory.INSTANCE.current());
+    readRequest.read(db, channel, 0, RecordSerializerNetworkFactory.current());
     assertTrue(readRequest.isUsingLog());
     assertEquals(1, readRequest.getOperations().size());
     assertEquals(0, readRequest.getTxId());
@@ -73,7 +73,7 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
     channel.close();
 
     Commit37Request readRequest = new Commit37Request();
-    readRequest.read(db, channel, 0, RecordSerializerNetworkFactory.INSTANCE.current());
+    readRequest.read(db, channel, 0, RecordSerializerNetworkFactory.current());
     assertTrue(readRequest.isUsingLog());
     assertEquals(1, readRequest.getOperations().size());
     assertEquals(0, readRequest.getTxId());
@@ -124,7 +124,7 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
     channel.close();
 
     Commit37Request readRequest = new Commit37Request();
-    readRequest.read(db, channel, 0, RecordSerializerNetworkFactory.INSTANCE.current());
+    readRequest.read(db, channel, 0, RecordSerializerNetworkFactory.current());
     assertTrue(readRequest.isUsingLog());
     assertNull(readRequest.getOperations());
     assertEquals(0, readRequest.getTxId());

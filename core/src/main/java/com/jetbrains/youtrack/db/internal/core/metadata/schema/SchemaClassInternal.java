@@ -58,4 +58,81 @@ public interface SchemaClassInternal extends SchemaClass {
   Index getClassIndex(DatabaseSession session, final String name);
 
   SchemaClass set(DatabaseSession session, final ATTRIBUTES attribute, final Object value);
+
+
+  /**
+   * Returns list of indexes that contain passed in fields names as their first keys. Order of
+   * fields does not matter.
+   *
+   * <p>All indexes sorted by their count of parameters in ascending order. If there are indexes
+   * for the given set of fields in super class they will be taken into account.
+   *
+   * @param session
+   * @param fields  Field names.
+   * @return list of indexes that contain passed in fields names as their first keys.
+   */
+  Set<String> getInvolvedIndexes(DatabaseSession session, Collection<String> fields);
+
+  /**
+   * Returns list of indexes that contain passed in fields names as their first keys. Order of
+   * fields does not matter.
+   *
+   * <p>All indexes sorted by their count of parameters in ascending order. If there are indexes
+   * for the given set of fields in super class they will be taken into account.
+   *
+   * @param session
+   * @param fields  Field names.
+   * @return list of indexes that contain passed in fields names as their first keys.
+   * @see #getInvolvedIndexes(DatabaseSession, Collection)
+   */
+  Set<String> getInvolvedIndexes(DatabaseSession session, String... fields);
+
+  /**
+   * Returns list of indexes that contain passed in fields names as their first keys. Order of
+   * fields does not matter.
+   *
+   * <p>Indexes that related only to the given class will be returned.
+   *
+   * @param session
+   * @param fields  Field names.
+   * @return list of indexes that contain passed in fields names as their first keys.
+   */
+  Set<String> getClassInvolvedIndexes(DatabaseSession session, Collection<String> fields);
+
+  /**
+   * @param session
+   * @param fields  Field names.
+   * @return list of indexes that contain passed in fields names as their first keys.
+   * @see #getClassInvolvedIndexes(DatabaseSession, Collection)
+   */
+  Set<String> getClassInvolvedIndexes(DatabaseSession session, String... fields);
+
+  /**
+   * Indicates whether given fields are contained as first key fields in class indexes. Order of
+   * fields does not matter. If there are indexes for the given set of fields in super class they
+   * will be taken into account.
+   *
+   * @param session
+   * @param fields  Field names.
+   * @return <code>true</code> if given fields are contained as first key fields in class indexes.
+   */
+  boolean areIndexed(DatabaseSession session, Collection<String> fields);
+
+  /**
+   * @param session
+   * @param fields  Field names.
+   * @return <code>true</code> if given fields are contained as first key fields in class indexes.
+   * @see #areIndexed(DatabaseSession, Collection)
+   */
+  boolean areIndexed(DatabaseSession session, String... fields);
+
+  /**
+   * @return All indexes for given class, not the inherited ones.
+   */
+  Set<String> getClassIndexes(DatabaseSession session);
+
+  /**
+   * @return All indexes for given class and its super classes.
+   */
+  Set<String> getIndexes(DatabaseSession session);
 }

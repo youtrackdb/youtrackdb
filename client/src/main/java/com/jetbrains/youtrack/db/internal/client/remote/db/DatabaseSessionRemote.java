@@ -53,10 +53,8 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.HookReplacedRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigImpl;
-import com.jetbrains.youtrack.db.internal.core.index.ClassIndexManager;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaProxy;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ImmutableUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
@@ -67,9 +65,9 @@ import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceAction;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeEntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetwork;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37Client;
 import com.jetbrains.youtrack.db.internal.core.storage.RecordMetadata;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
@@ -311,6 +309,11 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   }
 
   @Override
+  public RecordSerializerNetwork getSerializer() {
+    return (RecordSerializerNetwork) super.getSerializer();
+  }
+
+  @Override
   public Storage getStorage() {
     return storage;
   }
@@ -322,12 +325,10 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   public StorageInfo getStorageInfo() {
-    assert assertIfNotActive();
     return storage;
   }
 
   private void checkAndSendTransaction() {
-
     if (this.currentTx.isActive() && ((TransactionOptimistic) this.currentTx).isChanged()) {
       var optimistic = (TransactionOptimistic) this.currentTx;
 
@@ -581,34 +582,16 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   public void afterUpdateOperations(final Identifiable id) {
     assert assertIfNotActive();
     callbackHooks(RecordHook.TYPE.AFTER_UPDATE, id);
-    if (id instanceof EntityImpl entity) {
-      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
-      if (clazz != null && getTransaction().isActive()) {
-        ClassIndexManager.processIndexOnUpdate(this, entity);
-      }
-    }
   }
 
   public void afterCreateOperations(final Identifiable id) {
     assert assertIfNotActive();
     callbackHooks(RecordHook.TYPE.AFTER_CREATE, id);
-    if (id instanceof EntityImpl entity) {
-      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
-      if (clazz != null && getTransaction().isActive()) {
-        ClassIndexManager.processIndexOnCreate(this, entity);
-      }
-    }
   }
 
   public void afterDeleteOperations(final Identifiable id) {
     assert assertIfNotActive();
     callbackHooks(RecordHook.TYPE.AFTER_DELETE, id);
-    if (id instanceof EntityImpl entity) {
-      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
-      if (clazz != null && getTransaction().isActive()) {
-        ClassIndexManager.processIndexOnDelete(this, entity);
-      }
-    }
   }
 
   @Override

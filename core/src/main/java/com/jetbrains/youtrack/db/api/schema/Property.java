@@ -21,7 +21,6 @@ package com.jetbrains.youtrack.db.api.schema;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -218,10 +217,6 @@ public interface Property extends Comparable<Property> {
    */
   String createIndex(DatabaseSession session, INDEX_TYPE iType, Map<String, ?> metadata);
 
-  /**
-   * @return All indexes in which this property participates.
-   */
-  Collection<String> getAllIndexes(DatabaseSession session);
 
   String getRegexp();
 

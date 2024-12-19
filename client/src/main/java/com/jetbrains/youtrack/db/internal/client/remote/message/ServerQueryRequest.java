@@ -27,6 +27,7 @@ import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetwork;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
@@ -108,7 +109,7 @@ public final class ServerQueryRequest implements BinaryRequest<ServerQueryRespon
   }
 
   public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
-      RecordSerializer serializer)
+      RecordSerializerNetwork serializer)
       throws IOException {
     this.language = channel.readString();
     this.statement = channel.readString();

@@ -76,6 +76,9 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
       final CommandOutputListener iListener)
       throws IOException {
     super(iDatabase, iFileName, iListener);
+    if (iDatabase.isRemote()) {
+      throw new DatabaseExportException("Database export can be done only in embedded environment");
+    }
 
     if (fileName == null) {
       throw new IllegalArgumentException("file name missing");

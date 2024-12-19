@@ -171,10 +171,6 @@ public class ExecutionPlanCache implements MetadataUpdateListener {
     invalidate();
   }
 
-  @Override
-  public void onFunctionLibraryUpdate(DatabaseSessionInternal session, String database) {
-    invalidate();
-  }
 
   @Override
   public void onSequenceLibraryUpdate(DatabaseSessionInternal session, String database) {

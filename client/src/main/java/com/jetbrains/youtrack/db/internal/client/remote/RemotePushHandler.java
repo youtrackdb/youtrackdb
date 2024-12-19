@@ -4,7 +4,6 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryPushReques
 import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryPushResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.LiveQueryPushRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushDistributedConfigurationRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.PushFunctionsRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSchemaRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSequencesRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushStorageConfigurationRequest;
@@ -32,8 +31,6 @@ public interface RemotePushHandler {
   void returnSocket(SocketChannelBinary network);
 
   BinaryPushResponse executeUpdateSchema(PushSchemaRequest request);
-
-  BinaryPushResponse executeUpdateFunction(PushFunctionsRequest request);
 
   BinaryPushResponse executeUpdateSequences(PushSequencesRequest request);
 }

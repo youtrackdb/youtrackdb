@@ -21,7 +21,7 @@ import com.jetbrains.youtrack.db.internal.core.serialization.EntitySerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerBinary;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetwork;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkBase;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkDistributed;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
 import java.math.BigDecimal;
@@ -68,7 +68,7 @@ public class DocumentSchemalessBinarySerializationTest extends DbTestBase {
     if (serializerVersion < numOfRegistretedSerializers) {
       serializer = new RecordSerializerBinary(serializerVersion);
     } else if (serializerVersion == numOfRegistretedSerializers) {
-      serializer = new RecordSerializerNetwork();
+      serializer = new RecordSerializerNetworkBase();
     } else if (serializerVersion == numOfRegistretedSerializers + 1) {
       serializer = new RecordSerializerNetworkV37();
     } else if (serializerVersion == numOfRegistretedSerializers + 2) {
@@ -82,7 +82,7 @@ public class DocumentSchemalessBinarySerializationTest extends DbTestBase {
   public void createSerializer() {
     // we want new instance before method only for network serializers
     if (serializerVersion == RecordSerializerBinary.INSTANCE.getNumberOfSupportedVersions()) {
-      serializer = new RecordSerializerNetwork();
+      serializer = new RecordSerializerNetworkBase();
     } else if (serializerVersion
         == RecordSerializerBinary.INSTANCE.getNumberOfSupportedVersions() + 1) {
       serializer = new RecordSerializerNetworkV37();

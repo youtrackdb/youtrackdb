@@ -285,12 +285,6 @@ public class SelectExecutionPlanner {
     } else {
       clusterNames = new HashSet<>(readClusterNames);
     }
-    if (!db.isSharded()) {
-      info.serverToClusters = new LinkedHashMap<>();
-      info.serverToClusters.put(localNode, clusterNames);
-      info.distributedFetchExecutionPlans.put(localNode, new SelectExecutionPlan(ctx));
-      return;
-    }
 
     //    Map<String, Set<String>> clusterMap = db.getActiveClusterMap();
     Map<String, Set<String>> clusterMap = new HashMap<>();
@@ -442,11 +436,7 @@ public class SelectExecutionPlanner {
         }
       }
       return result;
-    } else if (item.getInputParams() != null && item.getInputParams().size() > 0) {
-      if ((ctx.getDatabase()).isSharded()) {
-        throw new UnsupportedOperationException(
-            "Sharded query with input parameter as a target is not supported yet");
-      }
+    } else if (item.getInputParams() != null && !item.getInputParams().isEmpty()) {
       return null;
     } else if (item.getCluster() != null) {
       String name = item.getCluster().getClusterName();
@@ -482,10 +472,6 @@ public class SelectExecutionPlanner {
       }
       return result;
     } else if (item.getInputParam() != null) {
-      if (ctx.getDatabase().isSharded()) {
-        throw new UnsupportedOperationException(
-            "Sharded query with input parameter as a target is not supported yet");
-      }
       return null;
     } else if (item.getIdentifier() != null) {
       String className = item.getIdentifier().getStringValue();

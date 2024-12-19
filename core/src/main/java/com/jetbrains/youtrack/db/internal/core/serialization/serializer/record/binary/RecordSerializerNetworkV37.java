@@ -54,7 +54,6 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImplEmbedded;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.EntitySerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.Change;
@@ -78,7 +77,7 @@ import java.util.NavigableMap;
 import java.util.TimeZone;
 import java.util.UUID;
 
-public class RecordSerializerNetworkV37 implements RecordSerializer {
+public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
 
   public static final String NAME = "onet_ser_v37";
   private static final String CHARSET_UTF_8 = "UTF-8";
@@ -597,7 +596,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializer {
   public void serializeValue(
       DatabaseSessionInternal db, final BytesContainer bytes, Object value, final PropertyType type,
       final PropertyType linkedType) {
-    int pointer = 0;
+    int pointer;
     switch (type) {
       case INTEGER:
       case LONG:

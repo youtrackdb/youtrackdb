@@ -19,6 +19,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -346,5 +347,20 @@ public class PropertyRemote extends PropertyImpl {
     }
 
     return this;
+  }
+
+  @Override
+  public Collection<String> getAllIndexes(DatabaseSession session) {
+    throw new UnsupportedOperationException("Not supported in remote environment");
+  }
+
+  @Override
+  public Collection<Index> getAllIndexesInternal(DatabaseSession session) {
+    throw new UnsupportedOperationException("Not supported in remote environment");
+  }
+
+  @Override
+  public boolean isIndexed(DatabaseSession session) {
+    throw new UnsupportedOperationException("Not supported in remote environment");
   }
 }

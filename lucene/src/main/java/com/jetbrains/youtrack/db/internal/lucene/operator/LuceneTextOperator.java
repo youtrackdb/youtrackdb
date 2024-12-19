@@ -20,7 +20,6 @@ import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
@@ -72,7 +71,7 @@ public class LuceneTextOperator extends QueryTargetOperator {
 
   @Override
   public IndexSearchResult getOIndexSearchResult(
-      SchemaClass iSchemaClass,
+      SchemaClassInternal iSchemaClass,
       SQLFilterCondition iCondition,
       List<IndexSearchResult> iIndexSearchResults,
       CommandContext context) {

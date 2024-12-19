@@ -580,7 +580,7 @@ public class EntityHelper {
                   values.add(v);
                 }
               } else if (v instanceof Map) {
-                EntityImpl entity = new EntityImpl(db);
+                EntityImpl entity = new EntityImpl(null);
                 entity.fromMap((Map<String, ? extends Object>) v);
                 Object result = pred.evaluate(entity, entity, iContext);
                 if (Boolean.TRUE.equals(result)) {

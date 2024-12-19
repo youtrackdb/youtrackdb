@@ -95,12 +95,14 @@ public class SchemaImmutableClass implements SchemaClassInternal {
   private boolean orole;
   private boolean securityPolicy;
   private HashSet<Index> indexes;
+  private final boolean isRemote;
 
   public SchemaImmutableClass(DatabaseSessionInternal session, final SchemaClassInternal oClass,
       final ImmutableSchema schema) {
     isAbstract = oClass.isAbstract();
     strictMode = oClass.isStrictMode();
     this.schema = schema;
+    this.isRemote = session.isRemote();
 
     superClassesNames = oClass.getSuperClassesNames();
     superClasses = new ArrayList<>(superClassesNames.size());
@@ -164,7 +166,9 @@ public class SchemaImmutableClass implements SchemaClassInternal {
       this.orole = isSubClassOf(Role.CLASS_NAME);
       this.securityPolicy = SecurityPolicy.class.getSimpleName().equals(this.name);
       this.indexes = new HashSet<>();
-      getRawIndexes(indexes);
+      if (!isRemote) {
+        getRawIndexes(indexes);
+      }
     }
 
     inited = true;
@@ -666,6 +670,10 @@ public class SchemaImmutableClass implements SchemaClassInternal {
 
   @Override
   public Set<String> getClassIndexes(DatabaseSession session) {
+    if (isRemote) {
+      throw new UnsupportedOperationException("Not supported for remote environment.");
+    }
+
     return this.indexes.stream().map(Index::getName).collect(HashSet::new, HashSet::add,
         HashSet::addAll);
   }
@@ -702,6 +710,9 @@ public class SchemaImmutableClass implements SchemaClassInternal {
 
   @Override
   public Set<Index> getClassIndexesInternal(DatabaseSession session) {
+    if (isRemote) {
+      throw new UnsupportedOperationException("Not supported for remote environment.");
+    }
     return this.indexes;
   }
 
@@ -744,16 +755,26 @@ public class SchemaImmutableClass implements SchemaClassInternal {
 
   @Override
   public Set<String> getIndexes(DatabaseSession session) {
+    if (isRemote) {
+      throw new UnsupportedOperationException("Not supported for remote environment.");
+    }
     return this.indexes.stream().map(Index::getName).collect(HashSet::new, HashSet::add,
         HashSet::addAll);
   }
 
   @Override
   public Set<Index> getIndexesInternal(DatabaseSession session) {
+    if (isRemote) {
+      throw new UnsupportedOperationException("Not supported for remote environment.");
+    }
     return this.indexes;
   }
 
   public Set<Index> getRawIndexes() {
+    if (isRemote) {
+      throw new UnsupportedOperationException("Not supported for remote environment.");
+    }
+
     return indexes;
   }
 

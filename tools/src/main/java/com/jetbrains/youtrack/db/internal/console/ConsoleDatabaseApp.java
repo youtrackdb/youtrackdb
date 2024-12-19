@@ -73,6 +73,8 @@ import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.iterator.IdentifiableIterator;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityManager;
@@ -1595,8 +1597,8 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
     currentDatabase.getMetadata().reload();
 
-    final SchemaClass cls =
-        currentDatabase.getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
+    final SchemaClassInternal cls =
+        currentDatabase.getMetadata().getImmutableSchemaSnapshot().getClassInternal(iClassName);
 
     if (cls == null) {
       message(
@@ -1749,8 +1751,8 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
     final String[] parts = iPropertyName.split("\\.");
 
-    final SchemaClass cls =
-        currentDatabase.getMetadata().getImmutableSchemaSnapshot().getClass(parts[0]);
+    final SchemaClassInternal cls =
+        currentDatabase.getMetadata().getImmutableSchemaSnapshot().getClassInternal(parts[0]);
 
     if (cls == null) {
       message(
@@ -1762,7 +1764,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       return;
     }
 
-    final Property prop = cls.getProperty(parts[1]);
+    final PropertyInternal prop = cls.getPropertyInternal(parts[1]);
 
     if (prop == null) {
       message("\n! Property '" + parts[1] + "' does not exist in class '" + parts[0] + "'");
@@ -1806,23 +1808,25 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.writeRecords(resultSet, -1);
     }
 
-    final Collection<String> indexes = prop.getAllIndexes(currentDatabase);
-    if (!indexes.isEmpty()) {
-      message("\n\nINDEXES (" + indexes.size() + " altogether)");
+    if (currentDatabase.isRemote()) {
+      final Collection<String> indexes = prop.getAllIndexes(currentDatabase);
+      if (!indexes.isEmpty()) {
+        message("\n\nINDEXES (" + indexes.size() + " altogether)");
 
-      final List<RawPair<RID, Object>> resultSet = new ArrayList<>();
+        final List<RawPair<RID, Object>> resultSet = new ArrayList<>();
 
-      for (final String index : indexes) {
-        var row = new HashMap<>();
-        resultSet.add(new RawPair<>(null, row));
+        for (final String index : indexes) {
+          var row = new HashMap<>();
+          resultSet.add(new RawPair<>(null, row));
 
-        row.put("NAME", index);
+          row.put("NAME", index);
+        }
+        final TableFormatter formatter = new TableFormatter(this);
+        formatter.setMaxWidthSize(getConsoleWidth());
+        formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
+
+        formatter.writeRecords(resultSet, -1);
       }
-      final TableFormatter formatter = new TableFormatter(this);
-      formatter.setMaxWidthSize(getConsoleWidth());
-      formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
-
-      formatter.writeRecords(resultSet, -1);
     }
   }
 

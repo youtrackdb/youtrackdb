@@ -11,7 +11,7 @@ import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHook;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryListener;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetwork;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkBase;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinaryServer;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.binary.LiveCommandResultListener;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.binary.NetworkProtocolBinary;
@@ -70,7 +70,7 @@ public class LiveCommandResultListenerTest extends BaseMemoryInternalDatabase {
     byte[] token = tokenHandler.getSignedBinaryToken(db, db.geCurrentUser(), connection.getData());
     connection = manager.connect(protocol, connection, token);
     connection.setDatabase(db);
-    connection.getData().setSerializationImpl(RecordSerializerNetwork.NAME);
+    connection.getData().setSerializationImpl(RecordSerializerNetworkBase.NAME);
     Mockito.when(server.getClientConnectionManager()).thenReturn(manager);
   }
 

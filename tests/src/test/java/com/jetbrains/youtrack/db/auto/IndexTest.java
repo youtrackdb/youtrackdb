@@ -424,10 +424,10 @@ public class IndexTest extends BaseDBTest {
   @Test(dependsOnMethods = "removeNotUniqueIndexOnNick")
   public void testQueryingWithoutNickIndex() {
     Assert.assertFalse(
-        db.getMetadata().getSchema().getClass("Profile")
+        db.getMetadata().getSchema().getClassInternal("Profile")
             .getInvolvedIndexes(db, "name").isEmpty());
     Assert.assertTrue(
-        db.getMetadata().getSchema().getClass("Profile").getInvolvedIndexes(db, "nick")
+        db.getMetadata().getSchema().getClassInternal("Profile").getInvolvedIndexes(db, "nick")
             .isEmpty());
 
     List<EntityImpl> result =
@@ -526,7 +526,7 @@ public class IndexTest extends BaseDBTest {
       db.bindToSession(resDoc).delete();
     }
 
-    Entity whiz = ((EntityImpl) db.newEntity("Whiz"));
+    Entity whiz = db.newEntity("Whiz");
     whiz.setProperty("id", 100);
     whiz.setProperty("text", "This is a test!");
     whiz.setProperty("account", ((EntityImpl) db.newEntity("Company")).field("id", 9999));

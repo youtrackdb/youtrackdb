@@ -18,7 +18,7 @@ package com.jetbrains.youtrack.db.internal.lucene.operator;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.IndexSearchResult;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
@@ -32,7 +32,7 @@ import java.util.List;
 public class LuceneOperatorUtil {
 
   public static IndexSearchResult buildOIndexSearchResult(
-      SchemaClass iSchemaClass,
+      SchemaClassInternal iSchemaClass,
       SQLFilterCondition iCondition,
       List<IndexSearchResult> iIndexSearchResults,
       CommandContext context) {
@@ -99,7 +99,7 @@ public class LuceneOperatorUtil {
   }
 
   public static boolean checkIndexExistence(
-      DatabaseSessionInternal session, final SchemaClass iSchemaClass,
+      DatabaseSessionInternal session, final SchemaClassInternal iSchemaClass,
       final IndexSearchResult result) {
     if (!iSchemaClass.areIndexed(session, result.fields())) {
       return false;
@@ -107,14 +107,16 @@ public class LuceneOperatorUtil {
 
     if (result.lastField.isLong()) {
       final int fieldCount = result.lastField.getItemCount();
-      SchemaClass cls = iSchemaClass.getProperty(result.lastField.getItemName(0)).getLinkedClass();
+      SchemaClassInternal cls = (SchemaClassInternal) iSchemaClass.getProperty(
+          result.lastField.getItemName(0)).getLinkedClass();
 
       for (int i = 1; i < fieldCount; i++) {
         if (cls == null || !cls.areIndexed(session, result.lastField.getItemName(i))) {
           return false;
         }
 
-        cls = cls.getProperty(result.lastField.getItemName(i)).getLinkedClass();
+        cls = (SchemaClassInternal) cls.getProperty(result.lastField.getItemName(i))
+            .getLinkedClass();
       }
     }
     return true;

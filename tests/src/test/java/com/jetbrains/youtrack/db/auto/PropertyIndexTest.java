@@ -156,17 +156,17 @@ public class PropertyIndexTest extends BaseDBTest {
   @Test
   public void testIsIndexedNonIndexedField() {
     var schema = db.getMetadata().getSchema();
-    var oClass = schema.getClass("PropertyIndexTestClass");
-    var propThree = oClass.getProperty("prop3");
+    var oClass = schema.getClassInternal("PropertyIndexTestClass");
+    var propThree = oClass.getPropertyInternal("prop3");
 
     Assert.assertTrue(propThree.getAllIndexes(db).isEmpty());
   }
 
   @Test(dependsOnMethods = {"testCreateUniqueIndex"})
   public void testIsIndexedIndexedField() {
-    final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass oClass = schema.getClass("PropertyIndexTestClass");
-    final Property propOne = oClass.getProperty("prop1");
+    var schema = db.getMetadata().getSchema();
+    var oClass = schema.getClassInternal("PropertyIndexTestClass");
+    var propOne = oClass.getPropertyInternal("prop1");
     Assert.assertFalse(propOne.getAllIndexes(db).isEmpty());
   }
 
@@ -266,8 +266,8 @@ public class PropertyIndexTest extends BaseDBTest {
 
   @Test
   public void testDropIndexes() throws Exception {
-    final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass oClass = schema.getClass("PropertyIndexTestClass");
+    var schema = db.getMetadata().getSchema();
+    var oClass = schema.getClassInternal("PropertyIndexTestClass");
 
     oClass.createIndex(db,
         "PropertyIndexFirstIndex",

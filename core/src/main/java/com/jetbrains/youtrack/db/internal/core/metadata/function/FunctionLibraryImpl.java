@@ -31,7 +31,6 @@ import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.MetadataUpdateListener;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collections;
@@ -55,7 +54,7 @@ public class FunctionLibraryImpl {
   public FunctionLibraryImpl() {
   }
 
-  public void create(DatabaseSessionInternal db) {
+  public static void create(DatabaseSessionInternal db) {
     init(db);
   }
 
@@ -149,10 +148,11 @@ public class FunctionLibraryImpl {
     functions.clear();
   }
 
-  protected void init(final DatabaseSessionInternal db) {
+  protected static void init(final DatabaseSessionInternal db) {
     if (db.getMetadata().getSchema().existsClass("OFunction")) {
-      final SchemaClass f = db.getMetadata().getSchema().getClass("OFunction");
-      Property prop = f.getProperty("name");
+      var f = db.getMetadata().getSchema().getClassInternal("OFunction");
+      var prop = f.getPropertyInternal("name");
+
       if (prop.getAllIndexes(db).isEmpty()) {
         prop.createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
       }
@@ -217,10 +217,7 @@ public class FunctionLibraryImpl {
     }
   }
 
-  private void onFunctionsChanged(DatabaseSessionInternal database) {
-    for (MetadataUpdateListener listener : database.getSharedContext().browseListeners()) {
-      listener.onFunctionLibraryUpdate(database, database.getName());
-    }
+  private static void onFunctionsChanged(DatabaseSessionInternal database) {
     database.getSharedContext().getYouTrackDB().getScriptManager().close(database.getName());
   }
 

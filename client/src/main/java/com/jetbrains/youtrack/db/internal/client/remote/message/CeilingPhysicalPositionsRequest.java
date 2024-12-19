@@ -24,7 +24,7 @@ import com.jetbrains.youtrack.db.internal.client.remote.BinaryRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetwork;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
@@ -53,7 +53,7 @@ public class CeilingPhysicalPositionsRequest
   }
 
   public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
-      RecordSerializer serializer)
+      RecordSerializerNetwork serializer)
       throws IOException {
     this.clusterId = channel.readInt();
     this.physicalPosition = new PhysicalPosition(channel.readLong());

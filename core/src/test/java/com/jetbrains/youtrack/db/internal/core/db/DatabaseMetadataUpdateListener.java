@@ -42,11 +42,6 @@ public class DatabaseMetadataUpdateListener {
           }
 
           @Override
-          public void onFunctionLibraryUpdate(DatabaseSessionInternal session, String database) {
-            count++;
-          }
-
-          @Override
           public void onSequenceLibraryUpdate(DatabaseSessionInternal session, String database) {
             count++;
           }
@@ -64,12 +59,6 @@ public class DatabaseMetadataUpdateListener {
   @Test
   public void testSchemaUpdateListener() {
     session.createClass("test1");
-    assertEquals(count, 1);
-  }
-
-  @Test
-  public void testFunctionUpdateListener() {
-    session.getMetadata().getFunctionLibrary().createFunction("some");
     assertEquals(count, 1);
   }
 

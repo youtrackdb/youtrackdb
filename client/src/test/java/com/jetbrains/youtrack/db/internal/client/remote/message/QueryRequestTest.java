@@ -21,7 +21,7 @@ public class QueryRequestTest extends DbTestBase {
             "sql",
             "select from Foo where a = ?",
             params,
-            QueryRequest.QUERY, RecordSerializerNetworkFactory.INSTANCE.current(), 123);
+            QueryRequest.QUERY, RecordSerializerNetworkFactory.current(), 123);
 
     MockChannel channel = new MockChannel();
     request.write(null, channel, null);
@@ -29,7 +29,7 @@ public class QueryRequestTest extends DbTestBase {
     channel.close();
 
     QueryRequest other = new QueryRequest();
-    other.read(db, channel, -1, RecordSerializerNetworkFactory.INSTANCE.current());
+    other.read(db, channel, -1, RecordSerializerNetworkFactory.current());
 
     Assert.assertEquals(request.getCommand(), other.getCommand());
 
@@ -52,7 +52,7 @@ public class QueryRequestTest extends DbTestBase {
             "select from Foo where a = ?",
             params,
             QueryRequest.QUERY,
-            RecordSerializerNetworkFactory.INSTANCE.current(), 123);
+            RecordSerializerNetworkFactory.current(), 123);
 
     MockChannel channel = new MockChannel();
     request.write(null, channel, null);
@@ -60,7 +60,7 @@ public class QueryRequestTest extends DbTestBase {
     channel.close();
 
     QueryRequest other = new QueryRequest();
-    other.read(db, channel, -1, RecordSerializerNetworkFactory.INSTANCE.current());
+    other.read(db, channel, -1, RecordSerializerNetworkFactory.current());
 
     Assert.assertEquals(request.getCommand(), other.getCommand());
     Assert.assertTrue(other.isNamedParams());
@@ -78,7 +78,7 @@ public class QueryRequestTest extends DbTestBase {
             "select from Foo where a = ?",
             params,
             QueryRequest.QUERY,
-            RecordSerializerNetworkFactory.INSTANCE.current(), 123);
+            RecordSerializerNetworkFactory.current(), 123);
 
     MockChannel channel = new MockChannel();
     request.write(null, channel, null);
@@ -86,7 +86,7 @@ public class QueryRequestTest extends DbTestBase {
     channel.close();
 
     QueryRequest other = new QueryRequest();
-    other.read(db, channel, -1, RecordSerializerNetworkFactory.INSTANCE.current());
+    other.read(db, channel, -1, RecordSerializerNetworkFactory.current());
 
     Assert.assertEquals(request.getCommand(), other.getCommand());
     Assert.assertTrue(other.isNamedParams());

@@ -4,14 +4,13 @@ import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
-import com.jetbrains.youtrack.db.internal.client.remote.message.tx.IndexChange;
 import com.jetbrains.youtrack.db.internal.client.remote.message.tx.RecordOperationRequest;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.DocumentSerializerDelta;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetwork;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37Client;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges;
@@ -32,7 +31,6 @@ public class Commit38Request implements BinaryRequest<Commit37Response> {
   private boolean hasContent;
   private boolean usingLog;
   private List<RecordOperationRequest> operations;
-  private List<IndexChange> indexChanges;
 
   public Commit38Request() {
   }
@@ -47,7 +45,6 @@ public class Commit38Request implements BinaryRequest<Commit37Response> {
     this.hasContent = hasContent;
     this.usingLog = usingLong;
     if (hasContent) {
-      this.indexChanges = new ArrayList<>();
       List<RecordOperationRequest> netOperations = new ArrayList<>();
       for (RecordOperation txEntry : operations) {
         RecordOperationRequest request = new RecordOperationRequest();
@@ -78,10 +75,6 @@ public class Commit38Request implements BinaryRequest<Commit37Response> {
         netOperations.add(request);
       }
       this.operations = netOperations;
-
-      for (Map.Entry<String, FrontendTransactionIndexChanges> change : indexChanges.entrySet()) {
-        this.indexChanges.add(new IndexChange(change.getKey(), change.getValue()));
-      }
     }
   }
 
@@ -106,7 +99,7 @@ public class Commit38Request implements BinaryRequest<Commit37Response> {
 
   @Override
   public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
-      RecordSerializer serializer)
+      RecordSerializerNetwork serializer)
       throws IOException {
     txId = channel.readLong();
     hasContent = channel.readBoolean();
@@ -146,10 +139,6 @@ public class Commit38Request implements BinaryRequest<Commit37Response> {
 
   public long getTxId() {
     return txId;
-  }
-
-  public List<IndexChange> getIndexChanges() {
-    return indexChanges;
   }
 
   public List<RecordOperationRequest> getOperations() {

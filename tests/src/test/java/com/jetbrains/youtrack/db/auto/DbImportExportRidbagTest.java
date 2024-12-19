@@ -51,8 +51,11 @@ public class DbImportExportRidbagTest extends BaseDBTest implements CommandOutpu
 
   @Test
   public void testDbExport() throws IOException {
-    DatabaseSessionInternal database = acquireSession();
+    if (remoteDB) {
+      return;
+    }
 
+    DatabaseSessionInternal database = acquireSession();
     database.command("insert into V set name ='a'");
     for (int i = 0; i < 100; i++) {
       database.command("insert into V set name ='b" + i + "'");
@@ -73,6 +76,10 @@ public class DbImportExportRidbagTest extends BaseDBTest implements CommandOutpu
 
   @Test(dependsOnMethods = "testDbExport")
   public void testDbImport() throws IOException {
+    if (remoteDB) {
+      return;
+    }
+
     final File importDir = new File(testPath + "/" + NEW_DB_PATH);
     if (importDir.exists()) {
       for (File f : importDir.listFiles()) {
@@ -104,12 +111,7 @@ public class DbImportExportRidbagTest extends BaseDBTest implements CommandOutpu
   @Test(dependsOnMethods = "testDbImport")
   public void testCompareDatabases() throws IOException {
     if (remoteDB) {
-      String env = getTestEnv();
-      if (env == null || env.equals("dev")) {
-        return;
-      }
-
-      // EXECUTES ONLY IF NOT REMOTE ON CI/RELEASE TEST ENV
+      return;
     }
 
     DatabaseSessionInternal first = acquireSession();

@@ -7,7 +7,6 @@ import com.jetbrains.youtrack.db.internal.client.remote.metadata.security.Securi
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
 import com.jetbrains.youtrack.db.internal.core.db.StringCache;
-import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibraryImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceLibraryImpl;
 import com.jetbrains.youtrack.db.internal.core.schedule.SchedulerImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageInfo;
@@ -27,7 +26,7 @@ public class SharedContextRemote extends SharedContext {
     this.storage = storage;
     schema = new SchemaRemote();
     security = new SecurityRemote();
-    functionLibrary = new FunctionLibraryImpl();
+    functionLibrary = null;
     scheduler = new SchedulerImpl(youtrackDB);
     sequenceLibrary = new SequenceLibraryImpl();
   }
@@ -71,6 +70,8 @@ public class SharedContextRemote extends SharedContext {
     security.load(database);
     scheduler.load(database);
     sequenceLibrary.load(database);
-    functionLibrary.load(database);
+    if (functionLibrary != null) {
+      functionLibrary.load(database);
+    }
   }
 }

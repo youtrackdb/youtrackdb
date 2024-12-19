@@ -19,18 +19,20 @@
  */
 package com.jetbrains.youtrack.db.internal.client.remote.message;
 
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetwork;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 
 public final class QueryRequest implements BinaryRequest<QueryResponse> {
@@ -40,7 +42,7 @@ public final class QueryRequest implements BinaryRequest<QueryResponse> {
   public static byte EXECUTE = 2;
 
   private int recordsPerPage = 100;
-  private RecordSerializer serializer;
+  private RecordSerializerNetwork serializer;
   private String language;
   private String statement;
   private byte operationType;
@@ -53,7 +55,7 @@ public final class QueryRequest implements BinaryRequest<QueryResponse> {
       String iCommand,
       Object[] positionalParams,
       byte operationType,
-      RecordSerializer serializer,
+      RecordSerializerNetwork serializer,
       int recordsPerPage) {
     this.language = language;
     this.statement = iCommand;
@@ -65,10 +67,8 @@ public final class QueryRequest implements BinaryRequest<QueryResponse> {
       this.recordsPerPage = 100;
     }
     this.operationType = operationType;
-    EntityImpl parms = new EntityImpl(null);
-    parms.field("params", this.params);
 
-    paramsBytes = MessageHelper.getRecordBytes(session, parms, serializer);
+    paramsBytes = serializer.serializeValue(session, params, PropertyType.EMBEDDEDMAP);
   }
 
   public QueryRequest(
@@ -76,15 +76,14 @@ public final class QueryRequest implements BinaryRequest<QueryResponse> {
       String iCommand,
       Map<String, Object> namedParams,
       byte operationType,
-      RecordSerializer serializer,
+      RecordSerializerNetwork serializer,
       int recordsPerPage) {
     this.language = language;
     this.statement = iCommand;
     this.params = namedParams;
-    EntityImpl parms = new EntityImpl(null);
-    parms.field("params", this.params);
 
-    paramsBytes = MessageHelper.getRecordBytes(session, parms, serializer);
+    paramsBytes = serializer.serializeValue(session,
+        params != null ? params : Collections.emptyMap(), PropertyType.EMBEDDEDMAP);
     this.namedParams = true;
     this.serializer = serializer;
     this.recordsPerPage = recordsPerPage;
@@ -113,7 +112,7 @@ public final class QueryRequest implements BinaryRequest<QueryResponse> {
   }
 
   public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
-      RecordSerializer serializer)
+      RecordSerializerNetwork serializer)
       throws IOException {
     this.language = channel.readString();
     this.statement = channel.readString();
@@ -153,11 +152,9 @@ public final class QueryRequest implements BinaryRequest<QueryResponse> {
 
   public Map<String, Object> getParams(DatabaseSessionInternal db) {
     if (params == null && this.paramsBytes != null) {
-      // params
-      EntityImpl paramsEntity = new EntityImpl(null);
-      paramsEntity.setTrackingChanges(false);
-      serializer.fromStream(db, this.paramsBytes, paramsEntity, null);
-      this.params = paramsEntity.field("params");
+      //noinspection unchecked
+      this.params = (Map<String, Object>) serializer.deserializeValue(db, paramsBytes,
+          PropertyType.EMBEDDEDMAP);
     }
     return params;
   }

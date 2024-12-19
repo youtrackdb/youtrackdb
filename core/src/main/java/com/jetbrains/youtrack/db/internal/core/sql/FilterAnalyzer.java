@@ -20,11 +20,10 @@
 
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemField;
@@ -66,12 +65,13 @@ public class FilterAnalyzer {
   }
 
   public List<List<IndexSearchResult>> analyzeMainCondition(
-      SQLFilterCondition condition, final SchemaClass schemaClass, CommandContext context) {
+      SQLFilterCondition condition, final SchemaClassInternal schemaClass, CommandContext context) {
     return analyzeOrFilterBranch(schemaClass, condition, context);
   }
 
   private List<List<IndexSearchResult>> analyzeOrFilterBranch(
-      final SchemaClass iSchemaClass, SQLFilterCondition condition, CommandContext iContext) {
+      final SchemaClassInternal iSchemaClass, SQLFilterCondition condition,
+      CommandContext iContext) {
     if (condition == null) {
       return null;
     }
@@ -110,7 +110,7 @@ public class FilterAnalyzer {
    * @return list of IndexSearchResult items
    */
   public List<IndexSearchResult> analyzeCondition(
-      SQLFilterCondition condition, final SchemaClass schemaClass, CommandContext context) {
+      SQLFilterCondition condition, final SchemaClassInternal schemaClass, CommandContext context) {
 
     final List<IndexSearchResult> indexSearchResults = new ArrayList<IndexSearchResult>();
     IndexSearchResult lastCondition =
@@ -127,7 +127,7 @@ public class FilterAnalyzer {
   }
 
   private IndexSearchResult analyzeFilterBranch(
-      DatabaseSession session, final SchemaClass iSchemaClass,
+      DatabaseSession session, final SchemaClassInternal iSchemaClass,
       SQLFilterCondition condition,
       final List<IndexSearchResult> iIndexSearchResults,
       CommandContext iContext) {
@@ -160,7 +160,7 @@ public class FilterAnalyzer {
   }
 
   private static IndexSearchResult analyzeOperator(
-      SchemaClass iSchemaClass,
+      SchemaClassInternal iSchemaClass,
       SQLFilterCondition condition,
       List<IndexSearchResult> iIndexSearchResults,
       CommandContext iContext) {
@@ -170,7 +170,7 @@ public class FilterAnalyzer {
   }
 
   private static IndexSearchResult analyzeIndexMethod(
-      DatabaseSession session, SchemaClass iSchemaClass,
+      DatabaseSession session, SchemaClassInternal iSchemaClass,
       SQLFilterCondition condition,
       List<IndexSearchResult> iIndexSearchResults,
       CommandContext ctx) {
@@ -191,7 +191,7 @@ public class FilterAnalyzer {
   }
 
   private IndexSearchResult analyzeIntersection(
-      DatabaseSession session, SchemaClass iSchemaClass,
+      DatabaseSession session, SchemaClassInternal iSchemaClass,
       SQLFilterCondition condition,
       List<IndexSearchResult> iIndexSearchResults,
       CommandContext iContext) {
@@ -220,7 +220,7 @@ public class FilterAnalyzer {
   }
 
   private List<List<IndexSearchResult>> analyzeUnion(
-      SchemaClass iSchemaClass, SQLFilterCondition condition, CommandContext iContext) {
+      SchemaClassInternal iSchemaClass, SQLFilterCondition condition, CommandContext iContext) {
     List<List<IndexSearchResult>> result = new ArrayList<List<IndexSearchResult>>();
 
     result.addAll(
@@ -285,23 +285,25 @@ public class FilterAnalyzer {
   }
 
   private static boolean checkIndexExistence(DatabaseSession session,
-      final SchemaClass iSchemaClass,
+      final SchemaClassInternal iSchemaClass,
       final IndexSearchResult result) {
     return iSchemaClass.areIndexed(session, result.fields())
         && (!result.lastField.isLong() || checkIndexChainExistence(session, iSchemaClass, result));
   }
 
-  private static boolean checkIndexChainExistence(DatabaseSession session, SchemaClass iSchemaClass,
+  private static boolean checkIndexChainExistence(DatabaseSession session,
+      SchemaClassInternal iSchemaClass,
       IndexSearchResult result) {
     final int fieldCount = result.lastField.getItemCount();
-    SchemaClass cls = iSchemaClass.getProperty(result.lastField.getItemName(0)).getLinkedClass();
+    SchemaClassInternal cls = (SchemaClassInternal) iSchemaClass.getProperty(
+        result.lastField.getItemName(0)).getLinkedClass();
 
     for (int i = 1; i < fieldCount; i++) {
       if (cls == null || !cls.areIndexed(session, result.lastField.getItemName(i))) {
         return false;
       }
 
-      cls = cls.getProperty(result.lastField.getItemName(i)).getLinkedClass();
+      cls = (SchemaClassInternal) cls.getProperty(result.lastField.getItemName(i)).getLinkedClass();
     }
     return true;
   }

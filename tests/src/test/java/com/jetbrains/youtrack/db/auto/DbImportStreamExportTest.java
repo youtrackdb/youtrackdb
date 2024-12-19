@@ -52,6 +52,10 @@ public class DbImportStreamExportTest extends BaseDBTest implements CommandOutpu
 
   @Test
   public void testDbExport() throws IOException {
+    if (remoteDB) {
+      return;
+    }
+
     final DatabaseSessionInternal database = acquireSession();
     // ADD A CUSTOM TO THE CLASS
     database.command("alter class V custom onBeforeCreate=onBeforeCreateItem").close();
@@ -65,6 +69,10 @@ public class DbImportStreamExportTest extends BaseDBTest implements CommandOutpu
 
   @Test(dependsOnMethods = "testDbExport")
   public void testDbImport() throws IOException {
+    if (remoteDB) {
+      return;
+    }
+
     final File importDir = new File(testPath + "/" + NEW_DB_PATH);
     if (importDir.exists()) {
       for (final File f : importDir.listFiles()) {
@@ -95,11 +103,7 @@ public class DbImportStreamExportTest extends BaseDBTest implements CommandOutpu
   @Test(dependsOnMethods = "testDbImport")
   public void testCompareDatabases() throws IOException {
     if (remoteDB) {
-      final String env = getTestEnv();
-      if (env == null || env.equals("dev")) {
-        return;
-      }
-      // EXECUTES ONLY IF NOT REMOTE ON CI/RELEASE TEST ENV
+      return;
     }
     DatabaseSessionInternal first = acquireSession();
     DatabaseSessionInternal second =

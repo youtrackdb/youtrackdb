@@ -65,6 +65,10 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
 
   @Test
   public void testDbExport() throws IOException {
+    if (remoteDB) {
+      return;
+    }
+
     // ADD A CUSTOM TO THE CLASS
     db.command("alter class V custom onBeforeCreate=onBeforeCreateItem").close();
 
@@ -76,6 +80,10 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
 
   @Test(dependsOnMethods = "testDbExport")
   public void testDbImport() throws IOException {
+    if (remoteDB) {
+      return;
+    }
+
     final File importDir = new File(testPath + "/" + IMPORT_DB_PATH);
     if (importDir.exists()) {
       for (final File f : importDir.listFiles()) {
@@ -108,11 +116,7 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
   @Test(dependsOnMethods = "testDbImport")
   public void testCompareDatabases() throws IOException {
     if (remoteDB) {
-      final String env = getTestEnv();
-      if (env == null || env.equals("dev")) {
-        return;
-      }
-      // EXECUTES ONLY IF NOT REMOTE ON CI/RELEASE TEST ENV
+      return;
     }
     try (YouTrackDB youTrackDBImport =
         YourTracks.embedded(

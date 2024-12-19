@@ -293,8 +293,8 @@ public class NetworkProtocolBinary extends NetworkProtocol {
         // Also in case of session validation error i read the message from the socket.
         try {
           int protocolVersion = ChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION;
-          RecordSerializer serializer =
-              RecordSerializerNetworkFactory.INSTANCE.forProtocol(protocolVersion);
+          var serializer =
+              RecordSerializerNetworkFactory.forProtocol(protocolVersion);
           if (connection != null) {
             protocolVersion = connection.getData().protocolVersion;
             serializer = connection.getData().getSerializer();
@@ -665,7 +665,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
         error = new ErrorResponse(messages, result);
       }
       int protocolVersion = ChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION;
-      RecordSerializer serializationImpl = RecordSerializerNetworkFactory.INSTANCE.current();
+      RecordSerializer serializationImpl = RecordSerializerNetworkFactory.current();
       if (connection != null) {
         protocolVersion = connection.getData().protocolVersion;
         serializationImpl = connection.getData().getSerializer();

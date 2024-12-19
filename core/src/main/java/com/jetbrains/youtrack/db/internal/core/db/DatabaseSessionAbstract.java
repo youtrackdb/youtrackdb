@@ -645,7 +645,6 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public String getURL() {
-    assert assertIfNotActive();
     return url != null ? url : getStorageInfo().getURL();
   }
 

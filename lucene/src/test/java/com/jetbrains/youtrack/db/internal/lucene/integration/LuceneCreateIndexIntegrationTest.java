@@ -70,7 +70,7 @@ public class LuceneCreateIndexIntegrationTest {
         null,
         "LUCENE", new String[]{"name", "surname"});
     Assert.assertTrue(
-        session.getMetadata().getSchema().getClass("Person")
+        session.getMetadata().getSchema().getClassInternal("Person")
             .areIndexed(session, "name", "surname"));
   }
 

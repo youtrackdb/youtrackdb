@@ -597,15 +597,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
     return result;
   }
 
-  /**
-   * checks the cluster map and tells whether this is a sharded database (ie. a distributed DB where
-   * at least two nodes contain distinct subsets of data) or not
-   *
-   * @return true if the database is sharded, false otherwise
-   */
-  default boolean isSharded() {
-    return false;
-  }
 
   /**
    * @return an endpoint for Enterprise features. Null in Community Edition

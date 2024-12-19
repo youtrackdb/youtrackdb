@@ -3,7 +3,6 @@ package com.jetbrains.youtrack.db.internal.server;
 import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryPushRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryPushResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushDistributedConfigurationRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.PushFunctionsRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSchemaRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSequencesRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushStorageConfigurationRequest;
@@ -137,12 +136,6 @@ public class PushManager implements MetadataUpdateListener {
     entity.setup(null);
     PushSchemaRequest request = new PushSchemaRequest(entity);
     this.schema.send(db, database, request, this);
-  }
-
-  @Override
-  public void onFunctionLibraryUpdate(DatabaseSessionInternal session, String database) {
-    PushFunctionsRequest request = new PushFunctionsRequest();
-    this.functions.send(session, database, request, this);
   }
 
   @Override

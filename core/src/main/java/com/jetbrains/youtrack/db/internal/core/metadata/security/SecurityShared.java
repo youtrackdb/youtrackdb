@@ -46,6 +46,7 @@ import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.NullOutputListener;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule.ResourceGeneric;
@@ -1016,7 +1017,7 @@ public class SecurityShared implements SecurityInternal {
       userClass.createIndex(database, "OUser.name", INDEX_TYPE.UNIQUE, NullOutputListener.INSTANCE,
           "name");
     } else {
-      final Property name = userClass.getProperty("name");
+      final PropertyInternal name = userClass.getPropertyInternal("name");
       if (name.getAllIndexes(database).isEmpty()) {
         userClass.createIndex(database,
             "OUser.name", INDEX_TYPE.UNIQUE, NullOutputListener.INSTANCE, "name");
@@ -1060,7 +1061,7 @@ public class SecurityShared implements SecurityInternal {
       policyClass.createIndex(database,
           "OSecurityPolicy.name", INDEX_TYPE.UNIQUE, NullOutputListener.INSTANCE, "name");
     } else {
-      final Property name = policyClass.getProperty("name");
+      final PropertyInternal name = policyClass.getPropertyInternal("name");
       if (name.getAllIndexes(database).isEmpty()) {
         policyClass.createIndex(database,
             "OSecurityPolicy.name", INDEX_TYPE.UNIQUE, NullOutputListener.INSTANCE, "name");
@@ -1123,7 +1124,7 @@ public class SecurityShared implements SecurityInternal {
       roleClass.createIndex(database, "ORole.name", INDEX_TYPE.UNIQUE, NullOutputListener.INSTANCE,
           "name");
     } else {
-      final Property name = roleClass.getProperty("name");
+      final PropertyInternal name = roleClass.getPropertyInternal("name");
       if (name.getAllIndexes(database).isEmpty()) {
         roleClass.createIndex(database,
             "ORole.name", INDEX_TYPE.UNIQUE, NullOutputListener.INSTANCE, "name");
@@ -1151,7 +1152,8 @@ public class SecurityShared implements SecurityInternal {
   }
 
   public void load(DatabaseSessionInternal session) {
-    final SchemaClass userClass = session.getMetadata().getSchema().getClass("OUser");
+    final SchemaClassInternal userClass = session.getMetadata().getSchema()
+        .getClassInternal("OUser");
     if (userClass != null) {
       // @COMPATIBILITY <1.3.0
       if (!userClass.existsProperty("status")) {
@@ -1174,7 +1176,8 @@ public class SecurityShared implements SecurityInternal {
       }
 
       // ROLE
-      final SchemaClass roleClass = session.getMetadata().getSchema().getClass("ORole");
+      final SchemaClassInternal roleClass = session.getMetadata().getSchema()
+          .getClassInternal("ORole");
 
       final Property rules = roleClass.getProperty("rules");
       if (rules != null && !PropertyType.EMBEDDEDMAP.equals(rules.getType())) {

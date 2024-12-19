@@ -4,13 +4,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
 import com.jetbrains.youtrack.db.internal.client.binary.SocketChannelBinaryAsynchClient;
 import com.jetbrains.youtrack.db.internal.client.remote.db.DatabaseSessionRemote;
-import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetwork;
 import com.jetbrains.youtrack.db.internal.core.storage.RecordCallback;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
@@ -94,7 +95,7 @@ public class StorageRemoteAsyncOperationTest {
           @Override
           public void read(
               DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
-              RecordSerializer serializer)
+              RecordSerializerNetwork serializer)
               throws IOException {
           }
 
@@ -167,7 +168,7 @@ public class StorageRemoteAsyncOperationTest {
           @Override
           public void read(
               DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
-              RecordSerializer serializer)
+              RecordSerializerNetwork serializer)
               throws IOException {
           }
 
@@ -244,7 +245,7 @@ public class StorageRemoteAsyncOperationTest {
           @Override
           public void read(
               DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
-              RecordSerializer serializer)
+              RecordSerializerNetwork serializer)
               throws IOException {
           }
 

@@ -7,5 +7,9 @@ import java.util.Collection;
 
 public interface PropertyInternal extends Property {
 
+  /**
+   * @return All indexes in which this property participates.
+   */
+  Collection<String> getAllIndexes(DatabaseSession session);
   Collection<Index> getAllIndexesInternal(DatabaseSession session);
 }

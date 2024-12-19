@@ -7,8 +7,6 @@ public interface MetadataUpdateListener {
 
   void onSchemaUpdate(DatabaseSessionInternal db, String database, SchemaShared schema);
 
-  void onFunctionLibraryUpdate(DatabaseSessionInternal session, String database);
-
   void onSequenceLibraryUpdate(DatabaseSessionInternal session, String database);
 
   void onStorageConfigurationUpdate(String database,

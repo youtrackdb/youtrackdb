@@ -834,30 +834,32 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
 
     final List<KeyChangesUpdateRecord> keyRecordsToReinsert = new ArrayList<>();
     final DatabaseSessionInternal database = getDatabase();
-    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
-    for (Entry<String, FrontendTransactionIndexChanges> entry : indexEntries.entrySet()) {
-      final Index index = indexManager.getIndex(database, entry.getKey());
-      if (index == null) {
-        throw new TransactionException(
-            "Cannot find index '" + entry.getValue() + "' while committing transaction");
-      }
+    if (!database.isRemote()) {
+      final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+      for (Entry<String, FrontendTransactionIndexChanges> entry : indexEntries.entrySet()) {
+        final Index index = indexManager.getIndex(database, entry.getKey());
+        if (index == null) {
+          throw new TransactionException(
+              "Cannot find index '" + entry.getValue() + "' while committing transaction");
+        }
 
-      final Dependency[] fieldRidDependencies = getIndexFieldRidDependencies(index);
-      if (!isIndexMayDependOnRids(fieldRidDependencies)) {
-        continue;
-      }
+        final Dependency[] fieldRidDependencies = getIndexFieldRidDependencies(index);
+        if (!isIndexMayDependOnRids(fieldRidDependencies)) {
+          continue;
+        }
 
-      final FrontendTransactionIndexChanges indexChanges = entry.getValue();
-      for (final Iterator<FrontendTransactionIndexChangesPerKey> iterator =
-          indexChanges.changesPerKey.values().iterator();
-          iterator.hasNext(); ) {
-        final FrontendTransactionIndexChangesPerKey keyChanges = iterator.next();
-        if (isIndexKeyMayDependOnRid(keyChanges.key, oldRid, fieldRidDependencies)) {
-          keyRecordsToReinsert.add(new KeyChangesUpdateRecord(keyChanges, indexChanges));
-          iterator.remove();
+        final FrontendTransactionIndexChanges indexChanges = entry.getValue();
+        for (final Iterator<FrontendTransactionIndexChangesPerKey> iterator =
+            indexChanges.changesPerKey.values().iterator();
+            iterator.hasNext(); ) {
+          final FrontendTransactionIndexChangesPerKey keyChanges = iterator.next();
+          if (isIndexKeyMayDependOnRid(keyChanges.key, oldRid, fieldRidDependencies)) {
+            keyRecordsToReinsert.add(new KeyChangesUpdateRecord(keyChanges, indexChanges));
+            iterator.remove();
 
-          if (keyChanges.key instanceof ChangeableIdentity changeableIdentity) {
-            changeableIdentity.removeIdentityChangeListener(indexChanges);
+            if (keyChanges.key instanceof ChangeableIdentity changeableIdentity) {
+              changeableIdentity.removeIdentityChangeListener(indexChanges);
+            }
           }
         }
       }

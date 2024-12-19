@@ -571,7 +571,6 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   public StorageInfo getStorageInfo() {
-    assert assertIfNotActive();
     return storage;
   }
 

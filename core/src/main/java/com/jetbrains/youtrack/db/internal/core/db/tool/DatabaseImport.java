@@ -134,6 +134,10 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       final CommandOutputListener outputListener)
       throws IOException {
     super(database, fileName, outputListener);
+    if (database.isRemote()) {
+      throw new DatabaseImportException(
+          "Database import is not supported for remote databases");
+    }
 
     clusterToClusterMapping.defaultReturnValue(-2);
     // TODO: check unclosed stream?
@@ -511,7 +515,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
           && !dbClass.isSuperClassOf(user)
           && !dbClass.isSuperClassOf(identity) /*&& !dbClass.isSuperClassOf(oSecurityPolicy)*/) {
         classesToDrop.put(className, dbClass);
-        for (var index : dbClass.getIndexes(database)) {
+        for (var index : ((SchemaClassInternal) dbClass).getIndexes(database)) {
           indexNames.add(index);
         }
       }

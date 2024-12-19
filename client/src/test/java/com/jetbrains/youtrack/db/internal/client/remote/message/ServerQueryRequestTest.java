@@ -21,7 +21,7 @@ public class ServerQueryRequestTest extends DbTestBase {
             "sql",
             "some random statement",
             params,
-            ServerQueryRequest.QUERY, RecordSerializerNetworkFactory.INSTANCE.current(), 123);
+            ServerQueryRequest.QUERY, RecordSerializerNetworkFactory.current(), 123);
 
     MockChannel channel = new MockChannel();
     request.write(null, channel, null);
@@ -29,7 +29,7 @@ public class ServerQueryRequestTest extends DbTestBase {
     channel.close();
 
     ServerQueryRequest other = new ServerQueryRequest();
-    other.read(db, channel, -1, RecordSerializerNetworkFactory.INSTANCE.current());
+    other.read(db, channel, -1, RecordSerializerNetworkFactory.current());
 
     Assert.assertEquals(request.getCommand(), other.getCommand());
 
@@ -51,7 +51,7 @@ public class ServerQueryRequestTest extends DbTestBase {
             "some random statement",
             params,
             ServerQueryRequest.QUERY,
-            RecordSerializerNetworkFactory.INSTANCE.current(), 123);
+            RecordSerializerNetworkFactory.current(), 123);
 
     MockChannel channel = new MockChannel();
     request.write(null, channel, null);
@@ -59,7 +59,7 @@ public class ServerQueryRequestTest extends DbTestBase {
     channel.close();
 
     ServerQueryRequest other = new ServerQueryRequest();
-    other.read(db, channel, -1, RecordSerializerNetworkFactory.INSTANCE.current());
+    other.read(db, channel, -1, RecordSerializerNetworkFactory.current());
 
     Assert.assertEquals(request.getCommand(), other.getCommand());
     Assert.assertTrue(other.isNamedParams());
@@ -77,7 +77,7 @@ public class ServerQueryRequestTest extends DbTestBase {
             "some random statement",
             params,
             ServerQueryRequest.QUERY,
-            RecordSerializerNetworkFactory.INSTANCE.current(), 123);
+            RecordSerializerNetworkFactory.current(), 123);
 
     MockChannel channel = new MockChannel();
     request.write(null, channel, null);
@@ -85,7 +85,7 @@ public class ServerQueryRequestTest extends DbTestBase {
     channel.close();
 
     ServerQueryRequest other = new ServerQueryRequest();
-    other.read(db, channel, -1, RecordSerializerNetworkFactory.INSTANCE.current());
+    other.read(db, channel, -1, RecordSerializerNetworkFactory.current());
 
     Assert.assertEquals(request.getCommand(), other.getCommand());
     Assert.assertTrue(other.isNamedParams());

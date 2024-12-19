@@ -95,8 +95,8 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void testCreateIndexWithUnsupportedEmbedded() {
-    final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass song = schema.getClass(SONG_CLASS);
+    var schema = db.getMetadata().getSchema();
+    var song = schema.getClassInternal(SONG_CLASS);
     song.createProperty(db, PropertyType.EMBEDDED.getName(), PropertyType.EMBEDDED);
     song.createIndex(db,
         SONG_CLASS + "." + PropertyType.EMBEDDED.getName(),
@@ -207,8 +207,8 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
   }
 
   private SchemaClassInternal createEmbeddedMapIndex() {
-    final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass song = schema.getClass(SONG_CLASS);
+    var schema = db.getMetadata().getSchema();
+    var song = schema.getClassInternal(SONG_CLASS);
     song.createProperty(db, "String" + PropertyType.EMBEDDEDMAP.getName(), PropertyType.EMBEDDEDMAP,
         PropertyType.STRING);
     song.createIndex(db,
@@ -218,12 +218,12 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
         null,
         "LUCENE", new String[]{"String" + PropertyType.EMBEDDEDMAP.getName() + " by value"});
     Assert.assertEquals(1, song.getIndexes(db).size());
-    return (SchemaClassInternal) song;
+    return song;
   }
 
   private SchemaClassInternal createEmbeddedMapIndexSimple() {
-    final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass song = schema.getClass(SONG_CLASS);
+    var schema = db.getMetadata().getSchema();
+    var song = schema.getClassInternal(SONG_CLASS);
     song.createProperty(db, "String" + PropertyType.EMBEDDEDMAP.getName(), PropertyType.EMBEDDEDMAP,
         PropertyType.STRING);
     song.createIndex(db,
@@ -231,6 +231,6 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
         SchemaClass.INDEX_TYPE.FULLTEXT.toString(),
         "String" + PropertyType.EMBEDDEDMAP.getName() + " by value");
     Assert.assertEquals(1, song.getIndexes(db).size());
-    return (SchemaClassInternal) song;
+    return song;
   }
 }
