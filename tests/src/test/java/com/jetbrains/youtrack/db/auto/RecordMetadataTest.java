@@ -35,7 +35,7 @@ public class RecordMetadataTest extends BaseDBTest {
       }
 
       doc.field("field", i);
-      db.save(doc, db.getClusterNameById(db.getDefaultClusterId()));
+      db.save(doc);
       db.commit();
 
       final RecordMetadata metadata = db.getRecordMetadata(doc.getIdentity());
