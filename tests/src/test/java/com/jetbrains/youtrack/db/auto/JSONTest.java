@@ -156,7 +156,7 @@ public class JSONTest extends BaseDBTest {
   public void testNanNoTypes() {
     EntityImpl doc = ((EntityImpl) db.newEntity());
     String input =
-        "{\"@type\":\"d\",\"@version\":0,\"nan\":null,\"p_infinity\":null,\"n_infinity\":null}";
+        "{\"@type\":\"d\",\"@version\":0,\"@class\":\"O\",\"nan\":null,\"p_infinity\":null,\"n_infinity\":null}";
     doc.field("nan", Double.NaN);
     doc.field("p_infinity", Double.POSITIVE_INFINITY);
     doc.field("n_infinity", Double.NEGATIVE_INFINITY);
@@ -164,7 +164,7 @@ public class JSONTest extends BaseDBTest {
     Assert.assertEquals(json, input);
 
     doc = ((EntityImpl) db.newEntity());
-    input = "{\"@type\":\"d\",\"@version\":0,\"nan\":null,\"p_infinity\":null,\"n_infinity\":null}";
+    input = "{\"@type\":\"d\",\"@version\":0,\"@class\":\"O\",\"nan\":null,\"p_infinity\":null,\"n_infinity\":null}";
     doc.field("nan", Float.NaN);
     doc.field("p_infinity", Float.POSITIVE_INFINITY);
     doc.field("n_infinity", Float.NEGATIVE_INFINITY);
@@ -457,7 +457,7 @@ public class JSONTest extends BaseDBTest {
     doc.fromJSON(
         "{name:{\"%Field\":[\"value1\",\"value2\"],\"%Field2\":{},\"%Field3\":\"value3\"}}");
     db.begin();
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
     db.commit();
 
     db.begin();
@@ -521,7 +521,7 @@ public class JSONTest extends BaseDBTest {
     doc.fromJSON(
         "{Field:{\"Key1\":[\"Value1\",\"Value2\"],\"Key2\":{\"%%dummy%%\":null},\"Key3\":\"Value3\"}}");
     db.begin();
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
     db.commit();
     db.begin();
     doc = db.bindToSession(doc);
@@ -539,19 +539,19 @@ public class JSONTest extends BaseDBTest {
   public void testJsonToStream() {
     final String doc1Json =
         "{Key1:{\"%Field1\":[{},{},{},{},{}],\"%Field2\":false,\"%Field3\":\"Value1\"}}";
-    final EntityImpl doc1 = ((EntityImpl) db.newEntity());
+    final EntityImpl doc1 = new EntityImpl(db);
     doc1.fromJSON(doc1Json);
     final String doc1String = new String(
         RecordSerializerSchemaAware2CSV.INSTANCE.toStream(db, doc1));
-    Assert.assertEquals(doc1Json, "{" + doc1String + "}");
+    Assert.assertEquals("{" + doc1String + "}", doc1Json);
 
     final String doc2Json =
         "{Key1:{\"%Field1\":[{},{},{},{},{}],\"%Field2\":false,\"%Field3\":\"Value1\"}}";
-    final EntityImpl doc2 = ((EntityImpl) db.newEntity());
+    final EntityImpl doc2 = new EntityImpl(db);
     doc2.fromJSON(doc2Json);
     final String doc2String = new String(
         RecordSerializerSchemaAware2CSV.INSTANCE.toStream(db, doc2));
-    Assert.assertEquals(doc2Json, "{" + doc2String + "}");
+    Assert.assertEquals("{" + doc2String + "}", doc2Json);
   }
 
   public void testSameNameCollectionsAndMap() {
@@ -1350,7 +1350,7 @@ public class JSONTest extends BaseDBTest {
   }
 
   public void testOtherJson() {
-    ((EntityImpl) db.newEntity())
+    db.newEntity()
         .fromJSON(
             "{\"Salary\":1500.0,\"Type\":\"Person\",\"Address\":[{\"Zip\":\"JX2"
                 + " MSX\",\"Type\":\"Home\",\"Street1\":\"13 Marge"
