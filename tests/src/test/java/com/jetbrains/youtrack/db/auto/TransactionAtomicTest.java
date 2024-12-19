@@ -45,12 +45,13 @@ public class TransactionAtomicTest extends BaseDBTest {
     DatabaseSessionInternal db1 = acquireSession();
     DatabaseSessionInternal db2 = acquireSession();
 
-    EntityImpl record1 = ((EntityImpl) db.newEntity());
+
 
     db2.begin();
+    EntityImpl record1 = ((EntityImpl) db2.newEntity());
     record1
         .field("value", "This is the first version")
-        .save(db2.getClusterNameById(db2.getDefaultClusterId()));
+        .save();
     db2.commit();
 
     // RE-READ THE RECORD
@@ -74,7 +75,7 @@ public class TransactionAtomicTest extends BaseDBTest {
     db2.activateOnCurrentThread();
     db2.close();
 
-    db.activateOnCurrentThread();
+    db1.activateOnCurrentThread();
   }
 
   @Test
@@ -102,12 +103,12 @@ public class TransactionAtomicTest extends BaseDBTest {
 
   @Test
   public void testTransactionPreListenerRollback() throws IOException {
+    db.begin();
     EntityImpl record1 = ((EntityImpl) db.newEntity());
 
-    db.begin();
     record1
         .field("value", "This is the first version")
-        .save(db.getClusterNameById(db.getDefaultClusterId()));
+        .save();
     db.commit();
 
     final SessionListener listener =
