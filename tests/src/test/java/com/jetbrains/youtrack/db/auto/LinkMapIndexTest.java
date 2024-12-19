@@ -65,10 +65,10 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -118,10 +118,10 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
     db.commit();
 
     try {
@@ -178,13 +178,13 @@ public class LinkMapIndexTest extends BaseDBTest {
     db.begin();
 
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     Map<String, RID> mapOne = new HashMap<>();
 
@@ -241,10 +241,10 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     try {
       final Map<String, RID> mapTwo = new HashMap<>();
@@ -299,13 +299,13 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     Map<String, RID> mapOne = new HashMap<>();
 
@@ -365,13 +365,13 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -428,13 +428,13 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -496,13 +496,13 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -557,13 +557,13 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -619,13 +619,13 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -686,13 +686,13 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -747,13 +747,13 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -807,13 +807,13 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -874,13 +874,13 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -937,13 +937,13 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -971,10 +971,10 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -1007,10 +1007,10 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -1062,10 +1062,10 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     Map<String, RID> map = new HashMap<>();
 
