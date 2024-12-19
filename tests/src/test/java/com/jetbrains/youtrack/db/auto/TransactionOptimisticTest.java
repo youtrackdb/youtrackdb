@@ -175,8 +175,8 @@ public class TransactionOptimisticTest extends BaseDBTest {
     }
 
     DatabaseSessionInternal db2 = acquireSession();
-    Blob record1 = db.newBlob("This is the first version".getBytes());
     db2.begin();
+    Blob record1 = db2.newBlob("This is the first version".getBytes());
     record1.save();
     db2.commit();
     try {
