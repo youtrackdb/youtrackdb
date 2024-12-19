@@ -949,25 +949,6 @@ public class IndexManagerShared implements IndexManagerAbstract {
     }
   }
 
-  public EntityImpl toNetworkStream(DatabaseSessionInternal session) {
-    EntityImpl entity = new EntityImpl(session);
-    internalAcquireExclusiveLock();
-    try {
-      entity.setTrackingChanges(false);
-      final TrackedSet<EntityImpl> indexes = new TrackedSet<>(entity);
-
-      for (final Index i : this.indexes.values()) {
-        var indexInternal = (IndexInternal) i;
-        indexes.add(indexInternal.updateConfiguration(session));
-      }
-
-      entity.field(CONFIG_INDEXES, indexes, PropertyType.EMBEDDEDSET);
-      return entity;
-    } finally {
-      internalReleaseExclusiveLock();
-    }
-  }
-
   public Index preProcessBeforeReturn(DatabaseSessionInternal database, final Index index) {
     return index;
   }

@@ -28,6 +28,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -179,6 +180,16 @@ public class ResultBinary implements Result {
   @Override
   public boolean isBlob() {
     return false;
+  }
+
+  @Override
+  public Map<String, ?> toMap() {
+    return toEntity().toMap();
+  }
+
+  @Override
+  public String toJSON() {
+    return toEntity().toJSON();
   }
 
   @Override

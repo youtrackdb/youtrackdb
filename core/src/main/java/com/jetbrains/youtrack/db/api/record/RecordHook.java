@@ -20,7 +20,6 @@
 package com.jetbrains.youtrack.db.api.record;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 
 /**
  * Hook interface to catch all events regarding records.
@@ -121,37 +120,16 @@ public interface RecordHook {
      * @return the mapped scope.
      */
     public static SCOPE typeToScope(TYPE type) {
-      switch (type) {
-        case BEFORE_CREATE:
-        case AFTER_CREATE:
-        case CREATE_FAILED:
-        case CREATE_REPLICATED:
-        case FINALIZE_CREATION:
-          return SCOPE.CREATE;
-
-        case BEFORE_READ:
-        case AFTER_READ:
-        case READ_REPLICATED:
-        case READ_FAILED:
-          return SCOPE.READ;
-
-        case BEFORE_UPDATE:
-        case AFTER_UPDATE:
-        case UPDATE_FAILED:
-        case UPDATE_REPLICATED:
-        case FINALIZE_UPDATE:
-          return SCOPE.UPDATE;
-
-        case BEFORE_DELETE:
-        case AFTER_DELETE:
-        case DELETE_FAILED:
-        case DELETE_REPLICATED:
-        case FINALIZE_DELETION:
-          return SCOPE.DELETE;
-
-        default:
-          throw new IllegalStateException("Unexpected hook type.");
-      }
+      return switch (type) {
+        case BEFORE_CREATE, AFTER_CREATE, CREATE_FAILED, CREATE_REPLICATED, FINALIZE_CREATION ->
+            SCOPE.CREATE;
+        case BEFORE_READ, AFTER_READ, READ_REPLICATED, READ_FAILED -> SCOPE.READ;
+        case BEFORE_UPDATE, AFTER_UPDATE, UPDATE_FAILED, UPDATE_REPLICATED, FINALIZE_UPDATE ->
+            SCOPE.UPDATE;
+        case BEFORE_DELETE, AFTER_DELETE, DELETE_FAILED, DELETE_REPLICATED, FINALIZE_DELETION ->
+            SCOPE.DELETE;
+        default -> throw new IllegalStateException("Unexpected hook type.");
+      };
     }
   }
 
@@ -167,8 +145,8 @@ public interface RecordHook {
    * the number of useless invocations of this hook.
    *
    * <p>Limiting the hook to proper scopes may give huge performance boost, especially if the
-   * hook's {@link #onTrigger(DatabaseSessionInternal, TYPE, Record)} dispatcher implementation is heavy. In extreme cases,
-   * you may override the {@link #onTrigger(DatabaseSessionInternal, TYPE, Record)} to act directly on event's
+   * hook's {@link #onTrigger(DatabaseSession, TYPE, Record)} dispatcher implementation is heavy. In extreme cases,
+   * you may override the {@link #onTrigger(DatabaseSession, TYPE, Record)} to act directly on event's
    * {@link RecordHook.TYPE} and exit early, scopes are just a more handy alternative to this.
    *
    * @return the scopes of this hook.

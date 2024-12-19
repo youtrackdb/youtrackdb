@@ -25,7 +25,6 @@ import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
 import com.jetbrains.youtrack.db.internal.client.remote.message.tx.RecordOperationRequest;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
@@ -39,7 +38,6 @@ public final class CommitRequest implements BinaryRequest<CommitResponse> {
   private long txId;
   private boolean usingLong;
   private List<RecordOperationRequest> operations;
-  private EntityImpl indexChanges;
 
   public CommitRequest() {
   }
@@ -58,9 +56,6 @@ public final class CommitRequest implements BinaryRequest<CommitResponse> {
 
     // END OF RECORD ENTRIES
     network.writeByte((byte) 0);
-
-    // SEND MANUAL INDEX CHANGES
-    network.writeBytes(indexChanges.toStream());
   }
 
   @Override
@@ -79,8 +74,6 @@ public final class CommitRequest implements BinaryRequest<CommitResponse> {
         operations.add(entry);
       }
     } while (hasEntry == 1);
-
-    indexChanges = new EntityImpl(db, channel.readBytes());
   }
 
   @Override
@@ -91,10 +84,6 @@ public final class CommitRequest implements BinaryRequest<CommitResponse> {
   @Override
   public String getDescription() {
     return "Transaction commit";
-  }
-
-  public EntityImpl getIndexChanges() {
-    return indexChanges;
   }
 
   public List<RecordOperationRequest> getOperations() {

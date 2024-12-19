@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.lucene.functions;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
@@ -143,7 +143,7 @@ public class LuceneSearchOnIndexFunction extends LuceneSearchFunctionTemplate {
     return Collections.emptyList();
   }
 
-  private Map<String, ?> getMetadata(SQLExpression[] args, CommandContext ctx) {
+  private static Map<String, ?> getMetadata(SQLExpression[] args, CommandContext ctx) {
     if (args.length == 3) {
       return getMetadata(args[2], ctx);
     }

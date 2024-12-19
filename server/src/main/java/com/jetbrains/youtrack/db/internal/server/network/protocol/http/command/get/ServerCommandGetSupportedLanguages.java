@@ -17,7 +17,6 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.get;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.command.script.ScriptManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
@@ -40,9 +39,8 @@ public class ServerCommandGetSupportedLanguages extends ServerCommandAuthenticat
     iRequest.getData().commandInfo = "Returns the supported languages";
 
     try (DatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
-
-      EntityImpl result = new EntityImpl(db);
-      Set<String> languages = new HashSet<String>();
+      EntityImpl result = new EntityImpl(null);
+      Set<String> languages = new HashSet<>();
 
       ScriptManager scriptManager =
           YouTrackDBInternal.extract(server.getContext()).getScriptManager();

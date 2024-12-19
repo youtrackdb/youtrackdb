@@ -48,6 +48,14 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.jetbrains.youtrack.db</groupId>
       <artifactId>youtrackdb-core</artifactId>
       <version>${project.version}</version>

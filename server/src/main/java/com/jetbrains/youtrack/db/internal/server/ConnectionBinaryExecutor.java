@@ -690,12 +690,6 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
   @Override
   public BinaryResponse executeCommit(final CommitRequest request) {
     var recordOperations = request.getOperations();
-    var indexChanges = request.getIndexChanges();
-
-    if (!indexChanges.isEmpty()) {
-      throw new DatabaseException("Manual indexes are not supported");
-    }
-
     var database = connection.getDatabase();
     var tx = database.getTransaction();
 
@@ -1606,12 +1600,6 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
   @Override
   public BinaryResponse executeCommit37(Commit37Request request) {
     var recordOperations = request.getOperations();
-    var indexChanges = request.getIndexChanges();
-
-    if (indexChanges != null && !indexChanges.isEmpty()) {
-      throw new DatabaseException("Manual indexes are not supported");
-    }
-
     var database = connection.getDatabase();
     var tx = database.getTransaction();
 

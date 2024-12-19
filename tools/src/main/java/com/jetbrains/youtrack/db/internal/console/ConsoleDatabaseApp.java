@@ -21,6 +21,7 @@ package com.jetbrains.youtrack.db.internal.console;
 
 import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.WARNING_DEFAULT_USERS;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.DatabaseType;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
@@ -32,34 +33,27 @@ import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Blob;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.client.remote.DatabaseImportRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
-import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.YouTrackDBRemote;
-import com.jetbrains.youtrack.db.internal.client.remote.db.DatabaseSessionRemote;
-import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.console.ConsoleApplication;
 import com.jetbrains.youtrack.db.internal.common.console.ConsoleProperties;
 import com.jetbrains.youtrack.db.internal.common.console.TTYConsoleReader;
 import com.jetbrains.youtrack.db.internal.common.console.annotation.ConsoleCommand;
 import com.jetbrains.youtrack.db.internal.common.console.annotation.ConsoleParameter;
 import com.jetbrains.youtrack.db.internal.common.exception.SystemException;
-import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.io.YTIOException;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.SignalHandler;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
-import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
-import com.jetbrains.youtrack.db.internal.core.command.script.CommandExecutorScript;
-import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.StorageEntryConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -74,22 +68,18 @@ import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseImport;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseImportException;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseRepair;
 import com.jetbrains.youtrack.db.internal.core.db.tool.GraphRepair;
-import com.jetbrains.youtrack.db.internal.core.exception.RetryQueryException;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.iterator.IdentifiableIterator;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
-import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityManager;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerStringAbstract;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
-import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.util.DatabaseURLConnection;
 import com.jetbrains.youtrack.db.internal.core.util.URLHelper;
@@ -99,14 +89,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -126,16 +114,13 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
   protected DatabaseSessionInternal currentDatabase;
   protected String currentDatabaseName;
-  protected RecordAbstract currentRecord;
-  protected int currentRecordIdx;
-  protected List<Identifiable> currentResultSet;
-  protected Object currentResult;
+  protected List<RawPair<RID, Object>> currentResultSet;
   protected DatabaseURLConnection urlConnection;
   protected YouTrackDBImpl youTrackDB;
   private int lastPercentStep;
   private String currentDatabaseUserName;
   private String currentDatabaseUserPassword;
-  private final int maxMultiValueEntries = 10;
+  private static final int maxMultiValueEntries = 10;
 
   public ConsoleDatabaseApp(final String[] args) {
     super(args);
@@ -272,11 +257,6 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     }
 
     message("OK");
-
-    final EntityImpl distribCfg = getDistributedConfiguration();
-    if (distribCfg != null) {
-      listServers();
-    }
   }
 
   @ConsoleCommand(
@@ -294,7 +274,6 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
       currentDatabase = null;
       currentDatabaseName = null;
-      currentRecord = null;
 
       message("OK");
       out.println();
@@ -416,6 +395,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     message("\n\nCurrent database is: " + databaseURL);
   }
 
+  @SuppressWarnings("MethodMayBeStatic")
   protected Map<String, String> parseCommandOptions(
       @ConsoleParameter(
           name = "[options]",
@@ -459,25 +439,28 @@ public class ConsoleDatabaseApp extends ConsoleApplication
   @ConsoleCommand(
       description = "List all the active connections to the server",
       onlineHelp = "Console-Command-List-Connections")
-  public void listConnections() throws IOException {
+  public void listConnections() {
     checkForRemoteServer();
     YouTrackDBRemote remote = (YouTrackDBRemote) YouTrackDBInternal.extract(youTrackDB);
     final EntityImpl serverInfo =
         remote.getServerInfo(currentDatabaseUserName, currentDatabaseUserPassword);
 
-    final List<Identifiable> resultSet = new ArrayList<Identifiable>();
+    List<RawPair<RID, Object>> resultSet = new ArrayList<RawPair<RID, Object>>();
 
     final List<Map<String, Object>> connections = serverInfo.field("connections");
     for (Map<String, Object> conn : connections) {
-      final EntityImpl row = new EntityImpl(currentDatabase);
 
-      String commandDetail = (String) conn.get("commandInfo");
-
-      if (commandDetail != null && ((String) conn.get("commandDetail")).length() > 1) {
-        commandDetail += " (" + conn.get("commandDetail") + ")";
+      var commandDetail = new StringBuilder();
+      var commandInfo = (String) conn.get("commandInfo");
+      if (commandInfo != null) {
+        commandDetail.append(commandInfo);
       }
 
-      row.fields(
+      if (((String) conn.get("commandDetail")).length() > 1) {
+        commandDetail.append(" (").append(conn.get("commandDetail")).append(")");
+      }
+
+      var row = Map.of(
           "ID",
           conn.get("connectionId"),
           "REMOTE_ADDRESS",
@@ -491,28 +474,26 @@ public class ConsoleDatabaseApp extends ConsoleApplication
           "USER",
           conn.get("user"),
           "COMMAND",
-          commandDetail,
+          commandDetail.toString(),
           "TOT_REQS",
           conn.get("totalRequests"));
-      resultSet.add(row);
+
+      resultSet.add(new RawPair<>(new ChangeableRecordId(), row));
     }
 
-    Collections.sort(
-        resultSet,
-        new Comparator<Identifiable>() {
-          @Override
-          public int compare(final Identifiable o1, final Identifiable o2) {
-            final String o1s = ((EntityImpl) o1).field("LAST_OPERATION_ON");
-            final String o2s = ((EntityImpl) o2).field("LAST_OPERATION_ON");
-            return o2s.compareTo(o1s);
-          }
-        });
+    resultSet.sort((o1, o2) -> {
+      @SuppressWarnings("unchecked") final String o1s = ((Map<String, String>) o1.second).get(
+          "LAST_OPERATION_ON");
+      @SuppressWarnings("unchecked") final String o2s = ((Map<String, String>) o2.second).get(
+          "LAST_OPERATION_ON");
+      return o2s.compareTo(o1s);
+    });
 
     final TableFormatter formatter = new TableFormatter(this);
     formatter.setMaxWidthSize(getConsoleWidth());
     formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-    formatter.writeRecords(currentDatabase, resultSet, -1);
+    formatter.writeRecords(resultSet, -1);
 
     out.println();
   }
@@ -593,15 +574,18 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
     if (currentDatabase.isRemote()) {
       message(
-          "\n"
-              + "WARNING - Transactions are not supported from console in remote, please use an sql"
-              + " script: \n"
-              + "eg.\n\n"
-              + "script sql\n"
-              + "begin;\n"
-              + "<your commands here>\n"
-              + "commit;\n"
-              + "end\n\n");
+          """
+              WARNING - Transactions are not supported from console in remote, please use an sql\
+               script:\s
+              eg.
+              
+              script sql
+              begin;
+              <your commands here>
+              commit;
+              end
+              
+              """);
       return;
     }
 
@@ -677,30 +661,6 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     sqlCommand("truncate", iCommandText, "\nTruncated %d record(s) in %f sec(s).\n", true);
   }
 
-  @ConsoleCommand(description = "Load a record in memory and set it as the current")
-  public void loadRecord(
-      @ConsoleParameter(
-          name = "record-id",
-          description =
-              "The unique Record Id of the record to load. If you do not have the Record Id,"
-                  + " execute a query first")
-      String iRecordId) {
-    loadRecordInternal(iRecordId);
-  }
-
-  @ConsoleCommand(
-      description = "Reload a record and set it as the current one",
-      onlineHelp = "Console-Command-Reload-Record")
-  public void reloadRecord(
-      @ConsoleParameter(
-          name = "record-id",
-          description =
-              "The unique Record Id of the record to load. If you do not have the Record Id,"
-                  + " execute a query first")
-      String iRecordId) {
-    reloadRecordInternal(iRecordId);
-  }
-
   @ConsoleCommand(
       splitInWords = false,
       description = "Explain how a command is executed profiling it",
@@ -708,19 +668,10 @@ public class ConsoleDatabaseApp extends ConsoleApplication
   public void explain(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
       String iCommandText) {
-    Object result = sqlCommand("explain", iCommandText, "\n", false);
-    if (result != null && result instanceof EntityImpl) {
-      message(((EntityImpl) result).getProperty("executionPlanAsString"));
-    } else if (result != null
-        && result instanceof List
-        && ((List) result).size() == 1
-        && ((List) result).get(0) instanceof Result) {
-      message(((Result) (((List) result).get(0))).getProperty("executionPlanAsString"));
-    } else if (result != null
-        && result instanceof List
-        && ((List) result).size() == 1
-        && ((List) result).get(0) instanceof EntityImpl) {
-      message(((EntityImpl) (((List) result).get(0))).getProperty("executionPlanAsString"));
+    var result = sqlCommand("explain", iCommandText, "\n", false);
+    if (result.size() == 1
+        && result.getFirst() instanceof Entity) {
+      message(((EntityImpl) (result.getFirst())).getProperty("executionPlanAsString"));
     }
   }
 
@@ -764,12 +715,12 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     final long start = System.currentTimeMillis();
 
     ResultSet rs = currentDatabase.command(command);
-    final List<Identifiable> result =
-        rs.stream().map(x -> x.toEntity()).collect(Collectors.toList());
+    var result =
+        rs.stream().map(x -> new RawPair<RID, Object>(x.getRecordId(), x.toMap())).toList();
     rs.close();
-    float elapsedSeconds = getElapsedSecs(start);
 
-    setResultset(result);
+    float elapsedSeconds = getElapsedSecs(start);
+    currentResultSet = result;
 
     int displayLimit = Integer.parseInt(properties.get(ConsoleProperties.LIMIT));
 
@@ -787,11 +738,10 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       description =
           "Switches off storage profiling for issued set of commands and "
               + "returns reslut of profiling.")
-  public void profileStorageOff() {
-    final Collection<EntityImpl> result =
-        (Collection<EntityImpl>)
-            sqlCommand(
-                "profile", " storage off", "\nProfiling of storage is switched off\n", false);
+  public void profileStorageOff() throws Exception {
+    var result =
+        sqlCommand(
+            "profile", " storage off", "\nProfiling of storage is switched off\n", false);
 
     final String profilingWasNotSwitchedOn =
         "Can not retrieve results of profiling, probably profiling was not switched on";
@@ -801,15 +751,16 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       return;
     }
 
-    final Iterator<EntityImpl> profilerIterator = result.iterator();
-
+    final Iterator<Map<String, ?>> profilerIterator = result.iterator();
     if (profilerIterator.hasNext()) {
-      final EntityImpl profilerDocument = profilerIterator.next();
-      if (profilerDocument == null) {
+      Map<String, ?> profilerEntry = profilerIterator.next();
+      if (profilerEntry == null) {
         message(profilingWasNotSwitchedOn);
       } else {
+        var objectMapper = new ObjectMapper();
         message(
-            String.format("Profiling result is : \n%s\n", profilerDocument.toJSON("prettyPrint")));
+            String.format("Profiling result is : \n%s\n",
+                objectMapper.writeValueAsString(profilerEntry)));
       }
     } else {
       message(profilingWasNotSwitchedOn);
@@ -862,11 +813,6 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
       String iCommandText) {
     sqlCommand("optimize", iCommandText, "\nDatabase optimized '%s' in %f sec(s).\n", true);
-  }
-
-  @ConsoleCommand(description = "Force calling of JVM Garbage Collection")
-  public void gc() {
-    System.gc();
   }
 
   @ConsoleCommand(
@@ -1002,23 +948,6 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     releaseDatabase(storageType);
   }
 
-  @ConsoleCommand(description = "Display current record")
-  public void current() {
-    dumpRecordDetails();
-  }
-
-  @ConsoleCommand(description = "Move the current record stream to the next one in result set")
-  public void next() {
-    setCurrentRecord(currentRecordIdx + 1);
-    dumpRecordDetails();
-  }
-
-  @ConsoleCommand(description = "Move the current record stream to the previous one in result set")
-  public void prev() {
-    setCurrentRecord(currentRecordIdx - 1);
-    dumpRecordDetails();
-  }
-
   @ConsoleCommand(splitInWords = false, description = "Alter a class in the database schema")
   public void alterClass(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
@@ -1136,7 +1065,8 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
     long start = System.currentTimeMillis();
     ResultSet rs = currentDatabase.command("traverse " + iQueryText);
-    setResultset(rs.stream().map(x -> x.toEntity()).collect(Collectors.toList()));
+    currentResultSet = rs.stream().map(x -> new RawPair<RID, Object>(x.getRecordId(), x.toMap()))
+        .toList();
     rs.close();
 
     float elapsedSeconds = getElapsedSecs(start);
@@ -1157,50 +1087,43 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       onlineHelp = "SQL-Query")
   public void select(
       @ConsoleParameter(name = "query-text", description = "The query to execute")
-      String iQueryText) {
+      String queryText) {
     checkForDatabase();
 
-    if (iQueryText == null) {
+    if (queryText == null) {
       return;
     }
 
-    iQueryText = iQueryText.trim();
+    queryText = queryText.trim();
 
-    if (iQueryText.length() == 0 || iQueryText.equalsIgnoreCase("select")) {
+    if (queryText.isEmpty() || queryText.equalsIgnoreCase("select")) {
       return;
     }
 
-    iQueryText = "select " + iQueryText;
+    queryText = "select " + queryText;
 
-    final int queryLimit;
     final int displayLimit;
-    if (iQueryText.toLowerCase(Locale.ENGLISH).contains(" limit ")) {
-      queryLimit = -1;
+    if (queryText.toLowerCase(Locale.ENGLISH).contains(" limit ")) {
       displayLimit = -1;
     } else {
       // USE LIMIT + 1 TO DISCOVER IF MORE ITEMS ARE PRESENT
       displayLimit = Integer.parseInt(properties.get(ConsoleProperties.LIMIT));
-      if (displayLimit > 0) {
-        queryLimit = displayLimit + 1;
-      } else {
-        queryLimit = -1;
-      }
     }
 
     final long start = System.currentTimeMillis();
-    List<Identifiable> result = new ArrayList<>();
-    try (ResultSet rs = currentDatabase.query(iQueryText)) {
+    List<RawPair<RID, Object>> result = new ArrayList<>();
+    try (ResultSet rs = currentDatabase.query(queryText)) {
       int count = 0;
-      while (rs.hasNext() && (queryLimit < 0 || count < queryLimit)) {
+      while (rs.hasNext()) {
         Result item = rs.next();
         if (item.isBlob()) {
-          result.add(item.getBlob().get());
+          result.add(new RawPair<>(item.getRecordId(), item.getBlob().orElseThrow().toStream()));
         } else {
-          result.add(item.toEntity());
+          result.add(new RawPair<>(item.getRecordId(), item.toMap()));
         }
       }
     }
-    setResultset(result);
+    currentResultSet = result;
 
     float elapsedSeconds = getElapsedSecs(start);
 
@@ -1219,24 +1142,23 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       onlineHelp = "SQL-Match")
   public void match(
       @ConsoleParameter(name = "query-text", description = "The query to execute")
-      String iQueryText) {
+      String queryText) {
     checkForDatabase();
 
-    if (iQueryText == null) {
+    if (queryText == null) {
       return;
     }
 
-    iQueryText = iQueryText.trim();
-
-    if (iQueryText.length() == 0 || iQueryText.equalsIgnoreCase("match")) {
+    queryText = queryText.trim();
+    if (queryText.isEmpty() || queryText.equalsIgnoreCase("match")) {
       return;
     }
 
-    iQueryText = "match " + iQueryText;
+    queryText = "match " + queryText;
 
     final int queryLimit;
     final int displayLimit;
-    if (iQueryText.toLowerCase(Locale.ENGLISH).contains(" limit ")) {
+    if (queryText.toLowerCase(Locale.ENGLISH).contains(" limit ")) {
       queryLimit = -1;
       displayLimit = -1;
     } else {
@@ -1246,14 +1168,15 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     }
 
     final long start = System.currentTimeMillis();
-    List<Identifiable> result = new ArrayList<>();
-    ResultSet rs = currentDatabase.query(iQueryText);
+    List<RawPair<RID, Object>> result = new ArrayList<>();
+    ResultSet rs = currentDatabase.query(queryText);
     int count = 0;
     while (rs.hasNext() && (queryLimit < 0 || count < queryLimit)) {
-      result.add(rs.next().toEntity());
+      var resultItem = rs.next();
+      result.add(new RawPair<>(resultItem.getRecordId(), resultItem.toMap()));
     }
     rs.close();
-    setResultset(result);
+    currentResultSet = result;
 
     float elapsedSeconds = getElapsedSecs(start);
 
@@ -1268,71 +1191,6 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
   @ConsoleCommand(
       splitInWords = false,
-      description = "Move from current record by evaluating a predicate against current record")
-  public void move(
-      @ConsoleParameter(name = "text", description = "The sql predicate to evaluate") final String iText) {
-    if (iText == null) {
-      return;
-    }
-
-    if (currentRecord == null) {
-      return;
-    }
-
-    var context = new BasicCommandContext();
-    context.setDatabase(currentDatabase);
-
-    final Object result = new SQLPredicate(context, iText).evaluate(currentRecord, null,
-        null);
-
-    if (result != null) {
-      switch (result) {
-        case Identifiable identifiable -> {
-          setResultset(new ArrayList<>());
-          currentRecord = identifiable.getRecord(currentDatabase);
-          dumpRecordDetails();
-        }
-        case List<?> objects -> {
-          setResultset((List<Identifiable>) result);
-          dumpResultSet(-1);
-        }
-        case Iterator<?> iterator -> {
-          final List<Identifiable> list = new ArrayList<Identifiable>();
-          while (((Iterator) result).hasNext()) {
-            list.add(((Iterator<Identifiable>) result).next());
-          }
-          setResultset(list);
-          dumpResultSet(-1);
-        }
-        default -> setResultset(new ArrayList<>());
-      }
-    }
-  }
-
-  @ConsoleCommand(splitInWords = false, description = "Evaluate a predicate against current record")
-  public void eval(
-      @ConsoleParameter(name = "text", description = "The sql predicate to evaluate") final String iText) {
-    if (iText == null) {
-      return;
-    }
-
-    if (currentRecord == null) {
-      return;
-    }
-
-    var context = new BasicCommandContext();
-    context.setDatabase(currentDatabase);
-
-    final Object result = new SQLPredicate(context, iText).evaluate(currentRecord, null,
-        null);
-    if (result != null) {
-      out.println("\n" + result);
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  @ConsoleCommand(
-      splitInWords = false,
       description = "Execute a script containing multiple commands separated by ; or new line")
   public void script(
       @ConsoleParameter(name = "text", description = "Commands to execute, one per line")
@@ -1342,7 +1200,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     String[] splitted = iText.split(" ")[0].split(";")[0].split("\n")[0].split("\t");
     language = splitted[0];
     iText = iText.substring(language.length() + 1);
-    if (iText.trim().length() == 0) {
+    if (iText.trim().isEmpty()) {
       throw new IllegalArgumentException(
           "Missing language in script (sql, js, gremlin, etc.) as first argument");
     }
@@ -1350,7 +1208,6 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     executeServerSideScript(language, iText);
   }
 
-  @SuppressWarnings("unchecked")
   @ConsoleCommand(splitInWords = false, description = "Execute javascript commands in the console")
   public void js(
       @ConsoleParameter(
@@ -1365,36 +1222,17 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     resetResultSet();
 
     long start = System.currentTimeMillis();
-    while (true) {
-      try {
-        final CommandExecutorScript cmd = new CommandExecutorScript();
-        cmd.parse(currentDatabase, new CommandScript("Javascript", iText));
-
-        currentResult = cmd.execute(currentDatabase, null);
-        break;
-      } catch (RetryQueryException e) {
-        continue;
-      }
-    }
+    currentResultSet = currentDatabase.execute("JavaScript", iText).stream()
+        .map(result -> new RawPair<RID, Object>(result.getRecordId(), result.toMap())).toList();
     float elapsedSeconds = getElapsedSecs(start);
 
-    parseResult();
-
-    if (currentResultSet != null) {
-      dumpResultSet(-1);
-      message(
-          String.format(
-              "\nClient side script executed in %f sec(s). Returned %d records",
-              elapsedSeconds, currentResultSet.size()));
-    } else {
-      message(
-          String.format(
-              "\nClient side script executed in %f sec(s). Value returned is: %s",
-              elapsedSeconds, currentResult));
-    }
+    dumpResultSet(-1);
+    message(
+        String.format(
+            "\nClient side script executed in %f sec(s). Returned %d records",
+            elapsedSeconds, currentResultSet.size()));
   }
 
-  @SuppressWarnings("unchecked")
   @ConsoleCommand(
       splitInWords = false,
       description = "Execute javascript commands against a remote server")
@@ -1423,11 +1261,11 @@ public class ConsoleDatabaseApp extends ConsoleApplication
               "User permissions")
       String iPermissions) {
 
-    if (iServerUserName == null || iServerUserName.length() == 0) {
+    if (iServerUserName == null || iServerUserName.isEmpty()) {
       throw new IllegalArgumentException("User name null or empty");
     }
 
-    if (iPermissions == null || iPermissions.length() == 0) {
+    if (iPermissions == null || iPermissions.isEmpty()) {
       throw new IllegalArgumentException("User permissions null or empty");
     }
 
@@ -1454,7 +1292,6 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     }
   }
 
-  @SuppressWarnings("unchecked")
   @ConsoleCommand(
       description =
           "Drop a server user.",
@@ -1462,7 +1299,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
   public void dropServerUser(
       @ConsoleParameter(name = "user-name", description = "User name") String iServerUserName) {
 
-    if (iServerUserName == null || iServerUserName.length() == 0) {
+    if (iServerUserName == null || iServerUserName.isEmpty()) {
       throw new IllegalArgumentException("User name null or empty");
     }
 
@@ -1489,13 +1326,11 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     }
   }
 
-  @SuppressWarnings("unchecked")
   @ConsoleCommand(
       description =
           "Display all the server user names.",
       onlineHelp = "Console-Command-List-Server-User")
   public void listServerUsers() {
-
     final File serverCfgFile = new File("../config/youtrackdb-server-config.xml");
     if (!serverCfgFile.exists()) {
       throw new ConfigurationException("Cannot access to file " + serverCfgFile);
@@ -1667,37 +1502,6 @@ public class ConsoleDatabaseApp extends ConsoleApplication
   }
 
   @ConsoleCommand(
-      aliases = {"display"},
-      description = "Display current record attributes",
-      onlineHelp = "Console-Command-Display-Record")
-  public void displayRecord(
-      @ConsoleParameter(
-          name = "number",
-          description = "The number of the record in the most recent result set") final String iRecordNumber) {
-    checkForDatabase();
-
-    if (iRecordNumber == null || currentResultSet == null) {
-      checkCurrentObject();
-    } else {
-      int recNumber = Integer.parseInt(iRecordNumber);
-      if (currentResultSet.size() == 0) {
-        throw new SystemException(
-            "No result set where to find the requested record. Execute a query first.");
-      }
-
-      if (currentResultSet.size() <= recNumber) {
-        String resultSize = currentResultSet.size() > 0 ? "-" + (currentResultSet.size() - 1) : "";
-        throw new SystemException(
-            "The record requested is not part of current result set (0" + resultSize + ")");
-      }
-
-      setCurrentRecord(recNumber);
-    }
-
-    dumpRecordDetails();
-  }
-
-  @ConsoleCommand(
       aliases = {"status"},
       description = "Display information about the database",
       onlineHelp = "Console-Command-Info")
@@ -1707,10 +1511,6 @@ public class ConsoleDatabaseApp extends ConsoleApplication
           "\nCurrent database: " + currentDatabaseName + " (url=" + currentDatabase.getURL() + ")");
 
       currentDatabase.getMetadata().reload();
-
-      if (currentDatabase.isRemote()) {
-        listServers();
-      }
 
       listProperties();
       listClusters(null);
@@ -1730,70 +1530,57 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     message("\n\nDATABASE PROPERTIES");
 
     if (dbCfg.getProperties() != null) {
-      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
+      final List<RawPair<RID, Object>> resultSet = new ArrayList<>();
 
       if (dbCfg.getName() != null) {
-        resultSet.add(
-            new EntityImpl(currentDatabase).field("NAME", "Name").field("VALUE", dbCfg.getName()));
+        resultSet.add(new RawPair<>(null,
+            Map.of("NAME", "Name", "VALUE", dbCfg.getName())));
       }
 
-      resultSet.add(new EntityImpl(currentDatabase).field("NAME", "Version")
-          .field("VALUE", dbCfg.getVersion()));
+      resultSet.add(new RawPair<>(null, Map.of("NAME", "Version"
+          , "VALUE", dbCfg.getVersion())));
       resultSet.add(
-          new EntityImpl(currentDatabase)
-              .field("NAME", "Conflict-Strategy")
-              .field("VALUE", dbCfg.getConflictStrategy()));
+          new RawPair<>(null, Map.of("NAME", "Date-Format",
+              "VALUE", dbCfg.getDateFormat())));
       resultSet.add(
-          new EntityImpl(currentDatabase).field("NAME", "Date-Format")
-              .field("VALUE", dbCfg.getDateFormat()));
+          new RawPair<>(null, Map.of("NAME", "Datetime-Format"
+              , "VALUE", dbCfg.getDateTimeFormat())));
+      resultSet.add(new RawPair<>(null, Map.of("NAME", "Timezone",
+          "VALUE", dbCfg.getTimeZone().getID())));
+      resultSet.add(new RawPair<>(null, Map.of("NAME", "Locale-Country",
+          "VALUE", dbCfg.getLocaleCountry())));
+      resultSet.add(new RawPair<>(null, Map.of("NAME", "Locale-Language",
+          "VALUE", dbCfg.getLocaleLanguage())));
+      resultSet.add(new RawPair<>(null, Map.of("NAME", "Charset"
+          , "VALUE", dbCfg.getCharset())));
+      resultSet.add(new RawPair<>(null,
+          Map.of("NAME", "Schema-RID", "VALUE", dbCfg.getSchemaRecordId())));
       resultSet.add(
-          new EntityImpl(currentDatabase)
-              .field("NAME", "Datetime-Format")
-              .field("VALUE", dbCfg.getDateTimeFormat()));
-      resultSet.add(
-          new EntityImpl(currentDatabase).field("NAME", "Timezone")
-              .field("VALUE", dbCfg.getTimeZone().getID()));
-      resultSet.add(
-          new EntityImpl(currentDatabase).field("NAME", "Locale-Country")
-              .field("VALUE", dbCfg.getLocaleCountry()));
-      resultSet.add(
-          new EntityImpl(currentDatabase)
-              .field("NAME", "Locale-Language")
-              .field("VALUE", dbCfg.getLocaleLanguage()));
-      resultSet.add(new EntityImpl(currentDatabase).field("NAME", "Charset")
-          .field("VALUE", dbCfg.getCharset()));
-      resultSet.add(
-          new EntityImpl(currentDatabase)
-              .field("NAME", "Schema-RID")
-              .field("VALUE", dbCfg.getSchemaRecordId(), PropertyType.LINK));
-      resultSet.add(
-          new EntityImpl(currentDatabase)
-              .field("NAME", "Index-Manager-RID")
-              .field("VALUE", dbCfg.getIndexMgrRecordId(), PropertyType.LINK));
+          new RawPair<>(null,
+              Map.of("NAME", "Index-Manager-RID", "VALUE", dbCfg.getIndexMgrRecordId())));
 
       final TableFormatter formatter = new TableFormatter(this);
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(currentDatabase, resultSet, -1);
+      formatter.writeRecords(resultSet, -1);
 
       message("\n");
 
       if (!dbCfg.getProperties().isEmpty()) {
         message("\n\nDATABASE CUSTOM PROPERTIES:");
 
-        final List<EntityImpl> dbResultSet = new ArrayList<EntityImpl>();
-
+        final List<RawPair<RID, Object>> dbResultSet = new ArrayList<>();
         for (StorageEntryConfiguration cfg : dbCfg.getProperties()) {
           dbResultSet.add(
-              new EntityImpl(currentDatabase).field("NAME", cfg.name).field("VALUE", cfg.value));
+              new RawPair<>(null, Map.of("NAME", cfg.name, "VALUE", cfg.value)));
         }
 
         final TableFormatter dbFormatter = new TableFormatter(this);
         formatter.setMaxWidthSize(getConsoleWidth());
         formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-        dbFormatter.writeRecords(currentDatabase, dbResultSet, -1);
+        dbFormatter.writeRecords(dbResultSet, -1);
       }
     }
   }
@@ -1842,7 +1629,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
     final StringBuilder clusters = new StringBuilder();
     for (int clId : cls.getClusterIds()) {
-      if (clusters.length() > 0) {
+      if (!clusters.isEmpty()) {
         clusters.append(", ");
       }
 
@@ -1868,28 +1655,27 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       out.println();
     }
 
-    if (cls.properties(currentDatabase).size() > 0) {
+    if (!cls.properties(currentDatabase).isEmpty()) {
       message("\n\nPROPERTIES");
-
-      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
+      final List<RawPair<RID, Object>> resultSet = new ArrayList<>();
 
       for (final Property p : cls.properties(currentDatabase)) {
         try {
-          final EntityImpl row = new EntityImpl(currentDatabase);
-          resultSet.add(row);
+          var row = new HashMap<>();
+          resultSet.add(new RawPair<>(null, row));
 
-          row.field("NAME", p.getName());
-          row.field("TYPE", (Object) p.getType());
-          row.field(
+          row.put("NAME", p.getName());
+          row.put("TYPE", p.getType());
+          row.put(
               "LINKED-TYPE/CLASS",
               p.getLinkedClass() != null ? p.getLinkedClass() : p.getLinkedType());
-          row.field("MANDATORY", p.isMandatory());
-          row.field("READONLY", p.isReadonly());
-          row.field("NOT-NULL", p.isNotNull());
-          row.field("MIN", p.getMin() != null ? p.getMin() : "");
-          row.field("MAX", p.getMax() != null ? p.getMax() : "");
-          row.field("COLLATE", p.getCollate() != null ? p.getCollate().getName() : "");
-          row.field("DEFAULT", p.getDefaultValue() != null ? p.getDefaultValue() : "");
+          row.put("MANDATORY", p.isMandatory());
+          row.put("READONLY", p.isReadonly());
+          row.put("NOT-NULL", p.isNotNull());
+          row.put("MIN", p.getMin() != null ? p.getMin() : "");
+          row.put("MAX", p.getMax() != null ? p.getMax() : "");
+          row.put("COLLATE", p.getCollate() != null ? p.getCollate().getName() : "");
+          row.put("DEFAULT", p.getDefaultValue() != null ? p.getDefaultValue() : "");
 
         } catch (Exception ignored) {
         }
@@ -1899,41 +1685,41 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(currentDatabase, resultSet, -1);
+      formatter.writeRecords(resultSet, -1);
     }
 
     final Set<String> indexes = cls.getClassIndexes(currentDatabase);
     if (!indexes.isEmpty()) {
       message("\n\nINDEXES (" + indexes.size() + " altogether)");
 
-      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
+      final List<RawPair<RID, Object>> resultSet = new ArrayList<>();
 
       for (final String index : indexes) {
-        final EntityImpl row = new EntityImpl(currentDatabase);
-        resultSet.add(row);
+        var row = new HashMap<>();
+        resultSet.add(new RawPair<>(null, row));
 
-        row.field("NAME", index);
+        row.put("NAME", index);
       }
 
       final TableFormatter formatter = new TableFormatter(this);
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(currentDatabase, resultSet, -1);
+      formatter.writeRecords(resultSet, -1);
     }
 
     if (!cls.getCustomKeys().isEmpty()) {
       message("\n\nCUSTOM ATTRIBUTES");
 
-      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
+      final List<RawPair<RID, Object>> resultSet = new ArrayList<>();
 
       for (final String k : cls.getCustomKeys()) {
         try {
-          final EntityImpl row = new EntityImpl(currentDatabase);
-          resultSet.add(row);
+          var row = new HashMap<>();
+          resultSet.add(new RawPair<>(null, row));
 
-          row.field("NAME", k);
-          row.field("VALUE", cls.getCustom(k));
+          row.put("NAME", k);
+          row.put("VALUE", cls.getCustom(k));
 
         } catch (Exception ignored) {
           // IGNORED
@@ -1944,7 +1730,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(currentDatabase, resultSet, -1);
+      formatter.writeRecords(resultSet, -1);
     }
   }
 
@@ -1996,18 +1782,18 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     message("\nLinked class.........: " + prop.getLinkedClass());
     message("\nLinked type..........: " + prop.getLinkedType());
 
-    if (prop.getCustomKeys().size() > 0) {
+    if (!prop.getCustomKeys().isEmpty()) {
       message("\n\nCUSTOM ATTRIBUTES");
 
-      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
+      final List<RawPair<RID, Object>> resultSet = new ArrayList<>();
 
       for (final String k : prop.getCustomKeys()) {
         try {
-          final EntityImpl row = new EntityImpl(currentDatabase);
-          resultSet.add(row);
+          var row = new HashMap<>();
+          resultSet.add(new RawPair<>(null, row));
 
-          row.field("NAME", k);
-          row.field("VALUE", prop.getCustom(k));
+          row.put("NAME", k);
+          row.put("VALUE", prop.getCustom(k));
 
         } catch (Exception ignored) {
         }
@@ -2017,26 +1803,26 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(currentDatabase, resultSet, -1);
+      formatter.writeRecords(resultSet, -1);
     }
 
     final Collection<String> indexes = prop.getAllIndexes(currentDatabase);
     if (!indexes.isEmpty()) {
       message("\n\nINDEXES (" + indexes.size() + " altogether)");
 
-      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
+      final List<RawPair<RID, Object>> resultSet = new ArrayList<>();
 
       for (final String index : indexes) {
-        final EntityImpl row = new EntityImpl(currentDatabase);
-        resultSet.add(row);
+        var row = new HashMap<>();
+        resultSet.add(new RawPair<>(null, row));
 
-        row.field("NAME", index);
+        row.put("NAME", index);
       }
       final TableFormatter formatter = new TableFormatter(this);
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(currentDatabase, resultSet, -1);
+      formatter.writeRecords(resultSet, -1);
     }
   }
 
@@ -2048,7 +1834,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     if (currentDatabaseName != null) {
       message("\n\nINDEXES");
 
-      final List<EntityImpl> resultSet = new ArrayList<>();
+      final List<RawPair<RID, Object>> resultSet = new ArrayList<>();
 
       int totalIndexes = 0;
       long totalRecords = 0;
@@ -2061,23 +1847,22 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       long totalIndexedRecords = 0;
 
       for (final Index index : indexes) {
-        final EntityImpl row = new EntityImpl(currentDatabase);
-        resultSet.add(row);
+        var row = new HashMap<String, Object>();
+        resultSet.add(new RawPair<>(null, row));
 
         final long indexSize = index.getSize(
             currentDatabase); // getInternal doesn't work in remote...
         totalIndexedRecords += indexSize;
 
-        row.field("NAME", index.getName());
-        row.field("TYPE", index.getType());
-        row.field("RECORDS", indexSize);
-
+        row.put("NAME", index.getName());
+        row.put("TYPE", index.getType());
+        row.put("RECORDS", indexSize);
         try {
           final IndexDefinition indexDefinition = index.getDefinition();
           final long size = index.getInternal().size(currentDatabase);
           if (indexDefinition != null) {
-            row.field("CLASS", indexDefinition.getClassName());
-            row.field("COLLATE", indexDefinition.getCollate().getName());
+            row.put("CLASS", indexDefinition.getClassName());
+            row.put("COLLATE", indexDefinition.getCollate().getName());
 
             final List<String> fields = indexDefinition.getFields();
             final StringBuilder buffer = new StringBuilder();
@@ -2092,7 +1877,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
               buffer.append(")");
             }
 
-            row.field("FIELDS", buffer.toString());
+            row.put("FIELDS", buffer.toString());
           }
 
           totalIndexes++;
@@ -2107,12 +1892,11 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
       formatter.setColumnAlignment("RECORDS", TableFormatter.ALIGNMENT.RIGHT);
 
-      final EntityImpl footer = new EntityImpl(currentDatabase);
-      footer.field("NAME", "TOTAL");
-      footer.field("RECORDS", totalIndexedRecords);
+      var footer = Map.of("NAME", "TOTAL",
+          "RECORDS", String.valueOf(totalIndexedRecords));
       formatter.setFooter(footer);
 
-      formatter.writeRecords(currentDatabase, resultSet, -1);
+      formatter.writeRecords(resultSet, -1);
 
     } else {
       message("\nNo database selected yet.");
@@ -2133,7 +1917,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     if (currentDatabaseName != null) {
       message("\n\nCLUSTERS (collections)");
 
-      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
+      final List<RawPair<RID, Object>> resultSet = new ArrayList<>();
 
       int clusterId;
       long totalElements = 0;
@@ -2141,24 +1925,14 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       long totalTombstones = 0;
       long count;
 
-      final List<String> clusters = new ArrayList<String>(currentDatabase.getClusterNames());
+      final List<String> clusters = new ArrayList<>(currentDatabase.getClusterNames());
       Collections.sort(clusters);
 
-      EntityImpl dClusters = null;
-      final EntityImpl dCfg = getDistributedConfiguration();
-      if (dCfg != null) {
-        final EntityImpl dDatabaseCfg = dCfg.field("database");
-        if (dDatabaseCfg != null) {
-          dClusters = dDatabaseCfg.field("clusters");
-        }
-      }
-
       final boolean isRemote = currentDatabase.isRemote();
-
       for (String clusterName : clusters) {
         try {
-          final EntityImpl row = new EntityImpl(currentDatabase);
-          resultSet.add(row);
+          var row = new HashMap<String, Object>();
+          resultSet.add(new RawPair<>(null, row));
 
           clusterId = currentDatabase.getClusterIdByName(clusterName);
 
@@ -2176,40 +1950,15 @@ public class ConsoleDatabaseApp extends ConsoleApplication
                   .getClassByClusterId(clusterId);
           final String className = Optional.ofNullable(cls).map(SchemaClass::getName).orElse(null);
 
-          row.field("NAME", clusterName);
-          row.field("ID", clusterId);
-          row.field("CLASS", className);
-          if (!currentDatabase.isRemote()) {
-            row.field("CONFLICT-STRATEGY", conflictStrategy);
-          }
-          row.field("COUNT", count);
-
-          if (dClusters != null) {
-            EntityImpl dClusterCfg = dClusters.field(clusterName);
-            if (dClusterCfg == null) {
-              dClusterCfg = dClusters.field("*");
-            }
-
-            if (dClusterCfg != null) {
-              final List<String> servers = new ArrayList<String>(dClusterCfg.field("servers"));
-              final boolean newNode = servers.remove("<NEW_NODE>");
-              if (!servers.isEmpty()) {
-                row.field("OWNER_SERVER", servers.get(0));
-
-                if (servers.size() > 1) {
-                  servers.remove(0);
-
-                  row.field("OTHER_SERVERS", servers);
-                }
-              }
-              row.field("AUTO_DEPLOY_NEW_NODE", newNode);
-            }
-          }
-
+          row.put("NAME", clusterName);
+          row.put("ID", clusterId);
+          row.put("CLASS", className);
+          row.put("COUNT", count);
         } catch (Exception e) {
           if (e instanceof YTIOException) {
             break;
           }
+          throw e;
         }
       }
 
@@ -2219,28 +1968,13 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
       formatter.setColumnAlignment("ID", TableFormatter.ALIGNMENT.RIGHT);
       formatter.setColumnAlignment("COUNT", TableFormatter.ALIGNMENT.RIGHT);
-      formatter.setColumnAlignment("OWNER_SERVER", TableFormatter.ALIGNMENT.CENTER);
-      formatter.setColumnAlignment("OTHER_SERVERS", TableFormatter.ALIGNMENT.CENTER);
-      formatter.setColumnAlignment("AUTO_DEPLOY_NEW_NODE", TableFormatter.ALIGNMENT.CENTER);
-      if (!isRemote) {
-        formatter.setColumnAlignment("SPACE-USED", TableFormatter.ALIGNMENT.RIGHT);
-        if (commandOptions.containsKey("-v")) {
-          formatter.setColumnAlignment("TOMBSTONES", TableFormatter.ALIGNMENT.RIGHT);
-        }
-      }
 
-      final EntityImpl footer = new EntityImpl(currentDatabase);
-      footer.field("NAME", "TOTAL");
-      footer.field("COUNT", totalElements);
-      if (!isRemote) {
-        footer.field("SPACE-USED", FileUtils.getSizeAsString(totalSpaceUsed));
-        if (commandOptions.containsKey("-v")) {
-          footer.field("TOMBSTONES", totalTombstones);
-        }
-      }
+      var footer = new HashMap<String, String>();
+      footer.put("NAME", "TOTAL");
+      footer.put("COUNT", String.valueOf(totalElements));
       formatter.setFooter(footer);
 
-      formatter.writeRecords(currentDatabase, resultSet, -1);
+      formatter.writeRecords(resultSet, -1);
 
       message("\n");
 
@@ -2257,27 +1991,21 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     if (currentDatabaseName != null) {
       message("\n\nCLASSES");
 
-      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
+      final List<RawPair<RID, Object>> resultSet = new ArrayList<>();
 
       long totalElements = 0;
       long count;
 
       currentDatabase.getMetadata().reload();
       final List<SchemaClass> classes =
-          new ArrayList<SchemaClass>(
+          new ArrayList<>(
               currentDatabase.getMetadata().getImmutableSchemaSnapshot().getClasses());
-      Collections.sort(
-          classes,
-          new Comparator<SchemaClass>() {
-            public int compare(SchemaClass o1, SchemaClass o2) {
-              return o1.getName().compareToIgnoreCase(o2.getName());
-            }
-          });
+      classes.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
 
       for (SchemaClass cls : classes) {
         try {
-          final EntityImpl row = new EntityImpl(currentDatabase);
-          resultSet.add(row);
+          final var row = new HashMap<String, Object>();
+          resultSet.add(new RawPair<>(null, row));
 
           final StringBuilder clusters = new StringBuilder(1024);
           if (cls.isAbstract()) {
@@ -2302,10 +2030,10 @@ public class ConsoleDatabaseApp extends ConsoleApplication
           final String superClasses =
               cls.hasSuperClasses() ? Arrays.toString(cls.getSuperClassesNames().toArray()) : "";
 
-          row.field("NAME", cls.getName());
-          row.field("SUPER-CLASSES", superClasses);
-          row.field("CLUSTERS", clusters);
-          row.field("COUNT", count);
+          row.put("NAME", cls.getName());
+          row.put("SUPER-CLASSES", superClasses);
+          row.put("CLUSTERS", clusters);
+          row.put("COUNT", count);
 
         } catch (Exception ignored) {
           // IGNORED
@@ -2319,13 +2047,12 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
       formatter.setColumnAlignment("COUNT", TableFormatter.ALIGNMENT.RIGHT);
 
-      final EntityImpl footer = new EntityImpl(currentDatabase);
-      footer.field("NAME", "TOTAL");
-      footer.field("COUNT", totalElements);
-
+      var footer = new HashMap<String, String>();
+      footer.put("NAME", "TOTAL");
+      footer.put("COUNT", String.valueOf(totalElements));
       formatter.setFooter(footer);
 
-      formatter.writeRecords(currentDatabase, resultSet, -1);
+      formatter.writeRecords(resultSet, -1);
 
       message("\n");
 
@@ -2333,69 +2060,6 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       message("\nNo database selected yet.");
     }
   }
-
-  @ConsoleCommand(
-      description = "Display all the connected servers that manage current database",
-      onlineHelp = "Console-Command-List-Servers")
-  public void listServers() {
-
-    final EntityImpl distribCfg = getDistributedConfiguration();
-    if (distribCfg == null) {
-      message("\n\nDistributed configuration is not active, cannot retrieve server list");
-      return;
-    }
-
-    final List<Identifiable> servers = new ArrayList<Identifiable>();
-
-    final Collection<EntityImpl> members = distribCfg.field("members");
-
-    if (members != null) {
-      message("\n\nCONFIGURED SERVERS");
-
-      for (EntityImpl m : members) {
-        final EntityImpl server = new EntityImpl(currentDatabase);
-
-        server.field("Name", m.<Object>field("name"));
-        server.field("Status", m.<Object>field("status"));
-        server.field("Connections", m.<Object>field("connections"));
-        server.field("StartedOn", m.<Object>field("startedOn"));
-
-        final Collection<Map> listeners = m.field("listeners");
-        if (listeners != null) {
-          for (Map l : listeners) {
-            final String protocol = (String) l.get("protocol");
-            if (protocol.equals("ONetworkProtocolBinary")) {
-              server.field("Binary", l.get("listen"));
-            } else if (protocol.equals("ONetworkProtocolHttpDb")) {
-              server.field("HTTP", l.get("listen"));
-            }
-          }
-        }
-
-        final long usedMem = m.field("usedMemory");
-        final long freeMem = m.field("freeMemory");
-        final long maxMem = m.field("maxMemory");
-
-        server.field(
-            "UsedMemory",
-            String.format(
-                "%s (%.2f%%)",
-                FileUtils.getSizeAsString(usedMem), ((float) usedMem / (float) maxMem) * 100));
-        server.field(
-            "FreeMemory",
-            String.format(
-                "%s (%.2f%%)",
-                FileUtils.getSizeAsString(freeMem), ((float) freeMem / (float) maxMem) * 100));
-        server.field("MaxMemory", FileUtils.getSizeAsString(maxMem));
-
-        servers.add(server);
-      }
-    }
-    currentResultSet = servers;
-    new TableFormatter(this).setMaxWidthSize(getConsoleWidth())
-        .writeRecords(currentDatabase, servers, -1);
-  }
-
 
   @ConsoleCommand(description = "Check database integrity", splitInWords = false)
   public void checkDatabase(
@@ -2516,9 +2180,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
         final DatabaseCompare compare = new DatabaseCompare(firstDB, secondDB, this);
 
         compare.setAutoDetectExportImportMap(
-            autoDiscoveringMappingData != null
-                ? Boolean.valueOf(autoDiscoveringMappingData)
-                : true);
+            autoDiscoveringMappingData == null || Boolean.parseBoolean(autoDiscoveringMappingData));
         compare.setCompareIndexMetadata(true);
         compare.compare();
       } catch (DatabaseExportException e) {
@@ -2606,7 +2268,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     }
 
     final String fileName =
-        items.size() <= 0 || items.get(1).charAt(0) == '-' ? null : items.get(1);
+        items.get(1).charAt(0) == '-' ? null : items.get(1);
 
     if (fileName == null || fileName.trim().isEmpty()) {
       try {
@@ -2689,59 +2351,25 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     }
   }
 
-  @ConsoleCommand(
-      description = "Export the current record in the requested format",
-      onlineHelp = "Console-Command-Export-Record")
-  public void exportRecord(
-      @ConsoleParameter(name = "format", description = "Format, such as 'json'") final String iFormat,
-      @ConsoleParameter(name = "options", description = "Options", optional = true) String iOptions)
-      throws IOException {
-    checkForDatabase();
-    checkCurrentObject();
-
-    final RecordSerializer serializer =
-        RecordSerializerFactory.instance().getFormat(iFormat.toLowerCase(Locale.ENGLISH));
-
-    if (serializer == null) {
-      message("\nERROR: Format '" + iFormat + "' was not found.");
-      printSupportedSerializerFormat();
-      return;
-    } else if (!(serializer instanceof RecordSerializerStringAbstract)) {
-      message("\nERROR: Format '" + iFormat + "' does not export as text.");
-      printSupportedSerializerFormat();
-      return;
-    }
-
-    if (iOptions == null || iOptions.length() <= 0) {
-      iOptions = "rid,version,class,type,keepTypes,alwaysFetchEmbedded,fetchPlan:*:0,prettyPrint";
-    }
-
-    try {
-      out.println(currentRecord.toJSON(iOptions));
-    } catch (DatabaseExportException e) {
-      printError(e);
-    }
-  }
-
   @ConsoleCommand(description = "Return all configured properties")
   public void properties() {
     message("\nPROPERTIES:");
 
-    final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
+    final List<RawPair<RID, Object>> resultSet = new ArrayList<>();
 
     for (Entry<String, String> p : properties.entrySet()) {
-      final EntityImpl row = new EntityImpl(currentDatabase);
-      resultSet.add(row);
+      final var row = new HashMap<>();
+      resultSet.add(new RawPair<>(null, row));
 
-      row.field("NAME", p.getKey());
-      row.field("VALUE", p.getValue());
+      row.put("NAME", p.getKey());
+      row.put("VALUE", p.getValue());
     }
 
     final TableFormatter formatter = new TableFormatter(this);
     formatter.setMaxWidthSize(getConsoleWidth());
     formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-    formatter.writeRecords(currentDatabase, resultSet, -1);
+    formatter.writeRecords(resultSet, -1);
 
     message("\n");
   }
@@ -2825,6 +2453,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     out.println(iConfigName + " = " + value);
   }
 
+  @SuppressWarnings("MethodMayBeStatic")
   @ConsoleCommand(description = "Sleep X milliseconds")
   public void sleep(final String iTime) {
     try {
@@ -2865,41 +2494,41 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
       message("\nREMOTE SERVER CONFIGURATION");
 
-      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
+      final List<RawPair<RID, Object>> resultSet = new ArrayList<>();
 
       for (Entry<String, String> p : values.entrySet()) {
-        final EntityImpl row = new EntityImpl(currentDatabase);
-        resultSet.add(row);
+        var row = new HashMap<String, Object>();
+        resultSet.add(new RawPair<>(null, row));
 
-        row.field("NAME", p.getKey());
-        row.field("VALUE", p.getValue());
+        row.put("NAME", p.getKey());
+        row.put("VALUE", p.getValue());
       }
 
       final TableFormatter formatter = new TableFormatter(this);
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(currentDatabase, resultSet, -1);
+      formatter.writeRecords(resultSet, -1);
 
     } else {
       // LOCAL STORAGE
       message("\nLOCAL SERVER CONFIGURATION");
 
-      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
+      final List<RawPair<RID, Object>> resultSet = new ArrayList<>();
 
       for (GlobalConfiguration cfg : GlobalConfiguration.values()) {
-        final EntityImpl row = new EntityImpl(currentDatabase);
-        resultSet.add(row);
+        var row = new HashMap<>();
+        resultSet.add(new RawPair<>(null, row));
 
-        row.field("NAME", cfg.getKey());
-        row.field("VALUE", (Object) cfg.getValue());
+        row.put("NAME", cfg.getKey());
+        row.put("VALUE", cfg.getValue());
       }
 
       final TableFormatter formatter = new TableFormatter(this);
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(currentDatabase, resultSet, -1);
+      formatter.writeRecords(resultSet, -1);
     }
 
     message("\n");
@@ -2945,40 +2574,10 @@ public class ConsoleDatabaseApp extends ConsoleApplication
   /**
    * Should be used only by console commands
    */
-  public Record getCurrentRecord() {
-    return currentRecord;
-  }
-
-  /**
-   * Should be used only by console commands
-   */
-  public List<Identifiable> getCurrentResultSet() {
+  public List<RawPair<RID, Object>> getCurrentResultSet() {
     return currentResultSet;
   }
 
-  /**
-   * Should be used only by console commands
-   */
-  public void loadRecordInternal(String recordId) {
-    checkForDatabase();
-
-    currentRecord = currentDatabase.load(new RecordId(recordId));
-    displayRecord(null);
-
-    message("\nOK");
-  }
-
-  /**
-   * Should be used only by console commands
-   */
-  public void reloadRecordInternal(String iRecordId) {
-    checkForDatabase();
-
-    currentRecord = currentDatabase.executeReadRecord(new RecordId(iRecordId));
-    displayRecord(null);
-
-    message("\nOK");
-  }
 
   /**
    * console command to open a db
@@ -2986,10 +2585,6 @@ public class ConsoleDatabaseApp extends ConsoleApplication
    * <p>usage: <code>
    * open dbName dbUser dbPwd
    * </code>
-   *
-   * @param dbName
-   * @param user
-   * @param password
    */
   @ConsoleCommand(description = "Open a database", onlineHelp = "Console-Command-Use")
   public void open(
@@ -3005,13 +2600,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     currentDatabase = (DatabaseSessionInternal) youTrackDB.open(dbName, user, password);
 
     currentDatabaseName = currentDatabase.getName();
-
     message("OK");
-
-    final EntityImpl distribCfg = getDistributedConfiguration();
-    if (distribCfg != null) {
-      listServers();
-    }
   }
 
   @Override
@@ -3032,16 +2621,16 @@ public class ConsoleDatabaseApp extends ConsoleApplication
           }
           ResultSet rs = youTrackDB.execute(iCommand);
           int count = 0;
-          List<Identifiable> result = new ArrayList<>();
+          List<RawPair<RID, Object>> result = new ArrayList<>();
           while (rs.hasNext() && (displayLimit < 0 || count < displayLimit)) {
             Result item = rs.next();
             if (item.isBlob()) {
-              result.add(item.getBlob().get());
+              result.add(new RawPair<>(item.getRecordId(), item.getBlob().orElseThrow()));
             } else {
-              result.add(item.toEntity());
+              result.add(new RawPair<>(item.getRecordId(), item.toMap()));
             }
           }
-          setResultset(result);
+          currentResultSet = result;
           dumpResultSet(displayLimit);
           return RESULT.OK;
         } catch (CommandExecutionException e) {
@@ -3068,15 +2657,11 @@ public class ConsoleDatabaseApp extends ConsoleApplication
    * connect env remote:localhost root root
    * <p>
    * connect env embedded:. root root
-   *
    * </code>
-   *
-   * @param iCommand
-   * @return
    */
   private RESULT connectEnv(String iCommand) {
     String[] p = iCommand.split(" ");
-    List<String> parts = Arrays.stream(p).filter(x -> x.length() > 0).collect(Collectors.toList());
+    List<String> parts = Arrays.stream(p).filter(x -> !x.isEmpty()).toList();
     if (parts.size() < 3) {
       error(String.format("\n!Invalid syntax: '%s'", iCommand));
       return RESULT.ERROR;
@@ -3118,14 +2703,6 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     }
   }
 
-  /**
-   * Should be used only by console commands
-   */
-  protected void checkCurrentObject() {
-    if (currentRecord == null) {
-      throw new SystemException("The is no current object selected: create a new one or load it");
-    }
-  }
 
   public String ask(final String iText) {
     out.print(iText);
@@ -3207,35 +2784,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       youTrackDB.close();
     }
     currentResultSet = null;
-    currentRecord = null;
-    currentResult = null;
     commandBuffer.setLength(0);
-  }
-
-  protected void dumpDistributedConfiguration(final boolean iForce) {
-    if (currentDatabase == null) {
-      return;
-    }
-
-    if (currentDatabase.isRemote()) {
-      final StorageRemote stg = ((DatabaseSessionRemote) currentDatabase).getStorageRemote();
-      final EntityImpl distributedCfg = stg.getClusterConfiguration();
-      if (distributedCfg != null && !distributedCfg.isEmpty()) {
-        message("\n\nDISTRIBUTED CONFIGURATION:\n" + distributedCfg.toJSON("prettyPrint"));
-      } else if (iForce) {
-        message("\n\nDISTRIBUTED CONFIGURATION: none (YouTrackDB is running in standalone mode)");
-      }
-    }
-  }
-
-  protected EntityImpl getDistributedConfiguration() {
-    if (currentDatabase != null) {
-      final Storage stg = currentDatabase.getStorage();
-      if (stg instanceof StorageRemote) {
-        return ((StorageRemote) stg).getClusterConfiguration();
-      }
-    }
-    return null;
   }
 
   @Override
@@ -3247,7 +2796,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
   protected void onBefore() {
     printApplicationInfo();
 
-    setResultset(new ArrayList<Identifiable>());
+    currentResultSet = new ArrayList<>();
 
     // DISABLE THE NETWORK AND STORAGE TIMEOUTS
     properties.put(ConsoleProperties.LIMIT, "20");
@@ -3262,16 +2811,6 @@ public class ConsoleDatabaseApp extends ConsoleApplication
         ConsoleProperties.COMPATIBILITY_LEVEL, "" + ConsoleProperties.COMPATIBILITY_LEVEL_LATEST);
   }
 
-  protected Identifiable setCurrentRecord(final int iIndex) {
-    currentRecordIdx = iIndex;
-    if (iIndex < currentResultSet.size()) {
-      currentRecord = (RecordAbstract) currentResultSet.get(iIndex);
-    } else {
-      currentRecord = null;
-    }
-    return currentRecord;
-  }
-
   protected void printApplicationInfo() {
     message(
         "\nYouTrackDB console v." + YouTrackDBConstants.getVersion() + " "
@@ -3283,10 +2822,10 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     new TableFormatter(this)
         .setMaxWidthSize(getConsoleWidth())
         .setMaxMultiValueEntries(getMaxMultiValueEntries())
-        .writeRecords(currentDatabase, currentResultSet, limit);
+        .writeRecords(currentResultSet, limit);
   }
 
-  protected float getElapsedSecs(final long start) {
+  protected static float getElapsedSecs(final long start) {
     return (float) (System.currentTimeMillis() - start) / 1000;
   }
 
@@ -3340,7 +2879,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       buffer.append(")");
     }
 
-    if (buffer.length() > 0) {
+    if (!buffer.isEmpty()) {
       buffer.append("}");
     }
 
@@ -3352,72 +2891,32 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     return String.format("orientdb%s> ", getContext());
   }
 
-  protected void parseResult() {
-    setResultset(null);
-
-    if (currentResult instanceof Map<?, ?>) {
-      return;
-    }
-
-    final Object first = MultiValue.getFirstValue(currentResult);
-
-    if (first instanceof Identifiable) {
-      if (currentResult instanceof List<?>) {
-        currentResultSet = (List<Identifiable>) currentResult;
-      } else if (currentResult instanceof Collection<?>) {
-        currentResultSet = new ArrayList<Identifiable>();
-        currentResultSet.addAll((Collection<? extends Identifiable>) currentResult);
-      } else if (currentResult.getClass().isArray()) {
-        currentResultSet = new ArrayList<Identifiable>();
-        Collections.addAll(currentResultSet, (Identifiable[]) currentResult);
-      }
-
-      setResultset(currentResultSet);
-    }
-  }
-
-  protected void setResultset(final List<Identifiable> iResultset) {
-    currentResultSet = iResultset;
-    currentRecordIdx = 0;
-    currentRecord =
-        iResultset == null || iResultset.isEmpty()
-            ? null
-            : (RecordAbstract) iResultset.get(0).getRecord(currentDatabase);
+  protected void setResultSet(final List<RawPair<RID, Object>> iResultSet) {
+    currentResultSet = iResultSet;
   }
 
   protected void resetResultSet() {
     currentResultSet = null;
-    currentRecord = null;
   }
 
-  protected void executeServerSideScript(final String iLanguage, final String iText) {
-    if (iText == null) {
+  protected void executeServerSideScript(final String iLanguage, final String script) {
+    if (script == null) {
       return;
     }
 
     resetResultSet();
-
     long start = System.currentTimeMillis();
-
-    ResultSet rs = currentDatabase.execute(iLanguage, iText);
-    currentResult = rs.stream().map(x -> x.toEntity()).collect(Collectors.toList());
+    ResultSet rs = currentDatabase.execute(iLanguage, script);
+    currentResultSet = rs.stream().map(x -> new RawPair<RID, Object>(x.getRecordId(), x.toMap()))
+        .toList();
     rs.close();
     float elapsedSeconds = getElapsedSecs(start);
 
-    parseResult();
-    if (currentResultSet != null) {
-      dumpResultSet(-1);
-      message(
-          String.format(
-              "\nServer side script executed in %f sec(s). Returned %d records",
-              elapsedSeconds, currentResultSet.size()));
-    } else {
-      String lineFeed = currentResult instanceof Map<?, ?> ? "\n" : "";
-      message(
-          String.format(
-              "\nServer side script executed in %f sec(s). Value returned is: %s%s",
-              elapsedSeconds, lineFeed, currentResult));
-    }
+    dumpResultSet(-1);
+    message(
+        String.format(
+            "\nServer side script executed in %f sec(s). Returned %d records",
+            elapsedSeconds, currentResultSet.size()));
   }
 
   protected Map<String, List<String>> parseOptions(final String iOptions) {
@@ -3447,90 +2946,6 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     return maxMultiValueEntries;
   }
 
-  private void dumpRecordDetails() {
-    if (currentRecord == null) {
-      return;
-    } else if (currentRecord instanceof EntityImpl rec) {
-      if (rec.getClassName() != null || rec.getIdentity().isValid()) {
-        message(
-            String.format(
-                "\nENTITY @class:%s @rid:%s @version:%d",
-                rec.getClassName(), rec.getIdentity().toString(), rec.getVersion()));
-      }
-
-      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
-
-      Object value;
-      for (String fieldName : rec.getPropertyNames()) {
-        value = rec.getProperty(fieldName);
-        if (value instanceof byte[]) {
-          value = "byte[" + ((byte[]) value).length + "]";
-        } else if (value instanceof Iterator<?>) {
-          final List<Object> coll = new ArrayList<Object>();
-          while (((Iterator<?>) value).hasNext()) {
-            coll.add(((Iterator<?>) value).next());
-          }
-          value = coll;
-        } else if (MultiValue.isMultiValue(value)) {
-          value =
-              TableFormatter.getPrettyFieldMultiValue(
-                  MultiValue.getMultiValueIterator(value), getMaxMultiValueEntries());
-        }
-
-        final EntityImpl row = new EntityImpl(currentDatabase);
-        resultSet.add(row);
-
-        row.field("NAME", fieldName);
-        row.field("VALUE", value);
-      }
-
-      final TableFormatter formatter = new TableFormatter(this);
-      formatter.setMaxWidthSize(getConsoleWidth());
-      formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
-
-      formatter.writeRecords(currentDatabase, resultSet, -1);
-
-    } else if (currentRecord instanceof Blob rec) {
-      message(
-          "\n"
-              + "+-------------------------------------------------------------------------------------------------+");
-      message(
-          String.format(
-              "\n| Bytes    - @rid: %s @version: %d",
-              rec.getIdentity().toString(), rec.getVersion()));
-      message(
-          "\n"
-              + "+-------------------------------------------------------------------------------------------------+");
-
-      final byte[] value = ((RecordAbstract) rec).toStream();
-      final int max =
-          Math.min(
-              Integer.parseInt(properties.get(ConsoleProperties.MAX_BINARY_DISPLAY)),
-              Array.getLength(value));
-      for (int i = 0; i < max; ++i) {
-        message(String.format("%03d", Array.getByte(value, i)));
-      }
-      message(
-          "\n"
-              + "+-------------------------------------------------------------------------------------------------+");
-
-    } else {
-      message(
-          "\n"
-              + "+-------------------------------------------------------------------------------------------------+");
-      message(
-          String.format(
-              "\n| %s - record id: %s   v.%d",
-              currentRecord.getClass().getSimpleName(),
-              currentRecord.getIdentity().toString(),
-              currentRecord.getVersion()));
-      message(
-          "\n"
-              + "+-------------------------------------------------------------------------------------------------+");
-    }
-    out.println();
-  }
-
   private void printSupportedSerializerFormat() {
     message("\nSupported formats are:");
 
@@ -3543,21 +2958,26 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
   private void browseRecords(final IdentifiableIterator<?> it) {
     final int limit = Integer.parseInt(properties.get(ConsoleProperties.LIMIT));
-
     final TableFormatter tableFormatter =
         new TableFormatter(this)
             .setMaxWidthSize(getConsoleWidth())
             .setMaxMultiValueEntries(maxMultiValueEntries);
 
-    setResultset(new ArrayList<Identifiable>());
+    currentResultSet = new ArrayList<>();
     while (it.hasNext() && currentResultSet.size() <= limit) {
-      currentResultSet.add(it.next());
+      var identifialble = it.next();
+      var record = identifialble.getRecord(currentDatabase);
+      if (record instanceof Entity entity) {
+        currentResultSet.add(new RawPair<>(identifialble.getIdentity(), entity.toMap()));
+      } else if (record instanceof Blob blob) {
+        currentResultSet.add(new RawPair<>(identifialble.getIdentity(), blob.toStream()));
+      }
     }
 
-    tableFormatter.writeRecords(currentDatabase, currentResultSet, limit);
+    tableFormatter.writeRecords(currentResultSet, limit);
   }
 
-  private Object sqlCommand(
+  private List<Map<String, ?>> sqlCommand(
       final String iExpectedCommand,
       String iReceivedCommand,
       final String iMessageSuccess,
@@ -3575,9 +2995,9 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
     final long start = System.currentTimeMillis();
 
-    final Object result;
+    List<Map<String, ?>> result;
     try (ResultSet rs = currentDatabase.command(iReceivedCommand)) {
-      result = rs.stream().map(x -> x.toEntity()).collect(Collectors.toList());
+      result = rs.stream().map(Result::toMap).collect(Collectors.toList());
     }
     float elapsedSeconds = getElapsedSecs(start);
 
@@ -3604,7 +3024,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     out.println();
   }
 
-  protected String format(final String iValue, final int iMaxSize) {
+  protected static String format(final String iValue, final int iMaxSize) {
     if (iValue == null) {
       return null;
     }

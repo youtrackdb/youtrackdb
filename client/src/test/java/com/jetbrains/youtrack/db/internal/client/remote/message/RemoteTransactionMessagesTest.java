@@ -16,8 +16,6 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.b
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.RidBagBucketPointer;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges.OPERATION;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChangesPerKey;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,7 +67,7 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
     Map<String, FrontendTransactionIndexChanges> changes = new HashMap<>();
 
     MockChannel channel = new MockChannel();
-    Commit37Request request = new Commit37Request(db, 0, true, true, operations, changes);
+    Commit37Request request = new Commit37Request(db, 0, true, true, operations);
     request.write(db, channel, null);
 
     channel.close();
@@ -79,18 +77,6 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
     assertTrue(readRequest.isUsingLog());
     assertEquals(1, readRequest.getOperations().size());
     assertEquals(0, readRequest.getTxId());
-    assertEquals(1, readRequest.getIndexChanges().size());
-    assertEquals("some", readRequest.getIndexChanges().getFirst().getName());
-    FrontendTransactionIndexChanges val = readRequest.getIndexChanges().getFirst().getKeyChanges();
-    assertFalse(val.cleared);
-    assertEquals(1, val.changesPerKey.size());
-    FrontendTransactionIndexChangesPerKey entryChange = val.changesPerKey.firstEntry().getValue();
-    assertEquals("key", entryChange.key);
-    assertEquals(2, entryChange.size());
-    assertEquals(new RecordId(1, 2), entryChange.getEntriesAsList().get(0).getValue());
-    assertEquals(OPERATION.PUT, entryChange.getEntriesAsList().get(0).getOperation());
-    assertEquals(new RecordId(2, 2), entryChange.getEntriesAsList().get(1).getValue());
-    assertEquals(OPERATION.REMOVE, entryChange.getEntriesAsList().get(1).getOperation());
   }
 
   @Test
@@ -132,7 +118,7 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
   public void testEmptyCommitTransactionWriteRead() throws IOException {
 
     MockChannel channel = new MockChannel();
-    Commit37Request request = new Commit37Request(db, 0, false, true, null, null);
+    Commit37Request request = new Commit37Request(db, 0, false, true, null);
     request.write(db, channel, null);
 
     channel.close();
@@ -142,7 +128,6 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
     assertTrue(readRequest.isUsingLog());
     assertNull(readRequest.getOperations());
     assertEquals(0, readRequest.getTxId());
-    assertNull(readRequest.getIndexChanges());
   }
 
   @Test

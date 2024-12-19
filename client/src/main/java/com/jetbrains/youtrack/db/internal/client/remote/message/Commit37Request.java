@@ -4,21 +4,18 @@ import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
-import com.jetbrains.youtrack.db.internal.client.remote.message.tx.IndexChange;
 import com.jetbrains.youtrack.db.internal.client.remote.message.tx.RecordOperationRequest;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37Client;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -29,7 +26,6 @@ public class Commit37Request implements BinaryRequest<Commit37Response> {
   private boolean hasContent;
   private boolean usingLog;
   private List<RecordOperationRequest> operations;
-  private List<IndexChange> indexChanges;
 
   public Commit37Request() {
   }
@@ -38,13 +34,11 @@ public class Commit37Request implements BinaryRequest<Commit37Response> {
       DatabaseSessionInternal db, long txId,
       boolean hasContent,
       boolean usingLong,
-      Iterable<RecordOperation> operations,
-      Map<String, FrontendTransactionIndexChanges> indexChanges) {
+      Iterable<RecordOperation> operations) {
     this.txId = txId;
     this.hasContent = hasContent;
     this.usingLog = usingLong;
     if (hasContent) {
-      this.indexChanges = new ArrayList<>();
       List<RecordOperationRequest> netOperations = new ArrayList<>();
       for (RecordOperation txEntry : operations) {
         RecordOperationRequest request = new RecordOperationRequest();
@@ -63,10 +57,6 @@ public class Commit37Request implements BinaryRequest<Commit37Response> {
         netOperations.add(request);
       }
       this.operations = netOperations;
-
-      for (Map.Entry<String, FrontendTransactionIndexChanges> change : indexChanges.entrySet()) {
-        this.indexChanges.add(new IndexChange(change.getKey(), change.getValue()));
-      }
     }
   }
 
@@ -131,10 +121,6 @@ public class Commit37Request implements BinaryRequest<Commit37Response> {
 
   public long getTxId() {
     return txId;
-  }
-
-  public List<IndexChange> getIndexChanges() {
-    return indexChanges;
   }
 
   public List<RecordOperationRequest> getOperations() {

@@ -269,36 +269,6 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
     return list;
   }
 
-  public EntityImpl getIndexChanges() {
-    final EntityImpl result = new EntityImpl(null).setAllowChainedAccess(false)
-        .setTrackingChanges(false);
-    for (Entry<String, FrontendTransactionIndexChanges> indexEntry : indexEntries.entrySet()) {
-      final EntityImpl indexDoc = new EntityImpl(null).setTrackingChanges(false);
-      EntityInternalUtils.addOwner(indexDoc, result);
-
-      result.field(indexEntry.getKey(), indexDoc, PropertyType.EMBEDDED);
-
-      if (indexEntry.getValue().cleared) {
-        indexDoc.field("clear", Boolean.TRUE);
-      }
-
-      final List<EntityImpl> entries = new ArrayList<>();
-      indexDoc.field("entries", entries, PropertyType.EMBEDDEDLIST);
-
-      // STORE INDEX ENTRIES
-      for (FrontendTransactionIndexChangesPerKey entry : indexEntry.getValue().changesPerKey.values()) {
-        entries.add(serializeIndexChangeEntry(entry, indexDoc));
-      }
-
-      indexDoc.field(
-          "nullEntries", serializeIndexChangeEntry(indexEntry.getValue().nullKeyChanges, indexDoc));
-    }
-
-    indexEntries.clear();
-
-    return result;
-  }
-
   public Map<String, FrontendTransactionIndexChanges> getIndexOperations() {
     return indexEntries;
   }
@@ -938,62 +908,6 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
         }
       }
     }
-  }
-
-  private EntityImpl serializeIndexChangeEntry(
-      FrontendTransactionIndexChangesPerKey entry, final EntityImpl indexDoc) {
-    // SERIALIZE KEY
-
-    EntityImpl keyContainer = new EntityImpl(null);
-    keyContainer.setTrackingChanges(false);
-
-    if (entry.key != null) {
-      if (entry.key instanceof CompositeKey) {
-        final List<Object> keys = ((CompositeKey) entry.key).getKeys();
-
-        keyContainer.field("key", keys, PropertyType.EMBEDDEDLIST);
-        keyContainer.field("binary", false);
-      } else {
-        keyContainer.field("key", entry.key);
-        keyContainer.field("binary", false);
-      }
-
-    } else {
-      keyContainer = null;
-    }
-
-    final List<EntityImpl> operations = new ArrayList<>();
-
-    // SERIALIZE VALUES
-    if (!entry.isEmpty()) {
-      for (TransactionIndexEntry e : entry.getEntriesAsList()) {
-
-        final EntityImpl changeDoc = new EntityImpl(null).setAllowChainedAccess(false);
-        EntityInternalUtils.addOwner(changeDoc, indexDoc);
-
-        // SERIALIZE OPERATION
-        changeDoc.field("o", e.getOperation().ordinal());
-
-        if (e.getValue() instanceof Record && e.getValue().getIdentity().isNew()) {
-          Record saved = getRecord(e.getValue().getIdentity());
-          if (saved != null && saved != FrontendTransactionAbstract.DELETED_RECORD) {
-            e.setValue(saved);
-          } else {
-            ((Record) e.getValue()).save();
-          }
-        }
-
-        changeDoc.field("v", e.getValue() != null ? e.getValue().getIdentity() : null);
-
-        operations.add(changeDoc);
-      }
-    }
-    EntityImpl res = new EntityImpl(null);
-    res.setTrackingChanges(false);
-    EntityInternalUtils.addOwner(res, indexDoc);
-    return res.setAllowChainedAccess(false)
-        .field("k", keyContainer, PropertyType.EMBEDDED)
-        .field("ops", operations, PropertyType.EMBEDDEDLIST);
   }
 
   private void updateChangesIdentity(

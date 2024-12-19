@@ -29,7 +29,6 @@ import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges.OPERATION;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -79,8 +78,6 @@ public interface FrontendTransaction {
   RecordOperation getRecordEntry(RID rid);
 
   List<String> getInvolvedIndexes();
-
-  EntityImpl getIndexChanges();
 
   @Deprecated
   void clearIndexEntries();

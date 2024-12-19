@@ -62,7 +62,7 @@ public class LiveQuery<T> extends SQLSynchQuery<T> {
       BackwardLiveQueryResultListener listener = new BackwardLiveQueryResultListener();
       LiveQueryMonitor monitor = db.live(getText(), listener, iArgs);
       listener.token = monitor.getMonitorId();
-      EntityImpl entity = new EntityImpl(db);
+      EntityImpl entity = new EntityImpl(null);
       entity.setProperty("token", listener.token);
       LegacyResultSet<EntityImpl> result = new BasicLegacyResultSet<>();
       result.add(entity);

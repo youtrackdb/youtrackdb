@@ -208,7 +208,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       final Object newResult;
 
       if (iResult instanceof Map) {
-        EntityImpl entity = new EntityImpl(db);
+        EntityImpl entity = new EntityImpl(null);
         for (Map.Entry<?, ?> entry : ((Map<?, ?>) iResult).entrySet()) {
           String key = keyFromMapObject(entry.getKey());
           entity.field(key, entry.getValue());
@@ -218,7 +218,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
           && (MultiValue.getSize(iResult) > 0
           && !((MultiValue.getFirstValue(iResult) instanceof Identifiable)
           || ((MultiValue.getFirstValue(iResult) instanceof Result))))) {
-        newResult = Collections.singleton(new EntityImpl(db).field("value", iResult)).iterator();
+        newResult = Collections.singleton(new EntityImpl(null).field("value", iResult)).iterator();
       } else if (iResult instanceof Identifiable) {
         // CONVERT SINGLE VALUE IN A COLLECTION
         newResult = Collections.singleton(iResult).iterator();
@@ -227,7 +227,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       } else if (MultiValue.isMultiValue(iResult)) {
         newResult = MultiValue.getMultiValueIterator(iResult);
       } else {
-        newResult = Collections.singleton(new EntityImpl(db).field("value", iResult)).iterator();
+        newResult = Collections.singleton(new EntityImpl(null).field("value", iResult)).iterator();
       }
 
       if (newResult == null) {

@@ -32,20 +32,20 @@ import org.junit.Test;
 public class MessageHelperTest {
 
   @Test
-  public void testOIdentifiable() throws IOException {
+  public void testIdentifiable() throws IOException {
 
     YouTrackDB youTrackDB = new YouTrackDBImpl("embedded",
         YouTrackDBConfig.defaultConfig());
 
     youTrackDB.execute(
-        "create database testOIdentifiable memory users (admin identified by 'admin' role admin)");
+        "create database testIdentifiable memory users (admin identified by 'admin' role admin)");
 
     DatabaseSessionInternal db =
-        (DatabaseSessionInternal) youTrackDB.open("testOIdentifiable", "admin", "admin");
+        (DatabaseSessionInternal) youTrackDB.open("testIdentifiable", "admin", "admin");
     int id = db.getClusterIdByName("V");
     try {
       MockChannel channel = new MockChannel();
-      EntityImpl doc = ((EntityImpl) db.newEntity());
+      EntityImpl doc = ((EntityImpl) db.newEntity("Test"));
       RidBag bags = new RidBag(db);
       bags.add(new RecordId(id, 0));
       doc.field("bag", bags);

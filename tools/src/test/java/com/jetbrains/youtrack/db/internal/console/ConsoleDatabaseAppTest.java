@@ -7,7 +7,6 @@ import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -80,14 +79,11 @@ public class ConsoleDatabaseAppTest {
     try {
       console.run();
 
-      var db = console.getCurrentDatabase();
-      try {
+      try (var db = console.getCurrentDatabase()) {
         ResultSet result = db.query("select from foo where name = 'foo'");
         Result doc = result.next();
         Assert.assertNull(doc.getProperty("surname"));
         Assert.assertFalse(result.hasNext());
-      } finally {
-        db.close();
       }
     } finally {
       console.close();
@@ -130,9 +126,9 @@ public class ConsoleDatabaseAppTest {
       c.console().executeServerCommand("connect env embedded:./target/ root root");
       c.console()
           .executeServerCommand(
-              "create database OConsoleDatabaseAppTestDumpRecordDetails memory users (admin"
+              "create database ConsoleDatabaseAppTestDumpRecordDetails memory users (admin"
                   + " identified by 'admin' role admin)");
-      c.console().open("OConsoleDatabaseAppTestDumpRecordDetails", "admin", "admin");
+      c.console().open("ConsoleDatabaseAppTestDumpRecordDetails", "admin", "admin");
 
       c.console().createClass("class foo");
       c.console().begin();
@@ -142,10 +138,12 @@ public class ConsoleDatabaseAppTest {
       c.resetOutput();
 
       c.console().set("maxBinaryDisplay", "10000");
-      c.console().displayRecord("0");
+      c.console().select("from foo limit -1");
 
       String resultString = c.getConsoleOutput();
-      Assert.assertTrue(resultString.contains("@class:foo"));
+      Assert.assertTrue(resultString.contains("@class"));
+      Assert.assertTrue(resultString.contains("foo"));
+      Assert.assertTrue(resultString.contains("name"));
       Assert.assertTrue(resultString.contains("barbar"));
     } catch (Exception e) {
       Assert.fail();

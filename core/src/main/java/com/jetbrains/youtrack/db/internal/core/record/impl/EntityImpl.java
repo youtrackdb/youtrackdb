@@ -42,7 +42,6 @@ import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
-import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
@@ -84,9 +83,6 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSe
 import com.jetbrains.youtrack.db.internal.core.sql.SQLHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -164,19 +160,6 @@ public class EntityImpl extends RecordAbstract
   @Deprecated
   public EntityImpl(DatabaseSessionInternal session, final byte[] iSource) {
     source = iSource;
-    setup(session);
-  }
-
-  /**
-   * Creates a new instance by the raw stream usually read from the database. New instances are not
-   * persistent until {@link #save()} is called.
-   *
-   * @param iSource Raw stream as InputStream
-   */
-  public EntityImpl(DatabaseSessionInternal session, final InputStream iSource) throws IOException {
-    final ByteArrayOutputStream out = new ByteArrayOutputStream();
-    IOUtils.copyStream(iSource, out);
-    source = out.toByteArray();
     setup(session);
   }
 
@@ -494,16 +477,16 @@ public class EntityImpl extends RecordAbstract
     }
 
     checkForBinding();
-    RET value = (RET) EntityHelper.getIdentifiableValue(getSession(), this, name);
+    var session = getSessionIfDefined();
+
+    RET value = (RET) EntityHelper.getIdentifiableValue(session, this, name);
     if (!(!name.isEmpty() && name.charAt(0) == '@')
         && lazyLoad
         && value instanceof RID rid
-        && (rid.isPersistent() || rid.isNew())
-        && DatabaseRecordThreadLocal.instance().isDefined()) {
+        && (rid.isPersistent() || rid.isNew())) {
       // CREATE THE ENTITY OBJECT IN LAZY WAY
-      var db = getSession();
       try {
-        RET newValue = db.load((RID) value);
+        RET newValue = session.load((RID) value);
 
         unTrack(rid);
         track((Identifiable) newValue);
@@ -631,7 +614,7 @@ public class EntityImpl extends RecordAbstract
       return null;
     }
 
-    return (RET) EntityHelper.getIdentifiableValue(getSession(), this, iFieldName);
+    return (RET) EntityHelper.getIdentifiableValue(getSessionIfDefined(), this, iFieldName);
   }
 
   /**
@@ -1515,6 +1498,7 @@ public class EntityImpl extends RecordAbstract
    */
   public Map<String, Object> toMap() {
     checkForBinding();
+
     final Map<String, Object> map = new HashMap<>();
     for (String field : fieldNames()) {
       map.put(field, field(field));

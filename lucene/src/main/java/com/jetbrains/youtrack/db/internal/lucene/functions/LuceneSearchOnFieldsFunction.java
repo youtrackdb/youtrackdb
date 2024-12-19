@@ -144,7 +144,7 @@ public class LuceneSearchOnFieldsFunction extends LuceneSearchFunctionTemplate {
     throw new RuntimeException();
   }
 
-  private Map<String, ?> getMetadata(SQLExpression[] args, CommandContext ctx) {
+  private static Map<String, ?> getMetadata(SQLExpression[] args, CommandContext ctx) {
     if (args.length == 3) {
       return getMetadata(args[2], ctx);
     }

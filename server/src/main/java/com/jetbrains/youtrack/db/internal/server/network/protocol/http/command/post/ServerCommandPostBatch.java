@@ -100,7 +100,7 @@ public class ServerCommandPostBatch extends ServerCommandDocumentAbstract {
         db.rollback(true);
       }
 
-      batch = new EntityImpl(db);
+      batch = new EntityImpl(null);
       batch.fromJSON(iRequest.getContent());
 
       Boolean tx = batch.field("transaction");

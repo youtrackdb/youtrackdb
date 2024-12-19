@@ -24,9 +24,9 @@ import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
 import java.io.IOException;
 import java.util.Map;
@@ -129,7 +129,7 @@ public class ServerCommandPostProperty extends ServerCommandAuthenticatedDbAbstr
   protected boolean addMultipreProperties(
       final HttpRequest iRequest, final HttpResponse iResponse,
       final DatabaseSessionInternal db)
-      throws InterruptedException, IOException {
+      throws IOException {
     String[] urlParts =
         checkSyntax(iRequest.getUrl(), 3, "Syntax error: property/<database>/<class-name>");
 
@@ -142,7 +142,7 @@ public class ServerCommandPostProperty extends ServerCommandAuthenticatedDbAbstr
 
     final SchemaClass cls = db.getMetadata().getSchema().getClass(urlParts[2]);
 
-    final EntityImpl propertiesDoc = new EntityImpl(db);
+    final EntityImpl propertiesDoc = new EntityImpl(null);
     propertiesDoc.fromJSON(iRequest.getContent());
 
     for (String propertyName : propertiesDoc.fieldNames()) {

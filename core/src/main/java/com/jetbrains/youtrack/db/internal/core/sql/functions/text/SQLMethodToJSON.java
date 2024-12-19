@@ -66,7 +66,7 @@ public class SQLMethodToJSON extends AbstractSQLMethod {
       return iParams.length == 1 ? record.toJSON(format) : record.toJSON();
     } else if (iThis instanceof Map) {
 
-      final EntityImpl entity = new EntityImpl(iContext.getDatabase());
+      final EntityImpl entity = new EntityImpl(null);
       //noinspection unchecked
       entity.fromMap((Map<String, Object>) iThis);
       return iParams.length == 1 ? entity.toJSON(format) : entity.toJSON();

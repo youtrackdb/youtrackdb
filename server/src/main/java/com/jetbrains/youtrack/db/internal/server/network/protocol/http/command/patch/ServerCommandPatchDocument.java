@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.patch;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
@@ -27,9 +26,9 @@ import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandDocumentAbstract;
 
 public class ServerCommandPatchDocument extends ServerCommandDocumentAbstract {
@@ -82,19 +81,19 @@ public class ServerCommandPatchDocument extends ServerCommandDocumentAbstract {
                   throw new IllegalArgumentException("Invalid Record ID in request: " + recordId);
                 }
 
-                final EntityImpl currentDocument;
+                final EntityImpl currentEntity;
 
                 try {
-                  currentDocument = db.load(recordId);
+                  currentEntity = db.load(recordId);
                 } catch (RecordNotFoundException rnf) {
                   return new RawPair<>(false, recordId);
                 }
 
                 boolean partialUpdateMode = true;
-                currentDocument.merge(entity, partialUpdateMode, false);
-                RecordInternal.setVersion(currentDocument, entity.getVersion());
+                currentEntity.merge(entity, partialUpdateMode, false);
+                RecordInternal.setVersion(currentEntity, entity.getVersion());
 
-                currentDocument.save();
+                currentEntity.save();
                 return new RawPair<>(true, recordId);
               });
 

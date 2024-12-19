@@ -198,7 +198,6 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   private final RemoteURLs serverURLs;
   private final Map<String, StorageCluster> clusterMap = new ConcurrentHashMap<String, StorageCluster>();
   private final ExecutorService asynchExecutor;
-  private final EntityImpl clusterConfiguration = new EntityImpl(null);
   private final AtomicInteger users = new AtomicInteger(0);
   private final ContextConfiguration clientConfiguration;
   private final int connectionRetry;
@@ -1556,10 +1555,6 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
 
   public long getVersion() {
     throw new UnsupportedOperationException("getVersion");
-  }
-
-  public EntityImpl getClusterConfiguration() {
-    return clusterConfiguration;
   }
 
   /**

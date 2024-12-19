@@ -268,7 +268,8 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     checkForBinding();
 
     return RecordSerializerJSON.INSTANCE
-        .toString(getSession(), this, new StringBuilder(1024), format == null ? "" : format)
+        .toString(getSessionIfDefined(), this, new StringBuilder(1024),
+            format == null ? "" : format)
         .toString();
   }
 

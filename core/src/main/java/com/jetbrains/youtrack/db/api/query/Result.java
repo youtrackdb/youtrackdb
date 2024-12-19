@@ -1,18 +1,12 @@
 package com.jetbrains.youtrack.db.api.query;
 
-import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
-import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.Vertex;
-import com.jetbrains.youtrack.db.api.record.Blob;
-import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
-import java.lang.reflect.Array;
-import java.util.Base64;
 import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -144,117 +138,9 @@ public interface Result {
    */
   Set<String> getMetadataKeys();
 
-  default String toJSON() {
-    if (isEntity()) {
-      return getEntity().get().toJSON();
-    }
-    StringBuilder result = new StringBuilder();
-    result.append("{");
-    boolean first = true;
-    for (String prop : getPropertyNames()) {
-      if (!first) {
-        result.append(", ");
-      }
-      result.append(toJson(prop));
-      result.append(": ");
-      result.append(toJson(getProperty(prop)));
-      first = false;
-    }
-    result.append("}");
-    return result.toString();
-  }
+  Map<String, ?> toMap();
 
-  default String toJson(Object val) {
-    String jsonVal = null;
-    if (val == null) {
-      jsonVal = "null";
-    } else if (val instanceof String) {
-      jsonVal = "\"" + encode(val.toString()) + "\"";
-    } else if (val instanceof Number || val instanceof Boolean) {
-      jsonVal = val.toString();
-    } else if (val instanceof Result) {
-      jsonVal = ((Result) val).toJSON();
-    } else if (val instanceof Entity) {
-      RID id = ((Entity) val).getIdentity();
-      if (id.isPersistent()) {
-        //        jsonVal = "{\"@rid\":\"" + id + "\"}"; //TODO enable this syntax when Studio and
-        // the parsing are OK
-        jsonVal = "\"" + id + "\"";
-      } else {
-        jsonVal = ((Entity) val).toJSON();
-      }
-    } else if (val instanceof RID) {
-      //      jsonVal = "{\"@rid\":\"" + val + "\"}"; //TODO enable this syntax when Studio and the
-      // parsing are OK
-      jsonVal = "\"" + val + "\"";
-    } else if (val instanceof Iterable) {
-      StringBuilder builder = new StringBuilder();
-      builder.append("[");
-      boolean first = true;
-      Iterator iterator = ((Iterable) val).iterator();
-      while (iterator.hasNext()) {
-        if (!first) {
-          builder.append(", ");
-        }
-        builder.append(toJson(iterator.next()));
-        first = false;
-      }
-      builder.append("]");
-      jsonVal = builder.toString();
-    } else if (val instanceof Iterator iterator) {
-      StringBuilder builder = new StringBuilder();
-      builder.append("[");
-      boolean first = true;
-      while (iterator.hasNext()) {
-        if (!first) {
-          builder.append(", ");
-        }
-        builder.append(toJson(iterator.next()));
-        first = false;
-      }
-      builder.append("]");
-      jsonVal = builder.toString();
-    } else if (val instanceof Map) {
-      StringBuilder builder = new StringBuilder();
-      builder.append("{");
-      boolean first = true;
-      Map<Object, Object> map = (Map) val;
-      for (Map.Entry entry : map.entrySet()) {
-        if (!first) {
-          builder.append(", ");
-        }
-        builder.append(toJson(entry.getKey()));
-        builder.append(": ");
-        builder.append(toJson(entry.getValue()));
-        first = false;
-      }
-      builder.append("}");
-      jsonVal = builder.toString();
-    } else if (val instanceof byte[]) {
-      jsonVal = "\"" + Base64.getEncoder().encodeToString((byte[]) val) + "\"";
-    } else if (val instanceof Date) {
-      jsonVal = "\"" + DateHelper.getDateTimeFormatInstance().format(val) + "\"";
-    } else if (val.getClass().isArray()) {
-      StringBuilder builder = new StringBuilder();
-      builder.append("[");
-      for (int i = 0; i < Array.getLength(val); i++) {
-        if (i > 0) {
-          builder.append(", ");
-        }
-        builder.append(toJson(Array.get(val, i)));
-      }
-      builder.append("]");
-      jsonVal = builder.toString();
-    } else {
-      throw new UnsupportedOperationException(
-          "Cannot convert " + val + " - " + val.getClass() + " to JSON");
-    }
-    return jsonVal;
-  }
-
-  default String encode(String s) {
-    return IOUtils.encodeJsonString(s);
-  }
+  String toJSON();
 
   boolean hasProperty(String varName);
 }

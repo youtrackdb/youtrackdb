@@ -19,26 +19,23 @@
  */
 package com.jetbrains.youtrack.db.internal.console;
 
-import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.common.util.Sizeable;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.id.ImmutableRecordId;
-import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -63,20 +60,19 @@ public class TableFormatter {
       new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
   protected Pair<String, Boolean> columnSorting = null;
-  protected final Map<String, ALIGNMENT> columnAlignment = new HashMap<String, ALIGNMENT>();
+  protected final Map<String, ALIGNMENT> columnAlignment = new HashMap<>();
   protected final Map<String, Map<String, String>> columnMetadata =
-      new HashMap<String, Map<String, String>>();
-  protected final Set<String> columnHidden = new HashSet<String>();
+      new HashMap<>();
+  protected final Set<String> columnHidden = new HashSet<>();
   protected final Set<String> prefixedColumns =
-      new LinkedHashSet<String>(Arrays.asList("#", "@RID", "@CLASS"));
+      new LinkedHashSet<>(Arrays.asList("#", "@RID", "@CLASS"));
   protected final OTableOutput out;
   protected int maxMultiValueEntries = 10;
   protected int minColumnSize = 4;
   protected int maxWidthSize = 150;
   protected String nullValue = "";
-  private boolean leftBorder = true;
-  private boolean rightBorder = true;
-  private EntityImpl footer;
+
+  private Map<String, String> footer;
 
   public interface OTableOutput {
 
@@ -87,55 +83,49 @@ public class TableFormatter {
     this.out = iConsole;
   }
 
-  public void setColumnSorting(final String column, final boolean ascending) {
-    columnSorting = new Pair<String, Boolean>(column, ascending);
-  }
-
-  public void setColumnHidden(final String column) {
-    columnHidden.add(column);
-  }
-
-  public void writeRecords(DatabaseSessionInternal db, final List<? extends Identifiable> resultSet,
+  public void writeRecords(List<RawPair<RID, Object>> resultSet,
       final int limit) {
-    writeRecords(db, resultSet, limit, null);
+    writeRecords(resultSet, limit, null);
   }
 
   public void writeRecords(
-      DatabaseSessionInternal db, final List<? extends Identifiable> resultSet,
+      List<RawPair<RID, Object>> resultSet,
       final int limit,
-      final CallableFunction<Object, Identifiable> iAfterDump) {
-    final Map<String, Integer> columns = parseColumns(db, resultSet, limit);
+      final CallableFunction<Object, Object> iAfterDump) {
+    final Map<String, Integer> columns = parseColumns(resultSet, limit);
 
     if (columnSorting != null) {
       resultSet.sort(
-          (Comparator<Object>)
-              (o1, o2) -> {
-                final EntityImpl doc1 = ((Identifiable) o1).getRecord(db);
-                final EntityImpl doc2 = ((Identifiable) o2).getRecord(db);
-                final Object value1 = doc1.field(columnSorting.getKey());
-                final Object value2 = doc2.field(columnSorting.getKey());
-                final boolean ascending = columnSorting.getValue();
+          (o1, o2) -> {
+            @SuppressWarnings("unchecked") var rec1 = (Map<String, Object>) o1.second;
+            @SuppressWarnings("unchecked") var rec2 = (Map<String, Object>) o2.second;
 
-                final int result;
-                if (value2 == null) {
-                  result = 1;
-                } else if (value1 == null) {
-                  result = 0;
-                } else if (value1 instanceof Comparable) {
-                  result = ((Comparable) value1).compareTo(value2);
-                } else {
-                  result = value1.toString().compareTo(value2.toString());
-                }
+            final Object value1 = rec1.get(columnSorting.getKey());
+            final Object value2 = rec2.get(columnSorting.getKey());
+            final boolean ascending = columnSorting.getValue();
 
-                return ascending ? result : result * -1;
-              });
+            final int result;
+            if (value2 == null) {
+              result = 1;
+            } else if (value1 == null) {
+              result = 0;
+            } else //noinspection rawtypes
+              if (value1 instanceof Comparable comparable) {
+                //noinspection unchecked
+                result = comparable.compareTo(value2);
+              } else {
+                result = value1.toString().compareTo(value2.toString());
+              }
+
+            return ascending ? result : result * -1;
+          });
     }
 
     int fetched = 0;
-    for (Identifiable record : resultSet) {
-      dumpRecordInTable(db, fetched++, record, columns);
+    for (var record : resultSet) {
+      dumpRecordInTable(fetched++, record.first, record.second, columns);
       if (iAfterDump != null) {
-        iAfterDump.call(record);
+        iAfterDump.call(record.second);
       }
 
       if (limit > -1 && fetched >= limit) {
@@ -151,7 +141,7 @@ public class TableFormatter {
     }
 
     if (footer != null) {
-      dumpRecordInTable(db, -1, footer, columns);
+      dumpRecordInTable(-1, null, footer, columns);
       printHeaderLine(columns);
     }
   }
@@ -160,27 +150,9 @@ public class TableFormatter {
     columnAlignment.put(column, alignment);
   }
 
-  public void setColumnMetadata(
-      final String columnName, final String metadataName, final String metadataValue) {
-    Map<String, String> metadata = columnMetadata.get(columnName);
-    if (metadata == null) {
-      metadata = new LinkedHashMap<String, String>();
-      columnMetadata.put(columnName, metadata);
-    }
-    metadata.put(metadataName, metadataValue);
-  }
-
-  public int getMaxWidthSize() {
-    return maxWidthSize;
-  }
-
   public TableFormatter setMaxWidthSize(final int maxWidthSize) {
     this.maxWidthSize = maxWidthSize;
     return this;
-  }
-
-  public int getMaxMultiValueEntries() {
-    return maxMultiValueEntries;
   }
 
   public TableFormatter setMaxMultiValueEntries(final int maxMultiValueEntries) {
@@ -189,24 +161,18 @@ public class TableFormatter {
   }
 
   public void dumpRecordInTable(
-      DatabaseSessionInternal db, final int iIndex, final Identifiable iRecord,
+      final int iIndex, RID rid, Object iRecord,
       final Map<String, Integer> iColumns) {
     if (iIndex == 0) {
       printHeader(iColumns);
     }
 
     // FORMAT THE LINE DYNAMICALLY
-    List<String> vargs = new ArrayList<String>();
+    List<String> vargs = new ArrayList<>();
     try {
-      if (iRecord instanceof EntityImpl) {
-        ((EntityImpl) iRecord).setLazyLoad(false);
-      }
-
       final StringBuilder format = new StringBuilder(maxWidthSize);
 
-      if (leftBorder) {
-        format.append('|');
-      }
+      format.append('|');
 
       int i = 0;
       for (Entry<String, Integer> col : iColumns.entrySet()) {
@@ -217,9 +183,9 @@ public class TableFormatter {
           format.append('|');
         }
 
-        format.append("%-" + columnWidth + "s");
+        format.append("%-").append(columnWidth).append("s");
 
-        Object value = getFieldValue(db, iIndex, iRecord, columnName);
+        Object value = getFieldValue(iIndex, rid, iRecord, columnName);
         String valueAsString = null;
 
         if (value != null) {
@@ -235,9 +201,7 @@ public class TableFormatter {
         vargs.add(valueAsString);
       }
 
-      if (rightBorder) {
-        format.append('|');
-      }
+      format.append('|');
 
       out.onMessage(String.format("\n" + format, vargs.toArray()));
 
@@ -245,7 +209,7 @@ public class TableFormatter {
       out.onMessage(
           String.format(
               "%3d|%9s|%s\n",
-              iIndex, iRecord.getIdentity(), "Error on loading record due to: " + t));
+              iIndex, iRecord, "Error on loading record due to: " + t));
     }
   }
 
@@ -263,18 +227,22 @@ public class TableFormatter {
         case CENTER: {
           final int room = columnWidth - valueAsString.length();
           if (room > 1) {
+            StringBuilder valueAsStringBuilder = new StringBuilder(valueAsString);
             for (int k = 0; k < room / 2; ++k) {
-              valueAsString = " " + valueAsString;
+              valueAsStringBuilder.insert(0, " ");
             }
+            valueAsString = valueAsStringBuilder.toString();
           }
           break;
         }
         case RIGHT: {
           final int room = columnWidth - valueAsString.length();
           if (room > 0) {
+            StringBuilder valueAsStringBuilder = new StringBuilder(valueAsString);
             for (int k = 0; k < room; ++k) {
-              valueAsString = " " + valueAsString;
+              valueAsStringBuilder.insert(0, " ");
             }
+            valueAsString = valueAsStringBuilder.toString();
           }
           break;
         }
@@ -284,9 +252,10 @@ public class TableFormatter {
   }
 
   private Object getFieldValue(
-      DatabaseSessionInternal db, final int iIndex, final Identifiable iRecord,
+      final int iIndex, RID rid, Object record,
       final String iColumnName) {
-    Object value = null;
+
+    Object value;
 
     if (iColumnName.equals("#"))
     // RECORD NUMBER
@@ -295,33 +264,16 @@ public class TableFormatter {
     } else if (iColumnName.equals("@RID"))
     // RID
     {
-      value = iRecord.getIdentity().toString();
-    } else if (iRecord instanceof EntityImpl) {
-      value = ((EntityImpl) iRecord).getProperty(iColumnName);
-    } else if (iRecord instanceof Blob) {
-      value = "<binary> (size=" + ((RecordAbstract) iRecord).toStream().length + " bytes)";
-    } else if (iRecord instanceof Identifiable) {
-      final Record rec = iRecord.getRecord(db);
-      if (rec instanceof EntityImpl) {
-        value = ((EntityImpl) rec).getProperty(iColumnName);
-      } else if (rec instanceof Blob) {
-        value = "<binary> (size=" + ((RecordAbstract) rec).toStream().length + " bytes)";
-      }
+      value = rid;
+    } else if (record instanceof Map<?, ?> map) {
+      value = map.get(iColumnName);
+    } else if (record instanceof byte[] blob) {
+      value = "<binary> (size=" + blob.length + " bytes)";
+    } else {
+      value = record;
     }
 
     return getPrettyFieldValue(value, maxMultiValueEntries);
-  }
-
-  public void setNullValue(final String s) {
-    nullValue = s;
-  }
-
-  public void setLeftBorder(final boolean value) {
-    leftBorder = value;
-  }
-
-  public void setRightBorder(final boolean value) {
-    rightBorder = value;
   }
 
   public static String getPrettyFieldMultiValue(
@@ -352,7 +304,7 @@ public class TableFormatter {
     return value.toString();
   }
 
-  public void setFooter(final EntityImpl footer) {
+  public void setFooter(final Map<String, String> footer) {
     this.footer = footer;
   }
 
@@ -367,11 +319,11 @@ public class TableFormatter {
       value = getPrettyFieldMultiValue((Iterator<?>) value, multiValueMaxEntries);
     } else if (value instanceof Collection<?>) {
       value = getPrettyFieldMultiValue(((Collection<?>) value).iterator(), multiValueMaxEntries);
-    } else if (value instanceof Record) {
-      if (((Record) value).getIdentity().equals(ImmutableRecordId.EMPTY_RECORD_ID)) {
+    } else if (value instanceof Identifiable identifiable) {
+      if (identifiable.equals(ImmutableRecordId.EMPTY_RECORD_ID)) {
         value = value.toString();
       } else {
-        value = ((Record) value).getIdentity().toString();
+        value = identifiable.getIdentity().toString();
       }
     } else if (value instanceof Date) {
       final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
@@ -389,15 +341,12 @@ public class TableFormatter {
 
   private void printHeader(final Map<String, Integer> iColumns) {
     final StringBuilder columnRow = new StringBuilder("\n");
-    final Map<String, StringBuilder> metadataRows = new HashMap<String, StringBuilder>();
+    final Map<String, StringBuilder> metadataRows = new HashMap<>();
 
     // INIT METADATA
-    final LinkedHashSet<String> allMetadataNames = new LinkedHashSet<String>();
-    final Set<String> metadataColumns = new HashSet<String>();
+    final LinkedHashSet<String> allMetadataNames = new LinkedHashSet<>();
 
     for (Entry<String, Map<String, String>> entry : columnMetadata.entrySet()) {
-      metadataColumns.add(entry.getKey());
-
       for (Entry<String, String> entry2 : entry.getValue().entrySet()) {
         allMetadataNames.add(entry2.getKey());
 
@@ -412,12 +361,10 @@ public class TableFormatter {
     printHeaderLine(iColumns);
     int i = 0;
 
-    if (leftBorder) {
-      columnRow.append('|');
-      if (!metadataRows.isEmpty()) {
-        for (StringBuilder buffer : metadataRows.values()) {
-          buffer.append('|');
-        }
+    columnRow.append('|');
+    if (!metadataRows.isEmpty()) {
+      for (StringBuilder buffer : metadataRows.values()) {
+        buffer.append('|');
       }
     }
 
@@ -467,12 +414,10 @@ public class TableFormatter {
       ++i;
     }
 
-    if (rightBorder) {
-      columnRow.append('|');
-      if (!metadataRows.isEmpty()) {
-        for (StringBuilder buffer : metadataRows.values()) {
-          buffer.append('|');
-        }
+    columnRow.append('|');
+    if (!metadataRows.isEmpty()) {
+      for (StringBuilder buffer : metadataRows.values()) {
+        buffer.append('|');
       }
     }
 
@@ -492,10 +437,8 @@ public class TableFormatter {
   private void printHeaderLine(final Map<String, Integer> iColumns) {
     final StringBuilder buffer = new StringBuilder("\n");
 
-    if (iColumns.size() > 0) {
-      if (leftBorder) {
-        buffer.append('+');
-      }
+    if (!iColumns.isEmpty()) {
+      buffer.append('+');
 
       int i = 0;
       for (Entry<String, Integer> column : iColumns.entrySet()) {
@@ -511,9 +454,7 @@ public class TableFormatter {
         buffer.append("-".repeat(Math.max(0, column.getValue())));
       }
 
-      if (rightBorder) {
-        buffer.append('+');
-      }
+      buffer.append('+');
     }
 
     out.onMessage(buffer.toString());
@@ -521,16 +462,11 @@ public class TableFormatter {
 
   /**
    * Fill the column map computing the maximum size for a field.
-   *
-   * @param db
-   * @param resultSet
-   * @param limit
-   * @return
    */
   private Map<String, Integer> parseColumns(
-      DatabaseSessionInternal db, final Collection<? extends Identifiable> resultSet,
+      List<RawPair<RID, Object>> resultSet,
       final int limit) {
-    final Map<String, Integer> columns = new LinkedHashMap<String, Integer>();
+    final Map<String, Integer> columns = new LinkedHashMap<>();
 
     for (String c : prefixedColumns) {
       columns.put(c, minColumnSize);
@@ -540,31 +476,38 @@ public class TableFormatter {
     boolean hasClass = false;
 
     int fetched = 0;
-    for (Identifiable id : resultSet) {
-      Record rec = id.getRecord(db);
+    for (var entry : resultSet) {
+
+      var rid = entry.first;
+      var record = entry.second;
 
       for (String c : prefixedColumns) {
-        columns.put(c, getColumnSize(db, fetched, rec, c, columns.get(c)));
+        columns.put(c,
+            getColumnSize(fetched, rid, record, c, columns.get(c)));
       }
 
-      if (rec instanceof EntityImpl entity) {
-        entity.setLazyLoad(false);
+      if (record instanceof Map) {
         // PARSE ALL THE DOCUMENT'S FIELDS
-        for (String fieldName : entity.getPropertyNames()) {
-          columns.put(fieldName,
-              getColumnSize(db, fetched, entity, fieldName, columns.get(fieldName)));
+        @SuppressWarnings("unchecked")
+        var map = (Map<String, Object>) record;
+        for (var mapEntry : map.entrySet()) {
+          var key = mapEntry.getKey();
+          columns.put(key,
+              getColumnSize(fetched, rid, mapEntry.getValue(), key, columns.get(key)));
         }
 
-        if (!hasClass && entity.getClassName() != null) {
+        if (!hasClass && map.containsKey("@class")) {
           hasClass = true;
         }
 
-      } else if (rec instanceof Blob) {
+      } else if (record instanceof byte[]) {
         // UNIQUE BINARY FIELD
         columns.put("value", maxWidthSize - 15);
+      } else {
+        throw new IllegalStateException("Unexpected value: " + record);
       }
 
-      if (!tempRids && !rec.getIdentity().isPersistent()) {
+      if (!tempRids && (rid == null || !rid.isPersistent())) {
         tempRids = true;
       }
 
@@ -582,11 +525,11 @@ public class TableFormatter {
     }
 
     if (footer != null) {
-      footer.setLazyLoad(false);
       // PARSE ALL THE DOCUMENT'S FIELDS
-      for (String fieldName : footer.fieldNames()) {
+      for (String fieldName : footer.keySet()) {
         columns.put(fieldName,
-            getColumnSize(db, fetched, footer, fieldName, columns.get(fieldName)));
+            getColumnSize(fetched, null, footer, fieldName,
+                columns.get(fieldName)));
       }
     }
 
@@ -598,17 +541,9 @@ public class TableFormatter {
 
     if (width > maxWidthSize) {
       // SCALE COLUMNS AUTOMATICALLY
-      final List<Map.Entry<String, Integer>> orderedColumns =
-          new ArrayList<Map.Entry<String, Integer>>();
-      orderedColumns.addAll(columns.entrySet());
-      Collections.sort(
-          orderedColumns,
-          new Comparator<Map.Entry<String, Integer>>() {
-
-            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
-              return o1.getValue().compareTo(o2.getValue());
-            }
-          });
+      final List<Entry<String, Integer>> orderedColumns =
+          new ArrayList<>(columns.entrySet());
+      orderedColumns.sort(Entry.comparingByValue());
 
       // START CUTTING THE BIGGEST ONES
       Collections.reverse(orderedColumns);
@@ -667,10 +602,10 @@ public class TableFormatter {
   }
 
   private Integer getColumnSize(
-      DatabaseSessionInternal db, final Integer iIndex, final Record iRecord,
+      final Integer iIndex, RID rid, final Object iRecord,
       final String fieldName,
       final Integer origSize) {
-    Integer newColumnSize;
+    int newColumnSize;
     if (origSize == null)
     // START FROM THE FIELD NAME SIZE
     {
@@ -691,7 +626,7 @@ public class TableFormatter {
       }
     }
 
-    final Object fieldValue = getFieldValue(db, iIndex, iRecord, fieldName);
+    final Object fieldValue = getFieldValue(iIndex, rid, iRecord, fieldName);
 
     if (fieldValue != null) {
       final String fieldValueAsString = fieldValue.toString();

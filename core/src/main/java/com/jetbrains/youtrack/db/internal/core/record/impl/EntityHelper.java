@@ -871,6 +871,12 @@ public class EntityHelper {
     if (!iFieldName.isEmpty()) {
       final char begin = iFieldName.charAt(0);
       if (begin == '@') {
+        if (db == null) {
+          throw new IllegalStateException(
+              "Custom attribute can not be processed because record is not bound to the session");
+        }
+
+        assert db.assertIfNotActive();
         // RETURN AN ATTRIBUTE
         if (iFieldName.equalsIgnoreCase(ATTRIBUTE_THIS)) {
           return iCurrent.getRecord(db);
@@ -995,10 +1001,10 @@ public class EntityHelper {
       }
 
       if (function.startsWith("CHARAT(")) {
-        result = currentValue.toString().charAt(Integer.parseInt(args.get(0)));
+        result = currentValue.toString().charAt(Integer.parseInt(args.getFirst()));
       } else if (function.startsWith("INDEXOF(")) {
         if (args.size() == 1) {
-          result = currentValue.toString().indexOf(IOUtils.getStringContent(args.get(0)));
+          result = currentValue.toString().indexOf(IOUtils.getStringContent(args.getFirst()));
         } else {
           result =
               currentValue
@@ -1007,7 +1013,7 @@ public class EntityHelper {
         }
       } else if (function.startsWith("SUBSTRING(")) {
         if (args.size() == 1) {
-          result = currentValue.toString().substring(Integer.parseInt(args.get(0)));
+          result = currentValue.toString().substring(Integer.parseInt(args.getFirst()));
         } else {
           result =
               currentValue
@@ -1015,23 +1021,24 @@ public class EntityHelper {
                   .substring(Integer.parseInt(args.get(0)), Integer.parseInt(args.get(1)));
         }
       } else if (function.startsWith("APPEND(")) {
-        result = currentValue + IOUtils.getStringContent(args.get(0));
+        result = currentValue + IOUtils.getStringContent(args.getFirst());
       } else if (function.startsWith("PREFIX(")) {
-        result = IOUtils.getStringContent(args.get(0)) + currentValue;
+        result = IOUtils.getStringContent(args.getFirst()) + currentValue;
       } else if (function.startsWith("FORMAT(")) {
         if (currentValue instanceof Date) {
-          SimpleDateFormat formatter = new SimpleDateFormat(IOUtils.getStringContent(args.get(0)));
+          SimpleDateFormat formatter = new SimpleDateFormat(
+              IOUtils.getStringContent(args.getFirst()));
           formatter.setTimeZone(DateHelper.getDatabaseTimeZone());
           result = formatter.format(currentValue);
         } else {
-          result = String.format(IOUtils.getStringContent(args.get(0)), currentValue);
+          result = String.format(IOUtils.getStringContent(args.getFirst()), currentValue);
         }
       } else if (function.startsWith("LEFT(")) {
-        final int len = Integer.parseInt(args.get(0));
+        final int len = Integer.parseInt(args.getFirst());
         final String stringValue = currentValue.toString();
-        result = stringValue.substring(0, len <= stringValue.length() ? len : stringValue.length());
+        result = stringValue.substring(0, Math.min(len, stringValue.length()));
       } else if (function.startsWith("RIGHT(")) {
-        final int offset = Integer.parseInt(args.get(0));
+        final int offset = Integer.parseInt(args.getFirst());
         final String stringValue = currentValue.toString();
         result =
             stringValue.substring(

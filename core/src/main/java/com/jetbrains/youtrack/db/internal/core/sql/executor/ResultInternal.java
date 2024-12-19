@@ -10,6 +10,7 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.id.ContextualRecordId;
@@ -19,10 +20,17 @@ import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
+import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -37,7 +45,6 @@ import javax.annotation.Nullable;
  *
  */
 public class ResultInternal implements Result {
-
   protected Map<String, Object> content;
   protected Map<String, Object> temporaryContent;
   protected Map<String, Object> metadata;
@@ -400,7 +407,7 @@ public class ResultInternal implements Result {
             if (s.equalsIgnoreCase("@class")) {
               entity.setClassName(getProperty(s));
             } else {
-              entity.setProperty(s, convertToElement(getProperty(s)));
+              entity.setProperty(s, convertToEntity(getProperty(s)));
             }
           }
         }
@@ -490,23 +497,23 @@ public class ResultInternal implements Result {
     return metadata == null ? Collections.emptySet() : metadata.keySet();
   }
 
-  private Object convertToElement(Object property) {
+  private static Object convertToEntity(Object property) {
     if (property instanceof Result) {
       return ((Result) property).toEntity();
     }
     if (property instanceof List) {
-      return ((List) property).stream().map(x -> convertToElement(x)).collect(Collectors.toList());
+      return ((List) property).stream().map(x -> convertToEntity(x)).collect(Collectors.toList());
     }
 
     if (property instanceof Set) {
-      return ((Set) property).stream().map(x -> convertToElement(x)).collect(Collectors.toSet());
+      return ((Set) property).stream().map(x -> convertToEntity(x)).collect(Collectors.toSet());
     }
 
     if (property instanceof Map) {
       Map<Object, Object> result = new HashMap<>();
       Map<Object, Object> prop = ((Map) property);
       for (Map.Entry<Object, Object> o : prop.entrySet()) {
-        result.put(o.getKey(), convertToElement(o.getValue()));
+        result.put(o.getKey(), convertToEntity(o.getValue()));
       }
     }
 
@@ -514,28 +521,29 @@ public class ResultInternal implements Result {
   }
 
   public void loadIdentifiable() {
-    if (identifiable == null) {
-      return;
-    }
-
-    if (identifiable instanceof Entity elem) {
-      if (elem.isUnloaded()) {
-        try {
-          if (session == null) {
-            throw new IllegalStateException("There is no active session to load entity");
-          }
-
-          identifiable = session.bindToSession(elem);
-        } catch (RecordNotFoundException rnf) {
-          identifiable = null;
-        }
+    switch (identifiable) {
+      case null -> {
+        return;
       }
+      case Entity elem -> {
+        if (elem.isUnloaded()) {
+          try {
+            if (session == null) {
+              throw new IllegalStateException("There is no active session to load entity");
+            }
 
-      return;
-    }
+            identifiable = session.bindToSession(elem);
+          } catch (RecordNotFoundException rnf) {
+            identifiable = null;
+          }
+        }
 
-    if (identifiable instanceof ContextualRecordId) {
-      this.addMetadata(((ContextualRecordId) identifiable).getContext());
+        return;
+      }
+      case ContextualRecordId contextualRecordId ->
+          this.addMetadata(contextualRecordId.getContext());
+      default -> {
+      }
     }
 
     try {
@@ -553,6 +561,181 @@ public class ResultInternal implements Result {
     this.identifiable = identifiable;
     this.content = null;
   }
+
+  @Override
+  public Map<String, ?> toMap() {
+    if (isEntity()) {
+      return getEntity().orElseThrow().toMap();
+    }
+
+    var map = new HashMap<String, Object>();
+
+    for (String prop : getPropertyNames()) {
+      var propVal = getProperty(prop);
+      map.put(prop, convertToMapEntry(propVal));
+    }
+
+    return map;
+  }
+
+  private static Object convertToMapEntry(Object value) {
+    if (value instanceof Result result) {
+      return result.toMap();
+    }
+    if (value instanceof Entity entity) {
+      return entity.toMap();
+    }
+
+    if (value instanceof Blob blob) {
+      return blob.toStream();
+    }
+
+    if (value instanceof List<?> list) {
+      var mapValue = new ArrayList<>();
+
+      for (var originalItem : list) {
+        mapValue.add(convertToMapEntry(originalItem));
+      }
+
+      return mapValue;
+    }
+
+    if (value instanceof Set<?> set) {
+      var mapValue = new HashSet<>();
+
+      for (var originalItem : set) {
+        mapValue.add(convertToMapEntry(originalItem));
+      }
+
+      return mapValue;
+    }
+
+    if (value instanceof Map<?, ?> mapValue) {
+      var newMap = new HashMap<String, Object>();
+
+      for (var entry : mapValue.entrySet()) {
+        newMap.put(entry.getKey().toString(), convertToMapEntry(entry.getValue()));
+      }
+
+      return newMap;
+    }
+
+    if (PropertyType.getTypeByValue(value) == null) {
+      throw new IllegalArgumentException(
+          "Unexpected Result property value :" + value);
+    }
+
+    return value;
+  }
+
+  public String toJSON() {
+    if (isEntity()) {
+      return getEntity().orElseThrow().toJSON();
+    }
+    StringBuilder result = new StringBuilder();
+    result.append("{");
+    boolean first = true;
+    for (String prop : getPropertyNames()) {
+      if (!first) {
+        result.append(", ");
+      }
+      result.append(toJson(prop));
+      result.append(": ");
+      result.append(toJson(getProperty(prop)));
+      first = false;
+    }
+    result.append("}");
+    return result.toString();
+  }
+
+  private static String toJson(Object val) {
+    String jsonVal = null;
+    if (val == null) {
+      jsonVal = "null";
+    } else if (val instanceof String) {
+      jsonVal = "\"" + encode(val.toString()) + "\"";
+    } else if (val instanceof Number || val instanceof Boolean) {
+      jsonVal = val.toString();
+    } else if (val instanceof Result) {
+      jsonVal = ((Result) val).toJSON();
+    } else if (val instanceof Entity) {
+      RID id = ((Entity) val).getIdentity();
+      if (id.isPersistent()) {
+        //        jsonVal = "{\"@rid\":\"" + id + "\"}"; //TODO enable this syntax when Studio and
+        // the parsing are OK
+        jsonVal = "\"" + id + "\"";
+      } else {
+        jsonVal = ((Entity) val).toJSON();
+      }
+    } else if (val instanceof RID) {
+      //      jsonVal = "{\"@rid\":\"" + val + "\"}"; //TODO enable this syntax when Studio and the
+      // parsing are OK
+      jsonVal = "\"" + val + "\"";
+    } else if (val instanceof Iterable) {
+      StringBuilder builder = new StringBuilder();
+      builder.append("[");
+      boolean first = true;
+      Iterator iterator = ((Iterable) val).iterator();
+      while (iterator.hasNext()) {
+        if (!first) {
+          builder.append(", ");
+        }
+        builder.append(toJson(iterator.next()));
+        first = false;
+      }
+      builder.append("]");
+      jsonVal = builder.toString();
+    } else if (val instanceof Iterator iterator) {
+      StringBuilder builder = new StringBuilder();
+      builder.append("[");
+      boolean first = true;
+      while (iterator.hasNext()) {
+        if (!first) {
+          builder.append(", ");
+        }
+        builder.append(toJson(iterator.next()));
+        first = false;
+      }
+      builder.append("]");
+      jsonVal = builder.toString();
+    } else if (val instanceof Map) {
+      StringBuilder builder = new StringBuilder();
+      builder.append("{");
+      boolean first = true;
+      Map<Object, Object> map = (Map) val;
+      for (Map.Entry entry : map.entrySet()) {
+        if (!first) {
+          builder.append(", ");
+        }
+        builder.append(toJson(entry.getKey()));
+        builder.append(": ");
+        builder.append(toJson(entry.getValue()));
+        first = false;
+      }
+      builder.append("}");
+      jsonVal = builder.toString();
+    } else if (val instanceof byte[]) {
+      jsonVal = "\"" + Base64.getEncoder().encodeToString((byte[]) val) + "\"";
+    } else if (val instanceof Date) {
+      jsonVal = "\"" + DateHelper.getDateTimeFormatInstance().format(val) + "\"";
+    } else if (val.getClass().isArray()) {
+      StringBuilder builder = new StringBuilder();
+      builder.append("[");
+      for (int i = 0; i < Array.getLength(val); i++) {
+        if (i > 0) {
+          builder.append(", ");
+        }
+        builder.append(toJson(Array.get(val, i)));
+      }
+      builder.append("]");
+      jsonVal = builder.toString();
+    } else {
+      throw new UnsupportedOperationException(
+          "Cannot convert " + val + " - " + val.getClass() + " to JSON");
+    }
+    return jsonVal;
+  }
+
 
   @Override
   public String toString() {
@@ -645,5 +828,9 @@ public class ResultInternal implements Result {
         db.getLocalCache().updateRecord(record);
       }
     }
+  }
+
+  private static String encode(String s) {
+    return IOUtils.encodeJsonString(s);
   }
 }

@@ -24,7 +24,6 @@ import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.method.misc.AbstractSQLMethod;
 import java.util.ArrayList;
@@ -102,10 +101,10 @@ public class SQLMethodInclude extends AbstractSQLMethod {
       }
       if (iThis instanceof EntityImpl) {
         // ACT ON SINGLE ENTITY
-        return copy(db, (EntityImpl) iThis, iParams);
+        return copy((EntityImpl) iThis, iParams);
       } else if (iThis instanceof Map) {
         // ACT ON MAP
-        return copy(db, (Map) iThis, iParams);
+        return copy((Map) iThis, iParams);
       } else if (MultiValue.isMultiValue(iThis)) {
         // ACT ON MULTIPLE DOCUMENTS
         final List<Object> result = new ArrayList<Object>(MultiValue.getSize(iThis));
@@ -113,7 +112,7 @@ public class SQLMethodInclude extends AbstractSQLMethod {
           if (o instanceof Identifiable) {
             try {
               var record = ((Identifiable) o).getRecord(db);
-              result.add(copy(db, (EntityImpl) record, iParams));
+              result.add(copy((EntityImpl) record, iParams));
             } catch (RecordNotFoundException rnf) {
               // IGNORE IT
             }
@@ -127,9 +126,9 @@ public class SQLMethodInclude extends AbstractSQLMethod {
     return null;
   }
 
-  private static Object copy(DatabaseSessionInternal db, final EntityImpl entity,
+  private static Object copy(final EntityImpl entity,
       final Object[] iFieldNames) {
-    final EntityImpl ent = new EntityImpl(db);
+    final EntityImpl ent = new EntityImpl(null);
     for (Object iFieldName : iFieldNames) {
       if (iFieldName != null) {
 
@@ -156,9 +155,9 @@ public class SQLMethodInclude extends AbstractSQLMethod {
     return ent;
   }
 
-  private static Object copy(DatabaseSessionInternal db, final Map map,
+  private static Object copy(final Map map,
       final Object[] iFieldNames) {
-    final EntityImpl entity = new EntityImpl(db);
+    final EntityImpl entity = new EntityImpl(null);
     for (Object iFieldName : iFieldNames) {
       if (iFieldName != null) {
         final String fieldName = iFieldName.toString();

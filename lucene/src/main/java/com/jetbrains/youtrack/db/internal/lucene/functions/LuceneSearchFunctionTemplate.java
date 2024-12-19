@@ -73,7 +73,7 @@ public abstract class LuceneSearchFunctionTemplate extends SQLFunctionAbstract
     return count;
   }
 
-  protected Map<String, ?> getMetadata(SQLExpression metadata, CommandContext ctx) {
+  protected static Map<String, ?> getMetadata(SQLExpression metadata, CommandContext ctx) {
     final Object md = metadata.execute((Identifiable) null, ctx);
     if (md instanceof EntityImpl document) {
       return document.toMap();

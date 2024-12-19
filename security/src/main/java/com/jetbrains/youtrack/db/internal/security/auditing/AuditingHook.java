@@ -344,7 +344,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
         final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().get();
 
         final EntityImpl entity =
-            createLogDocument(db
+            createLogEntity(db
                 , AuditingOperation.COMMAND,
                 db.getName(),
                 db.geCurrentUser(), formatCommandNote(command, cfg.message));
@@ -430,7 +430,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
     }
 
     final EntityImpl entity =
-        createLogDocument(db, operation, db.getName(), db.geCurrentUser(),
+        createLogEntity(db, operation, db.getName(), db.geCurrentUser(),
             formatNote(iRecord, note));
     entity.field("record", iRecord.getIdentity());
     if (changes != null) {
@@ -580,7 +580,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
 
     final SecurityUser user = db.geCurrentUser();
 
-    final EntityImpl entity = createLogDocument(db, operation, db.getName(), user, note);
+    final EntityImpl entity = createLogEntity(db, operation, db.getName(), user, note);
 
     auditingQueue.offer(entity);
   }
@@ -605,11 +605,11 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
       SecurityUser user,
       final String message) {
     if (auditingQueue != null) {
-      auditingQueue.offer(createLogDocument(db, operation, dbName, user, message));
+      auditingQueue.offer(createLogEntity(db, operation, dbName, user, message));
     }
   }
 
-  private static EntityImpl createLogDocument(
+  private static EntityImpl createLogEntity(
       DatabaseSession session, final AuditingOperation operation,
       final String dbName,
       SecurityUser user,

@@ -150,7 +150,7 @@ public class LuceneSearchOnClassFunction extends LuceneSearchFunctionTemplate {
     return Collections.emptySet();
   }
 
-  private Map<String, ?> getMetadata(SQLExpression[] args, CommandContext ctx) {
+  private static Map<String, ?> getMetadata(SQLExpression[] args, CommandContext ctx) {
     if (args.length == 2) {
       return getMetadata(args[1], ctx);
     }

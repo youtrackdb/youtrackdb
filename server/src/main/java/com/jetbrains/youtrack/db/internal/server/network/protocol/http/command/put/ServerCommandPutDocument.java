@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.put;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
@@ -85,9 +84,9 @@ public class ServerCommandPutDocument extends ServerCommandDocumentAbstract {
                   throw new IllegalArgumentException("Invalid Record ID in request: " + txRecordId);
                 }
 
-                final EntityImpl currentDocument;
+                final EntityImpl currentEntity;
                 try {
-                  currentDocument = db.load(txRecordId);
+                  currentEntity = db.load(txRecordId);
                 } catch (RecordNotFoundException rnf) {
                   return null;
                 }
@@ -103,18 +102,18 @@ public class ServerCommandPutDocument extends ServerCommandDocumentAbstract {
                   partialUpdateMode = true;
                 }
 
-                currentDocument.merge(entity, partialUpdateMode, false);
-                if (currentDocument.isDirty()) {
+                currentEntity.merge(entity, partialUpdateMode, false);
+                if (currentEntity.isDirty()) {
                   if (entity.getVersion() > 0)
                   // OVERWRITE THE VERSION
                   {
-                    RecordInternal.setVersion(currentDocument, entity.getVersion());
+                    RecordInternal.setVersion(currentEntity, entity.getVersion());
                   }
 
-                  currentDocument.save();
+                  currentEntity.save();
                 }
 
-                return currentDocument;
+                return currentEntity;
               });
 
       if (d == null) {

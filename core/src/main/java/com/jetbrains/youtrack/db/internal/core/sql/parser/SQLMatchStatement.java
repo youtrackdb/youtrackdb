@@ -128,7 +128,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
     }
 
     public EntityImpl toEntity(DatabaseSessionInternal db) {
-      EntityImpl entity = new EntityImpl(db);
+      EntityImpl entity = new EntityImpl(null);
       entity.fromMap(matched);
       return entity;
     }
@@ -1063,7 +1063,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
       entity.setTrackingChanges(false);
       int i = 0;
 
-      EntityImpl mapDoc = new EntityImpl(db);
+      EntityImpl mapDoc = new EntityImpl(null);
       mapDoc.setTrackingChanges(false);
       mapDoc.fromMap(matchContext.matched);
       ctx.setVariable("$current", mapDoc);
@@ -1165,7 +1165,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
         && (returnItems.get(0).value instanceof SQLJson)
         && returnAliases.get(0) == null) {
       var db = ctx.getDatabase();
-      EntityImpl result = new EntityImpl(db);
+      EntityImpl result = new EntityImpl(null);
       result.setTrackingChanges(false);
       result.fromMap(((SQLJson) returnItems.get(0).value).toMap(matchContext.toEntity(db), ctx));
       return result;

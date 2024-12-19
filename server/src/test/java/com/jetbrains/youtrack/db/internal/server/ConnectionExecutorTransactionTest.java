@@ -122,7 +122,7 @@ public class ConnectionExecutorTransactionTest {
     assertTrue(db.getTransaction().isActive());
     assertTrue(response instanceof BeginTransactionResponse);
 
-    Commit37Request commit = new Commit37Request(db, 10, false, true, null, null);
+    Commit37Request commit = new Commit37Request(db, 10, false, true, null);
     BinaryResponse commitResponse = commit.execute(executor);
     assertFalse(db.getTransaction().isActive());
     assertTrue(commitResponse instanceof Commit37Response);
@@ -152,8 +152,8 @@ public class ConnectionExecutorTransactionTest {
     record1.setInternalStatus(RecordElement.STATUS.LOADED);
     operations.add(new RecordOperation(record1, RecordOperation.CREATED));
 
-    Commit37Request commit = new Commit37Request(db, 10, true, true, operations,
-        new HashMap<>());
+    Commit37Request commit = new Commit37Request(db, 10, true, true, operations
+    );
     BinaryResponse commitResponse = commit.execute(executor);
     assertFalse(db.getTransaction().isActive());
     assertTrue(commitResponse instanceof Commit37Response);
@@ -225,8 +225,8 @@ public class ConnectionExecutorTransactionTest {
     record2.setInternalStatus(RecordElement.STATUS.LOADED);
     operations.add(new RecordOperation(record2, RecordOperation.CREATED));
 
-    Commit37Request commit = new Commit37Request(db, 10, true, true, operations,
-        new HashMap<>());
+    Commit37Request commit = new Commit37Request(db, 10, true, true, operations
+    );
     BinaryResponse commitResponse = commit.execute(executor);
     assertFalse(db.getTransaction().isActive());
     assertTrue(commitResponse instanceof Commit37Response);
@@ -348,8 +348,8 @@ public class ConnectionExecutorTransactionTest {
     BinaryResponse updateResponse = updateRecordRequest.execute(executor);
     assertTrue(updateResponse instanceof UpdateRecordResponse);
 
-    Commit37Request commit = new Commit37Request(db, 10, false, true, null,
-        new HashMap<>());
+    Commit37Request commit = new Commit37Request(db, 10, false, true, null
+    );
     BinaryResponse commitResponse = commit.execute(executor);
     assertFalse(db.getTransaction().isActive());
     assertTrue(commitResponse instanceof Commit37Response);
@@ -381,8 +381,8 @@ public class ConnectionExecutorTransactionTest {
 
     assertTrue(results.get(0).getEntity().get().getIdentity().isTemporary());
 
-    Commit37Request commit = new Commit37Request(db, 10, false, true, null,
-        new HashMap<>());
+    Commit37Request commit = new Commit37Request(db, 10, false, true, null
+    );
     BinaryResponse commitResponse = commit.execute(executor);
     assertFalse(db.getTransaction().isActive());
     assertTrue(commitResponse instanceof Commit37Response);

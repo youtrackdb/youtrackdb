@@ -33,7 +33,6 @@ import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges.OPERATION;
 import java.util.Collection;
 import java.util.Collections;
@@ -174,10 +173,6 @@ public class FrontendTransactionNoTx extends FrontendTransactionAbstract {
   @Override
   public Object getCustomData(String iName) {
     throw new UnsupportedOperationException("Operation not supported in no tx mode");
-  }
-
-  public EntityImpl getIndexChanges() {
-    return null;
   }
 
   public void addIndexEntry(
