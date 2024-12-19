@@ -827,6 +827,6 @@ public class TransactionConsistencyTest extends BaseDBTest {
     db.commit();
 
     doc = orid.getRecord(db);
-    Assert.assertEquals(doc.field("name"), "test1");
+    Assert.assertEquals(doc.field("name"), "test2");
   }
 }
