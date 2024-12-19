@@ -166,7 +166,32 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   }
 
   public RecordAbstract setDirty() {
-    if (!dirty && recordId.isPersistent()) {
+    if (!dirty && status != STATUS.UNMARSHALLING) {
+      checkForBinding();
+      registerInTx();
+
+      dirty = true;
+      source = null;
+    }
+
+    contentChanged = true;
+
+    return this;
+  }
+
+  @Override
+  public void setDirtyNoChanged() {
+    if (!dirty && status != STATUS.UNMARSHALLING) {
+      checkForBinding();
+      registerInTx();
+
+      dirty = true;
+      source = null;
+    }
+  }
+
+  private void registerInTx() {
+    if (recordId.isPersistent()) {
       if (session == null) {
         throw new DatabaseException(createNotBoundToSessionMessage());
       }
@@ -182,27 +207,6 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
         var optimistic = (TransactionOptimistic) tx;
         optimistic.addRecordOperation(this, RecordOperation.UPDATED, null);
       }
-    }
-
-    if (!dirty && status != STATUS.UNMARSHALLING) {
-      checkForBinding();
-
-      dirty = true;
-      source = null;
-    }
-
-    contentChanged = true;
-
-    return this;
-  }
-
-  @Override
-  public void setDirtyNoChanged() {
-    if (!dirty && status != STATUS.UNMARSHALLING) {
-      checkForBinding();
-
-      dirty = true;
-      source = null;
     }
   }
 
