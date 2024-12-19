@@ -276,10 +276,12 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
     EntityImpl doc1 = ((EntityImpl) db.newEntity()).field("testField", (Object) null);
     EntityImpl doc2 = ((EntityImpl) db.newEntity()).field("testField", (Object) null);
 
+    var context = new BasicCommandContext();
+    context.setDatabase(db);
     EntityComparator comparator =
         new EntityComparator(
-            Collections.singletonList(new Pair<String, String>("testField", "asc")),
-            new BasicCommandContext());
+            Collections.singletonList(new Pair<>("testField", "asc")),
+            context);
 
     Assert.assertEquals(comparator.compare(doc1, doc2), 0);
   }
