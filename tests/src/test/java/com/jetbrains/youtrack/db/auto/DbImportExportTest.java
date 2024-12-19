@@ -103,7 +103,7 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
             new DatabaseImport(
                 (DatabaseSessionInternal) importDB, testPath + "/" + exportFilePath, this);
         // UNREGISTER ALL THE HOOKS
-        for (final RecordHook hook : new ArrayList<>(db.getHooks().keySet())) {
+        for (final RecordHook hook : new ArrayList<>(importDB.getHooks().keySet())) {
           db.unregisterHook(hook);
         }
         dbImport.setDeleteRIDMapping(false);
@@ -164,7 +164,7 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
         final List<RID> ridsToDelete = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
           session.begin();
-          final EntityImpl document = ((EntityImpl) db.newEntity(childCls));
+          final EntityImpl document = ((EntityImpl) session.newEntity(childCls));
           document.save();
           session.commit();
 
@@ -173,18 +173,18 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
 
         for (final RID rid : ridsToDelete) {
           session.begin();
-          rid.getRecord(db).delete();
+          rid.getRecord(session).delete();
           session.commit();
         }
 
-        final EntityImpl rootDocument = ((EntityImpl) db.newEntity(rootCls));
+        final EntityImpl rootDocument = ((EntityImpl) session.newEntity(rootCls));
         final ArrayList<EntityImpl> documents = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
           session.begin();
-          final EntityImpl embeddedDocument = ((EntityImpl) db.newEntity());
+          final EntityImpl embeddedDocument = ((EntityImpl) session.newEntity());
 
-          final EntityImpl doc = ((EntityImpl) db.newEntity(childCls));
+          final EntityImpl doc = ((EntityImpl) session.newEntity(childCls));
           doc.save();
           session.commit();
 
@@ -221,7 +221,7 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
           final RecordId link = embeddedDocument.getProperty("link");
 
           Assert.assertNotNull(link);
-          Assert.assertNotNull(link.getRecord(db));
+          Assert.assertNotNull(link.getRecord(session));
         }
       }
     }

@@ -48,27 +48,31 @@ public class DbCopyTest extends BaseDBTest implements CommandOutputListener {
     final String className = "DbCopyTest";
     db.getMetadata().getSchema().createClass(className);
 
+    final DatabaseSessionInternal otherDB = db.copy();
+    db.activateOnCurrentThread();
     Thread thread =
-        new Thread() {
-          @Override
-          public void run() {
-            final DatabaseSessionInternal otherDB = db.copy();
+        new Thread(() -> {
+          try {
             otherDB.activateOnCurrentThread();
             for (int i = 0; i < 5; i++) {
               otherDB.begin();
               EntityImpl doc = otherDB.newInstance(className);
-              doc.field("num", i);
+              doc.field("num", 20 + i);
               doc.save();
               otherDB.commit();
               try {
                 Thread.sleep(10);
-              } catch (InterruptedException e) {
+              } catch (Exception e) {
                 e.printStackTrace();
+                throw new RuntimeException(e);
               }
             }
             otherDB.close();
+          } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
           }
-        };
+        });
     thread.start();
 
     for (int i = 0; i < 20; i++) {
