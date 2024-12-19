@@ -30,7 +30,7 @@ public class EmbeddedEntitySerializationTest extends BaseDBTest {
     originalDoc.field("compositeKey", compositeKey);
     originalDoc.field("int", 12);
     originalDoc.field("val", "test");
-    originalDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    originalDoc.save();
     db.commit();
 
     final EntityImpl loadedDoc = db.load(originalDoc.getIdentity());
@@ -79,7 +79,7 @@ public class EmbeddedEntitySerializationTest extends BaseDBTest {
     originalDoc.field("embeddedCollection", embeddedCollection, PropertyType.EMBEDDEDLIST);
 
     db.begin();
-    originalDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    originalDoc.save();
     db.commit();
 
     final EntityImpl loadedDocument = db.load(originalDoc.getIdentity());
