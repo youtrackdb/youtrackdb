@@ -1619,13 +1619,13 @@ public class IndexTest extends BaseDBTest {
     // generates stubs for index
     db.begin();
     EntityImpl doc1 = ((EntityImpl) db.newEntity());
-    doc1.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc1.save();
     EntityImpl doc2 = ((EntityImpl) db.newEntity());
-    doc2.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc2.save();
     EntityImpl doc3 = ((EntityImpl) db.newEntity());
-    doc3.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc3.save();
     EntityImpl doc4 = ((EntityImpl) db.newEntity());
-    doc4.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc4.save();
     db.commit();
 
     final RID rid1 = doc1.getIdentity();
@@ -1839,13 +1839,13 @@ public class IndexTest extends BaseDBTest {
     // generates stubs for index
     db.begin();
     EntityImpl doc1 = ((EntityImpl) db.newEntity());
-    doc1.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc1.save();
     EntityImpl doc2 = ((EntityImpl) db.newEntity());
-    doc2.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc2.save();
     EntityImpl doc3 = ((EntityImpl) db.newEntity());
-    doc3.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc3.save();
     EntityImpl doc4 = ((EntityImpl) db.newEntity());
-    doc4.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc4.save();
     db.commit();
 
     final RID rid1 = doc1.getIdentity();
