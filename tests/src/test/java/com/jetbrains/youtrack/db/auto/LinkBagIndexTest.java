@@ -75,10 +75,10 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBag = new RidBag(db);
@@ -112,10 +112,10 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
     try {
       final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
       final RidBag ridBag = new RidBag(db);
@@ -152,13 +152,13 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBagOne = new RidBag(db);
@@ -203,13 +203,13 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBagOne = new RidBag(db);
@@ -259,13 +259,13 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     final RidBag ridBagOne = new RidBag(db);
     ridBagOne.add(docOne);
@@ -308,13 +308,13 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBag = new RidBag(db);
@@ -358,13 +358,13 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBag = new RidBag(db);
@@ -411,13 +411,13 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBag = new RidBag(db);
@@ -458,10 +458,10 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBag = new RidBag(db);
@@ -504,10 +504,10 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBag = new RidBag(db);
@@ -545,10 +545,10 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBag = new RidBag(db);
@@ -587,10 +587,10 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
 
@@ -612,10 +612,10 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
 
@@ -645,10 +645,10 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBag = new RidBag(db);
@@ -684,13 +684,13 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagSQL() {
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBagOne = new RidBag(db);
