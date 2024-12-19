@@ -4,7 +4,6 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.api.exception.ConcurrentModificationException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
@@ -131,7 +130,7 @@ public abstract class RidBagTest extends BaseDBTest {
     EntityImpl doc = ((EntityImpl) db.newEntity());
     doc.field("ridbag", bag);
     db.begin();
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
     db.commit();
 
     RID rid = doc.getIdentity();
@@ -206,7 +205,7 @@ public abstract class RidBagTest extends BaseDBTest {
     EntityImpl doc = ((EntityImpl) db.newEntity());
     doc.field("ridbag", bag);
     db.begin();
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
     db.commit();
 
     RID rid = doc.getIdentity();
@@ -250,7 +249,7 @@ public abstract class RidBagTest extends BaseDBTest {
     EntityImpl doc = ((EntityImpl) db.newEntity());
     doc.field("ridbag", bag);
     db.begin();
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
     db.commit();
 
     RID rid = doc.getIdentity();
@@ -296,7 +295,7 @@ public abstract class RidBagTest extends BaseDBTest {
     assertEmbedded(otherBag.isEmbedded());
     doc.field("ridbag", otherBag);
 
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
     db.commit();
 
     rid = doc.getIdentity();
@@ -332,7 +331,7 @@ public abstract class RidBagTest extends BaseDBTest {
     EntityImpl doc = ((EntityImpl) db.newEntity());
     doc.field("ridbag", bag);
 
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
     db.commit();
 
     RID rid = doc.getIdentity();
@@ -397,7 +396,7 @@ public abstract class RidBagTest extends BaseDBTest {
     assertEmbedded(otherBag.isEmbedded());
     doc.field("ridbag", otherBag);
 
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
     db.commit();
 
     rid = doc.getIdentity();
@@ -460,7 +459,7 @@ public abstract class RidBagTest extends BaseDBTest {
     doc.field("ridbag", bag);
 
     db.begin();
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
     db.commit();
 
     RID rid = doc.getIdentity();
@@ -532,60 +531,45 @@ public abstract class RidBagTest extends BaseDBTest {
   }
 
   public void testContentChange() {
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    EntityImpl entity = ((EntityImpl) db.newEntity());
     RidBag ridBag = new RidBag(db);
-    document.field("ridBag", ridBag);
+    entity.field("ridBag", ridBag);
 
     db.begin();
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    entity.save();
     db.commit();
 
     db.begin();
-    document = db.bindToSession(document);
-    ridBag = document.field("ridBag");
+    entity = db.bindToSession(entity);
+    ridBag = entity.field("ridBag");
     ridBag.add(new RecordId("#77:10"));
-    Assert.assertTrue(document.isDirty());
+    Assert.assertTrue(entity.isDirty());
 
     boolean expectCME = false;
-    if (RecordInternal.isContentChanged(document)) {
+    if (RecordInternal.isContentChanged(entity)) {
       assertEmbedded(true);
       expectCME = true;
     } else {
       assertEmbedded(false);
     }
 
-    document.save();
+    entity.save();
+    db.commit();
+
+
+    db.begin();
+    var version = entity.getVersion();
+    entity = db.bindToSession(entity);
+    ridBag = entity.field("ridBag");
+    ridBag.add(new RecordId("#77:12"));
+
+    entity.save();
     db.commit();
 
     db.begin();
-    EntityImpl copy = ((EntityImpl) db.newEntity());
-    RecordInternal.unsetDirty(copy);
-    document = db.bindToSession(document);
-    ridBag = document.field("ridBag");
-    copy.fromStream(document.toStream());
-    RecordInternal.setIdentity(copy, new RecordId(document.getIdentity()));
-    RecordInternal.setVersion(copy, document.getVersion());
-
-    RidBag copyRidBag = copy.field("ridBag");
-    Assert.assertNotSame(copyRidBag, ridBag);
-
-    copyRidBag.add(new RecordId("#77:11"));
-    Assert.assertTrue(copy.isDirty());
-    Assert.assertFalse(document.isDirty());
-
-    ridBag.add(new RecordId("#77:12"));
-    Assert.assertTrue(document.isDirty());
-
-    document.save();
-    db.commit();
-    try {
-      db.begin();
-      copy.save();
-      db.commit();
-      Assert.assertFalse(expectCME);
-    } catch (ConcurrentModificationException cme) {
-      Assert.assertTrue(expectCME);
-    }
+    entity = db.bindToSession(entity);
+    Assert.assertEquals(version == entity.getVersion(), !expectCME);
+    db.rollback();
   }
 
   public void testAddAllAndIterator() throws Exception {
@@ -638,7 +622,7 @@ public abstract class RidBagTest extends BaseDBTest {
     doc.field("ridbag", bag);
 
     db.begin();
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
     db.commit();
 
     RID rid = doc.getIdentity();
@@ -692,7 +676,7 @@ public abstract class RidBagTest extends BaseDBTest {
 
     doc.field("ridbag", otherBag);
 
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
     db.commit();
 
     rid = doc.getIdentity();
@@ -721,8 +705,8 @@ public abstract class RidBagTest extends BaseDBTest {
     docTwo.field("ridBag", ridBagTwo);
 
     db.begin();
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
+    docTwo.save();
     db.commit();
 
     db.begin();
@@ -735,7 +719,7 @@ public abstract class RidBagTest extends BaseDBTest {
     ridBagTwo = docTwo.field("ridBag");
     ridBagTwo.add(docOne);
 
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
     db.commit();
 
     docOne = db.load(docOne.getIdentity());
@@ -781,7 +765,7 @@ public abstract class RidBagTest extends BaseDBTest {
     doc.field("ridbag", bag);
 
     db.begin();
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
     db.commit();
 
     RID rid = doc.getIdentity();
@@ -896,7 +880,7 @@ public abstract class RidBagTest extends BaseDBTest {
 
     doc.field("ridbag", otherBag);
 
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
     db.commit();
 
     rid = doc.getIdentity();
@@ -975,7 +959,7 @@ public abstract class RidBagTest extends BaseDBTest {
     assertEmbedded(bag.isEmbedded());
 
     db.begin();
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
     db.commit();
     final RID id = doc.getIdentity();
 
@@ -1004,7 +988,7 @@ public abstract class RidBagTest extends BaseDBTest {
     EntityImpl docB =
         ((EntityImpl) db.newEntity())
             .field("name", "B");
-    docB.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docB.save();
     db.commit();
 
     RidBag ridBag = new RidBag(db);
@@ -1013,7 +997,7 @@ public abstract class RidBagTest extends BaseDBTest {
     ridBag.add(docB);
 
     db.begin();
-    docA.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docA.save();
     db.commit();
 
     ridBag.remove(docB);
@@ -1045,7 +1029,7 @@ public abstract class RidBagTest extends BaseDBTest {
     document.field("bag", bag);
 
     db.begin();
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     RID rid = document.getIdentity();
@@ -1106,7 +1090,7 @@ public abstract class RidBagTest extends BaseDBTest {
       EntityImpl docToAdd = ((EntityImpl) db.newEntity());
 
       db.begin();
-      docToAdd.save(db.getClusterNameById(db.getDefaultClusterId()));
+      docToAdd.save();
       db.commit();
 
       docs.add(docToAdd);
@@ -1119,7 +1103,7 @@ public abstract class RidBagTest extends BaseDBTest {
       EntityImpl docToAdd = ((EntityImpl) db.newEntity());
 
       db.begin();
-      docToAdd.save(db.getClusterNameById(db.getDefaultClusterId()));
+      docToAdd.save();
       db.commit();
 
       docs.add(docToAdd);
@@ -1165,7 +1149,7 @@ public abstract class RidBagTest extends BaseDBTest {
     for (int i = 0; i < 10; i++) {
       EntityImpl docToAdd = ((EntityImpl) db.newEntity());
       ridBag = document.field("ridBag");
-      docToAdd.save(db.getClusterNameById(db.getDefaultClusterId()));
+      docToAdd.save();
 
       for (int k = 0; k < 2; k++) {
         ridBag.add(docToAdd);
@@ -1181,7 +1165,7 @@ public abstract class RidBagTest extends BaseDBTest {
       db.begin();
       EntityImpl docToAdd = ((EntityImpl) db.newEntity());
 
-      docToAdd.save(db.getClusterNameById(db.getDefaultClusterId()));
+      docToAdd.save();
 
       document = db.bindToSession(document);
       ridBag = document.field("ridBag");
@@ -1197,7 +1181,7 @@ public abstract class RidBagTest extends BaseDBTest {
     for (int i = 0; i < 10; i++) {
       db.begin();
       EntityImpl docToAdd = ((EntityImpl) db.newEntity());
-      docToAdd.save(db.getClusterNameById(db.getDefaultClusterId()));
+      docToAdd.save();
 
       document = db.bindToSession(document);
       ridBag = document.field("ridBag");
@@ -1215,7 +1199,7 @@ public abstract class RidBagTest extends BaseDBTest {
     ridBag = document.field("ridBag");
     for (int i = 0; i < 10; i++) {
       EntityImpl docToAdd = ((EntityImpl) db.newEntity());
-      docToAdd.save(db.getClusterNameById(db.getDefaultClusterId()));
+      docToAdd.save();
 
       for (int k = 0; k < 2; k++) {
         ridBag.add(docToAdd);
@@ -1224,7 +1208,7 @@ public abstract class RidBagTest extends BaseDBTest {
     }
     for (int i = 0; i < 10; i++) {
       EntityImpl docToAdd = ((EntityImpl) db.newEntity());
-      docToAdd.save(db.getClusterNameById(db.getDefaultClusterId()));
+      docToAdd.save();
       ridBag.add(docToAdd);
       itemsToAdd.add(docToAdd);
     }
@@ -1271,7 +1255,7 @@ public abstract class RidBagTest extends BaseDBTest {
 
     Assert.assertTrue(ridBag.isEmbedded());
 
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     db.begin();
@@ -1284,7 +1268,7 @@ public abstract class RidBagTest extends BaseDBTest {
       EntityImpl docToAdd = ((EntityImpl) db.newEntity());
 
       db.begin();
-      docToAdd.save(db.getClusterNameById(db.getDefaultClusterId()));
+      docToAdd.save();
       db.commit();
 
       ridBag = document.field("ridBag");
@@ -1303,7 +1287,7 @@ public abstract class RidBagTest extends BaseDBTest {
 
     db.begin();
     EntityImpl docToAdd = ((EntityImpl) db.newEntity());
-    docToAdd.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docToAdd.save();
     db.commit();
     db.begin();
 
@@ -1393,7 +1377,7 @@ public abstract class RidBagTest extends BaseDBTest {
 
     Assert.assertTrue(ridBag.isEmbedded());
     db.begin();
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     db.begin();
@@ -1408,7 +1392,7 @@ public abstract class RidBagTest extends BaseDBTest {
 
       EntityImpl docToAdd = ((EntityImpl) db.newEntity());
 
-      docToAdd.save(db.getClusterNameById(db.getDefaultClusterId()));
+      docToAdd.save();
       ridBag.add(docToAdd);
       addedItems.add(docToAdd);
     }
@@ -1422,7 +1406,7 @@ public abstract class RidBagTest extends BaseDBTest {
 
     EntityImpl docToAdd = ((EntityImpl) db.newEntity());
 
-    docToAdd.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docToAdd.save();
     db.commit();
 
     db.begin();
@@ -1503,14 +1487,14 @@ public abstract class RidBagTest extends BaseDBTest {
 
     for (int i = 0; i < 5; i++) {
       EntityImpl docToAdd = ((EntityImpl) db.newEntity());
-      docToAdd.save(db.getClusterNameById(db.getDefaultClusterId()));
+      docToAdd.save();
       ridBag = document.field("ridBag");
       ridBag.add(docToAdd);
 
       docsToAdd.add(docToAdd);
     }
 
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     db.begin();
@@ -1524,7 +1508,7 @@ public abstract class RidBagTest extends BaseDBTest {
     ridBag = document.field("ridBag");
     for (int i = 0; i < 5; i++) {
       EntityImpl docToAdd = ((EntityImpl) db.newEntity());
-      docToAdd.save(db.getClusterNameById(db.getDefaultClusterId()));
+      docToAdd.save();
       ridBag.add(docToAdd);
 
       docsToAdd.add(docToAdd);
@@ -1532,7 +1516,7 @@ public abstract class RidBagTest extends BaseDBTest {
 
     for (int i = 5; i < 10; i++) {
       EntityImpl docToAdd = docsToAdd.get(i).getRecord(db);
-      docToAdd.save(db.getClusterNameById(db.getDefaultClusterId()));
+      docToAdd.save();
     }
 
     Iterator<Identifiable> iterator = docsToAdd.listIterator(7);
@@ -1575,10 +1559,10 @@ public abstract class RidBagTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl fred = ((EntityImpl) db.newEntity());
-    fred.save(db.getClusterNameById(db.getDefaultClusterId()));
+    fred.save();
     final EntityImpl jim =
         ((EntityImpl) db.newEntity());
-    jim.save(db.getClusterNameById(db.getDefaultClusterId()));
+    jim.save();
     db.commit();
 
     RidBag teamMates = new RidBag(db);
@@ -1599,7 +1583,7 @@ public abstract class RidBagTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl bob = ((EntityImpl) db.newEntity());
-    bob.save(db.getClusterNameById(db.getDefaultClusterId()));
+    bob.save();
     db.commit();
 
     teamMates.remove(bob);
@@ -1619,7 +1603,7 @@ public abstract class RidBagTest extends BaseDBTest {
     int size = 0;
     for (int i = 0; i < 10; i++) {
       EntityImpl docToAdd = ((EntityImpl) db.newEntity());
-      docToAdd.save(db.getClusterNameById(db.getDefaultClusterId()));
+      docToAdd.save();
 
       for (int k = 0; k < 2; k++) {
         ridBag.add(docToAdd);
@@ -1631,7 +1615,7 @@ public abstract class RidBagTest extends BaseDBTest {
     Assert.assertEquals(ridBag.size(), size);
     EntityImpl document = ((EntityImpl) db.newEntity());
     document.field("ridBag", ridBag);
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    document.save();
     db.commit();
 
     db.begin();
@@ -1643,7 +1627,7 @@ public abstract class RidBagTest extends BaseDBTest {
     for (int i = 0; i < 10; i++) {
       EntityImpl docToAdd = ((EntityImpl) db.newEntity());
 
-      docToAdd.save(db.getClusterNameById(db.getDefaultClusterId()));
+      docToAdd.save();
       for (int k = 0; k < 2; k++) {
         ridBag.add(docToAdd);
         rids.add(docToAdd);
@@ -1714,20 +1698,20 @@ public abstract class RidBagTest extends BaseDBTest {
 
     for (int i = 0; i < 10; i++) {
       var doc = ((EntityImpl) db.newEntity());
-      doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+      doc.save();
 
       highLevelRidBag.add(doc);
     }
 
-    externalDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    externalDoc.save();
 
     EntityImpl testDocument = ((EntityImpl) db.newEntity());
     testDocument.field("type", "testDocument");
     testDocument.field("ridBag", highLevelRidBag);
     testDocument.field("externalDoc", externalDoc);
 
-    testDocument.save(db.getClusterNameById(db.getDefaultClusterId()));
-    testDocument.save(db.getClusterNameById(db.getDefaultClusterId()));
+    testDocument.save();
+    testDocument.save();
     db.commit();
 
     db.begin();

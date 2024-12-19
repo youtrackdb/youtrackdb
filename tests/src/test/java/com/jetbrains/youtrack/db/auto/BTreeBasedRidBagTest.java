@@ -16,16 +16,16 @@
 
 package com.jetbrains.youtrack.db.auto;
 
-import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.client.remote.EngineRemote;
+import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
+import com.jetbrains.youtrack.db.internal.core.engine.memory.EngineMemory;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.local.WOWCache;
 import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.client.remote.EngineRemote;
-import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.engine.memory.EngineMemory;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManagerShared;
 import java.io.File;
 import java.io.IOException;
@@ -115,7 +115,7 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     docClusterOne.field("ridBag", ridBagClusterOne);
 
     db.begin();
-    docClusterOne.save("clusterOne");
+    docClusterOne.save();
     db.commit();
 
     final String directory = db.getStorage().getConfiguration().getDirectory();
@@ -139,15 +139,15 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     EntityImpl scuti =
         ((EntityImpl) db.newEntity())
             .field("name", "UY Scuti");
-    scuti.save(db.getClusterNameById(db.getDefaultClusterId()));
+    scuti.save();
     EntityImpl cygni =
         ((EntityImpl) db.newEntity())
             .field("name", "NML Cygni");
-    cygni.save(db.getClusterNameById(db.getDefaultClusterId()));
+    cygni.save();
     EntityImpl scorpii =
         ((EntityImpl) db.newEntity())
             .field("name", "AH Scorpii");
-    scorpii.save(db.getClusterNameById(db.getDefaultClusterId()));
+    scorpii.save();
     db.commit();
 
     scuti = db.bindToSession(scuti);
@@ -165,9 +165,10 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     doc.field("ridBag", bag);
 
     db.begin();
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
     db.commit();
 
+    db.begin();
     doc = db.bindToSession(doc);
     bag = doc.field("ridBag");
     bag.remove(cygni);
@@ -178,6 +179,7 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     }
 
     Assert.assertEquals(result, expectedResult);
+    db.commit();
   }
 
   public void testRidBagConversion() {
@@ -187,16 +189,16 @@ public class BTreeBasedRidBagTest extends RidBagTest {
 
     db.begin();
     EntityImpl doc_1 = ((EntityImpl) db.newEntity());
-    doc_1.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc_1.save();
 
     EntityImpl doc_2 = ((EntityImpl) db.newEntity());
-    doc_2.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc_2.save();
 
     EntityImpl doc_3 = ((EntityImpl) db.newEntity());
-    doc_3.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc_3.save();
 
     EntityImpl doc_4 = ((EntityImpl) db.newEntity());
-    doc_4.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc_4.save();
 
     EntityImpl doc = ((EntityImpl) db.newEntity());
 
@@ -207,16 +209,16 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     bag.add(doc_4);
 
     doc.field("ridBag", bag);
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
     db.commit();
 
     db.begin();
     doc = db.bindToSession(doc);
     EntityImpl doc_5 = ((EntityImpl) db.newEntity());
-    doc_5.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc_5.save();
 
     EntityImpl doc_6 = ((EntityImpl) db.newEntity());
-    doc_6.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc_6.save();
 
     bag = doc.field("ridBag");
     bag.add(doc_5);
@@ -271,7 +273,7 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     assertEmbedded(realDocRidBag.isEmbedded());
 
     db.begin();
-    realDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    realDoc.save();
     db.commit();
 
     final int clusterId = db.addCluster("ridBagDeleteTest");
@@ -324,7 +326,7 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     testDocument.field("realDoc", realDoc);
 
     db.begin();
-    testDocument.save("ridBagDeleteTest");
+    testDocument.save();
     db.commit();
 
     return testDocument;
