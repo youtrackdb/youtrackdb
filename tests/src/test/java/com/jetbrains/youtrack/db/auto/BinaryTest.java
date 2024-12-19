@@ -41,7 +41,7 @@ public class BinaryTest extends BaseDBTest {
     EntityImpl doc = ((EntityImpl) db.newEntity());
     doc.field("binary", "Binary data".getBytes());
 
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
     db.commit();
 
     db.begin();
@@ -75,7 +75,7 @@ public class BinaryTest extends BaseDBTest {
     EntityImpl doc = ((EntityImpl) db.newEntity());
     doc.field("binary", new RecordBytes(db, "Binary data".getBytes()));
 
-    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save();
     db.commit();
 
     rid = doc.getIdentity();
