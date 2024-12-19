@@ -345,11 +345,11 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
     docOne.field("prop1", "a");
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
     docTwo.field("prop1", "a");
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
     db.commit();
 
     final Collection<? extends Index> afterIndexes =
@@ -374,11 +374,11 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
     docOne.field("prop1", "a");
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
     docTwo.field("prop1", "b");
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     docOne.field("prop1", "a");
     docOne.save();
@@ -397,7 +397,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     docOne.field("prop1", "a");
 
     db.begin();
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
     db.commit();
 
     db.begin();
@@ -410,7 +410,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     docOne.field("prop1", "a");
 
     db.begin();
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
     db.commit();
 
     db.begin();
