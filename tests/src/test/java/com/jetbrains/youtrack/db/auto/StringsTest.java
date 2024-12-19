@@ -15,16 +15,22 @@
  */
 package com.jetbrains.youtrack.db.auto;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.parser.StringParser;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import java.util.List;
 import org.testng.Assert;
+import org.testng.annotations.Optional;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
-public class StringsTest extends DbTestBase {
+public class StringsTest extends BaseDBTest {
+
+  @Parameters(value = "remote")
+  public StringsTest(@Optional Boolean remote) {
+    super(remote != null && remote);
+  }
 
   @Test
   public void splitArray() {
@@ -46,6 +52,7 @@ public class StringsTest extends DbTestBase {
     Assert.assertTrue(pieces.get(1).contains("this is mine"));
   }
 
+  @Test
   public void replaceAll() {
     String test1 = "test string number 1";
     String test2 =
@@ -77,6 +84,7 @@ public class StringsTest extends DbTestBase {
         subsequentReplaceTest, "text replacement 1   test String number 2 text replacement 1");
   }
 
+  @Test
   public void testNoEmptyFields() {
     List<String> pieces =
         StringSerializerHelper.split(
@@ -85,6 +93,7 @@ public class StringsTest extends DbTestBase {
     Assert.assertEquals(pieces.size(), 14);
   }
 
+  @Test
   public void testEmptyFields() {
     List<String> pieces =
         StringSerializerHelper.split(
@@ -93,6 +102,7 @@ public class StringsTest extends DbTestBase {
     Assert.assertEquals(pieces.size(), 14);
   }
 
+  @Test
   public void testDocumentSelfReference() {
     EntityImpl document = ((EntityImpl) db.newEntity());
     document.field("selfref", document);
@@ -103,6 +113,7 @@ public class StringsTest extends DbTestBase {
 
     String value = document.toString();
 
-    Assert.assertEquals(value, "{selfref:<recursion:rid=#-1:-1>,ref:{ref:<recursion:rid=#-1:-1>}}");
+    Assert.assertEquals(value,
+        "O{selfref:<recursion:rid=#-1:-1>,ref:O{ref:<recursion:rid=#-1:-1>}}");
   }
 }
