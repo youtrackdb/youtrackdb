@@ -2077,14 +2077,13 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
 
   public StorageRemote copy(
       final DatabaseSessionRemote source, final DatabaseSessionRemote dest) {
+    final StorageRemoteSession session = source.getSessionMetadata();
     DatabaseSessionInternal origin = null;
     if (DatabaseRecordThreadLocal.instance() != null) {
       origin = DatabaseRecordThreadLocal.instance().getIfDefined();
     }
 
     origin = DatabaseDocumentTxInternal.getInternal(origin);
-
-    final StorageRemoteSession session = source.getSessionMetadata();
     if (session != null) {
       // TODO:may run a session reopen
       final StorageRemoteSession newSession =

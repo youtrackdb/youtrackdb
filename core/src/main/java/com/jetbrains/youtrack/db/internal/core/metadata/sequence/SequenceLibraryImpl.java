@@ -39,7 +39,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 3/2/2015
  */
 public class SequenceLibraryImpl {
-
   private final Map<String, Sequence> sequences = new ConcurrentHashMap<String, Sequence>();
   private final AtomicBoolean reloadNeeded = new AtomicBoolean(false);
 

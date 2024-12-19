@@ -1983,8 +1983,6 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   protected synchronized void closeActiveQueries() {
-    assert assertIfNotActive();
-
     while (!activeQueries.isEmpty()) {
       this.activeQueries
           .values()

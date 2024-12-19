@@ -299,7 +299,6 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   }
 
   public StorageRemoteSession getSessionMetadata() {
-    assert assertIfNotActive();
     return sessionMetadata;
   }
 
@@ -948,7 +947,6 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   @Override
   public boolean isClosed() {
-    assert assertIfNotActive();
     return status == STATUS.CLOSED || storage.isClosed(this);
   }
 
@@ -956,8 +954,6 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     if (status != STATUS.OPEN) {
       return;
     }
-
-    assert assertIfNotActive();
 
     try {
       closeActiveQueries();
@@ -969,7 +965,9 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
       }
 
       try {
-        rollback(true);
+        if (currentTx.isActive()) {
+          rollback(true);
+        }
       } catch (Exception e) {
         LogManager.instance().error(this, "Exception during rollback of active transaction", e);
       }

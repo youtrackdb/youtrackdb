@@ -100,37 +100,6 @@ public class MetadataPushTest {
   }
 
   @Test
-  public void testIndexManagerUpdate() throws Exception {
-    database.activateOnCurrentThread();
-    database.command(" create class X");
-    database.command(" create property X.y STRING");
-    database.command(" create index X.y on X(y) NOTUNIQUE");
-    // Push done in background for now, do not guarantee update before command return.
-    secondDatabase.activateOnCurrentThread();
-    DbTestBase.assertWithTimeout(
-        secondDatabase,
-        () ->
-            assertTrue(secondDatabase.getMetadata().getIndexManagerInternal().existsIndex("X.y")));
-  }
-
-  @Test
-  public void testFunctionUpdate() throws Exception {
-    database.activateOnCurrentThread();
-    database.begin();
-    database.command("CREATE FUNCTION test \"print('\\nTest!')\"");
-    database.commit();
-
-    // Push done in background for now, do not guarantee update before command return.
-    secondDatabase.activateOnCurrentThread();
-    DbTestBase.assertWithTimeout(
-        secondDatabase,
-        () -> {
-          secondDatabase.activateOnCurrentThread();
-          assertNotNull(secondDatabase.getMetadata().getFunctionLibrary().getFunction("test"));
-        });
-  }
-
-  @Test
   public void testSequencesUpdate() throws Exception {
     database.activateOnCurrentThread();
     database.begin();

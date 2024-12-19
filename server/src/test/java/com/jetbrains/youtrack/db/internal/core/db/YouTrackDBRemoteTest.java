@@ -16,7 +16,6 @@ import com.jetbrains.youtrack.db.api.session.SessionPool;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
 import java.io.File;
 import java.util.List;
@@ -72,7 +71,7 @@ public class YouTrackDBRemoteTest {
     DatabaseSessionInternal db = (DatabaseSessionInternal) factory.open("test", "admin",
         "admin");
     db.begin();
-    db.save(((EntityImpl) db.newEntity()), db.getClusterNameById(db.getDefaultClusterId()));
+    db.save(db.newEntity());
     db.commit();
     db.close();
   }
@@ -102,7 +101,7 @@ public class YouTrackDBRemoteTest {
     SessionPool pool = new SessionPoolImpl(factory, "test", "admin", "admin");
     DatabaseSessionInternal db = (DatabaseSessionInternal) pool.acquire();
     db.begin();
-    db.save(((EntityImpl) db.newEntity()), db.getClusterNameById(db.getDefaultClusterId()));
+    db.save(db.newEntity());
     db.commit();
     db.close();
     pool.close();

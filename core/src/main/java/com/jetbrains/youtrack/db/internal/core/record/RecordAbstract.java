@@ -582,7 +582,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   }
 
   protected void track(Identifiable id) {
-    this.getDirtyManager().track(getSession(), this, id);
+    this.getDirtyManager().track(getSessionIfDefined(), this, id);
   }
 
   protected void unTrack(Identifiable id) {
