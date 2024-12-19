@@ -27,8 +27,7 @@ public class LinkListIndexTest extends BaseDBTest {
 
   @Parameters(value = "remote")
   public LinkListIndexTest(@Optional Boolean remote) {
-    // super(remote != null && remote);
-    super(true);
+    super(remote != null && remote);
   }
 
   @BeforeClass
@@ -70,10 +69,10 @@ public class LinkListIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
@@ -105,10 +104,10 @@ public class LinkListIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
     db.commit();
 
     try {
@@ -146,13 +145,13 @@ public class LinkListIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
 
@@ -189,13 +188,13 @@ public class LinkListIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
@@ -241,13 +240,13 @@ public class LinkListIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
@@ -287,13 +286,13 @@ public class LinkListIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
@@ -335,13 +334,13 @@ public class LinkListIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
@@ -384,13 +383,13 @@ public class LinkListIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl docThree = ((EntityImpl) db.newEntity());
-    docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docThree.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
@@ -427,10 +426,10 @@ public class LinkListIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
@@ -471,10 +470,10 @@ public class LinkListIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
@@ -511,10 +510,10 @@ public class LinkListIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
@@ -550,10 +549,10 @@ public class LinkListIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
@@ -577,10 +576,10 @@ public class LinkListIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
@@ -608,10 +607,10 @@ public class LinkListIndexTest extends BaseDBTest {
 
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
@@ -645,10 +644,10 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionSQL() {
     db.begin();
     final EntityImpl docOne = ((EntityImpl) db.newEntity());
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docOne.save();
 
     final EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
+    docTwo.save();
 
     final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
