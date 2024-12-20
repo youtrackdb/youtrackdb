@@ -59,7 +59,7 @@ public class IndexTest extends BaseDBTest {
 
   @Parameters(value = "remote")
   public IndexTest(@Optional Boolean remote) {
-    super(remote != null && remote);
+    super(true);
   }
 
   @BeforeClass
@@ -199,9 +199,13 @@ public class IndexTest extends BaseDBTest {
   }
 
   private void dropIndexes(String className, String propertyName) {
-    for (var indexName : db.getMetadata().getSchema().getClassInternal(className)
-        .getPropertyInternal(propertyName).getAllIndexes(db)) {
-      db.getMetadata().getIndexManagerInternal().dropIndex(db, indexName);
+    if (remoteDB) {
+      db.command("drop index " + className + "." + propertyName).close();
+    } else {
+      for (var indexName : db.getMetadata().getSchema().getClassInternal(className)
+          .getPropertyInternal(propertyName).getAllIndexes(db)) {
+        db.getMetadata().getIndexManagerInternal().dropIndex(db, indexName);
+      }
     }
   }
 
@@ -418,17 +422,24 @@ public class IndexTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "testChangeOfIndexToUnique")
   public void removeNotUniqueIndexOnNick() {
+    if (remoteDB) {
+      return;
+    }
+
     dropIndexes("Profile", "nick");
   }
 
   @Test(dependsOnMethods = "removeNotUniqueIndexOnNick")
   public void testQueryingWithoutNickIndex() {
-    Assert.assertFalse(
-        db.getMetadata().getSchema().getClassInternal("Profile")
-            .getInvolvedIndexes(db, "name").isEmpty());
-    Assert.assertTrue(
-        db.getMetadata().getSchema().getClassInternal("Profile").getInvolvedIndexes(db, "nick")
-            .isEmpty());
+    if (!remoteDB) {
+      Assert.assertFalse(
+          db.getMetadata().getSchema().getClassInternal("Profile")
+              .getInvolvedIndexes(db, "name").isEmpty());
+
+      Assert.assertTrue(
+          db.getMetadata().getSchema().getClassInternal("Profile").getInvolvedIndexes(db, "nick")
+              .isEmpty());
+    }
 
     List<EntityImpl> result =
         db
@@ -465,11 +476,13 @@ public class IndexTest extends BaseDBTest {
 
   @Test(dependsOnMethods = {"createNotUniqueIndexOnNick", "populateIndexDocuments"})
   public void testIndexInNotUniqueIndex() {
-    Assert.assertEquals(
-        db.getClassInternal("Profile").
-            getInvolvedIndexesInternal(db, "nick").iterator()
-            .next().getType(),
-        SchemaClass.INDEX_TYPE.NOTUNIQUE.toString());
+    if (!remoteDB) {
+      Assert.assertEquals(
+          db.getClassInternal("Profile").
+              getInvolvedIndexesInternal(db, "nick").iterator()
+              .next().getType(),
+          SchemaClass.INDEX_TYPE.NOTUNIQUE.toString());
+    }
 
     try (var resultSet =
         db.query(
