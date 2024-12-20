@@ -27,7 +27,7 @@ The full Server distribution is a few MBs without the demo database.
 
 ## Skilled team of professionals
 
-YouTrackDB is supported by [YouTrack](https://www.jetbrains.com/youtrack) project from JetBrains
+YouTrackDB is a binary compatible fork of OrientDB supported and evolved by [YouTrack](https://www.jetbrains.com/youtrack) project from JetBrains
 
 ## Main References
 
