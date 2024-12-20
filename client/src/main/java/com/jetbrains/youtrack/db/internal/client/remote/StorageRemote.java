@@ -1063,9 +1063,10 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
         iCommand instanceof CommandRequestAsynch
             && ((CommandRequestAsynch) iCommand).isAsynchronous();
 
-    CommandRequest request = new CommandRequest(db, asynch, iCommand, live);
+    var remoteDb = (DatabaseSessionRemote) db;
+    CommandRequest request = new CommandRequest(remoteDb, asynch, iCommand, live);
     CommandResponse response =
-        networkOperation((DatabaseSessionRemote) db, request,
+        networkOperation(remoteDb, request,
             "Error on executing command: " + iCommand);
     return response.getResult();
   }

@@ -27,7 +27,7 @@ import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.serialization.BinaryProtocol;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetwork;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import com.jetbrains.youtrack.db.internal.core.sql.query.LiveQuery;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
@@ -53,7 +53,7 @@ public class StreamSerializerAnyStreamable {
    * parameter.
    */
   public CommandRequestText fromStream(DatabaseSessionInternal db, final byte[] iStream,
-      RecordSerializer serializer)
+      RecordSerializerNetwork serializer)
       throws IOException {
     if (iStream == null || iStream.length == 0)
     // NULL VALUE
@@ -79,7 +79,7 @@ public class StreamSerializerAnyStreamable {
       if (className.equalsIgnoreCase("q"))
       // QUERY
       {
-        stream = new SQLSynchQuery<Object>();
+        stream = new SQLSynchQuery<>();
       } else if (className.equalsIgnoreCase("c"))
       // SQL COMMAND
       {
@@ -107,30 +107,26 @@ public class StreamSerializerAnyStreamable {
   /**
    * Serialize the class name size + class name + object content
    */
-  public byte[] toStream(final CommandRequestText iObject) throws IOException {
+  public static byte[] toStream(DatabaseSessionInternal db, final CommandRequestText iObject)
+      throws IOException {
     if (iObject == null) {
       return null;
     }
 
     // SERIALIZE THE CLASS NAME
     final byte[] className;
-    if (iObject instanceof LiveQuery<?>) {
-      className = iObject.getClass().getName().getBytes(StandardCharsets.UTF_8);
-    } else if (iObject instanceof SQLSynchQuery<?>) {
-      className = QUERY_COMMAND_CLASS_ASBYTES;
-    } else if (iObject instanceof CommandSQL) {
-      className = SQL_COMMAND_CLASS_ASBYTES;
-    } else if (iObject instanceof CommandScript) {
-      className = SCRIPT_COMMAND_CLASS_ASBYTES;
-    } else {
-      if (iObject == null) {
-        className = null;
-      } else {
+    switch (iObject) {
+      case LiveQuery<?> objects ->
+          className = iObject.getClass().getName().getBytes(StandardCharsets.UTF_8);
+      case SQLSynchQuery<?> objects -> className = QUERY_COMMAND_CLASS_ASBYTES;
+      case CommandSQL commandSQL -> className = SQL_COMMAND_CLASS_ASBYTES;
+      case CommandScript commandScript -> className = SCRIPT_COMMAND_CLASS_ASBYTES;
+      default -> {
         className = iObject.getClass().getName().getBytes(StandardCharsets.UTF_8);
       }
     }
     // SERIALIZE THE OBJECT CONTENT
-    byte[] objectContent = iObject.toStream();
+    byte[] objectContent = iObject.toStream(db, (RecordSerializerNetwork) db.getSerializer());
 
     byte[] result = new byte[4 + className.length + objectContent.length];
 
@@ -142,7 +138,7 @@ public class StreamSerializerAnyStreamable {
     return result;
   }
 
-  public String getName() {
+  public static String getName() {
     return NAME;
   }
 }

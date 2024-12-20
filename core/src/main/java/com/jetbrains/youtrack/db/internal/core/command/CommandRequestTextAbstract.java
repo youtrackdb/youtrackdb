@@ -28,6 +28,7 @@ import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index.CompositeKeySerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetwork;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerStringAbstract;
 import java.util.HashMap;
 import java.util.List;
@@ -84,14 +85,15 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
   }
 
   public CommandRequestText fromStream(DatabaseSessionInternal db, final byte[] iStream,
-      RecordSerializer serializer)
+      RecordSerializerNetwork serializer)
       throws SerializationException {
     final MemoryStream buffer = new MemoryStream(iStream);
     fromStream(db, buffer, serializer);
     return this;
   }
 
-  public byte[] toStream() throws SerializationException {
+  public byte[] toStream(DatabaseSessionInternal db, RecordSerializerNetwork serializer)
+      throws SerializationException {
     final MemoryStream buffer = new MemoryStream();
     return toStream(buffer);
   }

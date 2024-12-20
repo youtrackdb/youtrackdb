@@ -64,6 +64,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
 
     createProfileClass();
     createCompanyClass();
+    addBarackObamaAndFollowers();
   }
 
   @Test
@@ -470,7 +471,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
 
     EntityImpl cerseiDoc = ((EntityImpl) db.newEntity("PersonTest"));
     cerseiDoc.fromJSON(
-        "{\"@type\":\"d\",\"name\":\"cersei\",\"valonqar\":" + jaimeDoc.toJSON() + "}");
+        "{\"@type\":\"d\",\"name\":\"cersei\",\"valonqar\":" + jaimeDoc.toJSON("") + "}");
     cerseiDoc.save();
     db.commit();
 
@@ -718,6 +719,10 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
   }
 
   public void testSerialization() {
+    if (remoteDB) {
+      //we need to use only network oriented serializers in remote
+      return;
+    }
     RecordSerializer current = DatabaseSessionAbstract.getDefaultSerializer();
     DatabaseSessionAbstract.setDefaultSerializer(RecordSerializerSchemaAware2CSV.INSTANCE);
     RecordSerializer dbser = db.getSerializer();

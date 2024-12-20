@@ -19,13 +19,13 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command.script;
 
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestTextAbstract;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetwork;
 import javax.script.CompiledScript;
 
 /**
@@ -74,7 +74,7 @@ public class CommandScript extends CommandRequestTextAbstract {
   }
 
   public CommandRequestText fromStream(DatabaseSessionInternal db, byte[] iStream,
-      RecordSerializer serializer)
+      RecordSerializerNetwork serializer)
       throws SerializationException {
     final MemoryStream buffer = new MemoryStream(iStream);
     language = buffer.getAsString();
@@ -93,7 +93,8 @@ public class CommandScript extends CommandRequestTextAbstract {
     return this;
   }
 
-  public byte[] toStream() throws SerializationException {
+  public byte[] toStream(DatabaseSessionInternal db, RecordSerializerNetwork serializer)
+      throws SerializationException {
     final MemoryStream buffer = new MemoryStream();
     buffer.setUtf8(language);
     buffer.setUtf8(executionMode.name());

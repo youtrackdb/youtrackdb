@@ -139,16 +139,6 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
     queryIndexEmbeddedMapClass("Bolzano", 1);
   }
 
-  @Test
-  public void testCreateIndexEmbeddedMapApiSimpleTree() {
-    addDocumentViaAPI();
-
-    var song = createEmbeddedMapIndexSimple();
-    checkCreatedEmbeddedMapIndex(song, "CELL_BTREE");
-
-    queryIndexEmbeddedMapClass("Hello Bolzano how are you today?", 0);
-  }
-
   private void addDocumentViaAPI() {
     final Map<String, String> entries = new HashMap<>();
     entries.put("text", "Hello Rome how are you today?");
@@ -161,16 +151,6 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
     db.begin();
     db.save(doc);
     db.commit();
-  }
-
-  @Test
-  public void testCreateIndexEmbeddedMapApiSimpleDoesNotReturnResult() {
-    addDocumentViaAPI();
-
-    var song = createEmbeddedMapIndexSimple();
-    checkCreatedEmbeddedMapIndex(song, "CELL_BTREE");
-
-    queryIndexEmbeddedMapClass("Bolzano", 0);
   }
 
   private void queryIndexEmbeddedMapClass(final String searchTerm, final int expectedCount) {

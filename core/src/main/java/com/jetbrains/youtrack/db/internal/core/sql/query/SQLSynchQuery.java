@@ -26,7 +26,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetwork;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -138,12 +138,13 @@ public class SQLSynchQuery<T extends Object> extends SQLAsynchQuery<T>
   }
 
   @Override
-  protected MemoryStream queryToStream() {
-    final MemoryStream buffer = super.queryToStream();
+  protected MemoryStream queryToStream(DatabaseSessionInternal db,
+      RecordSerializerNetwork serializer) {
+    final MemoryStream buffer = super.queryToStream(db, serializer);
 
     buffer.setUtf8(nextPageRID != null ? nextPageRID.toString() : "");
 
-    final byte[] queryParams = serializeQueryParameters(previousQueryParams);
+    final byte[] queryParams = serializeQueryParameters(db, serializer, previousQueryParams);
     buffer.set(queryParams);
 
     return buffer;
@@ -151,7 +152,7 @@ public class SQLSynchQuery<T extends Object> extends SQLAsynchQuery<T>
 
   @Override
   protected void queryFromStream(DatabaseSessionInternal db, final MemoryStream buffer,
-      RecordSerializer serializer) {
+      RecordSerializerNetwork serializer) {
     super.queryFromStream(db, buffer, serializer);
 
     final String rid = buffer.getAsString();

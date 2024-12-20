@@ -23,6 +23,7 @@ import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
+import com.jetbrains.youtrack.db.internal.client.remote.db.DatabaseSessionRemote;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetwork;
@@ -34,13 +35,13 @@ import java.io.IOException;
 
 public final class CommandRequest implements BinaryRequest<CommandResponse> {
 
-  private DatabaseSessionInternal database;
+  private DatabaseSessionRemote database;
   private boolean asynch;
   private CommandRequestText query;
   private boolean live;
 
   public CommandRequest(
-      DatabaseSessionInternal database,
+      DatabaseSessionRemote database,
       boolean asynch,
       CommandRequestText iCommand,
       boolean live) {
@@ -61,7 +62,7 @@ public final class CommandRequest implements BinaryRequest<CommandResponse> {
     } else {
       network.writeByte((byte) (asynch ? 'a' : 's')); // ASYNC / SYNC
     }
-    network.writeBytes(StreamSerializerAnyStreamable.INSTANCE.toStream(query));
+    network.writeBytes(StreamSerializerAnyStreamable.toStream(database, query));
   }
 
   public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,

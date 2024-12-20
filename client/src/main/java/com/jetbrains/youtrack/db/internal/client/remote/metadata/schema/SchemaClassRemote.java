@@ -261,6 +261,10 @@ public class SchemaClassRemote extends SchemaClassImpl {
     queryBuilder.append(fields[fields.length - 1]).append(") ");
     queryBuilder.append(type);
 
+    if (algorithm != null) {
+      queryBuilder.append(" engine ").append(algorithm);
+    }
+
     if (metadata != null) {
       var objectMapper = new ObjectMapper();
       try {

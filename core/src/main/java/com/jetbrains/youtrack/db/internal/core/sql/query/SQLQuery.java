@@ -29,11 +29,9 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
 import com.jetbrains.youtrack.db.internal.core.query.QueryAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetwork;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -48,7 +46,6 @@ import java.util.Set;
  *
  * @param <T> Record type to return.
  */
-@SuppressWarnings("serial")
 public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandRequestText {
 
   protected String text;
@@ -91,7 +88,7 @@ public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandReq
   public T runFirst(DatabaseSessionInternal database, final Object... iArgs) {
     setLimit(1);
     final List<T> result = execute(database, iArgs);
-    return result != null && !result.isEmpty() ? result.get(0) : null;
+    return result != null && !result.isEmpty() ? result.getFirst() : null;
   }
 
   public String getText() {
@@ -109,7 +106,7 @@ public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandReq
   }
 
   public CommandRequestText fromStream(DatabaseSessionInternal db, final byte[] iStream,
-      RecordSerializer serializer)
+      RecordSerializerNetwork serializer)
       throws SerializationException {
     final MemoryStream buffer = new MemoryStream(iStream);
 
@@ -118,24 +115,26 @@ public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandReq
     return this;
   }
 
-  public byte[] toStream() throws SerializationException {
-    return queryToStream().toByteArray();
+  public byte[] toStream(DatabaseSessionInternal db, RecordSerializerNetwork serializer)
+      throws SerializationException {
+    return queryToStream(db, serializer).toByteArray();
   }
 
-  protected MemoryStream queryToStream() {
+  protected MemoryStream queryToStream(DatabaseSessionInternal db,
+      RecordSerializerNetwork serializer) {
     final MemoryStream buffer = new MemoryStream();
 
     buffer.setUtf8(text); // TEXT AS STRING
     buffer.set(limit); // LIMIT AS INTEGER
     buffer.setUtf8(fetchPlan != null ? fetchPlan : "");
 
-    buffer.set(serializeQueryParameters(parameters));
+    buffer.set(serializeQueryParameters(db, serializer, parameters));
 
     return buffer;
   }
 
   protected void queryFromStream(DatabaseSessionInternal db, final MemoryStream buffer,
-      RecordSerializer serializer) {
+      RecordSerializerNetwork serializer) {
     text = buffer.getAsString();
     limit = buffer.getAsInteger();
 
@@ -145,83 +144,78 @@ public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandReq
     parameters = deserializeQueryParameters(db, paramBuffer, serializer);
   }
 
-  protected Map<Object, Object> deserializeQueryParameters(
-      DatabaseSessionInternal db, final byte[] paramBuffer, RecordSerializer serializer) {
+  protected static Map<Object, Object> deserializeQueryParameters(
+      DatabaseSessionInternal db, final byte[] paramBuffer, RecordSerializerNetwork serializer) {
     if (paramBuffer == null || paramBuffer.length == 0) {
       return Collections.emptyMap();
     }
 
-    final EntityImpl param = new EntityImpl(null);
+    @SuppressWarnings("unchecked")
+    var params = (Map<String, ?>) serializer.deserializeValue(db, paramBuffer,
+        PropertyType.EMBEDDEDMAP);
 
-    ImmutableSchema schema =
-        DatabaseRecordThreadLocal.instance().get().getMetadata().getImmutableSchemaSnapshot();
-    serializer.fromStream(db, paramBuffer, param, null);
-    param.setFieldType("params", PropertyType.EMBEDDEDMAP);
-    final Map<String, Object> params = param.rawField("params");
-
-    final Map<Object, Object> result = new HashMap<Object, Object>();
-    for (Entry<String, Object> p : params.entrySet()) {
+    final Map<Object, Object> result = new HashMap<>();
+    for (Entry<String, ?> p : params.entrySet()) {
       if (Character.isDigit(p.getKey().charAt(0))) {
         result.put(Integer.parseInt(p.getKey()), p.getValue());
       } else {
         result.put(p.getKey(), p.getValue());
       }
     }
+
     return result;
   }
 
-  protected byte[] serializeQueryParameters(final Map<Object, Object> params) {
-    if (params == null || params.size() == 0)
+  protected static byte[] serializeQueryParameters(DatabaseSessionInternal db,
+      RecordSerializerNetwork serializer, final Map<Object, Object> params) {
+    if (params == null || params.isEmpty())
     // NO PARAMETER, JUST SEND 0
     {
       return CommonConst.EMPTY_BYTE_ARRAY;
     }
 
-    final EntityImpl param = new EntityImpl(null);
-    param.field("params", convertToRIDsIfPossible(params));
-    return param.toStream();
+    return serializer.serializeValue(db, convertToRIDsIfPossible(params),
+        PropertyType.EMBEDDEDMAP);
   }
 
-  @SuppressWarnings("unchecked")
-  private Map<Object, Object> convertToRIDsIfPossible(final Map<Object, Object> params) {
-    final Map<Object, Object> newParams = new HashMap<Object, Object>(params.size());
+  private static Map<Object, Object> convertToRIDsIfPossible(final Map<Object, Object> params) {
+    final Map<Object, Object> newParams = new HashMap<>(params.size());
 
     for (Entry<Object, Object> entry : params.entrySet()) {
       final Object value = entry.getValue();
 
-      if (value instanceof Set<?>
-          && !((Set<?>) value).isEmpty()
-          && ((Set<?>) value).iterator().next() instanceof Record) {
-        // CONVERT RECORDS AS RIDS
-        final Set<RID> newSet = new HashSet<RID>();
-        for (Record rec : (Set<Record>) value) {
-          newSet.add(rec.getIdentity());
+      switch (value) {
+        case Set<?> objects when !objects.isEmpty() && objects.iterator()
+            .next() instanceof Record -> {
+          // CONVERT RECORDS AS RIDS
+          final Set<RID> newSet = new HashSet<>();
+          //noinspection unchecked
+          for (Record rec : (Set<Record>) value) {
+            newSet.add(rec.getIdentity());
+          }
+          newParams.put(entry.getKey(), newSet);
         }
-        newParams.put(entry.getKey(), newSet);
-
-      } else if (value instanceof List<?>
-          && !((List<?>) value).isEmpty()
-          && ((List<?>) value).get(0) instanceof Record) {
-        // CONVERT RECORDS AS RIDS
-        final List<RID> newList = new ArrayList<RID>();
-        for (Record rec : (List<Record>) value) {
-          newList.add(rec.getIdentity());
+        case List<?> objects when !objects.isEmpty() && objects.getFirst() instanceof Record -> {
+          // CONVERT RECORDS AS RIDS
+          final List<RID> newList = new ArrayList<>();
+          //noinspection unchecked
+          for (Record rec : (List<Record>) value) {
+            newList.add(rec.getIdentity());
+          }
+          newParams.put(entry.getKey(), newList);
         }
-        newParams.put(entry.getKey(), newList);
-
-      } else if (value instanceof Map<?, ?>
-          && !((Map<?, ?>) value).isEmpty()
-          && ((Map<?, ?>) value).values().iterator().next() instanceof Record) {
-        // CONVERT RECORDS AS RIDS
-        final Map<Object, RID> newMap = new HashMap<Object, RID>();
-        for (Entry<?, Record> mapEntry : ((Map<?, Record>) value).entrySet()) {
-          newMap.put(mapEntry.getKey(), mapEntry.getValue().getIdentity());
+        case Map<?, ?> map when !map.isEmpty() && map.values().iterator()
+            .next() instanceof Record -> {
+          // CONVERT RECORDS AS RIDS
+          final Map<Object, RID> newMap = new HashMap<>();
+          //noinspection unchecked
+          for (Entry<?, Record> mapEntry : ((Map<?, Record>) value).entrySet()) {
+            newMap.put(mapEntry.getKey(), mapEntry.getValue().getIdentity());
+          }
+          newParams.put(entry.getKey(), newMap);
         }
-        newParams.put(entry.getKey(), newMap);
-      } else if (value instanceof Identifiable) {
-        newParams.put(entry.getKey(), ((Identifiable) value).getIdentity());
-      } else {
-        newParams.put(entry.getKey(), value);
+        case Identifiable identifiable -> newParams.put(entry.getKey(), identifiable.getIdentity());
+        case null, default -> newParams.put(entry.getKey(), value);
       }
     }
 

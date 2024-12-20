@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.command;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetwork;
 
 /**
  * Internal specialization of generic Command interface based on a text command.
@@ -32,7 +32,7 @@ public interface CommandRequestText extends CommandRequestInternal {
   CommandRequestText setText(String iText);
 
   CommandRequestText fromStream(DatabaseSessionInternal db, byte[] bytes,
-      RecordSerializer serializer);
+      RecordSerializerNetwork serializer);
 
-  byte[] toStream();
+  byte[] toStream(DatabaseSessionInternal db, RecordSerializerNetwork serializer);
 }
