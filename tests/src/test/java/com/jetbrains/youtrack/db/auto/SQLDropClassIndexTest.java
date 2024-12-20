@@ -16,22 +16,23 @@
 package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = {"index"})
+@Test
 public class SQLDropClassIndexTest extends BaseDBTest {
 
   private static final PropertyType EXPECTED_PROP1_TYPE = PropertyType.DOUBLE;
   private static final PropertyType EXPECTED_PROP2_TYPE = PropertyType.INTEGER;
 
   @Parameters(value = "remote")
-  public SQLDropClassIndexTest(boolean remote) {
-    super(remote);
+  public SQLDropClassIndexTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeClass

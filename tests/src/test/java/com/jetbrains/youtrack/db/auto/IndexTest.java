@@ -59,7 +59,7 @@ public class IndexTest extends BaseDBTest {
 
   @Parameters(value = "remote")
   public IndexTest(@Optional Boolean remote) {
-    super(true);
+    super(remote != null && remote);
   }
 
   @BeforeClass

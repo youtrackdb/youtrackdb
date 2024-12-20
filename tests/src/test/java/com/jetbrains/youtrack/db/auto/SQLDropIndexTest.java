@@ -22,18 +22,19 @@ import com.jetbrains.youtrack.db.internal.core.index.Index;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = {"index"})
+@Test
 public class SQLDropIndexTest extends BaseDBTest {
 
   private static final PropertyType EXPECTED_PROP1_TYPE = PropertyType.DOUBLE;
   private static final PropertyType EXPECTED_PROP2_TYPE = PropertyType.INTEGER;
 
   @Parameters(value = "remote")
-  public SQLDropIndexTest(boolean remote) {
-    super(remote);
+  public SQLDropIndexTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeClass

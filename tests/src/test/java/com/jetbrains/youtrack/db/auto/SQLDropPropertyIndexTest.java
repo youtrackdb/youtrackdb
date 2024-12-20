@@ -26,18 +26,19 @@ import java.util.Arrays;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = {"index"})
+@Test
 public class SQLDropPropertyIndexTest extends BaseDBTest {
 
   private static final PropertyType EXPECTED_PROP1_TYPE = PropertyType.DOUBLE;
   private static final PropertyType EXPECTED_PROP2_TYPE = PropertyType.INTEGER;
 
   @Parameters(value = "remote")
-  public SQLDropPropertyIndexTest(boolean remote) {
-    super(remote);
+  public SQLDropPropertyIndexTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeMethod

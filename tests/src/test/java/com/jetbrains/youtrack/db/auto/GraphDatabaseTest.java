@@ -101,9 +101,6 @@ public class GraphDatabaseTest extends BaseDBTest {
 
     if (!oc.existsProperty("name")) {
       oc.createProperty(db, "name", PropertyType.STRING);
-    }
-
-    if (oc.getClassIndex(db, "vertexA_name_idx") == null) {
       oc.createIndex(db, "vertexA_name_idx", SchemaClass.INDEX_TYPE.UNIQUE, "name");
     }
 

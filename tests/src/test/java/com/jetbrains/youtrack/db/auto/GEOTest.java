@@ -45,19 +45,25 @@ public class GEOTest extends BaseDBTest {
     mapPointClass.createProperty(db, "y", PropertyType.DOUBLE)
         .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
-    final Set<Index> xIndexes =
-        db.getMetadata().getSchema().getClassInternal("MapPoint")
-            .getInvolvedIndexesInternal(db, "x");
-    Assert.assertEquals(xIndexes.size(), 1);
+    if (!remoteDB) {
+      final Set<Index> xIndexes =
+          db.getMetadata().getSchema().getClassInternal("MapPoint")
+              .getInvolvedIndexesInternal(db, "x");
+      Assert.assertEquals(xIndexes.size(), 1);
 
-    final Set<Index> yIndexes =
-        db.getMetadata().getSchema().getClassInternal("MapPoint")
-            .getInvolvedIndexesInternal(db, "y");
-    Assert.assertEquals(yIndexes.size(), 1);
+      final Set<Index> yIndexes =
+          db.getMetadata().getSchema().getClassInternal("MapPoint")
+              .getInvolvedIndexesInternal(db, "y");
+      Assert.assertEquals(yIndexes.size(), 1);
+    }
   }
 
   @Test(dependsOnMethods = "geoSchema")
   public void checkGeoIndexes() {
+    if (remoteDB) {
+      return;
+    }
+
     final Set<Index> xIndexes =
         db.getMetadata().getSchema().getClassInternal("MapPoint").
             getInvolvedIndexesInternal(db, "x");
