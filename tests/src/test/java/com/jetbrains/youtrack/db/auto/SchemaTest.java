@@ -634,16 +634,21 @@ public class SchemaTest extends BaseDBTest {
     db.commit();
 
     var schema = (SchemaInternal) db.getSchema();
-    var clazz = schema.getClassInternal(className);
-    var idx = clazz.getIndexesInternal(db);
+    if (!remoteDB) {
+      var clazz = schema.getClassInternal(className);
+      var idx = clazz.getIndexesInternal(db);
 
-    Set<String> indexes = new HashSet<>();
-    for (Index id : idx) {
-      indexes.add(id.getName());
+      Set<String> indexes = new HashSet<>();
+      for (Index id : idx) {
+        indexes.add(id.getName());
+      }
+
+      Assert.assertTrue(
+          indexes.contains(className + "." + propertyName.toLowerCase(Locale.ENGLISH)));
+      Assert.assertTrue(
+          indexes.contains(className + "." + propertyName.toUpperCase(Locale.ENGLISH)));
     }
 
-    Assert.assertTrue(indexes.contains(className + "." + propertyName.toLowerCase(Locale.ENGLISH)));
-    Assert.assertTrue(indexes.contains(className + "." + propertyName.toUpperCase(Locale.ENGLISH)));
     schema.dropClass(className);
   }
 

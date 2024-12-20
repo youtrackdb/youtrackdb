@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -22,7 +23,7 @@ import org.testng.annotations.Test;
 public class BetweenConversionTest extends BaseDBTest {
 
   @Parameters(value = "remote")
-  public BetweenConversionTest(boolean remote) {
+  public BetweenConversionTest(@Optional Boolean remote) {
     super(remote);
   }
 
