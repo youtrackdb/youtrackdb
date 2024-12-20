@@ -14,11 +14,6 @@ You can traverse thousands of records in no time. Supports schema-less, schema-f
 It has a strong security profiling system based on user, roles, and predicate security and 
 supports SQL amongst the query languages. Thanks to the SQL layer, it's easy for people skilled in the relational world to use.
 
-## Is YouTrackDB a Relational DBMS?
-
-No. YouTrackDB adheres to the [NoSQL](http://en.wikipedia.org/wiki/NoSQL) movement even though it supports ACID Transactions 
-and SQL as a query language. 
-In this way, it's easy to start using it without having to learn too much new stuff. 
 
 ## Easy to install and use
 
