@@ -34,11 +34,8 @@ YouTrackDB is supported by [YouTrack](https://www.jetbrains.com/youtrack) projec
 - For any questions, please visit the [YouTrackDB Community Group](https://github.com/youtrackdb/youtrackdb/discussions)
 - You can find status of our builds on [![TeamCity](https://youtrackdb.teamcity.com/app/rest/builds/buildType:(id:YouTrackDB_UnitTests)/statusIcon)](https://youtrackdb.teamcity.com/viewType.html?buildTypeId=YouTrackDB_UnitTests&guest=1)
 - If you have ideas to share or bugs to report, please visit our [issue tracker](https://youtrack.jetbrains.com/issues/YTDB)
-- In our [knowledge base](https://youtrack.jetbrains.com/articles/YTDB) you will find information about our project.
+- In our [knowledge base](https://youtrack.jetbrains.com/articles/YTDB) you will find more information about our project.
 
 ## Licensing
 
 YouTrackDB is licensed under the Apache 2 license. 
-
-
-
