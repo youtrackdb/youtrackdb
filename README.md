@@ -7,13 +7,12 @@
 ## What is YouTrackDB?
 
 **YouTrackDB** is an Open Source Multi-Model [NoSQL](http://en.wikipedia.org/wiki/NoSQL) DBMS with the support of Native Graphs, 
-Documents, Full-Text search, Reactivity, Geo-Spatial and Object Oriented concepts. 
-It's written in Java and it's amazingly fast. 
-No expensive run-time JOINs, connections are managed as persistent pointers between records. 
-You can traverse thousands of records in no time. Supports schema-less, schema-full and schema-mixed modes.
-Has a strong security profiling system based on user, roles and predicate security and 
-supports SQL amongst the query languages. Thanks to the SQL layer 
-it's straightforward to use for people skilled in the Relational world.
+Documents, Full-Text search, Reactivity, Geo-Spatial, and Object Oriented concepts. 
+It's written in Java and is amazingly fast. 
+No expensive run-time JOINs. Connections are managed as persistent pointers between records. 
+You can traverse thousands of records in no time. Supports schema-less, schema-full, and schema-mixed modes.
+It has a strong security profiling system based on user, roles, and predicate security and 
+supports SQL amongst the query languages. Thanks to the SQL layer, it's easy for people skilled in the relational world to use.
 
 ## Is YouTrackDB a Relational DBMS?
 
@@ -26,7 +25,7 @@ In this way, it's easy to start using it without having to learn too much new st
 Yes. YouTrackDB is totally written in Java and can run on any platform without configuration and installation.
 The full Server distribution is a few MBs without the demo database.
 
-## Skilled team of professional
+## Skilled team of professionals
 
 YouTrackDB is supported by [YouTrack](https://www.jetbrains.com/youtrack) project from JetBrains
 
@@ -35,11 +34,8 @@ YouTrackDB is supported by [YouTrack](https://www.jetbrains.com/youtrack) projec
 - For any questions, please visit the [YouTrackDB Community Group](https://github.com/youtrackdb/youtrackdb/discussions)
 - You can find status of our builds on [![TeamCity](https://youtrackdb.teamcity.com/app/rest/builds/buildType:(id:YouTrackDB_UnitTests)/statusIcon)](https://youtrackdb.teamcity.com/viewType.html?buildTypeId=YouTrackDB_UnitTests&guest=1)
 - If you have ideas to share or bugs to report, please visit our [issue tracker](https://youtrack.jetbrains.com/issues/YTDB)
-- In our [knowledge base](https://youtrack.jetbrains.com/articles/YTDB) you will find information about our project.
+- In our [knowledge base](https://youtrack.jetbrains.com/articles/YTDB) you will find more information about our project.
 
 ## Licensing
 
 YouTrackDB is licensed under the Apache 2 license. 
-
-
-
