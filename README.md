@@ -1,12 +1,12 @@
-## OxygenDB
+## YouTrackDB
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ------
 
-## What is OxygenDB?
+## What is YouTrackDB?
 
-**OxygenDB** is an Open Source Multi-Model [NoSQL](http://en.wikipedia.org/wiki/NoSQL) DBMS with the support of Native Graphs, 
+**YouTrackDB** is an Open Source Multi-Model [NoSQL](http://en.wikipedia.org/wiki/NoSQL) DBMS with the support of Native Graphs, 
 Documents, Full-Text search, Reactivity, Geo-Spatial and Object Oriented concepts. 
 It's written in Java and it's amazingly fast. 
 No expensive run-time JOINs, connections are managed as persistent pointers between records. 
@@ -15,25 +15,31 @@ Has a strong security profiling system based on user, roles and predicate securi
 supports SQL amongst the query languages. Thanks to the SQL layer 
 it's straightforward to use for people skilled in the Relational world.
 
-## Is OxygenDB a Relational DBMS?
+## Is YouTrackDB a Relational DBMS?
 
-No. OxygenDB adheres to the [NoSQL](http://en.wikipedia.org/wiki/NoSQL) movement even though it supports ACID Transactions 
+No. YouTrackDB adheres to the [NoSQL](http://en.wikipedia.org/wiki/NoSQL) movement even though it supports ACID Transactions 
 and SQL as a query language. 
 In this way, it's easy to start using it without having to learn too much new stuff. 
 
 ## Easy to install and use
 
-Yes. OxygenDB is totally written in [Java](http://en.wikipedia.org/wiki/Java_%28programming_language%29) and can run on any platform without configuration and installation.
+Yes. YouTrackDB is totally written in Java and can run on any platform without configuration and installation.
 The full Server distribution is a few MBs without the demo database.
+
+## Skilled team of professional
+
+YouTrackDB is supported by [YouTrack](https://www.jetbrains.com/youtrack) project from JetBrains
 
 ## Main References
 
-- For any questions, please visit the [OxygenDB Community Group](https://github.com/oxygendb/oxygendb/discussions)
+- For any questions, please visit the [YouTrackDB Community Group](https://github.com/youtrackdb/youtrackdb/discussions)
+- You can find status of our builds on [![TeamCity](https://youtrackdb.teamcity.com/app/rest/builds/buildType:(id:YouTrackDB_UnitTests)/statusIcon)](https://youtrackdb.teamcity.com/viewType.html?buildTypeId=YouTrackDB_UnitTests&guest=1)
+- If you have ideas to share or bugs to report, please visit our [issue tracker](https://youtrack.jetbrains.com/issues/YTDB)
+- In our [knowledge base](https://youtrack.jetbrains.com/articles/YTDB) you will find information about our project.
 
 ## Licensing
 
-OxygenDB is licensed under the Apache 2 license. 
+YouTrackDB is licensed under the Apache 2 license. 
 
-## Build status
 
-You can find status of our builds on [![TeamCity](https://oxygendb.teamcity.com/app/rest/builds/buildType:(id:OxygenDB_UnitTests)/statusIcon)](https://oxygendb.teamcity.com/viewType.html?buildTypeId=OxygenDB_UnitTests&guest=1)
+
