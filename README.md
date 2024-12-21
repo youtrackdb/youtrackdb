@@ -6,7 +6,7 @@
 
 ## What is YouTrackDB?
 
-**YouTrackDB** is an Open Source Multi-Model [NoSQL](http://en.wikipedia.org/wiki/NoSQL) DBMS with the support of Native Graphs, 
+YouTrackDB is an Entity Store with the support of Native Graphs, 
 Documents, Full-Text search, Reactivity, Geo-Spatial, and Object Oriented concepts. 
 It's written in Java and is amazingly fast. 
 No expensive run-time JOINs. Connections are managed as persistent pointers between records. 
@@ -14,15 +14,10 @@ You can traverse thousands of records in no time. Supports schema-less, schema-f
 It has a strong security profiling system based on user, roles, and predicate security and 
 supports SQL amongst the query languages. Thanks to the SQL layer, it's easy for people skilled in the relational world to use.
 
-## Is YouTrackDB a Relational DBMS?
-
-No. YouTrackDB adheres to the [NoSQL](http://en.wikipedia.org/wiki/NoSQL) movement even though it supports ACID Transactions 
-and SQL as a query language. 
-In this way, it's easy to start using it without having to learn too much new stuff. 
 
 ## Easy to install and use
 
-Yes. YouTrackDB is totally written in Java and can run on any platform without configuration and installation.
+YouTrackDB is totally written in Java and can run on any platform without configuration and installation.
 The full Server distribution is a few MBs without the demo database.
 
 ## Skilled team of professionals
