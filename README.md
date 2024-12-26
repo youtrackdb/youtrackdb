@@ -8,12 +8,15 @@
 
 YouTrackDB is an Entity Store with the support of Native Graphs, 
 Documents, Full-Text search, Reactivity, Geo-Spatial, and Object Oriented concepts. 
-It's written in Java and is amazingly fast. 
-No expensive run-time JOINs. Connections are managed as persistent pointers between records. 
-You can traverse thousands of records in no time. Supports schema-less, schema-full, and schema-mixed modes.
-It has a strong security profiling system based on user, roles, and predicate security and 
-supports SQL amongst the query languages. Thanks to the SQL layer, it's easy for people skilled in the relational world to use.
 
+
+YouTrackDB's key features are:
+1. **Fast data processing**: YouTrackDB process links traversal with O(1) complexity. No expensive run-time JOINs.
+2. **Universal API**: YouTrackDB implements graph and object-oriented data models. It provides a rich entity processing API that works uniformly over all remote and embedded deployment environments.
+3. **SQL-like query language**: YouTrackDB uses a dialect of SQL query language enriched by graph and object-oriented functions and commands. Thanks to the SQL layer, it's easy for people skilled in the relational world to use.
+4. **Scalable development workflow**: YouTrackDB works in schema-less, schema-mixed, and schema-full modes. Universal API allows you to port your database to a server environment without changing your application code.
+5. **Strong security**: YouTrackDB has a strong security profiling system based on user, role, and predicate security and supports SQL as a query language.
+6. **Binary compatibility with OrientDB**: Databases created with OrientDB can be used without any data alterations in YouTrackDB.
 
 ## Easy to install and use
 
