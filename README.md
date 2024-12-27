@@ -16,11 +16,13 @@ YouTrackDB's key features are:
 3. **SQL-like query language**: YouTrackDB uses a dialect of SQL query language enriched by graph and object-oriented functions and commands. Thanks to the SQL layer, it's easy for people skilled in the relational world to use.
 4. **Scalable development workflow**: YouTrackDB works in schema-less, schema-mixed, and schema-full modes. Universal API allows you to port your database to a server environment without changing your application code.
 5. **Strong security**: YouTrackDB has a strong security profiling system based on user, role, and predicate security and supports SQL as a query language.
-6. **Binary compatibility with OrientDB**: Databases created with OrientDB can be used without any data alterations in YouTrackDB.
+6. **Encryption of data at rest**: YouTrackDB optionally encrypts all data stored on disk using modern AES encryption.
+7. **Binary compatibility with OrientDB**: Databases created with OrientDB can be used without any data alterations in YouTrackDB.
+   
 
 ## Easy to install and use
 
-YouTrackDB is totally written in Java and can run on any platform without configuration and installation.
+YouTrackDB can run on any platform without configuration and installation.
 The full Server distribution is a few MBs without the demo database.
 
 ## Skilled team of professionals
