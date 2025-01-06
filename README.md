@@ -6,8 +6,8 @@
 
 ## What is YouTrackDB?
 
-YouTrackDB is an Entity Store with the support of Native Graphs, 
-Documents, Full-Text search, Reactivity, Geo-Spatial, and Object Oriented concepts. 
+YouTrackDB is an Object Oriented Database with the support of Native Graphs, 
+Documents, Full-Text search, Reactivity, Geo-Spatial concepts. 
 
 
 YouTrackDB's key features are:
