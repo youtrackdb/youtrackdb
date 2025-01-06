@@ -6,9 +6,7 @@
 
 ## What is YouTrackDB?
 
-YouTrackDB is an Object Oriented Database with the support of Native Graphs, 
-Documents, Full-Text search, Reactivity, Geo-Spatial concepts. 
-
+YouTrackDB is an object-oriented graph database that supports documents, full-text search, reactivity, and geospatial concepts. 
 
 YouTrackDB's key features are:
 1. **Fast data processing**: YouTrackDB process links traversal with O(1) complexity. No expensive run-time JOINs.
@@ -18,8 +16,7 @@ YouTrackDB's key features are:
 5. **Strong security**: YouTrackDB has a strong security profiling system based on user, role, and predicate security and supports SQL as a query language.
 6. **Encryption of data at rest**: YouTrackDB optionally encrypts all data stored on disk using modern AES encryption.
 7. **Binary compatibility with OrientDB**: Databases created with OrientDB can be used without any data alterations in YouTrackDB.
-   
-
+ 
 ## Easy to install and use
 
 YouTrackDB can run on any platform without configuration and installation.
