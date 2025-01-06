@@ -93,8 +93,8 @@ import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransaction;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransaction.TXSTATUS;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import com.jetbrains.youtrack.db.internal.core.tx.RollbackException;
-import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1074,7 +1074,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     return begin(newTxInstance());
   }
 
-  public int begin(TransactionOptimistic transaction) {
+  public int begin(FrontendTransactionOptimistic transaction) {
     checkOpenness();
     assert assertIfNotActive();
 
@@ -1084,7 +1084,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     }
 
     if (currentTx.isActive()) {
-      if (currentTx instanceof TransactionOptimistic) {
+      if (currentTx instanceof FrontendTransactionOptimistic) {
         return currentTx.begin();
       }
     }
@@ -1103,9 +1103,9 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     return currentTx.begin();
   }
 
-  protected TransactionOptimistic newTxInstance() {
+  protected FrontendTransactionOptimistic newTxInstance() {
     assert assertIfNotActive();
-    return new TransactionOptimistic(this);
+    return new FrontendTransactionOptimistic(this);
   }
 
   public void setDefaultTransactionMode() {

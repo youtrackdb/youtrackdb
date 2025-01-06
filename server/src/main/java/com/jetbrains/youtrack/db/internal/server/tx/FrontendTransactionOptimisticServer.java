@@ -21,20 +21,18 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.DocumentSerializerDelta;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
-import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 
-/**
- *
- */
-public class TransactionOptimisticServer extends TransactionOptimistic {
+public class FrontendTransactionOptimisticServer extends FrontendTransactionOptimistic {
 
-  public TransactionOptimisticServer(DatabaseSessionInternal database, long txId) {
+  public FrontendTransactionOptimisticServer(DatabaseSessionInternal database, long txId) {
     super(database, txId);
   }
 
@@ -51,65 +49,68 @@ public class TransactionOptimisticServer extends TransactionOptimistic {
     final HashMap<RecordId, RecordAbstract> updatedRecords = new HashMap<>();
 
     try {
-      List<RecordOperation> toMergeUpdates = new ArrayList<>();
       for (RecordOperationRequest operation : operations) {
         final byte recordStatus = operation.getType();
 
         final RecordId rid = (RecordId) operation.getId();
 
-        final RecordOperation entry;
-
+        @Nonnull final RecordOperation entry;
         switch (recordStatus) {
-          case RecordOperation.CREATED:
-            RecordAbstract record =
-                YouTrackDBEnginesManager.instance()
-                    .getRecordFactoryManager()
-                    .newInstance(operation.getRecordType(), rid, getDatabase());
-            RecordSerializerNetworkV37.INSTANCE.fromStream(getDatabase(), operation.getRecord(),
-                record);
-            entry = new RecordOperation(record, RecordOperation.CREATED);
-            RecordInternal.setVersion(record, 0);
+          case RecordOperation.CREATED: {
+            var txEntry = getRecordEntry(rid);
 
-            createdRecords.put(rid.copy(), entry);
-            break;
-
-          case RecordOperation.UPDATED:
-            byte type = operation.getRecordType();
-            if (type == DocumentSerializerDelta.DELTA_RECORD_TYPE) {
-              int version = operation.getVersion();
-              EntityImpl updated;
-              try {
-                updated = database.load(rid);
-              } catch (RecordNotFoundException rnf) {
-                updated = new EntityImpl(database);
+            if (txEntry != null) {
+              if (txEntry.type != RecordOperation.CREATED) {
+                throw new IllegalStateException(
+                    "Record " + rid + " was created on client side but updated on server side.");
               }
+              entry = txEntry;
 
-              updated.deserializeFields();
-              EntityInternalUtils.clearTransactionTrackData(updated);
-              DocumentSerializerDelta delta = DocumentSerializerDelta.instance();
-              delta.deserializeDelta(getDatabase(), operation.getRecord(), updated);
-              entry = new RecordOperation(updated, RecordOperation.UPDATED);
-              RecordInternal.setIdentity(updated, rid);
-              RecordInternal.setVersion(updated, version);
-              updated.setDirty();
-              RecordInternal.setContentChanged(entry.record, operation.isContentChanged());
-              updatedRecords.put(rid, updated);
+              mergeChanges(operation, entry.record, operation.getRecordType());
             } else {
-              int version = operation.getVersion();
-              var updated =
+              RecordAbstract record =
                   YouTrackDBEnginesManager.instance()
                       .getRecordFactoryManager()
                       .newInstance(operation.getRecordType(), rid, getDatabase());
-              RecordSerializerNetworkV37.INSTANCE.fromStream(getDatabase(), operation.getRecord(),
-                  updated);
-              entry = new RecordOperation(updated, RecordOperation.UPDATED);
-              RecordInternal.setVersion(updated, version);
-              updated.setDirty();
-              RecordInternal.setContentChanged(entry.record, operation.isContentChanged());
-              toMergeUpdates.add(entry);
-            }
-            break;
 
+              RecordSerializerNetworkV37.INSTANCE.fromStream(getDatabase(), operation.getRecord(),
+                  record);
+              entry = new RecordOperation(record, RecordOperation.CREATED);
+              RecordInternal.setVersion(record, 0);
+            }
+            createdRecords.put(rid.copy(), entry);
+          }
+          break;
+
+          case RecordOperation.UPDATED: {
+            byte type = operation.getRecordType();
+
+            var txEntry = getRecordEntry(rid);
+            if (txEntry != null && txEntry.type == RecordOperation.DELETED) {
+              throw new IllegalStateException(
+                  "Record " + rid + " was updated on client side but deleted on server side.");
+            }
+
+            RecordAbstract updated;
+            if (txEntry == null) {
+              try {
+                updated = database.load(rid);
+              } catch (RecordNotFoundException e) {
+                throw new IllegalStateException(
+                    "Record " + rid + " was not found in database.");
+              }
+              txEntry = new RecordOperation(updated, RecordOperation.UPDATED);
+            } else {
+              updated = txEntry.record;
+            }
+
+            assert updated != null;
+            entry = txEntry;
+
+            mergeChanges(operation, updated, type);
+            updatedRecords.put(rid, updated);
+          }
+          break;
           case RecordOperation.DELETED:
             // LOAD RECORD TO BE SURE IT HASN'T BEEN DELETED BEFORE + PROVIDE CONTENT FOR ANY HOOK
             var recordEntry = getRecordEntry(rid);
@@ -122,7 +123,6 @@ public class TransactionOptimisticServer extends TransactionOptimistic {
             entry = new RecordOperation(rec, RecordOperation.DELETED);
             int deleteVersion = operation.getVersion();
             RecordInternal.setVersion(rec, deleteVersion);
-            entry.record = rec;
             break;
           default:
             throw new TransactionException("Unrecognized tx command: " + recordStatus);
@@ -132,42 +132,10 @@ public class TransactionOptimisticServer extends TransactionOptimistic {
         tempEntries.put(entry.record.getIdentity(), entry);
       }
 
-      for (RecordOperation update : toMergeUpdates) {
-        // SPECIAL CASE FOR UPDATE: WE NEED TO LOAD THE RECORD AND APPLY CHANGES TO GET WORKING
-        // HOOKS (LIKE INDEXES)
-        var record = update.record.getRecord(database);
-        final boolean contentChanged = RecordInternal.isContentChanged(record);
-
-        final RecordAbstract loadedRecord = record.getIdentity().copy().getRecord(database);
-        if (RecordInternal.getRecordType(database, loadedRecord) == EntityImpl.RECORD_TYPE
-            && RecordInternal.getRecordType(database, loadedRecord)
-            == RecordInternal.getRecordType(database, record)) {
-          ((EntityImpl) loadedRecord).merge((EntityImpl) record, false, false);
-
-          loadedRecord.setDirty();
-          RecordInternal.setContentChanged(loadedRecord, contentChanged);
-
-          RecordInternal.setVersion(loadedRecord, record.getVersion());
-          update.record = loadedRecord;
-        }
-      }
-
       var txOperations = new ArrayList<RecordOperation>(tempEntries.size());
       try {
         for (Map.Entry<RID, RecordOperation> entry : tempEntries.entrySet()) {
-          var cachedRecord = database.getLocalCache().findRecord(entry.getKey());
-
           var operation = entry.getValue();
-          var rec = operation.record;
-
-          if (rec != cachedRecord) {
-            if (cachedRecord != null) {
-              rec.copyTo(cachedRecord);
-            } else {
-              database.getLocalCache().updateRecord(rec.getRecord(database));
-            }
-          }
-
           txOperations.add(preAddRecord(operation.record, entry.getValue().type));
         }
 
@@ -204,16 +172,34 @@ public class TransactionOptimisticServer extends TransactionOptimistic {
     }
   }
 
+  private void mergeChanges(RecordOperationRequest operation, RecordAbstract record,
+      byte recordType) {
+    if (record instanceof EntityImpl entity) {
+      entity.deserializeFields();
+      EntityInternalUtils.clearTransactionTrackData(entity);
+
+      if (recordType == DocumentSerializerDelta.DELTA_RECORD_TYPE) {
+        DocumentSerializerDelta delta = DocumentSerializerDelta.instance();
+        delta.deserializeDelta(getDatabase(), operation.getRecord(), entity);
+      } else {
+        var phantom = (EntityImpl) RecordSerializerNetworkV37.INSTANCE.fromStream(
+            getDatabase(),
+            operation.getRecord(), null);
+        entity.copyPropertiesFromOtherEntity(phantom);
+      }
+    }
+  }
+
   /**
    * Unmarshalls collections. This prevent temporary RIDs remains stored as are.
    */
-  protected void unmarshallRecord(final Record iRecord) {
+  protected static void unmarshallRecord(final Record iRecord) {
     if (iRecord instanceof EntityImpl) {
       ((EntityImpl) iRecord).deserializeFields();
     }
   }
 
-  private boolean checkCallHooks(RID id, byte type) {
+  private boolean checkCallHooks(RecordId id, byte type) {
     RecordOperation entry = recordOperations.get(id);
     return entry == null || entry.type != type;
   }
@@ -271,7 +257,10 @@ public class TransactionOptimisticServer extends TransactionOptimistic {
         // after commit
         RecordInternal.setIdentity(record, txEntry.record.getIdentity());
         // UPDATE PREVIOUS STATUS
-        txEntry.record = record;
+        if (txEntry.record != record) {
+          throw new IllegalStateException(
+              "Record " + rid + " is already presented in transaction with another instance");
+        }
 
         switch (txEntry.type) {
           case RecordOperation.UPDATED:

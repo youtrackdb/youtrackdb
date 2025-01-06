@@ -33,12 +33,9 @@ public final class RecordOperation implements Comparable<RecordOperation> {
   public static final byte CREATED = 3;
 
   public byte type;
-  public RecordAbstract record;
+  public final RecordAbstract record;
   // used in processing of server transactions
   public boolean callHooksOnServerTx = false;
-
-  public RecordOperation() {
-  }
 
   public RecordOperation(final RecordAbstract record, final byte status) {
     // CLONE RECORD AND CONTENT

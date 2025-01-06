@@ -1466,14 +1466,13 @@ public class SecurityShared implements SecurityInternal {
         }
       }
     }
-    Set<String> props = entity.getPropertyNamesInternal();
+    var props = entity.getPropertyNamesInternal();
     Set<String> result = new HashSet<>();
 
-    var sessionInternal = session;
     for (String prop : props) {
       SQLBooleanExpression predicate =
           SecurityEngine.getPredicateForSecurityResource(
-              sessionInternal,
+              session,
               this,
               "database.class.`" + clazz.getName() + "`.`" + prop + "`",
               SecurityPolicy.Scope.READ);

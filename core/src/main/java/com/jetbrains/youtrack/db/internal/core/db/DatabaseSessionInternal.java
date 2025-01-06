@@ -61,9 +61,8 @@ import com.jetbrains.youtrack.db.internal.core.storage.StorageInfo;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransaction;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionData;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx;
-import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import com.jetbrains.youtrack.db.internal.enterprise.EnterpriseEndpoint;
 import java.util.Collection;
 import java.util.HashMap;
@@ -121,7 +120,7 @@ public interface DatabaseSessionInternal extends DatabaseSession {
    */
   RecordSerializer getSerializer();
 
-  int begin(TransactionOptimistic tx);
+  int begin(FrontendTransactionOptimistic tx);
 
   void setSerializer(RecordSerializer serializer);
 
@@ -240,7 +239,7 @@ public interface DatabaseSessionInternal extends DatabaseSession {
   /**
    * Executed the commit on the storage hiding away storage concepts from the transaction
    */
-  void internalCommit(TransactionOptimistic transaction);
+  void internalCommit(FrontendTransactionOptimistic transaction);
 
   boolean isClusterVertex(int cluster);
 
@@ -267,14 +266,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
   }
 
   Map<UUID, BonsaiCollectionPointer> getCollectionsChanges();
-
-  default void syncCommit(FrontendTransactionData data) {
-    throw new UnsupportedOperationException();
-  }
-
-  default boolean isLocalEnv() {
-    return true;
-  }
 
   boolean dropClusterInternal(int clusterId);
 

@@ -192,9 +192,9 @@ public class RecordSerializerNetworkV0 implements EntitySerializer {
           last = bytes.offset;
         }
         bytes.offset = headerCursor;
-        entity.field(fieldName, value, type);
+        entity.setPropertyInternal(fieldName, value, type);
       } else {
-        entity.field(fieldName, null, (PropertyType[]) null);
+        entity.setPropertyInternal(fieldName, null);
       }
     }
 

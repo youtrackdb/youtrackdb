@@ -37,7 +37,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.DirtyManager;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJSON;
-import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -204,7 +204,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
       if (!isEmbedded()) {
         assert recordId.isPersistent();
 
-        var optimistic = (TransactionOptimistic) tx;
+        var optimistic = (FrontendTransactionOptimistic) tx;
         optimistic.addRecordOperation(this, RecordOperation.UPDATED, null);
       }
     }

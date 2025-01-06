@@ -779,10 +779,6 @@ public abstract class SchemaShared implements CloseableInStorage {
     return global;
   }
 
-  protected boolean executeThroughDistributedStorage(DatabaseSessionInternal database) {
-    return !database.isLocalEnv();
-  }
-
   private void saveInternal(DatabaseSessionInternal database) {
 
     var tx = database.getTransaction();

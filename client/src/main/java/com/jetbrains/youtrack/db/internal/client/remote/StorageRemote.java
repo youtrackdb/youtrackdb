@@ -29,7 +29,7 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.client.NotSendRequestException;
 import com.jetbrains.youtrack.db.internal.client.binary.SocketChannelBinaryAsynchClient;
 import com.jetbrains.youtrack.db.internal.client.remote.db.DatabaseSessionRemote;
-import com.jetbrains.youtrack.db.internal.client.remote.db.TransactionOptimisticClient;
+import com.jetbrains.youtrack.db.internal.client.remote.db.FrontendTransactionOptimisticClient;
 import com.jetbrains.youtrack.db.internal.client.remote.db.YTLiveQueryMonitorRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.message.AddClusterRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.AddClusterResponse;
@@ -143,8 +143,8 @@ import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.RecordSerializationContext;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionInternal;
-import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.DistributedRedirectException;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinary;
@@ -1326,7 +1326,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     }
   }
 
-  public List<RecordOperation> commit(final TransactionOptimistic iTx) {
+  public List<RecordOperation> commit(final FrontendTransactionOptimistic iTx) {
     var remoteSession = (DatabaseSessionRemote) iTx.getDatabase();
     unstickToSession(remoteSession);
 
@@ -1355,7 +1355,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   public void rollback(TransactionInternal iTx) {
     var remoteSession = (DatabaseSessionRemote) iTx.getDatabase();
     try {
-      if (((TransactionOptimistic) iTx).isStartedOnServer()
+      if (((FrontendTransactionOptimistic) iTx).isStartedOnServer()
           && !getCurrentSession(remoteSession).getAllServerSessions().isEmpty()) {
         RollbackTransactionRequest request = new RollbackTransactionRequest(iTx.getId());
         networkOperation(remoteSession, request,
@@ -2143,7 +2143,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     }
   }
 
-  public void beginTransaction(TransactionOptimistic transaction) {
+  public void beginTransaction(FrontendTransactionOptimistic transaction) {
     var database = (DatabaseSessionRemote) transaction.getDatabase();
     BeginTransaction38Request request =
         new BeginTransaction38Request(database,
@@ -2160,7 +2160,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     stickToSession(database);
   }
 
-  public void sendTransactionState(TransactionOptimistic transaction) {
+  public void sendTransactionState(FrontendTransactionOptimistic transaction) {
     var database = (DatabaseSessionRemote) transaction.getDatabase();
     SendTransactionStateRequest request =
         new SendTransactionStateRequest(database, transaction.getId(),
@@ -2179,7 +2179,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
 
 
   public void fetchTransaction(DatabaseSessionRemote remote) {
-    TransactionOptimisticClient transaction = remote.getActiveTx();
+    FrontendTransactionOptimisticClient transaction = remote.getActiveTx();
     FetchTransaction38Request request = new FetchTransaction38Request(transaction.getId());
     FetchTransaction38Response response =
         networkOperation(remote, request, "Error fetching transaction from server side");

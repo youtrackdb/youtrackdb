@@ -42,16 +42,16 @@ public interface VertexInternal extends Vertex, EntityInternal {
   EntityImpl getBaseEntity();
 
   @Override
-  default Set<String> getPropertyNames() {
+  default Collection<String> getPropertyNames() {
     return filterPropertyNames(getBaseEntity().getPropertyNamesInternal());
   }
 
   @Override
-  default Set<String> getPropertyNamesInternal() {
+  default Collection<String> getPropertyNamesInternal() {
     return getBaseEntity().getPropertyNamesInternal();
   }
 
-  static Set<String> filterPropertyNames(Set<String> propertyNames) {
+  static Collection<String> filterPropertyNames(Collection<String> propertyNames) {
     var propertiesToRemove = new ArrayList<String>();
 
     for (var propertyName : propertyNames) {
@@ -153,14 +153,14 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   @Override
-  default void setProperty(String name, Object value, PropertyType... fieldType) {
+  default void setProperty(String name, Object value, PropertyType fieldType) {
     checkPropertyName(name);
 
     getBaseEntity().setPropertyInternal(name, value, fieldType);
   }
 
   @Override
-  default void setPropertyInternal(String name, Object value, PropertyType... type) {
+  default void setPropertyInternal(String name, Object value, PropertyType type) {
     getBaseEntity().setPropertyInternal(name, value, type);
   }
 

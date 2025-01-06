@@ -82,7 +82,7 @@ import com.jetbrains.youtrack.db.internal.core.record.RecordVersionHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
-import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -408,12 +408,12 @@ public class EntityImpl extends RecordAbstract
   }
 
   @Override
-  public Set<String> getPropertyNames() {
+  public Collection<String> getPropertyNames() {
     return getPropertyNamesInternal();
   }
 
   @Override
-  public Set<String> getPropertyNamesInternal() {
+  public Collection<String> getPropertyNamesInternal() {
     return calculatePropertyNames();
   }
 
@@ -634,7 +634,46 @@ public class EntityImpl extends RecordAbstract
         && !((RecordId) entity.getIdentity()).isValid()) {
       setProperty(name, value, PropertyType.EMBEDDED);
     } else {
-      setPropertyInternal(name, value, CommonConst.EMPTY_TYPES_ARRAY);
+      setPropertyInternal(name, value, null);
+    }
+  }
+
+  /**
+   * Copies property values from one entity to another. Only properties with different values are
+   * marked as dirty in result of such change. This rule is applied for all properties except of
+   * <code>RidBag</code>. Only embedded <code>RidBag</code>s are compared but tree based are
+   * always assigned to avoid performance overhead.
+   *
+   * @param from Entity from which properties are copied.
+   */
+  public void copyPropertiesFromOtherEntity(@Nonnull EntityImpl from) {
+    deserializeFields();
+    from.deserializeFields();
+
+    var fromFields = from.fields;
+    if (fromFields == null || fromFields.isEmpty()) {
+      return;
+    }
+
+    for (Map.Entry<String, EntityEntry> entry : fromFields.entrySet()) {
+      if (entry.getValue().exists()) {
+        var fromValue = entry.getValue();
+        var currentEntry = fields.get(entry.getKey());
+
+        if (!(currentEntry.value instanceof RidBag ridBag)) {
+          if (!Objects.equals(fromValue.type, currentEntry.type)) {
+            setPropertyInternal(entry.getKey(), fromValue.value, fromValue.type);
+          }
+        } else {
+          if (ridBag.isEmbedded()) {
+            if (!Objects.equals(fromValue.type, currentEntry.type)) {
+              setPropertyInternal(entry.getKey(), fromValue.value, fromValue.type);
+            }
+          } else {
+            setPropertyInternal(entry.getKey(), fromValue.value, fromValue.type);
+          }
+        }
+      }
     }
   }
 
@@ -645,12 +684,21 @@ public class EntityImpl extends RecordAbstract
    * @param value The property value
    * @param types Forced type (not auto-determined)
    */
-  public void setProperty(String name, Object value, PropertyType... types) {
+  public void setProperty(String name, Object value, PropertyType types) {
     setPropertyInternal(name, value, types);
   }
 
+  public void compareAndSetPropertyInternal(String name, Object value, PropertyType type) {
+    checkForBinding();
+
+    var oldValue = getPropertyInternal(name);
+    if (!Objects.equals(oldValue, value)) {
+      setPropertyInternal(name, value, type);
+    }
+  }
+
   @Override
-  public void setPropertyInternal(String name, Object value, PropertyType... type) {
+  public void setPropertyInternal(String name, Object value, PropertyType type) {
     checkForBinding();
 
     if (name == null) {
@@ -795,7 +843,8 @@ public class EntityImpl extends RecordAbstract
                 value));
       }
     }
-    if (oldType != fieldType && oldType != null) {
+
+    if (oldType != fieldType) {
       // can be made in a better way, but "keeping type" issue should be solved before
       if (value == null || fieldType != null || oldType != PropertyType.getTypeByValue(value)) {
         entry.type = fieldType;
@@ -2008,7 +2057,8 @@ public class EntityImpl extends RecordAbstract
       oldType = entry.type;
     }
 
-    PropertyType fieldType = deriveFieldType(iFieldName, entry, iFieldType);
+    PropertyType fieldType = deriveFieldType(iFieldName, entry,
+        iFieldType.length > 0 ? iFieldType[0] : null);
     if (iPropertyValue != null && fieldType != null) {
       iPropertyValue =
           EntityHelper.convertField(getSession(), this, iFieldName, fieldType, null,
@@ -2109,7 +2159,7 @@ public class EntityImpl extends RecordAbstract
       }
     }
 
-    if (oldType != fieldType && oldType != null) {
+    if (oldType != fieldType) {
       // can be made in a better way, but "keeping type" issue should be solved before
       if (iPropertyValue == null
           || fieldType != null
@@ -2790,7 +2840,11 @@ public class EntityImpl extends RecordAbstract
       // SET THE FORCED TYPE
       EntityEntry entry = getOrCreate(iFieldName);
       if (entry.type != iFieldType) {
-        field(iFieldName, field(iFieldName), iFieldType);
+        if (entry.value == null) {
+          entry.type = iFieldType;
+        } else {
+          field(iFieldName, field(iFieldName), iFieldType);
+        }
       }
     } else {
       if (fields != null) {
@@ -2810,8 +2864,6 @@ public class EntityImpl extends RecordAbstract
    * Initializes the object if has been unserialized
    */
   public boolean deserializeFields(String... iFields) {
-    checkForBinding();
-
     List<String> additional = null;
     if (source == null)
     // ALREADY UNMARSHALLED OR JUST EMPTY
@@ -2819,6 +2871,7 @@ public class EntityImpl extends RecordAbstract
       return true;
     }
 
+    checkForBinding();
     if (iFields != null && iFields.length > 0) {
       // EXTRACT REAL FIELD NAMES
       for (final String f : iFields) {
@@ -3514,7 +3567,7 @@ public class EntityImpl extends RecordAbstract
       return;
     }
 
-    var optimistic = (TransactionOptimistic) tx;
+    var optimistic = (FrontendTransactionOptimistic) tx;
     optimistic.deleteRecordOperation(this);
   }
 
@@ -3983,16 +4036,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   private PropertyType deriveFieldType(String iFieldName, EntityEntry entry,
-      PropertyType[] iFieldType) {
-    PropertyType fieldType;
-
-    if (iFieldType != null && iFieldType.length == 1) {
-      entry.type = iFieldType[0];
-      fieldType = iFieldType[0];
-    } else {
-      fieldType = null;
-    }
-
+      PropertyType fieldType) {
     SchemaClass clazz = getImmutableSchemaClass();
     if (clazz != null) {
       // SCHEMA-FULL?

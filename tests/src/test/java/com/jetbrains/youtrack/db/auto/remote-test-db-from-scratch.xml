@@ -38,7 +38,7 @@
   <test name="Tx">
     <classes>
       <class name="com.jetbrains.youtrack.db.auto.TransactionAtomicTest"/>
-      <class name="com.jetbrains.youtrack.db.auto.TransactionOptimisticTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.FrontendTransactionOptimisticTest"/>
       <class name="com.jetbrains.youtrack.db.auto.TransactionConsistencyTest"/>
     </classes>
   </test>
@@ -98,47 +98,47 @@
       <class name="com.jetbrains.youtrack.db.auto.GEOTest"/>
     </classes>
   </test>
-  <!--  <test name="Binary">-->
-  <!--    <classes>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.BinaryTest"/>-->
-  <!--    </classes>-->
-  <!--  </test>-->
-  <!--  <test name="sql-commands">-->
-  <!--    <classes>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.SQLInsertTest"/>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.SQLSelectTest"/>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.SQLMetadataTest"/>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.SQLSelectProjectionsTest"/>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.SQLSelectGroupByTest"/>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.SQLUpdateTest"/>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.SQLDeleteTest"/>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.SQLCreateVertexTest"/>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.SQLDeleteEdgeTest"/>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.SequenceTest"/>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.SQLBatchTest"/>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.SQLSequenceTest"/>-->
-  <!--    </classes>-->
-  <!--  </test>-->
-  <!--  <test name="other-commands">-->
-  <!--    <classes>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.TraverseTest"/>-->
-  <!--    </classes>-->
-  <!--  </test>-->
-  <!--  <test name="misc">-->
-  <!--    <classes>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.TruncateClassTest"/>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.DateTest"/>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.SQLFindReferencesTest"/>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.SQLCreateLinkTest"/>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.MultipleDBTest"/>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.ConcurrentUpdatesTest"/>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.ConcurrentQueriesTest"/>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.CollateTest"/>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.EmbeddedRidBagTest"/>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.BTreeBasedRidBagTest"/>-->
-  <!--      <class name="com.jetbrains.youtrack.db.auto.RemoteProtocolCommandsTest"/>-->
-  <!--    </classes>-->
-  <!--  </test>-->
+  <test name="Binary">
+    <classes>
+      <class name="com.jetbrains.youtrack.db.auto.BinaryTest"/>
+    </classes>
+  </test>
+  <test name="sql-commands">
+    <classes>
+      <class name="com.jetbrains.youtrack.db.auto.SQLInsertTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.SQLSelectTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.SQLMetadataTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.SQLSelectProjectionsTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.SQLSelectGroupByTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.SQLUpdateTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.SQLDeleteTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.SQLCreateVertexTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.SQLDeleteEdgeTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.SequenceTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.SQLBatchTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.SQLSequenceTest"/>
+    </classes>
+  </test>
+  <test name="other-commands">
+    <classes>
+      <class name="com.jetbrains.youtrack.db.auto.TraverseTest"/>
+    </classes>
+  </test>
+  <test name="misc">
+    <classes>
+      <class name="com.jetbrains.youtrack.db.auto.TruncateClassTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.DateTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.SQLFindReferencesTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.SQLCreateLinkTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.MultipleDBTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.ConcurrentUpdatesTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.ConcurrentQueriesTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.CollateTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.EmbeddedRidBagTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.BTreeBasedRidBagTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.RemoteProtocolCommandsTest"/>
+    </classes>
+  </test>
   <test name="End">
     <classes>
       <class name="com.jetbrains.youtrack.db.auto.DbClosedTest"/>

@@ -191,10 +191,7 @@ public class DocumentSerializerDelta {
     long count = VarIntSerializer.readAsLong(bytes);
     while (count-- > 0) {
       switch (deserializeByte(bytes)) {
-        case CREATED:
-          deserializeFullEntry(session, bytes, toFill);
-          break;
-        case REPLACED:
+        case CREATED, REPLACED:
           deserializeFullEntry(session, bytes, toFill);
           break;
         case CHANGED:
@@ -562,7 +559,7 @@ public class DocumentSerializerDelta {
       value = null;
     }
     if (toFill != null) {
-      toFill.setPropertyInternal(name, value, type);
+      toFill.compareAndSetPropertyInternal(name, value, type);
     }
   }
 

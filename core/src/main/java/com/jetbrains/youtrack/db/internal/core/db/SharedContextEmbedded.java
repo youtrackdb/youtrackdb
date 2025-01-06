@@ -139,7 +139,7 @@ public class SharedContextEmbedded extends SharedContext {
     schema.create(database);
     indexManager.create(database);
     security.create(database);
-    functionLibrary.create(database);
+    FunctionLibraryImpl.create(database);
     SequenceLibraryImpl.create(database);
     security.createClassTrigger(database);
     SchedulerImpl.create(database);

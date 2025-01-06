@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.api.record;
 
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -162,7 +162,7 @@ public interface Edge extends Entity {
    *
    * @return all the names of defined properties
    */
-  Set<String> getPropertyNames();
+  Collection<String> getPropertyNames();
 
   /**
    * Gets a property given its name. if the property name equals to {@link #DIRECTION_IN} or
@@ -222,7 +222,7 @@ public interface Edge extends Entity {
    * @param fieldType Forced type (not auto-determined)
    * @throws IllegalArgumentException if booked property name is used.
    */
-  void setProperty(String name, Object value, PropertyType... fieldType);
+  void setProperty(String name, Object value, PropertyType fieldType);
 
   /**
    * Remove a property, if the property name equals to {@link #DIRECTION_IN} or

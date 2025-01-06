@@ -55,7 +55,7 @@ import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionMan
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransaction;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx.NonTxReadMode;
-import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import com.jetbrains.youtrack.db.internal.core.util.DatabaseURLConnection;
 import com.jetbrains.youtrack.db.internal.core.util.URLHelper;
 import java.nio.file.Path;
@@ -264,7 +264,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public int begin(TransactionOptimistic tx) {
+  public int begin(FrontendTransactionOptimistic tx) {
     throw new UnsupportedOperationException();
   }
 
@@ -561,7 +561,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public Entity newEntity() {
+  public Vertex newEntity() {
     checkOpenness();
     return internal.newInstance();
   }
@@ -1243,7 +1243,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public void internalCommit(TransactionOptimistic transaction) {
+  public void internalCommit(FrontendTransactionOptimistic transaction) {
     internal.internalCommit(transaction);
   }
 

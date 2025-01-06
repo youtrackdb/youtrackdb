@@ -33,7 +33,7 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.memory.DirectMemoryStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
-import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import com.jetbrains.youtrack.db.internal.core.util.Backupable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -99,7 +99,7 @@ public interface Storage extends Backupable, StorageInfo {
       RecordCallback<Boolean> callback);
 
   // TX OPERATIONS
-  List<RecordOperation> commit(TransactionOptimistic iTx);
+  List<RecordOperation> commit(FrontendTransactionOptimistic iTx);
 
   Set<String> getClusterNames();
 

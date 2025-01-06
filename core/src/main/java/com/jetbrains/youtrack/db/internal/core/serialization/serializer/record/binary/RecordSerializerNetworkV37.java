@@ -488,7 +488,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
   private Object readEmbeddedMap(DatabaseSessionInternal db, final BytesContainer bytes,
       final RecordElement owner) {
     int size = VarIntSerializer.readAsInteger(bytes);
-    final TrackedMap result = new TrackedMap<Object>(owner);
+    final TrackedMap result = new TrackedMap<>(owner);
     while ((size--) > 0) {
       String key = readString(bytes);
       PropertyType valType = readOType(bytes);

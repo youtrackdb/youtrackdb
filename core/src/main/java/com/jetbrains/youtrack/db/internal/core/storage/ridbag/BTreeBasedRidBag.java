@@ -48,7 +48,7 @@ import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atom
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.EdgeBTree;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.RidBagBucketPointer;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
-import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -693,7 +693,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     final RecordSerializationContext context;
 
     var tx = db.getTransaction();
-    if (!(tx instanceof TransactionOptimistic optimisticTx)) {
+    if (!(tx instanceof FrontendTransactionOptimistic optimisticTx)) {
       throw new DatabaseException("Changes are not supported outside of transactions");
     }
 

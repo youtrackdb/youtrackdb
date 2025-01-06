@@ -51,7 +51,7 @@ import com.jetbrains.youtrack.db.internal.core.storage.ridbag.Change;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ChangeSerializationHelper;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.RidBagBucketPointer;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
-import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -417,7 +417,7 @@ public class HelperClasses {
     final RecordSerializationContext context;
     var db = DatabaseRecordThreadLocal.instance().get();
     var tx = db.getTransaction();
-    if (!(tx instanceof TransactionOptimistic optimisticTx)) {
+    if (!(tx instanceof FrontendTransactionOptimistic optimisticTx)) {
       throw new DatabaseException("Transaction is not active. Changes are not allowed");
     }
 

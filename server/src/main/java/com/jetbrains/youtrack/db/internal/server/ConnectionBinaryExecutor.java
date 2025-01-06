@@ -183,7 +183,7 @@ import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.TreeInternal
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.EdgeBTree;
-import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.binary.AbstractCommandResultListener;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.binary.AsyncCommandResultListener;
@@ -191,7 +191,7 @@ import com.jetbrains.youtrack.db.internal.server.network.protocol.binary.Handsha
 import com.jetbrains.youtrack.db.internal.server.network.protocol.binary.LiveCommandResultListener;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.binary.NetworkProtocolBinary;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.binary.SyncCommandResultListener;
-import com.jetbrains.youtrack.db.internal.server.tx.TransactionOptimisticServer;
+import com.jetbrains.youtrack.db.internal.server.tx.FrontendTransactionOptimisticServer;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -701,10 +701,10 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
           "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
     }
 
-    if (!(tx instanceof TransactionOptimisticServer serverTransaction)) {
+    if (!(tx instanceof FrontendTransactionOptimisticServer serverTransaction)) {
       throw new DatabaseException(
           "Invalid transaction type,"
-              + " expected TransactionOptimisticServer but found "
+              + " expected FrontendTransactionOptimisticServer but found "
               + tx.getClass().getName());
     }
 
@@ -1295,7 +1295,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
     QueryMetadataUpdateListener metadataListener = new QueryMetadataUpdateListener();
     database.getSharedContext().registerListener(metadataListener);
     if (database.getTransaction().isActive()) {
-      ((TransactionOptimistic) database.getTransaction()).resetChangesTracking();
+      ((FrontendTransactionOptimistic) database.getTransaction()).resetChangesTracking();
     }
     ResultSet rs;
     if (QueryRequest.QUERY == request.getOperationType()) {
@@ -1339,7 +1339,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
     boolean hasNext = rs.hasNext();
     boolean txChanges = false;
     if (database.getTransaction().isActive()) {
-      txChanges = ((TransactionOptimistic) database.getTransaction()).isChanged();
+      txChanges = ((FrontendTransactionOptimistic) database.getTransaction()).isChanged();
     }
     database.getSharedContext().unregisterListener(metadataListener);
 
@@ -1410,7 +1410,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
 
     var recordOperations = request.getOperations();
     if (tx.isActive()) {
-      if (!(tx instanceof TransactionOptimisticServer serverTransaction)) {
+      if (!(tx instanceof FrontendTransactionOptimisticServer serverTransaction)) {
         throw new DatabaseException("Non-server based transaction is active");
       }
       if (tx.getId() != request.getTxId()) {
@@ -1430,8 +1430,8 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
           tx.getId(), serverTransaction.getGeneratedOriginalRecordIdMap());
     }
 
-    database.begin(new TransactionOptimisticServer(database, request.getTxId()));
-    var serverTransaction = (TransactionOptimisticServer) database.getTransaction();
+    database.begin(new FrontendTransactionOptimisticServer(database, request.getTxId()));
+    var serverTransaction = (FrontendTransactionOptimisticServer) database.getTransaction();
 
     try {
       serverTransaction.mergeReceivedTransaction(recordOperations);
@@ -1462,13 +1462,13 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
         tx.getId(), serverTransaction.getGeneratedOriginalRecordIdMap());
   }
 
-  private static TransactionOptimisticServer doExecuteBeginTransaction(
+  private static FrontendTransactionOptimisticServer doExecuteBeginTransaction(
       long txId, DatabaseSessionInternal database,
       List<RecordOperationRequest> recordOperations) {
     assert database.activeTxCount() == 0;
 
-    database.begin(new TransactionOptimisticServer(database, txId));
-    var serverTransaction = (TransactionOptimisticServer) database.getTransaction();
+    database.begin(new FrontendTransactionOptimisticServer(database, txId));
+    var serverTransaction = (FrontendTransactionOptimisticServer) database.getTransaction();
 
     try {
       serverTransaction.mergeReceivedTransaction(recordOperations);
@@ -1493,10 +1493,10 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
           "Transaction with id " + request.getTxId() + " is not active on server.");
     }
 
-    if (!(tx instanceof TransactionOptimisticServer serverTransaction)) {
+    if (!(tx instanceof FrontendTransactionOptimisticServer serverTransaction)) {
       throw new DatabaseException(
           "Invalid transaction type,"
-              + " expected TransactionOptimisticServer but found "
+              + " expected FrontendTransactionOptimisticServer but found "
               + tx.getClass().getName());
     }
 
@@ -1530,10 +1530,10 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
           "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
     }
 
-    if (!(tx instanceof TransactionOptimisticServer serverTransaction)) {
+    if (!(tx instanceof FrontendTransactionOptimisticServer serverTransaction)) {
       throw new DatabaseException(
           "Invalid transaction type,"
-              + " expected TransactionOptimisticServer but found "
+              + " expected FrontendTransactionOptimisticServer but found "
               + tx.getClass().getName());
     }
 
@@ -1607,10 +1607,10 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
           "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
     }
 
-    if (!(tx instanceof TransactionOptimisticServer serverTransaction)) {
+    if (!(tx instanceof FrontendTransactionOptimisticServer serverTransaction)) {
       throw new DatabaseException(
           "Invalid transaction type,"
-              + " expected TransactionOptimisticServer but found "
+              + " expected FrontendTransactionOptimisticServer but found "
               + tx.getClass().getName());
     }
 
@@ -1673,7 +1673,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
       throw new DatabaseException("No Transaction Active");
     }
 
-    TransactionOptimistic tx = (TransactionOptimistic) database.getTransaction();
+    FrontendTransactionOptimistic tx = (FrontendTransactionOptimistic) database.getTransaction();
     if (tx.getId() != request.getTxId()) {
       throw new DatabaseException(
           "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
@@ -1691,7 +1691,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
     if (!database.getTransaction().isActive()) {
       throw new DatabaseException("No Transaction Active");
     }
-    TransactionOptimistic tx = (TransactionOptimistic) database.getTransaction();
+    FrontendTransactionOptimistic tx = (FrontendTransactionOptimistic) database.getTransaction();
     if (tx.getId() != request.getTxId()) {
       throw new DatabaseException(
           "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());

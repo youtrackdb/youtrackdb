@@ -35,7 +35,7 @@ public class ListDatabasesResponse implements BinaryResponse {
   @Override
   public void read(DatabaseSessionInternal db, ChannelDataInput network,
       StorageRemoteSession session) throws IOException {
-    RecordSerializer serializer = RecordSerializerNetworkFactory.INSTANCE.current();
+    RecordSerializer serializer = RecordSerializerNetworkFactory.current();
     final EntityImpl result = new EntityImpl(null);
     serializer.fromStream(db, network.readBytes(), result, null);
     databases = result.field("databases");

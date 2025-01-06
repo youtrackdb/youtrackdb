@@ -1,18 +1,18 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import java.util.Set;
+import java.util.Collection;
 import javax.annotation.Nullable;
 
 public interface EntityInternal extends Entity {
 
-  Set<String> getPropertyNamesInternal();
+  Collection<String> getPropertyNamesInternal();
 
   void setPropertyInternal(String name, Object value);
 
-  void setPropertyInternal(String name, Object value, PropertyType... type);
+  void setPropertyInternal(String name, Object value, PropertyType type);
 
   <RET> RET removePropertyInternal(String name);
 

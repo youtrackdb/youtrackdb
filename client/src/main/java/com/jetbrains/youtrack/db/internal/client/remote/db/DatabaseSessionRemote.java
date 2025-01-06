@@ -77,7 +77,7 @@ import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx.NonTxReadMode;
-import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Iterator;
@@ -328,10 +328,10 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   }
 
   private void checkAndSendTransaction() {
-    if (this.currentTx.isActive() && ((TransactionOptimistic) this.currentTx).isChanged()) {
-      var optimistic = (TransactionOptimistic) this.currentTx;
+    if (this.currentTx.isActive() && ((FrontendTransactionOptimistic) this.currentTx).isChanged()) {
+      var optimistic = (FrontendTransactionOptimistic) this.currentTx;
 
-      if (((TransactionOptimistic) this.getTransaction()).isStartedOnServer()) {
+      if (((FrontendTransactionOptimistic) this.getTransaction()).isStartedOnServer()) {
         storage.sendTransactionState(optimistic);
       } else {
         storage.beginTransaction(optimistic);
@@ -378,7 +378,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     if (getTransaction().isActive()) {
       FrontendTransactionIndexChanges changes = getTransaction().getIndexChanges(indexName);
       Set<String> changedIndexes =
-          ((TransactionOptimisticClient) getTransaction()).getIndexChanged();
+          ((FrontendTransactionOptimisticClient) getTransaction()).getIndexChanged();
       if (changedIndexes.contains(indexName) || changes != null) {
         checkAndSendTransaction();
       }
@@ -422,9 +422,9 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   }
 
   @Override
-  protected TransactionOptimistic newTxInstance() {
+  protected FrontendTransactionOptimistic newTxInstance() {
     assert assertIfNotActive();
-    return new TransactionOptimisticClient(this);
+    return new FrontendTransactionOptimisticClient(this);
   }
 
   @Override
@@ -940,7 +940,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   }
 
   @Override
-  public void internalCommit(TransactionOptimistic transaction) {
+  public void internalCommit(FrontendTransactionOptimistic transaction) {
     assert assertIfNotActive();
     this.storage.commit(transaction);
   }
@@ -1011,10 +1011,10 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     throw new UnsupportedOperationException();
   }
 
-  public TransactionOptimisticClient getActiveTx() {
+  public FrontendTransactionOptimisticClient getActiveTx() {
     assert assertIfNotActive();
     if (currentTx.isActive()) {
-      return (TransactionOptimisticClient) currentTx;
+      return (FrontendTransactionOptimisticClient) currentTx;
     } else {
       throw new DatabaseException("No active transaction found");
     }

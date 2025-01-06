@@ -283,9 +283,7 @@ public class SchemaEmbedded extends SchemaShared {
         throw new SchemaException("Class '" + className + "' already exists in current database");
       }
 
-      if (!executeThroughDistributedStorage(database)) {
-        checkClustersAreAbsent(clusterIds);
-      }
+      checkClustersAreAbsent(clusterIds);
 
       if (clusterIds == null || clusterIds.length == 0) {
         clusterIds =

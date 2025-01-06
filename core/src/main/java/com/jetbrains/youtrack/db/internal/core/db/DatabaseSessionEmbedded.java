@@ -99,7 +99,7 @@ import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionMan
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx.NonTxReadMode;
-import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -1774,7 +1774,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   @Override
-  public void internalCommit(TransactionOptimistic transaction) {
+  public void internalCommit(FrontendTransactionOptimistic transaction) {
     assert assertIfNotActive();
     this.storage.commit(transaction);
   }

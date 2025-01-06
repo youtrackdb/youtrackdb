@@ -70,16 +70,6 @@ public class RecordInternal {
   /**
    * Internal only. Changes the identity of the record.
    */
-  public static RecordAbstract setIdentity(
-      final Record record, final int iClusterId, final long iClusterPosition) {
-    final RecordAbstract rec = (RecordAbstract) record;
-    rec.setIdentity(iClusterId, iClusterPosition);
-    return rec;
-  }
-
-  /**
-   * Internal only. Changes the identity of the record.
-   */
   public static RecordAbstract setIdentity(final Record record, final RecordId iIdentity) {
     final RecordAbstract rec = (RecordAbstract) record;
     rec.setIdentity(iIdentity);

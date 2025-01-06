@@ -38,10 +38,10 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
-public class TransactionOptimisticTest extends BaseDBTest {
+public class FrontendTransactionOptimisticTest extends BaseDBTest {
 
   @Parameters(value = "remote")
-  public TransactionOptimisticTest(@Optional Boolean remote) {
+  public FrontendTransactionOptimisticTest(@Optional Boolean remote) {
     super(remote != null && remote);
   }
 

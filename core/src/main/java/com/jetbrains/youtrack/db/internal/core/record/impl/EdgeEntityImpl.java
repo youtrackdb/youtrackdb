@@ -7,7 +7,7 @@ import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import java.util.Set;
+import java.util.Collection;
 import javax.annotation.Nullable;
 
 public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
@@ -116,7 +116,7 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
   }
 
   @Override
-  public Set<String> getPropertyNames() {
+  public Collection<String> getPropertyNames() {
     checkForBinding();
 
     return EdgeInternal.filterPropertyNames(super.getPropertyNames());
@@ -151,7 +151,7 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
   }
 
   @Override
-  public void setProperty(String name, Object value, PropertyType... types) {
+  public void setProperty(String name, Object value, PropertyType types) {
     checkForBinding();
     EdgeInternal.checkPropertyName(name);
 

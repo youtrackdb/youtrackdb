@@ -6,8 +6,8 @@ import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
 import javax.annotation.Nullable;
 
 public interface EdgeInternal extends Edge, EntityInternal {
@@ -16,11 +16,11 @@ public interface EdgeInternal extends Edge, EntityInternal {
   EntityImpl getBaseEntity();
 
   @Override
-  default Set<String> getPropertyNames() {
+  default Collection<String> getPropertyNames() {
     return filterPropertyNames(getPropertyNamesInternal());
   }
 
-  static Set<String> filterPropertyNames(Set<String> propertyNames) {
+  static Collection<String> filterPropertyNames(Collection<String> propertyNames) {
     var propertiesToRemove = new ArrayList<String>();
 
     for (var propertyName : propertyNames) {
@@ -119,7 +119,7 @@ public interface EdgeInternal extends Edge, EntityInternal {
   }
 
   @Override
-  default void setProperty(String name, Object value, PropertyType... fieldType) {
+  default void setProperty(String name, Object value, PropertyType fieldType) {
     checkPropertyName(name);
     setPropertyInternal(name, value, fieldType);
   }
@@ -145,7 +145,7 @@ public interface EdgeInternal extends Edge, EntityInternal {
   }
 
   @Override
-  default Set<String> getPropertyNamesInternal() {
+  default Collection<String> getPropertyNamesInternal() {
     var baseEntity = getBaseEntity();
     if (baseEntity == null) {
       return Collections.emptySet();
@@ -204,7 +204,7 @@ public interface EdgeInternal extends Edge, EntityInternal {
   }
 
   @Override
-  default void setPropertyInternal(String name, Object value, PropertyType... type) {
+  default void setPropertyInternal(String name, Object value, PropertyType type) {
     var baseEntity = getBaseEntity();
     if (baseEntity == null) {
       throw new UnsupportedOperationException("This edge is not backed by a entity.");

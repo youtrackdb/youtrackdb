@@ -170,7 +170,7 @@ public interface Entity extends Record {
    * @param value        the property value
    * @param propertyType Forced type (not auto-determined)
    */
-  void setProperty(String name, Object value, PropertyType... propertyType);
+  void setProperty(String name, Object value, PropertyType propertyType);
 
   /**
    * Remove a property

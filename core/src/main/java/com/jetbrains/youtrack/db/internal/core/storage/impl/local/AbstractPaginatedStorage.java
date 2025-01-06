@@ -156,8 +156,8 @@ import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPo
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChangesPerKey;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChangesPerKey.TransactionIndexEntry;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionInternal;
-import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -2162,7 +2162,7 @@ public abstract class AbstractPaginatedStorage
    * @return The list of operations applied by the transaction
    */
   @Override
-  public List<RecordOperation> commit(final TransactionOptimistic clientTx) {
+  public List<RecordOperation> commit(final FrontendTransactionOptimistic clientTx) {
     return commit(clientTx, false);
   }
 
@@ -2173,7 +2173,7 @@ public abstract class AbstractPaginatedStorage
    * @return The list of operations applied by the transaction
    */
   @SuppressWarnings("UnusedReturnValue")
-  public List<RecordOperation> commitPreAllocated(final TransactionOptimistic clientTx) {
+  public List<RecordOperation> commitPreAllocated(final FrontendTransactionOptimistic clientTx) {
     return commit(clientTx, true);
   }
 
@@ -2191,7 +2191,7 @@ public abstract class AbstractPaginatedStorage
    * @return The list of operations applied by the transaction
    */
   protected List<RecordOperation> commit(
-      final TransactionOptimistic transaction, final boolean allocated) {
+      final FrontendTransactionOptimistic transaction, final boolean allocated) {
     // XXX: At this moment, there are two implementations of the commit method. One for regular
     // client transactions and one for
     // implicit micro-transactions. The implementations are quite identical, but operate on slightly
@@ -5168,7 +5168,7 @@ public abstract class AbstractPaginatedStorage
   }
 
   private void commitEntry(
-      TransactionOptimistic transcation,
+      FrontendTransactionOptimistic transcation,
       final AtomicOperation atomicOperation,
       final RecordOperation txEntry,
       final PhysicalPosition allocated,

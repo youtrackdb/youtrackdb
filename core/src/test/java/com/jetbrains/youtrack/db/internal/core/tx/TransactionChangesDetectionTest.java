@@ -9,7 +9,6 @@ import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +47,7 @@ public class TransactionChangesDetectionTest {
   @Test
   public void testTransactionChangeTrackingCompleted() {
     db.begin();
-    final TransactionOptimistic currentTx = (TransactionOptimistic) db.getTransaction();
+    final FrontendTransactionOptimistic currentTx = (FrontendTransactionOptimistic) db.getTransaction();
     db.save(db.newEntity("test"));
     assertTrue(currentTx.isChanged());
     assertFalse(currentTx.isStartedOnServer());
@@ -68,7 +67,7 @@ public class TransactionChangesDetectionTest {
   @Test
   public void testTransactionChangeTrackingRolledBack() {
     db.begin();
-    final TransactionOptimistic currentTx = (TransactionOptimistic) db.getTransaction();
+    final FrontendTransactionOptimistic currentTx = (FrontendTransactionOptimistic) db.getTransaction();
     db.save(db.newEntity("test"));
     assertTrue(currentTx.isChanged());
     assertFalse(currentTx.isStartedOnServer());
@@ -81,7 +80,7 @@ public class TransactionChangesDetectionTest {
   @Test
   public void testTransactionChangeTrackingAfterRollback() {
     db.begin();
-    final TransactionOptimistic initialTx = (TransactionOptimistic) db.getTransaction();
+    final FrontendTransactionOptimistic initialTx = (FrontendTransactionOptimistic) db.getTransaction();
     db.save(db.newEntity("test"));
     assertEquals(1, initialTx.getTxStartCounter());
     db.rollback();
@@ -89,8 +88,8 @@ public class TransactionChangesDetectionTest {
     assertEquals(0, initialTx.getEntryCount());
 
     db.begin();
-    assertTrue(db.getTransaction() instanceof TransactionOptimistic);
-    final TransactionOptimistic currentTx = (TransactionOptimistic) db.getTransaction();
+    assertTrue(db.getTransaction() instanceof FrontendTransactionOptimistic);
+    final FrontendTransactionOptimistic currentTx = (FrontendTransactionOptimistic) db.getTransaction();
     assertEquals(1, currentTx.getTxStartCounter());
     db.save(db.newEntity("test"));
     assertTrue(currentTx.isChanged());
@@ -102,7 +101,7 @@ public class TransactionChangesDetectionTest {
   @Test
   public void testTransactionTxStartCounterCommits() {
     db.begin();
-    final TransactionOptimistic currentTx = (TransactionOptimistic) db.getTransaction();
+    final FrontendTransactionOptimistic currentTx = (FrontendTransactionOptimistic) db.getTransaction();
     db.save(db.newEntity("test"));
     assertEquals(1, currentTx.getTxStartCounter());
     assertEquals(1, currentTx.getEntryCount());
@@ -119,7 +118,7 @@ public class TransactionChangesDetectionTest {
   @Test(expected = RollbackException.class)
   public void testTransactionRollbackCommit() {
     db.begin();
-    final TransactionOptimistic currentTx = (TransactionOptimistic) db.getTransaction();
+    final FrontendTransactionOptimistic currentTx = (FrontendTransactionOptimistic) db.getTransaction();
     assertEquals(1, currentTx.getTxStartCounter());
     db.begin();
     assertEquals(2, currentTx.getTxStartCounter());
@@ -132,7 +131,7 @@ public class TransactionChangesDetectionTest {
   @Test
   public void testTransactionTwoStartedThreeCompleted() {
     db.begin();
-    final TransactionOptimistic currentTx = (TransactionOptimistic) db.getTransaction();
+    final FrontendTransactionOptimistic currentTx = (FrontendTransactionOptimistic) db.getTransaction();
     assertEquals(1, currentTx.getTxStartCounter());
     db.begin();
     assertEquals(2, currentTx.getTxStartCounter());

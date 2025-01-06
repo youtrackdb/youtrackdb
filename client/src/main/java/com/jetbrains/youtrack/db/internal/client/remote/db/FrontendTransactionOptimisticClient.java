@@ -15,7 +15,7 @@ import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.DocumentSerializerDelta;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges.OPERATION;
-import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,11 +25,11 @@ import java.util.Set;
 /**
  *
  */
-public class TransactionOptimisticClient extends TransactionOptimistic {
+public class FrontendTransactionOptimisticClient extends FrontendTransactionOptimistic {
 
   private final Set<String> indexChanged = new HashSet<>();
 
-  public TransactionOptimisticClient(DatabaseSessionInternal iDatabase) {
+  public FrontendTransactionOptimisticClient(DatabaseSessionInternal iDatabase) {
     super(iDatabase);
   }
 
@@ -151,7 +151,10 @@ public class TransactionOptimisticClient extends TransactionOptimistic {
           }
         } else {
           // UPDATE PREVIOUS STATUS
-          txEntry.record = iRecord;
+          if (txEntry.record != iRecord) {
+            throw new IllegalStateException(
+                "Transaction already contains different record instance with id" + rid);
+          }
 
           switch (txEntry.type) {
             case RecordOperation.UPDATED:
@@ -164,7 +167,6 @@ public class TransactionOptimisticClient extends TransactionOptimistic {
             case RecordOperation.CREATED:
               if (iStatus == RecordOperation.DELETED) {
                 recordOperations.remove(rid);
-                // txEntry.type = RecordOperation.DELETED;
               }
               break;
           }

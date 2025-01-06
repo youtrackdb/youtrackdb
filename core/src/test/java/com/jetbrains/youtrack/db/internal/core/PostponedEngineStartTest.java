@@ -40,7 +40,7 @@ import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.config.ClusterBasedStorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
-import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -312,7 +312,7 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public List<RecordOperation> commit(TransactionOptimistic iTx) {
+        public List<RecordOperation> commit(FrontendTransactionOptimistic iTx) {
           return null;
         }
 

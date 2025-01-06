@@ -75,7 +75,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class TransactionOptimistic extends FrontendTransactionAbstract implements
+public class FrontendTransactionOptimistic extends FrontendTransactionAbstract implements
     TransactionInternal {
 
   private static final AtomicLong txSerial = new AtomicLong();
@@ -103,12 +103,12 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
   protected int txStartCounter;
   private boolean sentToServer = false;
 
-  public TransactionOptimistic(final DatabaseSessionInternal iDatabase) {
+  public FrontendTransactionOptimistic(final DatabaseSessionInternal iDatabase) {
     super(iDatabase);
     this.id = txSerial.incrementAndGet();
   }
 
-  protected TransactionOptimistic(final DatabaseSessionInternal iDatabase, long id) {
+  protected FrontendTransactionOptimistic(final DatabaseSessionInternal iDatabase, long id) {
     super(iDatabase);
     this.id = id;
   }
@@ -386,7 +386,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
 
     if (database.isRemote()) {
       final Storage storage = database.getStorage();
-      ((StorageProxy) storage).rollback(TransactionOptimistic.this);
+      ((StorageProxy) storage).rollback(FrontendTransactionOptimistic.this);
     }
 
     internalRollback();
@@ -585,7 +585,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
 
   @Override
   public String toString() {
-    return "TransactionOptimistic [id="
+    return "FrontendTransactionOptimistic [id="
         + id
         + ", status="
         + status
@@ -604,12 +604,17 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
     try {
       markAsChanged(record);
 
+      var rid = record.getIdentity();
       if (clusterName == null) {
         clusterName = database.getClusterNameById(record.getIdentity().getClusterId());
       }
 
+      if (!rid.isValid()) {
+        database.assignAndCheckCluster(record, clusterName);
+        rid.setClusterPosition(newRecordsPositionsGenerator--);
+      }
+
       try {
-        final RecordId rid = record.getIdentity();
         RecordOperation txEntry = getRecordEntry(rid);
 
         if (txEntry != null) {
@@ -643,10 +648,6 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
         }
 
         try {
-          if (!rid.isValid()) {
-            database.assignAndCheckCluster(record, clusterName);
-            rid.setClusterPosition(newRecordsPositionsGenerator--);
-          }
           if (txEntry == null) {
             if (!(rid.isTemporary() && status != RecordOperation.CREATED)) {
               // NEW ENTRY: JUST REGISTER IT
@@ -654,9 +655,6 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
               recordOperations.put(rid.copy(), txEntry);
             }
           } else {
-            // UPDATE PREVIOUS STATUS
-            txEntry.record = record;
-
             switch (txEntry.type) {
               case RecordOperation.UPDATED:
                 if (status == RecordOperation.DELETED) {
