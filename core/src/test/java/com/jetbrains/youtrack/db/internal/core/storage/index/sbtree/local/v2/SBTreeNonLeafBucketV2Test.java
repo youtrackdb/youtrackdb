@@ -1,14 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v2;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
 import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator.Intention;
 import com.jetbrains.youtrack.db.internal.common.directmemory.Pointer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntryImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CachePointer;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -35,14 +36,14 @@ public class SBTreeNonLeafBucketV2Test {
     SBTreeBucketV2<Long, Identifiable> treeBucket = new SBTreeBucketV2<>(cacheEntry);
     treeBucket.init(false);
 
-    Assert.assertEquals(treeBucket.size(), 0);
+    Assert.assertEquals(0, treeBucket.size());
     Assert.assertFalse(treeBucket.isLeaf());
 
     treeBucket = new SBTreeBucketV2<>(cacheEntry);
-    Assert.assertEquals(treeBucket.size(), 0);
+    Assert.assertEquals(0, treeBucket.size());
     Assert.assertFalse(treeBucket.isLeaf());
-    Assert.assertEquals(treeBucket.getLeftSibling(), -1);
-    Assert.assertEquals(treeBucket.getRightSibling(), -1);
+    Assert.assertEquals(-1, treeBucket.getLeftSibling());
+    Assert.assertEquals(-1, treeBucket.getRightSibling());
 
     cacheEntry.releaseExclusiveLock();
     cachePointer.decrementReferrer();
@@ -68,7 +69,7 @@ public class SBTreeNonLeafBucketV2Test {
     cacheEntry.acquireExclusiveLock();
     cachePointer.incrementReferrer();
 
-    SBTreeBucketV2<Long, Identifiable> treeBucket = new SBTreeBucketV2<>(cacheEntry);
+    SBTreeBucketV2<Long, RID> treeBucket = new SBTreeBucketV2<>(cacheEntry);
     treeBucket.init(false);
 
     int index = 0;
@@ -96,7 +97,7 @@ public class SBTreeNonLeafBucketV2Test {
 
     long prevRight = -1;
     for (int i = 0; i < treeBucket.size(); i++) {
-      SBTreeBucketV2.SBTreeEntry<Long, Identifiable> entry =
+      SBTreeBucketV2.SBTreeEntry<Long, RID> entry =
           treeBucket.getEntry(i, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
       if (prevRight > 0) {
         Assert.assertEquals(entry.leftChild, prevRight);
@@ -107,7 +108,7 @@ public class SBTreeNonLeafBucketV2Test {
 
     long prevLeft = -1;
     for (int i = treeBucket.size() - 1; i >= 0; i--) {
-      SBTreeBucketV2.SBTreeEntry<Long, Identifiable> entry =
+      SBTreeBucketV2.SBTreeEntry<Long, RID> entry =
           treeBucket.getEntry(i, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
 
       if (prevLeft > 0) {
@@ -142,7 +143,7 @@ public class SBTreeNonLeafBucketV2Test {
 
     cachePointer.incrementReferrer();
 
-    SBTreeBucketV2<Long, Identifiable> treeBucket = new SBTreeBucketV2<>(cacheEntry);
+    SBTreeBucketV2<Long, RID> treeBucket = new SBTreeBucketV2<>(cacheEntry);
     treeBucket.init(false);
 
     int index = 0;
@@ -176,7 +177,7 @@ public class SBTreeNonLeafBucketV2Test {
     }
 
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
-      SBTreeBucketV2.SBTreeEntry<Long, Identifiable> entry =
+      SBTreeBucketV2.SBTreeEntry<Long, RID> entry =
           treeBucket.getEntry(
               keyIndexEntry.getValue(), LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
 
@@ -205,7 +206,7 @@ public class SBTreeNonLeafBucketV2Test {
     }
 
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
-      SBTreeBucketV2.SBTreeEntry<Long, Identifiable> entry =
+      SBTreeBucketV2.SBTreeEntry<Long, RID> entry =
           treeBucket.getEntry(
               keyIndexEntry.getValue(), LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
 

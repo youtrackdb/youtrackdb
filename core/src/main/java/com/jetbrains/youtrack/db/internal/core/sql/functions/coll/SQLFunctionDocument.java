@@ -23,8 +23,6 @@ import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -106,29 +104,5 @@ public class SQLFunctionDocument extends SQLFunctionMultiValueAbstract<EntityImp
 
   protected EntityImpl prepareResult(EntityImpl res) {
     return res;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public Object mergeDistributedResult(List<Object> resultsToMerge) {
-    if (returnDistributedResult()) {
-      final Map<String, Map<Object, Object>> chunks = new HashMap<String, Map<Object, Object>>();
-      for (Object iParameter : resultsToMerge) {
-        final Map<String, Object> container =
-            (Map<String, Object>) ((Map<Object, Object>) iParameter).get("entity");
-        chunks.put((String) container.get("node"), (Map<Object, Object>) container.get("context"));
-      }
-      final Map<Object, Object> result = new HashMap<Object, Object>();
-      for (Map<Object, Object> chunk : chunks.values()) {
-        result.putAll(chunk);
-      }
-      return result;
-    }
-
-    if (!resultsToMerge.isEmpty()) {
-      return resultsToMerge.get(0);
-    }
-
-    return null;
   }
 }

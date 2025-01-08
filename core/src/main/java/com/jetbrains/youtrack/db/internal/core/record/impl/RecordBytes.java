@@ -47,7 +47,7 @@ public class RecordBytes extends RecordAbstract implements Blob {
 
   public RecordBytes(final DatabaseSessionInternal iDatabase, final byte[] iSource) {
     super(iSource);
-    dirty = true;
+    dirty = 1;
     contentChanged = true;
     setup(iDatabase);
   }
@@ -63,7 +63,7 @@ public class RecordBytes extends RecordAbstract implements Blob {
 
   @Override
   public RecordBytes fromStream(final byte[] iRecordBuffer) {
-    if (dirty) {
+    if (dirty > 0) {
       throw new DatabaseException("Cannot call fromStream() on dirty records");
     }
 

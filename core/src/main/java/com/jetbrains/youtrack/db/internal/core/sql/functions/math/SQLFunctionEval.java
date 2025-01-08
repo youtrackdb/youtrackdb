@@ -26,7 +26,6 @@ import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
-import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
@@ -84,8 +83,4 @@ public class SQLFunctionEval extends SQLFunctionMathAbstract {
     return null;
   }
 
-  @Override
-  public Object mergeDistributedResult(List<Object> resultsToMerge) {
-    return null;
-  }
 }

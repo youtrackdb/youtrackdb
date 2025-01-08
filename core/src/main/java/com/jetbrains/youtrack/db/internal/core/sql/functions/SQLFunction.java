@@ -19,10 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import java.util.List;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 
 /**
  * Interface that defines a SQL Function. Functions can be state-less if registered as instance, or
@@ -134,20 +133,4 @@ public interface SQLFunction {
    * @param iResult
    */
   void setResult(Object iResult);
-
-  /**
-   * This method correspond to distributed query execution
-   *
-   * @return {@code true} if results that comes from different nodes need to be merged to obtain
-   * valid one, {@code false} otherwise
-   */
-  boolean shouldMergeDistributedResult();
-
-  /**
-   * This method correspond to distributed query execution
-   *
-   * @param resultsToMerge is the results that comes from different nodes
-   * @return is the valid merged result
-   */
-  Object mergeDistributedResult(List<Object> resultsToMerge);
 }

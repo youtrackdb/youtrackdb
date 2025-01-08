@@ -1,10 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.functions.math;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
-import java.util.List;
 
 /**
  * Returns the index of the argument that is more than the first argument.
@@ -63,11 +62,6 @@ public class SQLFunctionInterval extends SQLFunctionMathAbstract {
 
   @Override
   public Object getResult() {
-    return null;
-  }
-
-  @Override
-  public Object mergeDistributedResult(List<Object> resultsToMerge) {
     return null;
   }
 }

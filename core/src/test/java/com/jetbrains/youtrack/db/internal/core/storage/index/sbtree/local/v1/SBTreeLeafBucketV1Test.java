@@ -1,6 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v1;
 
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
 import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator.Intention;
 import com.jetbrains.youtrack.db.internal.common.directmemory.Pointer;
@@ -36,15 +37,15 @@ public class SBTreeLeafBucketV1Test {
 
     SBTreeBucketV1<Long, Identifiable> treeBucket = new SBTreeBucketV1<>(cacheEntry);
     treeBucket.init(true);
-    Assert.assertEquals(treeBucket.size(), 0);
+    Assert.assertEquals(0, treeBucket.size());
     Assert.assertTrue(treeBucket.isLeaf());
 
     treeBucket = new SBTreeBucketV1<>(cacheEntry);
     treeBucket.init(true);
-    Assert.assertEquals(treeBucket.size(), 0);
+    Assert.assertEquals(0, treeBucket.size());
     Assert.assertTrue(treeBucket.isLeaf());
-    Assert.assertEquals(treeBucket.getLeftSibling(), -1);
-    Assert.assertEquals(treeBucket.getRightSibling(), -1);
+    Assert.assertEquals(-1, treeBucket.getLeftSibling());
+    Assert.assertEquals(-1, treeBucket.getRightSibling());
 
     cacheEntry.releaseExclusiveLock();
     cachePointer.decrementReferrer();
@@ -119,7 +120,7 @@ public class SBTreeLeafBucketV1Test {
 
     cachePointer.incrementReferrer();
 
-    SBTreeBucketV1<Long, Identifiable> treeBucket = new SBTreeBucketV1<>(cacheEntry);
+    SBTreeBucketV1<Long, RID> treeBucket = new SBTreeBucketV1<>(cacheEntry);
     treeBucket.init(true);
 
     Map<Long, Integer> keyIndexMap = new HashMap<>();
@@ -146,7 +147,7 @@ public class SBTreeLeafBucketV1Test {
     }
 
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
-      SBTreeBucketV1.SBTreeEntry<Long, Identifiable> entry =
+      SBTreeBucketV1.SBTreeEntry<Long, RID> entry =
           treeBucket.getEntry(
               keyIndexEntry.getValue(), LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
 
@@ -190,7 +191,7 @@ public class SBTreeLeafBucketV1Test {
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
 
-    SBTreeBucketV1<Long, Identifiable> treeBucket = new SBTreeBucketV1<>(cacheEntry);
+    SBTreeBucketV1<Long, RID> treeBucket = new SBTreeBucketV1<>(cacheEntry);
     treeBucket.init(true);
 
     int index = 0;
@@ -244,10 +245,9 @@ public class SBTreeLeafBucketV1Test {
     }
 
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
-      SBTreeBucketV1.SBTreeEntry<Long, Identifiable> entry =
+      SBTreeBucketV1.SBTreeEntry<Long, RID> entry =
           treeBucket.getEntry(
               keyIndexEntry.getValue(), LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
-
       Assert.assertEquals(
           entry,
           new SBTreeBucketV1.SBTreeEntry<>(
@@ -286,7 +286,7 @@ public class SBTreeLeafBucketV1Test {
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
 
-    SBTreeBucketV1<Long, Identifiable> treeBucket = new SBTreeBucketV1<>(cacheEntry);
+    SBTreeBucketV1<Long, RID> treeBucket = new SBTreeBucketV1<>(cacheEntry);
     treeBucket.init(true);
 
     int index = 0;
@@ -347,7 +347,7 @@ public class SBTreeLeafBucketV1Test {
     }
 
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
-      final SBTreeBucketV1.SBTreeEntry<Long, Identifiable> entry =
+      final SBTreeBucketV1.SBTreeEntry<Long, RID> entry =
           treeBucket.getEntry(
               keyIndexEntry.getValue(), LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
       Assert.assertEquals(
@@ -380,7 +380,7 @@ public class SBTreeLeafBucketV1Test {
 
     SBTreeBucketV1<Long, Identifiable> treeBucket = new SBTreeBucketV1<>(cacheEntry);
     treeBucket.setLeftSibling(123);
-    Assert.assertEquals(treeBucket.getLeftSibling(), 123);
+    Assert.assertEquals(123, treeBucket.getLeftSibling());
 
     cacheEntry.releaseExclusiveLock();
     cachePointer.decrementReferrer();
@@ -399,7 +399,7 @@ public class SBTreeLeafBucketV1Test {
 
     SBTreeBucketV1<Long, Identifiable> treeBucket = new SBTreeBucketV1<>(cacheEntry);
     treeBucket.setRightSibling(123);
-    Assert.assertEquals(treeBucket.getRightSibling(), 123);
+    Assert.assertEquals(123, treeBucket.getRightSibling());
 
     cacheEntry.releaseExclusiveLock();
     cachePointer.decrementReferrer();

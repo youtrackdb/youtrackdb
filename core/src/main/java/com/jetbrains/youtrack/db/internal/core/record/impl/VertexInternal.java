@@ -579,9 +579,9 @@ public interface VertexInternal extends Vertex, EntityInternal {
     } else if (fieldValue instanceof RidBag bag) {
       // COLLECTION OF RECORDS: REMOVE THE ENTRY
       boolean found = false;
-      final Iterator<Identifiable> it = bag.iterator();
+      final Iterator<RID> it = bag.iterator();
       while (it.hasNext()) {
-        if (it.next().equals(iVertexToRemove)) {
+        if (it.next().equals(iVertexToRemove.getIdentity())) {
           // REMOVE THE OLD ENTRY
           found = true;
           it.remove();
@@ -590,7 +590,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
       if (found)
       // ADD THE NEW ONE
       {
-        bag.add(newVertex);
+        bag.add(newVertex.getIdentity());
       }
 
     } else if (fieldValue instanceof Collection) {
@@ -775,7 +775,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
           if (!bag.isEmbedded()) {
             RidBag newBag = new RidBag(db);
             for (Identifiable identifiable : bag) {
-              newBag.add(identifiable);
+              newBag.add(identifiable.getIdentity());
             }
             newDoc.setPropertyInternal(field, newBag);
           }
@@ -898,7 +898,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
     if (link instanceof Collection) {
       ((Collection<?>) link).remove(identifiable);
     } else if (link instanceof RidBag) {
-      ((RidBag) link).remove(identifiable);
+      ((RidBag) link).remove(identifiable.getIdentity());
     } else if (link instanceof Identifiable && link.equals(vertex)) {
       vertex.removePropertyInternal(fieldName);
     } else {
@@ -936,7 +936,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
         outType = PropertyType.LINKLIST;
       } else if (propType == null || propType == PropertyType.LINKBAG) {
         final RidBag bag = new RidBag(fromVertex.getSession());
-        bag.add(to);
+        bag.add(to.getIdentity());
         out = bag;
         outType = PropertyType.LINKBAG;
       } else if (propType == PropertyType.LINK) {
@@ -965,17 +965,15 @@ public interface VertexInternal extends Vertex, EntityInternal {
         outType = PropertyType.LINKLIST;
       } else {
         final RidBag bag = new RidBag(fromVertex.getSession());
-        bag.add(foundId);
-        bag.add(to);
+        bag.add(foundId.getIdentity());
+        bag.add(to.getIdentity());
         out = bag;
         outType = PropertyType.LINKBAG;
       }
     } else if (found instanceof RidBag) {
       // ADD THE LINK TO THE COLLECTION
       out = null;
-
-      ((RidBag) found).add(to.getRecord(db));
-
+      ((RidBag) found).add(to.getRecord(db).getIdentity());
     } else if (found instanceof Collection<?>) {
       // USE THE FOUND COLLECTION
       out = null;
@@ -1035,7 +1033,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
     if (edgeProp instanceof Collection) {
       ((Collection<?>) edgeProp).remove(edgeId);
     } else if (edgeProp instanceof RidBag) {
-      ((RidBag) edgeProp).remove(edgeId);
+      ((RidBag) edgeProp).remove(edgeId.getIdentity());
     } else //noinspection deprecation
       if (edgeProp instanceof Identifiable
           && ((Identifiable) edgeProp).getIdentity() != null

@@ -189,7 +189,7 @@ public class EntityImpl extends RecordAbstract
       }
     }
 
-    dirty = false;
+    dirty = 0;
     contentChanged = false;
     status = STATUS.NOT_LOADED;
   }
@@ -1446,7 +1446,7 @@ public class EntityImpl extends RecordAbstract
     var entity = new EntityImpl(getSession());
     RecordInternal.unsetDirty(entity);
     var newEntity = (EntityImpl) copyTo(entity);
-    newEntity.dirty = true;
+    newEntity.dirty = 1;
 
     return newEntity;
   }
@@ -1504,7 +1504,7 @@ public class EntityImpl extends RecordAbstract
     destination.contentChanged = contentChanged;
 
     var dirtyManager = new DirtyManager();
-    if (dirty) {
+    if (dirty > 0) {
       dirtyManager.setDirty(this);
     }
 
@@ -1593,7 +1593,7 @@ public class EntityImpl extends RecordAbstract
   public void fromString(final String iValue) {
     incrementLoading();
     try {
-      dirty = true;
+      dirty = 1;
       contentChanged = true;
       source = iValue.getBytes(StandardCharsets.UTF_8);
 
@@ -2517,7 +2517,7 @@ public class EntityImpl extends RecordAbstract
 
   @Override
   public final EntityImpl fromStream(final byte[] iRecordBuffer) {
-    if (dirty) {
+    if (dirty > 0) {
       throw new DatabaseException("Cannot call fromStream() on dirty records");
     }
 
@@ -2542,7 +2542,7 @@ public class EntityImpl extends RecordAbstract
   @Override
   protected final EntityImpl fromStream(final byte[] iRecordBuffer,
       DatabaseSessionInternal db) {
-    if (dirty) {
+    if (dirty > 0) {
       throw new DatabaseException("Cannot call fromStream() on dirty records");
     }
 
@@ -2590,7 +2590,7 @@ public class EntityImpl extends RecordAbstract
       return;
     }
 
-    if (dirty) {
+    if (dirty > 0) {
       throw new IllegalStateException("Can not unload dirty entity");
     }
 
@@ -3094,7 +3094,7 @@ public class EntityImpl extends RecordAbstract
       inspected.add(this);
     }
 
-    final boolean saveDirtyStatus = dirty;
+    final long saveDirtyStatus = dirty;
     final boolean oldUpdateContent = contentChanged;
 
     try {
@@ -3237,7 +3237,7 @@ public class EntityImpl extends RecordAbstract
   @Override
   protected final RecordAbstract fill(
       final RID iRid, final int iVersion, final byte[] iBuffer, final boolean iDirty) {
-    if (dirty) {
+    if (dirty > 0) {
       throw new DatabaseException("Cannot call fill() on dirty records");
     }
 
@@ -3253,7 +3253,7 @@ public class EntityImpl extends RecordAbstract
       final byte[] iBuffer,
       final boolean iDirty,
       DatabaseSessionInternal db) {
-    if (dirty) {
+    if (dirty > 0) {
       throw new DatabaseException("Cannot call fill() on dirty records");
     }
 
@@ -3404,10 +3404,10 @@ public class EntityImpl extends RecordAbstract
             RidBag newValue = new RidBag(session);
             newValue.setRecordAndField(recordId, prop.getName());
             for (Object o : ((Collection<Object>) entry.value)) {
-              if (!(o instanceof Identifiable)) {
+              if (!(o instanceof Identifiable identifiable)) {
                 throw new ValidationException("Invalid value in ridbag: " + o);
               }
-              newValue.add((Identifiable) o);
+              newValue.add(identifiable.getIdentity());
             }
             entry.value = newValue;
           }
@@ -3669,7 +3669,9 @@ public class EntityImpl extends RecordAbstract
             RidBag bag = new RidBag(session);
             bag.setOwner(this);
             bag.setRecordAndField(recordId, fieldEntry.getKey());
-            bag.addAll((Collection<Identifiable>) fieldValue);
+            for (var item : (Collection<Identifiable>) fieldValue) {
+              bag.add(item.getIdentity());
+            }
             newValue = bag;
           }
           break;

@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
@@ -38,14 +38,14 @@ import java.util.NavigableMap;
  */
 public class RidBagUpdateSerializationOperation implements RecordSerializationOperation {
 
-  private final NavigableMap<Identifiable, Change> changedValues;
+  private final NavigableMap<RID, Change> changedValues;
 
   private final BonsaiCollectionPointer collectionPointer;
 
   private final BTreeCollectionManager collectionManager;
 
   public RidBagUpdateSerializationOperation(
-      final NavigableMap<Identifiable, Change> changedValues,
+      final NavigableMap<RID, Change> changedValues,
       BonsaiCollectionPointer collectionPointer) {
     this.changedValues = changedValues;
     this.collectionPointer = collectionPointer;
@@ -60,9 +60,9 @@ public class RidBagUpdateSerializationOperation implements RecordSerializationOp
       return;
     }
 
-    EdgeBTree<Identifiable, Integer> tree = loadTree();
+    EdgeBTree<RID, Integer> tree = loadTree();
     try {
-      for (Map.Entry<Identifiable, Change> entry : changedValues.entrySet()) {
+      for (Map.Entry<RID, Change> entry : changedValues.entrySet()) {
         Integer storedCounter = tree.get(entry.getKey());
 
         storedCounter = entry.getValue().applyTo(storedCounter);
@@ -81,7 +81,7 @@ public class RidBagUpdateSerializationOperation implements RecordSerializationOp
     changedValues.clear();
   }
 
-  private EdgeBTree<Identifiable, Integer> loadTree() {
+  private EdgeBTree<RID, Integer> loadTree() {
     return collectionManager.loadSBTree(collectionPointer);
   }
 

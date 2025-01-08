@@ -25,13 +25,12 @@ import static com.jetbrains.youtrack.db.internal.core.serialization.BinaryProtoc
 import static com.jetbrains.youtrack.db.internal.core.serialization.BinaryProtocol.long2bytes;
 import static com.jetbrains.youtrack.db.internal.core.serialization.BinaryProtocol.short2bytes;
 
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerializer;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
 import java.nio.ByteBuffer;
 
@@ -40,20 +39,19 @@ import java.nio.ByteBuffer;
  *
  * @since 07.02.12
  */
-public class LinkSerializer implements BinarySerializer<Identifiable> {
+public class LinkSerializer implements BinarySerializer<RID> {
 
   public static final byte ID = 9;
   private static final int CLUSTER_POS_SIZE = LongSerializer.LONG_SIZE;
   public static final int RID_SIZE = ShortSerializer.SHORT_SIZE + CLUSTER_POS_SIZE;
   public static final LinkSerializer INSTANCE = new LinkSerializer();
 
-  public int getObjectSize(final Identifiable rid, Object... hints) {
+  public int getObjectSize(final RID rid, Object... hints) {
     return RID_SIZE;
   }
 
   public void serialize(
-      final Identifiable rid, final byte[] stream, final int startPosition, Object... hints) {
-    final RID r = rid.getIdentity();
+      final RID r, final byte[] stream, final int startPosition, Object... hints) {
     short2bytes((short) r.getClusterId(), stream, startPosition);
     long2bytes(r.getClusterPosition(), stream, startPosition + ShortSerializer.SHORT_SIZE);
   }
@@ -77,9 +75,7 @@ public class LinkSerializer implements BinarySerializer<Identifiable> {
   }
 
   public void serializeNativeObject(
-      Identifiable rid, byte[] stream, int startPosition, Object... hints) {
-    final RID r = rid.getIdentity();
-
+      RID r, byte[] stream, int startPosition, Object... hints) {
     ShortSerializer.INSTANCE.serializeNative((short) r.getClusterId(), stream, startPosition);
     // Wrong implementation but needed for binary compatibility should be used serializeNative
     LongSerializer.INSTANCE.serialize(
@@ -103,7 +99,7 @@ public class LinkSerializer implements BinarySerializer<Identifiable> {
   }
 
   @Override
-  public Identifiable preprocess(Identifiable value, Object... hints) {
+  public RID preprocess(RID value, Object... hints) {
     if (value == null) {
       return null;
     } else {
@@ -116,9 +112,7 @@ public class LinkSerializer implements BinarySerializer<Identifiable> {
    */
   @Override
   public void serializeInByteBufferObject(
-      Identifiable object, ByteBuffer buffer, Object... hints) {
-    final RID r = object.getIdentity();
-
+      RID r, ByteBuffer buffer, Object... hints) {
     buffer.putShort((short) r.getClusterId());
     // Wrong implementation but needed for binary compatibility
     byte[] stream = new byte[LongSerializer.LONG_SIZE];
@@ -130,7 +124,7 @@ public class LinkSerializer implements BinarySerializer<Identifiable> {
    * {@inheritDoc}
    */
   @Override
-  public Identifiable deserializeFromByteBufferObject(ByteBuffer buffer) {
+  public RID deserializeFromByteBufferObject(ByteBuffer buffer) {
     final int clusterId = buffer.getShort();
 
     final byte[] stream = new byte[LongSerializer.LONG_SIZE];
@@ -142,7 +136,7 @@ public class LinkSerializer implements BinarySerializer<Identifiable> {
   }
 
   @Override
-  public Identifiable deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
+  public RID deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
     final int clusterId = buffer.getShort(offset);
     offset += Short.BYTES;
 
@@ -171,7 +165,7 @@ public class LinkSerializer implements BinarySerializer<Identifiable> {
    * {@inheritDoc}
    */
   @Override
-  public Identifiable deserializeFromByteBufferObject(
+  public RID deserializeFromByteBufferObject(
       ByteBuffer buffer, WALChanges walChanges, int offset) {
     final int clusterId = walChanges.getShortValue(buffer, offset);
 

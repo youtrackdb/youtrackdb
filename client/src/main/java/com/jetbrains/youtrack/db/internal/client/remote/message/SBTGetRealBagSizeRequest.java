@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.client.remote.message;
 
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
@@ -41,16 +41,16 @@ import java.util.Map;
 public class SBTGetRealBagSizeRequest implements BinaryRequest<SBTGetRealBagSizeResponse> {
 
   private BonsaiCollectionPointer collectionPointer;
-  private Map<Identifiable, Change> changes;
-  private BinarySerializer<Identifiable> keySerializer;
+  private Map<RID, Change> changes;
+  private BinarySerializer<RID> keySerializer;
 
   public SBTGetRealBagSizeRequest() {
   }
 
   public SBTGetRealBagSizeRequest(
-      BinarySerializer<Identifiable> keySerializer,
+      BinarySerializer<RID> keySerializer,
       BonsaiCollectionPointer collectionPointer,
-      Map<Identifiable, Change> changes) {
+      Map<RID, Change> changes) {
     this.collectionPointer = collectionPointer;
     this.changes = changes;
     this.keySerializer = keySerializer;
@@ -88,7 +88,7 @@ public class SBTGetRealBagSizeRequest implements BinaryRequest<SBTGetRealBagSize
     return "RidBag get size";
   }
 
-  public Map<Identifiable, Change> getChanges() {
+  public Map<RID, Change> getChanges() {
     return changes;
   }
 

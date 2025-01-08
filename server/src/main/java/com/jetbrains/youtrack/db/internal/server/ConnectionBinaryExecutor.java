@@ -854,11 +854,10 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
   public BinaryResponse executeSBTGet(SBTGetRequest request) {
     final BTreeCollectionManager bTreeCollectionManager =
         connection.getDatabase().getSbTreeCollectionManager();
-    final EdgeBTree<Identifiable, Integer> tree =
+    final EdgeBTree<RID, Integer> tree =
         bTreeCollectionManager.loadSBTree(request.getCollectionPointer());
     try {
-      final Identifiable key = tree.getKeySerializer().deserialize(request.getKeyStream(), 0);
-
+      var key = tree.getKeySerializer().deserialize(request.getKeyStream(), 0);
       Integer result = tree.get(key);
       final BinarySerializer<? super Integer> valueSerializer;
       if (result == null) {
@@ -881,13 +880,13 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
 
     final BTreeCollectionManager bTreeCollectionManager =
         connection.getDatabase().getSbTreeCollectionManager();
-    final EdgeBTree<Identifiable, Integer> tree =
+    final EdgeBTree<RID, Integer> tree =
         bTreeCollectionManager.loadSBTree(request.getCollectionPointer());
     byte[] stream;
     try {
 
       Identifiable result = tree.firstKey();
-      final BinarySerializer<? super Identifiable> keySerializer;
+      final BinarySerializer keySerializer;
       if (result == null) {
         keySerializer = NullSerializer.INSTANCE;
       } else {
@@ -909,18 +908,18 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
 
     final BTreeCollectionManager bTreeCollectionManager =
         connection.getDatabase().getSbTreeCollectionManager();
-    final EdgeBTree<Identifiable, Integer> tree =
+    final EdgeBTree<RID, Integer> tree =
         bTreeCollectionManager.loadSBTree(request.getPointer());
     try {
-      final BinarySerializer<Identifiable> keySerializer = tree.getKeySerializer();
-      Identifiable key = keySerializer.deserialize(request.getKeyStream(), 0);
+      final BinarySerializer<RID> keySerializer = tree.getKeySerializer();
+      RID key = keySerializer.deserialize(request.getKeyStream(), 0);
 
       final BinarySerializer<Integer> valueSerializer = tree.getValueSerializer();
 
-      TreeInternal.AccumulativeListener<Identifiable, Integer> listener =
+      TreeInternal.AccumulativeListener<RID, Integer> listener =
           new TreeInternal.AccumulativeListener<>(request.getPageSize());
       tree.loadEntriesMajor(key, request.isInclusive(), true, listener);
-      List<Entry<Identifiable, Integer>> result = listener.getResult();
+      List<Entry<RID, Integer>> result = listener.getResult();
       return new SBTFetchEntriesMajorResponse<>(keySerializer, valueSerializer, result);
     } finally {
       bTreeCollectionManager.releaseSBTree(request.getPointer());
@@ -931,7 +930,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
   public BinaryResponse executeSBTGetRealSize(SBTGetRealBagSizeRequest request) {
     final BTreeCollectionManager bTreeCollectionManager =
         connection.getDatabase().getSbTreeCollectionManager();
-    final EdgeBTree<Identifiable, Integer> tree =
+    final EdgeBTree<RID, Integer> tree =
         bTreeCollectionManager.loadSBTree(request.getCollectionPointer());
     try {
       int realSize = tree.getRealBagSize(request.getChanges());

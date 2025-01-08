@@ -20,7 +20,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
@@ -138,9 +137,9 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
             // OUTGOING
             final Object outField = outV.field("out_" + entity.getClassName());
             if (outField instanceof RidBag) {
-              final Iterator<Identifiable> it = ((RidBag) outField).iterator();
+              final Iterator<RID> it = ((RidBag) outField).iterator();
               while (it.hasNext()) {
-                Identifiable v = it.next();
+                RID v = it.next();
                 if (edgeIdentity.equals(v)) {
                   // REPLACE EDGE RID WITH IN-VERTEX RID
                   it.remove();
@@ -155,9 +154,9 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
             // INCOMING
             final Object inField = inV.field("in_" + entity.getClassName());
             if (outField instanceof RidBag) {
-              final Iterator<Identifiable> it = ((RidBag) inField).iterator();
+              final Iterator<RID> it = ((RidBag) inField).iterator();
               while (it.hasNext()) {
-                Identifiable v = it.next();
+                RID v = it.next();
                 if (edgeIdentity.equals(v)) {
                   // REPLACE EDGE RID WITH IN-VERTEX RID
                   it.remove();

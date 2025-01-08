@@ -37,7 +37,7 @@ public class RecordSerializerNetworkV37Client extends RecordSerializerNetworkV37
           if (id.equals(NULL_RECORD_ID)) {
             bag.add(null);
           } else {
-            bag.add(id);
+            bag.add(id.getIdentity());
           }
         }
         // The bag will mark the elements we just added as new events

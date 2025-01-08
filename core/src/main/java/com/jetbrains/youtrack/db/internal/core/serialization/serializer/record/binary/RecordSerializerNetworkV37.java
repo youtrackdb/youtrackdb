@@ -73,7 +73,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NavigableMap;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -374,6 +373,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
     }
     int uuidPos = bytes.alloc(UUIDSerializer.UUID_SIZE);
     UUIDSerializer.INSTANCE.serialize(uuid, bytes.bytes, uuidPos);
+
     if (bag.isToSerializeEmbedded()) {
       int pos = bytes.alloc(1);
       bytes.bytes[pos] = 1;
@@ -389,17 +389,18 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
       int pos = bytes.alloc(1);
       bytes.bytes[pos] = 2;
       BonsaiCollectionPointer pointer = bag.getPointer();
-      if (pointer == null) {
-        pointer = BonsaiCollectionPointer.INVALID;
+      if (pointer == null || pointer == BonsaiCollectionPointer.INVALID) {
+        throw new IllegalStateException("RidBag with invalid pointer was found");
       }
+
       VarIntSerializer.write(bytes, pointer.getFileId());
       VarIntSerializer.write(bytes, pointer.getRootPointer().getPageIndex());
       VarIntSerializer.write(bytes, pointer.getRootPointer().getPageOffset());
       VarIntSerializer.write(bytes, -1);
-      NavigableMap<Identifiable, Change> changes = bag.getChanges();
+      var changes = bag.getChanges();
       if (changes != null) {
         VarIntSerializer.write(bytes, changes.size());
-        for (Map.Entry<Identifiable, Change> change : changes.entrySet()) {
+        for (var change : changes.entrySet()) {
           writeOptimizedLink(db, bytes, change.getKey());
           int posAll = bytes.alloc(1);
           bytes.bytes[posAll] = change.getValue().getType();
@@ -429,7 +430,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
         if (id.equals(NULL_RECORD_ID)) {
           bag.add(null);
         } else {
-          bag.add(id);
+          bag.add(id.getIdentity());
         }
       }
       bag.disableTracking(null);
@@ -441,10 +442,10 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
       int pageOffset = VarIntSerializer.readAsInteger(bytes);
       int bagSize = VarIntSerializer.readAsInteger(bytes);
 
-      Map<Identifiable, Change> changes = new HashMap<>();
+      Map<RID, Change> changes = new HashMap<>();
       int size = VarIntSerializer.readAsInteger(bytes);
       while (size-- > 0) {
-        Identifiable link = readOptimizedLink(db, bytes);
+        var link = readOptimizedLink(db, bytes);
         byte type = bytes.bytes[bytes.offset];
         bytes.skip(1);
         int change = VarIntSerializer.readAsInteger(bytes);
@@ -460,7 +461,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
     }
   }
 
-  private byte[] readBinary(BytesContainer bytes) {
+  private static byte[] readBinary(BytesContainer bytes) {
     int n = VarIntSerializer.readAsInteger(bytes);
     byte[] newValue = new byte[n];
     System.arraycopy(bytes.bytes, bytes.offset, newValue, 0, newValue.length);
@@ -532,13 +533,13 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
     return found;
   }
 
-  protected static Identifiable readOptimizedLink(DatabaseSessionInternal db,
+  protected static RID readOptimizedLink(DatabaseSessionInternal db,
       final BytesContainer bytes) {
     RecordId id =
         new RecordId(VarIntSerializer.readAsInteger(bytes), VarIntSerializer.readAsLong(bytes));
     if (id.isTemporary()) {
       try {
-        return id.getRecord(db);
+        return id.getRecord(db).getIdentity();
       } catch (RecordNotFoundException rnf) {
         return id;
       }

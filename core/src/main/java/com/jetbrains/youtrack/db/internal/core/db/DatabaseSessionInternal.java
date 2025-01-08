@@ -132,9 +132,9 @@ public interface DatabaseSessionInternal extends DatabaseSession {
 
   boolean beforeReadOperations(final Identifiable identifiable);
 
-  Identifiable beforeCreateOperations(final Identifiable id, String iClusterName);
+  void beforeCreateOperations(final Identifiable id, String iClusterName);
 
-  Identifiable beforeUpdateOperations(final Identifiable id, String iClusterName);
+  void beforeUpdateOperations(final Identifiable id, String iClusterName);
 
   void beforeDeleteOperations(final Identifiable id, String iClusterName);
 

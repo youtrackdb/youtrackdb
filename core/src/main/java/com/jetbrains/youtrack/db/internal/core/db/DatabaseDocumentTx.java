@@ -1260,13 +1260,13 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public Identifiable beforeCreateOperations(Identifiable id, String iClusterName) {
-    return internal.beforeCreateOperations(id, iClusterName);
+  public void beforeCreateOperations(Identifiable id, String iClusterName) {
+    internal.beforeCreateOperations(id, iClusterName);
   }
 
   @Override
-  public Identifiable beforeUpdateOperations(Identifiable id, String iClusterName) {
-    return internal.beforeUpdateOperations(id, iClusterName);
+  public void beforeUpdateOperations(Identifiable id, String iClusterName) {
+    internal.beforeUpdateOperations(id, iClusterName);
   }
 
   @Override

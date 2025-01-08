@@ -23,6 +23,7 @@ package com.jetbrains.youtrack.db.internal.core.storage.ridbag;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
@@ -51,7 +52,6 @@ import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -62,9 +62,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListMap;
+import javax.annotation.Nonnull;
 
 /**
  * Persistent Set<Identifiable> implementation that uses the SBTree to handle entries in persistent
@@ -74,19 +76,19 @@ public class BTreeBasedRidBag implements RidBagDelegate {
 
   private final BTreeCollectionManager collectionManager =
       DatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager();
-  private final ConcurrentSkipListMap<Identifiable, Change> changes =
+  private final ConcurrentSkipListMap<RID, Change> changes =
       new ConcurrentSkipListMap<>();
 
   /**
    * Entries with not valid id.
    */
-  private final IdentityHashMap<Identifiable, ModifiableInteger> newEntries =
+  private final IdentityHashMap<RID, ModifiableInteger> newEntries =
       new IdentityHashMap<>();
 
   private BonsaiCollectionPointer collectionPointer;
   private int size;
 
-  private final SimpleMultiValueTracker<Identifiable, Identifiable> tracker =
+  private final SimpleMultiValueTracker<RID, RID> tracker =
       new SimpleMultiValueTracker<>(this);
 
   private transient RecordElement owner;
@@ -98,18 +100,18 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     this.size = size;
   }
 
-  private static class IdentifiableIntegerEntry implements Entry<Identifiable, Integer> {
+  private static class IdentifiableIntegerEntry implements Entry<RID, Integer> {
 
-    private final Entry<Identifiable, Integer> entry;
+    private final Entry<RID, Integer> entry;
     private final int newValue;
 
-    IdentifiableIntegerEntry(Entry<Identifiable, Integer> entry, int newValue) {
+    IdentifiableIntegerEntry(Entry<RID, Integer> entry, int newValue) {
       this.entry = entry;
       this.newValue = newValue;
     }
 
     @Override
-    public Identifiable getKey() {
+    public RID getKey() {
       return entry.getKey();
     }
 
@@ -124,22 +126,22 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     }
   }
 
-  private final class RIDBagIterator implements Iterator<Identifiable>, Resettable, Sizeable {
+  private final class RIDBagIterator implements Iterator<RID>, Resettable, Sizeable {
 
-    private final NavigableMap<Identifiable, Change> changedValues;
+    private final NavigableMap<RID, Change> changedValues;
     private final SBTreeMapEntryIterator sbTreeIterator;
-    private Iterator<Map.Entry<Identifiable, ModifiableInteger>> newEntryIterator;
-    private Iterator<Map.Entry<Identifiable, Change>> changedValuesIterator;
-    private Map.Entry<Identifiable, Change> nextChange;
-    private Map.Entry<Identifiable, Integer> nextSBTreeEntry;
-    private Identifiable currentValue;
+    private Iterator<Map.Entry<RID, ModifiableInteger>> newEntryIterator;
+    private Iterator<Map.Entry<RID, Change>> changedValuesIterator;
+    private Map.Entry<RID, Change> nextChange;
+    private Map.Entry<RID, Integer> nextSBTreeEntry;
+    private RID currentValue;
     private int currentFinalCounter;
     private int currentCounter;
     private boolean currentRemoved;
 
     private RIDBagIterator(
-        IdentityHashMap<Identifiable, ModifiableInteger> newEntries,
-        NavigableMap<Identifiable, Change> changedValues,
+        IdentityHashMap<RID, ModifiableInteger> newEntries,
+        NavigableMap<RID, Change> changedValues,
         SBTreeMapEntryIterator sbTreeIterator) {
       newEntryIterator = newEntries.entrySet().iterator();
       this.changedValues = changedValues;
@@ -163,7 +165,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     }
 
     @Override
-    public Identifiable next() {
+    public RID next() {
       currentRemoved = false;
       if (currentCounter < currentFinalCounter) {
         currentCounter++;
@@ -171,7 +173,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
       }
 
       if (newEntryIterator.hasNext()) {
-        Map.Entry<Identifiable, ModifiableInteger> entry = newEntryIterator.next();
+        Map.Entry<RID, ModifiableInteger> entry = newEntryIterator.next();
         currentValue = entry.getKey();
         currentFinalCounter = entry.getValue().intValue();
         currentCounter = 1;
@@ -277,9 +279,9 @@ public class BTreeBasedRidBag implements RidBagDelegate {
       return BTreeBasedRidBag.this.size();
     }
 
-    private Map.Entry<Identifiable, Change> nextChangedNotRemovedEntry(
-        Iterator<Map.Entry<Identifiable, Change>> iterator) {
-      Map.Entry<Identifiable, Change> entry;
+    private static Map.Entry<RID, Change> nextChangedNotRemovedEntry(
+        Iterator<Map.Entry<RID, Change>> iterator) {
+      Map.Entry<RID, Change> entry;
 
       while (iterator.hasNext()) {
         entry = iterator.next();
@@ -294,11 +296,11 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   }
 
   private final class SBTreeMapEntryIterator
-      implements Iterator<Map.Entry<Identifiable, Integer>>, Resettable {
+      implements Iterator<Map.Entry<RID, Integer>>, Resettable {
 
     private final int prefetchSize;
-    private LinkedList<Map.Entry<Identifiable, Integer>> preFetchedValues;
-    private Identifiable firstKey;
+    private LinkedList<Map.Entry<RID, Integer>> preFetchedValues;
+    private RID firstKey;
 
     SBTreeMapEntryIterator(int prefetchSize) {
       this.prefetchSize = prefetchSize;
@@ -312,8 +314,8 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     }
 
     @Override
-    public Map.Entry<Identifiable, Integer> next() {
-      final Map.Entry<Identifiable, Integer> entry = preFetchedValues.removeFirst();
+    public Map.Entry<RID, Integer> next() {
+      final Map.Entry<RID, Integer> entry = preFetchedValues.removeFirst();
       if (preFetchedValues.isEmpty()) {
         prefetchData(false);
       }
@@ -332,7 +334,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     }
 
     private void prefetchData(boolean firstTime) {
-      final EdgeBTree<Identifiable, Integer> tree = loadTree();
+      final EdgeBTree<RID, Integer> tree = loadTree();
       if (tree == null) {
         throw new IllegalStateException(
             "RidBag is not properly initialized, can not load tree implementation");
@@ -345,9 +347,9 @@ public class BTreeBasedRidBag implements RidBagDelegate {
             true,
             entry -> {
               preFetchedValues.add(
-                  new Entry<Identifiable, Integer>() {
+                  new Entry<>() {
                     @Override
-                    public Identifiable getKey() {
+                    public RID getKey() {
                       return entry.getKey();
                     }
 
@@ -376,7 +378,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     }
 
     private void init() {
-      EdgeBTree<Identifiable, Integer> tree = loadTree();
+      EdgeBTree<RID, Integer> tree = loadTree();
       if (tree == null) {
         throw new IllegalStateException(
             "RidBag is not properly initialized, can not load tree implementation");
@@ -398,7 +400,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     }
   }
 
-  public BTreeBasedRidBag(BonsaiCollectionPointer pointer, Map<Identifiable, Change> changes) {
+  public BTreeBasedRidBag(BonsaiCollectionPointer pointer, Map<RID, Change> changes) {
     this.collectionPointer = pointer;
     this.changes.putAll(changes);
     this.size = -1;
@@ -443,43 +445,20 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   }
 
   @Override
-  public Iterator<Identifiable> iterator() {
+  public @Nonnull Iterator<RID> iterator() {
     return new RIDBagIterator(
         new IdentityHashMap<>(newEntries),
         changes,
         collectionPointer != null ? new SBTreeMapEntryIterator(1000) : null);
   }
 
-  public boolean convertRecords2Links() {
-    final Map<Identifiable, Change> newChangedValues = new HashMap<>();
-    for (Map.Entry<Identifiable, Change> entry : changes.entrySet()) {
-      newChangedValues.put(entry.getKey().getIdentity(), entry.getValue());
-    }
-
-    for (Map.Entry<Identifiable, Change> entry : newChangedValues.entrySet()) {
-      if (entry.getKey() instanceof Record record) {
-
-        newChangedValues.put(record, entry.getValue());
-      } else {
-        return false;
-      }
-    }
-
-    newEntries.clear();
-
-    changes.clear();
-    changes.putAll(newChangedValues);
-
-    return true;
-  }
-
   public void mergeChanges(BTreeBasedRidBag treeRidBag) {
-    for (Map.Entry<Identifiable, ModifiableInteger> entry : treeRidBag.newEntries.entrySet()) {
+    for (Map.Entry<RID, ModifiableInteger> entry : treeRidBag.newEntries.entrySet()) {
       mergeDiffEntry(entry.getKey(), entry.getValue().getValue());
     }
 
-    for (Map.Entry<Identifiable, Change> entry : treeRidBag.changes.entrySet()) {
-      final Identifiable rec = entry.getKey();
+    for (Map.Entry<RID, Change> entry : treeRidBag.changes.entrySet()) {
+      final RID rec = entry.getKey();
       final Change change = entry.getValue();
       final int diff;
       if (change instanceof DiffChange) {
@@ -495,38 +474,38 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   }
 
   @Override
-  public void addAll(Collection<Identifiable> values) {
-    for (Identifiable identifiable : values) {
+  public void addAll(Collection<RID> values) {
+    for (var identifiable : values) {
       add(identifiable);
     }
   }
 
   @Override
-  public boolean addInternal(Identifiable e) {
+  public boolean addInternal(RID e) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void add(final Identifiable identifiable) {
-    if (identifiable == null) {
+  public void add(final RID rid) {
+    if (rid == null) {
       throw new IllegalArgumentException("Impossible to add a null identifiable in a ridbag");
     }
 
-    if (((RecordId) identifiable.getIdentity()).isValid()) {
-      Change counter = changes.get(identifiable);
+    if (((RecordId) rid.getIdentity()).isValid()) {
+      Change counter = changes.get(rid);
       if (counter == null) {
-        changes.put(identifiable, new DiffChange(1));
+        changes.put(rid, new DiffChange(1));
       } else {
         if (counter.isUndefined()) {
-          counter = getAbsoluteValue(identifiable);
-          changes.put(identifiable, counter);
+          counter = getAbsoluteValue(rid);
+          changes.put(rid, counter);
         }
         counter.increment();
       }
     } else {
-      final ModifiableInteger counter = newEntries.get(identifiable);
+      final ModifiableInteger counter = newEntries.get(rid);
       if (counter == null) {
-        newEntries.put(identifiable, new ModifiableInteger(1));
+        newEntries.put(rid, new ModifiableInteger(1));
       } else {
         counter.increment();
       }
@@ -536,21 +515,21 @@ public class BTreeBasedRidBag implements RidBagDelegate {
       size++;
     }
 
-    addEvent(identifiable, identifiable);
+    addEvent(rid, rid);
   }
 
   @Override
-  public void remove(Identifiable identifiable) {
-    if (removeFromNewEntries(identifiable)) {
+  public void remove(RID rid) {
+    if (removeFromNewEntries(rid)) {
       if (size >= 0) {
         size--;
       }
     } else {
-      final Change counter = changes.get(identifiable);
+      final Change counter = changes.get(rid);
       if (counter == null) {
         // Not persistent keys can only be in changes or newEntries
-        if (identifiable.getIdentity().isPersistent()) {
-          changes.put(identifiable, new DiffChange(-1));
+        if (rid.getIdentity().isPersistent()) {
+          changes.put(rid, new DiffChange(-1));
           size = -1;
         } else
         // Return immediately to prevent firing of event
@@ -570,11 +549,11 @@ public class BTreeBasedRidBag implements RidBagDelegate {
       }
     }
 
-    removeEvent(identifiable);
+    removeEvent(rid);
   }
 
   @Override
-  public boolean contains(Identifiable identifiable) {
+  public boolean contains(RID identifiable) {
     if (newEntries.containsKey(identifiable)) {
       return true;
     }
@@ -627,17 +606,17 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   @Override
   public Object returnOriginalState(
       DatabaseSessionInternal session,
-      List<MultiValueChangeEvent<Identifiable, Identifiable>> multiValueChangeEvents) {
+      List<MultiValueChangeEvent<RID, RID>> multiValueChangeEvents) {
     final BTreeBasedRidBag reverted = new BTreeBasedRidBag();
-    for (Identifiable identifiable : this) {
-      reverted.add(identifiable);
+    for (var rid : this) {
+      reverted.add(rid);
     }
 
-    final ListIterator<MultiValueChangeEvent<Identifiable, Identifiable>> listIterator =
+    final ListIterator<MultiValueChangeEvent<RID, RID>> listIterator =
         multiValueChangeEvents.listIterator(multiValueChangeEvents.size());
 
     while (listIterator.hasPrevious()) {
-      final MultiValueChangeEvent<Identifiable, Identifiable> event = listIterator.previous();
+      final MultiValueChangeEvent<RID, RID> event = listIterator.previous();
       switch (event.getChangeType()) {
         case ADD:
           reverted.remove(event.getKey());
@@ -665,14 +644,14 @@ public class BTreeBasedRidBag implements RidBagDelegate {
 
   private void rearrangeChanges() {
     DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
-    for (Entry<Identifiable, Change> change : this.changes.entrySet()) {
+    for (Entry<RID, Change> change : this.changes.entrySet()) {
       Identifiable key = change.getKey();
       if (db != null && db.getTransaction().isActive()) {
         if (!key.getIdentity().isPersistent()) {
-          Identifiable newKey = db.getTransaction().getRecord(key.getIdentity());
-          if (newKey != null && newKey != FrontendTransactionAbstract.DELETED_RECORD) {
+          var record = db.getTransaction().getRecord(key.getIdentity());
+          if (record != null && record != FrontendTransactionAbstract.DELETED_RECORD) {
             changes.remove(key);
-            changes.put(newKey, change.getValue());
+            changes.put(record.getIdentity(), change.getValue());
           }
         }
       }
@@ -727,11 +706,8 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     }
 
     BonsaiCollectionPointer collectionPointer;
-    if (this.collectionPointer != null) {
-      collectionPointer = this.collectionPointer;
-    } else {
-      collectionPointer = BonsaiCollectionPointer.INVALID;
-    }
+    collectionPointer = Objects.requireNonNullElse(this.collectionPointer,
+        BonsaiCollectionPointer.INVALID);
 
     LongSerializer.INSTANCE.serializeLiteral(collectionPointer.getFileId(), stream, offset);
     offset += LongSerializer.LONG_SIZE;
@@ -761,14 +737,14 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   }
 
   public void applyNewEntries() {
-    for (Entry<Identifiable, ModifiableInteger> entry : newEntries.entrySet()) {
-      Identifiable identifiable = entry.getKey();
-      assert identifiable instanceof Record;
-      Change c = changes.get(identifiable);
+    for (Entry<RID, ModifiableInteger> entry : newEntries.entrySet()) {
+      RID rid = entry.getKey();
+      assert rid instanceof Record;
+      Change c = changes.get(rid);
 
       final int delta = entry.getValue().intValue();
       if (c == null) {
-        changes.put(identifiable, new DiffChange(delta));
+        changes.put(rid, new DiffChange(delta));
       } else {
         c.applyDiff(delta);
       }
@@ -834,7 +810,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     this.collectionPointer = collectionPointer;
   }
 
-  private EdgeBTree<Identifiable, Integer> loadTree() {
+  private EdgeBTree<RID, Integer> loadTree() {
     if (collectionPointer == null) {
       return null;
     }
@@ -850,7 +826,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     collectionManager.releaseSBTree(collectionPointer);
   }
 
-  private void mergeDiffEntry(Identifiable key, int diff) {
+  private void mergeDiffEntry(RID key, int diff) {
     if (diff > 0) {
       for (int i = 0; i < diff; i++) {
         add(key);
@@ -862,22 +838,22 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     }
   }
 
-  private AbsoluteChange getAbsoluteValue(Identifiable identifiable) {
-    final EdgeBTree<Identifiable, Integer> tree = loadTree();
+  private AbsoluteChange getAbsoluteValue(RID rid) {
+    final EdgeBTree<RID, Integer> tree = loadTree();
     try {
       Integer oldValue;
 
       if (tree == null) {
         oldValue = 0;
       } else {
-        oldValue = tree.get(identifiable);
+        oldValue = tree.get(rid);
       }
 
       if (oldValue == null) {
         oldValue = 0;
       }
 
-      final Change change = changes.get(identifiable);
+      final Change change = changes.get(rid);
 
       return new AbsoluteChange(change == null ? oldValue : change.applyTo(oldValue));
     } finally {
@@ -893,7 +869,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   private int updateSize() {
     int size = 0;
     if (collectionPointer != null) {
-      final EdgeBTree<Identifiable, Integer> tree = loadTree();
+      final EdgeBTree<RID, Integer> tree = loadTree();
       if (tree == null) {
         throw new IllegalStateException(
             "RidBag is not properly initialized, can not load tree implementation");
@@ -940,16 +916,16 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   /**
    * Removes entry with given key from {@link #newEntries}.
    *
-   * @param identifiable key to remove
+   * @param rid key to remove
    * @return true if entry have been removed
    */
-  private boolean removeFromNewEntries(final Identifiable identifiable) {
-    ModifiableInteger counter = newEntries.get(identifiable);
+  private boolean removeFromNewEntries(final RID rid) {
+    ModifiableInteger counter = newEntries.get(rid);
     if (counter == null) {
       return false;
     } else {
       if (counter.getValue() == 1) {
-        newEntries.remove(identifiable);
+        newEntries.remove(rid);
       } else {
         counter.decrement();
       }
@@ -957,10 +933,10 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     }
   }
 
-  private Map.Entry<Identifiable, Integer> nextChangedNotRemovedSBTreeEntry(
-      Iterator<Map.Entry<Identifiable, Integer>> iterator) {
+  private Map.Entry<RID, Integer> nextChangedNotRemovedSBTreeEntry(
+      Iterator<Map.Entry<RID, Integer>> iterator) {
     while (iterator.hasNext()) {
-      final Map.Entry<Identifiable, Integer> entry = iterator.next();
+      final Map.Entry<RID, Integer> entry = iterator.next();
       final Change change = changes.get(entry.getKey());
       if (change == null) {
         return entry;
@@ -977,7 +953,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   }
 
   @Override
-  public NavigableMap<Identifiable, Change> getChanges() {
+  public NavigableMap<RID, Change> getChanges() {
     applyNewEntries();
     return changes;
   }
@@ -987,19 +963,19 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     // do nothing not needed
   }
 
-  private void addEvent(Identifiable key, Identifiable identifiable) {
+  private void addEvent(RID key, RID rid) {
     if (this.owner != null) {
-      RecordInternal.track(this.owner, identifiable);
+      RecordInternal.track(this.owner, rid);
     }
 
     if (tracker.isEnabled()) {
-      tracker.addNoDirty(key, identifiable);
+      tracker.addNoDirty(key, rid);
     } else {
       setDirtyNoChanged();
     }
   }
 
-  private void removeEvent(Identifiable removed) {
+  private void removeEvent(RID removed) {
 
     if (this.owner != null) {
       RecordInternal.unTrack(this.owner, removed);
@@ -1070,17 +1046,17 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   }
 
   @Override
-  public SimpleMultiValueTracker<Identifiable, Identifiable> getTracker() {
+  public SimpleMultiValueTracker<RID, RID> getTracker() {
     return tracker;
   }
 
   @Override
-  public void setTracker(SimpleMultiValueTracker<Identifiable, Identifiable> tracker) {
+  public void setTracker(SimpleMultiValueTracker<RID, RID> tracker) {
     this.tracker.sourceFrom(tracker);
   }
 
   @Override
-  public MultiValueChangeTimeLine<Identifiable, Identifiable> getTransactionTimeLine() {
+  public MultiValueChangeTimeLine<RID, RID> getTransactionTimeLine() {
     return this.tracker.getTransactionTimeLine();
   }
 }

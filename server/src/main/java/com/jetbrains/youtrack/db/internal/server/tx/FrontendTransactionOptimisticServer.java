@@ -4,7 +4,6 @@ import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.exception.TransactionException;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
@@ -104,7 +103,6 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
               updated = txEntry.record;
             }
 
-            assert updated != null;
             entry = txEntry;
 
             mergeChanges(operation, updated, type);
@@ -212,17 +210,11 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
     if (callHooks) {
       switch (iStatus) {
         case RecordOperation.CREATED: {
-          Identifiable res = database.beforeCreateOperations(record, null);
-          if (res != null) {
-            record = (RecordAbstract) res;
-          }
+          database.beforeCreateOperations(record, null);
         }
         break;
         case RecordOperation.UPDATED: {
-          Identifiable res = database.beforeUpdateOperations(record, null);
-          if (res != null) {
-            record = (RecordAbstract) res;
-          }
+          database.beforeUpdateOperations(record, null);
         }
         break;
 

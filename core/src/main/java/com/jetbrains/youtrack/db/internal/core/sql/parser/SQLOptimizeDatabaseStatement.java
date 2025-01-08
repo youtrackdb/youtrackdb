@@ -2,12 +2,11 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
@@ -21,7 +20,6 @@ import java.util.stream.Collectors;
 public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
 
   protected List<SQLCommandLineOption> options = new ArrayList<SQLCommandLineOption>();
-  private final int batch = 1000;
 
   public SQLOptimizeDatabaseStatement(int id) {
     super(id);
@@ -101,9 +99,9 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
           // OUTGOING
           final Object outField = outV.getPropertyInternal("out_" + entity.getClassName());
           if (outField instanceof RidBag) {
-            final Iterator<Identifiable> it = ((RidBag) outField).iterator();
+            final Iterator<RID> it = ((RidBag) outField).iterator();
             while (it.hasNext()) {
-              Identifiable v = it.next();
+              RID v = it.next();
               if (edgeIdentity.equals(v)) {
                 // REPLACE EDGE RID WITH IN-VERTEX RID
                 it.remove();
@@ -118,9 +116,9 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
           // INCOMING
           final Object inField = inV.getPropertyInternal("in_" + entity.getClassName());
           if (outField instanceof RidBag) {
-            final Iterator<Identifiable> it = ((RidBag) inField).iterator();
+            final Iterator<RID> it = ((RidBag) inField).iterator();
             while (it.hasNext()) {
-              Identifiable v = it.next();
+              RID v = it.next();
               if (edgeIdentity.equals(v)) {
                 // REPLACE EDGE RID WITH IN-VERTEX RID
                 it.remove();

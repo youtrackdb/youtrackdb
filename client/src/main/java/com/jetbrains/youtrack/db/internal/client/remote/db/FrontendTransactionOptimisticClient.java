@@ -118,19 +118,11 @@ public class FrontendTransactionOptimisticClient extends FrontendTransactionOpti
       if (callHook) {
         switch (iStatus) {
           case RecordOperation.CREATED: {
-            Identifiable res = database.beforeCreateOperations(iRecord, iClusterName);
-            if (res != null) {
-              iRecord = (RecordAbstract) res;
-              changed = true;
-            }
+            database.beforeCreateOperations(iRecord, iClusterName);
           }
           break;
           case RecordOperation.UPDATED: {
-            Identifiable res = database.beforeUpdateOperations(iRecord, iClusterName);
-            if (res != null) {
-              iRecord = (RecordAbstract) res;
-              changed = true;
-            }
+            database.beforeUpdateOperations(iRecord, iClusterName);
           }
           break;
 

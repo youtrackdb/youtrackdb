@@ -41,7 +41,7 @@ public abstract class SpatialFunctionAbstract extends SQLFunctionAbstract {
   protected Shape toShape(Object param) {
     final Object singleItem = getSingleItem(param);
     if (singleItem != null) {
-      final Object singleProp = getSingleProperty(singleItem, false);
+      final Object singleProp = getSingleProperty(singleItem);
       if (singleProp != null) {
         return factory.fromObject(singleProp);
       }

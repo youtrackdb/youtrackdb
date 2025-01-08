@@ -82,8 +82,8 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBag = new RidBag(db);
-    ridBag.add(docOne);
-    ridBag.add(docTwo);
+    ridBag.add(docOne.getIdentity());
+    ridBag.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBag);
 
@@ -119,8 +119,8 @@ public class LinkBagIndexTest extends BaseDBTest {
     try {
       final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
       final RidBag ridBag = new RidBag(db);
-      ridBag.add(docOne);
-      ridBag.add(docTwo);
+      ridBag.add(docOne.getIdentity());
+      ridBag.add(docTwo.getIdentity());
 
       document.field("ridBag", ridBag);
       document.save();
@@ -162,8 +162,8 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBagOne = new RidBag(db);
-    ridBagOne.add(docOne);
-    ridBagOne.add(docTwo);
+    ridBagOne.add(docOne.getIdentity());
+    ridBagOne.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBagOne);
 
@@ -172,8 +172,8 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     db.begin();
     final RidBag ridBagTwo = new RidBag(db);
-    ridBagTwo.add(docOne);
-    ridBagTwo.add(docThree);
+    ridBagTwo.add(docOne.getIdentity());
+    ridBagTwo.add(docThree.getIdentity());
 
     document = db.bindToSession(document);
     document.field("ridBag", ridBagTwo);
@@ -213,8 +213,8 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBagOne = new RidBag(db);
-    ridBagOne.add(docOne);
-    ridBagOne.add(docTwo);
+    ridBagOne.add(docOne.getIdentity());
+    ridBagOne.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBagOne);
 
@@ -226,8 +226,8 @@ public class LinkBagIndexTest extends BaseDBTest {
 
       document = db.bindToSession(document);
       final RidBag ridBagTwo = new RidBag(db);
-      ridBagTwo.add(docOne);
-      ridBagTwo.add(docThree);
+      ridBagTwo.add(docOne.getIdentity());
+      ridBagTwo.add(docThree.getIdentity());
 
       document.field("ridBag", ridBagTwo);
       document.save();
@@ -268,8 +268,8 @@ public class LinkBagIndexTest extends BaseDBTest {
     docThree.save();
 
     final RidBag ridBagOne = new RidBag(db);
-    ridBagOne.add(docOne);
-    ridBagOne.add(docTwo);
+    ridBagOne.add(docOne.getIdentity());
+    ridBagOne.add(docTwo.getIdentity());
 
     EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     document.field("ridBag", ridBagOne);
@@ -279,8 +279,8 @@ public class LinkBagIndexTest extends BaseDBTest {
     db.begin();
     document = db.bindToSession(document);
     final RidBag ridBagTwo = new RidBag(db);
-    ridBagTwo.add(docOne);
-    ridBagTwo.add(docThree);
+    ridBagTwo.add(docOne.getIdentity());
+    ridBagTwo.add(docThree.getIdentity());
 
     document.field("ridBag", ridBagTwo);
     document.save();
@@ -318,8 +318,8 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBag = new RidBag(db);
-    ridBag.add(docOne);
-    ridBag.add(docTwo);
+    ridBag.add(docOne.getIdentity());
+    ridBag.add(docTwo.getIdentity());
     document.field("ridBag", ridBag);
 
     document.save();
@@ -368,8 +368,8 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBag = new RidBag(db);
-    ridBag.add(docOne);
-    ridBag.add(docTwo);
+    ridBag.add(docOne.getIdentity());
+    ridBag.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBag);
 
@@ -380,7 +380,7 @@ public class LinkBagIndexTest extends BaseDBTest {
       db.begin();
       docThree = db.bindToSession(docThree);
       EntityImpl loadedDocument = db.load(document.getIdentity());
-      loadedDocument.<RidBag>field("ridBag").add(docThree);
+      loadedDocument.<RidBag>field("ridBag").add(docThree.getIdentity());
       loadedDocument.save();
       db.commit();
     } catch (Exception e) {
@@ -421,8 +421,8 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBag = new RidBag(db);
-    ridBag.add(docOne);
-    ridBag.add(docTwo);
+    ridBag.add(docOne.getIdentity());
+    ridBag.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBag);
 
@@ -432,7 +432,7 @@ public class LinkBagIndexTest extends BaseDBTest {
     db.begin();
     docThree = db.bindToSession(docThree);
     EntityImpl loadedDocument = db.load(document.getIdentity());
-    loadedDocument.<RidBag>field("ridBag").add(docThree);
+    loadedDocument.<RidBag>field("ridBag").add(docThree.getIdentity());
     loadedDocument.save();
     db.rollback();
 
@@ -465,8 +465,8 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBag = new RidBag(db);
-    ridBag.add(docOne);
-    ridBag.add(docTwo);
+    ridBag.add(docOne.getIdentity());
+    ridBag.add(docTwo.getIdentity());
     document.field("ridBag", ridBag);
 
     document.save();
@@ -475,7 +475,7 @@ public class LinkBagIndexTest extends BaseDBTest {
     try {
       db.begin();
       EntityImpl loadedDocument = db.load(document.getIdentity());
-      loadedDocument.<RidBag>field("ridBag").remove(docTwo);
+      loadedDocument.<RidBag>field("ridBag").remove(docTwo.getIdentity());
       loadedDocument.save();
       db.commit();
     } catch (Exception e) {
@@ -511,15 +511,15 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBag = new RidBag(db);
-    ridBag.add(docOne);
-    ridBag.add(docTwo);
+    ridBag.add(docOne.getIdentity());
+    ridBag.add(docTwo.getIdentity());
     document.field("ridBag", ridBag);
     document.save();
     db.commit();
 
     db.begin();
     EntityImpl loadedDocument = db.load(document.getIdentity());
-    loadedDocument.<RidBag>field("ridBag").remove(docTwo);
+    loadedDocument.<RidBag>field("ridBag").remove(docTwo.getIdentity());
     loadedDocument.save();
     db.rollback();
 
@@ -552,8 +552,8 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBag = new RidBag(db);
-    ridBag.add(docOne);
-    ridBag.add(docTwo);
+    ridBag.add(docOne.getIdentity());
+    ridBag.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBag);
     document.save();
@@ -595,8 +595,8 @@ public class LinkBagIndexTest extends BaseDBTest {
     final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
 
     final RidBag ridBag = new RidBag(db);
-    ridBag.add(docOne);
-    ridBag.add(docTwo);
+    ridBag.add(docOne.getIdentity());
+    ridBag.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBag);
     document.save();
@@ -620,8 +620,8 @@ public class LinkBagIndexTest extends BaseDBTest {
     final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
 
     final RidBag ridBag = new RidBag(db);
-    ridBag.add(docOne);
-    ridBag.add(docTwo);
+    ridBag.add(docOne.getIdentity());
+    ridBag.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBag);
     document.save();
@@ -652,8 +652,8 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     final EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBag = new RidBag(db);
-    ridBag.add(docOne);
-    ridBag.add(docTwo);
+    ridBag.add(docOne.getIdentity());
+    ridBag.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBag);
     document.save();
@@ -694,16 +694,16 @@ public class LinkBagIndexTest extends BaseDBTest {
 
     EntityImpl document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     final RidBag ridBagOne = new RidBag(db);
-    ridBagOne.add(docOne);
-    ridBagOne.add(docTwo);
+    ridBagOne.add(docOne.getIdentity());
+    ridBagOne.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBagOne);
     document.save();
 
     document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
     RidBag ridBag = new RidBag(db);
-    ridBag.add(docThree);
-    ridBag.add(docTwo);
+    ridBag.add(docThree.getIdentity());
+    ridBag.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBag);
     document.save();

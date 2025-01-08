@@ -16,12 +16,7 @@ public class SQLFunctionModeTest {
   @Before
   public void setup() {
     mode =
-        new SQLFunctionMode() {
-          @Override
-          protected boolean returnDistributedResult() {
-            return false;
-          }
-        };
+        new SQLFunctionMode();
   }
 
   @Test

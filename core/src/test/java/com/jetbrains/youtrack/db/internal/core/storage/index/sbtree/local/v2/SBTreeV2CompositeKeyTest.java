@@ -3,7 +3,6 @@ package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v2;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
@@ -27,7 +26,7 @@ import org.junit.Test;
  */
 public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
-  private SBTreeV2<CompositeKey, Identifiable> localSBTree;
+  private SBTreeV2<CompositeKey, RID> localSBTree;
   private AtomicOperationsManager atomicOperationsManager;
 
   @Before
@@ -65,7 +64,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
                     atomicOperation,
                     compositeKey,
                     new RecordId(
-                        ((Double) compositeKey.getKeys().get(0)).intValue(),
+                        ((Double) compositeKey.getKeys().getFirst()).intValue(),
                         ((Double) compositeKey.getKeys().get(1)).longValue())));
       }
     }
@@ -96,7 +95,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateBetweenValuesInclusive() {
-    Stream<RawPair<CompositeKey, Identifiable>> stream =
+    Stream<RawPair<CompositeKey, RID>> stream =
         localSBTree.iterateEntriesBetween(compositeKey(2.0), true, compositeKey(3.0), true, true);
 
     Set<RID> orids = extractRids(stream);
@@ -123,7 +122,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateBetweenValuesFromInclusive() {
-    Stream<RawPair<CompositeKey, Identifiable>> stream =
+    Stream<RawPair<CompositeKey, RID>> stream =
         localSBTree.iterateEntriesBetween(compositeKey(2.0), true, compositeKey(3.0), false, true);
 
     Set<RID> orids = extractRids(stream);
@@ -146,7 +145,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateBetweenValuesToInclusive() {
-    Stream<RawPair<CompositeKey, Identifiable>> stream =
+    Stream<RawPair<CompositeKey, RID>> stream =
         localSBTree.iterateEntriesBetween(compositeKey(2.0), false, compositeKey(3.0), true, true);
     Set<RID> orids = extractRids(stream);
 
@@ -169,7 +168,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateEntriesNonInclusive() {
-    Stream<RawPair<CompositeKey, Identifiable>> stream =
+    Stream<RawPair<CompositeKey, RID>> stream =
         localSBTree.iterateEntriesBetween(compositeKey(2.0), false, compositeKey(3.0), false, true);
     Set<RID> orids = extractRids(stream);
 
@@ -206,7 +205,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateBetweenValuesInclusivePartialKey() {
-    Stream<RawPair<CompositeKey, Identifiable>> stream =
+    Stream<RawPair<CompositeKey, RID>> stream =
         localSBTree.iterateEntriesBetween(
             compositeKey(2.0, 4.0), true, compositeKey(3.0), true, true);
     Set<RID> orids = extractRids(stream);
@@ -241,7 +240,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateBetweenValuesFromInclusivePartialKey() {
-    Stream<RawPair<CompositeKey, Identifiable>> stream =
+    Stream<RawPair<CompositeKey, RID>> stream =
         localSBTree.iterateEntriesBetween(
             compositeKey(2.0, 4.0), true, compositeKey(3.0), false, true);
 
@@ -266,7 +265,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateBetweenValuesToInclusivePartialKey() {
-    Stream<RawPair<CompositeKey, Identifiable>> stream =
+    Stream<RawPair<CompositeKey, RID>> stream =
         localSBTree.iterateEntriesBetween(
             compositeKey(2.0, 4.0), false, compositeKey(3.0), true, true);
 
@@ -300,7 +299,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateBetweenValuesNonInclusivePartial() {
-    Stream<RawPair<CompositeKey, Identifiable>> stream =
+    Stream<RawPair<CompositeKey, RID>> stream =
         localSBTree.iterateEntriesBetween(
             compositeKey(2.0, 4.0), false, compositeKey(3.0), false, true);
 
@@ -325,7 +324,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateValuesMajorInclusivePartial() {
-    Stream<RawPair<CompositeKey, Identifiable>> stream =
+    Stream<RawPair<CompositeKey, RID>> stream =
         localSBTree.iterateEntriesMajor(compositeKey(2.0), true, true);
     Set<RID> orids = extractRids(stream);
 
@@ -351,7 +350,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateMajorNonInclusivePartial() {
-    Stream<RawPair<CompositeKey, Identifiable>> stream =
+    Stream<RawPair<CompositeKey, RID>> stream =
         localSBTree.iterateEntriesMajor(compositeKey(2.0), false, true);
     Set<RID> orids = extractRids(stream);
     assertEquals(9, orids.size());
@@ -372,7 +371,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateValuesMajorInclusive() {
-    Stream<RawPair<CompositeKey, Identifiable>> stream =
+    Stream<RawPair<CompositeKey, RID>> stream =
         localSBTree.iterateEntriesMajor(compositeKey(2.0, 3.0), true, true);
     Set<RID> orids = extractRids(stream);
     assertEquals(16, orids.size());
@@ -403,7 +402,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateValuesMajorNonInclusive() {
-    Stream<RawPair<CompositeKey, Identifiable>> stream =
+    Stream<RawPair<CompositeKey, RID>> stream =
         localSBTree.iterateEntriesMajor(compositeKey(2.0, 3.0), false, true);
     Set<RID> orids = extractRids(stream);
     assertEquals(15, orids.size());
@@ -434,7 +433,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateValuesMinorInclusivePartial() {
-    Stream<RawPair<CompositeKey, Identifiable>> stream =
+    Stream<RawPair<CompositeKey, RID>> stream =
         localSBTree.iterateEntriesMinor(compositeKey(3.0), true, true);
     Set<RID> orids = extractRids(stream);
     assertEquals(27, orids.size());
@@ -459,7 +458,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateValuesMinorNonInclusivePartial() {
-    Stream<RawPair<CompositeKey, Identifiable>> stream =
+    Stream<RawPair<CompositeKey, RID>> stream =
         localSBTree.iterateEntriesMinor(compositeKey(3.0), false, true);
     Set<RID> orids = extractRids(stream);
     assertEquals(18, orids.size());
@@ -484,7 +483,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateValuesMinorInclusive() {
-    Stream<RawPair<CompositeKey, Identifiable>> stream =
+    Stream<RawPair<CompositeKey, RID>> stream =
         localSBTree.iterateEntriesMinor(compositeKey(3.0, 2.0), true, true);
     Set<RID> orids = extractRids(stream);
     assertEquals(20, orids.size());
@@ -517,7 +516,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateValuesMinorNonInclusive() {
-    Stream<RawPair<CompositeKey, Identifiable>> stream =
+    Stream<RawPair<CompositeKey, RID>> stream =
         localSBTree.iterateEntriesMinor(compositeKey(3.0, 2.0), false, true);
     Set<RID> orids = extractRids(stream);
 
@@ -545,7 +544,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
     return new CompositeKey(Arrays.asList(params));
   }
 
-  private static Set<RID> extractRids(Stream<RawPair<CompositeKey, Identifiable>> stream) {
-    return stream.map((entry) -> entry.second.getIdentity()).collect(Collectors.toSet());
+  private static Set<RID> extractRids(Stream<RawPair<CompositeKey, RID>> stream) {
+    return stream.map((entry) -> entry.second).collect(Collectors.toSet());
   }
 }

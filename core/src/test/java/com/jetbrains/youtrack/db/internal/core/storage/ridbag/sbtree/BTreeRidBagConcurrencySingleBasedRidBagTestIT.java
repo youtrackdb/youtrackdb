@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.api.exception.ConcurrentModificationException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
@@ -25,11 +25,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class BTreeRidBagConcurrencySingleBasedRidBag {
+public class BTreeRidBagConcurrencySingleBasedRidBagTestIT {
 
-  public static final String URL = "plocal:target/testdb/BTreeRidBagConcurrencySingleBasedRidBag";
+  public static final String URL = "plocal:target/testdb/BTreeRidBagConcurrencySingleBasedRidBagTestIT";
   private final AtomicInteger positionCounter = new AtomicInteger();
-  private final ConcurrentSkipListSet<RID> ridTree = new ConcurrentSkipListSet<RID>();
+  private final ConcurrentSkipListSet<RID> ridTree = new ConcurrentSkipListSet<>();
   private final CountDownLatch latch = new CountDownLatch(1);
   private RID docContainerRid;
   private final ExecutorService threadExecutor = Executors.newCachedThreadPool();
@@ -78,7 +78,7 @@ public class BTreeRidBagConcurrencySingleBasedRidBag {
 
     docContainerRid = document.getIdentity();
 
-    List<Future<Void>> futures = new ArrayList<Future<Void>>();
+    List<Future<Void>> futures = new ArrayList<>();
 
     for (int i = 0; i < 5; i++) {
       futures.add(threadExecutor.submit(new RidAdder(i)));
@@ -127,11 +127,10 @@ public class BTreeRidBagConcurrencySingleBasedRidBag {
       int addedRecords = 0;
 
       DatabaseSessionInternal db = new DatabaseDocumentTx(URL);
-      db.open("admin", "admin");
-
-      try {
+      try (db) {
+        db.open("admin", "admin");
         while (cont) {
-          List<RID> ridsToAdd = new ArrayList<RID>();
+          List<RID> ridsToAdd = new ArrayList<>();
           for (int i = 0; i < 10; i++) {
             ridsToAdd.add(new RecordId(0, positionCounter.incrementAndGet()));
           }
@@ -157,8 +156,6 @@ public class BTreeRidBagConcurrencySingleBasedRidBag {
           ridTree.addAll(ridsToAdd);
           addedRecords += ridsToAdd.size();
         }
-      } finally {
-        db.close();
       }
 
       System.out.println(
@@ -183,17 +180,16 @@ public class BTreeRidBagConcurrencySingleBasedRidBag {
 
       Random rnd = new Random();
       DatabaseSessionInternal db = new DatabaseDocumentTx(URL);
-      db.open("admin", "admin");
-
-      try {
+      try (db) {
+        db.open("admin", "admin");
         while (cont) {
           while (true) {
             EntityImpl document = db.load(docContainerRid);
             document.setLazyLoad(false);
             RidBag ridBag = document.field("ridBag");
-            Iterator<Identifiable> iterator = ridBag.iterator();
+            Iterator<RID> iterator = ridBag.iterator();
 
-            List<RID> ridsToDelete = new ArrayList<RID>();
+            List<RID> ridsToDelete = new ArrayList<>();
             int counter = 0;
             while (iterator.hasNext()) {
               Identifiable identifiable = iterator.next();
@@ -214,14 +210,11 @@ public class BTreeRidBagConcurrencySingleBasedRidBag {
               continue;
             }
 
-            ridTree.removeAll(ridsToDelete);
-
+            ridsToDelete.forEach(ridTree::remove);
             deletedRecords += ridsToDelete.size();
             break;
           }
         }
-      } finally {
-        db.close();
       }
 
       System.out.println(

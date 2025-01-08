@@ -72,8 +72,7 @@ public interface RecordHook {
     RECORD_NOT_CHANGED,
     RECORD_CHANGED,
     SKIP,
-    SKIP_IO,
-    RECORD_REPLACED
+    SKIP_IO
   }
 
   /**

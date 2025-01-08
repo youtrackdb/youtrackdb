@@ -19,12 +19,10 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.coll;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import java.util.Collections;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -114,33 +112,6 @@ public class SQLFunctionMap extends SQLFunctionMultiValueAbstract<Map<Object, Ob
   }
 
   protected Map<Object, Object> prepareResult(final Map<Object, Object> res) {
-    if (returnDistributedResult()) {
-      final Map<String, Object> entity = new HashMap<String, Object>();
-      entity.put("node", getDistributedStorageId());
-      entity.put("context", res);
-      return Collections.singletonMap("entity", entity);
-    } else {
-      return res;
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public Object mergeDistributedResult(final List<Object> resultsToMerge) {
-    if (returnDistributedResult()) {
-      final Map<Object, Object> result = new HashMap<Object, Object>();
-      for (Object iParameter : resultsToMerge) {
-        final Map<String, Object> container =
-            (Map<String, Object>) ((Map<Object, Object>) iParameter).get("doc");
-        result.putAll((Map<Object, Object>) container.get("context"));
-      }
-      return result;
-    }
-
-    if (!resultsToMerge.isEmpty()) {
-      return resultsToMerge.get(0);
-    }
-
-    return null;
+    return res;
   }
 }

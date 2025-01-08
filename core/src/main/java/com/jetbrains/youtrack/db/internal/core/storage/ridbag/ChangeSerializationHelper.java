@@ -2,6 +2,8 @@ package com.jetbrains.youtrack.db.internal.core.storage.ridbag;
 
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
@@ -35,22 +37,22 @@ public class ChangeSerializationHelper {
     return createChangeInstance(ByteSerializer.INSTANCE.deserializeLiteral(stream, offset), value);
   }
 
-  public static Map<Identifiable, Change> deserializeChanges(DatabaseSessionInternal db,
+  public static Map<RID, Change> deserializeChanges(DatabaseSessionInternal db,
       final byte[] stream, int offset) {
     final int count = IntegerSerializer.INSTANCE.deserializeLiteral(stream, offset);
     offset += IntegerSerializer.INT_SIZE;
 
-    final HashMap<Identifiable, Change> res = new HashMap<>();
+    final HashMap<RID, Change> res = new HashMap<>();
     for (int i = 0; i < count; i++) {
       RecordId rid = LinkSerializer.INSTANCE.deserialize(stream, offset);
       offset += LinkSerializer.RID_SIZE;
       Change change = ChangeSerializationHelper.INSTANCE.deserializeChange(stream, offset);
       offset += Change.SIZE;
 
-      Identifiable identifiable;
+      RID identifiable;
       try {
         if (rid.isTemporary()) {
-          identifiable = rid.getRecord(db);
+          identifiable = rid.getRecord(db).getIdentity();
         } else {
           identifiable = rid;
         }
@@ -72,11 +74,20 @@ public class ChangeSerializationHelper {
 
     for (Map.Entry<K, Change> entry : changes.entrySet()) {
       K key = entry.getKey();
-
-      if (key.getIdentity().isTemporary())
-      //noinspection unchecked
-      {
-        key = key.getRecord(db);
+      if (key instanceof RID rid && rid.isTemporary()) {
+        try {
+          //noinspection unchecked
+          key = (K) rid.getRecord(db).getIdentity();
+        } catch (RecordNotFoundException e) {
+          //ignore
+        }
+      } else if (key instanceof Record record && record.getIdentity().isTemporary()) {
+        try {
+          //noinspection unchecked
+          key = record.getIdentity().getRecord(db);
+        } catch (RecordNotFoundException e) {
+          //ignore
+        }
       }
 
       keySerializer.serialize(key, stream, offset);

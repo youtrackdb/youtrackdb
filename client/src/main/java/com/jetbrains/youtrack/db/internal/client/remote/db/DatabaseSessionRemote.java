@@ -50,7 +50,6 @@ import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionAbstract;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.HookReplacedRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigImpl;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
@@ -528,7 +527,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   }
 
   @Override
-  public Identifiable beforeCreateOperations(Identifiable id, String iClusterName) {
+  public void beforeCreateOperations(Identifiable id, String iClusterName) {
     assert assertIfNotActive();
     checkSecurity(Role.PERMISSION_CREATE, id, iClusterName);
     RecordHook.RESULT res = callbackHooks(RecordHook.TYPE.BEFORE_CREATE, id);
@@ -536,21 +535,11 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
       if (id instanceof EntityImpl) {
         ((EntityImpl) id).validate();
       }
-      return id;
-    } else {
-      if (res == RecordHook.RESULT.RECORD_REPLACED) {
-        Record replaced = HookReplacedRecordThreadLocal.INSTANCE.get();
-        if (replaced instanceof EntityImpl) {
-          ((EntityImpl) replaced).validate();
-        }
-        return replaced;
-      }
     }
-    return null;
   }
 
   @Override
-  public Identifiable beforeUpdateOperations(Identifiable id, String iClusterName) {
+  public void beforeUpdateOperations(Identifiable id, String iClusterName) {
     assert assertIfNotActive();
     checkSecurity(Role.PERMISSION_UPDATE, id, iClusterName);
     RecordHook.RESULT res = callbackHooks(RecordHook.TYPE.BEFORE_UPDATE, id);
@@ -558,17 +547,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
       if (id instanceof EntityImpl) {
         ((EntityImpl) id).validate();
       }
-      return id;
-    } else {
-      if (res == RecordHook.RESULT.RECORD_REPLACED) {
-        Record replaced = HookReplacedRecordThreadLocal.INSTANCE.get();
-        if (replaced instanceof EntityImpl) {
-          ((EntityImpl) replaced).validate();
-        }
-        return replaced;
-      }
     }
-    return null;
   }
 
   @Override

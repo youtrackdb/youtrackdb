@@ -21,7 +21,6 @@ package com.jetbrains.youtrack.db.internal.core.db.record.ridbag.embedded;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
@@ -46,6 +45,7 @@ import java.util.ListIterator;
 import java.util.NavigableMap;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import javax.annotation.Nonnull;
 
 public class EmbeddedRidBag implements RidBagDelegate {
 
@@ -61,7 +61,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
   private boolean dirty = false;
   private boolean transactionDirty = false;
 
-  private SimpleMultiValueTracker<Identifiable, Identifiable> tracker =
+  private SimpleMultiValueTracker<RID, RID> tracker =
       new SimpleMultiValueTracker<>(this);
 
   @Override
@@ -77,7 +77,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
     return entries;
   }
 
-  private final class EntriesIterator implements Iterator<Identifiable>, Resettable, Sizeable {
+  private final class EntriesIterator implements Iterator<RID>, Resettable, Sizeable {
 
     private int currentIndex = -1;
     private int nextIndex = -1;
@@ -92,7 +92,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
       // we may remove items in ridbag during iteration so we need to be sure that pointed item is
       // not removed.
       if (nextIndex > -1) {
-        if (entries[nextIndex] instanceof Identifiable) {
+        if (entries[nextIndex] instanceof RID) {
           return true;
         }
 
@@ -103,7 +103,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
     }
 
     @Override
-    public Identifiable next() {
+    public RID next() {
       currentRemoved = false;
 
       currentIndex = nextIndex;
@@ -115,7 +115,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
 
       // we may remove items in ridbag during iteration so we need to be sure that pointed item is
       // not removed.
-      if (!(nextValue instanceof Identifiable)) {
+      if (!(nextValue instanceof RID)) {
         nextIndex = nextIndex();
 
         currentIndex = nextIndex;
@@ -127,15 +127,15 @@ public class EmbeddedRidBag implements RidBagDelegate {
       }
 
       if (nextValue != null) {
-        if (((Identifiable) nextValue).getIdentity().isPersistent()) {
-          entries[currentIndex] = ((Identifiable) nextValue).getIdentity();
+        if (((RID) nextValue).getIdentity().isPersistent()) {
+          entries[currentIndex] = ((RID) nextValue).getIdentity();
         }
       }
 
       nextIndex = nextIndex();
 
       assert nextValue != null;
-      return (Identifiable) nextValue;
+      return (RID) nextValue;
     }
 
     @Override
@@ -150,7 +150,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
 
       currentRemoved = true;
 
-      final Identifiable nextValue = (Identifiable) entries[currentIndex];
+      final RID nextValue = (RID) entries[currentIndex];
       entries[currentIndex] = Tombstone.TOMBSTONE;
 
       size--;
@@ -175,7 +175,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
     private int nextIndex() {
       for (int i = currentIndex + 1; i < entriesLength; i++) {
         Object entry = entries[i];
-        if (entry instanceof Identifiable) {
+        if (entry instanceof RID) {
           return i;
         }
       }
@@ -190,7 +190,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
   }
 
   @Override
-  public boolean contains(Identifiable identifiable) {
+  public boolean contains(RID identifiable) {
     if (identifiable == null) {
       return false;
     }
@@ -216,8 +216,8 @@ public class EmbeddedRidBag implements RidBagDelegate {
     if (this.owner != null) {
       for (int i = 0; i < entriesLength; i++) {
         final Object entry = entries[i];
-        if (entry instanceof Identifiable) {
-          RecordInternal.unTrack(this.owner, (Identifiable) entry);
+        if (entry instanceof RID rid) {
+          RecordInternal.unTrack(this.owner, rid);
         }
       }
     }
@@ -226,31 +226,31 @@ public class EmbeddedRidBag implements RidBagDelegate {
     if (this.owner != null) {
       for (int i = 0; i < entriesLength; i++) {
         final Object entry = entries[i];
-        if (entry instanceof Identifiable) {
-          RecordInternal.track(this.owner, (Identifiable) entry);
+        if (entry instanceof RID rid) {
+          RecordInternal.track(this.owner, rid);
         }
       }
     }
   }
 
   @Override
-  public void addAll(Collection<Identifiable> values) {
-    for (Identifiable value : values) {
+  public void addAll(Collection<RID> values) {
+    for (var value : values) {
       add(value);
     }
   }
 
   @Override
-  public void add(final Identifiable identifiable) {
-    if (identifiable == null) {
+  public void add(final RID rid) {
+    if (rid == null) {
       throw new IllegalArgumentException("Impossible to add a null identifiable in a ridbag");
     }
-    addEntry(identifiable);
+    addEntry(rid);
 
     size++;
     contentWasChanged = true;
 
-    addEvent(identifiable, identifiable);
+    addEvent(rid, rid);
   }
 
   public EmbeddedRidBag copy() {
@@ -265,13 +265,13 @@ public class EmbeddedRidBag implements RidBagDelegate {
   }
 
   @Override
-  public void remove(Identifiable identifiable) {
+  public void remove(RID rid) {
 
-    if (removeEntry(identifiable)) {
+    if (removeEntry(rid)) {
       size--;
       contentWasChanged = true;
 
-      removeEvent(identifiable);
+      removeEvent(rid);
     }
   }
 
@@ -281,7 +281,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
   }
 
   @Override
-  public Iterator<Identifiable> iterator() {
+  public @Nonnull Iterator<RID> iterator() {
     return new EntriesIterator();
   }
 
@@ -295,15 +295,15 @@ public class EmbeddedRidBag implements RidBagDelegate {
     if (size < 10) {
       final StringBuilder sb = new StringBuilder(256);
       sb.append('[');
-      for (final Iterator<Identifiable> it = this.iterator(); it.hasNext(); ) {
+      for (final Iterator<RID> it = this.iterator(); it.hasNext(); ) {
         try {
-          Identifiable e = it.next();
+          RID e = it.next();
           if (e != null) {
             if (sb.length() > 1) {
               sb.append(", ");
             }
 
-            sb.append(e.getIdentity());
+            sb.append(e);
           }
         } catch (NoSuchElementException ignore) {
           // IGNORE THIS
@@ -319,17 +319,17 @@ public class EmbeddedRidBag implements RidBagDelegate {
   @Override
   public Object returnOriginalState(
       DatabaseSessionInternal session,
-      List<MultiValueChangeEvent<Identifiable, Identifiable>> multiValueChangeEvents) {
+      List<MultiValueChangeEvent<RID, RID>> multiValueChangeEvents) {
     final EmbeddedRidBag reverted = new EmbeddedRidBag();
-    for (Identifiable identifiable : this) {
+    for (var identifiable : this) {
       reverted.add(identifiable);
     }
 
-    final ListIterator<MultiValueChangeEvent<Identifiable, Identifiable>> listIterator =
+    final ListIterator<MultiValueChangeEvent<RID, RID>> listIterator =
         multiValueChangeEvents.listIterator(multiValueChangeEvents.size());
 
     while (listIterator.hasPrevious()) {
-      final MultiValueChangeEvent<Identifiable, Identifiable> event = listIterator.previous();
+      final MultiValueChangeEvent<RID, RID> event = listIterator.previous();
       switch (event.getChangeType()) {
         case ADD:
           reverted.remove(event.getKey());
@@ -360,16 +360,19 @@ public class EmbeddedRidBag implements RidBagDelegate {
   public int serialize(DatabaseSessionInternal db, byte[] stream, int offset, UUID ownerUuid) {
     IntegerSerializer.INSTANCE.serializeLiteral(size, stream, offset);
     offset += IntegerSerializer.INT_SIZE;
+
     final int totEntries = entries.length;
     for (int i = 0; i < totEntries; ++i) {
       final Object entry = entries[i];
-      if (entry instanceof Identifiable link) {
+      if (entry instanceof RID link) {
         final RID rid = link.getIdentity();
         if (db != null && !db.isClosed() && db.getTransaction().isActive()) {
           if (!link.getIdentity().isPersistent()) {
-            link = db.getTransaction().getRecord(link.getIdentity());
-            if (link == FrontendTransactionAbstract.DELETED_RECORD) {
+            var record = db.getTransaction().getRecord(link.getIdentity());
+            if (record == FrontendTransactionAbstract.DELETED_RECORD) {
               link = null;
+            } else {
+              link = record.getIdentity();
             }
           }
         }
@@ -378,7 +381,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
           throw new SerializationException("Found null entry in ridbag with rid=" + rid);
         }
 
-        entries[i] = link.getIdentity();
+        entries[i] = link;
         LinkSerializer.INSTANCE.serialize(link, stream, offset);
         offset += LinkSerializer.RID_SIZE;
       }
@@ -397,7 +400,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
       RID rid = LinkSerializer.INSTANCE.deserialize(stream, offset);
       offset += LinkSerializer.RID_SIZE;
 
-      Identifiable identifiable;
+      RID identifiable;
       if (rid.isTemporary()) {
         try {
           identifiable = rid.getRecord(db);
@@ -422,18 +425,18 @@ public class EmbeddedRidBag implements RidBagDelegate {
 
   @Override
   public Class<?> getGenericClass() {
-    return Identifiable.class;
+    return RID.class;
   }
 
-  public boolean addInternal(final Identifiable identifiable) {
-    addEntry(identifiable);
+  public boolean addInternal(final RID rid) {
+    addEntry(rid);
     if (this.owner != null) {
-      RecordInternal.track(this.owner, identifiable);
+      RecordInternal.track(this.owner, rid);
     }
     return true;
   }
 
-  public void addEntry(final Identifiable identifiable) {
+  public void addEntry(final RID identifiable) {
     if (entries.length == entriesLength) {
       if (entriesLength == 0) {
         final int cfgValue =
@@ -449,7 +452,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
     entriesLength++;
   }
 
-  private boolean removeEntry(Identifiable identifiable) {
+  private boolean removeEntry(RID identifiable) {
     int i = 0;
     for (; i < entriesLength; i++) {
       final Object entry = entries[i];
@@ -463,7 +466,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
   }
 
   @Override
-  public NavigableMap<Identifiable, Change> getChanges() {
+  public NavigableMap<RID, Change> getChanges() {
     return null;
   }
 
@@ -472,19 +475,19 @@ public class EmbeddedRidBag implements RidBagDelegate {
     // do nothing not needed
   }
 
-  private void addEvent(final Identifiable key, final Identifiable identifiable) {
+  private void addEvent(final RID key, final RID rid) {
     if (this.owner != null) {
-      RecordInternal.track(this.owner, identifiable);
+      RecordInternal.track(this.owner, rid);
     }
 
     if (tracker.isEnabled()) {
-      tracker.add(key, identifiable);
+      tracker.add(key, rid);
     } else {
       setDirty();
     }
   }
 
-  private void updateEvent(Identifiable key, Identifiable oldValue, Identifiable newValue) {
+  private void updateEvent(RID key, RID oldValue, RID newValue) {
     if (this.owner != null) {
       RecordInternal.unTrack(this.owner, oldValue);
     }
@@ -496,7 +499,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
     }
   }
 
-  private void removeEvent(Identifiable removed) {
+  private void removeEvent(RID removed) {
     if (this.owner != null) {
       RecordInternal.unTrack(this.owner, removed);
     }
@@ -564,17 +567,17 @@ public class EmbeddedRidBag implements RidBagDelegate {
   }
 
   @Override
-  public SimpleMultiValueTracker<Identifiable, Identifiable> getTracker() {
+  public SimpleMultiValueTracker<RID, RID> getTracker() {
     return tracker;
   }
 
   @Override
-  public void setTracker(SimpleMultiValueTracker<Identifiable, Identifiable> tracker) {
+  public void setTracker(SimpleMultiValueTracker<RID, RID> tracker) {
     this.tracker.sourceFrom(tracker);
   }
 
   @Override
-  public MultiValueChangeTimeLine<Identifiable, Identifiable> getTransactionTimeLine() {
+  public MultiValueChangeTimeLine<RID, RID> getTransactionTimeLine() {
     return tracker.getTransactionTimeLine();
   }
 }

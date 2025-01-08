@@ -46,7 +46,6 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.EntitySerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.core.type.EntityWrapper;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -610,7 +609,7 @@ public enum PropertyType {
 
         for (var item : iterable) {
           if (item instanceof Identifiable identifiable) {
-            ridBag.add(identifiable);
+            ridBag.add(identifiable.getIdentity());
           } else if (item instanceof String) {
             ridBag.add(new RecordId((String) item));
           }
@@ -619,17 +618,6 @@ public enum PropertyType {
         return (T) ridBag;
       }
 
-      if (value instanceof Serializable && targetClass.equals(SerializableStream.class)) {
-        return (T) value;
-      }
-
-      if (targetClass.equals(Identifiable.class) && value instanceof EntityWrapper wrapper) {
-        if (session == null) {
-          throw new DatabaseException(
-              "Cannot convert ODocumentWrapper to Identifiable without a session");
-        }
-        return (T) wrapper.getDocument(session);
-      }
     } catch (IllegalArgumentException e) {
       // PASS THROUGH
       throw BaseException.wrapException(

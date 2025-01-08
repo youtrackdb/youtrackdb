@@ -1607,31 +1607,18 @@ public class EntityHelper {
                 }
               });
 
-      final Iterator<Identifiable> myIterator =
+      final Iterator<RID> myIterator =
           makeDbCall(
               iMyDb,
-              new DbRelatedCall<Iterator<Identifiable>>() {
-                public Iterator<Identifiable> call(final DatabaseSessionInternal database) {
-                  return myBag.iterator();
-                }
-              });
+              database -> myBag.iterator());
 
       while (makeDbCall(
           iMyDb,
-          new DbRelatedCall<Boolean>() {
-            public Boolean call(final DatabaseSessionInternal database) {
-              return myIterator.hasNext();
-            }
-          })) {
+          database -> myIterator.hasNext())) {
         final Identifiable myIdentifiable =
             makeDbCall(
                 iMyDb,
-                new DbRelatedCall<Identifiable>() {
-                  @Override
-                  public Identifiable call(final DatabaseSessionInternal database) {
-                    return myIterator.next();
-                  }
-                });
+                (DbRelatedCall<Identifiable>) database -> myIterator.next());
 
         final RID otherRid;
         if (ridMapper != null) {
@@ -1690,7 +1677,7 @@ public class EntityHelper {
       return false;
     }
 
-    if (myValue.getClass().isArray() && otherValue.getClass().isArray()) {
+    if (myValue.getClass().isArray()) {
       final int myArraySize = Array.getLength(myValue);
       final int otherArraySize = Array.getLength(otherValue);
 

@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.function;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunction;
 import java.util.List;
 
@@ -98,15 +98,5 @@ public class DatabaseFunction implements SQLFunction {
 
   @Override
   public void config(final Object[] configuredParameters) {
-  }
-
-  @Override
-  public boolean shouldMergeDistributedResult() {
-    return false;
-  }
-
-  @Override
-  public Object mergeDistributedResult(List<Object> resultsToMerge) {
-    return null;
   }
 }

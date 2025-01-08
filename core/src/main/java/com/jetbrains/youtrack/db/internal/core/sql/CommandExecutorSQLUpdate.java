@@ -455,7 +455,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
    * @param currentVertex the currently connected vertex
    * @param direction     the direction ("out" or "in")
    */
-  private void changeVertexEdgePointer(
+  private static void changeVertexEdgePointer(
       DatabaseSessionInternal db, EntityImpl edge, Identifiable prevVertex,
       Identifiable currentVertex, String direction) {
     if (prevVertex != null && !prevVertex.equals(currentVertex)) {
@@ -466,8 +466,9 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       String vertexFieldName = direction + "_" + edgeClassName;
       EntityImpl prevOutDoc = prevVertex.getRecord(db);
       RidBag prevBag = prevOutDoc.field(vertexFieldName);
+
       if (prevBag != null) {
-        prevBag.remove(edge);
+        prevBag.remove(edge.getIdentity());
         prevOutDoc.save();
       }
 
@@ -477,7 +478,8 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         currentBag = new RidBag(db);
         currentVertexDoc.field(vertexFieldName, currentBag);
       }
-      currentBag.add(edge);
+
+      currentBag.add(edge.getIdentity());
     }
   }
 
@@ -773,7 +775,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
           throw new CommandExecutionException("Only links or records can be added to LINKBAG");
         }
 
-        bag.add((Identifiable) value);
+        bag.add(((Identifiable) value).getIdentity());
       }
       updated = true;
     }
@@ -880,7 +882,8 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     return updated;
   }
 
-  private boolean removeFromBag(EntityImpl record, boolean updated, Object value, RidBag bag) {
+  private static boolean removeFromBag(EntityImpl record, boolean updated, Object value,
+      RidBag bag) {
     if (value instanceof Collection) {
       for (Object o : ((Collection) value)) {
         updated |= removeSingleValueFromBag(bag, o, record);
@@ -891,12 +894,12 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     return updated;
   }
 
-  private boolean removeSingleValueFromBag(RidBag bag, Object value, EntityImpl record) {
+  private static boolean removeSingleValueFromBag(RidBag bag, Object value, EntityImpl record) {
     if (!(value instanceof Identifiable)) {
       throw new CommandExecutionException("Only links or records can be removed from LINKBAG");
     }
 
-    bag.remove((Identifiable) value);
+    bag.remove(((Identifiable) value).getIdentity());
     return record.isDirty();
   }
 

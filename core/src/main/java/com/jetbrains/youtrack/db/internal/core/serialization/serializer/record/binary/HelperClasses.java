@@ -500,8 +500,8 @@ public class HelperClasses {
       int size = VarIntSerializer.readAsInteger(bytes);
       ridbag.getDelegate().setSize(size);
       for (int i = 0; i < size; i++) {
-        Identifiable record = readLinkOptimizedEmbedded(db, bytes);
-        ridbag.getDelegate().addInternal(record);
+        var rid = readLinkOptimizedEmbedded(db, bytes);
+        ridbag.getDelegate().addInternal(rid);
       }
     } else {
       long fileId = VarIntSerializer.readAsLong(bytes);
@@ -516,11 +516,11 @@ public class HelperClasses {
             new BonsaiCollectionPointer(fileId, new RidBagBucketPointer(pageIndex, pageOffset));
       }
 
-      Map<Identifiable, Change> changes = new HashMap<>();
+      Map<RID, Change> changes = new HashMap<>();
 
       int changesSize = VarIntSerializer.readAsInteger(bytes);
       for (int i = 0; i < changesSize; i++) {
-        Identifiable recId = readLinkOptimizedSBTree(db, bytes);
+        var recId = readLinkOptimizedSBTree(db, bytes);
         Change change = deserializeChange(bytes);
         changes.put(recId, change);
       }
@@ -531,41 +531,34 @@ public class HelperClasses {
     return ridbag;
   }
 
-  private static Identifiable readLinkOptimizedEmbedded(DatabaseSessionInternal db,
+  private static RID readLinkOptimizedEmbedded(DatabaseSessionInternal db,
       final BytesContainer bytes) {
     RID rid =
         new RecordId(VarIntSerializer.readAsInteger(bytes), VarIntSerializer.readAsLong(bytes));
-    Identifiable identifiable = null;
     if (rid.isTemporary()) {
       try {
-        identifiable = rid.getRecord(db);
+        rid = rid.getRecord(db).getIdentity();
       } catch (RecordNotFoundException rnf) {
-        identifiable = rid;
+        //ignore
       }
     }
 
-    if (identifiable == null) {
-      identifiable = rid;
-    }
-
-    return identifiable;
+    return rid;
   }
 
-  private static Identifiable readLinkOptimizedSBTree(DatabaseSessionInternal db,
+  private static RID readLinkOptimizedSBTree(DatabaseSessionInternal db,
       final BytesContainer bytes) {
     RID rid =
         new RecordId(VarIntSerializer.readAsInteger(bytes), VarIntSerializer.readAsLong(bytes));
-    Identifiable identifiable;
     if (rid.isTemporary()) {
       try {
-        identifiable = rid.getRecord(db);
+        rid = rid.getRecord(db).getIdentity();
       } catch (RecordNotFoundException rnf) {
-        identifiable = rid;
+        //ignore
       }
-    } else {
-      identifiable = rid;
     }
-    return identifiable;
+
+    return rid;
   }
 
   private static Change deserializeChange(BytesContainer bytes) {

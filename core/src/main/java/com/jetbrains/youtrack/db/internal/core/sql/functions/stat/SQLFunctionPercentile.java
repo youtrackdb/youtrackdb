@@ -19,10 +19,10 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.stat;
 
-import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionAbstract;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -78,29 +78,7 @@ public class SQLFunctionPercentile extends SQLFunctionAbstract {
 
   @Override
   public Object getResult() {
-    if (returnDistributedResult()) {
-      return values;
-    } else {
-      return this.evaluate(this.values);
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public Object mergeDistributedResult(List<Object> resultsToMerge) {
-    if (returnDistributedResult()) {
-      List<Number> dValues = new ArrayList<Number>();
-      for (Object iParameter : resultsToMerge) {
-        dValues.addAll((List<Number>) iParameter);
-      }
-      return this.evaluate(dValues);
-    }
-
-    if (!resultsToMerge.isEmpty()) {
-      return resultsToMerge.get(0);
-    }
-
-    return null;
+    return this.evaluate(this.values);
   }
 
   @Override

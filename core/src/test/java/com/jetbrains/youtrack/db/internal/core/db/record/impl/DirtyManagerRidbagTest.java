@@ -22,7 +22,7 @@ public class DirtyManagerRidbagTest extends DbTestBase {
       doc.field("test", "ddd");
       RidBag bag = new RidBag(db);
       EntityImpl doc1 = (EntityImpl) db.newEntity();
-      bag.add(doc1);
+      bag.add(doc1.getIdentity());
       doc.field("bag", bag);
       EntityInternalUtils.convertAllMultiValuesToTrackedVersions(doc);
       DirtyManager manager = RecordInternal.getDirtyManager(db, doc1);

@@ -19,11 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.coll;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.util.SupportsContains;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemVariable;
 import java.util.ArrayList;
@@ -129,7 +129,7 @@ public class SQLFunctionIntersect extends SQLFunctionMultiValueAbstract<Object> 
     for (Iterator it = current; it.hasNext(); ) {
       final Object curr = it.next();
       if (value instanceof RidBag) {
-        if (((RidBag) value).contains((Identifiable) curr)) {
+        if (((RidBag) value).contains(((Identifiable) curr).getIdentity())) {
           tempSet.add(curr);
         }
       } else if (value instanceof Collection) {
@@ -148,24 +148,5 @@ public class SQLFunctionIntersect extends SQLFunctionMultiValueAbstract<Object> 
 
   public String getSyntax(DatabaseSession session) {
     return "intersect(<field>*)";
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public Object mergeDistributedResult(List<Object> resultsToMerge) {
-    final Collection<Object> result = new HashSet<Object>();
-    if (!resultsToMerge.isEmpty()) {
-      final Collection<Object> items = (Collection<Object>) resultsToMerge.get(0);
-      if (items != null) {
-        result.addAll(items);
-      }
-    }
-    for (int i = 1; i < resultsToMerge.size(); i++) {
-      final Collection<Object> items = (Collection<Object>) resultsToMerge.get(i);
-      if (items != null) {
-        result.retainAll(items);
-      }
-    }
-    return result;
   }
 }

@@ -202,7 +202,7 @@ public class DirtyManagerTest extends DbTestBase {
     doc.field("test", "ddd");
     RidBag bag = new RidBag(db);
     EntityImpl doc1 = (EntityImpl) db.newEntity();
-    bag.add(doc1);
+    bag.add(doc1.getIdentity());
     doc.field("bag", bag);
     EntityInternalUtils.convertAllMultiValuesToTrackedVersions(doc);
     DirtyManager manager = RecordInternal.getDirtyManager(db, doc1);
@@ -384,7 +384,7 @@ public class DirtyManagerTest extends DbTestBase {
     EntityImpl embeddedMapDoc = (EntityImpl) db.newEntity();
     RidBag embeddedMapDocRidBag = new RidBag(db);
     EntityImpl link = (EntityImpl) db.newEntity();
-    embeddedMapDocRidBag.add(link);
+    embeddedMapDocRidBag.add(link.getIdentity());
     embeddedMapDoc.field("ridBag", embeddedMapDocRidBag);
     embeddedMap.put("k1", embeddedMapDoc);
 

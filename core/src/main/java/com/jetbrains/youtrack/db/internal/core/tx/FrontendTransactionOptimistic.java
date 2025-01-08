@@ -25,6 +25,7 @@ import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.exception.TransactionException;
+import com.jetbrains.youtrack.db.api.exception.ValidationException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
@@ -45,6 +46,8 @@ import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceLibraryProxy;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHook;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHookV2;
@@ -614,6 +617,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
         rid.setClusterPosition(newRecordsPositionsGenerator--);
       }
 
+      var dirtyCounter = record.getDirtyCounter();
       try {
         RecordOperation txEntry = getRecordEntry(rid);
 
@@ -622,24 +626,29 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
             throw new TransactionException(
                 "Found record in transaction with the same RID but different instance");
           }
+
+          if (status != RecordOperation.DELETED) {
+            if (dirtyCounter == txEntry.dirtyCounter) {
+              //nothing changed
+              return;
+            }
+          }
         }
 
-        if (status == RecordOperation.CREATED && txEntry != null) {
-          status = RecordOperation.UPDATED;
+        if (txEntry != null) {
+          if (status == RecordOperation.CREATED) {
+            status = RecordOperation.UPDATED;
+          }
+          txEntry.dirtyCounter = dirtyCounter;
         }
+
         switch (status) {
           case RecordOperation.CREATED: {
-            Identifiable res = database.beforeCreateOperations(record, clusterName);
-            if (res != null) {
-              record = (RecordAbstract) res;
-            }
+            database.beforeCreateOperations(record, clusterName);
           }
           break;
           case RecordOperation.UPDATED: {
-            Identifiable res = database.beforeUpdateOperations(record, clusterName);
-            if (res != null) {
-              record = (RecordAbstract) res;
-            }
+            database.beforeUpdateOperations(record, clusterName);
           }
           break;
           case RecordOperation.DELETED:
@@ -760,8 +769,9 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
       status = TXSTATUS.COMMITTING;
 
       if (sentToServer || !recordOperations.isEmpty() || !indexEntries.isEmpty()) {
-        database.internalCommit(this);
+        preProcessRecords();
 
+        database.internalCommit(this);
         try {
           database.afterCommitOperations();
         } catch (Exception e) {
@@ -777,6 +787,67 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
 
     close();
     status = TXSTATUS.COMPLETED;
+  }
+
+  private void preProcessRecords() {
+    var serializer = database.getSerializer();
+    for (var recordOperation : recordOperations.values()) {
+      if (recordOperation.type == RecordOperation.CREATED
+          || recordOperation.type == RecordOperation.UPDATED) {
+        if (recordOperation.record instanceof EntityImpl entity) {
+          EntityInternalUtils.checkClass(entity, database);
+
+          try {
+            entity.autoConvertValues();
+          } catch (ValidationException e) {
+            entity.undo();
+            throw e;
+          }
+
+          EntityInternalUtils.convertAllMultiValuesToTrackedVersions(entity);
+
+          var className = entity.getClassName();
+          if (!entity.getIdentity().isValid()) {
+            if (className != null) {
+              database.checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_CREATE,
+                  className);
+            }
+          } else {
+            // UPDATE: CHECK ACCESS ON SCHEMA CLASS NAME (IF ANY)
+            if (className != null) {
+              database.checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_UPDATE,
+                  className);
+            }
+          }
+
+          if (!serializer.equals(RecordInternal.getRecordSerializer(entity))) {
+            RecordInternal.setRecordSerializer(entity, serializer);
+          }
+        }
+
+        if (recordOperation.type == RecordOperation.CREATED) {
+          database.assignAndCheckCluster(recordOperation.record, null);
+        }
+
+        var record = recordOperation.record;
+        var dirtyCounter = recordOperation.record.getDirtyCounter();
+        if (recordOperation.dirtyCounter != dirtyCounter) {
+          var clusterName = database.getClusterNameById(record.getIdentity().getClusterId());
+          database.beforeUpdateOperations(record, clusterName);
+          if (record instanceof EntityImpl && ((EntityImpl) record).isTrackingChanges()) {
+            EntityInternalUtils.clearTrackData(((EntityImpl) record));
+          }
+          try {
+            database.afterUpdateOperations(record);
+          } catch (Exception e) {
+            database.callbackHooks(TYPE.UPDATE_FAILED, record);
+            throw e;
+          } finally {
+            database.callbackHooks(TYPE.FINALIZE_UPDATE, record);
+          }
+        }
+      }
+    }
   }
 
   public void resetChangesTracking() {
@@ -871,12 +942,8 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
 
       if (!rec.record.getIdentity().equals(newRid)) {
         final RecordId recordId = rec.record.getIdentity();
-        if (recordId == null) {
-          RecordInternal.setIdentity(rec.record, new RecordId(newRid));
-        } else {
-          recordId.setClusterPosition(newRid.getClusterPosition());
-          recordId.setClusterId(newRid.getClusterId());
-        }
+        recordId.setClusterPosition(newRid.getClusterPosition());
+        recordId.setClusterId(newRid.getClusterId());
       }
     }
 

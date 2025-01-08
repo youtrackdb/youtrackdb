@@ -19,12 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.math;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Compute the maximum value for a field. Uses the context to save the last maximum number. When
@@ -109,26 +108,6 @@ public class SQLFunctionMax extends SQLFunctionMathAbstract {
 
   @Override
   public Object getResult() {
-    return context;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public Object mergeDistributedResult(List<Object> resultsToMerge) {
-    Comparable<Object> context = null;
-    for (Object iParameter : resultsToMerge) {
-      final Comparable<Object> value = (Comparable<Object>) iParameter;
-
-      if (context == null)
-      // FIRST TIME
-      {
-        context = value;
-      } else if (context.compareTo(value) < 0)
-      // BIGGER
-      {
-        context = value;
-      }
-    }
     return context;
   }
 }

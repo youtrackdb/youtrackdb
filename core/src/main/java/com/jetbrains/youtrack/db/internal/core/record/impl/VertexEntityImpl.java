@@ -101,7 +101,7 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
     var newEntity = new VertexEntityImpl(getSession());
     RecordInternal.unsetDirty(newEntity);
     copyTo(newEntity);
-    newEntity.dirty = true;
+    newEntity.dirty = 1;
 
     return newEntity;
   }

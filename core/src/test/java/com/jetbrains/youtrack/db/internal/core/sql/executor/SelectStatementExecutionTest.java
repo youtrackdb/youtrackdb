@@ -4462,16 +4462,6 @@ public class SelectStatementExecutionTest extends DbTestBase {
               @Override
               public void setResult(Object iResult) {
               }
-
-              @Override
-              public boolean shouldMergeDistributedResult() {
-                return false;
-              }
-
-              @Override
-              public Object mergeDistributedResult(List<Object> resultsToMerge) {
-                return null;
-              }
             });
     for (int i = 0; i < 3; i++) {
       EntityImpl doc = db.newInstance(className);

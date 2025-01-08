@@ -14,12 +14,7 @@ public class SQLFunctionPercentileTest {
   @Before
   public void beforeMethod() {
     percentile =
-        new SQLFunctionPercentile() {
-          @Override
-          protected boolean returnDistributedResult() {
-            return false;
-          }
-        };
+        new SQLFunctionPercentile();
   }
 
   @Test

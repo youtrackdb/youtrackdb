@@ -21,7 +21,6 @@ package com.jetbrains.youtrack.db.internal.core.db.record;
 
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import java.util.Locale;
 
 /**
  * Contains the information about a database operation.
@@ -34,6 +33,8 @@ public final class RecordOperation implements Comparable<RecordOperation> {
 
   public byte type;
   public final RecordAbstract record;
+  public long dirtyCounter;
+
   // used in processing of server transactions
   public boolean callHooksOnServerTx = false;
 
@@ -41,6 +42,7 @@ public final class RecordOperation implements Comparable<RecordOperation> {
     // CLONE RECORD AND CONTENT
     this.record = record;
     this.type = status;
+    this.dirtyCounter = record.getDirtyCounter();
   }
 
   @Override
@@ -73,20 +75,6 @@ public final class RecordOperation implements Comparable<RecordOperation> {
       case RecordOperation.DELETED -> "DELETE";
       default -> "?";
     };
-  }
-
-  public static byte getId(String iName) {
-    iName = iName.toUpperCase(Locale.ENGLISH);
-
-    if (iName.startsWith("CREAT")) {
-      return RecordOperation.CREATED;
-    } else if (iName.startsWith("UPDAT")) {
-      return RecordOperation.UPDATED;
-    } else if (iName.startsWith("DELET")) {
-      return RecordOperation.DELETED;
-    } else {
-      return -1;
-    }
   }
 
   @Override

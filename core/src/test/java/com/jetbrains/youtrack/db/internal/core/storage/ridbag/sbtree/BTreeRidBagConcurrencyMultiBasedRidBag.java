@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.api.exception.ConcurrentModificationException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
@@ -284,7 +284,7 @@ public class BTreeRidBagConcurrencyMultiBasedRidBag {
             EntityImpl document = db.load(orid);
             document.setLazyLoad(false);
             RidBag ridBag = document.field("ridBag");
-            Iterator<Identifiable> iterator = ridBag.iterator();
+            Iterator<RID> iterator = ridBag.iterator();
 
             List<RID> ridsToDelete = new ArrayList<RID>();
             int counter = 0;

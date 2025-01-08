@@ -19,12 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.math;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.List;
 
 /**
  * Evaluates a complex expression.
@@ -94,10 +93,5 @@ public class SQLFunctionDecimal extends SQLFunctionMathAbstract {
   @Override
   public Object getResult() {
     return result;
-  }
-
-  @Override
-  public Object mergeDistributedResult(List<Object> resultsToMerge) {
-    return null;
   }
 }

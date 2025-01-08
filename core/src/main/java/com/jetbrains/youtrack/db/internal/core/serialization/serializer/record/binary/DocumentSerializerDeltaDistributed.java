@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary;
 
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
@@ -54,11 +54,11 @@ public class DocumentSerializerDeltaDistributed extends DocumentSerializerDelta 
   protected void serializeDeltaLinkBag(DatabaseSessionInternal db, BytesContainer bytes,
       RidBag value) {
     serializeByte(bytes, value.isEmbedded() ? (byte) 0 : 1);
-    MultiValueChangeTimeLine<Identifiable, Identifiable> timeline =
+    MultiValueChangeTimeLine<RID, RID> timeline =
         value.getTransactionTimeLine();
     assert timeline != null : "Cx ollection timeline required for link types serialization";
     VarIntSerializer.write(bytes, timeline.getMultiValueChangeEvents().size());
-    for (MultiValueChangeEvent<Identifiable, Identifiable> event :
+    for (MultiValueChangeEvent<RID, RID> event :
         timeline.getMultiValueChangeEvents()) {
       switch (event.getChangeType()) {
         case ADD:

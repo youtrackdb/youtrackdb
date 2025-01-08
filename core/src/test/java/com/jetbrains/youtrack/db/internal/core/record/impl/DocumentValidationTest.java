@@ -657,7 +657,7 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
     checkField(d, "embeddedList", List.of((EntityImpl) db.newEntity(clazz)));
     checkField(d, "embeddedSet", List.of((EntityImpl) db.newEntity(clazz)));
     RidBag bag = new RidBag(db);
-    bag.add(db.newEntity(clazz));
+    bag.add(db.newEntity(clazz).getIdentity());
     checkField(d, "linkBag", bag);
     Map<String, EntityImpl> map2 = new HashMap<>();
     map2.put("a", (EntityImpl) db.newEntity(clazz));
@@ -714,7 +714,7 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
     try {
       db.begin();
       d = db.bindToSession(d);
-      ((RidBag) d.field("linkBag")).add(db.newEntity(clazz));
+      ((RidBag) d.field("linkBag")).add(db.newEntity(clazz).getIdentity());
       db.commit();
       fail();
     } catch (ValidationException v) {

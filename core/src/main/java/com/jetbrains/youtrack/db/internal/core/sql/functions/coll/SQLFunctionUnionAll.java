@@ -19,16 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.coll;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemVariable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
 
 /**
  * This operator can work as aggregate or inline. If only one argument is passed than aggregates,
@@ -88,17 +86,5 @@ public class SQLFunctionUnionAll extends SQLFunctionMultiValueAbstract<Collectio
 
   public String getSyntax(DatabaseSession session) {
     return "unionAll(<field>*)";
-  }
-
-  @Override
-  public Object mergeDistributedResult(List<Object> resultsToMerge) {
-    final Collection<Object> result = new HashSet<Object>();
-    for (Object iParameter : resultsToMerge) {
-      @SuppressWarnings("unchecked") final Collection<Object> items = (Collection<Object>) iParameter;
-      if (items != null) {
-        result.addAll(items);
-      }
-    }
-    return result;
   }
 }

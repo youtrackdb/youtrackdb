@@ -40,7 +40,7 @@ public class QueryLocalCacheIntegrationTest extends BaseDBTest {
   }
 
   @BeforeMethod
-  public void beforeMeth() throws Exception {
+  public void beforeMeth() {
     db.getMetadata().getSchema().createClass("FetchClass");
 
     db
@@ -63,12 +63,12 @@ public class QueryLocalCacheIntegrationTest extends BaseDBTest {
     db.save(doc1);
     EntityImpl doc2 = ((EntityImpl) db.newEntity("FetchClass"));
     doc2.field("name", "third");
-    List<EntityImpl> linkList = new ArrayList<EntityImpl>();
+    List<EntityImpl> linkList = new ArrayList<>();
     linkList.add(doc);
     linkList.add(doc1);
     doc2.field("linkList", linkList);
     doc2.field("linked", singleLinked);
-    Set<EntityImpl> linkSet = new HashSet<EntityImpl>();
+    Set<EntityImpl> linkSet = new HashSet<>();
     linkSet.add(doc);
     linkSet.add(doc1);
     doc2.field("linkSet", linkSet);
@@ -93,12 +93,12 @@ public class QueryLocalCacheIntegrationTest extends BaseDBTest {
 
     EntityImpl doc6 = ((EntityImpl) db.newEntity("OutInFetchClass"));
     RidBag out = new RidBag(db);
-    out.add(doc2);
-    out.add(doc3);
+    out.add(doc2.getIdentity());
+    out.add(doc3.getIdentity());
     doc6.field("out_friend", out);
     RidBag in = new RidBag(db);
-    in.add(doc4);
-    in.add(doc5);
+    in.add(doc4.getIdentity());
+    in.add(doc5.getIdentity());
     doc6.field("in_friend", in);
     doc6.field("name", "myName");
     db.save(doc6);
@@ -107,7 +107,7 @@ public class QueryLocalCacheIntegrationTest extends BaseDBTest {
   }
 
   @AfterMethod
-  public void afterMeth() throws Exception {
+  public void afterMeth() {
     db.getMetadata().getSchema().dropClass("FetchClass");
     db.getMetadata().getSchema().dropClass("SecondFetchClass");
     db.getMetadata().getSchema().dropClass("OutInFetchClass");

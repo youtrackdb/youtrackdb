@@ -30,7 +30,7 @@ public class EntityImplEmbedded extends EntityImpl {
     var entity = new EntityImplEmbedded(getSession());
     RecordInternal.unsetDirty(entity);
     var newEntity = (EntityImplEmbedded) copyTo(entity);
-    newEntity.dirty = true;
+    newEntity.dirty = 1;
     return newEntity;
   }
 

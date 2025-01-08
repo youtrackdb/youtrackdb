@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.db.record.ridbag;
 
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.util.Sizeable;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
@@ -32,16 +32,16 @@ import java.util.NavigableMap;
 import java.util.UUID;
 
 public interface RidBagDelegate
-    extends Iterable<Identifiable>,
+    extends Iterable<RID>,
     Sizeable,
-    TrackedMultiValue<Identifiable, Identifiable>,
+    TrackedMultiValue<RID, RID>,
     RecordElement {
 
-  void addAll(Collection<Identifiable> values);
+  void addAll(Collection<RID> values);
 
-  void add(Identifiable identifiable);
+  void add(RID rid);
 
-  void remove(Identifiable identifiable);
+  void remove(RID rid);
 
   boolean isEmpty();
 
@@ -53,7 +53,7 @@ public interface RidBagDelegate
    * <p>OwnerUuid is needed to notify db about changes of collection pointer if some happens during
    * serialization.
    *
-   * @param db
+   * @param db Current database session instance
    * @param stream    to write content
    * @param offset    in stream where start to write content
    * @param ownerUuid id of delegate owner
@@ -72,7 +72,7 @@ public interface RidBagDelegate
    * @return true if ridbag contains at leas one instance with the same rid as passed in
    * identifiable.
    */
-  boolean contains(Identifiable identifiable);
+  boolean contains(RID identifiable);
 
   void setOwner(RecordElement owner);
 
@@ -80,13 +80,13 @@ public interface RidBagDelegate
 
   String toString();
 
-  NavigableMap<Identifiable, Change> getChanges();
+  NavigableMap<RID, Change> getChanges();
 
   void setSize(int size);
 
-  SimpleMultiValueTracker<Identifiable, Identifiable> getTracker();
+  SimpleMultiValueTracker<RID, RID> getTracker();
 
-  void setTracker(SimpleMultiValueTracker<Identifiable, Identifiable> tracker);
+  void setTracker(SimpleMultiValueTracker<RID, RID> tracker);
 
   void setTransactionModified(boolean transactionModified);
 }

@@ -17,20 +17,20 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public class EdgeBTreeImpl implements EdgeBTree<Identifiable, Integer> {
+public class EdgeBTreeImpl implements EdgeBTree<RID, Integer> {
 
   private final BTree bTree;
   private final int intFileId;
   private final long ridBagId;
 
-  private final BinarySerializer<Identifiable> keySerializer;
+  private final BinarySerializer<RID> keySerializer;
   private final BinarySerializer<Integer> valueSerializer;
 
   public EdgeBTreeImpl(
       final BTree bTree,
       final int intFileId,
       final long ridBagId,
-      BinarySerializer<Identifiable> keySerializer,
+      BinarySerializer<RID> keySerializer,
       BinarySerializer<Integer> valueSerializer) {
     this.bTree = bTree;
     this.intFileId = intFileId;
@@ -55,9 +55,7 @@ public class EdgeBTreeImpl implements EdgeBTree<Identifiable, Integer> {
   }
 
   @Override
-  public Integer get(Identifiable key) {
-    final RID rid = key.getIdentity();
-
+  public Integer get(RID rid) {
     final int result;
 
     result = bTree.get(new EdgeKey(ridBagId, rid.getClusterId(), rid.getClusterPosition()));
@@ -70,9 +68,7 @@ public class EdgeBTreeImpl implements EdgeBTree<Identifiable, Integer> {
   }
 
   @Override
-  public boolean put(AtomicOperation atomicOperation, Identifiable key, Integer value) {
-    final RID rid = key.getIdentity();
-
+  public boolean put(AtomicOperation atomicOperation, RID rid, Integer value) {
     return bTree.put(
         atomicOperation,
         new EdgeKey(ridBagId, rid.getClusterId(), rid.getClusterPosition()),
@@ -111,8 +107,7 @@ public class EdgeBTreeImpl implements EdgeBTree<Identifiable, Integer> {
   }
 
   @Override
-  public Integer remove(AtomicOperation atomicOperation, Identifiable key) {
-    final RID rid = key.getIdentity();
+  public Integer remove(AtomicOperation atomicOperation, RID rid) {
     final int result;
     result =
         bTree.remove(
@@ -127,11 +122,10 @@ public class EdgeBTreeImpl implements EdgeBTree<Identifiable, Integer> {
 
   @Override
   public void loadEntriesMajor(
-      Identifiable key,
+      RID rid,
       boolean inclusive,
       boolean ascSortOrder,
-      RangeResultListener<Identifiable, Integer> listener) {
-    final RID rid = key.getIdentity();
+      RangeResultListener<RID, Integer> listener) {
     try (final Stream<RawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, rid.getClusterId(), rid.getClusterPosition()),
@@ -144,7 +138,7 @@ public class EdgeBTreeImpl implements EdgeBTree<Identifiable, Integer> {
   }
 
   @Override
-  public Identifiable firstKey() {
+  public RID firstKey() {
     try (final Stream<RawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, Integer.MIN_VALUE, Long.MIN_VALUE),
@@ -163,7 +157,7 @@ public class EdgeBTreeImpl implements EdgeBTree<Identifiable, Integer> {
   }
 
   @Override
-  public Identifiable lastKey() {
+  public RID lastKey() {
     try (final Stream<RawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, Integer.MAX_VALUE, Long.MAX_VALUE),
@@ -182,7 +176,7 @@ public class EdgeBTreeImpl implements EdgeBTree<Identifiable, Integer> {
   }
 
   @Override
-  public int getRealBagSize(Map<Identifiable, Change> changes) {
+  public int getRealBagSize(Map<RID, Change> changes) {
     final Map<Identifiable, Change> notAppliedChanges = new HashMap<>(changes);
     final ModifiableInteger size = new ModifiableInteger(0);
 
@@ -222,7 +216,7 @@ public class EdgeBTreeImpl implements EdgeBTree<Identifiable, Integer> {
   }
 
   @Override
-  public BinarySerializer<Identifiable> getKeySerializer() {
+  public BinarySerializer<RID> getKeySerializer() {
     return keySerializer;
   }
 
@@ -264,14 +258,14 @@ public class EdgeBTreeImpl implements EdgeBTree<Identifiable, Integer> {
 
   private static void listenStream(
       final Stream<RawPairObjectInteger<EdgeKey>> stream,
-      final RangeResultListener<Identifiable, Integer> listener) {
+      final RangeResultListener<RID, Integer> listener) {
     forEachEntry(
         stream,
         entry ->
             listener.addResult(
-                new Entry<Identifiable, Integer>() {
+                new Entry<>() {
                   @Override
-                  public Identifiable getKey() {
+                  public RID getKey() {
                     return new RecordId(entry.first.targetCluster, entry.first.targetPosition);
                   }
 

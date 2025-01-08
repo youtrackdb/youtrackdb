@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.ridbag;
 
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.util.RawPairObjectInteger;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBShutdownListener;
@@ -88,7 +88,7 @@ public final class BTreeCollectionManagerShared
   }
 
   @Override
-  public EdgeBTree<Identifiable, Integer> createAndLoadTree(
+  public EdgeBTree<RID, Integer> createAndLoadTree(
       final AtomicOperation atomicOperation, final int clusterId) {
     return doCreateRidBag(atomicOperation, clusterId);
   }
@@ -146,7 +146,7 @@ public final class BTreeCollectionManagerShared
   }
 
   @Override
-  public EdgeBTree<Identifiable, Integer> loadSBTree(
+  public EdgeBTree<RID, Integer> loadSBTree(
       BonsaiCollectionPointer collectionPointer) {
     final int intFileId = AbstractWriteCache.extractFileId(collectionPointer.getFileId());
 

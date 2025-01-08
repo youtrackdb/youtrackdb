@@ -559,7 +559,7 @@ public class GraphRepair {
                 }
 
               } else if (inverseEdgeContainer instanceof RidBag) {
-                if (!((RidBag) inverseEdgeContainer).contains(vertex))
+                if (!((RidBag) inverseEdgeContainer).contains(vertex.getIdentity()))
                 // NOT IN RIDBAG
                 {
                   broken = true;

@@ -24,6 +24,7 @@ import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.collection.DataContainer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
@@ -87,10 +88,10 @@ import javax.annotation.Nonnull;
  */
 public class RidBag
     implements StringBuilderSerializable,
-    Iterable<Identifiable>,
+    Iterable<RID>,
     Sizeable,
-    TrackedMultiValue<Identifiable, Identifiable>,
-    DataContainer<Identifiable>,
+    TrackedMultiValue<RID, RID>,
+    DataContainer<RID>,
     RecordElement {
 
   private RidBagDelegate delegate;
@@ -105,7 +106,7 @@ public class RidBag
   public RidBag(DatabaseSessionInternal session, final RidBag ridBag) {
     initThresholds(session);
     init();
-    for (Identifiable identifiable : ridBag) {
+    for (RID identifiable : ridBag) {
       add(identifiable);
     }
   }
@@ -122,7 +123,7 @@ public class RidBag
   }
 
   public RidBag(DatabaseSessionInternal session, BonsaiCollectionPointer pointer,
-      Map<Identifiable, Change> changes, UUID uuid) {
+      Map<RID, Change> changes, UUID uuid) {
     initThresholds(session);
     delegate = new BTreeBasedRidBag(pointer, changes);
     this.uuid = uuid;
@@ -163,30 +164,30 @@ public class RidBag
   /**
    * THIS IS VERY EXPENSIVE METHOD AND CAN NOT BE CALLED IN REMOTE STORAGE.
    *
-   * @param identifiable Object to check.
+   * @param rid RID to check.
    * @return true if ridbag contains at leas one instance with the same rid as passed in
    * identifiable.
    */
-  public boolean contains(Identifiable identifiable) {
-    return delegate.contains(identifiable);
+  public boolean contains(RID rid) {
+    return delegate.contains(rid);
   }
 
-  public void addAll(Collection<Identifiable> values) {
+  public void addAll(Collection<RID> values) {
     delegate.addAll(values);
   }
 
   @Override
-  public void add(Identifiable identifiable) {
+  public void add(RID identifiable) {
     delegate.add(identifiable);
   }
 
   @Override
-  public boolean addInternal(Identifiable e) {
+  public boolean addInternal(RID e) {
     return delegate.addInternal(e);
   }
 
   @Override
-  public void remove(Identifiable identifiable) {
+  public void remove(RID identifiable) {
     delegate.remove(identifiable);
   }
 
@@ -196,7 +197,7 @@ public class RidBag
 
   @Nonnull
   @Override
-  public Iterator<Identifiable> iterator() {
+  public Iterator<RID> iterator() {
     return delegate.iterator();
   }
 
@@ -216,7 +217,9 @@ public class RidBag
     if (getOwner() instanceof Record && !((Record) getOwner()).getIdentity().isPersistent()) {
       return true;
     }
-    return bottomThreshold >= size();
+
+    var pointer = getPointer();
+    return pointer == null || pointer == BonsaiCollectionPointer.INVALID;
   }
 
   public int toStream(DatabaseSessionInternal db, BytesContainer bytesContainer)
@@ -282,7 +285,7 @@ public class RidBag
 
     final RecordElement owner = oldDelegate.getOwner();
     delegate.disableTracking(owner);
-    for (Identifiable identifiable : oldDelegate) {
+    for (RID identifiable : oldDelegate) {
       delegate.add(identifiable);
     }
 
@@ -305,7 +308,7 @@ public class RidBag
 
     final RecordElement owner = oldDelegate.getOwner();
     delegate.disableTracking(owner);
-    for (Identifiable identifiable : oldDelegate) {
+    for (RID identifiable : oldDelegate) {
       delegate.add(identifiable);
     }
 
@@ -369,7 +372,7 @@ public class RidBag
   @Override
   public Object returnOriginalState(
       DatabaseSessionInternal session,
-      List<MultiValueChangeEvent<Identifiable, Identifiable>> multiValueChangeEvents) {
+      List<MultiValueChangeEvent<RID, RID>> multiValueChangeEvents) {
     return new RidBag(session,
         (RidBagDelegate) delegate.returnOriginalState(session, multiValueChangeEvents));
   }
@@ -447,9 +450,9 @@ public class RidBag
         return true;
       }
     } else if (iMergeSingleItemsOfMultiValueFields) {
-      for (Identifiable value : otherValue) {
+      for (RID value : otherValue) {
         if (value != null) {
-          final Iterator<Identifiable> localIter = iterator();
+          final Iterator<RID> localIter = iterator();
           boolean found = false;
           while (localIter.hasNext()) {
             final Identifiable v = localIter.next();
@@ -509,7 +512,7 @@ public class RidBag
     return delegate;
   }
 
-  public NavigableMap<Identifiable, Change> getChanges() {
+  public NavigableMap<RID, Change> getChanges() {
     return delegate.getChanges();
   }
 
@@ -528,8 +531,8 @@ public class RidBag
       return false;
     }
 
-    Iterator<Identifiable> firstIter = delegate.iterator();
-    Iterator<Identifiable> secondIter = otherRidbag.delegate.iterator();
+    Iterator<RID> firstIter = delegate.iterator();
+    Iterator<RID> secondIter = otherRidbag.delegate.iterator();
     while (firstIter.hasNext()) {
       if (!secondIter.hasNext()) {
         return false;
@@ -589,7 +592,7 @@ public class RidBag
   }
 
   @Override
-  public MultiValueChangeTimeLine<Identifiable, Identifiable> getTransactionTimeLine() {
+  public MultiValueChangeTimeLine<RID, RID> getTransactionTimeLine() {
     return delegate.getTransactionTimeLine();
   }
 

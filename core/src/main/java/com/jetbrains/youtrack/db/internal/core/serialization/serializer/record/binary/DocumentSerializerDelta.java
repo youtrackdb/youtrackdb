@@ -19,6 +19,7 @@ import static com.jetbrains.youtrack.db.internal.core.serialization.serializer.r
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.exception.ValidationException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
@@ -666,11 +667,11 @@ public class DocumentSerializerDelta {
     int uuidPos = bytes.alloc(UUIDSerializer.UUID_SIZE);
     UUIDSerializer.INSTANCE.serialize(uuid, bytes.bytes, uuidPos);
 
-    final MultiValueChangeTimeLine<Identifiable, Identifiable> timeline =
+    final MultiValueChangeTimeLine<RID, RID> timeline =
         value.getTransactionTimeLine();
     assert timeline != null : "Collection timeline required for serialization of link types";
     VarIntSerializer.write(bytes, timeline.getMultiValueChangeEvents().size());
-    for (MultiValueChangeEvent<Identifiable, Identifiable> event :
+    for (MultiValueChangeEvent<RID, RID> event :
         timeline.getMultiValueChangeEvents()) {
       switch (event.getChangeType()) {
         case ADD:
@@ -1443,7 +1444,7 @@ public class DocumentSerializerDelta {
       RidBag bag = new RidBag(db, uuid);
       int size = VarIntSerializer.readAsInteger(bytes);
       for (int i = 0; i < size; i++) {
-        Identifiable id = readOptimizedLink(db, bytes);
+        var id = readOptimizedLink(db, bytes);
         if (id.equals(NULL_RECORD_ID)) {
           bag.add(null);
         } else {
@@ -1457,10 +1458,10 @@ public class DocumentSerializerDelta {
       int pageOffset = VarIntSerializer.readAsInteger(bytes);
       int bagSize = VarIntSerializer.readAsInteger(bytes);
 
-      Map<Identifiable, Change> changes = new HashMap<>();
+      Map<RID, Change> changes = new HashMap<>();
       int size = VarIntSerializer.readAsInteger(bytes);
       while (size-- > 0) {
-        Identifiable link = readOptimizedLink(db, bytes);
+        RID link = readOptimizedLink(db, bytes);
         byte type = bytes.bytes[bytes.offset];
         bytes.skip(1);
         int change = VarIntSerializer.readAsInteger(bytes);
@@ -1476,7 +1477,7 @@ public class DocumentSerializerDelta {
     }
   }
 
-  private void writeRidBag(DatabaseSessionInternal db, BytesContainer bytes, RidBag bag) {
+  private static void writeRidBag(DatabaseSessionInternal db, BytesContainer bytes, RidBag bag) {
     final BTreeCollectionManager bTreeCollectionManager =
         DatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager();
     UUID uuid = null;
@@ -1510,10 +1511,10 @@ public class DocumentSerializerDelta {
       VarIntSerializer.write(bytes, pointer.getRootPointer().getPageIndex());
       VarIntSerializer.write(bytes, pointer.getRootPointer().getPageOffset());
       VarIntSerializer.write(bytes, bag.size());
-      NavigableMap<Identifiable, Change> changes = bag.getChanges();
+      NavigableMap<RID, Change> changes = bag.getChanges();
       if (changes != null) {
         VarIntSerializer.write(bytes, changes.size());
-        for (Map.Entry<Identifiable, Change> change : changes.entrySet()) {
+        for (Map.Entry<RID, Change> change : changes.entrySet()) {
           writeOptimizedLink(db, bytes, change.getKey());
           int posAll = bytes.alloc(1);
           bytes.bytes[posAll] = change.getValue().getType();

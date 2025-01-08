@@ -846,7 +846,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   @Override
-  public Identifiable beforeCreateOperations(Identifiable id, String iClusterName) {
+  public void beforeCreateOperations(Identifiable id, String iClusterName) {
     assert assertIfNotActive();
     checkSecurity(Role.PERMISSION_CREATE, id, iClusterName);
 
@@ -892,22 +892,11 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       if (id instanceof EntityImpl) {
         ((EntityImpl) id).validate();
       }
-      return id;
-    } else {
-      if (res == RecordHook.RESULT.RECORD_REPLACED
-          || triggerChanged == RecordHook.RESULT.RECORD_REPLACED) {
-        Record replaced = HookReplacedRecordThreadLocal.INSTANCE.get();
-        if (replaced instanceof EntityImpl) {
-          ((EntityImpl) replaced).validate();
-        }
-        return replaced;
-      }
     }
-    return null;
   }
 
   @Override
-  public Identifiable beforeUpdateOperations(Identifiable id, String iClusterName) {
+  public void beforeUpdateOperations(Identifiable id, String iClusterName) {
     assert assertIfNotActive();
     checkSecurity(Role.PERMISSION_UPDATE, id, iClusterName);
 
@@ -953,22 +942,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       if (id instanceof EntityImpl) {
         ((EntityImpl) id).validate();
       }
-      return id;
-    } else {
-      if (res == RecordHook.RESULT.RECORD_REPLACED
-          || triggerChanged == RecordHook.RESULT.RECORD_REPLACED) {
-        Record replaced = HookReplacedRecordThreadLocal.INSTANCE.get();
-        if (replaced instanceof EntityImpl) {
-          ((EntityImpl) replaced).validate();
-        }
-        return replaced;
-      }
     }
-
-    if (changed) {
-      return id;
-    }
-    return null;
   }
 
   /**

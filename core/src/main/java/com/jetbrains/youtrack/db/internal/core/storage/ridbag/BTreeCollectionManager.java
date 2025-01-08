@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.ridbag;
 
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.EdgeBTree;
@@ -30,13 +30,13 @@ import java.util.UUID;
 
 public interface BTreeCollectionManager {
 
-  EdgeBTree<Identifiable, Integer> createAndLoadTree(
+  EdgeBTree<RID, Integer> createAndLoadTree(
       AtomicOperation atomicOperation, int clusterId) throws IOException;
 
   BonsaiCollectionPointer createSBTree(
       int clusterId, AtomicOperation atomicOperation, UUID ownerUUID) throws IOException;
 
-  EdgeBTree<Identifiable, Integer> loadSBTree(BonsaiCollectionPointer collectionPointer);
+  EdgeBTree<RID, Integer> loadSBTree(BonsaiCollectionPointer collectionPointer);
 
   void releaseSBTree(BonsaiCollectionPointer collectionPointer);
 

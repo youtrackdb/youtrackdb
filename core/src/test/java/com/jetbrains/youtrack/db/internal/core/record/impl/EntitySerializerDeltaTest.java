@@ -920,8 +920,8 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     second = db.save(second);
 
     RidBag ridBag = new RidBag(db);
-    ridBag.add(first);
-    ridBag.add(second);
+    ridBag.add(first.getIdentity());
+    ridBag.add(second.getIdentity());
     doc.field(fieldName, ridBag, PropertyType.LINKBAG);
     doc = db.save(doc);
 
@@ -938,9 +938,9 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     third = db.bindToSession(third);
 
     ridBag = new RidBag(db);
-    ridBag.add(first);
-    ridBag.add(second);
-    ridBag.add(third);
+    ridBag.add(first.getIdentity());
+    ridBag.add(second.getIdentity());
+    ridBag.add(third.getIdentity());
 
     doc = db.bindToSession(doc);
     doc.field(fieldName, ridBag, PropertyType.LINKBAG);
@@ -978,9 +978,9 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     third = db.bindToSession(third);
 
     RidBag ridBag = new RidBag(db);
-    ridBag.add(first);
-    ridBag.add(second);
-    ridBag.add(third);
+    ridBag.add(first.getIdentity());
+    ridBag.add(second.getIdentity());
+    ridBag.add(third.getIdentity());
 
     doc.field(fieldName, ridBag, PropertyType.LINKBAG);
     doc = db.save(doc);
@@ -994,8 +994,8 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     EntityImpl originalDoc = doc.copy();
 
     ridBag = new RidBag(db);
-    ridBag.add(first);
-    ridBag.add(second);
+    ridBag.add(first.getIdentity());
+    ridBag.add(second.getIdentity());
     doc.field(fieldName, ridBag, PropertyType.LINKBAG);
 
     // test serialization/deserialization
@@ -1023,8 +1023,8 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     second = db.save(second);
 
     RidBag ridBag = new RidBag(db);
-    ridBag.add(first);
-    ridBag.add(second);
+    ridBag.add(first.getIdentity());
+    ridBag.add(second.getIdentity());
     doc.field(fieldName, ridBag, PropertyType.LINKBAG);
     doc = db.save(doc);
     db.commit();
@@ -1042,7 +1042,7 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     third = db.bindToSession(third);
 
     ridBag = doc.getProperty(fieldName);
-    ridBag.add(third);
+    ridBag.add(third.getIdentity());
 
     // test serialization/deserialization
     DocumentSerializerDelta serializerDelta = DocumentSerializerDelta.instance();
@@ -1071,9 +1071,9 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     third = db.save(third);
 
     RidBag ridBag = new RidBag(db);
-    ridBag.add(first);
-    ridBag.add(second);
-    ridBag.add(third);
+    ridBag.add(first.getIdentity());
+    ridBag.add(second.getIdentity());
+    ridBag.add(third.getIdentity());
     doc.field(fieldName, ridBag, PropertyType.LINKBAG);
     doc = db.save(doc);
     db.commit();
@@ -1082,7 +1082,7 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     doc = db.bindToSession(doc);
     EntityImpl originalDoc = doc.copy();
     ridBag = doc.getProperty(fieldName);
-    ridBag.remove(third);
+    ridBag.remove(third.getIdentity());
 
     // test serialization/deserialization
     DocumentSerializerDelta serializerDelta = DocumentSerializerDelta.instance();
@@ -1111,9 +1111,9 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     third = db.save(third);
 
     RidBag ridBag = new RidBag(db);
-    ridBag.add(first);
-    ridBag.add(second);
-    ridBag.add(third);
+    ridBag.add(first.getIdentity());
+    ridBag.add(second.getIdentity());
+    ridBag.add(third.getIdentity());
     doc.field(fieldName, ridBag, PropertyType.LINKBAG);
     doc = db.save(doc);
     db.commit();
@@ -1123,8 +1123,8 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     EntityImpl originalDoc = doc.copy();
 
     ridBag = new RidBag(db);
-    ridBag.add(first);
-    ridBag.add(third);
+    ridBag.add(first.getIdentity());
+    ridBag.add(third.getIdentity());
     doc.field(fieldName, ridBag, PropertyType.LINKBAG);
 
     // test serialization/deserialization

@@ -107,7 +107,6 @@ public class HookChangeValidationTest extends DbTestBase {
       db.commit();
       Assert.fail("The document save should fail for validation exception");
     } catch (ValidationException ex) {
-
     }
   }
 }

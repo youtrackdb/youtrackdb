@@ -22,18 +22,19 @@ package com.jetbrains.youtrack.db.internal.core.storage.ridbag;
 
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
+import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent.ChangeType;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBagDelegate;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.SimpleMultiValueTracker;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.RecordSerializationContext;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -41,8 +42,10 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NavigableMap;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListMap;
+import javax.annotation.Nonnull;
 
 public class RemoteTreeRidBag implements RidBagDelegate {
 
@@ -51,7 +54,7 @@ public class RemoteTreeRidBag implements RidBagDelegate {
    */
   private int size;
 
-  private final SimpleMultiValueTracker<Identifiable, Identifiable> tracker =
+  private final SimpleMultiValueTracker<RID, RID> tracker =
       new SimpleMultiValueTracker<>(this);
 
   private transient RecordElement owner;
@@ -61,13 +64,13 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   private String fieldName;
   private final BonsaiCollectionPointer collectionPointer;
 
-  private class RemovableIterator implements Iterator<Identifiable> {
+  private class RemovableIterator implements Iterator<RID> {
 
-    private final Iterator<Identifiable> iter;
-    private Identifiable next;
-    private Identifiable removeNext;
+    private final Iterator<RID> iter;
+    private RID next;
+    private RID removeNext;
 
-    public RemovableIterator(Iterator<Identifiable> iterator) {
+    public RemovableIterator(Iterator<RID> iterator) {
       this.iter = iterator;
     }
 
@@ -86,11 +89,11 @@ public class RemoteTreeRidBag implements RidBagDelegate {
     }
 
     @Override
-    public Identifiable next() {
+    public RID next() {
       if (!hasNext()) {
         throw new NoSuchElementException();
       }
-      Identifiable val = next;
+      RID val = next;
       removeNext = next;
       next = null;
       return val;
@@ -133,63 +136,53 @@ public class RemoteTreeRidBag implements RidBagDelegate {
     }
     this.owner = owner;
     if (this.owner != null && tracker.getTimeLine() != null) {
-      for (MultiValueChangeEvent event : tracker.getTimeLine().getMultiValueChangeEvents()) {
-        switch (event.getChangeType()) {
-          case ADD:
-            RecordInternal.track(this.owner, (Identifiable) event.getKey());
-            break;
+      for (var event : tracker.getTimeLine().getMultiValueChangeEvents()) {
+        if (Objects.requireNonNull(event.getChangeType()) == ChangeType.ADD) {
+          RecordInternal.track(this.owner, (Identifiable) event.getKey());
         }
       }
     }
   }
 
   @Override
-  public Iterator<Identifiable> iterator() {
-    List<Identifiable> set = loadElements();
+  public @Nonnull Iterator<RID> iterator() {
+    List<RID> set = loadElements();
     return new RemovableIterator(set.iterator());
   }
 
-  private List<Identifiable> loadElements() {
+  private List<RID> loadElements() {
     DatabaseSessionInternal database = DatabaseRecordThreadLocal.instance().get();
-    List<Identifiable> set;
+    List<RID> list;
+
     try (ResultSet result =
-        database.query("select list(@this.field(?)) as entities from ?", fieldName, ownerRecord)) {
+        database.query("select list(@this.field(?)) as entities from ?", fieldName,
+            ownerRecord.getIdentity())) {
       if (result.hasNext()) {
-        set = (result.next().getProperty("entities"));
+        list = (result.next().getProperty("entities"));
       } else {
-        set = ((List<Identifiable>) (List) Collections.emptyList());
+        list = Collections.emptyList();
       }
     }
-    if (tracker.getTimeLine() != null) {
-      for (MultiValueChangeEvent event : tracker.getTimeLine().getMultiValueChangeEvents()) {
-        switch (event.getChangeType()) {
-          case ADD:
-            set.add((Identifiable) event.getKey());
-            break;
-          case REMOVE:
-            set.remove(event.getKey());
-            break;
-        }
-      }
-    }
-    return set;
+
+    //as transaction synchronized with elements already we do not need to postprocess results
+    return list;
   }
 
   @Override
-  public void addAll(Collection<Identifiable> values) {
-    for (Identifiable identifiable : values) {
+  public void addAll(Collection<RID> values) {
+    for (RID identifiable : values) {
       add(identifiable);
     }
   }
 
   @Override
-  public boolean addInternal(Identifiable e) {
+  public boolean addInternal(RID e) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void add(final Identifiable identifiable) {
-    if (identifiable == null) {
+  public void add(final RID rid) {
+    if (rid == null) {
       throw new IllegalArgumentException("Impossible to add a null identifiable in a ridbag");
     }
 
@@ -197,18 +190,17 @@ public class RemoteTreeRidBag implements RidBagDelegate {
       size++;
     }
 
-    addEvent(identifiable, identifiable);
+    addEvent(rid, rid);
   }
 
   @Override
-  public void remove(Identifiable identifiable) {
+  public void remove(RID rid) {
     size--;
-    boolean exists;
-    removeEvent(identifiable);
+    removeEvent(rid);
   }
 
   @Override
-  public boolean contains(Identifiable identifiable) {
+  public boolean contains(RID identifiable) {
     return loadElements().contains(identifiable);
   }
 
@@ -227,7 +219,7 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   }
 
   @Override
-  public NavigableMap<Identifiable, Change> getChanges() {
+  public NavigableMap<RID, Change> getChanges() {
     return new ConcurrentSkipListMap<>();
   }
 
@@ -238,23 +230,23 @@ public class RemoteTreeRidBag implements RidBagDelegate {
 
   @Override
   public Class<?> getGenericClass() {
-    return Identifiable.class;
+    return RID.class;
   }
 
   @Override
   public Object returnOriginalState(
       DatabaseSessionInternal session,
-      List<MultiValueChangeEvent<Identifiable, Identifiable>> multiValueChangeEvents) {
+      List<MultiValueChangeEvent<RID, RID>> multiValueChangeEvents) {
     final RemoteTreeRidBag reverted = new RemoteTreeRidBag(this.collectionPointer);
-    for (Identifiable identifiable : this) {
+    for (RID identifiable : this) {
       reverted.add(identifiable);
     }
 
-    final ListIterator<MultiValueChangeEvent<Identifiable, Identifiable>> listIterator =
+    final ListIterator<MultiValueChangeEvent<RID, RID>> listIterator =
         multiValueChangeEvents.listIterator(multiValueChangeEvents.size());
 
     while (listIterator.hasPrevious()) {
-      final MultiValueChangeEvent<Identifiable, Identifiable> event = listIterator.previous();
+      final MultiValueChangeEvent<RID, RID> event = listIterator.previous();
       switch (event.getChangeType()) {
         case ADD:
           reverted.remove(event.getKey());
@@ -272,12 +264,7 @@ public class RemoteTreeRidBag implements RidBagDelegate {
 
   @Override
   public int getSerializedSize() {
-    int result = 2 * LongSerializer.LONG_SIZE + 3 * IntegerSerializer.INT_SIZE;
-    if (DatabaseRecordThreadLocal.instance().get().isRemote()
-        || RecordSerializationContext.getContext() == null) {
-      result += getChangesSerializedSize();
-    }
-    return result;
+    return 2 * LongSerializer.LONG_SIZE + 3 * IntegerSerializer.INT_SIZE;
   }
 
   @Override
@@ -305,28 +292,25 @@ public class RemoteTreeRidBag implements RidBagDelegate {
     return size;
   }
 
-  private int getChangesSerializedSize() {
-    throw new UnsupportedOperationException();
-  }
 
   @Override
   public void replace(MultiValueChangeEvent<Object, Object> event, Object newValue) {
     // do nothing not needed
   }
 
-  private void addEvent(Identifiable key, Identifiable identifiable) {
+  private void addEvent(RID key, RID rid) {
     if (this.owner != null) {
-      RecordInternal.track(this.owner, identifiable);
+      RecordInternal.track(this.owner, rid);
     }
 
     if (tracker.isEnabled()) {
-      tracker.addNoDirty(key, identifiable);
+      tracker.addNoDirty(key, rid);
     } else {
       setDirtyNoChanged();
     }
   }
 
-  private void removeEvent(Identifiable removed) {
+  private void removeEvent(RID removed) {
 
     if (this.owner != null) {
       RecordInternal.unTrack(this.owner, removed);
@@ -380,6 +364,7 @@ public class RemoteTreeRidBag implements RidBagDelegate {
     }
     this.dirty = true;
     this.transactionDirty = true;
+    //noinspection unchecked
     return (RET) this;
   }
 
@@ -397,17 +382,17 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   }
 
   @Override
-  public SimpleMultiValueTracker<Identifiable, Identifiable> getTracker() {
+  public SimpleMultiValueTracker<RID, RID> getTracker() {
     return tracker;
   }
 
   @Override
-  public void setTracker(SimpleMultiValueTracker<Identifiable, Identifiable> tracker) {
+  public void setTracker(SimpleMultiValueTracker<RID, RID> tracker) {
     this.tracker.sourceFrom(tracker);
   }
 
   @Override
-  public MultiValueChangeTimeLine<Identifiable, Identifiable> getTransactionTimeLine() {
+  public MultiValueChangeTimeLine<RID, RID> getTransactionTimeLine() {
     return this.tracker.getTransactionTimeLine();
   }
 

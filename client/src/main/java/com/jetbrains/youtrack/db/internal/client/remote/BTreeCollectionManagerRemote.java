@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.client.remote;
 
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.concur.resource.CloseableInStorage;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
@@ -67,13 +67,13 @@ public class BTreeCollectionManagerRemote
     }
   }
 
-  protected EdgeBTree<Identifiable, Integer> createEdgeTree(
+  protected EdgeBTree<RID, Integer> createEdgeTree(
       AtomicOperation atomicOperation, final int clusterId) {
     throw new UnsupportedOperationException(
         "Creation of SB-Tree from remote storage is not allowed");
   }
 
-  protected EdgeBTree<Identifiable, Integer> loadTree(
+  protected EdgeBTree<RID, Integer> loadTree(
       BonsaiCollectionPointer collectionPointer) {
     throw new UnsupportedOperationException();
   }
@@ -131,7 +131,7 @@ public class BTreeCollectionManagerRemote
   }
 
   @Override
-  public EdgeBTree<Identifiable, Integer> createAndLoadTree(
+  public EdgeBTree<RID, Integer> createAndLoadTree(
       AtomicOperation atomicOperation, int clusterId) throws IOException {
     return loadSBTree(createSBTree(clusterId, atomicOperation, null));
   }
@@ -139,15 +139,15 @@ public class BTreeCollectionManagerRemote
   @Override
   public BonsaiCollectionPointer createSBTree(
       int clusterId, AtomicOperation atomicOperation, UUID ownerUUID) throws IOException {
-    EdgeBTree<Identifiable, Integer> tree = createEdgeTree(atomicOperation, clusterId);
+    EdgeBTree<RID, Integer> tree = createEdgeTree(atomicOperation, clusterId);
     return tree.getCollectionPointer();
   }
 
   @Override
-  public EdgeBTree<Identifiable, Integer> loadSBTree(
+  public EdgeBTree<RID, Integer> loadSBTree(
       BonsaiCollectionPointer collectionPointer) {
 
-    final EdgeBTree<Identifiable, Integer> tree;
+    final EdgeBTree<RID, Integer> tree;
     tree = loadTree(collectionPointer);
 
     return tree;

@@ -19,16 +19,13 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.math;
 
-import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Compute the average value for a field. Uses the context to save the last average number. When
@@ -89,41 +86,7 @@ public class SQLFunctionAverage extends SQLFunctionMathAbstract {
 
   @Override
   public Object getResult() {
-    if (returnDistributedResult()) {
-      final Map<String, Object> map = new HashMap<String, Object>();
-      map.put("sum", sum);
-      map.put("total", total);
-      return map;
-    } else {
-      return computeAverage(sum, total);
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public Object mergeDistributedResult(final List<Object> resultsToMerge) {
-    if (returnDistributedResult()) {
-      Number dSum = null;
-      int dTotal = 0;
-      for (Object iParameter : resultsToMerge) {
-        final Map<String, Object> item = (Map<String, Object>) iParameter;
-        if (dSum == null) {
-          dSum = (Number) item.get("sum");
-        } else {
-          dSum = PropertyType.increment(dSum, (Number) item.get("sum"));
-        }
-
-        dTotal += (Integer) item.get("total");
-      }
-
-      return computeAverage(dSum, dTotal);
-    }
-
-    if (!resultsToMerge.isEmpty()) {
-      return resultsToMerge.get(0);
-    }
-
-    return null;
+    return computeAverage(sum, total);
   }
 
   @Override

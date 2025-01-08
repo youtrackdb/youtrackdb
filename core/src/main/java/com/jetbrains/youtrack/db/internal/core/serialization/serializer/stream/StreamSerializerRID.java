@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.stream;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
 import java.nio.ByteBuffer;
@@ -83,7 +83,7 @@ public class StreamSerializerRID implements BinarySerializer<Identifiable> {
   @Override
   public void serializeInByteBufferObject(
       Identifiable object, ByteBuffer buffer, Object... hints) {
-    LinkSerializer.INSTANCE.serializeInByteBufferObject(object, buffer);
+    LinkSerializer.INSTANCE.serializeInByteBufferObject(object.getIdentity(), buffer);
   }
 
   /**

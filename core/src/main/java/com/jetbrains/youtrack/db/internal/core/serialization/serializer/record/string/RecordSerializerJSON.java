@@ -916,7 +916,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
           iOptions, new CollectionItemVisitor() {
             @Override
             public void visitItem(Object item) {
-              bag.add((Identifiable) item);
+              bag.add(((Identifiable) item).getIdentity());
             }
           });
 

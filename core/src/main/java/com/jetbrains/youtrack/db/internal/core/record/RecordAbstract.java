@@ -62,7 +62,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   protected int size;
 
   protected transient RecordSerializer recordFormat;
-  protected boolean dirty = true;
+  protected long dirty = 1;
   protected boolean contentChanged = true;
   protected RecordElement.STATUS status = RecordElement.STATUS.LOADED;
 
@@ -78,6 +78,10 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     source = iSource;
     size = iSource.length;
     unsetDirty();
+  }
+
+  public long getDirtyCounter() {
+    return dirty;
   }
 
   public final RecordId getIdentity() {
@@ -133,7 +137,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   }
 
   public RecordAbstract fromStream(final byte[] iRecordBuffer) {
-    if (dirty) {
+    if (dirty > 0) {
       throw new DatabaseException("Cannot call fromStream() on dirty records");
     }
 
@@ -147,7 +151,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   }
 
   protected RecordAbstract fromStream(final byte[] iRecordBuffer, DatabaseSessionInternal db) {
-    if (dirty) {
+    if (dirty > 0) {
       throw new DatabaseException("Cannot call fromStream() on dirty records");
     }
 
@@ -166,28 +170,28 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   }
 
   public RecordAbstract setDirty() {
-    if (!dirty && status != STATUS.UNMARSHALLING) {
+    if (dirty == 0 && status != STATUS.UNMARSHALLING) {
       checkForBinding();
       registerInTx();
-
-      dirty = true;
       source = null;
     }
 
     contentChanged = true;
+    dirty++;
 
     return this;
   }
 
   @Override
   public void setDirtyNoChanged() {
-    if (!dirty && status != STATUS.UNMARSHALLING) {
+    if (dirty == 0 && status != STATUS.UNMARSHALLING) {
       checkForBinding();
       registerInTx();
 
-      dirty = true;
       source = null;
     }
+
+    dirty++;
   }
 
   private void registerInTx() {
@@ -211,12 +215,9 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   }
 
   public final boolean isDirty() {
-    return dirty;
+    return dirty != 0;
   }
 
-  public final boolean isDirtyNoLoading() {
-    return dirty;
-  }
 
   public <RET extends Record> RET fromJSON(final String iSource, final String iOptions) {
     status = STATUS.UNMARSHALLING;
@@ -412,7 +413,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   public RecordAbstract copyTo(final RecordAbstract cloned) {
     checkForBinding();
 
-    if (cloned.dirty) {
+    if (cloned.dirty > 0) {
       throw new DatabaseException("Cannot copy to dirty records");
     }
 
@@ -422,7 +423,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     cloned.recordVersion = recordVersion;
     cloned.status = status;
     cloned.recordFormat = recordFormat;
-    cloned.dirty = false;
+    cloned.dirty = 0;
     cloned.contentChanged = false;
     cloned.dirtyManager = null;
     cloned.session = session;
@@ -432,7 +433,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
 
   protected RecordAbstract fill(
       final RID iRid, final int iVersion, final byte[] iBuffer, boolean iDirty) {
-    if (dirty) {
+    if (dirty > 0) {
       throw new DatabaseException("Cannot call fill() on dirty records");
     }
 
@@ -445,11 +446,11 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     dirtyManager = null;
 
     if (source != null && source.length > 0) {
-      dirty = iDirty;
+      dirty = iDirty ? 1 : 0;
       contentChanged = iDirty;
     }
 
-    if (dirty) {
+    if (dirty > 0) {
       getDirtyManager().setDirty(this);
     }
 
@@ -462,7 +463,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
       final byte[] iBuffer,
       boolean iDirty,
       DatabaseSessionInternal db) {
-    if (dirty) {
+    if (dirty > 0) {
       throw new DatabaseException("Cannot call fill() on dirty records");
     }
 
@@ -475,11 +476,11 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     dirtyManager = null;
 
     if (source != null && source.length > 0) {
-      dirty = iDirty;
+      dirty = iDirty ? 1 : 0;
       contentChanged = iDirty;
     }
 
-    if (dirty) {
+    if (dirty > 0) {
       getDirtyManager().setDirty(this);
     }
 
@@ -498,7 +499,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
 
   protected void unsetDirty() {
     contentChanged = false;
-    dirty = false;
+    dirty = 0;
     dirtyManager = null;
   }
 

@@ -123,9 +123,9 @@ import javax.annotation.Nonnull;
 public abstract class DatabaseSessionAbstract extends ListenerManger<SessionListener>
     implements DatabaseSessionInternal {
 
-  protected final Map<String, Object> properties = new HashMap<String, Object>();
+  protected final Map<String, Object> properties = new HashMap<>();
   protected Map<RecordHook, RecordHook.HOOK_POSITION> unmodifiableHooks;
-  protected final Set<Identifiable> inHook = new HashSet<Identifiable>();
+  protected final Set<Identifiable> inHook = new HashSet<>();
   protected RecordSerializer serializer;
   protected String url;
   protected STATUS status;
@@ -268,7 +268,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     checkSecurity(Rule.ResourceGeneric.CLUSTER, Role.PERMISSION_READ, iClusterName);
     assert assertIfNotActive();
     final int clusterId = getClusterIdByName(iClusterName);
-    return new RecordIteratorCluster<REC>(
+    return new RecordIteratorCluster<>(
         this, clusterId, startClusterPosition, endClusterPosition);
   }
 
@@ -472,7 +472,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     assert assertIfNotActive();
 
     final Map<RecordHook, RecordHook.HOOK_POSITION> tmp =
-        new LinkedHashMap<RecordHook, RecordHook.HOOK_POSITION>(hooks);
+        new LinkedHashMap<>(hooks);
     tmp.put(iHookImpl, iPosition);
     hooks.clear();
     for (RecordHook.HOOK_POSITION p : RecordHook.HOOK_POSITION.values()) {
@@ -585,10 +585,6 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
             // SKIP NEXT HOOKS AND RETURN IT
             {
               return res;
-            } else {
-              if (res == RecordHook.RESULT.RECORD_REPLACED) {
-                return res;
-              }
             }
           }
         }
@@ -841,7 +837,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     var rid = record.getIdentity();
     if (rid == null) {
       throw new DatabaseException(
-          "Cannot bind record to session with not persisted rid: " + rid);
+          "Cannot bind record to session with not persisted rid.");
     }
 
     checkOpenness();
@@ -1003,6 +999,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
         throw new IllegalArgumentException("Cluster name '" + clusterName + "' is not configured");
       }
     }
+
     SchemaClassInternal schemaClass = null;
     // if cluster id is not set yet try to find it out
     if (rid.getClusterId() <= RID.CLUSTER_ID_INVALID
@@ -1061,7 +1058,20 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
         }
       }
     }
-    return rid.getClusterId();
+
+    var clusterId = rid.getClusterId();
+    if (clusterId < 0) {
+      if (schemaClass == null && clusterName != null) {
+        throw new DatabaseException("Impossible to set cluster for record " + record
+            + " both cluster name and class are null");
+      }
+
+      throw new DatabaseException(
+          "Impossible to set cluster for record " + record + " class : " + schemaClass
+              + " cluster name : " + clusterName);
+    }
+
+    return clusterId;
   }
 
   public int begin() {
@@ -1131,7 +1141,18 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   @Override
   public Blob newBlob() {
     assert assertIfNotActive();
-    return new RecordBytes(this);
+
+    if (!currentTx.isActive()) {
+      throw new DatabaseException("New instance can be created only if transaction is active");
+    }
+
+    var blob = new RecordBytes(this);
+    assignAndCheckCluster(blob, null);
+
+    var tx = (FrontendTransactionOptimistic) currentTx;
+    tx.addRecordOperation(blob, RecordOperation.CREATED, null);
+
+    return blob;
   }
 
   /**
@@ -1143,7 +1164,17 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   @Override
   public EntityImpl newInstance(final String className) {
     assert assertIfNotActive();
-    return new EntityImpl(this, className);
+    if (!currentTx.isActive()) {
+      throw new DatabaseException("New instance can be created only if transaction is active");
+    }
+
+    var entity = new EntityImpl(this, className);
+    assignAndCheckCluster(entity, null);
+
+    var tx = (FrontendTransactionOptimistic) currentTx;
+    tx.addRecordOperation(entity, RecordOperation.CREATED, null);
+
+    return entity;
   }
 
   @Override
@@ -1176,13 +1207,37 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     return newInstance(clazz.getName());
   }
 
-  public Vertex newVertex(final String iClassName) {
+  public Vertex newVertex(final String className) {
     assert assertIfNotActive();
-    return new VertexEntityImpl(this, iClassName);
+
+    if (!currentTx.isActive()) {
+      throw new DatabaseException("New instance can be created only if transaction is active");
+    }
+
+    checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_CREATE, className);
+    var vertex = new VertexEntityImpl(this, className);
+    assignAndCheckCluster(vertex, null);
+
+    var tx = (FrontendTransactionOptimistic) currentTx;
+    tx.addRecordOperation(vertex, RecordOperation.CREATED, null);
+
+    return vertex;
   }
 
-  private EdgeInternal newEdgeInternal(final String iClassName) {
-    return new EdgeEntityImpl(this, iClassName);
+  private EdgeInternal newEdgeInternal(final String className) {
+    if (!currentTx.isActive()) {
+      throw new DatabaseException("New instance can be created only if transaction is active");
+    }
+
+    checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_CREATE, className);
+
+    var edge = new EdgeEntityImpl(this, className);
+    assignAndCheckCluster(edge, null);
+
+    var tx = (FrontendTransactionOptimistic) currentTx;
+    tx.addRecordOperation(edge, RecordOperation.CREATED, null);
+
+    return edge;
   }
 
   @Override
@@ -1358,7 +1413,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     }
 
     checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_READ, iClassName);
-    return new RecordIteratorClass<EntityImpl>(this, iClassName, iPolymorphic, false);
+    return new RecordIteratorClass<>(this, iClassName, iPolymorphic, false);
   }
 
   /**
@@ -1394,7 +1449,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     assert assertIfNotActive();
     checkSecurity(Rule.ResourceGeneric.CLUSTER, Role.PERMISSION_READ, iClusterName);
 
-    return new RecordIteratorCluster<EntityImpl>(
+    return new RecordIteratorCluster<>(
         this, getClusterIdByName(iClusterName), startClusterPosition, endClusterPosition);
   }
 
@@ -1457,13 +1512,19 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
     checkOpenness();
 
+    if (clusterName != null && record instanceof EntityImpl entity
+        && entity.getClassName() != null) {
+      throw new DatabaseException(
+          "Only entities without class name can be saved in predefined clusters");
+    }
+
     if (record instanceof Edge edge) {
       if (edge.isLightweight()) {
         record = edge.getFrom();
       }
     }
 
-    // unwrap the record if wrapper is passed
+    //unwrap the record if wrapper is passed
     record = record.getRecord(this);
 
     if (record.isUnloaded()) {
@@ -1531,7 +1592,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     final SchemaImmutableClass cls =
         (SchemaImmutableClass) getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
     if (cls == null) {
-      throw new IllegalArgumentException("Class '" + cls + "' not found in database");
+      throw new IllegalArgumentException("Class not found in database");
     }
 
     return countClass(cls, iPolymorphic);

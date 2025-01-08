@@ -53,7 +53,8 @@ public class BTreeBasedRidBagTest extends RidBagTest {
 
   @Parameters(value = "remote")
   public BTreeBasedRidBagTest(@Optional Boolean remote) {
-    super(remote != null && remote);
+    //super(remote != null && remote);
+    super(true);
   }
 
   @BeforeClass
@@ -154,12 +155,12 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     cygni = db.bindToSession(cygni);
     scorpii = db.bindToSession(scorpii);
 
-    HashSet<EntityImpl> expectedResult = new HashSet<EntityImpl>(Arrays.asList(scuti, scorpii));
+    HashSet<EntityImpl> expectedResult = new HashSet<>(Arrays.asList(scuti, scorpii));
 
     RidBag bag = new RidBag(db);
-    bag.add(scuti);
-    bag.add(cygni);
-    bag.add(scorpii);
+    bag.add(scuti.getIdentity());
+    bag.add(cygni.getIdentity());
+    bag.add(scorpii.getIdentity());
 
     EntityImpl doc = ((EntityImpl) db.newEntity());
     doc.field("ridBag", bag);
@@ -171,7 +172,7 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     db.begin();
     doc = db.bindToSession(doc);
     bag = doc.field("ridBag");
-    bag.remove(cygni);
+    bag.remove(cygni.getIdentity());
 
     Set<EntityImpl> result = new HashSet<>();
     for (Identifiable identifiable : bag) {
@@ -203,10 +204,10 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     EntityImpl doc = ((EntityImpl) db.newEntity());
 
     RidBag bag = new RidBag(db);
-    bag.add(doc_1);
-    bag.add(doc_2);
-    bag.add(doc_3);
-    bag.add(doc_4);
+    bag.add(doc_1.getIdentity());
+    bag.add(doc_2.getIdentity());
+    bag.add(doc_3.getIdentity());
+    bag.add(doc_4.getIdentity());
 
     doc.field("ridBag", bag);
     doc.save();
@@ -221,8 +222,8 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     doc_6.save();
 
     bag = doc.field("ridBag");
-    bag.add(doc_5);
-    bag.add(doc_6);
+    bag.add(doc_5.getIdentity());
+    bag.add(doc_6.getIdentity());
 
     doc.save();
     db.commit();
@@ -232,7 +233,7 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     bag = doc.field("ridBag");
     Assert.assertEquals(bag.size(), 6);
 
-    List<Identifiable> docs = new ArrayList<Identifiable>();
+    List<Identifiable> docs = new ArrayList<>();
 
     docs.add(doc_1.getIdentity());
     docs.add(doc_2.getIdentity());
@@ -267,7 +268,7 @@ public class BTreeBasedRidBagTest extends RidBagTest {
 
     for (int i = 0; i < 10; i++) {
       EntityImpl docToAdd = ((EntityImpl) db.newEntity());
-      realDocRidBag.add(docToAdd);
+      realDocRidBag.add(docToAdd.getIdentity());
     }
 
     assertEmbedded(realDocRidBag.isEmbedded());

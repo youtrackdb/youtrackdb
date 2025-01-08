@@ -19,10 +19,10 @@
  */
 package com.jetbrains.youtrack.db.internal.common.collection;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.util.Resettable;
 import com.jetbrains.youtrack.db.internal.common.util.Sizeable;
 import com.jetbrains.youtrack.db.internal.common.util.SupportsContains;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.iterator.LazyWrapperIterator;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -221,10 +221,7 @@ public class MultiCollectionIterator<T>
 
   @Override
   public boolean contains(final Object value) {
-    final int totSources = sources.size();
-    for (int i = 0; i < totSources; ++i) {
-      Object o = sources.get(i);
-
+    for (Object o : sources) {
       if (o != null) {
         if (o instanceof LazyWrapperIterator) {
           o = ((LazyWrapperIterator) o).getMultiValue();
@@ -235,7 +232,7 @@ public class MultiCollectionIterator<T>
             return true;
           }
         } else if (o instanceof RidBag) {
-          if (((RidBag) o).contains((Identifiable) value)) {
+          if (((RidBag) o).contains(((Identifiable) value).getIdentity())) {
             return true;
           }
         }

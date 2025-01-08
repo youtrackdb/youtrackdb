@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
@@ -33,7 +32,7 @@ public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
     EntityImpl doc = (EntityImpl) db.newEntity();
     RidBag bag = new RidBag(db);
     int size =
-        GlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger() * 2;
+        GlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger() << 1;
     for (int i = 0; i < size; i++) {
       bag.add(new RecordId(10, i));
     }
@@ -60,7 +59,7 @@ public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
     }
 
     Thread.sleep(100);
-    EdgeBTree<Identifiable, Integer> tree =
+    EdgeBTree<RID, Integer> tree =
         db.getSbTreeCollectionManager().loadSBTree(pointer);
     assertEquals(0, tree.getRealBagSize(Collections.emptyMap()));
   }

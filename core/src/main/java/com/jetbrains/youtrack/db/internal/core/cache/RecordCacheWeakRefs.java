@@ -41,7 +41,7 @@ public class RecordCacheWeakRefs extends
 
   private static final BiConsumer<RID, RecordAbstract> UNLOAD_NOT_MODIFIED_RECORDS_CONSUMER =
       (rid, record) -> {
-        if (!record.isDirtyNoLoading()) {
+        if (!record.isDirty()) {
           record.unload();
         }
       };
