@@ -15,8 +15,7 @@
  */
 package com.jetbrains.youtrack.db.internal.client.remote.message.sequence;
 
-import com.jetbrains.youtrack.db.internal.client.remote.message.sequence.SequenceActionRequest;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceAction;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -31,14 +30,14 @@ import org.junit.Test;
 /**
  *
  */
-public class SequenceActionRequestTest {
+public class DBSequenceActionRequestTest {
 
   @Test
   public void testSerializeDeserialize() {
-    Sequence.CreateParams params = new Sequence.CreateParams().setLimitValue(123L);
+    DBSequence.CreateParams params = new DBSequence.CreateParams().setLimitValue(123L);
     SequenceAction action =
         new SequenceAction(
-            SequenceAction.CREATE, "testName", params, Sequence.SEQUENCE_TYPE.ORDERED);
+            SequenceAction.CREATE, "testName", params, DBSequence.SEQUENCE_TYPE.ORDERED);
     SequenceActionRequest request = new SequenceActionRequest(action);
     ByteArrayOutputStream arrayOutput = new ByteArrayOutputStream();
     DataOutput out = new DataOutputStream(arrayOutput);

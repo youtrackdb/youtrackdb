@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record;
 
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 
 /**
  * Listener interface to catch all the record events.
@@ -38,5 +38,5 @@ public interface RecordListener {
     IDENTITY_CHANGED
   }
 
-  void onEvent(Record record, EVENT iEvent);
+  void onEvent(DBRecord record, EVENT iEvent);
 }

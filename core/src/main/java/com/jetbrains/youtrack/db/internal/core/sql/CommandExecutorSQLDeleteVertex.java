@@ -24,9 +24,9 @@ import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.types.ModifiableBoolean;
@@ -61,7 +61,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
   private DatabaseSessionInternal database;
   private CommandRequest query;
   private String returning = "COUNT";
-  private List<Record> allDeletedRecords;
+  private List<DBRecord> allDeletedRecords;
   private final ModifiableBoolean shutdownFlag = new ModifiableBoolean();
   private boolean txAlreadyBegun;
   private int batch = 100;
@@ -188,7 +188,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
     }
 
     if (!returning.equalsIgnoreCase("COUNT")) {
-      allDeletedRecords = new ArrayList<Record>();
+      allDeletedRecords = new ArrayList<DBRecord>();
     }
 
     txAlreadyBegun = getDatabase().getTransaction().isActive();

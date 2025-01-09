@@ -22,7 +22,6 @@ package com.jetbrains.youtrack.db.api.record;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -32,7 +31,7 @@ import javax.annotation.Nullable;
  * Implementation of a generic entity. It's bound to the record and allows to read and write values.
  * It's schema aware.
  */
-public interface Entity extends Record {
+public interface Entity extends DBRecord {
   String DEFAULT_CLASS_NAME = "O";
 
   /**

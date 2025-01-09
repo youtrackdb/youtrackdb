@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.client.remote;
 
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import java.util.Set;
 
 public interface FetchPlanResults {
 
-  Set<Record> getFetchedRecordsToSend();
+  Set<DBRecord> getFetchedRecordsToSend();
 }

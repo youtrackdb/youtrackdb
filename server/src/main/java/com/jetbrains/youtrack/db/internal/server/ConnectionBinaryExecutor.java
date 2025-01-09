@@ -14,9 +14,9 @@ import com.jetbrains.youtrack.db.api.query.LiveQueryMonitor;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
@@ -500,7 +500,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
   @Override
   public BinaryResponse executeCreateRecord(CreateRecordRequest request) {
 
-    final Record record = request.getContent();
+    final DBRecord record = request.getContent();
     RecordInternal.setIdentity(record, request.getRid());
     RecordInternal.setVersion(record, 0);
     if (record instanceof EntityImpl) {
@@ -530,13 +530,13 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
   public BinaryResponse executeUpdateRecord(UpdateRecordRequest request) {
 
     DatabaseSessionInternal database = connection.getDatabase();
-    final Record newRecord = request.getContent();
+    final DBRecord newRecord = request.getContent();
     RecordInternal.setIdentity(newRecord, request.getRid());
     RecordInternal.setVersion(newRecord, request.getVersion());
 
     RecordInternal.setContentChanged(newRecord, request.isUpdateContent());
     RecordInternal.getDirtyManager(newRecord).clearForSave();
-    Record currentRecord = null;
+    DBRecord currentRecord = null;
     if (newRecord instanceof EntityImpl) {
       try {
         currentRecord = database.load(request.getRid());

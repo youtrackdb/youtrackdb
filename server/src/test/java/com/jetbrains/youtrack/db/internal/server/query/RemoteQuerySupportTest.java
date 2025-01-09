@@ -8,7 +8,7 @@ import static org.junit.Assert.assertTrue;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
@@ -229,7 +229,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
 
     db.command("insert into Some set prop = 'value'");
 
-    Record record;
+    DBRecord record;
 
     try (ResultSet resultSet = db.command("insert into Some set prop = 'value'")) {
       record = resultSet.next().getRecord().get();

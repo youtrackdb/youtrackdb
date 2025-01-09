@@ -19,21 +19,21 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.sequence;
 
-import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.api.exception.SequenceLimitReachedException;
-import com.jetbrains.youtrack.db.internal.common.thread.NonDaemonThreadFactory;
-import com.jetbrains.youtrack.db.internal.common.thread.ThreadPoolExecutorWithLogging;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.ConcurrentModificationException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
-import com.jetbrains.youtrack.db.internal.core.exception.SequenceException;
-import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
+import com.jetbrains.youtrack.db.api.exception.SequenceLimitReachedException;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.common.thread.NonDaemonThreadFactory;
+import com.jetbrains.youtrack.db.internal.common.thread.ThreadPoolExecutorWithLogging;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.SequenceException;
+import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
+import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Objects;
@@ -48,7 +48,7 @@ import javax.annotation.Nonnull;
 /**
  * @since 3/2/2015
  */
-public abstract class Sequence {
+public abstract class DBSequence {
 
   private static final ExecutorService sequenceExecutor =
       new ThreadPoolExecutorWithLogging(
@@ -221,12 +221,12 @@ public abstract class Sequence {
 
   private int maxRetry = DEF_MAX_RETRY;
 
-  protected Sequence(EntityImpl entity) {
+  protected DBSequence(EntityImpl entity) {
     Objects.requireNonNull(entity);
     entityRid = entity.getIdentity();
   }
 
-  protected Sequence(CreateParams params, @Nonnull String name) {
+  protected DBSequence(CreateParams params, @Nonnull String name) {
     Objects.requireNonNull(name);
     var db = getDatabase();
 
@@ -250,7 +250,7 @@ public abstract class Sequence {
             });
   }
 
-  private void initSequence(EntityImpl entity, Sequence.CreateParams params) {
+  private void initSequence(EntityImpl entity, DBSequence.CreateParams params) {
     setStart(entity, params.start);
     setIncrement(entity, params.increment);
     if (params.currentValue == null) {
@@ -403,28 +403,28 @@ public abstract class Sequence {
   }
 
   public static void initClass(DatabaseSession session, SchemaClassImpl sequenceClass) {
-    sequenceClass.createProperty(session, Sequence.FIELD_START, PropertyType.LONG,
+    sequenceClass.createProperty(session, DBSequence.FIELD_START, PropertyType.LONG,
         (PropertyType) null, true);
-    sequenceClass.createProperty(session, Sequence.FIELD_INCREMENT, PropertyType.INTEGER,
+    sequenceClass.createProperty(session, DBSequence.FIELD_INCREMENT, PropertyType.INTEGER,
         (PropertyType) null,
         true);
-    sequenceClass.createProperty(session, Sequence.FIELD_VALUE, PropertyType.LONG,
+    sequenceClass.createProperty(session, DBSequence.FIELD_VALUE, PropertyType.LONG,
         (PropertyType) null, true);
 
-    sequenceClass.createProperty(session, Sequence.FIELD_NAME, PropertyType.STRING,
+    sequenceClass.createProperty(session, DBSequence.FIELD_NAME, PropertyType.STRING,
         (PropertyType) null,
         true);
-    sequenceClass.createProperty(session, Sequence.FIELD_TYPE, PropertyType.STRING,
+    sequenceClass.createProperty(session, DBSequence.FIELD_TYPE, PropertyType.STRING,
         (PropertyType) null,
         true);
 
-    sequenceClass.createProperty(session, Sequence.FIELD_LIMIT_VALUE, PropertyType.LONG,
+    sequenceClass.createProperty(session, DBSequence.FIELD_LIMIT_VALUE, PropertyType.LONG,
         (PropertyType) null,
         true);
-    sequenceClass.createProperty(session, Sequence.FIELD_ORDER_TYPE, PropertyType.BYTE,
+    sequenceClass.createProperty(session, DBSequence.FIELD_ORDER_TYPE, PropertyType.BYTE,
         (PropertyType) null,
         true);
-    sequenceClass.createProperty(session, Sequence.FIELD_RECYCLABLE, PropertyType.BOOLEAN,
+    sequenceClass.createProperty(session, DBSequence.FIELD_RECYCLABLE, PropertyType.BOOLEAN,
         (PropertyType) null,
         true);
   }

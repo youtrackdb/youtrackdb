@@ -15,9 +15,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.sequence;
 
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ProxedResource;
-import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 
 /**
  *
@@ -33,10 +33,10 @@ public abstract class SequenceLibraryAbstract extends ProxedResource<SequenceLib
   abstract void dropSequence(String iName, boolean executeViaDistributed)
       throws DatabaseException;
 
-  abstract Sequence createSequence(
+  abstract DBSequence createSequence(
       String iName,
-      Sequence.SEQUENCE_TYPE sequenceType,
-      Sequence.CreateParams params,
+      DBSequence.SEQUENCE_TYPE sequenceType,
+      DBSequence.CreateParams params,
       boolean executeViaDistributed)
       throws DatabaseException;
 }

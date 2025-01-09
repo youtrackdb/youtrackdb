@@ -30,10 +30,10 @@ import com.jetbrains.youtrack.db.api.query.LiveQueryMonitor;
 import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -475,7 +475,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   }
 
   @Override
-  public void recycle(Record record) {
+  public void recycle(DBRecord record) {
     throw new UnsupportedOperationException();
   }
 
@@ -532,7 +532,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
       return id;
     } else {
       if (res == RecordHook.RESULT.RECORD_REPLACED) {
-        Record replaced = HookReplacedRecordThreadLocal.INSTANCE.get();
+        DBRecord replaced = HookReplacedRecordThreadLocal.INSTANCE.get();
         if (replaced instanceof EntityImpl) {
           ((EntityImpl) replaced).validate();
         }
@@ -553,7 +553,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
       return id;
     } else {
       if (res == RecordHook.RESULT.RECORD_REPLACED) {
-        Record replaced = HookReplacedRecordThreadLocal.INSTANCE.get();
+        DBRecord replaced = HookReplacedRecordThreadLocal.INSTANCE.get();
         if (replaced instanceof EntityImpl) {
           ((EntityImpl) replaced).validate();
         }
@@ -615,7 +615,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     checkIfActive();
 
     try {
-      Record record = getTransaction().getRecord(rid);
+      DBRecord record = getTransaction().getRecord(rid);
       if (record == FrontendTransactionAbstract.DELETED_RECORD) {
         return false;
       }
@@ -644,7 +644,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     }
   }
 
-  public String getClusterName(final Record record) {
+  public String getClusterName(final DBRecord record) {
     // DON'T ASSIGN CLUSTER WITH REMOTE: SERVER KNOWS THE RIGHT CLUSTER BASED ON LOCALITY
     return null;
   }
@@ -656,7 +656,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
         "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
   }
 
-  public void delete(final Record record) {
+  public void delete(final DBRecord record) {
     checkOpenness();
     if (record == null) {
       throw new DatabaseException("Cannot delete null entity");
@@ -803,12 +803,12 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
       return false;
     }
 
-    final RecordIteratorCluster<Record> iteratorCluster = browseCluster(clusterName);
+    final RecordIteratorCluster<DBRecord> iteratorCluster = browseCluster(clusterName);
     if (iteratorCluster == null) {
       return false;
     }
 
-    executeInTxBatches((Iterator<Record>) iteratorCluster,
+    executeInTxBatches((Iterator<DBRecord>) iteratorCluster,
         (session, record) -> record.delete());
 
     return storage.dropCluster(this, clusterId);

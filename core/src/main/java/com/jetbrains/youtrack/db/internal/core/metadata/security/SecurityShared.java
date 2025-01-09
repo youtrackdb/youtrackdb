@@ -25,10 +25,10 @@ import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -51,7 +51,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableCl
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule.ResourceGeneric;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityRole.ALLOW_MODES;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.security.GlobalUser;
@@ -761,7 +761,7 @@ public class SecurityShared implements SecurityInternal {
     writerRole.addRule(session, ResourceGeneric.COMMAND, null, Role.PERMISSION_ALL);
     writerRole.addRule(session, ResourceGeneric.RECORD_HOOK, null, Role.PERMISSION_ALL);
     writerRole.addRule(session, ResourceGeneric.FUNCTION, null, Role.PERMISSION_READ);
-    writerRole.addRule(session, ResourceGeneric.CLASS, Sequence.CLASS_NAME,
+    writerRole.addRule(session, ResourceGeneric.CLASS, DBSequence.CLASS_NAME,
         Role.PERMISSION_READ);
     writerRole.addRule(session, ResourceGeneric.CLASS, "OTriggered", Role.PERMISSION_READ);
     writerRole.addRule(session, ResourceGeneric.CLASS, "OSchedule", Role.PERMISSION_READ);
@@ -825,7 +825,7 @@ public class SecurityShared implements SecurityInternal {
     setSecurityPolicyWithBitmask(
         session,
         writerRole,
-        Rule.ResourceGeneric.CLASS.getLegacyName() + "." + Sequence.CLASS_NAME,
+        Rule.ResourceGeneric.CLASS.getLegacyName() + "." + DBSequence.CLASS_NAME,
         Role.PERMISSION_READ);
     setSecurityPolicyWithBitmask(
         session,
@@ -1561,7 +1561,7 @@ public class SecurityShared implements SecurityInternal {
   }
 
   @Override
-  public boolean canCreate(DatabaseSessionInternal session, Record record) {
+  public boolean canCreate(DatabaseSessionInternal session, DBRecord record) {
     if (session.geCurrentUser() == null) {
       // executeNoAuth
       return true;
@@ -1604,7 +1604,7 @@ public class SecurityShared implements SecurityInternal {
   }
 
   @Override
-  public boolean canRead(DatabaseSessionInternal session, Record record) {
+  public boolean canRead(DatabaseSessionInternal session, DBRecord record) {
     // TODO what about server users?
     if (session.geCurrentUser() == null) {
       // executeNoAuth
@@ -1647,7 +1647,7 @@ public class SecurityShared implements SecurityInternal {
   }
 
   @Override
-  public boolean canUpdate(DatabaseSessionInternal session, Record record) {
+  public boolean canUpdate(DatabaseSessionInternal session, DBRecord record) {
     if (session.geCurrentUser() == null) {
       // executeNoAuth
       return true;
@@ -1708,7 +1708,7 @@ public class SecurityShared implements SecurityInternal {
     return true;
   }
 
-  private ResultInternal calculateOriginalValue(Record record, DatabaseSessionInternal db) {
+  private ResultInternal calculateOriginalValue(DBRecord record, DatabaseSessionInternal db) {
     return calculateBefore(record.getRecord(), db);
   }
 
@@ -1750,7 +1750,7 @@ public class SecurityShared implements SecurityInternal {
   }
 
   @Override
-  public boolean canDelete(DatabaseSessionInternal session, Record record) {
+  public boolean canDelete(DatabaseSessionInternal session, DBRecord record) {
     if (session.geCurrentUser() == null) {
       // executeNoAuth
       return true;

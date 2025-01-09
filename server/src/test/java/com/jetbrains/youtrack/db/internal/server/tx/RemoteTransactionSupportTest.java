@@ -8,10 +8,10 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -380,7 +380,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     db.save(idx);
     Entity someTx = db.newEntity("SomeTx");
     someTx.setProperty("name", "foo");
-    Record id = db.save(someTx);
+    DBRecord id = db.save(someTx);
     try (ResultSet rs = db.query("select from ?", id)) {
     }
 

@@ -38,9 +38,9 @@ import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.exception.StorageDoesNotExistException;
 import com.jetbrains.youtrack.db.api.exception.StorageExistsException;
 import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
@@ -2115,7 +2115,7 @@ public abstract class AbstractPaginatedStorage
               lockClusters(clustersToLock);
 
               for (final RecordOperation txEntry : newRecords) {
-                final Record rec = txEntry.record;
+                final DBRecord rec = txEntry.record;
                 if (!rec.getIdentity().isPersistent()) {
                   if (rec.isDirty()) {
                     // This allocate a position for a new record
@@ -2291,7 +2291,7 @@ public abstract class AbstractPaginatedStorage
 
             final Map<RecordOperation, PhysicalPosition> positions = new IdentityHashMap<>(8);
             for (final RecordOperation recordOperation : newRecords) {
-              final Record rec = recordOperation.record;
+              final DBRecord rec = recordOperation.record;
 
               if (allocated) {
                 if (rec.getIdentity().isPersistent()) {

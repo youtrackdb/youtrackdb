@@ -19,39 +19,39 @@
  */
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string;
 
-import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.StringParser;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.fetch.FetchHelper;
 import com.jetbrains.youtrack.db.internal.core.fetch.FetchPlan;
 import com.jetbrains.youtrack.db.internal.core.fetch.json.JSONFetchContext;
 import com.jetbrains.youtrack.db.internal.core.fetch.json.JSONFetchListener;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordStringable;
-import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImplEmbedded;
@@ -435,7 +435,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
                       if (type == null) {
                         // TRY TO UNDERSTAND BY FIRST ITEM
                         Object first = ((Collection<?>) v).iterator().next();
-                        if (first instanceof Record
+                        if (first instanceof DBRecord
                             && !((RecordAbstract) first).getIdentity().isValid()) {
                           type = v instanceof Set<?> ? PropertyType.EMBEDDEDSET
                               : PropertyType.EMBEDDEDLIST;
@@ -451,7 +451,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
                       if (v instanceof Map<?, ?> && !((Map<?, ?>) v).isEmpty()) {
                         // CHECK IF THE MAP IS EMBEDDED
                         Object first = ((Map<?, ?>) v).values().iterator().next();
-                        if (first instanceof Record
+                        if (first instanceof DBRecord
                             && !((RecordAbstract) first).getIdentity().isValid()) {
                           entity.setProperty(fieldName, v, PropertyType.EMBEDDEDMAP);
                           return;
@@ -498,7 +498,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
     }
   }
 
-  public void toString(final Record iRecord, final JSONWriter json, final String iFormat) {
+  public void toString(final DBRecord iRecord, final JSONWriter json, final String iFormat) {
     try {
       final FormatSettings settings = new FormatSettings(iFormat);
 
@@ -543,7 +543,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
 
   @Override
   public StringBuilder toString(
-      final Record record,
+      final DBRecord record,
       final StringBuilder output,
       final String format,
       boolean autoDetectCollectionType) {

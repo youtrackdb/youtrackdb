@@ -7,7 +7,7 @@ import java.io.OutputStream;
 /**
  *
  */
-public interface Blob extends Record {
+public interface Blob extends DBRecord {
   byte RECORD_TYPE = 'b';
 
   int fromInputStream(final InputStream in) throws IOException;

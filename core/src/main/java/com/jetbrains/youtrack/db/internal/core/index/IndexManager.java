@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -183,7 +183,7 @@ public interface IndexManager {
    * @deprecated Manual indexes are deprecated and will be removed
    */
   @Deprecated
-  Dictionary<Record> getDictionary();
+  Dictionary<DBRecord> getDictionary();
 
   /**
    * Returns a record where configurations are saved.

@@ -19,8 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.get;
 
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
@@ -54,7 +54,7 @@ public class ServerCommandGetCluster extends ServerCommandAuthenticatedDbAbstrac
         final int limit = urlParts.length > 3 ? Integer.parseInt(urlParts[3]) : 20;
 
         final List<Identifiable> response = new ArrayList<Identifiable>();
-        for (Record rec : db.browseCluster(urlParts[2])) {
+        for (DBRecord rec : db.browseCluster(urlParts[2])) {
           if (limit > 0 && response.size() >= limit) {
             break;
           }

@@ -3,12 +3,12 @@ package com.jetbrains.youtrack.db.internal.core.db.record;
 import static org.junit.Assert.assertNotNull;
 
 import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,7 +19,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RecordLazyListTest {
+public class DBRecordLazyListTest {
 
   private YouTrackDB youTrackDb;
   private DatabaseSessionInternal dbSession;
@@ -28,10 +28,10 @@ public class RecordLazyListTest {
   public void init() throws Exception {
     youTrackDb =
         CreateDatabaseUtil.createDatabase(
-            RecordLazyListTest.class.getSimpleName(), "memory:", CreateDatabaseUtil.TYPE_MEMORY);
+            DBRecordLazyListTest.class.getSimpleName(), "memory:", CreateDatabaseUtil.TYPE_MEMORY);
     dbSession =
         (DatabaseSessionInternal) youTrackDb.open(
-            RecordLazyListTest.class.getSimpleName(),
+            DBRecordLazyListTest.class.getSimpleName(),
             "admin",
             CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
@@ -80,7 +80,7 @@ public class RecordLazyListTest {
       dbSession.close();
     }
     if (youTrackDb != null && dbSession != null) {
-      youTrackDb.drop(RecordLazyListTest.class.getSimpleName());
+      youTrackDb.drop(DBRecordLazyListTest.class.getSimpleName());
     }
   }
 }

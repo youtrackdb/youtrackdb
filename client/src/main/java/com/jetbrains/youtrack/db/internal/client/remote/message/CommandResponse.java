@@ -19,6 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.client.remote.message;
 
+import com.jetbrains.youtrack.db.api.record.DBRecord;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.FetchPlanResults;
 import com.jetbrains.youtrack.db.internal.client.remote.SimpleValueFetchPlanCommandListener;
@@ -28,11 +31,8 @@ import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
@@ -114,7 +114,7 @@ public final class CommandResponse implements BinaryResponse {
           serializer);
       if (listener instanceof FetchPlanResults) {
         // SEND FETCHED RECORDS TO LOAD IN CLIENT CACHE
-        for (Record rec : ((FetchPlanResults) listener).getFetchedRecordsToSend()) {
+        for (DBRecord rec : ((FetchPlanResults) listener).getFetchedRecordsToSend()) {
           channel.writeByte((byte) 2); // CLIENT CACHE RECORD. IT
           // ISN'T PART OF THE
           // RESULT SET
@@ -150,7 +150,7 @@ public final class CommandResponse implements BinaryResponse {
         if (listener != null) {
           listener.result(session, result);
         }
-        if (identifiable instanceof Record record) {
+        if (identifiable instanceof DBRecord record) {
           if (record.isNotBound(session)) {
             identifiable = session.bindToSession(record);
           }
@@ -283,7 +283,7 @@ public final class CommandResponse implements BinaryResponse {
     try {
       // Collection of prefetched temporary record (nested projection record), to refer for avoid
       // garbage collection.
-      List<Record> temporaryResults = new ArrayList<Record>();
+      List<DBRecord> temporaryResults = new ArrayList<DBRecord>();
 
       boolean addNextRecord = true;
       if (asynch) {
@@ -391,7 +391,7 @@ public final class CommandResponse implements BinaryResponse {
   private Object readSynchResult(
       final ChannelDataInput network,
       final DatabaseSessionInternal database,
-      List<Record> temporaryResults)
+      List<DBRecord> temporaryResults)
       throws IOException {
     RecordSerializer serializer = RecordSerializerNetworkV37Client.INSTANCE;
     final Object result;

@@ -22,8 +22,8 @@ package com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.common.types.ModifiableInteger;
@@ -459,7 +459,7 @@ public class SBTreeRidBag implements RidBagDelegate {
     }
 
     for (Map.Entry<Identifiable, Change> entry : newChangedValues.entrySet()) {
-      if (entry.getKey() instanceof Record record) {
+      if (entry.getKey() instanceof DBRecord record) {
 
         newChangedValues.put(record, entry.getValue());
       } else {
@@ -767,7 +767,7 @@ public class SBTreeRidBag implements RidBagDelegate {
   public void applyNewEntries() {
     for (Entry<Identifiable, ModifiableInteger> entry : newEntries.entrySet()) {
       Identifiable identifiable = entry.getKey();
-      assert identifiable instanceof Record;
+      assert identifiable instanceof DBRecord;
       Change c = changes.get(identifiable);
 
       final int delta = entry.getValue().intValue();

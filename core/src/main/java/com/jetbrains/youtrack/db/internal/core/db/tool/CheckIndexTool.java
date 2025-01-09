@@ -18,8 +18,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.tool;
 
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
@@ -104,7 +104,7 @@ public class CheckIndexTool extends DatabaseTool {
 
     int totSteps = 5;
     message("Checking cluster " + clusterName + "  for index " + index.getName() + "\n");
-    RecordIteratorCluster<Record> iter = database.browseCluster(clusterName);
+    RecordIteratorCluster<DBRecord> iter = database.browseCluster(clusterName);
     long count = 0;
     long step = -1;
     while (iter.hasNext()) {
@@ -113,7 +113,7 @@ public class CheckIndexTool extends DatabaseTool {
         printProgress(clusterName, clusterId, (int) currentStep, totSteps);
         step = currentStep;
       }
-      Record record = iter.next();
+      DBRecord record = iter.next();
       if (record instanceof EntityImpl entity) {
         checkThatRecordIsIndexed(session, entity, index, fields);
       }

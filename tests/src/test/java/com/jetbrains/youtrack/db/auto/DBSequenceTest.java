@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.internal.core.exception.SequenceException;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence.SEQUENCE_TYPE;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence.SEQUENCE_TYPE;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceLibrary;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -14,14 +14,14 @@ import org.testng.annotations.Test;
  * @since 3/2/2015
  */
 @Test(groups = "sequence")
-public class SequenceTest extends BaseDBTest {
+public class DBSequenceTest extends BaseDBTest {
 
   private static final int CACHE_SIZE = 40;
-  private static final long FIRST_START = Sequence.DEFAULT_START;
+  private static final long FIRST_START = DBSequence.DEFAULT_START;
   private static final long SECOND_START = 31;
 
   @Parameters(value = "remote")
-  public SequenceTest(boolean remote) {
+  public DBSequenceTest(boolean remote) {
     super(remote);
   }
 
@@ -35,7 +35,7 @@ public class SequenceTest extends BaseDBTest {
       throws ExecutionException, InterruptedException {
     SequenceLibrary sequenceLibrary = database.getMetadata().getSequenceLibrary();
 
-    Sequence seq = sequenceLibrary.createSequence(sequenceName, sequenceType, null);
+    DBSequence seq = sequenceLibrary.createSequence(sequenceName, sequenceType, null);
 
     SequenceException err = null;
     try {
@@ -49,7 +49,7 @@ public class SequenceTest extends BaseDBTest {
             + sequenceType.toString()
             + " sequences with same name doesn't throw an exception");
 
-    Sequence seqSame = sequenceLibrary.getSequence(sequenceName);
+    DBSequence seqSame = sequenceLibrary.getSequence(sequenceName);
     Assert.assertEquals(seqSame, seq);
 
     // Doing it twice to check everything works after reset
@@ -68,7 +68,7 @@ public class SequenceTest extends BaseDBTest {
   public void testOrdered() throws ExecutionException, InterruptedException {
     SequenceLibrary sequenceManager = database.getMetadata().getSequenceLibrary();
 
-    Sequence seq = sequenceManager.createSequence("seqOrdered", SEQUENCE_TYPE.ORDERED, null);
+    DBSequence seq = sequenceManager.createSequence("seqOrdered", SEQUENCE_TYPE.ORDERED, null);
 
     SequenceException err = null;
     try {
@@ -80,20 +80,20 @@ public class SequenceTest extends BaseDBTest {
         err == null || err.getMessage().toLowerCase(Locale.ENGLISH).contains("already exists"),
         "Creating two ordered sequences with same name doesn't throw an exception");
 
-    Sequence seqSame = sequenceManager.getSequence("seqOrdered");
+    DBSequence seqSame = sequenceManager.getSequence("seqOrdered");
     Assert.assertEquals(seqSame, seq);
 
     testUsage(seq, FIRST_START);
 
     //
     database.begin();
-    seq.updateParams(new Sequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
+    seq.updateParams(new DBSequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
     database.commit();
 
     testUsage(seq, SECOND_START);
   }
 
-  private void testUsage(Sequence seq, long reset)
+  private void testUsage(DBSequence seq, long reset)
       throws ExecutionException, InterruptedException {
     for (int i = 0; i < 2; ++i) {
       Assert.assertEquals(seq.reset(), reset);

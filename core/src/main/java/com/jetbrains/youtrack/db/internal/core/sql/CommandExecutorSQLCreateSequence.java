@@ -1,17 +1,17 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence.SEQUENCE_TYPE;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceHelper;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence.SEQUENCE_TYPE;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -30,7 +30,7 @@ public class CommandExecutorSQLCreateSequence extends CommandExecutorSQLAbstract
 
   private String sequenceName;
   private SEQUENCE_TYPE sequenceType;
-  private Sequence.CreateParams params;
+  private DBSequence.CreateParams params;
 
   @Override
   public CommandExecutorSQLCreateSequence parse(CommandRequest iRequest) {
@@ -47,7 +47,7 @@ public class CommandExecutorSQLCreateSequence extends CommandExecutorSQLAbstract
       parserRequiredKeyword(KEYWORD_CREATE);
       parserRequiredKeyword(KEYWORD_SEQUENCE);
       this.sequenceName = parserRequiredWord(false, "Expected <sequence name>");
-      this.params = new Sequence.CreateParams().setDefaults();
+      this.params = new DBSequence.CreateParams().setDefaults();
 
       String temp;
       while ((temp = parseOptionalWord(true)) != null) {

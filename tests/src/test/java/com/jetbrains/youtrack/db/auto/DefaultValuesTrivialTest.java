@@ -6,9 +6,9 @@ import static org.testng.AssertJUnit.assertNull;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
@@ -113,7 +113,7 @@ public class DefaultValuesTrivialTest {
     EntityImpl doc = new EntityImpl("Person");
 
     database.begin();
-    Record record = database.save(doc);
+    DBRecord record = database.save(doc);
     database.commit();
 
     EntityImpl doc1 = database.load(record.getIdentity());

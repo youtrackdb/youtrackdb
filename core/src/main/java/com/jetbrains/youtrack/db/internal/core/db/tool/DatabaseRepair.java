@@ -20,9 +20,9 @@
 package com.jetbrains.youtrack.db.internal.core.db.tool;
 
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Iterator;
@@ -66,7 +66,7 @@ public class DatabaseRepair extends DatabaseTool {
 
     message("\n- Removing broken links...");
     for (String clusterName : database.getClusterNames()) {
-      for (Record rec : database.browseCluster(clusterName)) {
+      for (DBRecord rec : database.browseCluster(clusterName)) {
         try {
           if (rec instanceof EntityImpl entity) {
             boolean changed = false;

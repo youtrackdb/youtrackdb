@@ -25,9 +25,9 @@ import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.exception.TransactionException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.RecordHook.TYPE;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -426,7 +426,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
   public boolean exists(RID rid) {
     checkTransactionValid();
 
-    final Record txRecord = getRecord(rid);
+    final DBRecord txRecord = getRecord(rid);
     if (txRecord == FrontendTransactionAbstract.DELETED_RECORD) {
       return false;
     }
@@ -439,7 +439,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
   }
 
   @Override
-  public @Nonnull Record loadRecord(RID rid) {
+  public @Nonnull DBRecord loadRecord(RID rid) {
 
     checkTransactionValid();
 
@@ -514,7 +514,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
     }
   }
 
-  public Record saveRecord(RecordAbstract passedRecord, final String clusterName) {
+  public DBRecord saveRecord(RecordAbstract passedRecord, final String clusterName) {
     try {
       if (passedRecord == null) {
         return null;
@@ -650,7 +650,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
     }
 
     try {
-      final RecordId rid = (RecordId) record.getIdentity();
+      final RecordId rid = record.getIdentity();
       RecordOperation txEntry = getRecordEntry(rid);
 
       if (txEntry != null) {
@@ -882,7 +882,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
       txGeneratedRealRecordIdMap.put(newRid.copy(), oldRid.copy());
 
       if (!rec.record.getIdentity().equals(newRid)) {
-        final RecordId recordId = (RecordId) rec.record.getIdentity();
+        final RecordId recordId = rec.record.getIdentity();
         if (recordId == null) {
           RecordInternal.setIdentity(rec.record, new RecordId(newRid));
         } else {
@@ -956,12 +956,12 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
         // SERIALIZE OPERATION
         changeDoc.field("o", e.getOperation().ordinal());
 
-        if (e.getValue() instanceof Record && e.getValue().getIdentity().isNew()) {
-          Record saved = getRecord(e.getValue().getIdentity());
+        if (e.getValue() instanceof DBRecord && e.getValue().getIdentity().isNew()) {
+          DBRecord saved = getRecord(e.getValue().getIdentity());
           if (saved != null && saved != FrontendTransactionAbstract.DELETED_RECORD) {
             e.setValue(saved);
           } else {
-            ((Record) e.getValue()).save();
+            ((DBRecord) e.getValue()).save();
           }
         }
 

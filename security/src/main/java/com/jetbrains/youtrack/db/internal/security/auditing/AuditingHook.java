@@ -14,7 +14,7 @@
 package com.jetbrains.youtrack.db.internal.security.auditing;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RecordHookAbstract;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -296,7 +296,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
   }
 
   @Override
-  public void onRecordAfterCreate(final Record iRecord) {
+  public void onRecordAfterCreate(final DBRecord iRecord) {
     if (!onGlobalCreate) {
       return;
     }
@@ -305,7 +305,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
   }
 
   @Override
-  public void onRecordAfterRead(final Record iRecord) {
+  public void onRecordAfterRead(final DBRecord iRecord) {
     if (!onGlobalRead) {
       return;
     }
@@ -314,7 +314,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
   }
 
   @Override
-  public void onRecordAfterUpdate(final Record iRecord) {
+  public void onRecordAfterUpdate(final DBRecord iRecord) {
 
     if (iRecord instanceof EntityImpl entity) {
       DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().get();
@@ -334,7 +334,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
   }
 
   @Override
-  public void onRecordAfterDelete(final Record iRecord) {
+  public void onRecordAfterDelete(final DBRecord iRecord) {
     if (!onGlobalDelete) {
       return;
     }
@@ -386,7 +386,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
             });
   }
 
-  protected void log(final AuditingOperation operation, final Record iRecord) {
+  protected void log(final AuditingOperation operation, final DBRecord iRecord) {
     if (auditingQueue == null)
     // LOGGING THREAD INACTIVE, SKIP THE LOG
     {
@@ -465,7 +465,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
     }
   }
 
-  private String formatNote(final Record iRecord, final String iNote) {
+  private String formatNote(final DBRecord iRecord, final String iNote) {
     if (iNote == null) {
       return null;
     }
@@ -489,7 +489,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
             });
   }
 
-  private AuditingClassConfig getAuditConfiguration(final Record iRecord) {
+  private AuditingClassConfig getAuditConfiguration(final DBRecord iRecord) {
     AuditingClassConfig cfg = null;
 
     if (iRecord instanceof EntityImpl) {

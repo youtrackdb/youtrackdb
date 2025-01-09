@@ -13,10 +13,10 @@ import org.testng.annotations.Test;
  * @since 11.03.13 12:00
  */
 @Test
-public class RecordMetadataTest extends BaseDBTest {
+public class DBRecordMetadataTest extends BaseDBTest {
 
   @Parameters(value = "remote")
-  public RecordMetadataTest(@Optional Boolean remote) {
+  public DBRecordMetadataTest(@Optional Boolean remote) {
     super(remote != null && remote);
   }
 

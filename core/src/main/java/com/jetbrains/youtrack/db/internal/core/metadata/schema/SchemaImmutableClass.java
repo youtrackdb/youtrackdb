@@ -34,7 +34,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityPolicy;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.schedule.ScheduledEvent;
 import java.util.ArrayList;
@@ -159,7 +159,7 @@ public class SchemaImmutableClass implements SchemaClassInternal {
       this.triggered = isSubClassOf(ClassTrigger.CLASSNAME);
       this.function = isSubClassOf(FunctionLibraryImpl.CLASSNAME);
       this.scheduler = isSubClassOf(ScheduledEvent.CLASS_NAME);
-      this.sequence = isSubClassOf(Sequence.CLASS_NAME);
+      this.sequence = isSubClassOf(DBSequence.CLASS_NAME);
       this.ouser = isSubClassOf(SecurityUserIml.CLASS_NAME);
       this.orole = isSubClassOf(Role.CLASS_NAME);
       this.securityPolicy = SecurityPolicy.class.getSimpleName().equals(this.name);

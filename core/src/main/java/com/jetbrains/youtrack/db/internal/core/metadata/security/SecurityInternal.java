@@ -1,14 +1,14 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.security.SecurityUser;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityRole.ALLOW_MODES;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.List;
 import java.util.Map;
@@ -180,13 +180,13 @@ public interface SecurityInternal {
   boolean isAllowedWrite(DatabaseSessionInternal session, EntityImpl entity,
       String propertyName);
 
-  boolean canCreate(DatabaseSessionInternal session, Record record);
+  boolean canCreate(DatabaseSessionInternal session, DBRecord record);
 
-  boolean canRead(DatabaseSessionInternal session, Record record);
+  boolean canRead(DatabaseSessionInternal session, DBRecord record);
 
-  boolean canUpdate(DatabaseSessionInternal session, Record record);
+  boolean canUpdate(DatabaseSessionInternal session, DBRecord record);
 
-  boolean canDelete(DatabaseSessionInternal session, Record record);
+  boolean canDelete(DatabaseSessionInternal session, DBRecord record);
 
   boolean canExecute(DatabaseSessionInternal session, Function function);
 

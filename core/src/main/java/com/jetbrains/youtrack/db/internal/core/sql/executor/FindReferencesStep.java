@@ -2,9 +2,9 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
@@ -52,7 +52,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     var db = ctx.getDatabase();
     Set<RID> rids = fetchRidsToFind(ctx);
-    List<RecordIteratorCluster<Record>> clustersIterators = initClusterIterators(ctx);
+    List<RecordIteratorCluster<DBRecord>> clustersIterators = initClusterIterators(ctx);
     Stream<Result> stream =
         clustersIterators.stream()
             .flatMap(
@@ -66,7 +66,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
 
   private static Stream<? extends Result> findMatching(DatabaseSessionInternal db,
       Set<RID> rids,
-      Record record) {
+      DBRecord record) {
     ResultInternal rec = new ResultInternal(db, record);
     List<Result> results = new ArrayList<>();
     for (RID rid : rids) {
@@ -82,7 +82,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
     return results.stream();
   }
 
-  private List<RecordIteratorCluster<Record>> initClusterIterators(CommandContext ctx) {
+  private List<RecordIteratorCluster<DBRecord>> initClusterIterators(CommandContext ctx) {
     var db = ctx.getDatabase();
     Collection<String> targetClusterNames = new HashSet<>();
 
@@ -138,7 +138,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
   }
 
   private static List<String> checkObject(
-      final Set<RID> iSourceRIDs, final Object value, final Record iRootObject, String prefix) {
+      final Set<RID> iSourceRIDs, final Object value, final DBRecord iRootObject, String prefix) {
     if (value instanceof Result) {
       return checkRoot(iSourceRIDs, (Result) value, iRootObject, prefix).stream()
           .map(y -> value + "." + y)
@@ -163,7 +163,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
   private static List<String> checkCollection(
       final Set<RID> iSourceRIDs,
       final Collection<?> values,
-      final Record iRootObject,
+      final DBRecord iRootObject,
       String prefix) {
     final Iterator<?> it = values.iterator();
     List<String> result = new ArrayList<>();
@@ -176,7 +176,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
   private static List<String> checkMap(
       final Set<RID> iSourceRIDs,
       final Map<?, ?> values,
-      final Record iRootObject,
+      final DBRecord iRootObject,
       String prefix) {
     final Iterator<?> it;
     if (values instanceof LinkMap) {
@@ -194,7 +194,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
   private static List<String> checkRecord(
       final Set<RID> iSourceRIDs,
       final Identifiable value,
-      final Record iRootObject,
+      final DBRecord iRootObject,
       String prefix) {
     List<String> result = new ArrayList<>();
     if (iSourceRIDs.contains(value.getIdentity())) {
@@ -212,7 +212,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
   }
 
   private static List<String> checkRoot(
-      final Set<RID> iSourceRIDs, final Result value, final Record iRootObject,
+      final Set<RID> iSourceRIDs, final Result value, final DBRecord iRootObject,
       String prefix) {
     List<String> result = new ArrayList<>();
     for (String fieldName : value.getPropertyNames()) {

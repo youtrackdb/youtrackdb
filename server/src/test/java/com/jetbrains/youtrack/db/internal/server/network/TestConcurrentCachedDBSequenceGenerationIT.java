@@ -2,13 +2,13 @@ package com.jetbrains.youtrack.db.internal.server.network;
 
 import static org.junit.Assert.assertNotNull;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.session.SessionPool;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.SessionPoolImpl;
-import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.api.session.SessionPool;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
 import java.io.File;
@@ -20,7 +20,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestConcurrentCachedSequenceGenerationIT {
+public class TestConcurrentCachedDBSequenceGenerationIT {
 
   static final int THREADS = 20;
   static final int RECORDS = 100;
@@ -36,10 +36,10 @@ public class TestConcurrentCachedSequenceGenerationIT {
         YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
-        TestConcurrentCachedSequenceGenerationIT.class.getSimpleName());
+        TestConcurrentCachedDBSequenceGenerationIT.class.getSimpleName());
     DatabaseSession databaseSession =
         youTrackDB.open(
-            TestConcurrentCachedSequenceGenerationIT.class.getSimpleName(), "admin", "admin");
+            TestConcurrentCachedDBSequenceGenerationIT.class.getSimpleName(), "admin", "admin");
     databaseSession.execute(
         "sql",
         """
@@ -59,7 +59,7 @@ public class TestConcurrentCachedSequenceGenerationIT {
     SessionPool pool =
         new SessionPoolImpl(
             youTrackDB,
-            TestConcurrentCachedSequenceGenerationIT.class.getSimpleName(),
+            TestConcurrentCachedDBSequenceGenerationIT.class.getSimpleName(),
             "admin",
             "admin");
     List<Thread> threads = new ArrayList<>();
@@ -94,7 +94,7 @@ public class TestConcurrentCachedSequenceGenerationIT {
 
   @After
   public void after() {
-    youTrackDB.drop(TestConcurrentCachedSequenceGenerationIT.class.getSimpleName());
+    youTrackDB.drop(TestConcurrentCachedDBSequenceGenerationIT.class.getSimpleName());
     youTrackDB.close();
     server.shutdown();
 

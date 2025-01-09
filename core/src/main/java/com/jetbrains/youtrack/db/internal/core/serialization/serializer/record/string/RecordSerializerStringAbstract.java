@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string;
 
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
@@ -648,7 +648,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
         } else if (iValue instanceof String) {
           return new RecordId((String) iValue);
         } else {
-          return ((Record) iValue).getIdentity().toString();
+          return ((DBRecord) iValue).getIdentity().toString();
         }
     }
 
@@ -758,11 +758,11 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
       DatabaseSessionInternal db, String iContent, RecordAbstract iRecord, String[] iFields);
 
   public StringBuilder toString(
-      final Record iRecord, final StringBuilder iOutput, final String iFormat) {
+      final DBRecord iRecord, final StringBuilder iOutput, final String iFormat) {
     return toString(iRecord, iOutput, iFormat, true);
   }
 
-  public Record fromString(DatabaseSessionInternal db, final String iSource) {
+  public DBRecord fromString(DatabaseSessionInternal db, final String iSource) {
     return fromString(db, iSource, DatabaseRecordThreadLocal.instance().get().newInstance(), null);
   }
 
@@ -806,7 +806,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
   }
 
   protected abstract StringBuilder toString(
-      final Record iRecord,
+      final DBRecord iRecord,
       final StringBuilder iOutput,
       final String iFormat,
       boolean autoDetectCollectionType);

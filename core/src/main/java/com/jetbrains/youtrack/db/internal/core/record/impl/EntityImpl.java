@@ -30,11 +30,11 @@ import com.jetbrains.youtrack.db.api.exception.SchemaException;
 import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import com.jetbrains.youtrack.db.api.exception.ValidationException;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
 import com.jetbrains.youtrack.db.api.schema.Property;
@@ -505,7 +505,7 @@ public class EntityImpl extends RecordAbstract
         track((Identifiable) newValue);
         value = newValue;
         if (trackingChanges) {
-          RecordInternal.setDirtyManager((Record) value, this.getDirtyManager());
+          RecordInternal.setDirtyManager((DBRecord) value, this.getDirtyManager());
         }
         EntityEntry entry = fields.get(name);
         entry.disableTracking(this, entry.value);
@@ -546,7 +546,7 @@ public class EntityImpl extends RecordAbstract
           return onLoadValue;
         }
       }
-      if (onLoadValue instanceof Record record) {
+      if (onLoadValue instanceof DBRecord record) {
         if (isLazyLoad()) {
           return onLoadValue;
         } else {
@@ -1315,7 +1315,7 @@ public class EntityImpl extends RecordAbstract
                   + fieldValue);
         }
 
-        final Record embeddedRecord = embedded.getRecord();
+        final DBRecord embeddedRecord = embedded.getRecord();
         if (embeddedRecord instanceof EntityImpl entity) {
           final SchemaClass embeddedClass = p.getLinkedClass();
           if (entity.isVertex()) {
@@ -1681,7 +1681,7 @@ public class EntityImpl extends RecordAbstract
         track((Identifiable) newValue);
         value = newValue;
         if (this.trackingChanges) {
-          RecordInternal.setDirtyManager((Record) value, this.getDirtyManager());
+          RecordInternal.setDirtyManager((DBRecord) value, this.getDirtyManager());
         }
         if (!iFieldName.contains(".")) {
           EntityEntry entry = fields.get(iFieldName);
@@ -3045,7 +3045,7 @@ public class EntityImpl extends RecordAbstract
     }
   }
 
-  protected String toString(Set<Record> inspected) {
+  protected String toString(Set<DBRecord> inspected) {
     checkForBinding();
 
     if (inspected.contains(this)) {

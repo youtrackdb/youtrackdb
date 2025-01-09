@@ -17,9 +17,9 @@
 package com.jetbrains.youtrack.db.internal.lucene.index;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -308,9 +308,9 @@ public class LuceneIndexNotUnique extends IndexAbstract implements OLuceneIndex 
     final RID rid = value.getIdentity();
 
     if (!((RecordId) rid).isValid()) {
-      if (value instanceof Record) {
+      if (value instanceof DBRecord) {
         // EARLY SAVE IT
-        ((Record) value).save();
+        ((DBRecord) value).save();
       } else {
         throw new IllegalArgumentException(
             "Cannot store non persistent RID as index value for key '" + key + "'");

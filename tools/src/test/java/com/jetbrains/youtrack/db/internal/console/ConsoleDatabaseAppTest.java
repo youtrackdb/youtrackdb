@@ -5,7 +5,7 @@ import static org.junit.Assert.fail;
 
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
 import java.io.ByteArrayOutputStream;
@@ -47,7 +47,7 @@ public class ConsoleDatabaseAppTest {
       db.addBlobCluster("blobTest");
 
       db.begin();
-      Record record = db.save(new RecordBytes("blobContent".getBytes()), "blobTest");
+      DBRecord record = db.save(new RecordBytes("blobContent".getBytes()), "blobTest");
       db.commit();
       builder.setLength(0);
       app.select(" from " + record.getIdentity() + " limit -1 ");

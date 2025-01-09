@@ -19,26 +19,26 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command.script;
 
-import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.DatabaseSession.STATUS;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.DatabaseSession.ATTRIBUTES;
+import com.jetbrains.youtrack.db.api.DatabaseSession.STATUS;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
+import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClass;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.Metadata;
-import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLQuery;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransaction;
 import java.util.Arrays;
@@ -172,7 +172,7 @@ public class ScriptDocumentDatabaseWrapper {
     return database.save(new EntityImpl().fromJSON(iString, true));
   }
 
-  public EntityImpl save(Record iRecord) {
+  public EntityImpl save(DBRecord iRecord) {
     return database.save(iRecord);
   }
 
@@ -240,7 +240,7 @@ public class ScriptDocumentDatabaseWrapper {
     return database.getMetadata();
   }
 
-  public Dictionary<Record> getDictionary() {
+  public Dictionary<DBRecord> getDictionary() {
     return database.getDictionary();
   }
 
@@ -252,7 +252,7 @@ public class ScriptDocumentDatabaseWrapper {
     database.delete(iRid);
   }
 
-  public <RET extends Record> RET load(RID iRecordId) {
+  public <RET extends DBRecord> RET load(RID iRecordId) {
     return database.load(iRecordId);
   }
 
@@ -261,7 +261,7 @@ public class ScriptDocumentDatabaseWrapper {
     return database.getDefaultClusterId();
   }
 
-  public <RET extends Record> RET load(final String iRidAsString) {
+  public <RET extends DBRecord> RET load(final String iRidAsString) {
     return database.load(new RecordId(iRidAsString));
   }
 
@@ -273,7 +273,7 @@ public class ScriptDocumentDatabaseWrapper {
     return database.setProperty(iName, iValue);
   }
 
-  public EntityImpl save(Record iRecord, String iClusterName) {
+  public EntityImpl save(DBRecord iRecord, String iClusterName) {
     return database.save(iRecord, iClusterName);
   }
 

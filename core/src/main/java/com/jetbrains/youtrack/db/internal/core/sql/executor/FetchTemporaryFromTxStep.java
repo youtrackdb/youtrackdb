@@ -1,16 +1,16 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
-import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
@@ -38,7 +38,7 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
       prev.start(ctx).close(ctx);
     }
 
-    Iterator<Record> data;
+    Iterator<DBRecord> data;
     data = init(ctx);
     return ExecutionStream.iterator(data).map(this::setContext);
   }
@@ -48,14 +48,14 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
     return result;
   }
 
-  private Iterator<Record> init(CommandContext ctx) {
+  private Iterator<DBRecord> init(CommandContext ctx) {
     Iterable<? extends RecordOperation> iterable =
         ctx.getDatabase().getTransaction().getRecordOperations();
 
-    List<Record> records = new ArrayList<>();
+    List<DBRecord> records = new ArrayList<>();
     if (iterable != null) {
       for (RecordOperation op : iterable) {
-        Record record = op.record;
+        DBRecord record = op.record;
         if (matchesClass(record, className) && !hasCluster(record)) {
           records.add(record);
         }
@@ -79,7 +79,7 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
     return records.iterator();
   }
 
-  private static boolean hasCluster(Record record) {
+  private static boolean hasCluster(DBRecord record) {
     RID rid = record.getIdentity();
     if (rid == null) {
       return false;
@@ -87,7 +87,7 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
     return rid.getClusterId() >= 0;
   }
 
-  private static boolean matchesClass(Record record, String className) {
+  private static boolean matchesClass(DBRecord record, String className) {
     if (!(record.getRecord() instanceof EntityImpl entity)) {
       return false;
     }

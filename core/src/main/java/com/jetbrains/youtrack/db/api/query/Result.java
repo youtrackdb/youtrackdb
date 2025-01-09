@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.api.query;
 
-import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
-import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Vertex;
-import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.lang.reflect.Array;
 import java.util.Base64;
@@ -123,7 +123,7 @@ public interface Result {
 
   Optional<Blob> getBlob();
 
-  Optional<Record> getRecord();
+  Optional<DBRecord> getRecord();
 
   boolean isRecord();
 

@@ -20,8 +20,8 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
@@ -228,7 +228,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
     }
   }
 
-  public Dictionary<Record> getDictionary(DatabaseSessionInternal database) {
+  public Dictionary<DBRecord> getDictionary(DatabaseSessionInternal database) {
     Index idx;
     acquireSharedLock();
     try {

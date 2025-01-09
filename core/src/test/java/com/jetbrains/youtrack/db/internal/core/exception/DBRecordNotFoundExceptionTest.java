@@ -10,7 +10,7 @@ import org.junit.Test;
 /**
  *
  */
-public class RecordNotFoundExceptionTest {
+public class DBRecordNotFoundExceptionTest {
 
   @Test
   public void simpleExceptionCopyTest() {

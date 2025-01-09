@@ -19,22 +19,22 @@
  */
 package com.jetbrains.youtrack.db.internal.core.iterator;
 
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.NoTxRecordReadException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
+import com.jetbrains.youtrack.db.api.exception.SecurityException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
+import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
-import com.jetbrains.youtrack.db.api.security.SecurityUser;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.util.HashSet;
@@ -92,7 +92,7 @@ public abstract class IdentifiableIterator<REC extends Identifiable>
 
   public abstract IdentifiableIterator<REC> last();
 
-  public Record current() {
+  public DBRecord current() {
     return readCurrentRecord(0);
   }
 
@@ -164,7 +164,7 @@ public abstract class IdentifiableIterator<REC extends Identifiable>
     return this;
   }
 
-  protected Record getTransactionEntry() {
+  protected DBRecord getTransactionEntry() {
     boolean noPhysicalRecordToBrowse;
 
     if (current.getClusterPosition() < RID.CLUSTER_POS_INVALID) {
@@ -206,7 +206,7 @@ public abstract class IdentifiableIterator<REC extends Identifiable>
    *
    * @return record which was read from db.
    */
-  protected Record readCurrentRecord(final int movement) {
+  protected DBRecord readCurrentRecord(final int movement) {
     // LIMIT REACHED
     if (limit > -1 && browsedRecords >= limit) {
       return null;
@@ -224,7 +224,7 @@ public abstract class IdentifiableIterator<REC extends Identifiable>
       return null;
     }
 
-    Record record;
+    DBRecord record;
     try {
       record = database.load(current);
     } catch (RecordNotFoundException rne) {

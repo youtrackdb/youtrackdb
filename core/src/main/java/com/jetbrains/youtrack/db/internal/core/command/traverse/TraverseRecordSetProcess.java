@@ -19,8 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command.traverse;
 
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import java.util.Iterator;
@@ -44,7 +44,7 @@ public class TraverseRecordSetProcess extends TraverseAbstractProcess<Iterator<I
       record = target.next();
       index++;
 
-      final Record rec = record.getRecord();
+      final DBRecord rec = record.getRecord();
       if (rec instanceof EntityImpl entity) {
         if (!entity.getIdentity().isPersistent() && entity.fields() == 1) {
           // EXTRACT THE FIELD CONTEXT

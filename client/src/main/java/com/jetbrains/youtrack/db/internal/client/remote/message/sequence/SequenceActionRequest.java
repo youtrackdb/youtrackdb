@@ -15,7 +15,7 @@
  */
 package com.jetbrains.youtrack.db.internal.client.remote.message.sequence;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceAction;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceOrderType;
 import java.io.DataInput;
@@ -126,7 +126,7 @@ public class SequenceActionRequest {
       serializeLong(action.getCurrentValue(), out);
       out.writeByte(action.getSequenceType().getVal());
 
-      Sequence.CreateParams params = action.getParameters();
+      DBSequence.CreateParams params = action.getParameters();
       if (params == null) {
         out.writeByte(0);
       } else {
@@ -154,15 +154,15 @@ public class SequenceActionRequest {
       String sequenceName = new String(nameBytes, StandardCharsets.UTF_8);
       Long currentValue = deserializeLong(in);
       byte sequenceTypeByte = in.readByte();
-      Sequence.SEQUENCE_TYPE sequenceType = Sequence.SEQUENCE_TYPE.fromVal(sequenceTypeByte);
+      DBSequence.SEQUENCE_TYPE sequenceType = DBSequence.SEQUENCE_TYPE.fromVal(sequenceTypeByte);
       if (sequenceType == null) {
         throw new IOException("Inavlid sequnce type value: " + sequenceTypeByte);
       }
 
-      Sequence.CreateParams params = null;
+      DBSequence.CreateParams params = null;
       byte paramsNullFlag = in.readByte();
       if (paramsNullFlag > 0) {
-        params = new Sequence.CreateParams();
+        params = new DBSequence.CreateParams();
         params.resetNull();
         params.setStart(deserializeLong(in));
         params.setIncrement(deserializeInt(in));

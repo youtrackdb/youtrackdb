@@ -3,11 +3,11 @@ package com.jetbrains.youtrack.db.internal.core.record.impl;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Direction;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
@@ -610,7 +610,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
     var oldIdentity = ((RecordId) getIdentity()).copy();
 
-    final Record oldRecord = oldIdentity.getRecord();
+    final DBRecord oldRecord = oldIdentity.getRecord();
     var entity = baseEntity.copy();
     RecordInternal.setIdentity(entity, new ChangeableRecordId());
 
@@ -709,7 +709,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
     return newIdentity;
   }
 
-  private static void detachRidbags(Record oldRecord) {
+  private static void detachRidbags(DBRecord oldRecord) {
     EntityImpl oldEntity = (EntityImpl) oldRecord;
     for (String field : oldEntity.getPropertyNamesInternal()) {
       if (field.equalsIgnoreCase(EdgeInternal.DIRECTION_OUT)
@@ -740,7 +740,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
     }
   }
 
-  private static void copyRidBags(DatabaseSessionInternal db, Record oldRecord,
+  private static void copyRidBags(DatabaseSessionInternal db, DBRecord oldRecord,
       EntityImpl newDoc) {
     EntityImpl oldEntity = (EntityImpl) oldRecord;
     for (String field : oldEntity.getPropertyNamesInternal()) {

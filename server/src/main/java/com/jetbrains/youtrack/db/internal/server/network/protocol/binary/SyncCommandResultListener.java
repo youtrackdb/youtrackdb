@@ -16,19 +16,19 @@
 
 package com.jetbrains.youtrack.db.internal.server.network.protocol.binary;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.client.remote.FetchPlanResults;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.FetchException;
 import com.jetbrains.youtrack.db.internal.core.fetch.FetchContext;
 import com.jetbrains.youtrack.db.internal.core.fetch.FetchHelper;
 import com.jetbrains.youtrack.db.internal.core.fetch.remote.RemoteFetchContext;
 import com.jetbrains.youtrack.db.internal.core.fetch.remote.RemoteFetchListener;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,8 +38,8 @@ import java.util.Set;
 public class SyncCommandResultListener extends AbstractCommandResultListener
     implements FetchPlanResults {
 
-  private final Set<Record> fetchedRecordsToSend = new HashSet<Record>();
-  private final Set<Record> alreadySent = new HashSet<Record>();
+  private final Set<DBRecord> fetchedRecordsToSend = new HashSet<DBRecord>();
+  private final Set<DBRecord> alreadySent = new HashSet<DBRecord>();
 
   public SyncCommandResultListener(final CommandResultListener wrappedResultListener) {
     super(wrappedResultListener);
@@ -47,8 +47,8 @@ public class SyncCommandResultListener extends AbstractCommandResultListener
 
   @Override
   public boolean result(DatabaseSessionInternal querySession, final Object iRecord) {
-    if (iRecord instanceof Record) {
-      alreadySent.add((Record) iRecord);
+    if (iRecord instanceof DBRecord) {
+      alreadySent.add((DBRecord) iRecord);
       fetchedRecordsToSend.remove(iRecord);
     }
 
@@ -71,7 +71,7 @@ public class SyncCommandResultListener extends AbstractCommandResultListener
     return true;
   }
 
-  public Set<Record> getFetchedRecordsToSend() {
+  public Set<DBRecord> getFetchedRecordsToSend() {
     return fetchedRecordsToSend;
   }
 

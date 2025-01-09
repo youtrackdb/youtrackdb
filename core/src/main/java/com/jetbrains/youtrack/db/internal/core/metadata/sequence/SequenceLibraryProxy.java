@@ -19,11 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.sequence;
 
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence.SEQUENCE_TYPE;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence.SEQUENCE_TYPE;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -51,13 +51,13 @@ public class SequenceLibraryProxy extends SequenceLibraryAbstract {
   }
 
   @Override
-  public Sequence getSequence(String iName) {
+  public DBSequence getSequence(String iName) {
     return delegate.getSequence(database, iName);
   }
 
   @Override
-  public Sequence createSequence(
-      String iName, SEQUENCE_TYPE sequenceType, Sequence.CreateParams params)
+  public DBSequence createSequence(
+      String iName, SEQUENCE_TYPE sequenceType, DBSequence.CreateParams params)
       throws DatabaseException {
     boolean shouldGoOverDistributted =
         database.isDistributed() && (replicationProtocolVersion == 2);
@@ -65,10 +65,10 @@ public class SequenceLibraryProxy extends SequenceLibraryAbstract {
   }
 
   @Override
-  Sequence createSequence(
+  DBSequence createSequence(
       String iName,
       SEQUENCE_TYPE sequenceType,
-      Sequence.CreateParams params,
+      DBSequence.CreateParams params,
       boolean executeViaDistributed)
       throws DatabaseException {
     if (executeViaDistributed) {

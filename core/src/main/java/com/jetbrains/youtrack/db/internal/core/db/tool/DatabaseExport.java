@@ -21,8 +21,8 @@ package com.jetbrains.youtrack.db.internal.core.db.tool;
 
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -190,7 +190,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
       if (clusterName != null) {
         RecordAbstract rec = null;
         try {
-          RecordIteratorCluster<Record> it = database.browseCluster(clusterName);
+          RecordIteratorCluster<DBRecord> it = database.browseCluster(clusterName);
 
           while (it.hasNext()) {
             rec = (RecordAbstract) it.next();

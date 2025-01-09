@@ -11,7 +11,7 @@ import org.junit.Test;
 /**
  *
  */
-public class CreateSequenceStatementExecutionTest extends DbTestBase {
+public class CreateDBSequenceStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSimple() {

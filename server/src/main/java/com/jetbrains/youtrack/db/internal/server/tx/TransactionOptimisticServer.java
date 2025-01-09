@@ -1,26 +1,26 @@
 package com.jetbrains.youtrack.db.internal.server.tx;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
-import com.jetbrains.youtrack.db.api.record.RecordHook;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.exception.TransactionException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
+import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.internal.client.remote.message.tx.RecordOperationRequest;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
-import com.jetbrains.youtrack.db.api.exception.TransactionException;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.ClassIndexManager;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.DocumentSerializerDelta;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -192,7 +192,7 @@ public class TransactionOptimisticServer extends TransactionOptimistic {
           EntityInternalUtils.autoConvertValueToClass(getDatabase(), (EntityImpl) record);
         }
       }
-      for (Record record : updatedRecords.values()) {
+      for (DBRecord record : updatedRecords.values()) {
         unmarshallRecord(record);
       }
     } catch (Exception e) {
@@ -207,7 +207,7 @@ public class TransactionOptimisticServer extends TransactionOptimistic {
   /**
    * Unmarshalls collections. This prevent temporary RIDs remains stored as are.
    */
-  protected void unmarshallRecord(final Record iRecord) {
+  protected void unmarshallRecord(final DBRecord iRecord) {
     if (iRecord instanceof EntityImpl) {
       ((EntityImpl) iRecord).deserializeFields();
     }
@@ -320,7 +320,7 @@ public class TransactionOptimisticServer extends TransactionOptimistic {
     }
   }
 
-  private void postAddRecord(Record record, final byte iStatus, boolean callHooks) {
+  private void postAddRecord(DBRecord record, final byte iStatus, boolean callHooks) {
     checkTransactionValid();
     try {
       if (callHooks) {
@@ -379,7 +379,7 @@ public class TransactionOptimisticServer extends TransactionOptimistic {
     }
   }
 
-  private void finalizeAddRecord(Record record, final byte iStatus, boolean callHooks) {
+  private void finalizeAddRecord(DBRecord record, final byte iStatus, boolean callHooks) {
     checkTransactionValid();
     if (callHooks) {
       switch (iStatus) {

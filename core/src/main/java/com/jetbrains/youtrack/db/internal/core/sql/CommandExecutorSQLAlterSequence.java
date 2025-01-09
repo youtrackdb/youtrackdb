@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
-import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence;
 import java.util.Map;
 
 /**
@@ -23,7 +23,7 @@ public class CommandExecutorSQLAlterSequence extends CommandExecutorSQLAbstract
   public static final String KEYWORD_CACHE = "CACHE";
 
   private String sequenceName;
-  private Sequence.CreateParams params;
+  private DBSequence.CreateParams params;
 
   @Override
   public CommandExecutorSQLAlterSequence parse(CommandRequest iRequest) {
@@ -43,7 +43,7 @@ public class CommandExecutorSQLAlterSequence extends CommandExecutorSQLAbstract
       parserRequiredKeyword(KEYWORD_ALTER);
       parserRequiredKeyword(KEYWORD_SEQUENCE);
       this.sequenceName = parserRequiredWord(false, "Expected <sequence name>");
-      this.params = new Sequence.CreateParams();
+      this.params = new DBSequence.CreateParams();
 
       String temp;
       while ((temp = parseOptionalWord(true)) != null) {
@@ -76,7 +76,7 @@ public class CommandExecutorSQLAlterSequence extends CommandExecutorSQLAbstract
     }
 
     final var database = getDatabase();
-    Sequence sequence = database.getMetadata().getSequenceLibrary()
+    DBSequence sequence = database.getMetadata().getSequenceLibrary()
         .getSequence(this.sequenceName);
 
     boolean result;

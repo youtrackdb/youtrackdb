@@ -2,10 +2,11 @@ package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
 import static org.junit.Assert.assertEquals;
 
+import com.jetbrains.youtrack.db.api.record.DBRecord;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
@@ -16,7 +17,6 @@ import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.DocumentSerializable;
@@ -86,7 +86,7 @@ public class TestPropertyTypeDetection extends DbTestBase {
 
     assertEquals(PropertyType.LINK, PropertyType.getTypeByClass(RecordId.class));
 
-    assertEquals(PropertyType.LINK, PropertyType.getTypeByClass(Record.class));
+    assertEquals(PropertyType.LINK, PropertyType.getTypeByClass(DBRecord.class));
 
     assertEquals(PropertyType.LINK, PropertyType.getTypeByClass(EntityImpl.class));
 
@@ -203,7 +203,7 @@ public class TestPropertyTypeDetection extends DbTestBase {
     linkmap.put("some", new ChangeableRecordId());
     assertEquals(PropertyType.LINKMAP, PropertyType.getTypeByValue(linkmap));
 
-    Map<String, Record> linkmap2 = new HashMap<String, Record>();
+    Map<String, DBRecord> linkmap2 = new HashMap<String, DBRecord>();
     linkmap2.put("some", new EntityImpl());
     assertEquals(PropertyType.LINKMAP, PropertyType.getTypeByValue(linkmap2));
 
@@ -211,7 +211,7 @@ public class TestPropertyTypeDetection extends DbTestBase {
     linkList.add(new ChangeableRecordId());
     assertEquals(PropertyType.LINKLIST, PropertyType.getTypeByValue(linkList));
 
-    List<Record> linkList2 = new ArrayList<Record>();
+    List<DBRecord> linkList2 = new ArrayList<DBRecord>();
     linkList2.add(new EntityImpl());
     assertEquals(PropertyType.LINKLIST, PropertyType.getTypeByValue(linkList2));
 
@@ -219,7 +219,7 @@ public class TestPropertyTypeDetection extends DbTestBase {
     linkSet.add(new ChangeableRecordId());
     assertEquals(PropertyType.LINKSET, PropertyType.getTypeByValue(linkSet));
 
-    Set<Record> linkSet2 = new HashSet<Record>();
+    Set<DBRecord> linkSet2 = new HashSet<DBRecord>();
     linkSet2.add(new EntityImpl());
     assertEquals(PropertyType.LINKSET, PropertyType.getTypeByValue(linkSet2));
 
