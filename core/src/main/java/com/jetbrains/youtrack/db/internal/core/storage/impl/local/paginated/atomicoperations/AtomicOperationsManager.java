@@ -192,9 +192,11 @@ public class AtomicOperationsManager {
       return function.accept(atomicOperation);
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new StorageException(
-              "Exception during execution of component operation inside of storage "
-                  + storage.getName()),
+          new CommonDurableComponentException(
+              "Exception during execution of component operation inside component "
+                  + lockName
+                  + " in storage "
+                  + storage.getName(), lockName, storage.getName()),
           e);
     } finally {
       endComponentOperation(atomicOperation);
