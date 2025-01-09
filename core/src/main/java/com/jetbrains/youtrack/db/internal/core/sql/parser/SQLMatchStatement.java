@@ -2,6 +2,15 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.exception.ErrorCode;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
@@ -12,26 +21,17 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLResultsetDelegate;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLSelect;
-import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.sql.IterableRecordSource;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.MatchExecutionPlanner;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.PatternEdge;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.PatternNode;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLTarget;
 import com.jetbrains.youtrack.db.internal.core.sql.query.BasicLegacyResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
@@ -1045,7 +1045,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
       return false;
     }
     try {
-      Record record = identifiable.getRecord();
+      DBRecord record = identifiable.getRecord();
       if (record instanceof EntityImpl) {
         SchemaClass schemaClass = EntityInternalUtils.getImmutableSchemaClass(
             ((EntityImpl) record));
@@ -1169,7 +1169,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
       for (Map.Entry<String, Identifiable> entry : matchContext.matched.entrySet()) {
         if (isExplicitAlias(entry.getKey()) && entry.getValue() != null) {
           try {
-            Record record = entry.getValue().getRecord();
+            DBRecord record = entry.getValue().getRecord();
             if (request.getResultListener() != null) {
               if (!addSingleResult(request, (BasicCommandContext) ctx, record)) {
                 return false;
@@ -1184,7 +1184,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
       for (Map.Entry<String, Identifiable> entry : matchContext.matched.entrySet()) {
         if (entry.getValue() != null) {
           try {
-            Record record = entry.getValue().getRecord();
+            DBRecord record = entry.getValue().getRecord();
             if (request.getResultListener() != null) {
               if (!addSingleResult(request, (BasicCommandContext) ctx, record)) {
                 return false;
@@ -1255,7 +1255,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
    * @return false if limit was reached
    */
   private boolean addSingleResult(
-      SQLAsynchQuery<EntityImpl> request, BasicCommandContext ctx, Record record) {
+      SQLAsynchQuery<EntityImpl> request, BasicCommandContext ctx, DBRecord record) {
     if (((BasicCommandContext) context).addToUniqueResult(record)) {
       request.getResultListener().result(ctx.getDatabase(), record);
       long currentCount = ctx.getResultsProcessed().incrementAndGet();
@@ -1338,7 +1338,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
         Role.PERMISSION_READ,
         schemaClass.getName().toLowerCase(Locale.ENGLISH));
 
-    Iterable<Record> baseIterable = fetchFromIndex(schemaClass, oWhereClause);
+    Iterable<DBRecord> baseIterable = fetchFromIndex(schemaClass, oWhereClause);
 
     // SQLSelectStatement stm = buildSelectStatement(className, oWhereClause);
     // return stm.execute(ctx);
@@ -1405,7 +1405,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     return stm;
   }
 
-  private Iterable<Record> fetchFromIndex(SchemaClass schemaClass, SQLWhereClause oWhereClause) {
+  private Iterable<DBRecord> fetchFromIndex(SchemaClass schemaClass, SQLWhereClause oWhereClause) {
     return null; // TODO
   }
 

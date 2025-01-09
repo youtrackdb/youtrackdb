@@ -2,12 +2,12 @@ package com.jetbrains.youtrack.db.internal.client.remote.message;
 
 import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.internal.client.remote.db.DatabaseSessionRemote;
 import com.jetbrains.youtrack.db.internal.core.db.QueryDatabaseState;
-import com.jetbrains.youtrack.db.api.record.Record;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -79,7 +79,7 @@ public class RemoteResultSet implements ResultSet {
     Result internal = currentPage.remove(0);
 
     if (internal.isRecord() && db != null && db.getTransaction().isActive()) {
-      Record record = db.getTransaction().getRecord(internal.getIdentity().orElseThrow());
+      DBRecord record = db.getTransaction().getRecord(internal.getIdentity().orElseThrow());
       if (record != null && record != FrontendTransactionAbstract.DELETED_RECORD) {
         internal = new ResultInternal(db, record);
       }

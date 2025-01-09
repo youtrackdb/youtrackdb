@@ -17,8 +17,8 @@ package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.RecordHookAbstract;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -47,7 +47,7 @@ public class HookTxTest extends BaseDBTest {
 
     @Override
     @Test(enabled = false)
-    public RESULT onRecordBeforeCreate(Record iRecord) {
+    public RESULT onRecordBeforeCreate(DBRecord iRecord) {
       if (iRecord instanceof EntityImpl
           && ((EntityImpl) iRecord).getClassName() != null
           && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
@@ -58,7 +58,7 @@ public class HookTxTest extends BaseDBTest {
 
     @Override
     @Test(enabled = false)
-    public void onRecordAfterCreate(Record iRecord) {
+    public void onRecordAfterCreate(DBRecord iRecord) {
       if (iRecord instanceof EntityImpl
           && ((EntityImpl) iRecord).getClassName() != null
           && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
@@ -68,7 +68,7 @@ public class HookTxTest extends BaseDBTest {
 
     @Override
     @Test(enabled = false)
-    public RESULT onRecordBeforeRead(Record iRecord) {
+    public RESULT onRecordBeforeRead(DBRecord iRecord) {
       if (iRecord instanceof EntityImpl
           && ((EntityImpl) iRecord).getClassName() != null
           && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
@@ -79,7 +79,7 @@ public class HookTxTest extends BaseDBTest {
 
     @Override
     @Test(enabled = false)
-    public void onRecordAfterRead(Record iRecord) {
+    public void onRecordAfterRead(DBRecord iRecord) {
       if (iRecord instanceof EntityImpl
           && ((EntityImpl) iRecord).getClassName() != null
           && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
@@ -89,7 +89,7 @@ public class HookTxTest extends BaseDBTest {
 
     @Override
     @Test(enabled = false)
-    public RESULT onRecordBeforeUpdate(Record iRecord) {
+    public RESULT onRecordBeforeUpdate(DBRecord iRecord) {
       if (iRecord instanceof EntityImpl
           && ((EntityImpl) iRecord).getClassName() != null
           && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
@@ -100,7 +100,7 @@ public class HookTxTest extends BaseDBTest {
 
     @Override
     @Test(enabled = false)
-    public void onRecordAfterUpdate(Record iRecord) {
+    public void onRecordAfterUpdate(DBRecord iRecord) {
       if (iRecord instanceof EntityImpl
           && ((EntityImpl) iRecord).getClassName() != null
           && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
@@ -110,7 +110,7 @@ public class HookTxTest extends BaseDBTest {
 
     @Override
     @Test(enabled = false)
-    public RESULT onRecordBeforeDelete(Record iRecord) {
+    public RESULT onRecordBeforeDelete(DBRecord iRecord) {
       if (iRecord instanceof EntityImpl
           && ((EntityImpl) iRecord).getClassName() != null
           && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
@@ -121,7 +121,7 @@ public class HookTxTest extends BaseDBTest {
 
     @Override
     @Test(enabled = false)
-    public void onRecordAfterDelete(Record iRecord) {
+    public void onRecordAfterDelete(DBRecord iRecord) {
       if (iRecord instanceof EntityImpl
           && ((EntityImpl) iRecord).getClassName() != null
           && ((EntityImpl) iRecord).getClassName().equals("Profile")) {

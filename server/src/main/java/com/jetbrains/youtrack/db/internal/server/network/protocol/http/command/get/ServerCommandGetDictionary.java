@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.get;
 
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
@@ -42,7 +42,7 @@ public class ServerCommandGetDictionary extends ServerCommandAuthenticatedDbAbst
     try {
       db = getProfiledDatabaseInstance(iRequest);
 
-      final Record record = db.getDictionary().get(urlParts[2]);
+      final DBRecord record = db.getDictionary().get(urlParts[2]);
       if (record == null) {
         throw new RecordNotFoundException(
             null, "Key '" + urlParts[2] + "' was not found in the database dictionary");

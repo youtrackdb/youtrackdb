@@ -29,7 +29,7 @@
       <class name="com.jetbrains.youtrack.db.auto.CRUDDocumentPhysicalTest"/>
       <class name="com.jetbrains.youtrack.db.auto.ComplexTypesTest"/>
       <class name="com.jetbrains.youtrack.db.auto.CRUDDocumentValidationTest"/>
-      <class name="com.jetbrains.youtrack.db.auto.RecordMetadataTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.DBRecordMetadataTest"/>
       <class name="com.jetbrains.youtrack.db.auto.DocumentTrackingTest"/>
       <class
         name="com.jetbrains.youtrack.db.auto.EmbeddedEntitySerializationTest"/>

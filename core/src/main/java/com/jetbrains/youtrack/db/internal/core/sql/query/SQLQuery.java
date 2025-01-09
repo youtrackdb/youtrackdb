@@ -19,18 +19,18 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.query;
 
+import com.jetbrains.youtrack.db.api.record.DBRecord;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.query.QueryAbstract;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
@@ -191,30 +191,30 @@ public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandReq
 
       if (value instanceof Set<?>
           && !((Set<?>) value).isEmpty()
-          && ((Set<?>) value).iterator().next() instanceof Record) {
+          && ((Set<?>) value).iterator().next() instanceof DBRecord) {
         // CONVERT RECORDS AS RIDS
         final Set<RID> newSet = new HashSet<RID>();
-        for (Record rec : (Set<Record>) value) {
+        for (DBRecord rec : (Set<DBRecord>) value) {
           newSet.add(rec.getIdentity());
         }
         newParams.put(entry.getKey(), newSet);
 
       } else if (value instanceof List<?>
           && !((List<?>) value).isEmpty()
-          && ((List<?>) value).get(0) instanceof Record) {
+          && ((List<?>) value).get(0) instanceof DBRecord) {
         // CONVERT RECORDS AS RIDS
         final List<RID> newList = new ArrayList<RID>();
-        for (Record rec : (List<Record>) value) {
+        for (DBRecord rec : (List<DBRecord>) value) {
           newList.add(rec.getIdentity());
         }
         newParams.put(entry.getKey(), newList);
 
       } else if (value instanceof Map<?, ?>
           && !((Map<?, ?>) value).isEmpty()
-          && ((Map<?, ?>) value).values().iterator().next() instanceof Record) {
+          && ((Map<?, ?>) value).values().iterator().next() instanceof DBRecord) {
         // CONVERT RECORDS AS RIDS
         final Map<Object, RID> newMap = new HashMap<Object, RID>();
-        for (Entry<?, Record> mapEntry : ((Map<?, Record>) value).entrySet()) {
+        for (Entry<?, DBRecord> mapEntry : ((Map<?, DBRecord>) value).entrySet()) {
           newMap.put(mapEntry.getKey(), mapEntry.getValue().getIdentity());
         }
         newParams.put(entry.getKey(), newMap);

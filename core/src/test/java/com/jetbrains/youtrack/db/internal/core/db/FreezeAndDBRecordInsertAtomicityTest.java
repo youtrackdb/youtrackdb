@@ -47,7 +47,7 @@ import org.junit.Test;
 /**
  *
  */
-public class FreezeAndRecordInsertAtomicityTest extends DbTestBase {
+public class FreezeAndDBRecordInsertAtomicityTest extends DbTestBase {
 
   private static final int THREADS = Runtime.getRuntime().availableProcessors() << 1;
   private static final int ITERATIONS = 100;
@@ -64,7 +64,8 @@ public class FreezeAndRecordInsertAtomicityTest extends DbTestBase {
   @Before
   public void before() {
     final long seed = System.currentTimeMillis();
-    System.out.println(FreezeAndRecordInsertAtomicityTest.class.getSimpleName() + " seed: " + seed);
+    System.out.println(
+        FreezeAndDBRecordInsertAtomicityTest.class.getSimpleName() + " seed: " + seed);
     random = new Random(seed);
 
     db.getMetadata()

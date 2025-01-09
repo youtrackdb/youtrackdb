@@ -2,9 +2,9 @@ package com.jetbrains.youtrack.db.internal.core.db.hook;
 
 import static org.junit.Assert.assertNotNull;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ public class HookSaveTest extends DbTestBase {
           }
 
           @Override
-          public RESULT onTrigger(TYPE iType, Record iRecord) {
+          public RESULT onTrigger(TYPE iType, DBRecord iRecord) {
             if (iType != TYPE.BEFORE_CREATE) {
               return RESULT.RECORD_NOT_CHANGED;
             }
@@ -61,7 +61,7 @@ public class HookSaveTest extends DbTestBase {
           }
 
           @Override
-          public RESULT onTrigger(TYPE iType, Record iRecord) {
+          public RESULT onTrigger(TYPE iType, DBRecord iRecord) {
             if (iType != TYPE.BEFORE_CREATE) {
               return RESULT.RECORD_NOT_CHANGED;
             }

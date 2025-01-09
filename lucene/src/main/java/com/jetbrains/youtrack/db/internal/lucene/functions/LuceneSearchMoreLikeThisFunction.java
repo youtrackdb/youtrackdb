@@ -2,10 +2,10 @@ package com.jetbrains.youtrack.db.internal.lucene.functions;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
@@ -99,7 +99,7 @@ public class LuceneSearchMoreLikeThisFunction extends SQLFunctionAbstract
 
     List<String> ridsAsString = parseRids(ctx, expression);
 
-    List<Record> others =
+    List<DBRecord> others =
         ridsAsString.stream()
             .map(
                 rid -> {
@@ -109,7 +109,7 @@ public class LuceneSearchMoreLikeThisFunction extends SQLFunctionAbstract
                   recordId = recordId.copy();
                   return recordId;
                 })
-            .<Record>map(RecordId::getRecord)
+            .<DBRecord>map(RecordId::getRecord)
             .toList();
 
     MoreLikeThis mlt = buildMoreLikeThis(index, searcher, metadata);
@@ -240,7 +240,7 @@ public class LuceneSearchMoreLikeThisFunction extends SQLFunctionAbstract
     return mlt;
   }
 
-  private void addLikeQueries(List<Record> others, MoreLikeThis mlt, Builder queryBuilder) {
+  private void addLikeQueries(List<DBRecord> others, MoreLikeThis mlt, Builder queryBuilder) {
     others.stream()
         .map(or -> ((RecordAbstract) or).getSession().<Entity>load(or.getIdentity()))
         .forEach(

@@ -3,11 +3,11 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -379,7 +379,7 @@ public class ResultInternal implements Result {
           } else {
             continue;
           }
-          RecordId oldId = (RecordId) entity.getIdentity();
+          RecordId oldId = entity.getIdentity();
           oldId.setClusterId(((RID) newRid).getClusterId());
           oldId.setClusterPosition(((RID) newRid).getClusterPosition());
         } else {
@@ -417,9 +417,9 @@ public class ResultInternal implements Result {
   }
 
   @Override
-  public Optional<Record> getRecord() {
+  public Optional<DBRecord> getRecord() {
     loadIdentifiable();
-    return Optional.ofNullable((Record) this.identifiable);
+    return Optional.ofNullable((DBRecord) this.identifiable);
   }
 
   @Override
@@ -624,7 +624,7 @@ public class ResultInternal implements Result {
       if (cached != null) {
         if (!cached.isDirty()) {
           cached.fromStream(record.toStream());
-          cached.setIdentity((RecordId) record.getIdentity());
+          cached.setIdentity(record.getIdentity());
           cached.setVersion(record.getVersion());
 
           assert !cached.isDirty();

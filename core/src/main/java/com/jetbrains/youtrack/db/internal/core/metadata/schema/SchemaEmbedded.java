@@ -2,7 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.session.SessionListener;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
@@ -525,10 +525,10 @@ public class SchemaEmbedded extends SchemaShared {
   private static void deleteCluster(final DatabaseSessionInternal db, final int clusterId) {
     final String clusterName = db.getClusterNameById(clusterId);
     if (clusterName != null) {
-      final RecordIteratorCluster<Record> iteratorCluster = db.browseCluster(clusterName);
+      final RecordIteratorCluster<DBRecord> iteratorCluster = db.browseCluster(clusterName);
       if (iteratorCluster != null) {
         db.executeInTxBatches(
-            (Iterable<Record>) iteratorCluster, (session, record) -> record.delete());
+            (Iterable<DBRecord>) iteratorCluster, (session, record) -> record.delete());
         db.dropClusterInternal(clusterId);
       }
     }

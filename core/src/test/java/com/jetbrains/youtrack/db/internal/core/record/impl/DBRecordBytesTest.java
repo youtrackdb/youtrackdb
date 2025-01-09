@@ -29,7 +29,7 @@ import org.junit.Test;
 /**
  *
  */
-public class RecordBytesTest {
+public class DBRecordBytesTest {
 
   private static final int SMALL_ARRAY = 3;
   private static final int BIG_ARRAY = 7;

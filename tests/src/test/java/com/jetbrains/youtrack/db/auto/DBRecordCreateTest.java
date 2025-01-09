@@ -5,10 +5,10 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
-public class RecordCreateTest extends BaseDBTest {
+public class DBRecordCreateTest extends BaseDBTest {
 
   @Parameters(value = "remote")
-  public RecordCreateTest(boolean remote) {
+  public DBRecordCreateTest(boolean remote) {
     super(remote);
   }
 

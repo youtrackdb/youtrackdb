@@ -19,26 +19,26 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.parser.StringParser;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.IndexAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
@@ -66,7 +66,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
   private String indexName = null;
   private int recordCount = 0;
   private String returning = "COUNT";
-  private List<Record> allDeletedRecords;
+  private List<DBRecord> allDeletedRecords;
 
   private SQLFilter compiledFilter;
   private boolean unsafe = false;
@@ -209,7 +209,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
     }
 
     if (!returning.equalsIgnoreCase("COUNT")) {
-      allDeletedRecords = new ArrayList<Record>();
+      allDeletedRecords = new ArrayList<DBRecord>();
     }
 
     if (query != null) {
@@ -269,7 +269,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
             Identifiable rec = entry.second;
             rec = rec.getRecord();
             if (rec != null) {
-              allDeletedRecords.add((Record) rec);
+              allDeletedRecords.add((DBRecord) rec);
             }
           }
 

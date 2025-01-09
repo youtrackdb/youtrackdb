@@ -2,18 +2,18 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.Map;
 import java.util.Objects;
@@ -96,7 +96,7 @@ public class SQLRecordAttribute extends SimpleNode {
       }
       return null;
     } else if (name.equalsIgnoreCase("@version")) {
-      return iCurrentRecord.getRecord().map(Record::getVersion).orElse(null);
+      return iCurrentRecord.getRecord().map(DBRecord::getVersion).orElse(null);
     } else if (name.equals("@type")) {
       return iCurrentRecord
           .getRecord()
@@ -136,7 +136,7 @@ public class SQLRecordAttribute extends SimpleNode {
       return iCurrentRecord.getSchemaType().map(SchemaClass::getName).orElse(null);
     } else if (name.equalsIgnoreCase("@version")) {
       try {
-        Record record = iCurrentRecord.getRecord();
+        DBRecord record = iCurrentRecord.getRecord();
         return record.getVersion();
       } catch (RecordNotFoundException e) {
         return null;

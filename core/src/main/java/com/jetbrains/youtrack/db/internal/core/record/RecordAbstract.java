@@ -19,19 +19,19 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record;
 
-import com.jetbrains.youtrack.db.api.record.Record;
-import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableIdentity;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.IdentityChangeListener;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.id.ImmutableRecordId;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DirtyManager;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
@@ -45,7 +45,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 @SuppressWarnings({"unchecked"})
-public abstract class RecordAbstract implements Record, RecordElement, SerializableStream,
+public abstract class RecordAbstract implements DBRecord, RecordElement, SerializableStream,
     ChangeableIdentity {
 
   public static final String BASE_FORMAT =
@@ -200,7 +200,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     return dirty;
   }
 
-  public <RET extends Record> RET fromJSON(final String iSource, final String iOptions) {
+  public <RET extends DBRecord> RET fromJSON(final String iSource, final String iOptions) {
     status = STATUS.UNMARSHALLING;
     try {
       RecordSerializerJSON.INSTANCE.fromString(getSession(),
@@ -222,7 +222,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   }
 
   // Add New API to load record if rid exist
-  public final <RET extends Record> RET fromJSON(final String iSource, boolean needReload) {
+  public final <RET extends DBRecord> RET fromJSON(final String iSource, boolean needReload) {
     status = STATUS.UNMARSHALLING;
     try {
       return (RET) RecordSerializerJSON.INSTANCE.fromString(getSession(), iSource, this, null,
@@ -232,7 +232,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     }
   }
 
-  public final <RET extends Record> RET fromJSON(final InputStream iContentResult)
+  public final <RET extends DBRecord> RET fromJSON(final InputStream iContentResult)
       throws IOException {
     status = STATUS.UNMARSHALLING;
     try {

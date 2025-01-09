@@ -25,10 +25,10 @@ import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -1561,7 +1561,7 @@ public class SecurityShared implements SecurityInternal {
   }
 
   @Override
-  public boolean canCreate(DatabaseSessionInternal session, Record record) {
+  public boolean canCreate(DatabaseSessionInternal session, DBRecord record) {
     if (session.geCurrentUser() == null) {
       // executeNoAuth
       return true;
@@ -1604,7 +1604,7 @@ public class SecurityShared implements SecurityInternal {
   }
 
   @Override
-  public boolean canRead(DatabaseSessionInternal session, Record record) {
+  public boolean canRead(DatabaseSessionInternal session, DBRecord record) {
     // TODO what about server users?
     if (session.geCurrentUser() == null) {
       // executeNoAuth
@@ -1647,7 +1647,7 @@ public class SecurityShared implements SecurityInternal {
   }
 
   @Override
-  public boolean canUpdate(DatabaseSessionInternal session, Record record) {
+  public boolean canUpdate(DatabaseSessionInternal session, DBRecord record) {
     if (session.geCurrentUser() == null) {
       // executeNoAuth
       return true;
@@ -1708,7 +1708,7 @@ public class SecurityShared implements SecurityInternal {
     return true;
   }
 
-  private ResultInternal calculateOriginalValue(Record record, DatabaseSessionInternal db) {
+  private ResultInternal calculateOriginalValue(DBRecord record, DatabaseSessionInternal db) {
     return calculateBefore(record.getRecord(), db);
   }
 
@@ -1750,7 +1750,7 @@ public class SecurityShared implements SecurityInternal {
   }
 
   @Override
-  public boolean canDelete(DatabaseSessionInternal session, Record record) {
+  public boolean canDelete(DatabaseSessionInternal session, DBRecord record) {
     if (session.geCurrentUser() == null) {
       // executeNoAuth
       return true;

@@ -19,11 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.core.index;
 
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.internal.common.concur.resource.CloseableInStorage;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import java.util.Map;
@@ -89,7 +89,7 @@ public interface IndexManagerAbstract extends CloseableInStorage {
 
   void setDefaultClusterName(DatabaseSessionInternal database, String defaultClusterName2);
 
-  Dictionary<Record> getDictionary(DatabaseSessionInternal database);
+  Dictionary<DBRecord> getDictionary(DatabaseSessionInternal database);
 
   Set<Index> getClassInvolvedIndexes(
       DatabaseSessionInternal database, String className, Collection<String> fields);

@@ -23,9 +23,9 @@ import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
@@ -341,7 +341,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
 
                 } else if (r instanceof Identifiable) {
                   try {
-                    final Record rec = ((Identifiable) r).getRecord();
+                    final DBRecord rec = ((Identifiable) r).getRecord();
                     if (rec instanceof EntityImpl entity) {
                       records.add(entity);
                       Collections.addAll(colNames, entity.fieldNames());
@@ -501,7 +501,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
             buffer.append(objectJson);
           } else if (entry instanceof Identifiable identifiable) {
             try {
-              Record rec = identifiable.getRecord();
+              DBRecord rec = identifiable.getRecord();
               if (rec.isNotBound(databaseDocumentInternal)) {
                 rec = databaseDocumentInternal.bindToSession(rec);
               }
@@ -528,12 +528,12 @@ public abstract class HttpResponseAbstract implements HttpResponse {
   }
 
   @Override
-  public void writeRecord(final Record iRecord) throws IOException {
+  public void writeRecord(final DBRecord iRecord) throws IOException {
     writeRecord(iRecord, null, null);
   }
 
   @Override
-  public void writeRecord(final Record iRecord, final String iFetchPlan, String iFormat)
+  public void writeRecord(final DBRecord iRecord, final String iFetchPlan, String iFormat)
       throws IOException {
     if (iFormat == null) {
       iFormat = HttpResponse.JSON_FORMAT;

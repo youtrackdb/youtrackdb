@@ -2,12 +2,12 @@ package com.jetbrains.youtrack.db.internal.core.sql.select;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +47,7 @@ public class TestBinaryRecordsQuery extends DbTestBase {
   @Test
   public void testDeleteBinary() {
     db.begin();
-    Record rec = db.save(new RecordBytes("blabla".getBytes()), "BlobCluster");
+    DBRecord rec = db.save(new RecordBytes("blabla".getBytes()), "BlobCluster");
     db.commit();
 
     db.begin();
@@ -66,7 +66,7 @@ public class TestBinaryRecordsQuery extends DbTestBase {
   @Test
   public void testSelectDeleteBinary() {
     db.begin();
-    Record rec = db.save(new RecordBytes("blabla".getBytes()), "BlobCluster");
+    DBRecord rec = db.save(new RecordBytes("blabla".getBytes()), "BlobCluster");
     db.commit();
 
     db.getMetadata().getSchema().createClass("RecordPointer");
@@ -94,8 +94,8 @@ public class TestBinaryRecordsQuery extends DbTestBase {
   @Test
   public void testDeleteFromSelectBinary() {
     db.begin();
-    Record rec = db.save(new RecordBytes("blabla".getBytes()), "BlobCluster");
-    Record rec1 = db.save(new RecordBytes("blabla".getBytes()), "BlobCluster");
+    DBRecord rec = db.save(new RecordBytes("blabla".getBytes()), "BlobCluster");
+    DBRecord rec1 = db.save(new RecordBytes("blabla".getBytes()), "BlobCluster");
     db.commit();
 
     db.getMetadata().getSchema().createClass("RecordPointer");

@@ -26,10 +26,10 @@ import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -1492,7 +1492,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     final HashSet<RID> recordsBeforeImport = new HashSet<>();
 
     for (final String clusterName : database.getClusterNames()) {
-      final Iterator<Record> recordIterator = database.browseCluster(clusterName);
+      final Iterator<DBRecord> recordIterator = database.browseCluster(clusterName);
       while (recordIterator.hasNext()) {
         recordsBeforeImport.add(recordIterator.next().getIdentity());
       }
@@ -1568,7 +1568,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     return total;
   }
 
-  private void importSkippedRidbag(final Record record, final Map<String, RidSet> bags) {
+  private void importSkippedRidbag(final DBRecord record, final Map<String, RidSet> bags) {
     if (bags == null) {
       return;
     }
@@ -1584,7 +1584,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
         });
   }
 
-  private void importSkippedRidbag(Record record, String value, Integer skippedPartsIndex) {
+  private void importSkippedRidbag(DBRecord record, String value, Integer skippedPartsIndex) {
     var entity = (EntityInternal) record;
 
     StringBuilder builder = new StringBuilder();
@@ -1873,7 +1873,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       while (positions.length > 0) {
         for (PhysicalPosition position : positions) {
           database.executeInTx(() -> {
-            Record record = database.load(new RecordId(clusterId, position.clusterPosition));
+            DBRecord record = database.load(new RecordId(clusterId, position.clusterPosition));
             if (record instanceof EntityImpl entity) {
               rewriteLinksInDocument(database, entity, brokenRids);
 

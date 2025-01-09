@@ -2,16 +2,16 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
-import com.jetbrains.youtrack.db.api.query.Result;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +37,7 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
     if (currentRecord == null) {
       return false;
     }
-    Record record;
+    DBRecord record;
     try {
       record = currentRecord.getRecord();
     } catch (RecordNotFoundException rnf) {
@@ -68,7 +68,7 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
       return false;
     }
 
-    Record record = currentRecord.getEntity().get().getRecord();
+    DBRecord record = currentRecord.getEntity().get().getRecord();
     if (!(record instanceof EntityImpl entity)) {
       return false;
     }

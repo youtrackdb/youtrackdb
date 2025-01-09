@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.query;
 
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -42,7 +42,7 @@ public class BasicLegacyResultSet<T> implements LegacyResultSet<T> {
   protected List<T> underlying;
   protected transient int limit = -1;
   // Reference to temporary record for avoid garbace collection
-  private List<Record> temporaryRecordCache;
+  private List<DBRecord> temporaryRecordCache;
 
   public BasicLegacyResultSet() {
     underlying = Collections.synchronizedList(new ArrayList<T>());
@@ -246,7 +246,7 @@ public class BasicLegacyResultSet<T> implements LegacyResultSet<T> {
     return underlying.isEmpty();
   }
 
-  public void setTemporaryRecordCache(List<Record> temporaryRecordCache) {
+  public void setTemporaryRecordCache(List<DBRecord> temporaryRecordCache) {
     this.temporaryRecordCache = temporaryRecordCache;
   }
 }

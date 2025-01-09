@@ -47,7 +47,7 @@ import org.junit.runners.Parameterized;
  *
  */
 @RunWith(Parameterized.class)
-public class RecordSerializerBinaryTest {
+public class DBRecordSerializerBinaryTest {
 
   private static DatabaseSession db = null;
   private static RecordSerializerBinary serializer;
@@ -66,7 +66,7 @@ public class RecordSerializerBinaryTest {
     return params;
   }
 
-  public RecordSerializerBinaryTest(byte serializerIndex) {
+  public DBRecordSerializerBinaryTest(byte serializerIndex) {
     serializerVersion = serializerIndex;
   }
 

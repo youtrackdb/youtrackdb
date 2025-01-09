@@ -19,12 +19,12 @@
  */
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
+import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ProxedResource;
 import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import java.util.Map;
@@ -113,7 +113,7 @@ public class IndexManagerProxy extends ProxedResource<IndexManagerAbstract>
     delegate.setDefaultClusterName(database, defaultClusterName);
   }
 
-  public Dictionary<Record> getDictionary() {
+  public Dictionary<DBRecord> getDictionary() {
     return delegate.getDictionary(database);
   }
 

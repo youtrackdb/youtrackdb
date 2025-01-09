@@ -19,16 +19,16 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.put;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandDocumentAbstract;
 
 public class ServerCommandPutIndex extends ServerCommandDocumentAbstract {
@@ -84,8 +84,8 @@ public class ServerCommandPutIndex extends ServerCommandDocumentAbstract {
 
       final boolean existent = record.getIdentity().isPersistent();
 
-      if (existent && record instanceof Record) {
-        ((Record) record).save();
+      if (existent && record instanceof DBRecord) {
+        ((DBRecord) record).save();
       }
 
       index.put(db, key, record);

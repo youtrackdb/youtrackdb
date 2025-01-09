@@ -20,11 +20,11 @@
 package com.jetbrains.youtrack.db.internal.core.iterator;
 
 import com.jetbrains.youtrack.db.api.exception.HighLevelException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -36,11 +36,11 @@ import java.util.Objects;
  * item in any cluster the iterator is browsing. If the cluster are hot removed by from the database
  * the iterator could be invalid and throw exception of cluster not found.
  */
-public class RecordIteratorClusters<REC extends Record> extends IdentifiableIterator<REC> {
+public class RecordIteratorClusters<REC extends DBRecord> extends IdentifiableIterator<REC> {
 
   protected int[] clusterIds;
   protected int currentClusterIdx;
-  protected Record currentRecord;
+  protected DBRecord currentRecord;
   protected RID beginRange;
   protected RID endRange;
 
@@ -230,7 +230,7 @@ public class RecordIteratorClusters<REC extends Record> extends IdentifiableIter
       }
     }
 
-    Record record;
+    DBRecord record;
 
     // MOVE FORWARD IN THE CURRENT CLUSTER
     while (hasNext()) {
@@ -421,7 +421,7 @@ public class RecordIteratorClusters<REC extends Record> extends IdentifiableIter
         Arrays.toString(clusterIds), currentRecord, beginRange, endRange);
   }
 
-  protected boolean include(final Record iRecord) {
+  protected boolean include(final DBRecord iRecord) {
     return true;
   }
 

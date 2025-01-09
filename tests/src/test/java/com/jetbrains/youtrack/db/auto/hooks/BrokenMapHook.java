@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.auto.hooks;
 
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.api.record.RecordHookAbstract;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
@@ -28,7 +28,7 @@ public class BrokenMapHook extends RecordHookAbstract implements RecordHook {
     return DISTRIBUTED_EXECUTION_MODE.BOTH;
   }
 
-  public RESULT onRecordBeforeCreate(Record record) {
+  public RESULT onRecordBeforeCreate(DBRecord record) {
     Date now = new Date();
     Entity element = (Entity) record;
 
@@ -45,7 +45,7 @@ public class BrokenMapHook extends RecordHookAbstract implements RecordHook {
     return RESULT.RECORD_CHANGED;
   }
 
-  public RESULT onRecordBeforeUpdate(Record newRecord) {
+  public RESULT onRecordBeforeUpdate(DBRecord newRecord) {
     Entity newElement = (Entity) newRecord;
     try {
       Entity oldElement = database.load(newElement.getIdentity());

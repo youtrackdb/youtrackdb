@@ -19,13 +19,13 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command.script;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.Vertex;
-import com.jetbrains.youtrack.db.api.record.Blob;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.util.Map;
 
 /**
@@ -88,11 +88,11 @@ public class ScriptDatabaseWrapper {
     return this.database.newRegularEdge(from, to, edgeClassName);
   }
 
-  public Record save(Record element) {
+  public DBRecord save(DBRecord element) {
     return this.database.save(element);
   }
 
-  public void delete(Record record) {
+  public void delete(DBRecord record) {
     this.database.delete(record);
   }
 

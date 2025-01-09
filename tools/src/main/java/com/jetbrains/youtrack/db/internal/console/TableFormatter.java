@@ -20,8 +20,8 @@
 package com.jetbrains.youtrack.db.internal.console;
 
 import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
@@ -298,7 +298,7 @@ public class TableFormatter {
     } else if (iRecord instanceof Blob) {
       value = "<binary> (size=" + ((RecordAbstract) iRecord).toStream().length + " bytes)";
     } else if (iRecord instanceof Identifiable) {
-      final Record rec = iRecord.getRecord();
+      final DBRecord rec = iRecord.getRecord();
       if (rec instanceof EntityImpl) {
         value = ((EntityImpl) rec).getProperty(iColumnName);
       } else if (rec instanceof Blob) {
@@ -364,11 +364,11 @@ public class TableFormatter {
       value = getPrettyFieldMultiValue((Iterator<?>) value, multiValueMaxEntries);
     } else if (value instanceof Collection<?>) {
       value = getPrettyFieldMultiValue(((Collection<?>) value).iterator(), multiValueMaxEntries);
-    } else if (value instanceof Record) {
-      if (((Record) value).getIdentity().equals(ImmutableRecordId.EMPTY_RECORD_ID)) {
+    } else if (value instanceof DBRecord) {
+      if (((DBRecord) value).getIdentity().equals(ImmutableRecordId.EMPTY_RECORD_ID)) {
         value = value.toString();
       } else {
-        value = ((Record) value).getIdentity().toString();
+        value = ((DBRecord) value).getIdentity().toString();
       }
     } else if (value instanceof Date) {
       final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
@@ -536,7 +536,7 @@ public class TableFormatter {
 
     int fetched = 0;
     for (Identifiable id : resultSet) {
-      Record rec = id.getRecord();
+      DBRecord rec = id.getRecord();
 
       for (String c : prefixedColumns) {
         columns.put(c, getColumnSize(fetched, rec, c, columns.get(c)));
@@ -660,7 +660,7 @@ public class TableFormatter {
   }
 
   private Integer getColumnSize(
-      final Integer iIndex, final Record iRecord, final String fieldName,
+      final Integer iIndex, final DBRecord iRecord, final String fieldName,
       final Integer origSize) {
     Integer newColumnSize;
     if (origSize == null)

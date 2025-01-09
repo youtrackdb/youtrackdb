@@ -21,7 +21,6 @@ package com.jetbrains.youtrack.db.api.record;
 
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-
 import java.util.Comparator;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -46,7 +45,7 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @throws RecordNotFoundException if the record does not exist
    */
   @Nonnull
-  <T extends Record> T getRecord();
+  <T extends DBRecord> T getRecord();
 
   /**
    * Returns the record instance, or null if the record does not exist.
@@ -55,7 +54,7 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @see #getRecord()
    */
   @Nullable
-  default <T extends Record> T getRecordSilently() {
+  default <T extends DBRecord> T getRecordSilently() {
     try {
       return getRecord();
     } catch (RecordNotFoundException e) {

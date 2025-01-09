@@ -19,20 +19,20 @@
  */
 package com.jetbrains.youtrack.db.internal.core.iterator;
 
+import com.jetbrains.youtrack.db.api.record.DBRecord;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import java.util.Iterator;
 
 /**
  * Iterator class to browse forward and backward the records of a cluster. Once browsed in a
  * direction, the iterator cannot change it.
  */
-public class RecordIteratorCluster<REC extends Record> extends IdentifiableIterator<REC> {
+public class RecordIteratorCluster<REC extends DBRecord> extends IdentifiableIterator<REC> {
 
-  private Record currentRecord;
+  private DBRecord currentRecord;
   private boolean initialized;
 
   public RecordIteratorCluster(final DatabaseSessionInternal iDatabase, final int iClusterId) {
@@ -212,7 +212,7 @@ public class RecordIteratorCluster<REC extends Record> extends IdentifiableItera
     initialize();
     checkDirection(true);
 
-    Record record;
+    DBRecord record;
 
     // ITERATE UNTIL THE NEXT GOOD RECORD
     while (hasNext()) {

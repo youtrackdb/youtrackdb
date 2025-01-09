@@ -3,13 +3,13 @@ package com.jetbrains.youtrack.db.internal.core.sql.orderby;
 import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.Result;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -25,9 +25,9 @@ public class TestOrderBy extends DbTestBase {
     db.getMetadata().getSchema().createClass("test");
 
     db.begin();
-    Record res1 = db.save(new EntityImpl("test").field("name", "Ähhhh"));
-    Record res2 = db.save(new EntityImpl("test").field("name", "Ahhhh"));
-    Record res3 = db.save(new EntityImpl("test").field("name", "Zebra"));
+    DBRecord res1 = db.save(new EntityImpl("test").field("name", "Ähhhh"));
+    DBRecord res2 = db.save(new EntityImpl("test").field("name", "Ahhhh"));
+    DBRecord res3 = db.save(new EntityImpl("test").field("name", "Zebra"));
     db.commit();
 
     List<Result> queryRes =
@@ -50,9 +50,9 @@ public class TestOrderBy extends DbTestBase {
     db.set(DatabaseSession.ATTRIBUTES.LOCALE_LANGUAGE, Locale.GERMANY.getLanguage());
     SchemaClass clazz = db.getMetadata().getSchema().createClass("test");
     clazz.createProperty(db, "name", PropertyType.STRING).createIndex(db, INDEX_TYPE.NOTUNIQUE);
-    Record res1 = db.save(new EntityImpl("test").field("name", "Ähhhh"));
-    Record res2 = db.save(new EntityImpl("test").field("name", "Ahhhh"));
-    Record res3 = db.save(new EntityImpl("test").field("name", "Zebra"));
+    DBRecord res1 = db.save(new EntityImpl("test").field("name", "Ähhhh"));
+    DBRecord res2 = db.save(new EntityImpl("test").field("name", "Ahhhh"));
+    DBRecord res3 = db.save(new EntityImpl("test").field("name", "Zebra"));
     List<Result> queryRes =
         db.query("select from test order by name").stream().collect(Collectors.toList());
     assertEquals(queryRes.get(0).getIdentity().get(), res2.getIdentity());

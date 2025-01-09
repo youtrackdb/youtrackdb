@@ -24,7 +24,7 @@ import com.jetbrains.youtrack.db.api.DatabaseSession;
 /**
  * Generic record representation.
  */
-public interface Record extends Identifiable {
+public interface DBRecord extends Identifiable {
   /**
    * Returns true if the record is unloaded.
    *

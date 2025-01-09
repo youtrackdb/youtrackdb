@@ -19,14 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBListenerAbstract;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBListenerAbstract;
 
 /**
  * Uses Thread Local to store information used by hooks.
  */
-public class HookReplacedRecordThreadLocal extends ThreadLocal<Record> {
+public class HookReplacedRecordThreadLocal extends ThreadLocal<DBRecord> {
 
   public static volatile HookReplacedRecordThreadLocal INSTANCE =
       new HookReplacedRecordThreadLocal();
@@ -49,7 +49,7 @@ public class HookReplacedRecordThreadLocal extends ThreadLocal<Record> {
             });
   }
 
-  public Record getIfDefined() {
+  public DBRecord getIfDefined() {
     return super.get();
   }
 

@@ -19,8 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import java.util.Collections;
@@ -105,20 +105,20 @@ public class DirtyManager {
     }
   }
 
-  public void track(Record pointing, Identifiable pointed) {
+  public void track(DBRecord pointing, Identifiable pointed) {
     getReal().internalTrack(pointing, pointed);
   }
 
-  public void unTrack(Record pointing, Identifiable pointed) {
+  public void unTrack(DBRecord pointing, Identifiable pointed) {
     getReal().internalUnTrack(pointing, pointed);
   }
 
-  private void internalUnTrack(Record pointing, Identifiable pointed) {
+  private void internalUnTrack(DBRecord pointing, Identifiable pointed) {
   }
 
-  private void internalTrack(Record pointing, Identifiable pointed) {
-    if (pointed instanceof Record) {
-      RecordInternal.setDirtyManager((Record) pointed, this);
+  private void internalTrack(DBRecord pointing, Identifiable pointed) {
+    if (pointed instanceof DBRecord) {
+      RecordInternal.setDirtyManager((DBRecord) pointed, this);
     }
   }
 
@@ -139,7 +139,7 @@ public class DirtyManager {
     real.updateRecords = null;
   }
 
-  public void removeNew(Record record) {
+  public void removeNew(DBRecord record) {
     DirtyManager real = getReal();
     if (real.newRecords != null) {
       real.newRecords.remove(record);
