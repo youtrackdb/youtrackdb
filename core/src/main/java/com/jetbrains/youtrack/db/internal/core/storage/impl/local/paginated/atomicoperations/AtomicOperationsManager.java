@@ -27,6 +27,7 @@ import com.jetbrains.youtrack.db.internal.common.concur.lock.OneEntryPerKeyLockM
 import com.jetbrains.youtrack.db.internal.common.function.TxConsumer;
 import com.jetbrains.youtrack.db.internal.common.function.TxFunction;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.exception.CommonDurableComponentException;
 import com.jetbrains.youtrack.db.internal.core.exception.CoreException;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.ReadCache;
@@ -165,11 +166,11 @@ public class AtomicOperationsManager {
       }
 
       throw BaseException.wrapException(
-          new StorageException(
+          new CommonDurableComponentException(
               "Exception during execution of component operation inside component "
                   + lockName
                   + " in storage "
-                  + storage.getName()),
+                  + storage.getName(), lockName, storage.getName()),
           e);
     } finally {
       endComponentOperation(atomicOperation);
