@@ -607,4 +607,10 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
 
     return false;
   }
+
+  @Nullable
+  @Override
+  public DatabaseSession getBoundedToSession() {
+    return getSessionIfDefined();
+  }
 }

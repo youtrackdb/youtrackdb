@@ -19,12 +19,13 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nonnull;
@@ -35,19 +36,19 @@ import javax.annotation.Nullable;
  */
 public class VertexDelegate implements VertexInternal {
 
-  protected final EntityImpl element;
+  protected final EntityImpl entity;
 
   public VertexDelegate(EntityImpl entry) {
-    this.element = entry;
+    this.entity = entry;
   }
 
   @Override
   public void delete() {
-    element.delete();
+    entity.delete();
   }
 
   public void resetToNew() {
-    element.resetToNew();
+    entity.resetToNew();
   }
 
   @Override
@@ -84,30 +85,30 @@ public class VertexDelegate implements VertexInternal {
 
   @Override
   public Optional<SchemaClass> getSchemaType() {
-    return element.getSchemaType();
+    return entity.getSchemaType();
   }
 
   @Nullable
   @Override
   public SchemaClass getSchemaClass() {
-    return element.getSchemaClass();
+    return entity.getSchemaClass();
   }
 
   @Nonnull
   @SuppressWarnings("unchecked")
   @Override
   public EntityImpl getRecord() {
-    return element;
+    return entity;
   }
 
   @Override
   public int compareTo(Identifiable o) {
-    return element.compareTo(o);
+    return entity.compareTo(o);
   }
 
   @Override
   public int compare(Identifiable o1, Identifiable o2) {
-    return element.compare(o1, o2);
+    return entity.compare(o1, o2);
   }
 
   @Override
@@ -123,22 +124,22 @@ public class VertexDelegate implements VertexInternal {
       return false;
     }
 
-    return element.equals(((Entity) obj).getRecordSilently());
+    return entity.equals(((Entity) obj).getRecordSilently());
   }
 
   @Override
   public int hashCode() {
-    return element.hashCode();
+    return entity.hashCode();
   }
 
   @Override
   public void clear() {
-    element.clear();
+    entity.clear();
   }
 
   @Override
   public VertexDelegate copy() {
-    return new VertexDelegate(element.copy());
+    return new VertexDelegate(entity.copy());
   }
 
   @Override
@@ -148,43 +149,43 @@ public class VertexDelegate implements VertexInternal {
 
   @Override
   public RID getIdentity() {
-    return element.getIdentity();
+    return entity.getIdentity();
   }
 
   @Override
   public int getVersion() {
-    return element.getVersion();
+    return entity.getVersion();
   }
 
   @Override
   public boolean isDirty() {
-    return element.isDirty();
+    return entity.isDirty();
   }
 
   @Override
   public void save() {
-    element.save();
+    entity.save();
   }
 
   @Override
   public void fromJSON(String iJson) {
-    element.fromJSON(iJson);
+    entity.fromJSON(iJson);
   }
 
   @Override
   public String toJSON() {
-    return element.toJSON();
+    return entity.toJSON();
   }
 
   @Override
   public String toJSON(String iFormat) {
-    return element.toJSON(iFormat);
+    return entity.toJSON(iFormat);
   }
 
   @Override
   public String toString() {
-    if (element != null) {
-      return element.toString();
+    if (entity != null) {
+      return entity.toString();
     }
     return super.toString();
   }
@@ -192,16 +193,22 @@ public class VertexDelegate implements VertexInternal {
   @Nonnull
   @Override
   public EntityImpl getBaseDocument() {
-    return element;
+    return entity;
   }
 
   @Override
   public void fromMap(Map<String, ?> map) {
-    element.fromMap(map);
+    entity.fromMap(map);
   }
 
   @Override
   public Map<String, Object> toMap() {
-    return element.toMap();
+    return entity.toMap();
+  }
+
+  @Nullable
+  @Override
+  public DatabaseSession getBoundedToSession() {
+    return entity.getBoundedToSession();
   }
 }

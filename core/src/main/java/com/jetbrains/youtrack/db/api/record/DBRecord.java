@@ -20,6 +20,7 @@
 package com.jetbrains.youtrack.db.api.record;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
+import javax.annotation.Nullable;
 
 /**
  * Generic record representation.
@@ -127,4 +128,11 @@ public interface DBRecord extends Identifiable {
    * @return true if the record exists, otherwise false
    */
   boolean exists();
+
+  /**
+   * @return Returns session to which given record is bound or <code>null</code> if record is
+   * unloaded.
+   */
+  @Nullable
+  DatabaseSession getBoundedToSession();
 }
