@@ -2,7 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import org.junit.Test;
 
-public class AlterSequenceStatementTest extends ParserTestAbstract {
+public class AlterDBSequenceStatementTest extends ParserTestAbstract {
 
   @Test
   public void testPlain() {

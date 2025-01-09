@@ -10,7 +10,7 @@ import org.junit.Test;
 /**
  *
  */
-public class RemoteSequenceTest extends BaseServerMemoryDatabase {
+public class RemoteDBSequenceTest extends BaseServerMemoryDatabase {
 
   @Test
   public void testSequences() {

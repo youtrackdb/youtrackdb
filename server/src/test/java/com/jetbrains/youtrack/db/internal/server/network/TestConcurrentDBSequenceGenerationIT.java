@@ -2,12 +2,12 @@ package com.jetbrains.youtrack.db.internal.server.network;
 
 import static org.junit.Assert.assertNotNull;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
 import java.io.File;
@@ -18,7 +18,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestConcurrentSequenceGenerationIT {
+public class TestConcurrentDBSequenceGenerationIT {
 
   static final int THREADS = 20;
   static final int RECORDS = 100;
@@ -34,9 +34,10 @@ public class TestConcurrentSequenceGenerationIT {
         YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
-        TestConcurrentSequenceGenerationIT.class.getSimpleName());
+        TestConcurrentDBSequenceGenerationIT.class.getSimpleName());
     DatabaseSession databaseSession =
-        youTrackDB.open(TestConcurrentSequenceGenerationIT.class.getSimpleName(), "admin", "admin");
+        youTrackDB.open(TestConcurrentDBSequenceGenerationIT.class.getSimpleName(), "admin",
+            "admin");
     databaseSession.execute(
         "sql",
         """
@@ -51,7 +52,8 @@ public class TestConcurrentSequenceGenerationIT {
   @Test
   public void test() throws Exception {
 
-    try (var pool = youTrackDB.cachedPool(TestConcurrentSequenceGenerationIT.class.getSimpleName(),
+    try (var pool = youTrackDB.cachedPool(
+        TestConcurrentDBSequenceGenerationIT.class.getSimpleName(),
         "admin", "admin")) {
       var executorService = Executors.newFixedThreadPool(THREADS);
       var futures = new ArrayList<Future<Object>>();
@@ -85,7 +87,7 @@ public class TestConcurrentSequenceGenerationIT {
 
   @After
   public void after() {
-    youTrackDB.drop(TestConcurrentSequenceGenerationIT.class.getSimpleName());
+    youTrackDB.drop(TestConcurrentDBSequenceGenerationIT.class.getSimpleName());
     youTrackDB.close();
     server.shutdown();
 

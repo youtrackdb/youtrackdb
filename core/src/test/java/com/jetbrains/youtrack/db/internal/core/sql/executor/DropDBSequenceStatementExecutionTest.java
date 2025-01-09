@@ -1,19 +1,19 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceLibrary;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  *
  */
-public class DropSequenceStatementExecutionTest extends DbTestBase {
+public class DropDBSequenceStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testPlain() {
@@ -21,7 +21,7 @@ public class DropSequenceStatementExecutionTest extends DbTestBase {
     try {
       db.getMetadata()
           .getSequenceLibrary()
-          .createSequence(name, Sequence.SEQUENCE_TYPE.CACHED, new Sequence.CreateParams());
+          .createSequence(name, DBSequence.SEQUENCE_TYPE.CACHED, new DBSequence.CreateParams());
     } catch (DatabaseException exc) {
       Assert.fail("Creating sequence failed");
     }
@@ -66,7 +66,7 @@ public class DropSequenceStatementExecutionTest extends DbTestBase {
     try {
       db.getMetadata()
           .getSequenceLibrary()
-          .createSequence(name, Sequence.SEQUENCE_TYPE.CACHED, new Sequence.CreateParams());
+          .createSequence(name, DBSequence.SEQUENCE_TYPE.CACHED, new DBSequence.CreateParams());
     } catch (DatabaseException exc) {
       Assert.fail("Creating sequence failed");
     }

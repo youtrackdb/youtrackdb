@@ -2,13 +2,13 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceOrderType;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
@@ -43,12 +43,12 @@ public class SQLAlterSequenceStatement extends DDLStatement {
           "Cannot execute the command because it has not been parsed yet");
     }
     final var database = ctx.getDatabase();
-    Sequence sequence = database.getMetadata().getSequenceLibrary().getSequence(sequenceName);
+    DBSequence sequence = database.getMetadata().getSequenceLibrary().getSequence(sequenceName);
     if (sequence == null) {
       throw new CommandExecutionException("Sequence not found: " + sequenceName);
     }
 
-    Sequence.CreateParams params = new Sequence.CreateParams();
+    DBSequence.CreateParams params = new DBSequence.CreateParams();
     params.resetNull();
 
     if (start != null) {

@@ -51,7 +51,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableCl
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule.ResourceGeneric;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityRole.ALLOW_MODES;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.security.GlobalUser;
@@ -761,7 +761,7 @@ public class SecurityShared implements SecurityInternal {
     writerRole.addRule(session, ResourceGeneric.COMMAND, null, Role.PERMISSION_ALL);
     writerRole.addRule(session, ResourceGeneric.RECORD_HOOK, null, Role.PERMISSION_ALL);
     writerRole.addRule(session, ResourceGeneric.FUNCTION, null, Role.PERMISSION_READ);
-    writerRole.addRule(session, ResourceGeneric.CLASS, Sequence.CLASS_NAME,
+    writerRole.addRule(session, ResourceGeneric.CLASS, DBSequence.CLASS_NAME,
         Role.PERMISSION_READ);
     writerRole.addRule(session, ResourceGeneric.CLASS, "OTriggered", Role.PERMISSION_READ);
     writerRole.addRule(session, ResourceGeneric.CLASS, "OSchedule", Role.PERMISSION_READ);
@@ -825,7 +825,7 @@ public class SecurityShared implements SecurityInternal {
     setSecurityPolicyWithBitmask(
         session,
         writerRole,
-        Rule.ResourceGeneric.CLASS.getLegacyName() + "." + Sequence.CLASS_NAME,
+        Rule.ResourceGeneric.CLASS.getLegacyName() + "." + DBSequence.CLASS_NAME,
         Role.PERMISSION_READ);
     setSecurityPolicyWithBitmask(
         session,

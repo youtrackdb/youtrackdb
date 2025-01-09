@@ -120,9 +120,9 @@
       <class name="com.jetbrains.youtrack.db.auto.SQLDeleteTest"/>
       <class name="com.jetbrains.youtrack.db.auto.SQLCreateVertexTest"/>
       <class name="com.jetbrains.youtrack.db.auto.SQLDeleteEdgeTest"/>
-      <class name="com.jetbrains.youtrack.db.auto.SequenceTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.DBSequenceTest"/>
       <class name="com.jetbrains.youtrack.db.auto.SQLBatchTest"/>
-      <class name="com.jetbrains.youtrack.db.auto.SQLSequenceTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.SQLDBSequenceTest"/>
     </classes>
   </test>
   <test name="other-commands">

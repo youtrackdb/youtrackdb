@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.sequence;
 
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence.SEQUENCE_TYPE;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence.SEQUENCE_TYPE;
 import java.util.Set;
 
 /**
@@ -32,11 +32,11 @@ public interface SequenceLibrary {
 
   int getSequenceCount();
 
-  Sequence createSequence(String iName, SEQUENCE_TYPE sequenceType,
-      Sequence.CreateParams params)
+  DBSequence createSequence(String iName, SEQUENCE_TYPE sequenceType,
+      DBSequence.CreateParams params)
       throws DatabaseException;
 
-  Sequence getSequence(String iName);
+  DBSequence getSequence(String iName);
 
   void dropSequence(String iName) throws DatabaseException;
 

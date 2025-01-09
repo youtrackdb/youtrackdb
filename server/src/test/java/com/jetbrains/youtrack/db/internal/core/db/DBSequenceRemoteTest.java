@@ -11,7 +11,7 @@ import org.junit.Test;
 /**
  *
  */
-public class SequenceRemoteTest extends AbstractRemoteTest {
+public class DBSequenceRemoteTest extends AbstractRemoteTest {
 
   DatabaseSessionInternal db;
 

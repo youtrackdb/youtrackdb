@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.sequence;
 
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.SequenceLimitReachedException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
 /**
  * @since 3/3/2015
  */
-public class SequenceCached extends Sequence {
+public class SequenceCached extends DBSequence {
 
   private static final String FIELD_CACHE = "cache";
   private long cacheStart;
@@ -44,7 +44,7 @@ public class SequenceCached extends Sequence {
     cacheStart = cacheEnd = getValue(entity);
   }
 
-  public SequenceCached(Sequence.CreateParams params, @Nonnull String name) {
+  public SequenceCached(DBSequence.CreateParams params, @Nonnull String name) {
     super(params, name);
     var entity = (EntityImpl) entityRid.getRecord();
 
@@ -77,7 +77,7 @@ public class SequenceCached extends Sequence {
 
   @Override
   boolean updateParams(
-      EntityImpl entity, Sequence.CreateParams params, boolean executeViaDistributed)
+      EntityImpl entity, DBSequence.CreateParams params, boolean executeViaDistributed)
       throws DatabaseException {
     boolean any = super.updateParams(entity, params, executeViaDistributed);
     if (params.cacheSize != null && this.getCacheSize(entity) != params.cacheSize) {

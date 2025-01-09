@@ -7,14 +7,14 @@ import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  *
  */
-public class AlterSequenceStatementExecutionTest extends DbTestBase {
+public class AlterDBSequenceStatementExecutionTest extends DbTestBase {
 
   @Override
   protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilderImpl builder) {
@@ -32,7 +32,7 @@ public class AlterSequenceStatementExecutionTest extends DbTestBase {
             db.getMetadata()
                 .getSequenceLibrary()
                 .createSequence(
-                    sequenceName, Sequence.SEQUENCE_TYPE.ORDERED, new Sequence.CreateParams());
+                    sequenceName, DBSequence.SEQUENCE_TYPE.ORDERED, new DBSequence.CreateParams());
           } catch (DatabaseException exc) {
             Assert.fail("Failed to create sequence");
           }
@@ -50,7 +50,7 @@ public class AlterSequenceStatementExecutionTest extends DbTestBase {
 
     db.executeInTx(
         () -> {
-          Sequence seq = db.getMetadata().getSequenceLibrary().getSequence(sequenceName);
+          DBSequence seq = db.getMetadata().getSequenceLibrary().getSequence(sequenceName);
           Assert.assertNotNull(seq);
           try {
             Assert.assertEquals(20, seq.next());

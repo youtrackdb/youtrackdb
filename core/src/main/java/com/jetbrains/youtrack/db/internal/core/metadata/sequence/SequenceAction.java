@@ -30,9 +30,9 @@ public class SequenceAction {
 
   private final int actionType;
   private final String sequenceName;
-  private final Sequence.CreateParams parameters;
+  private final DBSequence.CreateParams parameters;
   // we need it for create action
-  private final Sequence.SEQUENCE_TYPE sequenceType;
+  private final DBSequence.SEQUENCE_TYPE sequenceType;
   private final Long currentValue;
 
   // to use only for SET_NEXT on CACHED sequences
@@ -41,14 +41,14 @@ public class SequenceAction {
     this.currentValue = currentvalue;
     this.sequenceName = sequenceName;
     parameters = null;
-    sequenceType = Sequence.SEQUENCE_TYPE.CACHED;
+    sequenceType = DBSequence.SEQUENCE_TYPE.CACHED;
   }
 
   public SequenceAction(
       int actionType,
       String sequenceName,
-      Sequence.CreateParams params,
-      Sequence.SEQUENCE_TYPE sequenceType) {
+      DBSequence.CreateParams params,
+      DBSequence.SEQUENCE_TYPE sequenceType) {
     this.actionType = actionType;
     this.sequenceName = sequenceName;
     this.parameters = params;
@@ -64,11 +64,11 @@ public class SequenceAction {
     return sequenceName;
   }
 
-  public Sequence.CreateParams getParameters() {
+  public DBSequence.CreateParams getParameters() {
     return parameters;
   }
 
-  public Sequence.SEQUENCE_TYPE getSequenceType() {
+  public DBSequence.SEQUENCE_TYPE getSequenceType() {
     return sequenceType;
   }
 
