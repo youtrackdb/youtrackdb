@@ -13,7 +13,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>com.jetbrains.youtrack.db</groupId>
+    <groupId>io.youtrackdb</groupId>
     <artifactId>youtrackdb-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
@@ -37,18 +37,18 @@
       <artifactId>slf4j-jdk14</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.jetbrains.youtrack.db</groupId>
+      <groupId>io.youtrackdb</groupId>
       <artifactId>youtrackdb-test-commons</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.jetbrains.youtrack.db</groupId>
+      <groupId>io.youtrackdb</groupId>
       <artifactId>youtrackdb-client</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.jetbrains.youtrack.db</groupId>
+      <groupId>io.youtrackdb</groupId>
       <artifactId>youtrackdb-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
