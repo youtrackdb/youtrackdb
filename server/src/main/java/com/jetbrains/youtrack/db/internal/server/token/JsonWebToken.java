@@ -92,7 +92,7 @@ public class JsonWebToken implements
     RID userRid = payload.getUserRid();
     EntityImpl result;
     result = db.load(userRid);
-    if (!EntityInternalUtils.getImmutableSchemaClass(result).isOuser()) {
+    if (!EntityInternalUtils.getImmutableSchemaClass(result).isUser()) {
       result = null;
     }
     return new SecurityUserIml(db, result);

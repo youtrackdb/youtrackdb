@@ -50,7 +50,6 @@ import com.jetbrains.youtrack.db.internal.core.command.ScriptExecutor;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
 import com.jetbrains.youtrack.db.internal.core.db.record.ClassTrigger;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.internal.core.index.ClassIndexManager;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibraryImpl;
@@ -868,7 +867,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
           getSharedContext().getScheduler().initScheduleRecord(this, entity);
           changed = true;
         }
-        if (clazz.isOuser()) {
+        if (clazz.isUser()) {
           entity.validate();
           changed = SecurityUserIml.encodePassword(this, entity);
         }
@@ -900,20 +899,17 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     assert assertIfNotActive();
     checkSecurity(Role.PERMISSION_UPDATE, id, iClusterName);
 
-    RecordHook.RESULT triggerChanged = null;
-    boolean changed = false;
     if (id instanceof EntityImpl entity) {
       SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
         if (clazz.isScheduler()) {
           getSharedContext().getScheduler().preHandleUpdateScheduleInTx(this, entity);
-          changed = true;
         }
-        if (clazz.isOuser()) {
-          changed = SecurityUserIml.encodePassword(this, entity);
+        if (clazz.isUser()) {
+          SecurityUserIml.encodePassword(this, entity);
         }
         if (clazz.isTriggered()) {
-          triggerChanged = ClassTrigger.onRecordBeforeUpdate(entity, this);
+          ClassTrigger.onRecordBeforeUpdate(entity, this);
         }
         if (clazz.isRestricted()) {
           if (!RestrictedAccessHook.isAllowed(
@@ -936,13 +932,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
         EntityInternalUtils.setPropertyEncryption(entity, PropertyEncryptionNone.instance());
       }
     }
-    RecordHook.RESULT res = callbackHooks(RecordHook.TYPE.BEFORE_UPDATE, id);
-    if (res == RecordHook.RESULT.RECORD_CHANGED
-        || triggerChanged == RecordHook.RESULT.RECORD_CHANGED) {
-      if (id instanceof EntityImpl) {
-        ((EntityImpl) id).validate();
-      }
-    }
+    callbackHooks(RecordHook.TYPE.BEFORE_UPDATE, id);
   }
 
   /**
@@ -1038,14 +1028,13 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   public void afterCreateOperations(final Identifiable id) {
     assert assertIfNotActive();
     if (id instanceof EntityImpl entity) {
-      final SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
-
+      final SchemaImmutableClass clazz =
+          EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
-        ClassIndexManager.checkIndexesAfterCreate(entity, this);
         if (clazz.isFunction()) {
           this.getSharedContext().getFunctionLibrary().createdFunction(entity);
         }
-        if (clazz.isOuser() || clazz.isOrole() || clazz.isSecurityPolicy()) {
+        if (clazz.isUser() || clazz.isRole() || clazz.isSecurityPolicy()) {
           sharedContext.getSecurity().incrementVersion(this);
         }
         if (clazz.isTriggered()) {
@@ -1066,19 +1055,16 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     if (id instanceof EntityImpl entity) {
       SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
-        ClassIndexManager.checkIndexesAfterUpdate((EntityImpl) id, this);
-
-        if (clazz.isOuser() || clazz.isOrole() || clazz.isSecurityPolicy()) {
+        if (clazz.isUser() || clazz.isRole() || clazz.isSecurityPolicy()) {
           sharedContext.getSecurity().incrementVersion(this);
         }
 
         if (clazz.isTriggered()) {
           ClassTrigger.onRecordAfterUpdate(entity, this);
         }
-
       }
-
     }
+
     callbackHooks(RecordHook.TYPE.AFTER_UPDATE, id);
   }
 
@@ -1088,7 +1074,6 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     if (id instanceof EntityImpl entity) {
       SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
-        ClassIndexManager.checkIndexesAfterDelete(entity, this);
         if (clazz.isFunction()) {
           this.getSharedContext().getFunctionLibrary().droppedFunction(entity);
         }

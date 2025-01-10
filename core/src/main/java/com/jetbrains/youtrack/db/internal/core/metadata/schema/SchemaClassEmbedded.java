@@ -11,7 +11,6 @@ import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.ArrayUtils;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.ScenarioThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
@@ -21,7 +20,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.Callable;
 
 /**
  *
@@ -625,14 +623,7 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
         throw new SchemaException(
             "Property '" + propertyName + "' not found in class " + name + "'");
       }
-
-      ScenarioThreadLocal.executeAsDistributed(
-          (Callable<Property>)
-              () -> {
-                dropPropertyInternal(database, propertyName);
-                return null;
-              });
-
+      dropPropertyInternal(database, propertyName);
     } finally {
       releaseSchemaWriteLock(database);
     }

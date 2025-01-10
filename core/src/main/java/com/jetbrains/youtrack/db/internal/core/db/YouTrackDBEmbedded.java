@@ -695,11 +695,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
           storages.put(name, storage);
           embedded = internalCreate((YouTrackDBConfigImpl) config, storage);
           if (createOps != null) {
-            ScenarioThreadLocal.executeAsDistributed(
-                () -> {
-                  createOps.call(embedded);
-                  return null;
-                });
+            createOps.call(embedded);
           }
         } catch (Exception e) {
           throw BaseException.wrapException(

@@ -530,24 +530,14 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   public void beforeCreateOperations(Identifiable id, String iClusterName) {
     assert assertIfNotActive();
     checkSecurity(Role.PERMISSION_CREATE, id, iClusterName);
-    RecordHook.RESULT res = callbackHooks(RecordHook.TYPE.BEFORE_CREATE, id);
-    if (res == RecordHook.RESULT.RECORD_CHANGED) {
-      if (id instanceof EntityImpl) {
-        ((EntityImpl) id).validate();
-      }
-    }
+    callbackHooks(RecordHook.TYPE.BEFORE_CREATE, id);
   }
 
   @Override
   public void beforeUpdateOperations(Identifiable id, String iClusterName) {
     assert assertIfNotActive();
     checkSecurity(Role.PERMISSION_UPDATE, id, iClusterName);
-    RecordHook.RESULT res = callbackHooks(RecordHook.TYPE.BEFORE_UPDATE, id);
-    if (res == RecordHook.RESULT.RECORD_CHANGED) {
-      if (id instanceof EntityImpl) {
-        ((EntityImpl) id).validate();
-      }
-    }
+    callbackHooks(RecordHook.TYPE.BEFORE_UPDATE, id);
   }
 
   @Override

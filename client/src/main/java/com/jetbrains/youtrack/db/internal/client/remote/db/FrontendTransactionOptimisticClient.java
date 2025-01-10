@@ -6,7 +6,7 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.internal.client.remote.message.tx.RecordOperation38Response;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionAbstract;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
@@ -29,7 +29,7 @@ public class FrontendTransactionOptimisticClient extends FrontendTransactionOpti
 
   private final Set<String> indexChanged = new HashSet<>();
 
-  public FrontendTransactionOptimisticClient(DatabaseSessionInternal iDatabase) {
+  public FrontendTransactionOptimisticClient(DatabaseSessionAbstract iDatabase) {
     super(iDatabase);
   }
 

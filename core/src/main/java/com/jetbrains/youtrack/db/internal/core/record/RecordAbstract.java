@@ -61,7 +61,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   protected byte[] source;
   protected int size;
 
-  protected transient RecordSerializer recordFormat;
+  public RecordSerializer recordFormat;
   protected long dirty = 1;
   protected boolean contentChanged = true;
   protected RecordElement.STATUS status = RecordElement.STATUS.LOADED;
@@ -170,15 +170,14 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   }
 
   public RecordAbstract setDirty() {
-    if (dirty == 0 && status != STATUS.UNMARSHALLING) {
+    dirty++;
+    if (dirty == 1 && status != STATUS.UNMARSHALLING) {
       checkForBinding();
       registerInTx();
       source = null;
     }
 
     contentChanged = true;
-    dirty++;
-
     return this;
   }
 

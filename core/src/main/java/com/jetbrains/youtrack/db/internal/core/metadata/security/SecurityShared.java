@@ -37,7 +37,6 @@ import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.api.security.SecurityUser.STATUSES;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.ScenarioThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.SystemDatabase;
 import com.jetbrains.youtrack.db.internal.core.db.record.ClassTrigger;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
@@ -444,7 +443,7 @@ public class SecurityShared implements SecurityInternal {
       final EntityImpl entity = iRole.getRecord(db);
       SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
 
-      if (clazz != null && clazz.isOrole()) {
+      if (clazz != null && clazz.isRole()) {
         return new Role(db, entity);
       }
     } catch (RecordNotFoundException rnf) {
@@ -928,11 +927,10 @@ public class SecurityShared implements SecurityInternal {
         Role.PERMISSION_NONE);
   }
 
-  private Role createDefaultAdminRole(final DatabaseSessionInternal session) {
+  private void createDefaultAdminRole(final DatabaseSessionInternal session) {
     Role adminRole;
     adminRole = createRole(session, Role.ADMIN, Role.ALLOW_MODES.DENY_ALL_BUT);
     setDefaultAdminPermissions(session, adminRole);
-    return adminRole;
   }
 
   private void setDefaultAdminPermissions(final DatabaseSessionInternal session,
@@ -1238,18 +1236,15 @@ public class SecurityShared implements SecurityInternal {
 
   public static SecurityUserIml getUserInternal(final DatabaseSession session,
       final String iUserName) {
-    return (SecurityUserIml)
-        ScenarioThreadLocal.executeAsDistributed(
-            () -> {
-              try (ResultSet result =
-                  session.query("select from OUser where name = ? limit 1", iUserName)) {
-                if (result.hasNext()) {
-                  return new SecurityUserIml(session,
-                      (EntityImpl) result.next().getEntity().get());
-                }
-              }
-              return null;
-            });
+    try (ResultSet result =
+        session.query("select from OUser where name = ? limit 1", iUserName)) {
+      if (result.hasNext()) {
+        return new SecurityUserIml(session,
+            (EntityImpl) result.next().getEntity().get());
+      }
+    }
+
+    return null;
   }
 
   @Override
@@ -1306,20 +1301,16 @@ public class SecurityShared implements SecurityInternal {
     return policies;
   }
 
-  public RID getUserRID(final DatabaseSession session, final String userName) {
-    return (RID)
-        ScenarioThreadLocal.executeAsDistributed(
-            () -> {
-              try (ResultSet result =
-                  session.query("select @rid as rid from OUser where name = ? limit 1", userName)) {
+  public static RID getUserRID(final DatabaseSession session, final String userName) {
+    try (ResultSet result =
+        session.query("select @rid as rid from OUser where name = ? limit 1", userName)) {
 
-                if (result.hasNext()) {
-                  return result.next().getProperty("rid");
-                }
-              }
+      if (result.hasNext()) {
+        return result.next().getProperty("rid");
+      }
+    }
 
-              return null;
-            });
+    return null;
   }
 
   @Override

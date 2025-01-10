@@ -42,12 +42,12 @@ public class HookChangeValidationTest extends DbTestBase {
             return DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE;
           }
         });
+    db.begin();
     EntityImpl doc = (EntityImpl) db.newEntity(classA);
     doc.field("property1", "value1-create");
     doc.field("property2", "value2-create");
     doc.field("property3", "value3-create");
     try {
-      db.begin();
       doc.save();
       db.commit();
       Assert.fail("The document save should fail for validation exception");

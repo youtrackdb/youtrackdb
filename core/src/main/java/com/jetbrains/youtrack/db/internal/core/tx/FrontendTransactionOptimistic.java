@@ -48,15 +48,11 @@ import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceLibraryProxy;
-import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHook;
-import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHookV2;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DirtyManager;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
-import com.jetbrains.youtrack.db.internal.core.schedule.ScheduledEvent;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageProxy;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
@@ -155,8 +151,12 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
       throw new StorageException("Invalid value of tx counter: " + txStartCounter);
     }
     if (force) {
+      preProcessRecordsAndExecuteCallCallbacks();
       txStartCounter = 0;
     } else {
+      if (txStartCounter == 1) {
+        preProcessRecordsAndExecuteCallCallbacks();
+      }
       txStartCounter--;
     }
 
@@ -294,7 +294,6 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
     assert database.getStorage() instanceof AbstractPaginatedStorage;
 
     changed = true;
-
     try {
       FrontendTransactionIndexChanges indexEntry = indexEntries.get(iIndexName);
       if (indexEntry == null) {
@@ -605,9 +604,9 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
 
   public void addRecordOperation(RecordAbstract record, byte status, String clusterName) {
     try {
-      markAsChanged(record);
-
+      validateState(record);
       var rid = record.getIdentity();
+
       if (clusterName == null) {
         clusterName = database.getClusterNameById(record.getIdentity().getClusterId());
       }
@@ -617,112 +616,94 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
         rid.setClusterPosition(newRecordsPositionsGenerator--);
       }
 
-      var dirtyCounter = record.getDirtyCounter();
+      RecordOperation txEntry = getRecordEntry(rid);
       try {
-        RecordOperation txEntry = getRecordEntry(rid);
+        if (txEntry == null) {
+          if (rid.isTemporary() && status == RecordOperation.UPDATED) {
+            throw new IllegalStateException(
+                "Temporary records can not be added to the transaction");
+          }
+          txEntry = new RecordOperation(record, status);
 
-        if (txEntry != null) {
+          recordOperations.put(rid.copy(), txEntry);
+          changed = true;
+        } else {
           if (txEntry.record != record) {
             throw new TransactionException(
                 "Found record in transaction with the same RID but different instance");
           }
 
-          if (status != RecordOperation.DELETED) {
-            if (dirtyCounter == txEntry.dirtyCounter) {
-              //nothing changed
-              return;
-            }
+          switch (txEntry.type) {
+            case RecordOperation.UPDATED:
+              if (status == RecordOperation.DELETED) {
+                txEntry.type = RecordOperation.DELETED;
+                changed = true;
+              } else if (status == RecordOperation.CREATED) {
+                throw new IllegalStateException(
+                    "Invalid operation, record can not be created as it is already updated");
+              }
+              break;
+            case RecordOperation.DELETED:
+              if (status == RecordOperation.UPDATED || status == RecordOperation.CREATED) {
+                throw new IllegalStateException(
+                    "Invalid operation, record can not be updated or created as it is already deleted");
+              }
+              break;
+            case RecordOperation.CREATED:
+              if (status == RecordOperation.DELETED) {
+                recordOperations.remove(rid);
+                changed = true;
+              } else if (status == RecordOperation.CREATED) {
+                throw new IllegalStateException(
+                    "Invalid operation, record can not be created as it is already created");
+              }
+              break;
           }
-        }
-
-        if (txEntry != null) {
-          if (status == RecordOperation.CREATED) {
-            status = RecordOperation.UPDATED;
-          }
-          txEntry.dirtyCounter = dirtyCounter;
         }
 
         switch (status) {
           case RecordOperation.CREATED: {
-            database.beforeCreateOperations(record, clusterName);
+            if (record instanceof EntityImpl entity) {
+              final SchemaImmutableClass clazz =
+                  EntityInternalUtils.getImmutableSchemaClass(database, entity);
+              if (clazz != null) {
+                ClassIndexManager.checkIndexesAfterCreate(entity, database);
+              }
+            }
           }
           break;
           case RecordOperation.UPDATED: {
-            database.beforeUpdateOperations(record, clusterName);
+            if (record instanceof EntityImpl entity) {
+              final SchemaImmutableClass clazz =
+                  EntityInternalUtils.getImmutableSchemaClass(database, entity);
+              if (clazz != null) {
+                ClassIndexManager.checkIndexesAfterUpdate(entity, database);
+              }
+            }
           }
           break;
-          case RecordOperation.DELETED:
-            database.beforeDeleteOperations(record, clusterName);
-            break;
-        }
-
-        try {
-          if (txEntry == null) {
-            if (!(rid.isTemporary() && status != RecordOperation.CREATED)) {
-              // NEW ENTRY: JUST REGISTER IT
-              txEntry = new RecordOperation(record, status);
-              recordOperations.put(rid.copy(), txEntry);
-            }
-          } else {
-            switch (txEntry.type) {
-              case RecordOperation.UPDATED:
-                if (status == RecordOperation.DELETED) {
-                  txEntry.type = RecordOperation.DELETED;
-                }
-                break;
-              case RecordOperation.DELETED:
-                break;
-              case RecordOperation.CREATED:
-                if (status == RecordOperation.DELETED) {
-                  recordOperations.remove(rid);
-                }
-                break;
+          case RecordOperation.DELETED: {
+            if (record instanceof EntityImpl entity) {
+              final SchemaImmutableClass clazz =
+                  EntityInternalUtils.getImmutableSchemaClass(database, entity);
+              if (clazz != null) {
+                ClassIndexManager.checkIndexesAfterDelete(entity, database);
+              }
             }
           }
-
-          switch (status) {
-            case RecordOperation.CREATED:
-              database.afterCreateOperations(record);
-              break;
-            case RecordOperation.UPDATED:
-              database.afterUpdateOperations(record);
-              break;
-            case RecordOperation.DELETED:
-              database.afterDeleteOperations(record);
-              break;
-          }
-
-          // RESET TRACKING
-          if (record instanceof EntityImpl && ((EntityImpl) record).isTrackingChanges()) {
-            EntityInternalUtils.clearTrackData(((EntityImpl) record));
-          }
-        } catch (final Exception e) {
-          switch (status) {
-            case RecordOperation.CREATED:
-              database.callbackHooks(TYPE.CREATE_FAILED, record);
-              break;
-            case RecordOperation.UPDATED:
-              database.callbackHooks(TYPE.UPDATE_FAILED, record);
-              break;
-            case RecordOperation.DELETED:
-              database.callbackHooks(TYPE.DELETE_FAILED, record);
-              break;
-          }
-          throw BaseException.wrapException(
-              new DatabaseException("Error on saving record " + record.getIdentity()), e);
+          break;
+          default:
+            throw new IllegalStateException(
+                "Invalid transaction operation type " + status);
         }
-      } finally {
-        switch (status) {
-          case RecordOperation.CREATED:
-            database.callbackHooks(TYPE.FINALIZE_CREATION, record);
-            break;
-          case RecordOperation.UPDATED:
-            database.callbackHooks(TYPE.FINALIZE_UPDATE, record);
-            break;
-          case RecordOperation.DELETED:
-            database.callbackHooks(TYPE.FINALIZE_DELETION, record);
-            break;
+
+        if (record instanceof EntityImpl && ((EntityImpl) record).isTrackingChanges()) {
+          EntityInternalUtils.clearTrackData(((EntityImpl) record));
         }
+      } catch (final Exception e) {
+        throw BaseException.wrapException(
+            new DatabaseException(
+                "Error on execution of operation on record " + record.getIdentity()), e);
       }
     } catch (Exception e) {
       rollback(true, 0);
@@ -730,7 +711,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
     }
   }
 
-  private void markAsChanged(RecordAbstract record) {
+  private void validateState(RecordAbstract record) {
     if (record.isUnloaded()) {
       throw new DatabaseException(
           "Record "
@@ -739,7 +720,6 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
               + DatabaseSession.class.getSimpleName()
               + ".bindToSession(record) before changing it");
     }
-    changed = true;
     checkTransactionValid();
   }
 
@@ -767,10 +747,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
 
     try {
       status = TXSTATUS.COMMITTING;
-
       if (sentToServer || !recordOperations.isEmpty() || !indexEntries.isEmpty()) {
-        preProcessRecords();
-
         database.internalCommit(this);
         try {
           database.afterCommitOperations();
@@ -789,14 +766,16 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
     status = TXSTATUS.COMPLETED;
   }
 
-  private void preProcessRecords() {
+  private void preProcessRecordsAndExecuteCallCallbacks() {
     var serializer = database.getSerializer();
+    List<RecordAbstract> changedRecords = null;
+
     for (var recordOperation : recordOperations.values()) {
+      var record = recordOperation.record;
       if (recordOperation.type == RecordOperation.CREATED
           || recordOperation.type == RecordOperation.UPDATED) {
         if (recordOperation.record instanceof EntityImpl entity) {
           EntityInternalUtils.checkClass(entity, database);
-
           try {
             entity.autoConvertValues();
           } catch (ValidationException e) {
@@ -820,34 +799,112 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
             }
           }
 
-          if (!serializer.equals(RecordInternal.getRecordSerializer(entity))) {
-            RecordInternal.setRecordSerializer(entity, serializer);
-          }
+          entity.recordFormat = serializer;
         }
-
         if (recordOperation.type == RecordOperation.CREATED) {
-          database.assignAndCheckCluster(recordOperation.record, null);
-        }
+          if (processRecordCreation(recordOperation, record)) {
+            if (changedRecords == null) {
+              changedRecords = new ArrayList<>(recordOperations.size());
+            }
 
-        var record = recordOperation.record;
-        var dirtyCounter = recordOperation.record.getDirtyCounter();
-        if (recordOperation.dirtyCounter != dirtyCounter) {
-          var clusterName = database.getClusterNameById(record.getIdentity().getClusterId());
-          database.beforeUpdateOperations(record, clusterName);
-          if (record instanceof EntityImpl && ((EntityImpl) record).isTrackingChanges()) {
-            EntityInternalUtils.clearTrackData(((EntityImpl) record));
+            changedRecords.add(record);
           }
-          try {
-            database.afterUpdateOperations(record);
-          } catch (Exception e) {
-            database.callbackHooks(TYPE.UPDATE_FAILED, record);
-            throw e;
-          } finally {
-            database.callbackHooks(TYPE.FINALIZE_UPDATE, record);
+        } else {
+          if (processRecordUpdate(recordOperation, record)) {
+            if (changedRecords == null) {
+              changedRecords = new ArrayList<>(recordOperations.size());
+            }
+
+            changedRecords.add(record);
           }
         }
+      } else if (recordOperation.type == RecordOperation.DELETED) {
+        processRecordDeletion(recordOperation, record);
+      } else {
+        throw new IllegalStateException("Invalid record operation type " + recordOperation.type);
       }
     }
+
+    if (changedRecords != null && !changedRecords.isEmpty()) {
+      var recordsChangedInLoop = new ArrayList<RecordAbstract>(changedRecords.size());
+
+      while (!changedRecords.isEmpty()) {
+        for (var record : changedRecords) {
+          var recordOperation = new RecordOperation(record, RecordOperation.UPDATED);
+          recordOperation.dirtyCounter = record.getDirtyCounter();
+
+          if (processRecordUpdate(recordOperation, record)) {
+            recordsChangedInLoop.add(record);
+          }
+        }
+
+        changedRecords = recordsChangedInLoop;
+        recordsChangedInLoop = new ArrayList<>();
+      }
+    }
+  }
+
+  private void processRecordDeletion(RecordOperation recordOperation, RecordAbstract record) {
+    var clusterName = database.getClusterNameById(record.getIdentity().getClusterId());
+
+    database.beforeDeleteOperations(record, clusterName);
+    try {
+      database.afterDeleteOperations(record);
+      if (record instanceof EntityImpl && ((EntityImpl) record).isTrackingChanges()) {
+        EntityInternalUtils.clearTrackData(((EntityImpl) record));
+      }
+    } catch (Exception e) {
+      database.callbackHooks(TYPE.DELETE_FAILED, record);
+      throw e;
+    } finally {
+      database.callbackHooks(TYPE.FINALIZE_DELETION, record);
+    }
+    recordOperation.dirtyCounter = record.getDirtyCounter();
+  }
+
+  private boolean processRecordUpdate(RecordOperation recordOperation, RecordAbstract record) {
+    var dirtyCounter = record.getDirtyCounter();
+    var clusterName = database.getClusterNameById(record.getIdentity().getClusterId());
+    if (recordOperation.dirtyCounter != record.getDirtyCounter()) {
+      recordOperation.dirtyCounter = dirtyCounter;
+      database.beforeUpdateOperations(record, clusterName);
+      try {
+        database.afterUpdateOperations(record);
+        if (record instanceof EntityImpl && ((EntityImpl) record).isTrackingChanges()) {
+          EntityInternalUtils.clearTrackData(((EntityImpl) record));
+        }
+      } catch (Exception e) {
+        database.callbackHooks(TYPE.UPDATE_FAILED, record);
+        throw e;
+      } finally {
+        database.callbackHooks(TYPE.FINALIZE_UPDATE, record);
+      }
+
+      return record.getDirtyCounter() != recordOperation.dirtyCounter;
+    }
+
+    return false;
+  }
+
+  private boolean processRecordCreation(RecordOperation recordOperation, RecordAbstract record) {
+    database.assignAndCheckCluster(recordOperation.record, null);
+    var clusterName = database.getClusterNameById(record.getIdentity().getClusterId());
+
+    recordOperation.dirtyCounter = record.getDirtyCounter();
+    database.beforeCreateOperations(record, clusterName);
+    try {
+      database.afterCreateOperations(record);
+      if (record instanceof EntityImpl && ((EntityImpl) record).isTrackingChanges()) {
+        EntityInternalUtils.clearTrackData(((EntityImpl) record));
+      }
+    } catch (Exception e) {
+      database.callbackHooks(TYPE.CREATE_FAILED, record);
+      throw e;
+    } finally {
+      database.callbackHooks(TYPE.FINALIZE_CREATION, record);
+    }
+
+    return recordOperation.dirtyCounter != record.getDirtyCounter();
   }
 
   public void resetChangesTracking() {
@@ -1208,88 +1265,6 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
         updateIdentityAfterCommit(lastCreateId, oldNew);
         generatedOriginalRecordIdMap.put(oldNew, op.getKey());
       }
-    }
-  }
-
-  public void fill(final Iterator<RecordOperation> operations) {
-    while (operations.hasNext()) {
-      RecordOperation change = operations.next();
-      recordOperations.put(change.getRecordId(), change);
-      resolveTracking(change);
-    }
-  }
-
-  protected void resolveTracking(final RecordOperation change) {
-    if (!(change.record instanceof EntityImpl rec)) {
-      return;
-    }
-
-    switch (change.type) {
-      case RecordOperation.CREATED: {
-        final EntityImpl entity = (EntityImpl) change.record;
-        LiveQueryHook.addOp(entity, RecordOperation.CREATED, database);
-        LiveQueryHookV2.addOp(database, entity, RecordOperation.CREATED);
-        final SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
-        if (clazz != null) {
-          ClassIndexManager.processIndexOnCreate(database, rec);
-          if (clazz.isFunction()) {
-            database.getSharedContext().getFunctionLibrary().createdFunction(entity);
-          }
-          if (clazz.isSequence()) {
-            ((SequenceLibraryProxy) database.getMetadata().getSequenceLibrary())
-                .getDelegate()
-                .onSequenceCreated(database, entity);
-          }
-          if (clazz.isScheduler()) {
-            database.getMetadata().getScheduler()
-                .scheduleEvent(database, new ScheduledEvent(entity, database));
-          }
-        }
-      }
-      break;
-      case RecordOperation.UPDATED: {
-        final Identifiable updateRecord = change.record;
-        EntityImpl updateDoc = (EntityImpl) updateRecord;
-        LiveQueryHook.addOp(updateDoc, RecordOperation.UPDATED, database);
-        LiveQueryHookV2.addOp(database, updateDoc, RecordOperation.UPDATED);
-        final SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(updateDoc);
-        if (clazz != null) {
-          ClassIndexManager.processIndexOnUpdate(database, updateDoc);
-          if (clazz.isFunction()) {
-            database.getSharedContext().getFunctionLibrary().updatedFunction(updateDoc);
-          }
-        }
-      }
-      break;
-      case RecordOperation.DELETED: {
-        final EntityImpl entity = (EntityImpl) change.record;
-        final SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
-        if (clazz != null) {
-          ClassIndexManager.processIndexOnDelete(database, rec);
-          if (clazz.isFunction()) {
-            database.getSharedContext().getFunctionLibrary().droppedFunction(entity);
-            database
-                .getSharedContext()
-                .getYouTrackDB()
-                .getScriptManager()
-                .close(database.getName());
-          }
-          if (clazz.isSequence()) {
-            ((SequenceLibraryProxy) database.getMetadata().getSequenceLibrary())
-                .getDelegate()
-                .onSequenceDropped(database, entity);
-          }
-          if (clazz.isScheduler()) {
-            final String eventName = entity.field(ScheduledEvent.PROP_NAME);
-            database.getSharedContext().getScheduler().removeEventInternal(eventName);
-          }
-        }
-        LiveQueryHook.addOp(entity, RecordOperation.DELETED, database);
-        LiveQueryHookV2.addOp(database, entity, RecordOperation.DELETED);
-      }
-      break;
-      default:
-        break;
     }
   }
 

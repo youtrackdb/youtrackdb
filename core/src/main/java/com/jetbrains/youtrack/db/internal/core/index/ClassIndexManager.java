@@ -56,7 +56,7 @@ public class ClassIndexManager {
     addIndexEntry(session, entity, entity.getIdentity(), index);
   }
 
-  public static void processIndexOnCreate(DatabaseSessionInternal database,
+  private static void processIndexOnCreate(DatabaseSessionInternal database,
       EntityImpl entity) {
     final SchemaImmutableClass cls = EntityInternalUtils.getImmutableSchemaClass(database, entity);
     if (cls != null) {
@@ -71,7 +71,7 @@ public class ClassIndexManager {
     processIndexOnUpdate(database, entity);
   }
 
-  public static void processIndexOnUpdate(DatabaseSessionInternal database,
+  private static void processIndexOnUpdate(DatabaseSessionInternal database,
       EntityImpl entity) {
     final SchemaImmutableClass cls = EntityInternalUtils.getImmutableSchemaClass(database, entity);
     if (cls == null) {
@@ -204,7 +204,7 @@ public class ClassIndexManager {
       return;
     }
 
-    final String indexField = indexFields.get(0);
+    final String indexField = indexFields.getFirst();
     if (!dirtyFields.contains(indexField)) {
       return;
     }
@@ -357,7 +357,7 @@ public class ClassIndexManager {
       return false;
     }
 
-    final String indexField = indexFields.iterator().next();
+    final String indexField = indexFields.getFirst();
     if (dirtyFields.contains(indexField)) {
       final MultiValueChangeTimeLine<?, ?> multiValueChangeTimeLine =
           iRecord.getCollectionTimeLine(indexField);

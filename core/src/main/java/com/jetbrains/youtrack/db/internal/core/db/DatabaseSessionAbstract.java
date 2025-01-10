@@ -550,27 +550,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
         return RecordHook.RESULT.RECORD_NOT_CHANGED;
       }
 
-      final ScenarioThreadLocal.RUN_MODE runMode = ScenarioThreadLocal.INSTANCE.getRunMode();
-
       boolean recordChanged = false;
       for (RecordHook hook : hooksByScope[scopeOrdinal]) {
-        switch (runMode) {
-          case DEFAULT: // NON_DISTRIBUTED OR PROXIED DB
-            if (isDistributed()
-                && hook.getDistributedExecutionMode()
-                == RecordHook.DISTRIBUTED_EXECUTION_MODE.TARGET_NODE)
-            // SKIP
-            {
-              continue;
-            }
-            break; // TARGET NODE
-          case RUNNING_DISTRIBUTED:
-            if (hook.getDistributedExecutionMode()
-                == RecordHook.DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE) {
-              continue;
-            }
-        }
-
         final RecordHook.RESULT res = hook.onTrigger(this, type, rec);
 
         if (res == RecordHook.RESULT.RECORD_CHANGED) {
@@ -1461,11 +1442,6 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * an exclusive lock is acquired against the record. Current transaction will continue to see the
    * record as modified, while others cannot access to it since it's locked.
    *
-   * <p>If MVCC is enabled and the version of the entity is different by the version stored in
-   * the database, then a {@link ConcurrentModificationException} exception is thrown.Before to save
-   * the entity it must be valid following the constraints declared in the schema if any (can work
-   * also in schema-less mode). To validate the entity the {@link EntityImpl#validate()} is called.
-   *
    * @param record Record to save.
    * @return The Database instance itself giving a "fluent interface". Useful to call multiple
    * methods in chain.
@@ -1489,12 +1465,6 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * transaction is running, then an exclusive lock is acquired against the record. Current
    * transaction will continue to see the record as modified, while others cannot access to it since
    * it's locked.
-   *
-   * <p>If MVCC is enabled and the version of the entity is different by the version stored in
-   * the database, then a {@link ConcurrentModificationException} exception is thrown. Before to
-   * save the entity it must be valid following the constraints declared in the schema if any (can
-   * work also in schema-less mode). To validate the entity the {@link EntityImpl#validate()} is
-   * called.
    *
    * @param record      Record to save
    * @param clusterName Cluster name where to save the record

@@ -764,6 +764,12 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
+  public void checkSecurity(int operation, Identifiable record, String cluster) {
+    checkOpenness();
+    internal.checkSecurity(operation, record, cluster);
+  }
+
+  @Override
   public void checkSecurity(
       Rule.ResourceGeneric iResourceGeneric, int iOperation, Object... iResourcesSpecific) {
     checkOpenness();

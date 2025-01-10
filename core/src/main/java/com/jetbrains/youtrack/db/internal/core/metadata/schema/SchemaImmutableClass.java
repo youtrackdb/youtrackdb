@@ -91,8 +91,8 @@ public class SchemaImmutableClass implements SchemaClassInternal {
   private boolean function;
   private boolean scheduler;
   private boolean sequence;
-  private boolean ouser;
-  private boolean orole;
+  private boolean user;
+  private boolean role;
   private boolean securityPolicy;
   private HashSet<Index> indexes;
   private final boolean isRemote;
@@ -162,9 +162,9 @@ public class SchemaImmutableClass implements SchemaClassInternal {
       this.function = isSubClassOf(FunctionLibraryImpl.CLASSNAME);
       this.scheduler = isSubClassOf(ScheduledEvent.CLASS_NAME);
       this.sequence = isSubClassOf(Sequence.CLASS_NAME);
-      this.ouser = isSubClassOf(SecurityUserIml.CLASS_NAME);
-      this.orole = isSubClassOf(Role.CLASS_NAME);
-      this.securityPolicy = SecurityPolicy.class.getSimpleName().equals(this.name);
+      this.user = isSubClassOf(SecurityUserIml.CLASS_NAME);
+      this.role = isSubClassOf(Role.CLASS_NAME);
+      this.securityPolicy = isSubClassOf(SecurityPolicy.CLASS_NAME);
       this.indexes = new HashSet<>();
       if (!isRemote) {
         getRawIndexes(indexes);
@@ -910,15 +910,19 @@ public class SchemaImmutableClass implements SchemaClassInternal {
     return scheduler;
   }
 
-  public boolean isOuser() {
-    return ouser;
+  public boolean isUser() {
+    return user;
   }
 
-  public boolean isOrole() {
-    return orole;
+  public boolean isRole() {
+    return role;
   }
 
   public boolean isSequence() {
     return sequence;
+  }
+
+  public boolean isSystemClass() {
+    return restricted || function || scheduler || user || role || sequence || securityPolicy;
   }
 }

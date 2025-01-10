@@ -3,7 +3,6 @@ package com.jetbrains.youtrack.db.internal.core.db;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
 import com.jetbrains.youtrack.db.internal.core.index.IndexFactory;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
@@ -15,8 +14,6 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaEmbedded;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceLibraryImpl;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHook;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHookV2.LiveQueryOps;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.schedule.SchedulerImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.QueryStats;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ExecutionPlanCache;
@@ -30,6 +27,7 @@ import java.util.Map;
  *
  */
 public class SharedContextEmbedded extends SharedContext {
+
   protected Map<String, DistributedQueryContext> activeDistributedQueries;
   protected IndexManagerAbstract indexManager;
 
@@ -181,27 +179,4 @@ public class SharedContextEmbedded extends SharedContext {
     this.load(database);
   }
 
-  public synchronized Map<String, Object> loadConfig(
-      DatabaseSessionInternal session, String name) {
-    //noinspection unchecked
-    return (Map<String, Object>)
-        ScenarioThreadLocal.executeAsDistributed(
-            () -> {
-              assert !session.getTransaction().isActive();
-              String propertyName = "__config__" + name;
-              String id = storage.getConfiguration().getProperty(propertyName);
-              if (id != null) {
-                RecordId recordId = new RecordId(id);
-                EntityImpl config = session.load(recordId);
-                RecordInternal.setIdentity(config, new RecordId(-1, -1));
-                return config.toMap();
-              } else {
-                return null;
-              }
-            });
-  }
-
-  public Map<String, Object> loadDistributedConfig(DatabaseSessionInternal session) {
-    return loadConfig(session, "ditributedConfig");
-  }
 }

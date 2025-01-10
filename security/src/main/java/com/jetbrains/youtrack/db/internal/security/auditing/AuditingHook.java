@@ -307,7 +307,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
       SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(
           (DatabaseSessionInternal) db, entity);
 
-      if (clazz.isOuser() && Arrays.asList(entity.getDirtyFields()).contains("password")) {
+      if (clazz.isUser() && Arrays.asList(entity.getDirtyFields()).contains("password")) {
         String name = entity.getProperty("name");
         String message = String.format("The password for user '%s' has been changed", name);
         log(db, AuditingOperation.CHANGED_PWD, db.getName(), db.geCurrentUser(), message);

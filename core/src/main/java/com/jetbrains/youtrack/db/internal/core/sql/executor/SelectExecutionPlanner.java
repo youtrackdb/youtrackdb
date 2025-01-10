@@ -1695,10 +1695,6 @@ public class SelectExecutionPlanner {
       plan.chain(new FetchFromStorageMetadataStep(ctx, profilingEnabled));
     } else if (metadata.getName().equalsIgnoreCase(CommandExecutorSQLAbstract.METADATA_DATABASE)) {
       plan.chain(new FetchFromDatabaseMetadataStep(ctx, profilingEnabled));
-    } else if (metadata
-        .getName()
-        .equalsIgnoreCase(CommandExecutorSQLAbstract.METADATA_DISTRIBUTED)) {
-      plan.chain(new FetchFromDistributedMetadataStep(ctx, profilingEnabled));
     } else {
       throw new UnsupportedOperationException("Invalid metadata: " + metadata.getName());
     }

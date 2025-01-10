@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.tx;
 
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import java.io.IOException;
 import java.util.Collection;
@@ -96,10 +96,6 @@ public interface TransactionInternal extends FrontendTransaction {
   void prepareSerializedOperations() throws IOException;
 
   Iterator<byte[]> getSerializedOperations();
-
-  default void fill(Iterator<RecordOperation> operations) {
-    throw new UnsupportedOperationException();
-  }
 
   void resetAllocatedIds();
 }

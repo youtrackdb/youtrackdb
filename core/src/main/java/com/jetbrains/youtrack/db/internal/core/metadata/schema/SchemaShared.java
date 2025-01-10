@@ -32,7 +32,6 @@ import com.jetbrains.youtrack.db.internal.common.util.ArrayUtils;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.MetadataUpdateListener;
-import com.jetbrains.youtrack.db.internal.core.db.ScenarioThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection.ClusterSelectionFactory;
@@ -788,17 +787,12 @@ public abstract class SchemaShared implements CloseableInStorage {
               + " transactional");
     }
 
-    ScenarioThreadLocal.executeAsDistributed(
-        () -> {
-          database.executeInTx(() -> {
-            EntityImpl entity = toStream(database);
-            database.save(entity, MetadataDefault.CLUSTER_INTERNAL_NAME);
-          });
-          return null;
-        });
+    database.executeInTx(() -> {
+      EntityImpl entity = toStream(database);
+      database.save(entity, MetadataDefault.CLUSTER_INTERNAL_NAME);
+    });
 
     forceSnapshot(database);
-
     for (MetadataUpdateListener listener : database.getSharedContext().browseListeners()) {
       listener.onSchemaUpdate(database, database.getName(), this);
     }

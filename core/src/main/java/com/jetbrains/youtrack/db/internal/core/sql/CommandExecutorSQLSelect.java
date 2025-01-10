@@ -1761,7 +1761,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
         final SchemaImmutableClass cls = (SchemaImmutableClass) schema.getClassByClusterId(
             clusterId);
         if (cls != null) {
-          if (cls.isRestricted() || cls.isOuser() || cls.isOrole()) {
+          if (cls.isRestricted() || cls.isUser() || cls.isRole()) {
             return false;
           }
         }
@@ -1853,7 +1853,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
                 threadContext.setDatabase(localDatabase);
 
                 // CREATE A SNAPSHOT TO AVOID DEADLOCKS
-                ((SchemaInternal) db.getMetadata().getSchema()).makeSnapshot();
+                db.getMetadata().getSchema().makeSnapshot();
                 scanClusterWithIterator(
                     localDatabase, threadContext, clusterIds[current], current, results);
               } catch (RuntimeException t) {

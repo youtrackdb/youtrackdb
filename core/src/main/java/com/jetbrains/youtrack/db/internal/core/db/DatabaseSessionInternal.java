@@ -468,6 +468,8 @@ public interface DatabaseSessionInternal extends DatabaseSession {
   void checkSecurity(
       Rule.ResourceGeneric iResourceGeneric, int iOperation, Object iResourceSpecific);
 
+  void checkSecurity(final int operation, final Identifiable record, String cluster);
+
   /**
    * Checks if the operation against multiple resources is allowed for the current user. The check
    * is made in two steps:
