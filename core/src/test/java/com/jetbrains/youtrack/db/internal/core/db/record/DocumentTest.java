@@ -44,15 +44,18 @@ public class DocumentTest extends DbTestBase {
 
   @Test
   public void testFromMapWithClass() {
+    db.begin();
     final EntityImpl doc = (EntityImpl) db.newEntity("OUser");
     doc.field("name", "Jay");
     doc.field("surname", "Miner");
     Map<String, Object> map = doc.toMap();
 
-    Assert.assertEquals(3, map.size());
+    Assert.assertEquals(4, map.size());
     Assert.assertEquals("Jay", map.get("name"));
     Assert.assertEquals("Miner", map.get("surname"));
     Assert.assertEquals("OUser", map.get("@class"));
+    Assert.assertTrue(map.containsKey("@rid"));
+    db.rollback();
   }
 
   @Test
