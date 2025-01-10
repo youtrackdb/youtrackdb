@@ -146,6 +146,7 @@ public class SQLFunctionCall extends SimpleNode {
 
       validateFunctionParams(ctx.getDatabase(), function, paramValues);
 
+      ctx.setVariable("aggregation", false);
       if (record instanceof Identifiable) {
         return function.execute(
             targetObjects, (Identifiable) record, null, paramValues.toArray(), ctx);

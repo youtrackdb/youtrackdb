@@ -62,7 +62,7 @@ public class SQLFunctionIntersect extends SQLFunctionMultiValueAbstract<Object> 
       return Collections.emptySet();
     }
 
-    if (iParams.length == 1) {
+    if (Boolean.TRUE.equals(iContext.getVariable("aggregation"))) {
       // AGGREGATION MODE (STATEFUL)
       if (context == null) {
         // ADD ALL THE ITEMS OF THE FIRST COLLECTION

@@ -896,7 +896,7 @@ public class SelectExecutionPlanner {
         SQLLetItem item = iterator.next();
         if (item.getExpression() != null
             && (item.getExpression().isEarlyCalculated(ctx)
-            || isUnionAllOfQueries(info, item.getVarName(), item.getExpression()))) {
+            || isCombinationOfQueries(info, item.getVarName(), item.getExpression()))) {
           iterator.remove();
           addGlobalLet(info, item.getVarName(), item.getExpression());
         } else if (item.getQuery() != null && !item.getQuery().refersToParent()) {
@@ -907,7 +907,10 @@ public class SelectExecutionPlanner {
     }
   }
 
-  private static boolean isUnionAllOfQueries(
+  private static final Set<String> COMBINATION_FUNCTIONS =
+      Set.of("unionall", "intersect", "difference");
+
+  private static boolean isCombinationOfQueries(
       QueryPlanningInfo info, SQLIdentifier varName, SQLExpression expression) {
     if (expression.getMathExpression() instanceof SQLBaseExpression exp) {
       if (exp.getIdentifier() != null
@@ -915,7 +918,8 @@ public class SelectExecutionPlanner {
           && exp.getIdentifier().getLevelZero() != null
           && exp.getIdentifier().getLevelZero().getFunctionCall() != null) {
         SQLFunctionCall fc = exp.getIdentifier().getLevelZero().getFunctionCall();
-        if (fc.getName().getStringValue().equalsIgnoreCase("unionall")) {
+        if (COMBINATION_FUNCTIONS.stream()
+            .anyMatch(fc.getName().getStringValue()::equalsIgnoreCase)) {
           for (SQLExpression param : fc.getParams()) {
             if (param.toString().startsWith("$")) {
               return true;
