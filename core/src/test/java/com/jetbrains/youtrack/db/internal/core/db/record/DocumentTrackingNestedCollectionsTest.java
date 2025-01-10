@@ -25,34 +25,34 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
 
     db.begin();
     RID orid;
-    EntityImpl document = (EntityImpl) db.newEntity();
+    EntityImpl entity = (EntityImpl) db.newEntity();
     Set objects = new HashSet();
 
-    document.field("objects", objects);
-    document.save();
+    entity.field("objects", objects);
+    entity.save();
 
-    objects = document.field("objects");
+    objects = entity.field("objects");
     Set subObjects = new HashSet();
     objects.add(subObjects);
 
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    entity.save();
     db.commit();
 
     db.begin();
 
-    document = db.bindToSession(document);
-    orid = document.getIdentity();
-    objects = document.field("objects");
+    entity = db.bindToSession(entity);
+    orid = entity.getIdentity();
+    objects = entity.field("objects");
     subObjects = (Set) objects.iterator().next();
 
     EntityImpl nestedDoc = (EntityImpl) db.newEntity();
     subObjects.add(nestedDoc);
 
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    entity.save();
     db.commit();
 
-    document = db.load(orid);
-    objects = document.field("objects");
+    entity = db.load(orid);
+    objects = entity.field("objects");
     subObjects = (Set) objects.iterator().next();
 
     assertFalse(subObjects.isEmpty());
