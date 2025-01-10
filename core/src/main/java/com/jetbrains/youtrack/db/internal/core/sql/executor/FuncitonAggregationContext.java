@@ -34,6 +34,7 @@ public class FuncitonAggregationContext implements AggregationContext {
     for (SQLExpression expr : params) {
       paramValues.add(expr.execute(next, ctx));
     }
+    ctx.setVariable("aggregation", true);
     aggregateFunction.execute(next, null, null, paramValues.toArray(), ctx);
   }
 }

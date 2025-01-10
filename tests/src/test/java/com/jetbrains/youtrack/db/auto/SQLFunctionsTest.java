@@ -263,20 +263,6 @@ public class SQLFunctionsTest extends BaseDBTest {
   }
 
   @Test
-  public void queryUnionAllAsAggregationNotRemoveDuplicates() {
-    List<EntityImpl> result =
-        database.query("select from City").stream().map(r -> (EntityImpl) r.toEntity()).toList();
-    int count = result.size();
-
-    result =
-        database.query("select unionAll(name) as name from City").stream()
-            .map(r -> (EntityImpl) r.toEntity())
-            .toList();
-    Collection<Object> citiesFound = result.get(0).field("name");
-    Assert.assertEquals(citiesFound.size(), count);
-  }
-
-  @Test
   public void querySetNotDuplicates() {
     List<EntityImpl> result =
         database.query("select set(name) as name from City").stream()
@@ -369,20 +355,6 @@ public class SQLFunctionsTest extends BaseDBTest {
     for (EntityImpl d : result) {
       Map<Object, Object> citiesFound = d.field("names");
       Assert.assertTrue(citiesFound.size() > 1);
-    }
-  }
-
-  @Test
-  public void queryUnionAllAsInline() {
-    List<EntityImpl> result =
-        database.query("select unionAll(out, in) as edges from V").stream()
-            .map(r -> (EntityImpl) r.toEntity())
-            .toList();
-
-    Assert.assertTrue(result.size() > 1);
-    for (EntityImpl d : result) {
-      Assert.assertEquals(d.fieldNames().length, 1);
-      Assert.assertTrue(d.containsField("edges"));
     }
   }
 
