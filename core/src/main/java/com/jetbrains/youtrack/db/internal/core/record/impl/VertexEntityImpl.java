@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.api.record.Direction;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.record.Direction;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,14 +33,14 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
   public Set<String> getPropertyNames() {
     checkForBinding();
 
-    return EdgeInternal.filterPropertyNames(super.getPropertyNames());
+    return VertexInternal.filterPropertyNames(super.getPropertyNames());
   }
 
   @Override
   public <RET> RET getProperty(String fieldName) {
     checkForBinding();
 
-    EdgeInternal.checkPropertyName(fieldName);
+    VertexInternal.checkPropertyName(fieldName);
 
     return getPropertyInternal(fieldName);
   }
@@ -50,7 +50,7 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
   public Identifiable getLinkProperty(String fieldName) {
     checkForBinding();
 
-    EdgeInternal.checkPropertyName(fieldName);
+    VertexInternal.checkPropertyName(fieldName);
 
     return super.getLinkProperty(fieldName);
   }
@@ -59,8 +59,7 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
   public void setProperty(String fieldName, Object propertyValue) {
     checkForBinding();
 
-    EdgeInternal.checkPropertyName(fieldName);
-
+    VertexInternal.checkPropertyName(fieldName);
     setPropertyInternal(fieldName, propertyValue);
   }
 
@@ -68,16 +67,15 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
   public void setProperty(String name, Object value, PropertyType... types) {
     checkForBinding();
 
-    EdgeInternal.checkPropertyName(name);
-
+    VertexInternal.checkPropertyName(name);
     super.setProperty(name, value, types);
   }
 
   @Override
   public <RET> RET removeProperty(String fieldName) {
     checkForBinding();
-    EdgeInternal.checkPropertyName(fieldName);
 
+    VertexInternal.checkPropertyName(fieldName);
     return removePropertyInternal(fieldName);
   }
 
