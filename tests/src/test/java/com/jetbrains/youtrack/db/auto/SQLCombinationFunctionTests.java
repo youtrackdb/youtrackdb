@@ -3,6 +3,7 @@ package com.jetbrains.youtrack.db.auto;
 import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.Sets;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
@@ -64,6 +65,16 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
 
     // comparing sorted lists to ignore any differences in order
     assertListsEqualsIgnoreOrder(continentsCombined, continents);
+  }
+
+  @Test
+  public void differenceAsAggregationThrowsError() {
+    try {
+      database.query("SELECT difference(continent) AS continents FROM CountryExt").toList();
+      Assert.fail("Expected exception");
+    } catch (CommandExecutionException e) {
+      Assert.assertTrue(e.getMessage().contains("cannot be used in aggregation mode"));
+    }
   }
 
   @Test
