@@ -19,10 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.coll;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import java.util.Collection;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,7 +36,7 @@ public class SQLFunctionDifference extends SQLFunctionMultiValueAbstract<Set<Obj
   public static final String NAME = "difference";
 
   public SQLFunctionDifference() {
-    super(NAME, 2, -1);
+    super(NAME, 1, -1);
   }
 
   @SuppressWarnings("unchecked")
@@ -45,36 +46,44 @@ public class SQLFunctionDifference extends SQLFunctionMultiValueAbstract<Set<Obj
       Object iCurrentResult,
       final Object[] iParams,
       CommandContext iContext) {
+
+    if (Boolean.TRUE.equals(iContext.getVariable("aggregation"))) {
+      throw new CommandExecutionException("difference function cannot be used in aggregation mode");
+    }
+
+    // if the first parameter is null, then the overall result is empty
     if (iParams[0] == null) {
-      return null;
+      return Set.of();
     }
 
     // IN-LINE MODE (STATELESS)
     final Set<Object> result = new HashSet<Object>();
 
-    boolean first = true;
-    for (Object iParameter : iParams) {
-      if (first) {
-        if (iParameter instanceof Collection<?>) {
-          result.addAll((Collection<Object>) iParameter);
-        } else {
-          result.add(iParameter);
-        }
-      } else {
-        if (iParameter instanceof Collection<?>) {
-          result.removeAll((Collection<Object>) iParameter);
-        } else {
-          result.remove(iParameter);
-        }
+    final var firstIt = MultiValue.getMultiValueIterator(iParams[0]);
+    while (firstIt.hasNext()) {
+      result.add(firstIt.next());
+    }
+
+    if (result.isEmpty()) { // no need to iterate further
+      return Set.of();
+    }
+
+    for (int i = 1; i < iParams.length; i++) {
+      // if the parameter is null, ignoring it, it will not affect the difference result
+      if (iParams[i] == null) {
+        continue;
       }
 
-      first = false;
+      final var it = MultiValue.getMultiValueIterator(iParams[i]);
+      while (it.hasNext()) {
+        result.remove(it.next());
+      }
     }
 
     return result;
   }
 
   public String getSyntax(DatabaseSession session) {
-    return "difference(<field>, <field> [, <field]*)";
+    return "difference(<field> [, <field]*)";
   }
 }
