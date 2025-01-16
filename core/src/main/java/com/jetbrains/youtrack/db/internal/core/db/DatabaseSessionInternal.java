@@ -54,6 +54,7 @@ import com.jetbrains.youtrack.db.internal.core.query.Query;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.storage.RecordMetadata;
@@ -192,6 +193,8 @@ public interface DatabaseSessionInternal extends DatabaseSession {
   EdgeInternal newLightweightEdgeInternal(String iClassName, Vertex from, Vertex to);
 
   Edge newRegularEdge(String iClassName, Vertex from, Vertex to);
+
+  VertexInternal newVertex(RecordId rid);
 
   void setUseLightweightEdges(boolean b);
 

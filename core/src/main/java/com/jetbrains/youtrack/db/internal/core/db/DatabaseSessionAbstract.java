@@ -1142,6 +1142,11 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     return new VertexEntityImpl(this, iClassName);
   }
 
+  @Override
+  public VertexInternal newVertex(RecordId rid) {
+    return new VertexEntityImpl(this, rid);
+  }
+
   private EdgeInternal newEdgeInternal(final String iClassName) {
     return new EdgeEntityImpl(this, iClassName);
   }
