@@ -45,6 +45,7 @@ import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
+import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
@@ -1149,6 +1150,12 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   public Edge newRegularEdge(String iClassName, Vertex from, Vertex to) {
     checkOpenness();
     return internal.newRegularEdge(iClassName, from, to);
+  }
+
+  @Override
+  public VertexInternal newVertex(RecordId rid) {
+    checkOpenness();
+    return internal.newVertex(rid);
   }
 
   @Override
