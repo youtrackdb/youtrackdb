@@ -34,6 +34,7 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.api.session.SessionListener;
 import com.jetbrains.youtrack.db.internal.core.cache.LocalRecordCache;
@@ -97,6 +98,8 @@ public interface DatabaseSessionInternal extends DatabaseSession {
   <RET extends Entity> RET newInstance();
 
   Entity newEmbededEntity(String className);
+
+  Entity newEmbededEntity(SchemaClass schemaClass);
 
   Entity newEmbededEntity();
 

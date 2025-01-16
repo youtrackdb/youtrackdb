@@ -234,6 +234,11 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
+  public Entity newEmbededEntity(SchemaClass schemaClass) {
+    return internal.newEmbededEntity(schemaClass);
+  }
+
+  @Override
   public Entity newEmbededEntity() {
     return internal.newEmbededEntity();
   }

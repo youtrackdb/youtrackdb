@@ -343,16 +343,20 @@ public class SQLUpdateItem extends SimpleNode {
     if (item instanceof Entity) {
       SchemaClass currentType = ((Entity) item).getSchemaType().orElse(null);
       if (currentType == null || !currentType.isSubClassOf(linkedClass)) {
-        Entity result = ctx.getDatabase().newEntity(linkedClass.getName());
+        var db = ctx.getDatabase();
+        Entity result = db.newEmbededEntity(linkedClass);
+
         for (String prop : ((Entity) item).getPropertyNames()) {
           result.setProperty(prop, ((Entity) item).getProperty(prop));
         }
+
         return result;
       } else {
         return item;
       }
     } else if (item instanceof Map) {
-      Entity result = ctx.getDatabase().newEntity(linkedClass.getName());
+      Entity result = ctx.getDatabase().newEmbededEntity(linkedClass.getName());
+
       ((Map<String, Object>) item)
           .entrySet().stream().forEach(x -> result.setProperty(x.getKey(), x.getValue()));
       return result;

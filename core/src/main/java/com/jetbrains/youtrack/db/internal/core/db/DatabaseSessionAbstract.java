@@ -1177,6 +1177,12 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   @Override
+  public Entity newEmbededEntity(SchemaClass schemaClass) {
+    assert assertIfNotActive();
+    return new EntityImplEmbedded(schemaClass.getName(), this);
+  }
+
+  @Override
   public Entity newEmbededEntity() {
     assert assertIfNotActive();
     return new EntityImplEmbedded(this);

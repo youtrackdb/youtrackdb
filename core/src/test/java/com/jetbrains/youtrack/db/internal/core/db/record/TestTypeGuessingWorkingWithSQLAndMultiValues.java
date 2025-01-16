@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import org.junit.Assert;
 import org.junit.Before;
@@ -47,23 +47,23 @@ public class TestTypeGuessingWorkingWithSQLAndMultiValues extends DbTestBase {
       Result doc = result.next();
 
       Collection<EntityImpl> addresses = doc.getProperty("addresses");
-      Assert.assertEquals(addresses.size(), 3);
+      Assert.assertEquals(3, addresses.size());
       for (var a : addresses) {
         Assert.assertEquals("Address", a.getProperty("@class"));
       }
     }
 
     db.begin();
-    try (ResultSet result =
+    try (ResultSet resultSet =
         db.command(
             "update client set addresses = addresses || [{'city':'London', 'zip':'67373'}] return"
                 + " after")) {
-      Assert.assertTrue(result.hasNext());
+      Assert.assertTrue(resultSet.hasNext());
 
-      Result doc = result.next();
+      Result result = resultSet.next();
 
-      Collection<Result> addresses = doc.getProperty("addresses");
-      Assert.assertEquals(addresses.size(), 4);
+      Collection<Result> addresses = result.getProperty("addresses");
+      Assert.assertEquals(4, addresses.size());
 
       for (Result a : addresses) {
         Assert.assertEquals("Address", a.getProperty("@class"));
