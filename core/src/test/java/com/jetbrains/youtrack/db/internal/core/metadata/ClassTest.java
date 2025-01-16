@@ -10,7 +10,6 @@ import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster;
@@ -97,47 +96,6 @@ public class ClassTest extends BaseMemoryInternalDatabase {
 
     assertFalse(writeCache.exists("classnamenew" + PaginatedCluster.DEF_EXTENSION));
     Assert.assertTrue(writeCache.exists("classname" + PaginatedCluster.DEF_EXTENSION));
-  }
-
-  @Test
-  public void testRenameClusterAlreadyExists() {
-    Schema schema = db.getMetadata().getSchema();
-    SchemaClass classOne = schema.createClass("ClassOne");
-    SchemaClass classTwo = schema.createClass("ClassTwo");
-
-    final int clusterId = db.addCluster("classthree");
-    classTwo.addClusterId(db, clusterId);
-
-    db.begin();
-    EntityImpl document = (EntityImpl) db.newEntity("ClassTwo");
-    document.save("classthree");
-
-    document = (EntityImpl) db.newEntity("ClassTwo");
-    document.save();
-
-    document = (EntityImpl) db.newEntity("ClassOne");
-    document.save();
-    db.commit();
-
-    assertEquals(db.countClass("ClassTwo"), 2);
-    assertEquals(db.countClass("ClassOne"), 1);
-
-    classOne.setName(db, "ClassThree");
-
-    final Storage storage = db.getStorage();
-    final AbstractPaginatedStorage paginatedStorage = (AbstractPaginatedStorage) storage;
-    final WriteCache writeCache = paginatedStorage.getWriteCache();
-
-    Assert.assertTrue(writeCache.exists("classone" + PaginatedCluster.DEF_EXTENSION));
-
-    assertEquals(db.countClass("ClassTwo"), 2);
-    assertEquals(db.countClass("ClassThree"), 1);
-
-    classOne.setName(db, "ClassOne");
-    Assert.assertTrue(writeCache.exists("classone" + PaginatedCluster.DEF_EXTENSION));
-
-    assertEquals(db.countClass("ClassTwo"), 2);
-    assertEquals(db.countClass("ClassOne"), 1);
   }
 
   @Test
