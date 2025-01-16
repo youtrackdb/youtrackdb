@@ -19,15 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.collection.LazyIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.LazyIteratorListWrapper;
 import com.jetbrains.youtrack.db.internal.common.util.Sizeable;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import java.util.Iterator;
@@ -151,7 +150,6 @@ public class LinkList extends TrackedList<Identifiable> implements Sizeable {
 
   private void preAdd(Identifiable e) {
     if (e != null) {
-      RecordInternal.track(sourceRecord, e);
       if ((ridOnly || contentType == MULTIVALUE_CONTENT_TYPE.ALL_RIDS)
           && e.getIdentity().isPersistent()
           && (e instanceof EntityImpl && !((EntityImpl) e).isDirty()))
@@ -166,21 +164,18 @@ public class LinkList extends TrackedList<Identifiable> implements Sizeable {
 
   @Override
   public Identifiable set(int index, Identifiable e) {
-
     if (e != null) {
-      RecordInternal.track(sourceRecord, e);
-      if (e != null) {
-        if ((ridOnly || contentType == MULTIVALUE_CONTENT_TYPE.ALL_RIDS)
-            && e.getIdentity().isPersistent()
-            && (e instanceof EntityImpl && !((EntityImpl) e).isDirty()))
-        // IT'S BETTER TO LEAVE ALL RIDS AND EXTRACT ONLY THIS ONE
-        {
-          e = e.getIdentity();
-        } else {
-          contentType = RecordMultiValueHelper.updateContentType(contentType, e);
-        }
+      if ((ridOnly || contentType == MULTIVALUE_CONTENT_TYPE.ALL_RIDS)
+          && e.getIdentity().isPersistent()
+          && (e instanceof EntityImpl && !((EntityImpl) e).isDirty()))
+      // IT'S BETTER TO LEAVE ALL RIDS AND EXTRACT ONLY THIS ONE
+      {
+        e = e.getIdentity();
+      } else {
+        contentType = RecordMultiValueHelper.updateContentType(contentType, e);
       }
     }
+
     return super.set(index, e);
   }
 

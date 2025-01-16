@@ -21,19 +21,16 @@
 package com.jetbrains.youtrack.db.internal.core.storage.ridbag;
 
 import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
-import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent.ChangeType;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBagDelegate;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.SimpleMultiValueTracker;
 import java.util.Collection;
 import java.util.Collections;
@@ -42,7 +39,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NavigableMap;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListMap;
 import javax.annotation.Nonnull;
@@ -135,13 +131,6 @@ public class RemoteTreeRidBag implements RidBagDelegate {
               + " content of current one.");
     }
     this.owner = owner;
-    if (this.owner != null && tracker.getTimeLine() != null) {
-      for (var event : tracker.getTimeLine().getMultiValueChangeEvents()) {
-        if (Objects.requireNonNull(event.getChangeType()) == ChangeType.ADD) {
-          RecordInternal.track(this.owner, (Identifiable) event.getKey());
-        }
-      }
-    }
   }
 
   @Override
@@ -299,10 +288,6 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   }
 
   private void addEvent(RID key, RID rid) {
-    if (this.owner != null) {
-      RecordInternal.track(this.owner, rid);
-    }
-
     if (tracker.isEnabled()) {
       tracker.addNoDirty(key, rid);
     } else {
@@ -311,11 +296,6 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   }
 
   private void removeEvent(RID removed) {
-
-    if (this.owner != null) {
-      RecordInternal.unTrack(this.owner, removed);
-    }
-
     if (tracker.isEnabled()) {
       tracker.removeNoDirty(removed, removed);
     } else {

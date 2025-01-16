@@ -13,10 +13,10 @@ import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DirtyManager;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkFactory;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -55,20 +55,19 @@ public class MessageHelperTest {
       RecordInternal.setVersion(doc, 1);
 
       MessageHelper.writeIdentifiable(null,
-          channel, doc, RecordSerializerNetworkFactory.INSTANCE.current());
+          channel, doc, RecordSerializerNetworkFactory.current());
       channel.close();
 
       EntityImpl newDoc =
           (EntityImpl)
               MessageHelper.readIdentifiable(db,
-                  channel, RecordSerializerNetworkFactory.INSTANCE.current());
+                  channel, RecordSerializerNetworkFactory.current());
 
       assertThat(newDoc.getClassName()).isEqualTo("Test");
       assertThat((RidBag) newDoc.field("bag")).hasSize(1);
 
-      DirtyManager dirtyManager = RecordInternal.getDirtyManager(db, newDoc);
-      assertThat(dirtyManager.getNewRecords()).isNull();
-
+      Assert.assertTrue(
+          ((FrontendTransactionOptimistic) db.getTransaction()).getRecordOperations().isEmpty());
     } finally {
       db.close();
       youTrackDB.close();

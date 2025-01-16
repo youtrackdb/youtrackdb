@@ -495,14 +495,12 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
 
   @Override
   public BinaryResponse executeUpdateRecord(UpdateRecordRequest request) {
-
     DatabaseSessionInternal database = connection.getDatabase();
     final Record newRecord = request.getContent();
     RecordInternal.setIdentity(newRecord, request.getRid());
     RecordInternal.setVersion(newRecord, request.getVersion());
 
     RecordInternal.setContentChanged(newRecord, request.isUpdateContent());
-    RecordInternal.getDirtyManager(database, newRecord).clearForSave();
     Record currentRecord = null;
     if (newRecord instanceof EntityImpl) {
       try {

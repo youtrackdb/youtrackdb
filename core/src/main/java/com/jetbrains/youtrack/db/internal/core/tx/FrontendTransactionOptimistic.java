@@ -50,7 +50,6 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DirtyManager;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
@@ -435,47 +434,6 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
 
   public void deleteRecord(final RecordAbstract iRecord) {
     try {
-      var records = RecordInternal.getDirtyManager(database, iRecord).getUpdateRecords();
-      final var newRecords = RecordInternal.getDirtyManager(database, iRecord).getNewRecords();
-      var recordsMap = new HashMap<>(16);
-      if (records != null) {
-        for (var rec : records) {
-          rec = rec.getRecord(database);
-          var prev = recordsMap.put(rec.getIdentity(), rec);
-
-          if (prev != null && prev != rec) {
-            throw new IllegalStateException(
-                "Database :"
-                    + database.getName()
-                    + " .For record "
-                    + rec
-                    + " second instance of record  "
-                    + prev
-                    + " was registered in dirty manager, such case may lead to data corruption");
-          }
-
-          saveRecord(rec, null);
-        }
-      }
-
-      if (newRecords != null) {
-        for (var rec : newRecords) {
-          rec = rec.getRecord(database);
-          var prev = recordsMap.put(rec.getIdentity(), rec);
-          if (prev != null && prev != rec) {
-            throw new IllegalStateException(
-                "Database :"
-                    + database.getName()
-                    + " .For record "
-                    + rec
-                    + " second instance of record  "
-                    + prev
-                    + " was registered in dirty manager, such case may lead to data corruption");
-          }
-          saveRecord(rec, null);
-        }
-      }
-
       addRecordOperation(iRecord, RecordOperation.DELETED, null);
     } catch (Exception e) {
       rollback(true, 0);
@@ -496,88 +454,15 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
                 + DatabaseSession.class.getSimpleName()
                 + ".bindToSession(record) before changing it");
       }
+
       // fetch primary record if the record is a proxy record.
       passedRecord = passedRecord.getRecord(database);
+      final byte operation =
+          passedRecord.getIdentity().isValid()
+              ? RecordOperation.UPDATED
+              : RecordOperation.CREATED;
 
-      var recordsMap = new HashMap<>(16);
-      recordsMap.put(passedRecord.getIdentity(), passedRecord);
-
-      boolean originalSaved = false;
-      final DirtyManager dirtyManager = RecordInternal.getDirtyManager(database, passedRecord);
-      do {
-        final var newRecord = dirtyManager.getNewRecords();
-        final var updatedRecord = dirtyManager.getUpdateRecords();
-        dirtyManager.clear();
-        if (newRecord != null) {
-          for (RecordAbstract rec : newRecord) {
-            rec = rec.getRecord(database);
-
-            var prev = recordsMap.put(rec.getIdentity(), rec);
-            if (prev != null && prev != rec) {
-              var db = getDatabase();
-              throw new IllegalStateException(
-                  "Database :"
-                      + db.getName()
-                      + " .For record "
-                      + rec
-                      + " second instance of record  "
-                      + prev
-                      + " was registered in dirty manager, such case may lead to data corruption");
-            }
-
-            if (rec instanceof EntityImpl) {
-              EntityInternalUtils.convertAllMultiValuesToTrackedVersions((EntityImpl) rec);
-            }
-            if (rec == passedRecord) {
-              addRecordOperation(rec, RecordOperation.CREATED, clusterName);
-              originalSaved = true;
-            } else {
-              addRecordOperation(rec, RecordOperation.CREATED, database.getClusterName(rec));
-            }
-          }
-        }
-        if (updatedRecord != null) {
-          for (var rec : updatedRecord) {
-            rec = rec.getRecord(database);
-
-            var prev = recordsMap.put(rec.getIdentity(), rec);
-            if (prev != null && prev != rec) {
-              var db = getDatabase();
-              throw new IllegalStateException(
-                  "Database :"
-                      + db.getName()
-                      + " .For record "
-                      + rec
-                      + " second instance of record  "
-                      + prev
-                      + " was registered in dirty manager, such case may lead to data corruption");
-            }
-
-            if (rec instanceof EntityImpl) {
-              EntityInternalUtils.convertAllMultiValuesToTrackedVersions((EntityImpl) rec);
-            }
-            if (rec == passedRecord) {
-              final byte operation =
-                  passedRecord.getIdentity().isValid()
-                      ? RecordOperation.UPDATED
-                      : RecordOperation.CREATED;
-
-              addRecordOperation(rec, operation, clusterName);
-              originalSaved = true;
-            } else {
-              addRecordOperation(rec, RecordOperation.UPDATED, database.getClusterName(rec));
-            }
-          }
-        }
-      } while (dirtyManager.getNewRecords() != null || dirtyManager.getUpdateRecords() != null);
-
-      if (!originalSaved && passedRecord.isDirty()) {
-        final byte operation =
-            passedRecord.getIdentity().isValid()
-                ? RecordOperation.UPDATED
-                : RecordOperation.CREATED;
-        addRecordOperation(passedRecord, operation, clusterName);
-      }
+      addRecordOperation(passedRecord, operation, clusterName);
       return passedRecord;
     } catch (Exception e) {
       rollback(true, 0);

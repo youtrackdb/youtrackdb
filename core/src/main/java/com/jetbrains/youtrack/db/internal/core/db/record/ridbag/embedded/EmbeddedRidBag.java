@@ -33,7 +33,6 @@ import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLin
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBagDelegate;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.SimpleMultiValueTracker;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.Change;
@@ -213,24 +212,8 @@ public class EmbeddedRidBag implements RidBagDelegate {
               + " if you want to use it in other entity create new rid bag instance and copy"
               + " content of current one.");
     }
-    if (this.owner != null) {
-      for (int i = 0; i < entriesLength; i++) {
-        final Object entry = entries[i];
-        if (entry instanceof RID rid) {
-          RecordInternal.unTrack(this.owner, rid);
-        }
-      }
-    }
 
     this.owner = owner;
-    if (this.owner != null) {
-      for (int i = 0; i < entriesLength; i++) {
-        final Object entry = entries[i];
-        if (entry instanceof RID rid) {
-          RecordInternal.track(this.owner, rid);
-        }
-      }
-    }
   }
 
   @Override
@@ -430,9 +413,6 @@ public class EmbeddedRidBag implements RidBagDelegate {
 
   public boolean addInternal(final RID rid) {
     addEntry(rid);
-    if (this.owner != null) {
-      RecordInternal.track(this.owner, rid);
-    }
     return true;
   }
 
@@ -476,10 +456,6 @@ public class EmbeddedRidBag implements RidBagDelegate {
   }
 
   private void addEvent(final RID key, final RID rid) {
-    if (this.owner != null) {
-      RecordInternal.track(this.owner, rid);
-    }
-
     if (tracker.isEnabled()) {
       tracker.add(key, rid);
     } else {
@@ -487,23 +463,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
     }
   }
 
-  private void updateEvent(RID key, RID oldValue, RID newValue) {
-    if (this.owner != null) {
-      RecordInternal.unTrack(this.owner, oldValue);
-    }
-
-    if (tracker.isEnabled()) {
-      tracker.updated(key, oldValue, newValue);
-    } else {
-      setDirty();
-    }
-  }
-
   private void removeEvent(RID removed) {
-    if (this.owner != null) {
-      RecordInternal.unTrack(this.owner, removed);
-    }
-
     if (tracker.isEnabled()) {
       tracker.remove(removed, removed);
     } else {

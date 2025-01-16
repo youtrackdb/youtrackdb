@@ -589,15 +589,15 @@ public class CRUDTest extends BaseDBTest {
           a.<List<Identifiable>>getProperty("addresses")
               .get(0)
               .<Entity>getRecord(db)
-              .getElementProperty("city")
+              .getEntityProperty("city")
               .getProperty("name"),
           rome.<String>getProperty("name"));
       Assert.assertEquals(
           a.<List<Identifiable>>getProperty("addresses")
               .get(0)
               .<Entity>getRecord(db)
-              .getElementProperty("city")
-              .getElementProperty("country")
+              .getEntityProperty("city")
+              .getEntityProperty("country")
               .getProperty("name"),
           rome.<Entity>getRecord(db)
               .<Identifiable>getProperty("country")
@@ -2168,17 +2168,17 @@ public class CRUDTest extends BaseDBTest {
       Assert.fail();
       LogManager.instance().error(this, "Error reading byte[]", ioe);
     }
-    Assert.assertTrue(loaded.getElementProperty("document") instanceof EntityImpl);
+    Assert.assertTrue(loaded.getEntityProperty("document") instanceof EntityImpl);
     Assert.assertEquals(
-        loaded.getElementProperty("document").getProperty("testField"), "testValue");
-    Assert.assertTrue(loaded.getElementProperty("document").getIdentity().isPersistent());
+        loaded.getEntityProperty("document").getProperty("testField"), "testValue");
+    Assert.assertTrue(loaded.getEntityProperty("document").getIdentity().isPersistent());
 
-    Assert.assertTrue(loaded.getElementProperty("embeddedDocument") instanceof EntityImpl);
+    Assert.assertTrue(loaded.getEntityProperty("embeddedDocument") instanceof EntityImpl);
     Assert.assertEquals(
-        loaded.getElementProperty("embeddedDocument").getProperty("testEmbeddedField"),
+        loaded.getEntityProperty("embeddedDocument").getProperty("testEmbeddedField"),
         "testEmbeddedValue");
     Assert.assertFalse(
-        ((RecordId) loaded.getElementProperty("embeddedDocument").getIdentity()).isValid());
+        ((RecordId) loaded.getEntityProperty("embeddedDocument").getIdentity()).isValid());
 
     db.commit();
     db.close();
@@ -2491,7 +2491,7 @@ public class CRUDTest extends BaseDBTest {
       profile = entries;
       Assert.assertEquals(
           profile
-              .getElementProperty("location")
+              .getEntityProperty("location")
               .<Entity>getRecord(db)
               .<Identifiable>getProperty("city")
               .<Entity>getRecord(db)

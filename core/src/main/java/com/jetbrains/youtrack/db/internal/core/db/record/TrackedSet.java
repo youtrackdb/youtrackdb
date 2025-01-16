@@ -21,11 +21,10 @@
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.SimpleMultiValueTracker;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
@@ -217,10 +216,6 @@ public class TrackedSet<T> extends LinkedHashSet<T>
     if (embeddedCollection && e instanceof EntityImpl && !((EntityImpl) e).getIdentity()
         .isValid()) {
       EntityInternalUtils.addOwner((EntityImpl) e, this);
-    }
-
-    if (e instanceof EntityImpl) {
-      RecordInternal.track(sourceRecord, (EntityImpl) e);
     }
   }
 

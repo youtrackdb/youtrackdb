@@ -49,7 +49,7 @@ public interface Entity extends Record {
    * @param <RET> the type of the property
    * @return Returns the property value
    * @see #getLinkProperty(String)
-   * @see #getElementProperty(String)
+   * @see #getEntityProperty(String)
    * @see #getVertexProperty(String)
    * @see #getEdgeProperty(String)
    * @see #getBlobProperty(String)
@@ -66,7 +66,7 @@ public interface Entity extends Record {
    * @throws DatabaseException if the property is not an Entity
    */
   @Nullable
-  Entity getElementProperty(String name);
+  Entity getEntityProperty(String name);
 
   /**
    * Returns the property value as an Vertex. If the property is a link, it will be loaded and
@@ -78,7 +78,7 @@ public interface Entity extends Record {
    */
   @Nullable
   default Vertex getVertexProperty(String propertyName) {
-    var entity = getElementProperty(propertyName);
+    var entity = getEntityProperty(propertyName);
     if (entity == null) {
       return null;
     }
@@ -99,7 +99,7 @@ public interface Entity extends Record {
    */
   @Nullable
   default Edge getEdgeProperty(String propertyName) {
-    var entity = getElementProperty(propertyName);
+    var entity = getEntityProperty(propertyName);
     if (entity == null) {
       return null;
     }

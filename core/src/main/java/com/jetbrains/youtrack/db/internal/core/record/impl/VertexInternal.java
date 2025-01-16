@@ -81,11 +81,11 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
   @Nullable
   @Override
-  default Entity getElementProperty(String name) {
+  default Entity getEntityProperty(String name) {
     checkPropertyName(name);
 
     var baseEntity = getBaseEntity();
-    return baseEntity.getElementProperty(name);
+    return baseEntity.getEntityProperty(name);
   }
 
   @Nullable

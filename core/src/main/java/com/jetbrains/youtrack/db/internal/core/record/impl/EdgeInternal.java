@@ -49,7 +49,7 @@ public interface EdgeInternal extends Edge, EntityInternal {
 
   @Nullable
   @Override
-  default Entity getElementProperty(String name) {
+  default Entity getEntityProperty(String name) {
     checkPropertyName(name);
 
     var baseEntity = getBaseEntity();
@@ -57,7 +57,7 @@ public interface EdgeInternal extends Edge, EntityInternal {
       return null;
     }
 
-    return baseEntity.getElementProperty(name);
+    return baseEntity.getEntityProperty(name);
   }
 
   @Nullable

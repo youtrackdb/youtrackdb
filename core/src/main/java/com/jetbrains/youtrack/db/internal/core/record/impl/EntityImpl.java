@@ -430,7 +430,7 @@ public class EntityImpl extends RecordAbstract
 
   @Nullable
   @Override
-  public Entity getElementProperty(String name) {
+  public Entity getEntityProperty(String name) {
     {
       var property = getProperty(name);
 
@@ -486,14 +486,8 @@ public class EntityImpl extends RecordAbstract
         && (rid.isPersistent() || rid.isNew())) {
       // CREATE THE ENTITY OBJECT IN LAZY WAY
       try {
-        RET newValue = session.load((RID) value);
+        value = session.load((RID) value);
 
-        unTrack(rid);
-        track((Identifiable) newValue);
-        value = newValue;
-        if (trackingChanges) {
-          RecordInternal.setDirtyManager(getSession(), (Record) value, this.getDirtyManager());
-        }
         EntityEntry entry = fields.get(name);
         entry.disableTracking(this, entry.value);
         entry.value = value;
@@ -811,19 +805,12 @@ public class EntityImpl extends RecordAbstract
       }
     }
 
-    if (oldValue instanceof Identifiable) {
-      unTrack((Identifiable) oldValue);
-    }
-
     if (value != null) {
       if (value instanceof EntityImpl) {
         if (PropertyType.EMBEDDED.equals(fieldType)) {
           final EntityImpl embeddedEntity = (EntityImpl) value;
           EntityInternalUtils.addOwner(embeddedEntity, this);
         }
-      }
-      if (value instanceof Identifiable) {
-        track((Identifiable) value);
       }
 
       if (value instanceof RidBag ridBag) {
@@ -908,9 +895,6 @@ public class EntityImpl extends RecordAbstract
     }
     fieldSize--;
     entry.disableTracking(this, oldValue);
-    if (oldValue instanceof Identifiable) {
-      unTrack((Identifiable) oldValue);
-    }
     if (oldValue instanceof RidBag) {
       ((RidBag) oldValue).setOwner(null);
     }
@@ -1503,13 +1487,6 @@ public class EntityImpl extends RecordAbstract
     destination.dirty = dirty; // LEAVE IT AS LAST TO AVOID SOMETHING SET THE FLAG TO TRUE
     destination.contentChanged = contentChanged;
 
-    var dirtyManager = new DirtyManager();
-    if (dirty > 0) {
-      dirtyManager.setDirty(this);
-    }
-
-    destination.dirtyManager = dirtyManager;
-
     return destination;
   }
 
@@ -1711,13 +1688,8 @@ public class EntityImpl extends RecordAbstract
       // CREATE THE ENTITY OBJECT IN LAZY WAY
       var db = getSession();
       try {
-        RET newValue = db.load((RID) value);
-        unTrack((RID) value);
-        track((Identifiable) newValue);
-        value = newValue;
-        if (this.trackingChanges) {
-          RecordInternal.setDirtyManager(getSession(), (Record) value, this.getDirtyManager());
-        }
+        value = db.load((RID) value);
+
         if (!iFieldName.contains(".")) {
           EntityEntry entry = fields.get(iFieldName);
           entry.disableTracking(this, entry.value);
@@ -2120,10 +2092,6 @@ public class EntityImpl extends RecordAbstract
       }
     }
 
-    if (oldValue instanceof Identifiable) {
-      unTrack((Identifiable) oldValue);
-    }
-
     if (iPropertyValue != null) {
       if (iPropertyValue instanceof EntityImpl) {
         if (PropertyType.EMBEDDED.equals(fieldType)) {
@@ -2135,9 +2103,6 @@ public class EntityImpl extends RecordAbstract
             EntityInternalUtils.removeOwner(embeddedEntity, this);
           }
         }
-      }
-      if (iPropertyValue instanceof Identifiable) {
-        track((Identifiable) iPropertyValue);
       }
 
       if (iPropertyValue instanceof RidBag ridBag) {
@@ -2220,9 +2185,6 @@ public class EntityImpl extends RecordAbstract
     fieldSize--;
 
     entry.disableTracking(this, oldValue);
-    if (oldValue instanceof Identifiable) {
-      unTrack((Identifiable) oldValue);
-    }
     if (oldValue instanceof RidBag) {
       ((RidBag) oldValue).setOwner(null);
     }
@@ -2482,11 +2444,6 @@ public class EntityImpl extends RecordAbstract
       if (ownerEntity != null) {
         ownerEntity.setDirty();
       }
-    } else {
-      if (!isDirty()) {
-        checkForBinding();
-        getDirtyManager().setDirty(this);
-      }
     }
 
     // THIS IS IMPORTANT TO BE SURE THAT FIELDS ARE LOADED BEFORE IT'S TOO LATE AND THE RECORD
@@ -2507,7 +2464,6 @@ public class EntityImpl extends RecordAbstract
       }
     }
 
-    getDirtyManager().setDirty(this);
     // THIS IS IMPORTANT TO BE SURE THAT FIELDS ARE LOADED BEFORE IT'S TOO LATE AND THE RECORD
     // _SOURCE IS NULL
     checkForFields();
@@ -3349,10 +3305,6 @@ public class EntityImpl extends RecordAbstract
     if (iFieldValue instanceof RidBag) {
       ((RidBag) iFieldValue).setRecordAndField(recordId, iFieldName);
     }
-    if (iFieldValue instanceof Identifiable
-        && !((Identifiable) iFieldValue).getIdentity().isPersistent()) {
-      track((Identifiable) iFieldValue);
-    }
   }
 
   private EntityEntry getOrCreate(String key) {
@@ -3553,12 +3505,6 @@ public class EntityImpl extends RecordAbstract
 
     if (recordId.isPersistent()) {
       throw new DatabaseException("Cannot add owner to a persistent entity");
-    }
-
-    if (owner == null) {
-      if (dirtyManager != null && this.getIdentity().isNew()) {
-        dirtyManager.removeNew(this);
-      }
     }
 
     this.owner = new WeakReference<>(iOwner);
@@ -4100,20 +4046,6 @@ public class EntityImpl extends RecordAbstract
         immutableSchemaVersion = immutableSchema.getVersion();
         immutableClazz = (SchemaImmutableClass) immutableSchema.getClass(className);
       }
-    }
-  }
-
-  @Override
-  protected void track(Identifiable id) {
-    if (trackingChanges && id.getIdentity().getClusterId() != -2) {
-      super.track(id);
-    }
-  }
-
-  @Override
-  protected void unTrack(Identifiable id) {
-    if (trackingChanges && id.getIdentity().getClusterId() != -2) {
-      super.unTrack(id);
     }
   }
 

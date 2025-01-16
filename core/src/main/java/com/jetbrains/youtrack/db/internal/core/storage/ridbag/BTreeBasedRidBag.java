@@ -37,7 +37,6 @@ import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLin
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBagDelegate;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.SimpleMultiValueTracker;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
@@ -424,24 +423,8 @@ public class BTreeBasedRidBag implements RidBagDelegate {
               + " if you want to use it in other entity create new rid bag instance and copy"
               + " content of current one.");
     }
-    if (this.owner != null) {
-      for (Identifiable entry : newEntries.keySet()) {
-        RecordInternal.unTrack(this.owner, entry);
-      }
-      for (Identifiable entry : changes.keySet()) {
-        RecordInternal.unTrack(this.owner, entry);
-      }
-    }
 
     this.owner = owner;
-    if (this.owner != null) {
-      for (Identifiable entry : newEntries.keySet()) {
-        RecordInternal.track(this.owner, entry);
-      }
-      for (Identifiable entry : changes.keySet()) {
-        RecordInternal.track(this.owner, entry);
-      }
-    }
   }
 
   @Override
@@ -964,10 +947,6 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   }
 
   private void addEvent(RID key, RID rid) {
-    if (this.owner != null) {
-      RecordInternal.track(this.owner, rid);
-    }
-
     if (tracker.isEnabled()) {
       tracker.addNoDirty(key, rid);
     } else {
@@ -976,11 +955,6 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   }
 
   private void removeEvent(RID removed) {
-
-    if (this.owner != null) {
-      RecordInternal.unTrack(this.owner, removed);
-    }
-
     if (tracker.isEnabled()) {
       tracker.removeNoDirty(removed, removed);
     } else {

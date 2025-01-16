@@ -33,7 +33,6 @@ import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.IdentityChangeListener;
 import com.jetbrains.youtrack.db.internal.core.id.ImmutableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DirtyManager;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJSON;
@@ -65,8 +64,6 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   protected long dirty = 1;
   protected boolean contentChanged = true;
   protected RecordElement.STATUS status = RecordElement.STATUS.LOADED;
-
-  protected DirtyManager dirtyManager;
 
   private long loadingCounter;
   private DatabaseSessionInternal session;
@@ -142,7 +139,6 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     }
 
     contentChanged = false;
-    dirtyManager = null;
     source = iRecordBuffer;
     size = iRecordBuffer != null ? iRecordBuffer.length : 0;
     status = RecordElement.STATUS.LOADED;
@@ -156,7 +152,6 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     }
 
     contentChanged = false;
-    dirtyManager = null;
     source = iRecordBuffer;
     size = iRecordBuffer != null ? iRecordBuffer.length : 0;
     status = RecordElement.STATUS.LOADED;
@@ -424,7 +419,6 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     cloned.recordFormat = recordFormat;
     cloned.dirty = 0;
     cloned.contentChanged = false;
-    cloned.dirtyManager = null;
     cloned.session = session;
 
     return cloned;
@@ -442,15 +436,10 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     status = RecordElement.STATUS.LOADED;
     source = iBuffer;
     size = iBuffer != null ? iBuffer.length : 0;
-    dirtyManager = null;
 
     if (source != null && source.length > 0) {
       dirty = iDirty ? 1 : 0;
       contentChanged = iDirty;
-    }
-
-    if (dirty > 0) {
-      getDirtyManager().setDirty(this);
     }
 
     return this;
@@ -472,15 +461,10 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     status = RecordElement.STATUS.LOADED;
     source = iBuffer;
     size = iBuffer != null ? iBuffer.length : 0;
-    dirtyManager = null;
 
     if (source != null && source.length > 0) {
       dirty = iDirty ? 1 : 0;
       contentChanged = iDirty;
-    }
-
-    if (dirty > 0) {
-      getDirtyManager().setDirty(this);
     }
 
     return this;
@@ -499,7 +483,6 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   protected void unsetDirty() {
     contentChanged = false;
     dirty = 0;
-    dirtyManager = null;
   }
 
   protected abstract byte getRecordType();
@@ -560,37 +543,6 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
 
   protected void clearSource() {
     this.source = null;
-  }
-
-  protected DirtyManager getDirtyManager() {
-    if (this.dirtyManager == null) {
-
-      this.dirtyManager = new DirtyManager();
-      if (this.recordId.isNew() && getOwner() == null) {
-        this.dirtyManager.setDirty(this);
-      }
-    }
-    return this.dirtyManager;
-  }
-
-  void setDirtyManager(DirtyManager dirtyManager) {
-    checkForBinding();
-
-    if (this.dirtyManager != null && dirtyManager != null) {
-      dirtyManager.merge(this.dirtyManager);
-    }
-    this.dirtyManager = dirtyManager;
-    if (this.recordId.isNew() && getOwner() == null && this.dirtyManager != null) {
-      this.dirtyManager.setDirty(this);
-    }
-  }
-
-  protected void track(Identifiable id) {
-    this.getDirtyManager().track(getSessionIfDefined(), this, id);
-  }
-
-  protected void unTrack(Identifiable id) {
-    this.getDirtyManager().unTrack(this, id);
   }
 
   public void resetToNew() {

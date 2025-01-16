@@ -1,15 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.db.record.impl;
 
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- *
- */
 public class DirtyManagerReferenceCleanTest extends DbTestBase {
 
   public void beforeTest() throws Exception {
@@ -20,23 +16,34 @@ public class DirtyManagerReferenceCleanTest extends DbTestBase {
 
   @Test
   public void testReferDeletedDocument() {
-    db.begin();
-    EntityImpl doc = (EntityImpl) db.newEntity();
-    EntityImpl doc1 = (EntityImpl) db.newEntity();
-    doc1.field("aa", "aa");
-    doc.field("ref", doc1);
-    doc.field("bb");
+    var id = db.computeInTx(() -> {
+      EntityImpl doc = (EntityImpl) db.newEntity();
+      EntityImpl doc1 = (EntityImpl) db.newEntity();
+      doc1.field("aa", "aa");
+      doc.field("ref", doc1);
+      doc.field("bb");
 
-    doc.save();
-    Identifiable id = doc.getIdentity();
-    db.commit();
+      doc.save();
+      return doc.getIdentity();
+    });
 
-    db.begin();
-    doc = db.load(id.getIdentity());
-    doc1 = doc.field("ref");
-    doc1.delete();
-    doc.field("ab", "ab");
-    Assert.assertFalse(RecordInternal.getDirtyManager(db, doc).getUpdateRecords().contains(doc1));
-    db.commit();
+    var rid1 = db.computeInTx(() -> {
+      var doc = db.loadEntity(id.getIdentity());
+      var doc1 = doc.getEntityProperty("ref");
+      doc1.delete();
+      doc.setProperty("ab", "ab");
+      return doc1.getIdentity();
+    });
+
+    db.executeInTx(() -> {
+      try {
+        db.loadEntity(rid1);
+        Assert.fail();
+      } catch (RecordNotFoundException e) {
+        //
+      }
+      var doc = db.loadEntity(id.getIdentity());
+      Assert.assertEquals("ab", doc.getProperty("ab"));
+    });
   }
 }

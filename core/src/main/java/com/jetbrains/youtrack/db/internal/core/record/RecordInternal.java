@@ -20,13 +20,10 @@
 
 package com.jetbrains.youtrack.db.internal.core.record;
 
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DirtyManager;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 
 public class RecordInternal {
@@ -121,41 +118,6 @@ public class RecordInternal {
   public static void setRecordSerializer(final Record record,
       final RecordSerializer serializer) {
     ((RecordAbstract) record).recordFormat = serializer;
-  }
-
-  public static DirtyManager getDirtyManager(DatabaseSessionInternal db, Record record) {
-    if (!(record instanceof RecordAbstract)) {
-      record = record.getRecord(db);
-    }
-    return ((RecordAbstract) record).getDirtyManager();
-  }
-
-  public static void setDirtyManager(DatabaseSessionInternal db, Record record,
-      final DirtyManager dirtyManager) {
-    if (!(record instanceof RecordAbstract)) {
-      record = record.getRecord(db);
-    }
-    ((RecordAbstract) record).setDirtyManager(dirtyManager);
-  }
-
-  public static void track(final RecordElement pointer, final Identifiable pointed) {
-    RecordElement firstRecord = pointer;
-    while (firstRecord != null && !(firstRecord instanceof Record)) {
-      firstRecord = firstRecord.getOwner();
-    }
-    if (firstRecord instanceof RecordAbstract) {
-      ((RecordAbstract) firstRecord).track(pointed);
-    }
-  }
-
-  public static void unTrack(final RecordElement pointer, final Identifiable pointed) {
-    RecordElement firstRecord = pointer;
-    while (firstRecord != null && !(firstRecord instanceof Record)) {
-      firstRecord = firstRecord.getOwner();
-    }
-    if (firstRecord instanceof RecordAbstract) {
-      ((RecordAbstract) firstRecord).unTrack(pointed);
-    }
   }
 
   public static RecordSerializer getRecordSerializer(Record iRecord) {
