@@ -1,6 +1,6 @@
 ## YouTrackDB
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![TeamCity](https://youtrackdb.teamcity.com/app/rest/builds/buildType:(id:YouTrackDB_UnitTests)/statusIcon)](https://youtrackdb.teamcity.com/viewType.html?buildTypeId=YouTrackDB_UnitTests&guest=1) 
 
 ------
 
@@ -25,12 +25,11 @@ YouTrackDB is a binary compatible fork of OrientDB supported and developed by [Y
 
 ### Main References
 - For any questions, please visit the [YouTrackDB Community Group](https://github.com/youtrackdb/youtrackdb/discussions)
-- You can find status of our builds on [![TeamCity](https://youtrackdb.teamcity.com/app/rest/builds/buildType:(id:YouTrackDB_UnitTests)/statusIcon)](https://youtrackdb.teamcity.com/viewType.html?buildTypeId=YouTrackDB_UnitTests&guest=1)
-- If you have ideas to share or bugs to report, please visit our [issue tracker](https://youtrack.jetbrains.com/issues/YTDB). Using those saved searches, you can find: [Main features planned for v1 release](https://youtrack.jetbrains.com/search/YTDB%20Main%20features%201.0-37625), [all features planned for v1 release](https://youtrack.jetbrains.com/search/YTDB%20All%20features-37628), [all issues planned for v1 release](https://youtrack.jetbrains.com/search/YTDB%20version%201.0-37587)
+- If you have ideas to share or bugs to report, please visit our [issue tracker](https://youtrack.jetbrains.com/issues/YTDB). <br/>
+  Using those saved searches, you can find: [Main features planned for v1 release](https://youtrack.jetbrains.com/search/YTDB%20Main%20features%201.0-37625), [all features planned for v1 release](https://youtrack.jetbrains.com/search/YTDB%20All%20features-37628), [all issues planned for v1 release](https://youtrack.jetbrains.com/search/YTDB%20version%201.0-37587)
 - In our [knowledge base](https://youtrack.jetbrains.com/articles/YTDB) you will find more information about our project.
-- Follow us on social networks: [![Bluesky](https://img.shields.io/badge/Bluesky-0285FF?style=for-the-badge&logo=Bluesky&logoColor=white)](https://bsky.app/profile/youtrackdb.bsky.social) [![Medium](https://img.shields.io/badge/Medium-12100E?style=for-the-badge&logo=medium&logoColor=white)](https://medium.com/@youtrackdb) [![Facebook](https://img.shields.io/badge/Facebook-%231877F2.svg?style=for-the-badge&logo=Facebook&logoColor=white)](https://www.facebook.com/profile.php?id=61571160061177) [![X](https://img.shields.io/badge/X-%23000000.svg?style=for-the-badge&logo=X&logoColor=white)](https://x.com/YouTrackDB) [![Telegram](https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/youtrackdb) [![Reddit](https://img.shields.io/badge/Reddit-%23FF4500.svg?style=for-the-badge&logo=Reddit&logoColor=white)](https://www.reddit.com/r/youtrackdb/)
 - We have a Slack chat with developers for our contributors. If you want to join, please read the details in our [knowledge base](https://youtrack.jetbrains.com/articles/YTDB-A-5/Slack-with-developers-for-contributors).
-  
-### Licensing
 
-YouTrackDB is licensed under the Apache 2 license. 
+------
+
+[![Bluesky](https://img.shields.io/badge/Bluesky-0285FF?style=for-the-badge&logo=Bluesky&logoColor=white)](https://bsky.app/profile/youtrackdb.bsky.social) [![Medium](https://img.shields.io/badge/Medium-12100E?style=for-the-badge&logo=medium&logoColor=white)](https://medium.com/@youtrackdb) [![Facebook](https://img.shields.io/badge/Facebook-%231877F2.svg?style=for-the-badge&logo=Facebook&logoColor=white)](https://www.facebook.com/profile.php?id=61571160061177) [![X](https://img.shields.io/badge/X-%23000000.svg?style=for-the-badge&logo=X&logoColor=white)](https://x.com/YouTrackDB) [![Telegram](https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/youtrackdb) [![Reddit](https://img.shields.io/badge/Reddit-%23FF4500.svg?style=for-the-badge&logo=Reddit&logoColor=white)](https://www.reddit.com/r/youtrackdb/)
