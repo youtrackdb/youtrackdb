@@ -527,10 +527,10 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
     //noinspection deprecation
     writer.writeAttribute(2, true, "version", schema.getVersion());
     writer.writeAttribute(2, false, "blob-clusters", database.getBlobClusterIds());
-    if (!schema.getClasses().isEmpty()) {
+    if (!schema.getClasses(database).isEmpty()) {
       writer.beginCollection(2, true, "classes");
 
-      final List<SchemaClass> classes = new ArrayList<>(schema.getClasses());
+      final List<SchemaClass> classes = new ArrayList<>(schema.getClasses(database));
       Collections.sort(classes);
 
       for (SchemaClass cls : classes) {
@@ -623,7 +623,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
 
     writer.endObject(1, true);
 
-    listener.onMessage("OK (" + schema.getClasses().size() + " classes)");
+    listener.onMessage("OK (" + schema.getClasses(database).size() + " classes)");
   }
 
   private boolean exportRecord(

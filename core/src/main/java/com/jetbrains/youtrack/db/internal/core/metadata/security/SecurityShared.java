@@ -673,7 +673,7 @@ public class SecurityShared implements SecurityInternal {
   }
 
   public SecurityUserIml create(final DatabaseSessionInternal session) {
-    if (!session.getMetadata().getSchema().getClasses().isEmpty()) {
+    if (!session.getMetadata().getSchema().getClasses(session).isEmpty()) {
       return null;
     }
 
@@ -1358,7 +1358,7 @@ public class SecurityShared implements SecurityInternal {
 
   private void initPredicateSecurityOptimizationsInternal(DatabaseSessionInternal session) {
     Map<String, Map<String, Boolean>> result = new HashMap<>();
-    Collection<SchemaClass> allClasses = session.getMetadata().getSchema().getClasses();
+    Collection<SchemaClass> allClasses = session.getMetadata().getSchema().getClasses(session);
 
     if (!session
         .getMetadata()

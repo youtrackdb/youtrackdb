@@ -505,7 +505,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
         "\nNon merge mode (-merge=false): removing all default non security classes");
 
     final Schema schema = database.getMetadata().getSchema();
-    final Collection<SchemaClass> classes = schema.getClasses();
+    final Collection<SchemaClass> classes = schema.getClasses(database);
     final SchemaClass role = schema.getClass(Role.CLASS_NAME);
     final SchemaClass user = schema.getClass(SecurityUserIml.CLASS_NAME);
     final SchemaClass identity = schema.getClass(Identity.CLASS_NAME);

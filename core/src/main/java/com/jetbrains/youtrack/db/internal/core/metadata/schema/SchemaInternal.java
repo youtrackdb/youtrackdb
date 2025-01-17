@@ -1,6 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
@@ -11,7 +12,7 @@ public interface SchemaInternal extends Schema {
 
   ImmutableSchema makeSnapshot();
 
-  Set<SchemaClass> getClassesRelyOnCluster(final String iClusterName);
+  Set<SchemaClass> getClassesRelyOnCluster(DatabaseSession db, final String iClusterName);
 
   ClusterSelectionFactory getClusterSelectionFactory();
 

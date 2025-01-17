@@ -49,7 +49,7 @@ public class ServerCommandPostClass extends ServerCommandAuthenticatedDbAbstract
           HttpUtils.STATUS_CREATED_CODE,
           HttpUtils.STATUS_CREATED_DESCRIPTION,
           HttpUtils.CONTENT_TEXT_PLAIN,
-          db.getMetadata().getSchema().getClasses().size(),
+          db.getMetadata().getSchema().getClasses(db).size(),
           null);
 
     }

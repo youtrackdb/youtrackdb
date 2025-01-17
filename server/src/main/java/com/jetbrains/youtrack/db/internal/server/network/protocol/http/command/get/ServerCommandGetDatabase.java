@@ -220,11 +220,11 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
 
       json.endObject();
 
-      if (db.getMetadata().getImmutableSchemaSnapshot().getClasses() != null) {
+      if (db.getMetadata().getImmutableSchemaSnapshot().getClasses(db) != null) {
         json.beginCollection("classes");
         List<String> classNames = new ArrayList<String>();
 
-        for (SchemaClass cls : db.getMetadata().getImmutableSchemaSnapshot().getClasses()) {
+        for (SchemaClass cls : db.getMetadata().getImmutableSchemaSnapshot().getClasses(db)) {
           classNames.add(cls.getName());
         }
         Collections.sort(classNames);

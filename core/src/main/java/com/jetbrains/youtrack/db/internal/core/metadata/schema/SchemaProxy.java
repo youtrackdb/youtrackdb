@@ -19,19 +19,24 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
+import com.jetbrains.youtrack.db.api.schema.IndexDefinition;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ProxedResource;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection.ClusterSelectionFactory;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import javax.annotation.Nonnull;
 
 /**
  * Proxy class to use the shared SchemaShared instance. Before to delegate each operations it sets
@@ -149,8 +154,55 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaI
     return delegate.getClass(iClassName);
   }
 
-  public Collection<SchemaClass> getClasses() {
+  public Collection<SchemaClass> getClasses(DatabaseSession db) {
     return delegate.getClasses(database);
+  }
+
+  @Override
+  public Collection<String> getIndexes(DatabaseSession db) {
+    var sessionInternal = (DatabaseSessionInternal) db;
+    var indexManager = sessionInternal.getMetadata().getIndexManager();
+
+    var indexesInternal = indexManager.getIndexes();
+    var indexes = new HashSet<String>(indexesInternal.size());
+    for (var index : indexesInternal) {
+      indexes.add(index.getName());
+    }
+
+    return indexes;
+  }
+
+  @Override
+  public boolean indexExists(DatabaseSession db, String indexName) {
+    var sessionInternal = (DatabaseSessionInternal) db;
+    var indexManager = sessionInternal.getMetadata().getIndexManagerInternal();
+
+    return indexManager.existsIndex(indexName);
+  }
+
+  @Override
+  public @Nonnull IndexDefinition getIndexDefinition(DatabaseSession db, String indexName) {
+    var sessionInternal = (DatabaseSessionInternal) db;
+    var indexManager = sessionInternal.getMetadata().getIndexManagerInternal();
+    var index = indexManager.getIndex(sessionInternal, indexName);
+
+    if (index == null) {
+      throw new IllegalArgumentException("Index '" + indexName + "' not found");
+    }
+
+    var indexDefinition = index.getDefinition();
+
+    var metadata = index.getMetadata();
+
+    if (metadata != null) {
+      metadata = Collections.emptyMap();
+    }
+
+    return new IndexDefinition(indexName, indexDefinition.getClassName(),
+        Collections.unmodifiableList(indexDefinition.getFields()),
+        SchemaClass.INDEX_TYPE.valueOf(index.getType()),
+        indexDefinition.isNullValuesIgnored(),
+        indexDefinition.getCollate().getName(), metadata);
   }
 
   @Deprecated
@@ -185,7 +237,7 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaI
   }
 
   @Override
-  public Set<SchemaClass> getClassesRelyOnCluster(final String iClusterName) {
+  public Set<SchemaClass> getClassesRelyOnCluster(DatabaseSession db, final String iClusterName) {
     return delegate.getClassesRelyOnCluster(database, iClusterName);
   }
 
@@ -198,7 +250,6 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaI
   public SchemaClass getClassByClusterId(int clusterId) {
     return delegate.getClassByClusterId(clusterId);
   }
-
 
 
   @Override

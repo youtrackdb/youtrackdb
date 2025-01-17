@@ -19,10 +19,13 @@
  */
 package com.jetbrains.youtrack.db.api.schema;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 public interface Schema {
+
   int countClasses();
 
   SchemaClass createClass(String iClassName);
@@ -69,7 +72,14 @@ public interface Schema {
 
   SchemaClass getOrCreateClass(String iClassName, SchemaClass... superClasses);
 
-  Collection<SchemaClass> getClasses();
+  Collection<SchemaClass> getClasses(DatabaseSession db);
+
+  Collection<String> getIndexes(DatabaseSession db);
+
+  boolean indexExists(DatabaseSession db, String indexName);
+
+  @Nonnull
+  IndexDefinition getIndexDefinition(DatabaseSession db, String indexName);
 
   int getVersion();
 

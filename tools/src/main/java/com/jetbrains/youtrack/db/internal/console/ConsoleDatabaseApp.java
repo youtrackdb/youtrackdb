@@ -2256,7 +2256,8 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       currentDatabase.getMetadata().reload();
       final List<SchemaClass> classes =
           new ArrayList<SchemaClass>(
-              currentDatabase.getMetadata().getImmutableSchemaSnapshot().getClasses());
+              currentDatabase.getMetadata().getImmutableSchemaSnapshot()
+                  .getClasses(currentDatabase));
       Collections.sort(
           classes,
           new Comparator<SchemaClass>() {

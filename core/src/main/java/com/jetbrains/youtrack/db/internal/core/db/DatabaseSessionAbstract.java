@@ -688,7 +688,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   public void checkForClusterPermissions(final String iClusterName) {
     // CHECK FOR ORESTRICTED
     final Set<SchemaClass> classes =
-        getMetadata().getImmutableSchemaSnapshot().getClassesRelyOnCluster(iClusterName);
+        getMetadata().getImmutableSchemaSnapshot().getClassesRelyOnCluster(this, iClusterName);
+
     for (SchemaClass c : classes) {
       if (c.isSubClassOf(SecurityShared.RESTRICTED_CLASSNAME)) {
         throw new SecurityException(

@@ -231,7 +231,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
             "Class '"
                 + rid
                 + "' created successfully with id="
-                + db.getMetadata().getSchema().getClasses().size(),
+                + db.getMetadata().getSchema().getClasses(db).size(),
             null);
 
       } catch (Exception e) {

@@ -19,13 +19,13 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
+import com.jetbrains.youtrack.db.api.schema.IndexDefinition;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.util.ArrayUtils;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection.ClusterSelectionFactory;
@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
 
 /**
  * @since 10/21/14
@@ -56,6 +57,7 @@ public class ImmutableSchema implements SchemaInternal {
   private final RID identity;
   private final List<GlobalProperty> properties;
   private final ClusterSelectionFactory clusterSelectionFactory;
+  private final Map<String, IndexDefinition> indexes;
 
   public ImmutableSchema(SchemaShared schemaShared, DatabaseSessionInternal database) {
     version = schemaShared.getVersion();
@@ -79,15 +81,43 @@ public class ImmutableSchema implements SchemaInternal {
       }
     }
 
-    properties = new ArrayList<GlobalProperty>();
-    for (GlobalProperty globalProperty : schemaShared.getGlobalProperties()) {
-      properties.add(globalProperty);
-    }
+    properties = new ArrayList<>();
+    properties.addAll(schemaShared.getGlobalProperties());
 
     for (SchemaClass cl : classes.values()) {
       ((SchemaImmutableClass) cl).init();
     }
+
     this.blogClusters = schemaShared.getBlobClusters();
+
+    var indexManager = database.getMetadata().getIndexManagerInternal();
+    var internalIndexes = indexManager.getIndexes(database);
+
+    var indexes = new HashMap<String, IndexDefinition>(internalIndexes.size());
+    for (var index : internalIndexes) {
+      var indexDefinition = index.getDefinition();
+      var indexName = index.getName();
+      var metadata = index.getMetadata();
+
+      if (metadata != null) {
+        metadata = Collections.emptyMap();
+      }
+
+      String collateName = null;
+      try {
+        collateName = indexDefinition.getCollate().getName();
+      } catch (UnsupportedOperationException e) {
+        //do nothing
+      }
+
+      indexes.put(indexName.toLowerCase(Locale.ROOT),
+          new IndexDefinition(indexName, indexDefinition.getClassName(),
+              Collections.unmodifiableList(indexDefinition.getFields()),
+              SchemaClass.INDEX_TYPE.valueOf(index.getType()),
+              indexDefinition.isNullValuesIgnored(), collateName, metadata));
+    }
+
+    this.indexes = Collections.unmodifiableMap(indexes);
   }
 
   public ImmutableSchema makeSnapshot() {
@@ -152,7 +182,7 @@ public class ImmutableSchema implements SchemaInternal {
 
   @Override
   public boolean existsClass(String iClassName) {
-    return classes.containsKey(iClassName.toLowerCase(Locale.ENGLISH));
+    return classes.containsKey(iClassName.toLowerCase(Locale.ROOT));
   }
 
   @Override
@@ -194,9 +224,29 @@ public class ImmutableSchema implements SchemaInternal {
   }
 
   @Override
-  public Collection<SchemaClass> getClasses() {
-    getDatabase().checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_READ);
-    return new HashSet<SchemaClass>(classes.values());
+  public Collection<SchemaClass> getClasses(DatabaseSession db) {
+    ((DatabaseSessionInternal) db).checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_READ);
+    return new HashSet<>(classes.values());
+  }
+
+  @Override
+  public Collection<String> getIndexes(DatabaseSession db) {
+    return indexes.keySet();
+  }
+
+  @Override
+  public boolean indexExists(DatabaseSession db, String indexName) {
+    return indexes.containsKey(indexName.toLowerCase(Locale.ROOT));
+  }
+
+  @Override
+  public @Nonnull IndexDefinition getIndexDefinition(DatabaseSession db, String indexName) {
+    var indexDefinition = indexes.get(indexName.toLowerCase(Locale.ROOT));
+    if (indexDefinition == null) {
+      throw new IllegalArgumentException("Index '" + indexName + "' not found");
+    }
+
+    return indexDefinition;
   }
 
   @Override
@@ -209,10 +259,11 @@ public class ImmutableSchema implements SchemaInternal {
     return new RecordId(identity);
   }
 
-  public Set<SchemaClass> getClassesRelyOnCluster(String clusterName) {
-    getDatabase().checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_READ);
+  public Set<SchemaClass> getClassesRelyOnCluster(DatabaseSession db, String clusterName) {
+    var sessionInternal = (DatabaseSessionInternal) db;
+    sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_READ);
 
-    final int clusterId = getDatabase().getClusterIdByName(clusterName);
+    final int clusterId = sessionInternal.getClusterIdByName(clusterName);
     final Set<SchemaClass> result = new HashSet<SchemaClass>();
     for (SchemaClass c : classes.values()) {
       if (ArrayUtils.contains(c.getPolymorphicClusterIds(), clusterId)) {
@@ -252,9 +303,6 @@ public class ImmutableSchema implements SchemaInternal {
     throw new UnsupportedOperationException();
   }
 
-  private DatabaseSessionInternal getDatabase() {
-    return DatabaseRecordThreadLocal.instance().get();
-  }
 
   public IntSet getBlobClusters() {
     return blogClusters;

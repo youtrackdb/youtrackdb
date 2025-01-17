@@ -188,7 +188,7 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
     Schema schema1 = databaseOne.getMetadata().getImmutableSchemaSnapshot();
     Schema schema2 = databaseTwo.getMetadata().getImmutableSchemaSnapshot();
     boolean ok = true;
-    for (SchemaClass clazz : schema1.getClasses()) {
+    for (SchemaClass clazz : schema1.getClasses(databaseOne)) {
       SchemaClass clazz2 = schema2.getClass(clazz.getName());
 
       if (clazz2 == null) {
@@ -918,12 +918,10 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
                                       + " <-> "
                                       + buffer2.buffer.length);
 
-                              if (buffer1.recordType == EntityImpl.RECORD_TYPE) {
-                                listener.onMessage("\n--- REC1: " + rec1);
-                              }
                               if (buffer2.recordType == EntityImpl.RECORD_TYPE) {
                                 listener.onMessage("\n--- REC2: " + rec2);
                               }
+
                               listener.onMessage("\n");
 
                               ++differences;
