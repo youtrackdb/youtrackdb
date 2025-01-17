@@ -7,10 +7,10 @@ import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.util.PairIntegerObject;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
@@ -1893,7 +1893,7 @@ public class SelectExecutionPlanner {
               .getItems()
               .forEach(
                   item -> {
-                    Property possibleEdgeProperty =
+                    SchemaProperty possibleEdgeProperty =
                         targetClass.getProperty("out_" + item.getAlias());
                     if (possibleEdgeProperty != null
                         && possibleEdgeProperty.getType() == PropertyType.LINKBAG) {
@@ -2861,7 +2861,7 @@ public class SelectExecutionPlanner {
   }
 
   private boolean isMap(SchemaClass clazz, String indexField) {
-    Property prop = clazz.getProperty(indexField);
+    SchemaProperty prop = clazz.getProperty(indexField);
     if (prop == null) {
       return false;
     }

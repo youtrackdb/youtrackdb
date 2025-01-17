@@ -9,10 +9,10 @@ import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
@@ -171,7 +171,7 @@ public class DefaultValuesTrivialTest {
     Schema schema = database.getMetadata().getSchema();
     SchemaClass classA = schema.createClass("ClassA");
 
-    Property prop = classA.createProperty(database, "name", PropertyType.STRING);
+    SchemaProperty prop = classA.createProperty(database, "name", PropertyType.STRING);
     prop.setDefaultValue(database, "default name");
     prop.createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
@@ -195,7 +195,7 @@ public class DefaultValuesTrivialTest {
     Schema schema = database.getMetadata().getSchema();
     SchemaClass classA = schema.createClass("ClassA");
 
-    Property prop = classA.createProperty(database, "name", PropertyType.STRING);
+    SchemaProperty prop = classA.createProperty(database, "name", PropertyType.STRING);
     prop.setDefaultValue(database, "default name");
     prop.createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
@@ -229,7 +229,7 @@ public class DefaultValuesTrivialTest {
     Schema schema = database.getMetadata().getSchema();
     SchemaClass classA = schema.createClass("ClassA");
 
-    Property prop = classA.createProperty(database, "name", PropertyType.STRING);
+    SchemaProperty prop = classA.createProperty(database, "name", PropertyType.STRING);
     prop.setDefaultValue(database, "default name");
     classA.createProperty(database, "value", PropertyType.STRING);
     classA.createIndex(database, "multi", SchemaClass.INDEX_TYPE.NOTUNIQUE, "value",

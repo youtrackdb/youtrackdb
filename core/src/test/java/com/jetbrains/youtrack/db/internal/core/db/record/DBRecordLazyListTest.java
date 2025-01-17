@@ -3,10 +3,10 @@ package com.jetbrains.youtrack.db.internal.core.db.record;
 import static org.junit.Assert.assertNotNull;
 
 import com.jetbrains.youtrack.db.api.YouTrackDB;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -41,7 +41,7 @@ public class DBRecordLazyListTest {
     Schema schema = dbSession.getMetadata().getSchema();
     SchemaClass mainClass = schema.createClass("MainClass");
     mainClass.createProperty(dbSession, "name", PropertyType.STRING);
-    Property itemsProp = mainClass.createProperty(dbSession, "items", PropertyType.LINKLIST);
+    SchemaProperty itemsProp = mainClass.createProperty(dbSession, "items", PropertyType.LINKLIST);
     SchemaClass itemClass = schema.createClass("ItemClass");
     itemClass.createProperty(dbSession, "name", PropertyType.STRING);
     itemsProp.setLinkedClass(dbSession, itemClass);

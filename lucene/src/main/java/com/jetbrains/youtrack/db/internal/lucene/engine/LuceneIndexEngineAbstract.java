@@ -20,21 +20,21 @@ import static com.jetbrains.youtrack.db.internal.lucene.analyzer.LuceneAnalyzerF
 import static com.jetbrains.youtrack.db.internal.lucene.analyzer.LuceneAnalyzerFactory.AnalyzerKind.QUERY;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.id.ContextualRecordId;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
 import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValuesTransformer;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
@@ -207,7 +207,7 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
     SchemaClass aClass =
         getDatabase().getMetadata().getSchema().getClass(indexDefinition.getClassName());
     for (String field : fields) {
-      Property property = aClass.getProperty(field);
+      SchemaProperty property = aClass.getProperty(field);
 
       if (property.getType().isEmbedded() && property.getLinkedType() != null) {
         collectionFields.put(field, true);

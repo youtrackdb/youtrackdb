@@ -21,11 +21,11 @@ package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.schema.Collate;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
@@ -45,7 +45,7 @@ import java.util.Set;
 /**
  * @since 10/21/14
  */
-public class ImmutableProperty implements PropertyInternal {
+public class ImmutableSchemaProperty implements SchemaPropertyInternal {
 
   private final String name;
   private final String fullName;
@@ -73,7 +73,7 @@ public class ImmutableProperty implements PropertyInternal {
   private final Comparable<Object> maxComparable;
   private final Collection<Index> allIndexes;
 
-  public ImmutableProperty(DatabaseSessionInternal session, PropertyInternal property,
+  public ImmutableSchemaProperty(DatabaseSessionInternal session, SchemaPropertyInternal property,
       SchemaImmutableClass owner) {
     name = property.getName();
     fullName = property.getFullName();
@@ -235,7 +235,7 @@ public class ImmutableProperty implements PropertyInternal {
   }
 
   @Override
-  public Property setName(DatabaseSession session, String iName) {
+  public SchemaProperty setName(DatabaseSession session, String iName) {
     throw new UnsupportedOperationException();
   }
 
@@ -245,7 +245,7 @@ public class ImmutableProperty implements PropertyInternal {
   }
 
   @Override
-  public Property setDescription(DatabaseSession session, String iDescription) {
+  public SchemaProperty setDescription(DatabaseSession session, String iDescription) {
     throw new UnsupportedOperationException();
   }
 
@@ -276,7 +276,7 @@ public class ImmutableProperty implements PropertyInternal {
   }
 
   @Override
-  public Property setLinkedClass(DatabaseSession session, SchemaClass oClass) {
+  public SchemaProperty setLinkedClass(DatabaseSession session, SchemaClass oClass) {
     throw new UnsupportedOperationException();
   }
 
@@ -286,7 +286,7 @@ public class ImmutableProperty implements PropertyInternal {
   }
 
   @Override
-  public Property setLinkedType(DatabaseSession session, PropertyType type) {
+  public SchemaProperty setLinkedType(DatabaseSession session, PropertyType type) {
     throw new UnsupportedOperationException();
   }
 
@@ -296,7 +296,7 @@ public class ImmutableProperty implements PropertyInternal {
   }
 
   @Override
-  public Property setNotNull(DatabaseSession session, boolean iNotNull) {
+  public SchemaProperty setNotNull(DatabaseSession session, boolean iNotNull) {
     throw new UnsupportedOperationException();
   }
 
@@ -306,12 +306,12 @@ public class ImmutableProperty implements PropertyInternal {
   }
 
   @Override
-  public Property setCollate(DatabaseSession session, String iCollateName) {
+  public SchemaProperty setCollate(DatabaseSession session, String iCollateName) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Property setCollate(DatabaseSession session, Collate collate) {
+  public SchemaProperty setCollate(DatabaseSession session, Collate collate) {
     throw new UnsupportedOperationException();
   }
 
@@ -321,7 +321,7 @@ public class ImmutableProperty implements PropertyInternal {
   }
 
   @Override
-  public Property setMandatory(DatabaseSession session, boolean mandatory) {
+  public SchemaProperty setMandatory(DatabaseSession session, boolean mandatory) {
     throw new UnsupportedOperationException();
   }
 
@@ -331,7 +331,7 @@ public class ImmutableProperty implements PropertyInternal {
   }
 
   @Override
-  public Property setReadonly(DatabaseSession session, boolean iReadonly) {
+  public SchemaProperty setReadonly(DatabaseSession session, boolean iReadonly) {
     throw new UnsupportedOperationException();
   }
 
@@ -341,7 +341,7 @@ public class ImmutableProperty implements PropertyInternal {
   }
 
   @Override
-  public Property setMin(DatabaseSession session, String min) {
+  public SchemaProperty setMin(DatabaseSession session, String min) {
     throw new UnsupportedOperationException();
   }
 
@@ -351,7 +351,7 @@ public class ImmutableProperty implements PropertyInternal {
   }
 
   @Override
-  public Property setMax(DatabaseSession session, String max) {
+  public SchemaProperty setMax(DatabaseSession session, String max) {
     throw new UnsupportedOperationException();
   }
 
@@ -361,7 +361,7 @@ public class ImmutableProperty implements PropertyInternal {
   }
 
   @Override
-  public Property setDefaultValue(DatabaseSession session, String defaultValue) {
+  public SchemaProperty setDefaultValue(DatabaseSession session, String defaultValue) {
     throw new UnsupportedOperationException();
   }
 
@@ -397,12 +397,12 @@ public class ImmutableProperty implements PropertyInternal {
   }
 
   @Override
-  public Property setRegexp(DatabaseSession session, String regexp) {
+  public SchemaProperty setRegexp(DatabaseSession session, String regexp) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Property setType(DatabaseSession session, PropertyType iType) {
+  public SchemaProperty setType(DatabaseSession session, PropertyType iType) {
     throw new UnsupportedOperationException();
   }
 
@@ -412,7 +412,7 @@ public class ImmutableProperty implements PropertyInternal {
   }
 
   @Override
-  public Property setCustom(DatabaseSession session, String iName, String iValue) {
+  public SchemaProperty setCustom(DatabaseSession session, String iName, String iValue) {
     throw new UnsupportedOperationException();
   }
 
@@ -467,7 +467,7 @@ public class ImmutableProperty implements PropertyInternal {
   }
 
   @Override
-  public int compareTo(Property other) {
+  public int compareTo(SchemaProperty other) {
     return name.compareTo(other.getName());
   }
 
@@ -487,10 +487,10 @@ public class ImmutableProperty implements PropertyInternal {
     if (!super.equals(obj)) {
       return false;
     }
-    if (!Property.class.isAssignableFrom(obj.getClass())) {
+    if (!SchemaProperty.class.isAssignableFrom(obj.getClass())) {
       return false;
     }
-    Property other = (Property) obj;
+    SchemaProperty other = (SchemaProperty) obj;
     if (owner == null) {
       return other.getOwnerClass() == null;
     } else {

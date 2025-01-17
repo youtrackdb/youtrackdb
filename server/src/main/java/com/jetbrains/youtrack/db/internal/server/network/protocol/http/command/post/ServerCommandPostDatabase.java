@@ -23,8 +23,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jetbrains.youtrack.db.api.DatabaseType;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.StorageEntryConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -299,7 +299,7 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
 
     if (cls.properties(db) != null && cls.properties(db).size() > 0) {
       json.beginCollection(3, true, "properties");
-      for (final Property prop : cls.properties(db)) {
+      for (final SchemaProperty prop : cls.properties(db)) {
         json.beginObject(4, true, null);
         json.writeAttribute(4, true, "name", prop.getName());
         if (prop.getLinkedClass() != null) {

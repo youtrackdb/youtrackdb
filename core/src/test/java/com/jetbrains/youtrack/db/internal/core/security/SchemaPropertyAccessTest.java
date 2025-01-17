@@ -7,8 +7,8 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyAccess;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 
-public class PropertyAccessTest extends DbTestBase {
+public class SchemaPropertyAccessTest extends DbTestBase {
 
   @Test
   public void testNotAccessible() {

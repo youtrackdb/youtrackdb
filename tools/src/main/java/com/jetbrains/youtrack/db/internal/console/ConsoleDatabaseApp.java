@@ -34,9 +34,9 @@ import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.client.remote.DatabaseImportRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
@@ -1864,7 +1864,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
       final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
-      for (final Property p : cls.properties(currentDatabase)) {
+      for (final SchemaProperty p : cls.properties(currentDatabase)) {
         try {
           final EntityImpl row = new EntityImpl();
           resultSet.add(row);
@@ -1967,7 +1967,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       return;
     }
 
-    final Property prop = cls.getProperty(parts[1]);
+    final SchemaProperty prop = cls.getProperty(parts[1]);
 
     if (prop == null) {
       message("\n! Property '" + parts[1] + "' does not exist in class '" + parts[0] + "'");

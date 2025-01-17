@@ -24,10 +24,10 @@ import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
 import com.jetbrains.youtrack.db.api.schema.Collate;
 import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.comparator.CaseInsentiveComparator;
 import com.jetbrains.youtrack.db.internal.common.util.Collections;
 import com.jetbrains.youtrack.db.internal.core.collate.DefaultCollate;
@@ -54,7 +54,7 @@ import java.util.Set;
 /**
  * Contains the description of a persistent class property.
  */
-public abstract class PropertyImpl implements PropertyInternal {
+public abstract class SchemaPropertyImpl implements SchemaPropertyInternal {
 
   protected final SchemaClassImpl owner;
   protected PropertyType linkedType;
@@ -75,11 +75,11 @@ public abstract class PropertyImpl implements PropertyInternal {
 
   private volatile int hashCode;
 
-  public PropertyImpl(final SchemaClassImpl owner) {
+  public SchemaPropertyImpl(final SchemaClassImpl owner) {
     this.owner = owner;
   }
 
-  public PropertyImpl(SchemaClassImpl oClassImpl, GlobalProperty global) {
+  public SchemaPropertyImpl(SchemaClassImpl oClassImpl, GlobalProperty global) {
     this(oClassImpl);
     this.globalRef = global;
   }
@@ -120,7 +120,7 @@ public abstract class PropertyImpl implements PropertyInternal {
     }
   }
 
-  public int compareTo(final Property o) {
+  public int compareTo(final SchemaProperty o) {
     acquireSchemaReadLock();
     try {
       return globalRef.getName().compareTo(o.getName());
@@ -188,7 +188,7 @@ public abstract class PropertyImpl implements PropertyInternal {
    * @deprecated Use SQL command instead.
    */
   @Deprecated
-  public PropertyImpl dropIndexes(DatabaseSessionInternal session) {
+  public SchemaPropertyImpl dropIndexes(DatabaseSessionInternal session) {
     session.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_DELETE);
 
     acquireSchemaReadLock();
@@ -551,7 +551,7 @@ public abstract class PropertyImpl implements PropertyInternal {
     }
   }
 
-  public Property setCollate(DatabaseSession session, final Collate collate) {
+  public SchemaProperty setCollate(DatabaseSession session, final Collate collate) {
     setCollate(session, collate.getName());
     return this;
   }
@@ -611,10 +611,10 @@ public abstract class PropertyImpl implements PropertyInternal {
       if (this == obj) {
         return true;
       }
-      if (obj == null || !Property.class.isAssignableFrom(obj.getClass())) {
+      if (obj == null || !SchemaProperty.class.isAssignableFrom(obj.getClass())) {
         return false;
       }
-      Property other = (Property) obj;
+      SchemaProperty other = (SchemaProperty) obj;
       if (owner == null) {
         if (other.getOwnerClass() != null) {
           return false;

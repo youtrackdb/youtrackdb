@@ -3,14 +3,14 @@ package com.jetbrains.youtrack.db.internal.core.tx;
 import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +36,7 @@ public class TransactionQueryIndexTests {
   @Test
   public void test() {
     SchemaClass clazz = database.createClass("test");
-    Property prop = clazz.createProperty(database, "test", PropertyType.STRING);
+    SchemaProperty prop = clazz.createProperty(database, "test", PropertyType.STRING);
     prop.createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     database.begin();

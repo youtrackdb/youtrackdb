@@ -3,10 +3,10 @@ package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,7 +24,7 @@ public class AlterSuperclassTest extends DbTestBase {
     Schema schema = db.getMetadata().getSchema();
     SchemaClass classA = schema.createClass("ParentClass");
     classA.setAbstract(db, true);
-    Property property = classA.createProperty(db, "RevNumberNine", PropertyType.INTEGER);
+    SchemaProperty property = classA.createProperty(db, "RevNumberNine", PropertyType.INTEGER);
     SchemaClass classChild = schema.createClass("ChildClass1", classA);
     assertEquals(classChild.getSuperClasses(), List.of(classA));
     SchemaClass classChild2 = schema.createClass("ChildClass2", classChild);
@@ -38,7 +38,7 @@ public class AlterSuperclassTest extends DbTestBase {
     Schema schema = db.getMetadata().getSchema();
     SchemaClass classA = schema.createClass("ParentClass");
     classA.setAbstract(db, true);
-    Property property = classA.createProperty(db, "RevNumberNine", PropertyType.INTEGER);
+    SchemaProperty property = classA.createProperty(db, "RevNumberNine", PropertyType.INTEGER);
     SchemaClass classChild = schema.createClass("ChildClass1", classA);
     assertEquals(classChild.getSuperClasses(), List.of(classA));
     SchemaClass classChild2 = schema.createClass("ChildClass2");

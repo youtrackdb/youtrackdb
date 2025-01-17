@@ -3,10 +3,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaPropertyImpl;
 import java.util.Map;
 import java.util.Objects;
 
@@ -72,7 +72,7 @@ public class SQLCreatePropertyAttributeStatement extends SimpleNode {
     return result;
   }
 
-  public Object setOnProperty(PropertyImpl internalProp, CommandContext ctx) {
+  public Object setOnProperty(SchemaPropertyImpl internalProp, CommandContext ctx) {
     String attrName = settingName.getStringValue();
     var db = ctx.getDatabase();
     Object attrValue =

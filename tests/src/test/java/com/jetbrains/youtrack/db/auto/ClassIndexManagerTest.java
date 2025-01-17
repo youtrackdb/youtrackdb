@@ -2,10 +2,10 @@ package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
@@ -75,12 +75,13 @@ public class ClassIndexManagerTest extends BaseDBTest {
         Map.of("ignoreNullValues", true),
         new String[]{"prop1"});
 
-    final Property propTwo = oClass.createProperty(database, "prop2", PropertyType.INTEGER);
+    final SchemaProperty propTwo = oClass.createProperty(database, "prop2", PropertyType.INTEGER);
     propTwo.createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     oClass.createProperty(database, "prop3", PropertyType.BOOLEAN);
 
-    final Property propFour = oClass.createProperty(database, "prop4", PropertyType.EMBEDDEDLIST,
+    final SchemaProperty propFour = oClass.createProperty(database, "prop4",
+        PropertyType.EMBEDDEDLIST,
         PropertyType.STRING);
     propFour.createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
@@ -91,7 +92,8 @@ public class ClassIndexManagerTest extends BaseDBTest {
     oClass.createIndex(database,
         "classIndexManagerTestIndexByValue", SchemaClass.INDEX_TYPE.NOTUNIQUE, "prop5 by value");
 
-    final Property propSix = oClass.createProperty(database, "prop6", PropertyType.EMBEDDEDSET,
+    final SchemaProperty propSix = oClass.createProperty(database, "prop6",
+        PropertyType.EMBEDDEDSET,
         PropertyType.STRING);
     propSix.createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 

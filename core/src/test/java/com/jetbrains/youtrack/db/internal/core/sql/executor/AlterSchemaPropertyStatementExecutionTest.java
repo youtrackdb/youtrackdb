@@ -4,9 +4,9 @@ import static com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionPlan
 
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,13 +14,13 @@ import org.junit.Test;
 /**
  *
  */
-public class AlterPropertyStatementExecutionTest extends DbTestBase {
+public class AlterSchemaPropertyStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSetProperty() {
     String className = "testSetProperty";
     SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
-    Property prop = clazz.createProperty(db, "name", PropertyType.STRING);
+    SchemaProperty prop = clazz.createProperty(db, "name", PropertyType.STRING);
     prop.setMax(db, "15");
 
     ResultSet result = db.command("alter property " + className + ".name max 30");
@@ -41,7 +41,7 @@ public class AlterPropertyStatementExecutionTest extends DbTestBase {
   public void testSetCustom() {
     String className = "testSetCustom";
     SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
-    Property prop = clazz.createProperty(db, "name", PropertyType.STRING);
+    SchemaProperty prop = clazz.createProperty(db, "name", PropertyType.STRING);
     prop.setCustom(db, "foo", "bar");
 
     ResultSet result = db.command("alter property " + className + ".name custom foo='baz'");

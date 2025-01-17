@@ -20,9 +20,9 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -66,9 +66,9 @@ public class SchemaImmutableClass implements SchemaClassInternal {
   private final boolean strictMode;
   private final String name;
   private final String streamAbleName;
-  private final Map<String, PropertyInternal> properties;
-  private Map<String, Property> allPropertiesMap;
-  private Collection<Property> allProperties;
+  private final Map<String, SchemaPropertyInternal> properties;
+  private Map<String, SchemaProperty> allPropertiesMap;
+  private Collection<SchemaProperty> allProperties;
   private final ClusterSelectionStrategy clusterSelection;
   private final int[] clusterIds;
   private final int[] polymorphicClusterIds;
@@ -119,8 +119,9 @@ public class SchemaImmutableClass implements SchemaClassInternal {
     shortName = oClass.getShortName();
 
     properties = new HashMap<>();
-    for (Property p : oClass.declaredProperties()) {
-      properties.put(p.getName(), new ImmutableProperty(session, (PropertyInternal) p, this));
+    for (SchemaProperty p : oClass.declaredProperties()) {
+      properties.put(p.getName(),
+          new ImmutableSchemaProperty(session, (SchemaPropertyInternal) p, this));
     }
 
     Map<String, String> customFields = new HashMap<String, String>();
@@ -136,14 +137,14 @@ public class SchemaImmutableClass implements SchemaClassInternal {
     if (!inited) {
       initSuperClasses();
 
-      final Collection<Property> allProperties = new ArrayList<Property>();
-      final Map<String, Property> allPropsMap = new HashMap<String, Property>(20);
+      final Collection<SchemaProperty> allProperties = new ArrayList<SchemaProperty>();
+      final Map<String, SchemaProperty> allPropsMap = new HashMap<String, SchemaProperty>(20);
       for (int i = superClasses.size() - 1; i >= 0; i--) {
         allProperties.addAll(superClasses.get(i).allProperties);
         allPropsMap.putAll(superClasses.get(i).allPropertiesMap);
       }
       allProperties.addAll(properties.values());
-      for (Property p : properties.values()) {
+      for (SchemaProperty p : properties.values()) {
         final String propName = p.getName();
 
         if (!allPropsMap.containsKey(propName)) {
@@ -254,23 +255,23 @@ public class SchemaImmutableClass implements SchemaClassInternal {
   }
 
   @Override
-  public Collection<Property> declaredProperties() {
+  public Collection<SchemaProperty> declaredProperties() {
     return Collections.unmodifiableCollection(properties.values());
   }
 
   @Override
-  public Collection<Property> properties(DatabaseSession session) {
+  public Collection<SchemaProperty> properties(DatabaseSession session) {
     return allProperties;
   }
 
   @Override
-  public Map<String, Property> propertiesMap(DatabaseSession session) {
+  public Map<String, SchemaProperty> propertiesMap(DatabaseSession session) {
     return allPropertiesMap;
   }
 
   public void getIndexedProperties(DatabaseSessionInternal session,
-      Collection<Property> indexedProperties) {
-    for (Property p : properties.values()) {
+      Collection<SchemaProperty> indexedProperties) {
+    for (SchemaProperty p : properties.values()) {
       if (areIndexed(session, p.getName())) {
         indexedProperties.add(p);
       }
@@ -282,19 +283,19 @@ public class SchemaImmutableClass implements SchemaClassInternal {
   }
 
   @Override
-  public Collection<Property> getIndexedProperties(DatabaseSession session) {
-    Collection<Property> indexedProps = new HashSet<Property>();
+  public Collection<SchemaProperty> getIndexedProperties(DatabaseSession session) {
+    Collection<SchemaProperty> indexedProps = new HashSet<SchemaProperty>();
     getIndexedProperties((DatabaseSessionInternal) session, indexedProps);
     return indexedProps;
   }
 
   @Override
-  public Property getProperty(String propertyName) {
+  public SchemaProperty getProperty(String propertyName) {
     return getPropertyInternal(propertyName);
   }
 
   @Override
-  public PropertyInternal getPropertyInternal(String propertyName) {
+  public SchemaPropertyInternal getPropertyInternal(String propertyName) {
     initSuperClasses();
 
     var p = properties.get(propertyName);
@@ -310,20 +311,22 @@ public class SchemaImmutableClass implements SchemaClassInternal {
   }
 
   @Override
-  public Property createProperty(DatabaseSession session, String iPropertyName,
+  public SchemaProperty createProperty(DatabaseSession session, String iPropertyName,
       PropertyType iType) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Property createProperty(DatabaseSession session, String iPropertyName, PropertyType iType,
+  public SchemaProperty createProperty(DatabaseSession session, String iPropertyName,
+      PropertyType iType,
       SchemaClass iLinkedClass) {
     throw new UnsupportedOperationException();
   }
 
 
   @Override
-  public Property createProperty(DatabaseSession session, String iPropertyName, PropertyType iType,
+  public SchemaProperty createProperty(DatabaseSession session, String iPropertyName,
+      PropertyType iType,
       PropertyType iLinkedType) {
     throw new UnsupportedOperationException();
   }
@@ -676,13 +679,13 @@ public class SchemaImmutableClass implements SchemaClassInternal {
   }
 
   @Override
-  public Property createProperty(DatabaseSession session, String iPropertyName,
+  public SchemaProperty createProperty(DatabaseSession session, String iPropertyName,
       PropertyType iType, PropertyType iLinkedType, boolean unsafe) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Property createProperty(DatabaseSession session, String iPropertyName,
+  public SchemaProperty createProperty(DatabaseSession session, String iPropertyName,
       PropertyType iType, SchemaClass iLinkedClass, boolean unsafe) {
     throw new UnsupportedOperationException();
   }

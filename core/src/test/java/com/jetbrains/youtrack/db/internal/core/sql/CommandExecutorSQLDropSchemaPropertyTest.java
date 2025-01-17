@@ -19,14 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CommandExecutorSQLDropPropertyTest extends DbTestBase {
+public class CommandExecutorSQLDropSchemaPropertyTest extends DbTestBase {
 
   @Test
   public void test() {

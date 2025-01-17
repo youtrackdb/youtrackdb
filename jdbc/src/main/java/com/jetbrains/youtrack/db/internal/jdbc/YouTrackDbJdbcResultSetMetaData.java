@@ -15,7 +15,7 @@ package com.jetbrains.youtrack.db.internal.jdbc;
 
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
-import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -263,7 +263,7 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
   }
 
   public String getTableName(final int column) throws SQLException {
-    final Property p = getProperty(column);
+    final SchemaProperty p = getProperty(column);
     return p != null ? p.getOwnerClass().getName() : null;
   }
 
@@ -272,7 +272,7 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
   }
 
   public boolean isCaseSensitive(final int column) throws SQLException {
-    final Property p = getProperty(column);
+    final SchemaProperty p = getProperty(column);
     return p != null && p.getCollate().getName().equalsIgnoreCase("ci");
   }
 
@@ -291,7 +291,7 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
   }
 
   public boolean isReadOnly(final int column) throws SQLException {
-    final Property p = getProperty(column);
+    final SchemaProperty p = getProperty(column);
     return p != null && p.isReadonly();
   }
 
@@ -332,7 +332,7 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
         || type == PropertyType.SHORT;
   }
 
-  protected Property getProperty(final int column) throws SQLException {
+  protected SchemaProperty getProperty(final int column) throws SQLException {
 
     String fieldName = getColumnName(column);
 

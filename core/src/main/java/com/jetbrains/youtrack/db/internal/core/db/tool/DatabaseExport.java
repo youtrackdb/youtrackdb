@@ -23,9 +23,9 @@ import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.io.YTIOException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
@@ -556,10 +556,10 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
         if (!cls.properties(database).isEmpty()) {
           writer.beginCollection(4, true, "properties");
 
-          final List<Property> properties = new ArrayList<>(cls.declaredProperties());
+          final List<SchemaProperty> properties = new ArrayList<>(cls.declaredProperties());
           Collections.sort(properties);
 
-          for (Property p : properties) {
+          for (SchemaProperty p : properties) {
             writer.beginObject(5, true, null);
             writer.writeAttribute(0, false, "name", p.getName());
             writer.writeAttribute(0, false, "type", p.getType().toString());

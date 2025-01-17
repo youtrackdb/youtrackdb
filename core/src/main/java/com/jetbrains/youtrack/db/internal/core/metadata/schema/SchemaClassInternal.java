@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
@@ -24,13 +24,13 @@ public interface SchemaClassInternal extends SchemaClass {
 
   Set<Index> getInvolvedIndexesInternal(DatabaseSession session, final Collection<String> fields);
 
-  Property createProperty(
+  SchemaProperty createProperty(
       DatabaseSession session, final String iPropertyName,
       final PropertyType iType,
       final PropertyType iLinkedType,
       final boolean unsafe);
 
-  Property createProperty(
+  SchemaProperty createProperty(
       DatabaseSession session, final String iPropertyName,
       final PropertyType iType,
       final SchemaClass iLinkedClass,
@@ -46,7 +46,7 @@ public interface SchemaClassInternal extends SchemaClass {
 
   long count(DatabaseSession session, final boolean isPolymorphic);
 
-  PropertyInternal getPropertyInternal(String propertyName);
+  SchemaPropertyInternal getPropertyInternal(String propertyName);
 
   Set<Index> getClassInvolvedIndexesInternal(DatabaseSession session, String... fields);
 

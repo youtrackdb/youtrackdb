@@ -19,7 +19,7 @@ import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibrary;
-import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -819,7 +819,7 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
 
     for (SchemaClass clazz : schema.getClasses()) {
       if (YouTrackDbJdbcUtils.like(clazz.getName(), tableNamePattern)) {
-        for (Property prop : clazz.properties(database)) {
+        for (SchemaProperty prop : clazz.properties(database)) {
           if (columnNamePattern == null) {
             resultSet.add(getPropertyAsDocument(clazz, prop));
           } else {
@@ -1441,7 +1441,7 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
     return false;
   }
 
-  private ResultInternal getPropertyAsDocument(final SchemaClass clazz, final Property prop) {
+  private ResultInternal getPropertyAsDocument(final SchemaClass clazz, final SchemaProperty prop) {
     database.activateOnCurrentThread();
     final PropertyType type = prop.getType();
     ResultInternal res = new ResultInternal(database);

@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.collate.CaseInsensitiveCollate;
 import com.jetbrains.youtrack.db.internal.core.collate.DefaultCollate;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
@@ -35,10 +35,10 @@ public class CollateTest extends BaseDBTest {
     final Schema schema = database.getMetadata().getSchema();
     SchemaClass clazz = schema.createClass("collateTest");
 
-    Property csp = clazz.createProperty(database, "csp", PropertyType.STRING);
+    SchemaProperty csp = clazz.createProperty(database, "csp", PropertyType.STRING);
     csp.setCollate(database, DefaultCollate.NAME);
 
-    Property cip = clazz.createProperty(database, "cip", PropertyType.STRING);
+    SchemaProperty cip = clazz.createProperty(database, "cip", PropertyType.STRING);
     cip.setCollate(database, CaseInsensitiveCollate.NAME);
 
     for (int i = 0; i < 10; i++) {
@@ -82,7 +82,7 @@ public class CollateTest extends BaseDBTest {
     final Schema schema = database.getMetadata().getSchema();
     SchemaClass clazz = schema.createClass("collateTestNotNull");
 
-    Property csp = clazz.createProperty(database, "bar", PropertyType.STRING);
+    SchemaProperty csp = clazz.createProperty(database, "bar", PropertyType.STRING);
     csp.setCollate(database, CaseInsensitiveCollate.NAME);
 
     EntityImpl document = new EntityImpl("collateTestNotNull");
@@ -117,10 +117,10 @@ public class CollateTest extends BaseDBTest {
     final Schema schema = database.getMetadata().getSchema();
     SchemaClass clazz = schema.createClass("collateIndexTest");
 
-    Property csp = clazz.createProperty(database, "csp", PropertyType.STRING);
+    SchemaProperty csp = clazz.createProperty(database, "csp", PropertyType.STRING);
     csp.setCollate(database, DefaultCollate.NAME);
 
-    Property cip = clazz.createProperty(database, "cip", PropertyType.STRING);
+    SchemaProperty cip = clazz.createProperty(database, "cip", PropertyType.STRING);
     cip.setCollate(database, CaseInsensitiveCollate.NAME);
 
     clazz.createIndex(database, "collateIndexCSP", SchemaClass.INDEX_TYPE.NOTUNIQUE, "csp");
@@ -173,7 +173,7 @@ public class CollateTest extends BaseDBTest {
     final Schema schema = database.getMetadata().getSchema();
     SchemaClass clazz = schema.createClass("collateWasChangedIndexTest");
 
-    Property cp = clazz.createProperty(database, "cp", PropertyType.STRING);
+    SchemaProperty cp = clazz.createProperty(database, "cp", PropertyType.STRING);
     cp.setCollate(database, DefaultCollate.NAME);
 
     clazz.createIndex(database, "collateWasChangedIndex", SchemaClass.INDEX_TYPE.NOTUNIQUE, "cp");
@@ -228,10 +228,10 @@ public class CollateTest extends BaseDBTest {
     final Schema schema = database.getMetadata().getSchema();
     SchemaClass clazz = schema.createClass("CompositeIndexQueryCSTest");
 
-    Property csp = clazz.createProperty(database, "csp", PropertyType.STRING);
+    SchemaProperty csp = clazz.createProperty(database, "csp", PropertyType.STRING);
     csp.setCollate(database, DefaultCollate.NAME);
 
-    Property cip = clazz.createProperty(database, "cip", PropertyType.STRING);
+    SchemaProperty cip = clazz.createProperty(database, "cip", PropertyType.STRING);
     cip.setCollate(database, CaseInsensitiveCollate.NAME);
 
     clazz.createIndex(database, "collateCompositeIndexCS", SchemaClass.INDEX_TYPE.NOTUNIQUE, "csp",
@@ -305,7 +305,7 @@ public class CollateTest extends BaseDBTest {
     final Schema schema = database.getMetadata().getSchema();
     SchemaClass clazz = schema.createClass("CompositeIndexQueryCollateWasChangedTest");
 
-    Property csp = clazz.createProperty(database, "csp", PropertyType.STRING);
+    SchemaProperty csp = clazz.createProperty(database, "csp", PropertyType.STRING);
     csp.setCollate(database, DefaultCollate.NAME);
 
     clazz.createProperty(database, "cip", PropertyType.STRING);

@@ -20,8 +20,8 @@
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.get;
 
 import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
@@ -31,9 +31,9 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaPropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -93,7 +93,7 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
 
     if (cls.properties(db) != null && cls.properties(db).size() > 0) {
       json.beginCollection("properties");
-      for (final Property prop : cls.properties(db)) {
+      for (final SchemaProperty prop : cls.properties(db)) {
         json.beginObject();
         json.writeAttribute("name", prop.getName());
         if (prop.getLinkedClass() != null) {
@@ -113,8 +113,8 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
             "collate", prop.getCollate() != null ? prop.getCollate().getName() : "default");
         json.writeAttribute("defaultValue", prop.getDefaultValue());
 
-        if (prop instanceof PropertyImpl) {
-          final Map<String, String> custom = ((PropertyImpl) prop).getCustomInternal();
+        if (prop instanceof SchemaPropertyImpl) {
+          final Map<String, String> custom = ((SchemaPropertyImpl) prop).getCustomInternal();
           if (custom != null && !custom.isEmpty()) {
             json.writeAttribute("custom", custom);
           }

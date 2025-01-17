@@ -24,9 +24,9 @@ import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
@@ -152,7 +152,7 @@ public class FunctionLibraryImpl {
   protected void init(final DatabaseSessionInternal db) {
     if (db.getMetadata().getSchema().existsClass("OFunction")) {
       final SchemaClass f = db.getMetadata().getSchema().getClass("OFunction");
-      Property prop = f.getProperty("name");
+      SchemaProperty prop = f.getProperty("name");
       if (prop.getAllIndexes(db).isEmpty()) {
         prop.createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
       }
@@ -160,7 +160,8 @@ public class FunctionLibraryImpl {
     }
 
     var f = (SchemaClassInternal) db.getMetadata().getSchema().createClass("OFunction");
-    Property prop = f.createProperty(db, "name", PropertyType.STRING, (PropertyType) null, true);
+    SchemaProperty prop = f.createProperty(db, "name", PropertyType.STRING, (PropertyType) null,
+        true);
     prop.createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
 
     f.createProperty(db, "code", PropertyType.STRING, (PropertyType) null, true);

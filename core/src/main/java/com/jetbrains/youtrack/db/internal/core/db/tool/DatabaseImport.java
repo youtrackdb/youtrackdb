@@ -56,10 +56,10 @@ import com.jetbrains.youtrack.db.internal.core.index.RuntimeKeyIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.SimpleKeyIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassEmbedded;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaPropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Identity;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
@@ -111,7 +111,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
   public static final int IMPORT_RECORD_DUMP_LAP_EVERY_MS = 5000;
 
-  private final Map<PropertyImpl, String> linkedClasses = new HashMap<>();
+  private final Map<SchemaPropertyImpl, String> linkedClasses = new HashMap<>();
   private final Map<SchemaClass, List<String>> superClasses = new HashMap<>();
   private JSONReader jsonReader;
   private boolean schemaImported = false;
@@ -656,7 +656,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
   }
 
   private void setLinkedClasses() {
-    for (final Entry<PropertyImpl, String> linkedClass : linkedClasses.entrySet()) {
+    for (final Entry<SchemaPropertyImpl, String> linkedClass : linkedClasses.entrySet()) {
       linkedClass
           .getKey()
           .setLinkedClass(database,
@@ -971,10 +971,11 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       }
     }
 
-    PropertyImpl prop = (PropertyImpl) iClass.getProperty(propName);
+    SchemaPropertyImpl prop = (SchemaPropertyImpl) iClass.getProperty(propName);
     if (prop == null) {
       // CREATE IT
-      prop = (PropertyImpl) iClass.createProperty(database, propName, type, (PropertyType) null,
+      prop = (SchemaPropertyImpl) iClass.createProperty(database, propName, type,
+          (PropertyType) null,
           true);
     }
     prop.setMandatory(database, mandatory);

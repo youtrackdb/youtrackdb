@@ -3,21 +3,21 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
-import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -235,7 +235,7 @@ public class SQLCreateLinkStatement extends SQLSimpleExecStatement {
       if (total[0] > 0) {
         if (inverse) {
           // REMOVE THE OLD PROPERTY IF ANY
-          Property prop = destClass.getProperty(linkName);
+          SchemaProperty prop = destClass.getProperty(linkName);
           destClass = db.getMetadata().getSchema().getClass(this.destClass.getStringValue());
           if (prop != null) {
             if (linkType != prop.getType()) {
@@ -259,7 +259,7 @@ public class SQLCreateLinkStatement extends SQLSimpleExecStatement {
           }
         } else {
           // REMOVE THE OLD PROPERTY IF ANY
-          Property prop = sourceClass.getProperty(linkName);
+          SchemaProperty prop = sourceClass.getProperty(linkName);
           sourceClass = db.getMetadata().getSchema().getClass(this.destClass.getStringValue());
           if (prop != null) {
             if (prop.getType() != PropertyType.LINK) {

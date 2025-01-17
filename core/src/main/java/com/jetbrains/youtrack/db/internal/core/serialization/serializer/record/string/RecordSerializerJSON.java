@@ -26,9 +26,9 @@ import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
@@ -600,7 +600,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
     PropertyType type = null;
     final SchemaClass cls = EntityInternalUtils.getImmutableSchemaClass(entity);
     if (cls != null) {
-      final Property prop = cls.getProperty(fieldName);
+      final SchemaProperty prop = cls.getProperty(fieldName);
       if (prop != null) {
         type = prop.getType();
       }
@@ -623,7 +623,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
     }
 
     if (iFieldName != null && EntityInternalUtils.getImmutableSchemaClass(iRecord) != null) {
-      final Property p =
+      final SchemaProperty p =
           EntityInternalUtils.getImmutableSchemaClass(iRecord).getProperty(iFieldName);
       if (p != null) {
         iType = p.getType();

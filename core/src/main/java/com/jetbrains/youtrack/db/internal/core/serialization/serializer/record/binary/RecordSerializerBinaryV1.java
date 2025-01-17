@@ -23,13 +23,19 @@ import static com.jetbrains.youtrack.db.internal.core.serialization.serializer.r
 import static com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.HelperClasses.writeOptimizedLink;
 import static com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.HelperClasses.writeString;
 
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.ValidationException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.DecimalSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
@@ -37,14 +43,8 @@ import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
-import com.jetbrains.youtrack.db.api.exception.ValidationException;
-import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryption;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityEntry;
@@ -255,7 +255,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
             return null;
           }
           bytes.offset = currentValuePos;
-          final Property classProp = iClass.getProperty(iFieldName);
+          final SchemaProperty classProp = iClass.getProperty(iFieldName);
           return new BinaryField(
               iFieldName, type, bytes, classProp != null ? classProp.getCollate() : null);
         }
@@ -383,7 +383,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
       final BytesContainer valuesBuffer,
       final EntityImpl entity,
       Set<Entry<String, EntityEntry>> fields,
-      final Map<String, Property> props,
+      final Map<String, SchemaProperty> props,
       ImmutableSchema schema,
       PropertyEncryption encryption) {
     SchemaClass oClass = EntityInternalUtils.getImmutableSchemaClass(entity);
@@ -393,7 +393,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
         continue;
       }
       if (docEntry.property == null && props != null) {
-        Property prop = props.get(field.getKey());
+        SchemaProperty prop = props.get(field.getKey());
         if (prop != null && docEntry.type == prop.getType()) {
           docEntry.property = prop;
         }
@@ -470,7 +470,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
       PropertyEncryption encryption) {
     // allocate space for header length
 
-    final Map<String, Property> props = clazz != null ? clazz.propertiesMap(session) : null;
+    final Map<String, SchemaProperty> props = clazz != null ? clazz.propertiesMap(session) : null;
     final Set<Entry<String, EntityEntry>> fields = EntityInternalUtils.rawEntries(entity);
 
     BytesContainer valuesBuffer = new BytesContainer();
@@ -967,7 +967,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
   protected PropertyType getFieldType(final EntityEntry entry) {
     PropertyType type = entry.type;
     if (type == null) {
-      final Property prop = entry.property;
+      final SchemaProperty prop = entry.property;
       if (prop != null) {
         type = prop.getType();
       }

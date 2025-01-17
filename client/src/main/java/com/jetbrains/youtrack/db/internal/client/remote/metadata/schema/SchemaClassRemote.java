@@ -3,12 +3,12 @@ package com.jetbrains.youtrack.db.internal.client.remote.metadata.schema;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaPropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
@@ -28,7 +28,7 @@ public class SchemaClassRemote extends SchemaClassImpl {
     super(iOwner, iName, iClusterIds);
   }
 
-  protected Property addProperty(
+  protected SchemaProperty addProperty(
       DatabaseSessionInternal session, final String propertyName,
       final PropertyType type,
       final PropertyType linkedType,
@@ -51,11 +51,11 @@ public class SchemaClassRemote extends SchemaClassImpl {
     session.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
     if (linkedType != null) {
-      PropertyImpl.checkLinkTypeSupport(type);
+      SchemaPropertyImpl.checkLinkTypeSupport(type);
     }
 
     if (linkedClass != null) {
-      PropertyImpl.checkSupportLinkedClass(type);
+      SchemaPropertyImpl.checkSupportLinkedClass(type);
     }
 
     acquireSchemaWriteLock(session);
@@ -264,8 +264,8 @@ public class SchemaClassRemote extends SchemaClassImpl {
     return this;
   }
 
-  protected PropertyImpl createPropertyInstance() {
-    return new PropertyRemote(this);
+  protected SchemaPropertyImpl createPropertyInstance() {
+    return new SchemaPropertyRemote(this);
   }
 
   /**

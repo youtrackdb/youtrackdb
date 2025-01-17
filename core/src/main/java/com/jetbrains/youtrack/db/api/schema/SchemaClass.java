@@ -111,17 +111,17 @@ public interface SchemaClass extends Comparable<SchemaClass> {
 
   String getStreamableName();
 
-  Collection<Property> declaredProperties();
+  Collection<SchemaProperty> declaredProperties();
 
-  Collection<Property> properties(DatabaseSession session);
+  Collection<SchemaProperty> properties(DatabaseSession session);
 
-  Map<String, Property> propertiesMap(DatabaseSession session);
+  Map<String, SchemaProperty> propertiesMap(DatabaseSession session);
 
-  Collection<Property> getIndexedProperties(DatabaseSession session);
+  Collection<SchemaProperty> getIndexedProperties(DatabaseSession session);
 
-  Property getProperty(String iPropertyName);
+  SchemaProperty getProperty(String iPropertyName);
 
-  Property createProperty(DatabaseSession session, String iPropertyName, PropertyType iType);
+  SchemaProperty createProperty(DatabaseSession session, String iPropertyName, PropertyType iType);
 
   /**
    * Create a property in the class with the specified options.
@@ -134,7 +134,7 @@ public interface SchemaClass extends Comparable<SchemaClass> {
    *                      can be specified a linked class in all the other cases should be null
    * @return the created property.
    */
-  Property createProperty(DatabaseSession session, String iPropertyName, PropertyType iType,
+  SchemaProperty createProperty(DatabaseSession session, String iPropertyName, PropertyType iType,
       SchemaClass iLinkedClass);
 
   /**
@@ -147,7 +147,7 @@ public interface SchemaClass extends Comparable<SchemaClass> {
    *                      specified a linked type in all the other cases should be null
    * @return the created property.
    */
-  Property createProperty(DatabaseSession session, String iPropertyName, PropertyType iType,
+  SchemaProperty createProperty(DatabaseSession session, String iPropertyName, PropertyType iType,
       PropertyType iLinkedType);
 
   void dropProperty(DatabaseSession session, String iPropertyName);
