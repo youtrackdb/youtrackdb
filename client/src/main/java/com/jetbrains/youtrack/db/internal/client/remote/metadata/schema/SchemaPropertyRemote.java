@@ -2,10 +2,10 @@ package com.jetbrains.youtrack.db.internal.client.remote.metadata.schema;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.comparator.CaseInsentiveComparator;
 import com.jetbrains.youtrack.db.internal.common.util.Collections;
 import com.jetbrains.youtrack.db.internal.core.collate.DefaultCollate;
@@ -14,8 +14,8 @@ import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.PropertyIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaPropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import java.util.ArrayList;
@@ -24,17 +24,17 @@ import java.util.Map;
 /**
  *
  */
-public class PropertyRemote extends PropertyImpl {
+public class SchemaPropertyRemote extends SchemaPropertyImpl {
 
-  PropertyRemote(SchemaClassImpl owner) {
+  SchemaPropertyRemote(SchemaClassImpl owner) {
     super(owner);
   }
 
-  public PropertyRemote(SchemaClassImpl oClassImpl, GlobalProperty global) {
+  public SchemaPropertyRemote(SchemaClassImpl oClassImpl, GlobalProperty global) {
     super(oClassImpl, global);
   }
 
-  public PropertyImpl setType(DatabaseSession session, final PropertyType type) {
+  public SchemaPropertyImpl setType(DatabaseSession session, final PropertyType type) {
     var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
     acquireSchemaWriteLock(database);
@@ -49,7 +49,7 @@ public class PropertyRemote extends PropertyImpl {
     return this;
   }
 
-  public Property setName(DatabaseSession session, final String name) {
+  public SchemaProperty setName(DatabaseSession session, final String name) {
     var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
@@ -67,7 +67,7 @@ public class PropertyRemote extends PropertyImpl {
   }
 
   @Override
-  public PropertyImpl setDescription(DatabaseSession session, final String iDescription) {
+  public SchemaPropertyImpl setDescription(DatabaseSession session, final String iDescription) {
     var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
@@ -84,7 +84,7 @@ public class PropertyRemote extends PropertyImpl {
     return this;
   }
 
-  public Property setCollate(DatabaseSession session, String collate) {
+  public SchemaProperty setCollate(DatabaseSession session, String collate) {
     if (collate == null) {
       collate = DefaultCollate.NAME;
     }
@@ -117,7 +117,7 @@ public class PropertyRemote extends PropertyImpl {
     }
   }
 
-  public PropertyImpl setCustom(DatabaseSession session, final String name,
+  public SchemaPropertyImpl setCustom(DatabaseSession session, final String name,
       final String value) {
     var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
@@ -135,7 +135,7 @@ public class PropertyRemote extends PropertyImpl {
     return this;
   }
 
-  public PropertyImpl setRegexp(DatabaseSession session, final String regexp) {
+  public SchemaPropertyImpl setRegexp(DatabaseSession session, final String regexp) {
     var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
@@ -150,7 +150,7 @@ public class PropertyRemote extends PropertyImpl {
     return this;
   }
 
-  public PropertyImpl setLinkedClass(DatabaseSession session, final SchemaClass linkedClass) {
+  public SchemaPropertyImpl setLinkedClass(DatabaseSession session, final SchemaClass linkedClass) {
     var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
@@ -171,7 +171,7 @@ public class PropertyRemote extends PropertyImpl {
     return this;
   }
 
-  public Property setLinkedType(DatabaseSession session, final PropertyType linkedType) {
+  public SchemaProperty setLinkedType(DatabaseSession session, final PropertyType linkedType) {
     var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
@@ -192,7 +192,7 @@ public class PropertyRemote extends PropertyImpl {
     return this;
   }
 
-  public PropertyImpl setNotNull(DatabaseSession session, final boolean isNotNull) {
+  public SchemaPropertyImpl setNotNull(DatabaseSession session, final boolean isNotNull) {
     var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
@@ -208,7 +208,7 @@ public class PropertyRemote extends PropertyImpl {
     return this;
   }
 
-  public PropertyImpl setDefaultValue(DatabaseSession session, final String defaultValue) {
+  public SchemaPropertyImpl setDefaultValue(DatabaseSession session, final String defaultValue) {
     var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
@@ -226,7 +226,7 @@ public class PropertyRemote extends PropertyImpl {
     return this;
   }
 
-  public PropertyImpl setMax(DatabaseSession session, final String max) {
+  public SchemaPropertyImpl setMax(DatabaseSession session, final String max) {
     var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
@@ -242,7 +242,7 @@ public class PropertyRemote extends PropertyImpl {
     return this;
   }
 
-  public PropertyImpl setMin(DatabaseSession session, final String min) {
+  public SchemaPropertyImpl setMin(DatabaseSession session, final String min) {
     var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
@@ -258,7 +258,7 @@ public class PropertyRemote extends PropertyImpl {
     return this;
   }
 
-  public PropertyImpl setReadonly(DatabaseSession session, final boolean isReadonly) {
+  public SchemaPropertyImpl setReadonly(DatabaseSession session, final boolean isReadonly) {
     var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
@@ -275,7 +275,7 @@ public class PropertyRemote extends PropertyImpl {
     return this;
   }
 
-  public PropertyImpl setMandatory(DatabaseSession session, final boolean isMandatory) {
+  public SchemaPropertyImpl setMandatory(DatabaseSession session, final boolean isMandatory) {
     var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
@@ -317,7 +317,7 @@ public class PropertyRemote extends PropertyImpl {
   }
 
   @Override
-  public PropertyImpl dropIndexes(DatabaseSessionInternal session) {
+  public SchemaPropertyImpl dropIndexes(DatabaseSessionInternal session) {
     session.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_DELETE);
 
     final IndexManagerAbstract indexManager = session.getMetadata().getIndexManagerInternal();

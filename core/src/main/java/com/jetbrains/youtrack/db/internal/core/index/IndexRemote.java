@@ -38,16 +38,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Proxied abstract index.
  */
-@SuppressWarnings("unchecked")
 public abstract class IndexRemote implements Index {
-
-  public static final String QUERY_GET_VALUES_BEETWEN_SELECT = "select from index:`%s` where ";
   public static final String QUERY_GET_VALUES_BEETWEN_INCLUSIVE_FROM_CONDITION = "key >= ?";
   public static final String QUERY_GET_VALUES_BEETWEN_EXCLUSIVE_FROM_CONDITION = "key > ?";
   public static final String QUERY_GET_VALUES_BEETWEN_INCLUSIVE_TO_CONDITION = "key <= ?";
@@ -60,12 +57,6 @@ public abstract class IndexRemote implements Index {
 
   private static final String QUERY_ITERATE_ENTRIES =
       "select from index:`%s` where key in [%s] order by key %s ";
-  private static final String QUERY_GET_ENTRIES = "select from index:`%s` where key in [%s]";
-
-  private static final String QUERY_PUT = "insert into index:`%s` (key,rid) values (?,?)";
-  private static final String QUERY_REMOVE = "delete from index:`%s` where key = ?";
-  private static final String QUERY_REMOVE2 = "delete from index:`%s` where key = ? and rid = ?";
-  private static final String QUERY_REMOVE3 = "delete from index:`%s` where rid = ?";
   private static final String QUERY_CONTAINS =
       "select count(*) as size from index:`%s` where key = ?";
   private static final String QUERY_COUNT = "select count(*) as size from index:`%s` where key = ?";
@@ -82,7 +73,10 @@ public abstract class IndexRemote implements Index {
   private final RID rid;
   protected IndexDefinition indexDefinition;
   protected String name;
-  protected EntityImpl configuration;
+  protected Map<String, Object> configuration;
+
+  private final int version;
+  protected final Map<String, Object> metadata;
   protected Set<String> clustersToIndex;
 
   public IndexRemote(
@@ -99,9 +93,26 @@ public abstract class IndexRemote implements Index {
     this.algorithm = algorithm;
     this.rid = iRid;
     this.indexDefinition = iIndexDefinition;
-    this.configuration = iConfiguration;
-    this.clustersToIndex = new HashSet<String>(clustersToIndex);
+    this.configuration = iConfiguration.toMap();
+
+    var metadata = iConfiguration.<EntityImpl>getProperty("metadata").toMap();
+
+    metadata.remove("@rid");
+    metadata.remove("@class");
+    metadata.remove("@type");
+    metadata.remove("@version");
+
+    this.metadata = Collections.unmodifiableMap(metadata);
+
+    this.clustersToIndex = new HashSet<>(clustersToIndex);
     this.databaseName = database;
+
+    if (configuration == null) {
+      version = -1;
+    } else {
+      final Integer version = (Integer) configuration.get(IndexInternal.INDEX_VERSION);
+      this.version = Objects.requireNonNullElse(version, -1);
+    }
   }
 
   public IndexRemote create(
@@ -232,20 +243,7 @@ public abstract class IndexRemote implements Index {
 
   @Override
   public int getVersion() {
-    if (configuration == null) {
-      return -1;
-    }
-
-    final Integer version = configuration.field(IndexInternal.INDEX_VERSION);
-    if (version != null) {
-      return version;
-    }
-
-    return -1;
-  }
-
-  public void automaticRebuild() {
-    throw new UnsupportedOperationException("autoRebuild()");
+    return version;
   }
 
   public long rebuild(DatabaseSessionInternal session) {
@@ -303,20 +301,12 @@ public abstract class IndexRemote implements Index {
   }
 
   public EntityImpl getConfiguration(DatabaseSessionInternal session) {
-    return configuration;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public Map<String, ?> getMetadata() {
-    var embedded = configuration.<EntityImpl>field("metadata", PropertyType.EMBEDDED);
-    var map = embedded.toMap();
-
-    map.remove("@rid");
-    map.remove("@class");
-    map.remove("@type");
-    map.remove("@version");
-
-    return map;
+    return metadata;
   }
 
   public RID getIdentity() {
@@ -337,22 +327,6 @@ public abstract class IndexRemote implements Index {
       return indexDefinition.getTypes();
     }
     return new PropertyType[0];
-  }
-
-  public Collection<EntityImpl> getEntries(final Collection<?> iKeys) {
-    final StringBuilder params = new StringBuilder(128);
-    if (!iKeys.isEmpty()) {
-      params.append("?");
-      for (int i = 1; i < iKeys.size(); i++) {
-        params.append(", ?");
-      }
-    }
-
-    try (ResultSet rs =
-        getDatabase()
-            .indexQuery(name, String.format(QUERY_GET_ENTRIES, name, params), iKeys.toArray())) {
-      return rs.stream().map((res) -> (EntityImpl) res.toEntity()).collect(Collectors.toList());
-    }
   }
 
   public IndexDefinition getDefinition() {
@@ -423,9 +397,7 @@ public abstract class IndexRemote implements Index {
     final StringBuilder params = new StringBuilder(128);
     if (!keys.isEmpty()) {
       params.append("?");
-      for (int i = 1; i < keys.size(); i++) {
-        params.append(", ?");
-      }
+      params.append(", ?".repeat(keys.size() - 1));
     }
 
     final InternalResultSet copy = new InternalResultSet(); // TODO a raw array instead...?
@@ -436,18 +408,17 @@ public abstract class IndexRemote implements Index {
                 String.format(QUERY_ITERATE_ENTRIES, name, params, ascSortOrder ? "ASC" : "DESC"),
                 keys.toArray())) {
 
-      res.forEachRemaining(x -> copy.add(x));
+      res.forEachRemaining(copy::add);
     }
 
     return new IndexAbstractCursor() {
-
       @Override
       public Map.Entry<Object, Identifiable> nextEntry() {
         if (!copy.hasNext()) {
           return null;
         }
         final Result next = copy.next();
-        return new Map.Entry<Object, Identifiable>() {
+        return new Map.Entry<>() {
           @Override
           public Object getKey() {
             return next.getProperty("key");
@@ -547,20 +518,16 @@ public abstract class IndexRemote implements Index {
     final InternalResultSet copy = new InternalResultSet(); // TODO a raw array instead...?
     try (final ResultSet result =
         getDatabase().indexQuery(name, String.format(QUERY_KEYS, name))) {
-      result.forEachRemaining(x -> copy.add(x));
+      result.forEachRemaining(copy::add);
     }
-    return new IndexKeyCursor() {
-
-      @Override
-      public Object next(int prefetchSize) {
-        if (!copy.hasNext()) {
-          return null;
-        }
-
-        final Result value = copy.next();
-
-        return value.getProperty("key");
+    return prefetchSize -> {
+      if (!copy.hasNext()) {
+        return null;
       }
+
+      final Result value = copy.next();
+
+      return value.getProperty("key");
     };
   }
 

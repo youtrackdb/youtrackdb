@@ -6,21 +6,21 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class AlterPropertyTest extends DbTestBase {
+public class AlterSchemaPropertyTest extends DbTestBase {
 
   @Test
   public void testPropertyRenaming() {
     Schema schema = db.getMetadata().getSchema();
     SchemaClass classA = schema.createClass("TestPropertyRenaming");
-    Property property = classA.createProperty(db, "propertyOld", PropertyType.STRING);
+    SchemaProperty property = classA.createProperty(db, "propertyOld", PropertyType.STRING);
     assertEquals(property, classA.getProperty("propertyOld"));
     assertNull(classA.getProperty("propertyNew"));
     property.setName(db, "propertyNew");
@@ -32,7 +32,7 @@ public class AlterPropertyTest extends DbTestBase {
   public void testPropertyRenamingReload() {
     Schema schema = db.getMetadata().getSchema();
     SchemaClass classA = schema.createClass("TestPropertyRenaming");
-    Property property = classA.createProperty(db, "propertyOld", PropertyType.STRING);
+    SchemaProperty property = classA.createProperty(db, "propertyOld", PropertyType.STRING);
     assertEquals(property, classA.getProperty("propertyOld"));
     assertNull(classA.getProperty("propertyNew"));
     property.setName(db, "propertyNew");
@@ -52,7 +52,7 @@ public class AlterPropertyTest extends DbTestBase {
 
     }
 
-    Property prop = classA.getProperty("propertyMap");
+    SchemaProperty prop = classA.getProperty("propertyMap");
     assertNull(prop);
   }
 
@@ -68,7 +68,7 @@ public class AlterPropertyTest extends DbTestBase {
 
     }
 
-    Property prop = classA.getProperty("propertyString");
+    SchemaProperty prop = classA.getProperty("propertyString");
     assertNull(prop);
   }
 
@@ -77,7 +77,7 @@ public class AlterPropertyTest extends DbTestBase {
     Schema schema = db.getMetadata().getSchema();
     SchemaClass classA = schema.createClass("TestRemoveLinkedClass");
     SchemaClass classLinked = schema.createClass("LinkedClass");
-    Property prop = classA.createProperty(db, "propertyLink", PropertyType.LINK, classLinked);
+    SchemaProperty prop = classA.createProperty(db, "propertyLink", PropertyType.LINK, classLinked);
     assertNotNull(prop.getLinkedClass());
     prop.setLinkedClass(db, null);
     assertNull(prop.getLinkedClass());
@@ -88,7 +88,7 @@ public class AlterPropertyTest extends DbTestBase {
     Schema schema = db.getMetadata().getSchema();
     SchemaClass classA = schema.createClass("TestRemoveLinkedClass");
     SchemaClass classLinked = schema.createClass("LinkedClass");
-    Property prop = classA.createProperty(db, "propertyLink", PropertyType.LINK, classLinked);
+    SchemaProperty prop = classA.createProperty(db, "propertyLink", PropertyType.LINK, classLinked);
     assertNotNull(prop.getLinkedClass());
     db.command("alter property TestRemoveLinkedClass.propertyLink linkedclass null").close();
     assertNull(prop.getLinkedClass());
@@ -98,7 +98,7 @@ public class AlterPropertyTest extends DbTestBase {
   public void testMax() {
     Schema schema = db.getMetadata().getSchema();
     SchemaClass classA = schema.createClass("TestWrongMax");
-    Property prop = classA.createProperty(db, "dates", PropertyType.EMBEDDEDLIST,
+    SchemaProperty prop = classA.createProperty(db, "dates", PropertyType.EMBEDDEDLIST,
         PropertyType.DATE);
 
     db.command("alter property TestWrongMax.dates max 2016-05-25").close();
@@ -126,7 +126,7 @@ public class AlterPropertyTest extends DbTestBase {
   public void testAlterCustomAttributeInProperty() {
     Schema schema = db.getMetadata().getSchema();
     SchemaClass oClass = schema.createClass("TestCreateCustomAttributeClass");
-    Property property = oClass.createProperty(db, "property", PropertyType.STRING);
+    SchemaProperty property = oClass.createProperty(db, "property", PropertyType.STRING);
 
     property.setCustom(db, "customAttribute", "value1");
     assertEquals("value1", property.getCustom("customAttribute"));

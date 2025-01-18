@@ -20,9 +20,9 @@ import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.exception.ValidationException;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.DecimalSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
@@ -975,7 +975,7 @@ public class DocumentSerializerDelta {
   protected PropertyType getFieldType(final EntityEntry entry) {
     PropertyType type = entry.type;
     if (type == null) {
-      final Property prop = entry.property;
+      final SchemaProperty prop = entry.property;
       if (prop != null) {
         type = prop.getType();
       }

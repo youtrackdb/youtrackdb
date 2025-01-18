@@ -125,7 +125,7 @@ public class SchemaTest extends BaseDBTest {
   @Test(dependsOnMethods = "checkSchemaApi")
   public void checkClusters() {
 
-    for (SchemaClass cls : database.getMetadata().getSchema().getClasses()) {
+    for (SchemaClass cls : database.getMetadata().getSchema().getClasses(database)) {
       assert cls.isAbstract() || database.getClusterNameById(cls.getClusterIds()[0]) != null;
     }
   }

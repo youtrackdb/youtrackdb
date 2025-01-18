@@ -33,10 +33,10 @@ import org.testng.annotations.Test;
  */
 @SuppressWarnings("SuspiciousMethodCalls")
 @Test(groups = {"index"})
-public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseTest {
+public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndexReuseTest {
 
   @Parameters(value = "remote")
-  public SQLSelectByLinkedPropertyIndexReuseTest(boolean remote) {
+  public SQLSelectByLinkedSchemaPropertyIndexReuseTest(boolean remote) {
     super(remote);
   }
 

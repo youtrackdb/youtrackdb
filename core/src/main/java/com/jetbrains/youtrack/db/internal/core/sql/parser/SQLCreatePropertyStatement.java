@@ -2,12 +2,12 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassEmbedded;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaPropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
@@ -90,8 +90,8 @@ public class SQLCreatePropertyStatement extends DDLStatement {
       }
     }
     // CREATE IT LOCALLY
-    PropertyImpl internalProp =
-        (PropertyImpl)
+    SchemaPropertyImpl internalProp =
+        (SchemaPropertyImpl)
             clazz.addProperty(ctx.getDatabase(), propertyName.getStringValue(), type, linkedType,
                 linkedClass,
                 unsafe);

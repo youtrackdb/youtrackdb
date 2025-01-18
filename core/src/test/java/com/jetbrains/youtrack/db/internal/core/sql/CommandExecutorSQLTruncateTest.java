@@ -40,7 +40,7 @@ public class CommandExecutorSQLTruncateTest extends DbTestBase {
     db.save(doc);
     db.commit();
 
-    db.getMetadata().getSchema().getClasses().stream()
+    db.getMetadata().getSchema().getClasses(db).stream()
         .filter(oClass -> !oClass.getName().startsWith("OSecurity")) //
         .forEach(
             oClass -> {

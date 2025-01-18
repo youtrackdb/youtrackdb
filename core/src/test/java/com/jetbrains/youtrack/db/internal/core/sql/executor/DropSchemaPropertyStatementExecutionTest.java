@@ -1,19 +1,19 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  *
  */
-public class DropPropertyStatementExecutionTest extends DbTestBase {
+public class DropSchemaPropertyStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testPlain() {

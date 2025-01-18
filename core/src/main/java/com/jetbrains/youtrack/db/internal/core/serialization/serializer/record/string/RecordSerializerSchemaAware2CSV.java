@@ -22,9 +22,9 @@ package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
@@ -129,7 +129,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
     PropertyType type;
     SchemaClass linkedClass;
     PropertyType linkedType;
-    Property prop;
+    SchemaProperty prop;
 
     final Set<String> fieldSet;
 
@@ -353,7 +353,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
       iOutput.append(StringSerializerHelper.CLASS_SEPARATOR);
     }
 
-    Property prop;
+    SchemaProperty prop;
     PropertyType type;
     SchemaClass linkedClass;
     PropertyType linkedType;

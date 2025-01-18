@@ -19,14 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import java.util.Map;
 
 /**
@@ -96,11 +96,9 @@ public class CommandExecutorSQLDropCluster extends CommandExecutorSQLAbstract
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final DatabaseSessionInternal database = getDatabase();
-
     // CHECK IF ANY CLASS IS USING IT
-    final int clusterId = database.getClusterIdByName(clusterName);
-    for (SchemaClass iClass : database.getMetadata().getSchema().getClasses()) {
+    final int clusterId = querySession.getClusterIdByName(clusterName);
+    for (SchemaClass iClass : querySession.getMetadata().getSchema().getClasses(querySession)) {
       for (int i : iClass.getClusterIds()) {
         if (i == clusterId)
         // IN USE
@@ -110,7 +108,7 @@ public class CommandExecutorSQLDropCluster extends CommandExecutorSQLAbstract
       }
     }
 
-    database.dropCluster(clusterId);
+    querySession.dropCluster(clusterId);
     return true;
   }
 
@@ -128,18 +126,6 @@ public class CommandExecutorSQLDropCluster extends CommandExecutorSQLAbstract
   @Override
   public QUORUM_TYPE getQuorumType() {
     return QUORUM_TYPE.ALL;
-  }
-
-  protected boolean isClusterDeletable(int clusterId) {
-    final var database = getDatabase();
-    for (SchemaClass iClass : database.getMetadata().getSchema().getClasses()) {
-      for (int i : iClass.getClusterIds()) {
-        if (i == clusterId) {
-          return false;
-        }
-      }
-    }
-    return true;
   }
 
   @Override

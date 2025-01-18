@@ -30,13 +30,13 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = {"index"})
-public class SQLDropPropertyIndexTest extends BaseDBTest {
+public class SQLDropSchemaPropertyIndexTest extends BaseDBTest {
 
   private static final PropertyType EXPECTED_PROP1_TYPE = PropertyType.DOUBLE;
   private static final PropertyType EXPECTED_PROP2_TYPE = PropertyType.INTEGER;
 
   @Parameters(value = "remote")
-  public SQLDropPropertyIndexTest(boolean remote) {
+  public SQLDropSchemaPropertyIndexTest(boolean remote) {
     super(remote);
   }
 

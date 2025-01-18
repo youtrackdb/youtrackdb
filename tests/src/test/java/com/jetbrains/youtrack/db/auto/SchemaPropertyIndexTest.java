@@ -15,10 +15,10 @@
  */
 package com.jetbrains.youtrack.db.auto;
 
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -32,10 +32,10 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
-public class PropertyIndexTest extends BaseDBTest {
+public class SchemaPropertyIndexTest extends BaseDBTest {
 
   @Parameters(value = "remote")
-  public PropertyIndexTest(@Optional Boolean remote) {
+  public SchemaPropertyIndexTest(@Optional Boolean remote) {
     super(remote != null && remote);
   }
 
@@ -72,7 +72,7 @@ public class PropertyIndexTest extends BaseDBTest {
   public void testCreateUniqueIndex() {
     var schema = database.getMetadata().getSchema();
     var oClass = schema.getClassInternal("PropertyIndexTestClass");
-    final Property propOne = oClass.getProperty("prop1");
+    final SchemaProperty propOne = oClass.getProperty("prop1");
 
     propOne.createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE,
         Map.of("ignoreNullValues", true));
@@ -166,7 +166,7 @@ public class PropertyIndexTest extends BaseDBTest {
   public void testIsIndexedIndexedField() {
     final Schema schema = database.getMetadata().getSchema();
     final SchemaClass oClass = schema.getClass("PropertyIndexTestClass");
-    final Property propOne = oClass.getProperty("prop1");
+    final SchemaProperty propOne = oClass.getProperty("prop1");
     Assert.assertFalse(propOne.getAllIndexes(database).isEmpty());
   }
 

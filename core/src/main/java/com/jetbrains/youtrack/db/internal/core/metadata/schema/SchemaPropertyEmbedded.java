@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.schema.Collate;
 import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.api.schema.Collate;
 import com.jetbrains.youtrack.db.internal.core.collate.DefaultCollate;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
@@ -15,10 +15,8 @@ import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -26,17 +24,17 @@ import java.util.Set;
 /**
  *
  */
-public class PropertyEmbedded extends PropertyImpl {
+public class SchemaPropertyEmbedded extends SchemaPropertyImpl {
 
-  protected PropertyEmbedded(SchemaClassImpl owner) {
+  protected SchemaPropertyEmbedded(SchemaClassImpl owner) {
     super(owner);
   }
 
-  protected PropertyEmbedded(SchemaClassImpl oClassImpl, GlobalProperty global) {
+  protected SchemaPropertyEmbedded(SchemaClassImpl oClassImpl, GlobalProperty global) {
     super(oClassImpl, global);
   }
 
-  public PropertyImpl setType(DatabaseSession session, final PropertyType type) {
+  public SchemaPropertyImpl setType(DatabaseSession session, final PropertyType type) {
     var sessionInternal = (DatabaseSessionInternal) session;
     sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
@@ -79,7 +77,7 @@ public class PropertyEmbedded extends PropertyImpl {
     }
   }
 
-  public Property setName(DatabaseSession session, final String name) {
+  public SchemaProperty setName(DatabaseSession session, final String name) {
     var sessionInternal = (DatabaseSessionInternal) session;
     sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
@@ -110,7 +108,7 @@ public class PropertyEmbedded extends PropertyImpl {
   }
 
   @Override
-  public PropertyImpl setDescription(DatabaseSession session, final String iDescription) {
+  public SchemaPropertyImpl setDescription(DatabaseSession session, final String iDescription) {
     var sessionInternal = (DatabaseSessionInternal) session;
     sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
@@ -137,7 +135,7 @@ public class PropertyEmbedded extends PropertyImpl {
     }
   }
 
-  public Property setCollate(DatabaseSession session, String collate) {
+  public SchemaProperty setCollate(DatabaseSession session, String collate) {
     if (collate == null) {
       collate = DefaultCollate.NAME;
     }
@@ -239,7 +237,7 @@ public class PropertyEmbedded extends PropertyImpl {
     }
   }
 
-  public PropertyImpl setCustom(DatabaseSession session, final String name,
+  public SchemaPropertyImpl setCustom(DatabaseSession session, final String name,
       final String value) {
     var sessionInternal = (DatabaseSessionInternal) session;
     sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
@@ -273,7 +271,7 @@ public class PropertyEmbedded extends PropertyImpl {
     }
   }
 
-  public PropertyImpl setRegexp(DatabaseSession session, final String regexp) {
+  public SchemaPropertyImpl setRegexp(DatabaseSession session, final String regexp) {
     var sessionInternal = (DatabaseSessionInternal) session;
     sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
@@ -297,7 +295,7 @@ public class PropertyEmbedded extends PropertyImpl {
     }
   }
 
-  public PropertyImpl setLinkedClass(DatabaseSession session, final SchemaClass linkedClass) {
+  public SchemaPropertyImpl setLinkedClass(DatabaseSession session, final SchemaClass linkedClass) {
     var sessionInternal = (DatabaseSessionInternal) session;
     sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
@@ -328,7 +326,7 @@ public class PropertyEmbedded extends PropertyImpl {
     }
   }
 
-  public Property setLinkedType(DatabaseSession session, final PropertyType linkedType) {
+  public SchemaProperty setLinkedType(DatabaseSession session, final PropertyType linkedType) {
     var sessionInternal = (DatabaseSessionInternal) session;
     sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
@@ -357,7 +355,7 @@ public class PropertyEmbedded extends PropertyImpl {
     }
   }
 
-  public PropertyImpl setNotNull(DatabaseSession session, final boolean isNotNull) {
+  public SchemaPropertyImpl setNotNull(DatabaseSession session, final boolean isNotNull) {
     var sessionInternal = (DatabaseSessionInternal) session;
     sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
@@ -381,7 +379,7 @@ public class PropertyEmbedded extends PropertyImpl {
     }
   }
 
-  public PropertyImpl setDefaultValue(DatabaseSession session, final String defaultValue) {
+  public SchemaPropertyImpl setDefaultValue(DatabaseSession session, final String defaultValue) {
     var sessionInternal = (DatabaseSessionInternal) session;
     sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
@@ -412,7 +410,7 @@ public class PropertyEmbedded extends PropertyImpl {
     }
   }
 
-  public PropertyImpl setMax(DatabaseSession session, final String max) {
+  public SchemaPropertyImpl setMax(DatabaseSession session, final String max) {
     var sessionInternal = (DatabaseSessionInternal) session;
     sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
     checkCorrectLimitValue(sessionInternal, max);
@@ -468,7 +466,7 @@ public class PropertyEmbedded extends PropertyImpl {
     }
   }
 
-  public PropertyImpl setMin(DatabaseSession session, final String min) {
+  public SchemaPropertyImpl setMin(DatabaseSession session, final String min) {
     var sessionInternal = (DatabaseSessionInternal) session;
     sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
     checkCorrectLimitValue(sessionInternal, min);
@@ -497,7 +495,7 @@ public class PropertyEmbedded extends PropertyImpl {
     }
   }
 
-  public PropertyImpl setReadonly(DatabaseSession session, final boolean isReadonly) {
+  public SchemaPropertyImpl setReadonly(DatabaseSession session, final boolean isReadonly) {
     var sessionInternal = (DatabaseSessionInternal) session;
     sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
@@ -524,7 +522,7 @@ public class PropertyEmbedded extends PropertyImpl {
     }
   }
 
-  public PropertyImpl setMandatory(DatabaseSession session, final boolean isMandatory) {
+  public SchemaPropertyImpl setMandatory(DatabaseSession session, final boolean isMandatory) {
     var sessionInternal = (DatabaseSessionInternal) session;
     sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 

@@ -162,9 +162,10 @@ public class YouTrackDbJdbcDatabaseMetaDataTest extends YouTrackDbJdbcDbPerClass
     ResultSet rs = metaData.getTables(null, null, null, null);
     int tableCount = sizeOf(rs);
 
+    var database = (DatabaseSessionInternal) conn.getDatabase();
     assertThat(tableCount)
         .isEqualTo(
-            ((DatabaseSessionInternal) conn.getDatabase()).getMetadata().getSchema().getClasses()
+            database.getMetadata().getSchema().getClasses(database)
                 .size());
   }
 
@@ -187,9 +188,11 @@ public class YouTrackDbJdbcDatabaseMetaDataTest extends YouTrackDbJdbcDbPerClass
     }
     rs = metaData.getTables(null, null, null, tableTypes.toArray(new String[2]));
     int tableCount = sizeOf(rs);
+    var database = (DatabaseSessionInternal) conn.getDatabase();
+
     assertThat(tableCount)
         .isEqualTo(
-            ((DatabaseSessionInternal) conn.getDatabase()).getMetadata().getSchema().getClasses()
+            database.getMetadata().getSchema().getClasses(database)
                 .size());
   }
 

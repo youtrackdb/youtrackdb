@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent.ChangeType;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
@@ -20,7 +20,7 @@ import org.junit.Test;
 /**
  * @since 1/30/14
  */
-public abstract class PropertyRidBagAbstractIndexDefinition extends DbTestBase {
+public abstract class SchemaPropertyRidBagAbstractIndexDefinition extends DbTestBase {
 
   private PropertyRidBagIndexDefinition propertyIndex;
 

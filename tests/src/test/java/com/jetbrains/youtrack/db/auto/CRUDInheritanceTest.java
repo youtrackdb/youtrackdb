@@ -16,9 +16,9 @@
 package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.List;
 import org.testng.Assert;
@@ -218,14 +218,14 @@ public class CRUDInheritanceTest extends BaseDBTest {
   }
 
   protected void checkProperty(SchemaClass iClass, String iPropertyName, PropertyType iType) {
-    Property prop = iClass.getProperty(iPropertyName);
+    SchemaProperty prop = iClass.getProperty(iPropertyName);
     Assert.assertNotNull(prop);
     Assert.assertEquals(prop.getType(), iType);
   }
 
   protected void checkProperty(
       SchemaClass iClass, String iPropertyName, PropertyType iType, SchemaClass iLinkedClass) {
-    Property prop = iClass.getProperty(iPropertyName);
+    SchemaProperty prop = iClass.getProperty(iPropertyName);
     Assert.assertNotNull(prop);
     Assert.assertEquals(prop.getType(), iType);
     Assert.assertEquals(prop.getLinkedClass(), iLinkedClass);
@@ -233,7 +233,7 @@ public class CRUDInheritanceTest extends BaseDBTest {
 
   protected void checkProperty(
       SchemaClass iClass, String iPropertyName, PropertyType iType, PropertyType iLinkedType) {
-    Property prop = iClass.getProperty(iPropertyName);
+    SchemaProperty prop = iClass.getProperty(iPropertyName);
     Assert.assertNotNull(prop);
     Assert.assertEquals(prop.getType(), iType);
     Assert.assertEquals(prop.getLinkedType(), iLinkedType);

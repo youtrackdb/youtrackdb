@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,7 +17,7 @@ import java.util.stream.IntStream;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class GetPropertyOnLoadValueTest extends DbTestBase {
+public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
 
   @Test
   public void testOnloadValue() {

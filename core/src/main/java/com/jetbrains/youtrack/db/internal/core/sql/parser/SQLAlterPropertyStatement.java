@@ -3,12 +3,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Arrays;
@@ -44,7 +44,7 @@ public class SQLAlterPropertyStatement extends DDLStatement {
       throw new CommandExecutionException("Invalid class name or class not found: " + clazz);
     }
 
-    Property property = clazz.getProperty(propertyName.getStringValue());
+    SchemaProperty property = clazz.getProperty(propertyName.getStringValue());
     if (property == null) {
       throw new CommandExecutionException(
           "Property " + propertyName.getStringValue() + " not found on class " + clazz);
@@ -82,16 +82,16 @@ public class SQLAlterPropertyStatement extends DDLStatement {
           finalValue = stringFinalValue;
         }
       }
-      Property.ATTRIBUTES attribute;
+      SchemaProperty.ATTRIBUTES attribute;
       try {
-        attribute = Property.ATTRIBUTES.valueOf(setting.toUpperCase(Locale.ENGLISH));
+        attribute = SchemaProperty.ATTRIBUTES.valueOf(setting.toUpperCase(Locale.ENGLISH));
       } catch (IllegalArgumentException e) {
         throw BaseException.wrapException(
             new CommandExecutionException(
                 "Unknown property attribute '"
                     + setting
                     + "'. Supported attributes are: "
-                    + Arrays.toString(Property.ATTRIBUTES.values())),
+                    + Arrays.toString(SchemaProperty.ATTRIBUTES.values())),
             e);
       }
       Object oldValue = property.get(attribute);

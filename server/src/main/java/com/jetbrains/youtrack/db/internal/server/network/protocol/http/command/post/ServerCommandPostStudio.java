@@ -19,20 +19,20 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.post;
 
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.util.PatternConst;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaPropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerStringAbstract;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -134,18 +134,18 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
       try {
         PropertyType type = PropertyType.valueOf(fields.get("type"));
 
-        PropertyImpl prop;
+        SchemaPropertyImpl prop;
         if (type == PropertyType.LINK
             || type == PropertyType.LINKLIST
             || type == PropertyType.LINKSET
             || type == PropertyType.LINKMAP) {
           prop =
-              (PropertyImpl)
+              (SchemaPropertyImpl)
                   cls.createProperty(db,
                       fields.get("name"),
                       type, db.getMetadata().getSchema().getClass(fields.get("linkedClass")));
         } else {
-          prop = (PropertyImpl) cls.createProperty(db, fields.get("name"), type);
+          prop = (SchemaPropertyImpl) cls.createProperty(db, fields.get("name"), type);
         }
 
         if (fields.get("linkedType") != null) {
@@ -231,7 +231,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
             "Class '"
                 + rid
                 + "' created successfully with id="
-                + db.getMetadata().getSchema().getClasses().size(),
+                + db.getMetadata().getSchema().getClasses(db).size(),
             null);
 
       } catch (Exception e) {

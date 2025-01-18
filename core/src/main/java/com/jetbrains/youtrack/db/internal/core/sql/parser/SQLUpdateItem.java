@@ -2,17 +2,17 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -159,7 +159,7 @@ public class SQLUpdateItem extends SimpleNode {
     if (oClass == null) {
       return null;
     }
-    Property prop = oClass.getProperty(propName);
+    SchemaProperty prop = oClass.getProperty(propName);
 
     Object result = null;
     if (prop == null) {
@@ -204,7 +204,7 @@ public class SQLUpdateItem extends SimpleNode {
 
   private PropertyType calculateTypeForThisItem(
       SchemaClass clazz, String propName, SQLModifier modifier, CommandContext ctx) {
-    Property prop = clazz.getProperty(propName);
+    SchemaProperty prop = clazz.getProperty(propName);
     if (prop == null) {
       return null;
     }
@@ -274,7 +274,7 @@ public class SQLUpdateItem extends SimpleNode {
     if (!optSchema.isPresent()) {
       return newValue;
     }
-    Property prop = optSchema.get().getProperty(attrName.getStringValue());
+    SchemaProperty prop = optSchema.get().getProperty(attrName.getStringValue());
     if (prop == null) {
       return newValue;
     }

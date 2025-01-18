@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent.ChangeType;
-import com.jetbrains.youtrack.db.api.exception.DatabaseException;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.Arrays;
@@ -21,7 +21,7 @@ import org.junit.Test;
 /**
  * @since 20.12.11
  */
-public class PropertyMapIndexDefinitionTest extends DbTestBase {
+public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   private final Map<String, Integer> mapToTest = new HashMap<String, Integer>();
   private PropertyMapIndexDefinition propertyIndexByKey;

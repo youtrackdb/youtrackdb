@@ -23,8 +23,8 @@ import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
@@ -428,7 +428,7 @@ public class SQLHelper {
           // CHECK FOR CONVERSIONS
           SchemaImmutableClass immutableClass = EntityInternalUtils.getImmutableSchemaClass(e);
           if (immutableClass != null) {
-            final Property prop = immutableClass.getProperty(fieldName);
+            final SchemaProperty prop = immutableClass.getProperty(fieldName);
             if (prop != null) {
               if (prop.getType() == PropertyType.LINK) {
                 if (MultiValue.isMultiValue(fieldValue)) {

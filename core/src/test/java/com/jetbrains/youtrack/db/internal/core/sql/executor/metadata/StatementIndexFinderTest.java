@@ -6,18 +6,18 @@ import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder.Operation;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SimpleNode;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.YouTrackDBSql;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -48,7 +48,7 @@ public class StatementIndexFinderTest {
   @Test
   public void simpleMatchTest() {
     SchemaClass cl = this.session.createClass("cl");
-    Property prop = cl.createProperty(session, "name", PropertyType.STRING);
+    SchemaProperty prop = cl.createProperty(session, "name", PropertyType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     SQLSelectStatement stat = parseQuery("select from cl where name='a'");
@@ -62,7 +62,7 @@ public class StatementIndexFinderTest {
   @Test
   public void simpleRangeTest() {
     SchemaClass cl = this.session.createClass("cl");
-    Property prop = cl.createProperty(session, "name", PropertyType.STRING);
+    SchemaProperty prop = cl.createProperty(session, "name", PropertyType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     SQLSelectStatement stat = parseQuery("select from cl where name > 'a'");
@@ -83,7 +83,7 @@ public class StatementIndexFinderTest {
   @Test
   public void multipleSimpleAndMatchTest() {
     SchemaClass cl = this.session.createClass("cl");
-    Property prop = cl.createProperty(session, "name", PropertyType.STRING);
+    SchemaProperty prop = cl.createProperty(session, "name", PropertyType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     SQLSelectStatement stat = parseQuery("select from cl where name='a' and name='b'");
@@ -101,7 +101,7 @@ public class StatementIndexFinderTest {
   @Test
   public void requiredRangeOrMatchTest() {
     SchemaClass cl = this.session.createClass("cl");
-    Property prop = cl.createProperty(session, "name", PropertyType.STRING);
+    SchemaProperty prop = cl.createProperty(session, "name", PropertyType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     SQLSelectStatement stat = parseQuery("select from cl where name='a' or name='b'");
@@ -119,7 +119,7 @@ public class StatementIndexFinderTest {
   @Test
   public void multipleRangeAndTest() {
     SchemaClass cl = this.session.createClass("cl");
-    Property prop = cl.createProperty(session, "name", PropertyType.STRING);
+    SchemaProperty prop = cl.createProperty(session, "name", PropertyType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     IndexFinder finder = new ClassIndexFinder("cl");
@@ -138,7 +138,7 @@ public class StatementIndexFinderTest {
   @Test
   public void requiredRangeOrTest() {
     SchemaClass cl = this.session.createClass("cl");
-    Property prop = cl.createProperty(session, "name", PropertyType.STRING);
+    SchemaProperty prop = cl.createProperty(session, "name", PropertyType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     IndexFinder finder = new ClassIndexFinder("cl");
@@ -157,7 +157,7 @@ public class StatementIndexFinderTest {
   @Test
   public void simpleRangeNotTest() {
     SchemaClass cl = this.session.createClass("cl");
-    Property prop = cl.createProperty(session, "name", PropertyType.STRING);
+    SchemaProperty prop = cl.createProperty(session, "name", PropertyType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     IndexFinder finder = new ClassIndexFinder("cl");
@@ -172,9 +172,9 @@ public class StatementIndexFinderTest {
   @Test
   public void simpleChainTest() {
     SchemaClass cl = this.session.createClass("cl");
-    Property prop = cl.createProperty(session, "name", PropertyType.STRING);
+    SchemaProperty prop = cl.createProperty(session, "name", PropertyType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
-    Property prop1 = cl.createProperty(session, "friend", PropertyType.LINK, cl);
+    SchemaProperty prop1 = cl.createProperty(session, "friend", PropertyType.LINK, cl);
     prop1.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     IndexFinder finder = new ClassIndexFinder("cl");
@@ -189,9 +189,9 @@ public class StatementIndexFinderTest {
   @Test
   public void simpleNestedAndOrMatchTest() {
     SchemaClass cl = this.session.createClass("cl");
-    Property prop = cl.createProperty(session, "name", PropertyType.STRING);
+    SchemaProperty prop = cl.createProperty(session, "name", PropertyType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
-    Property prop1 = cl.createProperty(session, "friend", PropertyType.LINK, cl);
+    SchemaProperty prop1 = cl.createProperty(session, "friend", PropertyType.LINK, cl);
     prop1.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     IndexFinder finder = new ClassIndexFinder("cl");
@@ -222,7 +222,7 @@ public class StatementIndexFinderTest {
   @Test
   public void simpleNestedAndOrPartialMatchTest() {
     SchemaClass cl = this.session.createClass("cl");
-    Property prop = cl.createProperty(session, "name", PropertyType.STRING);
+    SchemaProperty prop = cl.createProperty(session, "name", PropertyType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     IndexFinder finder = new ClassIndexFinder("cl");
@@ -248,9 +248,9 @@ public class StatementIndexFinderTest {
   @Test
   public void simpleNestedOrNotMatchTest() {
     SchemaClass cl = this.session.createClass("cl");
-    Property prop = cl.createProperty(session, "name", PropertyType.STRING);
+    SchemaProperty prop = cl.createProperty(session, "name", PropertyType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
-    Property prop1 = cl.createProperty(session, "friend", PropertyType.LINK, cl);
+    SchemaProperty prop1 = cl.createProperty(session, "friend", PropertyType.LINK, cl);
     prop1.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     IndexFinder finder = new ClassIndexFinder("cl");

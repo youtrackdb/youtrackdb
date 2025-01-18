@@ -23,11 +23,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/**
- *
- */
 public class RemoteTransactionHookTest extends DbTestBase {
-
   private static final String SERVER_DIRECTORY = "./target/hook-transaction";
   private YouTrackDBServer server;
 

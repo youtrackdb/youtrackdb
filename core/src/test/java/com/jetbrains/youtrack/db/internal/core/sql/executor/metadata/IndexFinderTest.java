@@ -3,15 +3,15 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor.metadata;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
-import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder.Operation;
 import java.util.Optional;
@@ -40,9 +40,9 @@ public class IndexFinderTest {
   @Test
   public void testFindSimpleMatchIndex() {
     SchemaClass cl = this.session.createClass("cl");
-    Property prop = cl.createProperty(session, "name", PropertyType.STRING);
+    SchemaProperty prop = cl.createProperty(session, "name", PropertyType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
-    Property prop1 = cl.createProperty(session, "surname", PropertyType.STRING);
+    SchemaProperty prop1 = cl.createProperty(session, "surname", PropertyType.STRING);
     prop1.createIndex(session, INDEX_TYPE.UNIQUE);
 
     IndexFinder finder = new ClassIndexFinder("cl");
@@ -60,9 +60,9 @@ public class IndexFinderTest {
   @Test
   public void testFindSimpleMatchHashIndex() {
     SchemaClass cl = this.session.createClass("cl");
-    Property prop = cl.createProperty(session, "name", PropertyType.STRING);
+    SchemaProperty prop = cl.createProperty(session, "name", PropertyType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE_HASH_INDEX);
-    Property prop1 = cl.createProperty(session, "surname", PropertyType.STRING);
+    SchemaProperty prop1 = cl.createProperty(session, "surname", PropertyType.STRING);
     prop1.createIndex(session, INDEX_TYPE.UNIQUE_HASH_INDEX);
 
     IndexFinder finder = new ClassIndexFinder("cl");
@@ -80,9 +80,9 @@ public class IndexFinderTest {
   @Test
   public void testFindRangeMatchIndex() {
     SchemaClass cl = this.session.createClass("cl");
-    Property prop = cl.createProperty(session, "name", PropertyType.STRING);
+    SchemaProperty prop = cl.createProperty(session, "name", PropertyType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
-    Property prop1 = cl.createProperty(session, "surname", PropertyType.STRING);
+    SchemaProperty prop1 = cl.createProperty(session, "surname", PropertyType.STRING);
     prop1.createIndex(session, INDEX_TYPE.UNIQUE);
 
     IndexFinder finder = new ClassIndexFinder("cl");
@@ -101,11 +101,11 @@ public class IndexFinderTest {
   @Test
   public void testFindRangeNotMatchIndex() {
     SchemaClass cl = this.session.createClass("cl");
-    Property prop = cl.createProperty(session, "name", PropertyType.STRING);
+    SchemaProperty prop = cl.createProperty(session, "name", PropertyType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE_HASH_INDEX);
-    Property prop1 = cl.createProperty(session, "surname", PropertyType.STRING);
+    SchemaProperty prop1 = cl.createProperty(session, "surname", PropertyType.STRING);
     prop1.createIndex(session, INDEX_TYPE.UNIQUE_HASH_INDEX);
-    Property prop2 = cl.createProperty(session, "third", PropertyType.STRING);
+    SchemaProperty prop2 = cl.createProperty(session, "third", PropertyType.STRING);
     prop2.createIndex(session, INDEX_TYPE.FULLTEXT);
 
     IndexFinder finder = new ClassIndexFinder("cl");
@@ -155,7 +155,7 @@ public class IndexFinderTest {
   @Test
   public void testFindFullTextMatchIndex() {
     SchemaClass cl = this.session.createClass("cl");
-    Property prop = cl.createProperty(session, "name", PropertyType.STRING);
+    SchemaProperty prop = cl.createProperty(session, "name", PropertyType.STRING);
     prop.createIndex(session, INDEX_TYPE.FULLTEXT);
 
     IndexFinder finder = new ClassIndexFinder("cl");
@@ -168,9 +168,9 @@ public class IndexFinderTest {
   @Test
   public void testFindChainMatchIndex() {
     SchemaClass cl = this.session.createClass("cl");
-    Property prop = cl.createProperty(session, "name", PropertyType.STRING);
+    SchemaProperty prop = cl.createProperty(session, "name", PropertyType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
-    Property prop1 = cl.createProperty(session, "friend", PropertyType.LINK, cl);
+    SchemaProperty prop1 = cl.createProperty(session, "friend", PropertyType.LINK, cl);
     prop1.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     IndexFinder finder = new ClassIndexFinder("cl");
@@ -185,9 +185,9 @@ public class IndexFinderTest {
   @Test
   public void testFindChainRangeIndex() {
     SchemaClass cl = this.session.createClass("cl");
-    Property prop = cl.createProperty(session, "name", PropertyType.STRING);
+    SchemaProperty prop = cl.createProperty(session, "name", PropertyType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
-    Property prop1 = cl.createProperty(session, "friend", PropertyType.LINK, cl);
+    SchemaProperty prop1 = cl.createProperty(session, "friend", PropertyType.LINK, cl);
     prop1.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     IndexFinder finder = new ClassIndexFinder("cl");
@@ -204,7 +204,7 @@ public class IndexFinderTest {
     SchemaClass cl = this.session.createClass("cl");
     cl.createProperty(session, "map", PropertyType.EMBEDDEDMAP, PropertyType.STRING);
     this.session.command("create index cl.map on cl(map by key) NOTUNIQUE").close();
-    Property prop1 = cl.createProperty(session, "friend", PropertyType.LINK, cl);
+    SchemaProperty prop1 = cl.createProperty(session, "friend", PropertyType.LINK, cl);
     prop1.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     IndexFinder finder = new ClassIndexFinder("cl");
@@ -221,7 +221,7 @@ public class IndexFinderTest {
     SchemaClass cl = this.session.createClass("cl");
     cl.createProperty(session, "map", PropertyType.EMBEDDEDMAP, PropertyType.STRING);
     this.session.command("create index cl.map on cl(map by value) NOTUNIQUE").close();
-    Property prop1 = cl.createProperty(session, "friend", PropertyType.LINK, cl);
+    SchemaProperty prop1 = cl.createProperty(session, "friend", PropertyType.LINK, cl);
     prop1.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     IndexFinder finder = new ClassIndexFinder("cl");
@@ -236,9 +236,9 @@ public class IndexFinderTest {
   @Test
   public void testFindChainFullTextMatchIndex() {
     SchemaClass cl = this.session.createClass("cl");
-    Property prop = cl.createProperty(session, "name", PropertyType.STRING);
+    SchemaProperty prop = cl.createProperty(session, "name", PropertyType.STRING);
     prop.createIndex(session, INDEX_TYPE.FULLTEXT);
-    Property prop1 = cl.createProperty(session, "friend", PropertyType.LINK, cl);
+    SchemaProperty prop1 = cl.createProperty(session, "friend", PropertyType.LINK, cl);
     prop1.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     IndexFinder finder = new ClassIndexFinder("cl");

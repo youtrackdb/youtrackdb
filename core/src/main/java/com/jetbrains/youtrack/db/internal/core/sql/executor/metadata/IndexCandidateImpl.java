@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.metadata;
 
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder.Operation;
 import java.util.Collections;
 import java.util.List;
@@ -12,9 +12,9 @@ public class IndexCandidateImpl implements IndexCandidate {
 
   private final String name;
   private Operation operation;
-  private final Property property;
+  private final SchemaProperty property;
 
-  public IndexCandidateImpl(String name, Operation operation, Property prop) {
+  public IndexCandidateImpl(String name, Operation operation, SchemaProperty prop) {
     this.name = name;
     this.operation = operation;
     this.property = prop;
@@ -53,7 +53,7 @@ public class IndexCandidateImpl implements IndexCandidate {
   }
 
   @Override
-  public List<Property> properties() {
+  public List<SchemaProperty> properties() {
     return Collections.singletonList(this.property);
   }
 }

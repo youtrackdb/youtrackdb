@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 
-public class TestPropertyTypeDetection extends DbTestBase {
+public class TestSchemaPropertyTypeDetection extends DbTestBase {
 
   @Test
   public void testOTypeFromClass() {

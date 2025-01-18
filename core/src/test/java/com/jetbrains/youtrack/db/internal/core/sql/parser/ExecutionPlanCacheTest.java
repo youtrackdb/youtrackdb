@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
+import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -40,7 +40,7 @@ public class ExecutionPlanCacheTest extends BaseMemoryInternalDatabase {
     cache = ExecutionPlanCache.instance(db);
     Assert.assertTrue(cache.contains(stm));
 
-    Property prop = clazz.createProperty(db, "name", PropertyType.STRING);
+    SchemaProperty prop = clazz.createProperty(db, "name", PropertyType.STRING);
     Assert.assertFalse(cache.contains(stm));
 
     Thread.sleep(2);

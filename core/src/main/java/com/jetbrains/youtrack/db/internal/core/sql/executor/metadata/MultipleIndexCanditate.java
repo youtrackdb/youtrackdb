@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.metadata;
 
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder.Operation;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -69,10 +69,10 @@ public class MultipleIndexCanditate implements IndexCandidate {
     for (int i = 0; i < canditates.size(); i++) {
       boolean matched = false;
       IndexCandidate canditate = canditates.get(i);
-      List<Property> properties = canditate.properties();
+      List<SchemaProperty> properties = canditate.properties();
       for (int z = canditates.size() - 1; z > i; z--) {
         IndexCandidate lastCandidate = canditates.get(z);
-        List<Property> lastProperties = lastCandidate.properties();
+        List<SchemaProperty> lastProperties = lastCandidate.properties();
         if (properties.size() == 1
             && lastProperties.size() == 1
             && properties.get(0).getName() == lastProperties.get(0).getName()) {
@@ -95,15 +95,15 @@ public class MultipleIndexCanditate implements IndexCandidate {
 
   private Collection<IndexCandidate> normalizeComposite(
       Collection<IndexCandidate> canditates, CommandContext ctx) {
-    List<Property> propeties = properties();
+    List<SchemaProperty> propeties = properties();
     Map<String, IndexCandidate> newCanditates = new HashMap<>();
     for (IndexCandidate cand : canditates) {
       if (!newCanditates.containsKey(cand.getName())) {
         Index index = ctx.getDatabase().getMetadata().getIndexManager().getIndex(cand.getName());
-        List<Property> foundProps = new ArrayList<>();
+        List<SchemaProperty> foundProps = new ArrayList<>();
         for (String field : index.getDefinition().getFields()) {
           boolean found = false;
-          for (Property property : propeties) {
+          for (SchemaProperty property : propeties) {
             if (property.getName().equals(field)) {
               found = true;
               foundProps.add(property);
@@ -127,8 +127,8 @@ public class MultipleIndexCanditate implements IndexCandidate {
   }
 
   @Override
-  public List<Property> properties() {
-    List<Property> props = new ArrayList<>();
+  public List<SchemaProperty> properties() {
+    List<SchemaProperty> props = new ArrayList<>();
     for (IndexCandidate cand : this.canditates) {
       props.addAll(cand.properties());
     }

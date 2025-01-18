@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.post;
 
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
@@ -101,17 +101,17 @@ public class ServerCommandPostProperty extends ServerCommandAuthenticatedDbAbstr
         }
 
         if (linkType != null) {
-          final Property prop = cls.createProperty(db, propertyName, propertyType, linkType);
+          final SchemaProperty prop = cls.createProperty(db, propertyName, propertyType, linkType);
         } else if (linkClass != null) {
-          final Property prop = cls.createProperty(db, propertyName, propertyType, linkClass);
+          final SchemaProperty prop = cls.createProperty(db, propertyName, propertyType, linkClass);
         } else {
-          final Property prop = cls.createProperty(db, propertyName, propertyType);
+          final SchemaProperty prop = cls.createProperty(db, propertyName, propertyType);
         }
         break;
       }
 
       default:
-        final Property prop = cls.createProperty(db, propertyName, propertyType);
+        final SchemaProperty prop = cls.createProperty(db, propertyName, propertyType);
         break;
     }
 
@@ -155,10 +155,10 @@ public class ServerCommandPostProperty extends ServerCommandAuthenticatedDbAbstr
           final String linkType = entity.get(LINKED_TYPE_JSON_FIELD);
           final String linkClass = entity.get(LINKED_CLASS_JSON_FIELD);
           if (linkType != null) {
-            final Property prop =
+            final SchemaProperty prop =
                 cls.createProperty(db, propertyName, propertyType, PropertyType.valueOf(linkType));
           } else if (linkClass != null) {
-            final Property prop =
+            final SchemaProperty prop =
                 cls.createProperty(db,
                     propertyName, propertyType, db.getMetadata().getSchema().getClass(linkClass));
           } else {
@@ -174,7 +174,7 @@ public class ServerCommandPostProperty extends ServerCommandAuthenticatedDbAbstr
         case LINK: {
           final String linkClass = entity.get(LINKED_CLASS_JSON_FIELD);
           if (linkClass != null) {
-            final Property prop =
+            final SchemaProperty prop =
                 cls.createProperty(db,
                     propertyName, propertyType, db.getMetadata().getSchema().getClass(linkClass));
           } else {
@@ -189,7 +189,7 @@ public class ServerCommandPostProperty extends ServerCommandAuthenticatedDbAbstr
         }
 
         default:
-          final Property prop = cls.createProperty(db, propertyName, propertyType);
+          final SchemaProperty prop = cls.createProperty(db, propertyName, propertyType);
           break;
       }
     }

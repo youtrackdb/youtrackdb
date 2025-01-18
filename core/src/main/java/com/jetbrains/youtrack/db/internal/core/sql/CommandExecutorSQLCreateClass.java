@@ -19,16 +19,16 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
-import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
-import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.ClusterDoesNotExistException;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCreateClassStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import java.util.ArrayList;
@@ -308,7 +308,7 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
             .createClass(className, clusterIds, superClasses.toArray(new SchemaClass[0]));
       }
     }
-    return database.getMetadata().getSchema().getClasses().size();
+    return database.getMetadata().getSchema().getClasses(database).size();
   }
 
   @Override

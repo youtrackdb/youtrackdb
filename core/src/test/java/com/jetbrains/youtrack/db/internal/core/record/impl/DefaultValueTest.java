@@ -4,13 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.util.Date;
 import org.junit.Test;
@@ -23,7 +23,7 @@ public class DefaultValueTest extends DbTestBase {
     Schema schema = db.getMetadata().getSchema();
     SchemaClass classA = schema.createClass("ClassC");
 
-    Property prop = classA.createProperty(db, "name", PropertyType.STRING);
+    SchemaProperty prop = classA.createProperty(db, "name", PropertyType.STRING);
     prop.setDefaultValue(db, "uuid()");
 
     EntityImpl doc = new EntityImpl("ClassC");
@@ -41,9 +41,9 @@ public class DefaultValueTest extends DbTestBase {
     Schema schema = db.getMetadata().getSchema();
     SchemaClass classA = schema.createClass("ClassA");
 
-    Property prop = classA.createProperty(db, "date", PropertyType.DATE);
+    SchemaProperty prop = classA.createProperty(db, "date", PropertyType.DATE);
     prop.setDefaultValue(db, DateHelper.getDateTimeFormatInstance().format(new Date()));
-    Property some = classA.createProperty(db, "id", PropertyType.STRING);
+    SchemaProperty some = classA.createProperty(db, "id", PropertyType.STRING);
     some.setDefaultValue(db, "uuid()");
 
     db.begin();
@@ -71,9 +71,9 @@ public class DefaultValueTest extends DbTestBase {
     Schema schema = db.getMetadata().getSchema();
     SchemaClass classA = schema.createClass("ClassA");
 
-    Property prop = classA.createProperty(db, "date", PropertyType.DATE);
+    SchemaProperty prop = classA.createProperty(db, "date", PropertyType.DATE);
     prop.setDefaultValue(db, DateHelper.getDateTimeFormatInstance().format(new Date()));
-    Property some = classA.createProperty(db, "id", PropertyType.STRING);
+    SchemaProperty some = classA.createProperty(db, "id", PropertyType.STRING);
     some.setDefaultValue(db, "uuid()");
 
     String value = "2000-01-01 00:00:00";
@@ -105,7 +105,7 @@ public class DefaultValueTest extends DbTestBase {
     Schema schema = db.getMetadata().getSchema();
     SchemaClass classA = schema.createClass("ClassA");
 
-    Property prop = classA.createProperty(db, "date", PropertyType.DATE);
+    SchemaProperty prop = classA.createProperty(db, "date", PropertyType.DATE);
     prop.setDefaultValue(db, DateHelper.getDateTimeFormatInstance().format(new Date()));
 
     db.begin();
@@ -125,7 +125,7 @@ public class DefaultValueTest extends DbTestBase {
     Schema schema = db.getMetadata().getSchema();
     SchemaClass classA = schema.createClass("ClassA");
 
-    Property prop = classA.createProperty(db, "date", PropertyType.DATETIME);
+    SchemaProperty prop = classA.createProperty(db, "date", PropertyType.DATETIME);
     prop.setDefaultValue(db, DateHelper.getDateTimeFormatInstance().format(new Date()));
 
     String value1 = DateHelper.getDateTimeFormatInstance().format(new Date());
@@ -146,7 +146,7 @@ public class DefaultValueTest extends DbTestBase {
     Schema schema = db.getMetadata().getSchema();
     SchemaClass classA = schema.createClass("ClassA");
 
-    Property prop = classA.createProperty(db, "date", PropertyType.DATE);
+    SchemaProperty prop = classA.createProperty(db, "date", PropertyType.DATE);
     prop.setMandatory(db, true);
     prop.setReadonly(db, true);
     prop.setDefaultValue(db, DateHelper.getDateTimeFormatInstance().format(new Date()));
@@ -168,7 +168,7 @@ public class DefaultValueTest extends DbTestBase {
     Schema schema = db.getMetadata().getSchema();
     SchemaClass classA = schema.createClass("ClassA");
 
-    Property prop = classA.createProperty(db, "date", PropertyType.DATETIME);
+    SchemaProperty prop = classA.createProperty(db, "date", PropertyType.DATETIME);
     prop.setMandatory(db, true);
     prop.setReadonly(db, true);
     prop.setDefaultValue(db, DateHelper.getDateTimeFormatInstance().format(new Date()));
@@ -190,7 +190,7 @@ public class DefaultValueTest extends DbTestBase {
     Schema schema = db.getMetadata().getSchema();
     SchemaClass classA = schema.createClass("ClassA");
 
-    Property prop = classA.createProperty(db, "date", PropertyType.DATETIME);
+    SchemaProperty prop = classA.createProperty(db, "date", PropertyType.DATETIME);
     prop.setMandatory(db, true);
     prop.setReadonly(db, true);
     prop.setDefaultValue(db, DateHelper.getDateTimeFormatInstance().format(new Date()));

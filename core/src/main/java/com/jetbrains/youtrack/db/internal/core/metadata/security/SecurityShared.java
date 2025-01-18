@@ -29,10 +29,10 @@ import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.api.security.SecurityUser.STATUSES;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
@@ -673,7 +673,7 @@ public class SecurityShared implements SecurityInternal {
   }
 
   public SecurityUserIml create(final DatabaseSessionInternal session) {
-    if (!session.getMetadata().getSchema().getClasses().isEmpty()) {
+    if (!session.getMetadata().getSchema().getClasses(session).isEmpty()) {
       return null;
     }
 
@@ -1016,7 +1016,7 @@ public class SecurityShared implements SecurityInternal {
       userClass.createIndex(database, "OUser.name", INDEX_TYPE.UNIQUE, NullOutputListener.INSTANCE,
           "name");
     } else {
-      final Property name = userClass.getProperty("name");
+      final SchemaProperty name = userClass.getProperty("name");
       if (name.getAllIndexes(database).isEmpty()) {
         userClass.createIndex(database,
             "OUser.name", INDEX_TYPE.UNIQUE, NullOutputListener.INSTANCE, "name");
@@ -1060,7 +1060,7 @@ public class SecurityShared implements SecurityInternal {
       policyClass.createIndex(database,
           "OSecurityPolicy.name", INDEX_TYPE.UNIQUE, NullOutputListener.INSTANCE, "name");
     } else {
-      final Property name = policyClass.getProperty("name");
+      final SchemaProperty name = policyClass.getProperty("name");
       if (name.getAllIndexes(database).isEmpty()) {
         policyClass.createIndex(database,
             "OSecurityPolicy.name", INDEX_TYPE.UNIQUE, NullOutputListener.INSTANCE, "name");
@@ -1123,7 +1123,7 @@ public class SecurityShared implements SecurityInternal {
       roleClass.createIndex(database, "ORole.name", INDEX_TYPE.UNIQUE, NullOutputListener.INSTANCE,
           "name");
     } else {
-      final Property name = roleClass.getProperty("name");
+      final SchemaProperty name = roleClass.getProperty("name");
       if (name.getAllIndexes(database).isEmpty()) {
         roleClass.createIndex(database,
             "ORole.name", INDEX_TYPE.UNIQUE, NullOutputListener.INSTANCE, "name");
@@ -1158,7 +1158,7 @@ public class SecurityShared implements SecurityInternal {
         userClass.createProperty(session, "status", PropertyType.STRING).setMandatory(session, true)
             .setNotNull(session, true);
       }
-      Property p = userClass.getProperty("name");
+      SchemaProperty p = userClass.getProperty("name");
       if (p == null) {
         p =
             userClass
@@ -1176,7 +1176,7 @@ public class SecurityShared implements SecurityInternal {
       // ROLE
       final SchemaClass roleClass = session.getMetadata().getSchema().getClass("ORole");
 
-      final Property rules = roleClass.getProperty("rules");
+      final SchemaProperty rules = roleClass.getProperty("rules");
       if (rules != null && !PropertyType.EMBEDDEDMAP.equals(rules.getType())) {
         roleClass.dropProperty(session, "rules");
       }
@@ -1358,7 +1358,7 @@ public class SecurityShared implements SecurityInternal {
 
   private void initPredicateSecurityOptimizationsInternal(DatabaseSessionInternal session) {
     Map<String, Map<String, Boolean>> result = new HashMap<>();
-    Collection<SchemaClass> allClasses = session.getMetadata().getSchema().getClasses();
+    Collection<SchemaClass> allClasses = session.getMetadata().getSchema().getClasses(session);
 
     if (!session
         .getMetadata()

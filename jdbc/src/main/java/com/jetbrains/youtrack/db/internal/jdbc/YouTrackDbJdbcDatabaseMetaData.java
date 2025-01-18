@@ -13,17 +13,17 @@
  */
 package com.jetbrains.youtrack.db.internal.jdbc;
 
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibrary;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.sql.Connection;
@@ -707,7 +707,7 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
       String catalog, String schemaPattern, String tableNamePattern, String[] types)
       throws SQLException {
     database.activateOnCurrentThread();
-    final Collection<SchemaClass> classes = database.getMetadata().getSchema().getClasses();
+    final Collection<SchemaClass> classes = database.getMetadata().getSchema().getClasses(database);
 
     InternalResultSet resultSet = new InternalResultSet();
 
@@ -817,9 +817,9 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
 
     final Schema schema = database.getMetadata().getImmutableSchemaSnapshot();
 
-    for (SchemaClass clazz : schema.getClasses()) {
+    for (SchemaClass clazz : schema.getClasses(database)) {
       if (YouTrackDbJdbcUtils.like(clazz.getName(), tableNamePattern)) {
-        for (Property prop : clazz.properties(database)) {
+        for (SchemaProperty prop : clazz.properties(database)) {
           if (columnNamePattern == null) {
             resultSet.add(getPropertyAsDocument(clazz, prop));
           } else {
@@ -1195,7 +1195,7 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
       String catalog, String schemaPattern, String typeNamePattern, int[] types)
       throws SQLException {
     database.activateOnCurrentThread();
-    final Collection<SchemaClass> classes = database.getMetadata().getSchema().getClasses();
+    final Collection<SchemaClass> classes = database.getMetadata().getSchema().getClasses(database);
 
     InternalResultSet resultSet = new InternalResultSet();
     for (SchemaClass cls : classes) {
@@ -1441,7 +1441,7 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
     return false;
   }
 
-  private ResultInternal getPropertyAsDocument(final SchemaClass clazz, final Property prop) {
+  private ResultInternal getPropertyAsDocument(final SchemaClass clazz, final SchemaProperty prop) {
     database.activateOnCurrentThread();
     final PropertyType type = prop.getType();
     ResultInternal res = new ResultInternal(database);
