@@ -6,7 +6,7 @@
 
 ------
 
-[Issue tracker](https://youtrack.jetbrains.com/issues/YTDB) [Knowledge base](https://youtrack.jetbrains.com/articles/YTDB) [Slack for contributors](https://youtrack.jetbrains.com/articles/YTDB-A-5/Slack-with-developers-for-contributors) [Roadmap](https://youtrack.jetbrains.com/articles/YTDB-A-3/Short-term-roadmap)
+[Issue tracker](https://youtrack.jetbrains.com/issues/YTDB) | [Knowledge base](https://youtrack.jetbrains.com/articles/YTDB) | [Slack for contributors](https://youtrack.jetbrains.com/articles/YTDB-A-5/Slack-with-developers-for-contributors) | [Roadmap](https://youtrack.jetbrains.com/articles/YTDB-A-3/Short-term-roadmap)
 
 
 ### What is YouTrackDB?
