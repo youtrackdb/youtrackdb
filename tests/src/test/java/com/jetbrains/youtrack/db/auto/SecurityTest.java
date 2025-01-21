@@ -27,7 +27,6 @@ import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityRole;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
@@ -166,7 +165,7 @@ public class SecurityTest extends BaseDBTest {
     Role writer = security.getRole("writer");
 
     Role writerChild =
-        security.createRole("writerChild", writer, SecurityRole.ALLOW_MODES.ALLOW_ALL_BUT);
+        security.createRole("writerChild", writer);
     writerChild.save(db);
     db.commit();
 
@@ -174,7 +173,7 @@ public class SecurityTest extends BaseDBTest {
       db.begin();
       Role writerGrandChild =
           security.createRole(
-              "writerGrandChild", writerChild, SecurityRole.ALLOW_MODES.ALLOW_ALL_BUT);
+              "writerGrandChild", writerChild);
       writerGrandChild.save(db);
       db.commit();
 

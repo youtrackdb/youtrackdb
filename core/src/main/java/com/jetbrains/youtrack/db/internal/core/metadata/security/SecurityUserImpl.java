@@ -19,10 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
+
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
 import com.jetbrains.youtrack.db.api.exception.SecurityException;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
@@ -34,7 +35,6 @@ import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
 import com.jetbrains.youtrack.db.internal.core.type.IdentityWrapper;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -45,14 +45,10 @@ import java.util.Set;
  * @see Role
  */
 public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
+
   public static final String ADMIN = "admin";
   public static final String CLASS_NAME = "OUser";
   public static final String PASSWORD_FIELD = "password";
-
-  private static final long serialVersionUID = 1L;
-
-  // AVOID THE INVOCATION OF SETTER
-  protected Set<Role> roles = new HashSet<Role>();
 
   public SecurityUserImpl(DatabaseSessionInternal db, final String iName) {
     super(db, CLASS_NAME);
@@ -74,32 +70,29 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
    */
   public SecurityUserImpl(DatabaseSessionInternal session, final EntityImpl iSource) {
     super(session, iSource);
-
-    roles = new HashSet<>();
-    final Collection<Identifiable> loadedRoles = getProperty("roles");
-    if (loadedRoles != null) {
-      for (final Identifiable d : loadedRoles) {
-        if (d != null) {
-          Role role = createRole(session, d.getRecord(session));
-          if (role != null) {
-            roles.add(role);
-          }
-        } else {
-          LogManager.instance()
-              .warn(
-                  this,
-                  "User '%s' is declared to have a role that does not exist in the database. "
-                      + " Ignoring it.",
-                  getName(session));
-        }
-      }
-    }
-
   }
 
-  public static String encryptPassword(final String iPassword) {
+  @Override
+  protected Object deserializeProperty(DatabaseSessionInternal db, String propertyName,
+      Object value) {
+    if (propertyName.equals("roles")) {
+      final Set<Role> roles = new HashSet<>();
+      if (value != null) {
+        //noinspection rawtypes
+        for (final Object o : (Collection) value) {
+          roles.add(createRole(db, (EntityImpl) ((RID) o).getEntity(db)));
+        }
+      }
+
+      return roles;
+    }
+
+    return super.deserializeProperty(db, propertyName, value);
+  }
+
+  public static String encryptPassword(final String password) {
     return SecurityManager.createHash(
-        iPassword,
+        password,
         GlobalConfiguration.SECURITY_USER_PASSWORD_DEFAULT_ALGORITHM.getValueAsString(),
         true);
   }
@@ -119,7 +112,7 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
     SecuritySystem security = session.getSharedContext().getYouTrackDB().getSecuritySystem();
     security.validatePassword(name, password);
 
-    if (!password.startsWith("{")) {
+    if (!(!password.isEmpty() && password.charAt(0) == '{')) {
       entity.field("password", encryptPassword(password));
       return true;
     }
@@ -131,24 +124,23 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
    * Derived classes can override createRole() to return an extended Role implementation or null if
    * the role should not be added.
    */
-  protected Role createRole(DatabaseSessionInternal session, final EntityImpl roleDoc) {
-    return new Role(session, roleDoc);
+  protected Role createRole(DatabaseSessionInternal session, final EntityImpl roleEntity) {
+    return new Role(session, roleEntity);
   }
 
   /**
    * Checks if the user has the permission to access to the requested resource for the requested
    * operation.
    *
-   * @param session
    * @param iOperation Requested operation
    * @return The role that has granted the permission if any, otherwise a SecurityAccessException
    * exception is raised
-   * @throws SecurityAccessException
    */
   public Role allow(
       DatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
       String resourceSpecific,
       final int iOperation) {
+    var roles = getRoles();
     if (roles == null || roles.isEmpty()) {
       throw new SecurityAccessException(
           session.getName(),
@@ -176,14 +168,15 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
    * Checks if the user has the permission to access to the requested resource for the requested
    * operation.
    *
-   * @param session
-   * @param iOperation Requested operation
+   * @param operation Requested operation
    * @return The role that has granted the permission if any, otherwise null
    */
   public Role checkIfAllowed(
       DatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
       String resourceSpecific,
-      final int iOperation) {
+      final int operation) {
+    var roles = getRoles();
+
     for (Role r : roles) {
       if (r == null) {
         LogManager.instance()
@@ -192,7 +185,7 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
                 "User '%s' has a null role, ignoring it. Consider fixing this user's roles before"
                     + " continuing",
                 getName(session));
-      } else if (r.allow(resourceGeneric, resourceSpecific, iOperation)) {
+      } else if (r.allow(resourceGeneric, resourceSpecific, operation)) {
         return r;
       }
     }
@@ -251,6 +244,7 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
   public boolean isRuleDefined(
       DatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
       String resourceSpecific) {
+    var roles = getRoles();
     for (Role r : roles) {
       if (r == null) {
         LogManager.instance()
@@ -302,7 +296,7 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
   }
 
   public Set<Role> getRoles() {
-    return roles;
+    return getProperty("roles");
   }
 
   public SecurityUserImpl addRole(DatabaseSessionInternal session, final String iRole) {
@@ -315,42 +309,27 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
   @Override
   public SecurityUserImpl addRole(DatabaseSessionInternal session, final SecurityRole iRole) {
     if (iRole != null) {
+      var roles = getRoles();
       roles.add((Role) iRole);
     }
 
-    final HashSet<EntityImpl> persistentRoles = new HashSet<EntityImpl>();
-    for (Role r : roles) {
-      persistentRoles.add(r.toStream(session));
-    }
-    setProperty("roles", persistentRoles);
     return this;
   }
 
-  public boolean removeRole(DatabaseSessionInternal session, final String iRoleName) {
+  public boolean removeRole(DatabaseSessionInternal session, final String roleName) {
     boolean removed = false;
-    for (Iterator<Role> it = roles.iterator(); it.hasNext(); ) {
-      if (it.next().getName(session).equals(iRoleName)) {
-        it.remove();
-        removed = true;
-      }
-    }
+    var roles = getRoles();
 
-    if (removed) {
-      final HashSet<EntityImpl> persistentRoles = new HashSet<EntityImpl>();
-      for (Role r : roles) {
-        r.save(session);
-        persistentRoles.add(r.toStream(session));
-      }
-      setProperty("roles", persistentRoles);
-    }
+    roles.removeIf(role -> role.getName(session).equals(roleName));
 
     return removed;
   }
 
   public boolean hasRole(DatabaseSessionInternal session, final String iRoleName,
       final boolean iIncludeInherited) {
-    for (Iterator<Role> it = roles.iterator(); it.hasNext(); ) {
-      final Role role = it.next();
+    var roles = getRoles();
+
+    for (final Role role : roles) {
       if (role.getName(session).equals(iRoleName)) {
         return true;
       }
@@ -370,13 +349,6 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public SecurityUserImpl save(DatabaseSessionInternal session) {
-    getDocument(session).save();
-    return this;
-  }
-
-  @Override
   public String toString() {
     var database = DatabaseRecordThreadLocal.instance().getIfDefined();
     if (database != null) {
@@ -384,11 +356,6 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
     }
 
     return SecurityUserImpl.class.getName();
-  }
-
-  @Override
-  public Identifiable getIdentity(DatabaseSessionInternal session) {
-    return getDocument(session);
   }
 
   @Override

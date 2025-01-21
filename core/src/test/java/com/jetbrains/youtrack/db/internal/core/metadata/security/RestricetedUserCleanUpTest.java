@@ -27,8 +27,8 @@ public class RestricetedUserCleanUpTest extends DbTestBase {
     SecurityUserImpl reader = security.getUser("admin");
     EntityImpl doc = (EntityImpl) db.newEntity("TestRecord");
     Set<Identifiable> users = new HashSet<Identifiable>();
-    users.add(auser.getIdentity(db));
-    users.add(reader.getIdentity(db));
+    users.add(auser.getIdentity());
+    users.add(reader.getIdentity());
 
     doc.field(SecurityShared.ALLOW_READ_FIELD, users);
     doc.field(SecurityShared.ALLOW_UPDATE_FIELD, users);

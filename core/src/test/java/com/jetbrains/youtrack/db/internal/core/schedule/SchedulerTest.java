@@ -163,7 +163,7 @@ public class SchedulerTest {
       db.command(
               "insert into oschedule set name = 'test',"
                   + " function = ?, rule = \"0/1 * * * * ?\", arguments = {\"note\": \"test\"}",
-              func.getId(db))
+              func.getIdentity())
           .close();
       db.commit();
 
@@ -183,7 +183,7 @@ public class SchedulerTest {
           db.begin();
           db.command(
                   "update oschedule set rule = \"0/2 * * * * ?\", function = ? where name = 'test'",
-                  func.getId(db))
+                  func.getIdentity())
               .close();
           db.commit();
           break;

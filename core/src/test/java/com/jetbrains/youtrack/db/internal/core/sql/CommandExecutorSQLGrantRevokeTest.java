@@ -22,7 +22,6 @@ import static org.junit.Assert.assertTrue;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityRole;
 import org.junit.Test;
 
 /**
@@ -36,7 +35,7 @@ public class CommandExecutorSQLGrantRevokeTest extends DbTestBase {
     Role testRole =
         db.getMetadata()
             .getSecurity()
-            .createRole("testRole", SecurityRole.ALLOW_MODES.DENY_ALL_BUT);
+            .createRole("testRole");
 
     assertFalse(testRole.allow(Rule.ResourceGeneric.SERVER, "server", Role.PERMISSION_EXECUTE));
     db.commit();

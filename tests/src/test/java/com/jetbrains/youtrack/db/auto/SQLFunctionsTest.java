@@ -153,7 +153,7 @@ public class SQLFunctionsTest extends BaseDBTest {
         db
             .getMetadata()
             .getSecurity()
-            .createRole("byPassRestrictedRole", Role.ALLOW_MODES.DENY_ALL_BUT);
+            .createRole("byPassRestrictedRole");
     byPassRestrictedRole.addRule(db,
         Rule.ResourceGeneric.BYPASS_RESTRICTED, null, Role.PERMISSION_READ);
     byPassRestrictedRole.save(dbName);
@@ -167,7 +167,7 @@ public class SQLFunctionsTest extends BaseDBTest {
     docAdmin.field(
         "_allowRead",
         new HashSet<Identifiable>(
-            Collections.singletonList(admin.getIdentity(db).getIdentity())));
+            Collections.singletonList(admin.getIdentity().getIdentity())));
 
     docAdmin.save();
     db.commit();
@@ -175,7 +175,7 @@ public class SQLFunctionsTest extends BaseDBTest {
     db.begin();
     EntityImpl docReader = ((EntityImpl) db.newEntity("QueryCountExtendsRestrictedClass"));
     docReader.field("_allowRead",
-        new HashSet<>(Collections.singletonList(reader.getIdentity(db))));
+        new HashSet<>(Collections.singletonList(reader.getIdentity())));
     docReader.save();
     db.commit();
 

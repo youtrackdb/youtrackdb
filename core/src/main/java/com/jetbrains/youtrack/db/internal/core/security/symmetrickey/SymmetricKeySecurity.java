@@ -93,7 +93,8 @@ public class SymmetricKeySecurity implements SecurityInternal {
     }
 
     try {
-      UserSymmetricKeyConfig userConfig = new UserSymmetricKeyConfig(user.getDocument(session));
+      UserSymmetricKeyConfig userConfig = new UserSymmetricKeyConfig(
+          (EntityImpl) user.getIdentity().getEntity(session));
 
       SymmetricKey sk = SymmetricKey.fromConfig(userConfig);
 
@@ -247,7 +248,7 @@ public class SymmetricKeySecurity implements SecurityInternal {
   }
 
   @Override
-  public Map<String, SecurityPolicy> getSecurityPolicies(
+  public Map<String, ? extends SecurityPolicy> getSecurityPolicies(
       DatabaseSession session, SecurityRole role) {
     return delegate.getSecurityPolicies(session, role);
   }

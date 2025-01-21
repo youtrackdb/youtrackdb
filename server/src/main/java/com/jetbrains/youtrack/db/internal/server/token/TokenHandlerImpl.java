@@ -1,14 +1,14 @@
 package com.jetbrains.youtrack.db.internal.server.token;
 
-import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.common.exception.SystemException;
-import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
+import com.jetbrains.youtrack.db.internal.common.exception.SystemException;
+import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.ImmutableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.TokenException;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.binary.BinaryToken;
@@ -274,7 +274,7 @@ public class TokenHandlerImpl implements OTokenHandler {
         payload.setUserName(data.serverUsername);
       }
       if (user != null) {
-        payload.setUserRid(user.getIdentity(db).getIdentity());
+        payload.setUserRid(user.getIdentity().getIdentity());
       }
       payload.setExpiry(curTime + sessionInMills);
       payload.setProtocolVersion(data.protocolVersion);
@@ -476,7 +476,7 @@ public class TokenHandlerImpl implements OTokenHandler {
     final YouTrackDBJwtPayload payload = new YouTrackDBJwtPayload();
     payload.setAudience("YouTrackDB");
     payload.setDatabase(db.getName());
-    payload.setUserRid(user.getIdentity(db).getIdentity());
+    payload.setUserRid(user.getIdentity().getIdentity());
 
     final long expiryMinutes = sessionInMills;
     final long currTime = System.currentTimeMillis();

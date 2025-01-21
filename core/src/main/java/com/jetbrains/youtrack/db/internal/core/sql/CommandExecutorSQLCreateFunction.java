@@ -128,7 +128,7 @@ public class CommandExecutorSQLCreateFunction extends CommandExecutorSQLAbstract
     }
 
     f.save(database);
-    return f.getId(database);
+    return f.getIdentity();
   }
 
   @Override

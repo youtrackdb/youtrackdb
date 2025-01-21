@@ -211,9 +211,8 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
       role = new Role(db, entity);
       json.beginObject(2, true, null);
       json.writeAttribute(db, 3, false, "name", role.getName(db));
-      json.writeAttribute(db, 3, false, "mode", role.getMode().toString());
-
       json.beginCollection(db, 3, true, "rules");
+
       for (Map.Entry<String, Byte> rule : role.getEncodedRules().entrySet()) {
         json.beginObject(4);
         json.writeAttribute(db, 4, true, "name", rule.getKey());

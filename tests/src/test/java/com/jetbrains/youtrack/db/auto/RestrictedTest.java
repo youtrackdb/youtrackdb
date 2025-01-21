@@ -192,7 +192,7 @@ public class RestrictedTest extends BaseDBTest {
       Set<Identifiable> allows = adminRecord.field(SecurityShared.ALLOW_ALL_FIELD);
       allows.add(
           db.getMetadata().getSecurity().getUser(db.geCurrentUser().getName(db))
-              .getIdentity(db));
+              .getIdentity());
       adminRecord.save();
       db.commit();
     } catch (SecurityException | RecordNotFoundException e) {

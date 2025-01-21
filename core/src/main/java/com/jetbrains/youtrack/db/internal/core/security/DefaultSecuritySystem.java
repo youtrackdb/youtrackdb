@@ -124,7 +124,7 @@ public class DefaultSecuritySystem implements SecuritySystem {
         () -> {
           Security security = session.getMetadata().getSecurity();
           if (security.getRole("root") == null) {
-            Role root = security.createRole("root", Role.ALLOW_MODES.DENY_ALL_BUT);
+            Role root = security.createRole("root");
             for (Rule.ResourceGeneric resource : Rule.ResourceGeneric.values()) {
               root.addRule(session, resource, null, Role.PERMISSION_ALL);
             }
@@ -134,13 +134,13 @@ public class DefaultSecuritySystem implements SecuritySystem {
             root.save(session);
           }
           if (security.getRole("guest") == null) {
-            Role guest = security.createRole("guest", Role.ALLOW_MODES.DENY_ALL_BUT);
+            Role guest = security.createRole("guest");
             guest.addRule(session, ResourceGeneric.SERVER, "listDatabases", Role.PERMISSION_ALL);
             guest.save(session);
           }
           // for monitoring/logging purposes, intended to connect from external monitoring systems
           if (security.getRole("monitor") == null) {
-            Role guest = security.createRole("monitor", Role.ALLOW_MODES.DENY_ALL_BUT);
+            Role guest = security.createRole("monitor");
             guest.addRule(session, ResourceGeneric.CLASS, null, Role.PERMISSION_READ);
             guest.addRule(session, ResourceGeneric.CLUSTER, null, Role.PERMISSION_READ);
             guest.addRule(session, ResourceGeneric.SYSTEM_CLUSTERS, null, Role.PERMISSION_READ);
@@ -154,7 +154,7 @@ public class DefaultSecuritySystem implements SecuritySystem {
           }
           // a separate role for accessing the auditing logs
           if (security.getRole("auditor") == null) {
-            Role auditor = security.createRole("auditor", SecurityRole.ALLOW_MODES.DENY_ALL_BUT);
+            Role auditor = security.createRole("auditor");
             auditor.addRule(session, ResourceGeneric.DATABASE, null, Role.PERMISSION_READ);
             auditor.addRule(session, ResourceGeneric.SCHEMA, null, Role.PERMISSION_READ);
             auditor.addRule(session, ResourceGeneric.CLASS, null, Role.PERMISSION_READ);

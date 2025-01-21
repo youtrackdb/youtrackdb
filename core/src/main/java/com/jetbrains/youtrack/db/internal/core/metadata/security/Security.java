@@ -139,11 +139,11 @@ public interface Security {
 
   Role getRole(Identifiable role);
 
-  Role createRole(String iRoleName, Role.ALLOW_MODES iAllowMode);
+  Role createRole(String iRoleName);
 
-  Role createRole(String iRoleName, Role iParent, Role.ALLOW_MODES iAllowMode);
+  Role createRole(String iRoleName, Role iParent);
 
-  boolean dropRole(String iRoleName);
+  void dropRole(String iRoleName);
 
   List<EntityImpl> getAllUsers();
 

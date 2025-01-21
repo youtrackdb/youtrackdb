@@ -167,7 +167,8 @@ public class SecurityRemote implements SecurityInternal {
         user.addRole(session, r);
       }
     }
-    return user.save(session);
+    user.save(session);
+    return user;
   }
 
   @Override
@@ -184,7 +185,8 @@ public class SecurityRemote implements SecurityInternal {
       }
     }
 
-    return user.save(session);
+    user.save(session);
+    return user;
   }
 
   @Override
@@ -204,7 +206,8 @@ public class SecurityRemote implements SecurityInternal {
       final String iRoleName,
       final Role iParent) {
     final Role role = new Role(session, iRoleName, iParent);
-    return role.save(session);
+    role.save(session);
+    return role;
   }
 
   @Override
@@ -212,7 +215,8 @@ public class SecurityRemote implements SecurityInternal {
     try (ResultSet result = session.query("select from OUser where name = ? limit 1",
         iUserName)) {
       if (result.hasNext()) {
-        return new SecurityUserImpl(session, (EntityImpl) result.next().getEntity().get());
+        return new SecurityUserImpl((DatabaseSessionInternal) session,
+            (EntityImpl) result.next().getEntity().get());
       }
     }
     return null;
@@ -228,14 +232,14 @@ public class SecurityRemote implements SecurityInternal {
     if (!result.getClassName().equals(SecurityUserImpl.CLASS_NAME)) {
       result = null;
     }
-    return new SecurityUserImpl(session, result);
+    return new SecurityUserImpl((DatabaseSessionInternal) session, result);
   }
 
   public Role getRole(final DatabaseSession session, final Identifiable iRole) {
     final EntityImpl entity = session.load(iRole.getIdentity());
     SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
     if (clazz != null && clazz.isRole()) {
-      return new Role(session, entity);
+      return new Role((DatabaseSessionInternal) session, entity);
     }
 
     return null;
@@ -249,7 +253,8 @@ public class SecurityRemote implements SecurityInternal {
     try (final ResultSet result =
         session.query("select from " + Role.CLASS_NAME + " where name = ? limit 1", iRoleName)) {
       if (result.hasNext()) {
-        return new Role(session, (EntityImpl) result.next().getEntity().get());
+        return new Role((DatabaseSessionInternal) session,
+            (EntityImpl) result.next().getEntity().get());
       }
     }
 
@@ -271,7 +276,7 @@ public class SecurityRemote implements SecurityInternal {
   }
 
   @Override
-  public Map<String, SecurityPolicy> getSecurityPolicies(
+  public Map<String, ? extends SecurityPolicy> getSecurityPolicies(
       DatabaseSession session, SecurityRole role) {
     throw new UnsupportedOperationException();
   }

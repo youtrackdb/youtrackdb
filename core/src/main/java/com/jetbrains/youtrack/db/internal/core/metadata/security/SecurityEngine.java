@@ -17,7 +17,6 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrBlock;
-import java.util.Map;
 import java.util.Set;
 
 public class SecurityEngine {
@@ -198,7 +197,7 @@ public class SecurityEngine {
       Function clazz,
       SecurityPolicy.Scope scope) {
     String resource = "database.function." + clazz.getName();
-    Map<String, SecurityPolicy> definedPolicies = security.getSecurityPolicies(session, role);
+    var definedPolicies = security.getSecurityPolicies(session, role);
     SecurityPolicy policy = definedPolicies.get(resource);
 
     String predicateString = policy != null ? policy.get(scope, session) : null;
@@ -281,7 +280,7 @@ public class SecurityEngine {
       SchemaClass clazz,
       SecurityPolicy.Scope scope) {
     String resource = "database.class." + clazz.getName();
-    Map<String, SecurityPolicy> definedPolicies = security.getSecurityPolicies(session, role);
+    var definedPolicies = security.getSecurityPolicies(session, role);
     SecurityPolicy classPolicy = definedPolicies.get(resource);
 
     String predicateString = classPolicy != null ? classPolicy.get(scope, session) : null;
@@ -325,7 +324,7 @@ public class SecurityEngine {
       String propertyName,
       SecurityPolicy.Scope scope) {
     String resource = "database.class." + clazz.getName() + "." + propertyName;
-    Map<String, SecurityPolicy> definedPolicies = security.getSecurityPolicies(session, role);
+    var definedPolicies = security.getSecurityPolicies(session, role);
     SecurityPolicy classPolicy = definedPolicies.get(resource);
 
     String predicateString = classPolicy != null ? classPolicy.get(scope, session) : null;
@@ -410,7 +409,7 @@ public class SecurityEngine {
     try {
       // Create a new instance of EntityImpl with a user record id, this will lazy load the user data
       // at the first access with the same execution permission of the policy
-      Identifiable user = session.geCurrentUser().getIdentity(session);
+      Identifiable user = session.geCurrentUser().getIdentity();
 
       var sessionInternal = session;
       var recordCopy = ((RecordAbstract) record).copy();
@@ -444,7 +443,7 @@ public class SecurityEngine {
     try {
       // Create a new instance of EntityImpl with a user record id, this will lazy load the user data
       // at the first access with the same execution permission of the policy
-      final EntityImpl user = session.geCurrentUser().getIdentity(session)
+      final EntityImpl user = session.geCurrentUser().getIdentity()
           .getRecordSilently(session);
       return session
           .getSharedContext()

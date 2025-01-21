@@ -103,12 +103,12 @@ public class SecurityProxy implements Security {
     return security.getRole(session, iRole);
   }
 
-  public Role createRole(final String iRoleName, final SecurityRole.ALLOW_MODES iAllowMode) {
+  public Role createRole(final String iRoleName) {
     return security.createRole(session, iRoleName);
   }
 
   public Role createRole(
-      final String iRoleName, final Role iParent, final SecurityRole.ALLOW_MODES iAllowMode) {
+      final String iRoleName, final Role iParent) {
     return security.createRole(session, iRoleName, iParent);
   }
 
@@ -128,7 +128,7 @@ public class SecurityProxy implements Security {
     return security.dropUser(session, iUserName);
   }
 
-  public boolean dropRole(final String iRoleName) {
-    return security.dropRole(session, iRoleName);
+  public void dropRole(final String iRoleName) {
+    security.dropRole(session, iRoleName);
   }
 }

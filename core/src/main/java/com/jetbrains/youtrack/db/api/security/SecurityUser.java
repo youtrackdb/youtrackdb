@@ -70,7 +70,7 @@ public interface SecurityUser extends Serializable {
   boolean hasRole(DatabaseSessionInternal session, final String iRoleName,
       final boolean iIncludeInherited);
 
-  Identifiable getIdentity(DatabaseSessionInternal session);
+  Identifiable getIdentity();
 
   String getUserType();
 }

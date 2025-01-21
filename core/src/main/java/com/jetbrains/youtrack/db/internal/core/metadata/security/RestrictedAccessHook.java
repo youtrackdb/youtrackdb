@@ -54,7 +54,7 @@ public class RestrictedAccessHook {
       if (identityType.equals("user")) {
         final SecurityUser user = database.geCurrentUser();
         if (user != null) {
-          identity = user.getIdentity(database);
+          identity = user.getIdentity();
         }
       } else if (identityType.equals("role")) {
         final Set<? extends SecurityRole> roles = database.geCurrentUser().getRoles();

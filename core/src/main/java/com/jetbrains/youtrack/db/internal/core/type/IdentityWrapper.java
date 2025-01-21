@@ -28,6 +28,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Base abstract class to wrap a entity.
@@ -39,18 +40,18 @@ public class IdentityWrapper implements Serializable {
   private final AtomicBoolean dirty = new AtomicBoolean(false);
 
   private final RID rid;
-  private final int version;
+  private final AtomicInteger version = new AtomicInteger();
 
   public IdentityWrapper(DatabaseSessionInternal sessionInternal, final String iClassName) {
     var entity = sessionInternal.newEntity(iClassName);
 
     rid = entity.getIdentity();
-    version = entity.getVersion();
+    version.set(entity.getVersion());
   }
 
   public IdentityWrapper(DatabaseSessionInternal db, EntityImpl entity) {
     rid = entity.getIdentity();
-    version = entity.getVersion();
+    version.set(entity.getVersion());
 
     var map = entity.toMap();
     for (var entry : map.entrySet()) {
@@ -80,25 +81,27 @@ public class IdentityWrapper implements Serializable {
   public void save(DatabaseSessionInternal db) {
     if (dirty.getAndSet(false)) {
       var entity = db.loadEntity(rid);
-      checkVersion(entity);
+      checkVersion(entity, RecordOperation.UPDATED);
 
       entity.fromMap(data);
+      version.incrementAndGet();
     }
   }
 
   public void delete(DatabaseSessionInternal db) {
     var entity = db.loadEntity(rid);
-    checkVersion(entity);
+    checkVersion(entity, RecordOperation.DELETED);
 
     db.delete(entity);
     data.clear();
     dirty.set(false);
   }
 
-  private void checkVersion(Entity entity) {
-    if (entity.getVersion() != version) {
-      throw new ConcurrentModificationException(rid, entity.getVersion(), version,
-          RecordOperation.DELETED);
+  private void checkVersion(Entity entity, byte operation) {
+    var rememberedVersion = version.get();
+    if (entity.getVersion() != rememberedVersion) {
+      throw new ConcurrentModificationException(rid, entity.getVersion(), rememberedVersion,
+          operation);
     }
   }
 

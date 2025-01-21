@@ -53,7 +53,7 @@ public class SQLCreateFunctionStatement extends SQLSimpleExecStatement {
       f.setLanguage(language.getStringValue());
     }
     f.save(database);
-    RID functionId = f.getId(database);
+    RID functionId = f.getIdentity();
     ResultInternal result = new ResultInternal(database);
     result.setProperty("operation", "create function");
     result.setProperty("functionName", name.getStringValue());

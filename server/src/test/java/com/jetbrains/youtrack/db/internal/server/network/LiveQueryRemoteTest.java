@@ -181,7 +181,7 @@ public class LiveQueryRemoteTest {
     ResultSet query = db.query("select from OUSer where name = 'reader'");
 
     final Identifiable reader = query.next().getIdentity().orElse(null);
-    final Identifiable current = db.geCurrentUser().getIdentity(db);
+    final Identifiable current = db.geCurrentUser().getIdentity();
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
 

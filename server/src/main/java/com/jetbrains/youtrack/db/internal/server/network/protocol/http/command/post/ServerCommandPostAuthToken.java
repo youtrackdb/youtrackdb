@@ -115,7 +115,7 @@ public class ServerCommandPostAuthToken extends ServerCommandAbstract {
       db = server.openDatabase(iDatabaseName, username, password);
 
       userRid = (db.geCurrentUser() == null ? "<server user>"
-          : db.geCurrentUser().getIdentity(db).toString());
+          : db.geCurrentUser().getIdentity().toString());
     } catch (SecurityAccessException e) {
       // WRONG USER/PASSWD
     } catch (LockException e) {

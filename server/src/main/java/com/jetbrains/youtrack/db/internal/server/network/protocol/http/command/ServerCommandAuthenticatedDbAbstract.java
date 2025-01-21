@@ -222,7 +222,7 @@ public abstract class ServerCommandAuthenticatedDbAbstract extends ServerCommand
       // Set user rid after authentication
       iRequest.getData().currentUserId =
           db.geCurrentUser() == null ? "<server user>"
-              : db.geCurrentUser().getIdentity(db).toString();
+              : db.geCurrentUser().getIdentity().toString();
 
       // AUTHENTICATED: CREATE THE SESSION
       iRequest.setSessionId(
@@ -303,7 +303,7 @@ public abstract class ServerCommandAuthenticatedDbAbstract extends ServerCommand
       RID currentUserId = iRequest.getBearerToken().getToken().getUserId();
       if (currentUserId != null && localDatabase.geCurrentUser() != null) {
         if (!currentUserId.equals(
-            localDatabase.geCurrentUser().getIdentity(localDatabase).getIdentity())) {
+            localDatabase.geCurrentUser().getIdentity().getIdentity())) {
           EntityImpl userDoc = localDatabase.load(currentUserId);
           localDatabase.setUser(new SecurityUserImpl(localDatabase, userDoc));
         }
@@ -338,7 +338,7 @@ public abstract class ServerCommandAuthenticatedDbAbstract extends ServerCommand
       if (currentUserId != null && !currentUserId.isEmpty()
           && localDatabase.geCurrentUser() != null) {
         if (!currentUserId.equals(
-            localDatabase.geCurrentUser().getIdentity(localDatabase).toString())) {
+            localDatabase.geCurrentUser().getIdentity().toString())) {
           EntityImpl userDoc = localDatabase.load(new RecordId(currentUserId));
           localDatabase.setUser(new SecurityUserImpl(localDatabase, userDoc));
         }

@@ -227,7 +227,7 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
     if (context != null) {
       if (getDatabase() != null && getDatabase().geCurrentUser() != null) {
         context.setVariable(DEFAULT_PARAM_USER,
-            getDatabase().geCurrentUser().getIdentity(getDatabase()));
+            getDatabase().geCurrentUser().getIdentity());
       }
     }
   }

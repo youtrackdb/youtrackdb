@@ -259,9 +259,9 @@ public class SecurityShared implements SecurityInternal {
     if (currentUser != null) {
       // CHECK IF CURRENT USER IS ENLISTED
       if (iAllowAll == null
-          || (iAllowAll != null && !iAllowAll.contains(currentUser.getIdentity(session)))) {
+          || (iAllowAll != null && !iAllowAll.contains(currentUser.getIdentity()))) {
         // CHECK AGAINST SPECIFIC _ALLOW OPERATION
-        if (iAllowOperation != null && iAllowOperation.contains(currentUser.getIdentity(session))) {
+        if (iAllowOperation != null && iAllowOperation.contains(currentUser.getIdentity())) {
           return true;
         }
 
@@ -393,7 +393,7 @@ public class SecurityShared implements SecurityInternal {
     if (!result.getClassName().equals(SecurityUserImpl.CLASS_NAME)) {
       result = null;
     }
-    return new SecurityUserImpl(session, result);
+    return new SecurityUserImpl((DatabaseSessionInternal) session, result);
   }
 
   public SecurityUserImpl createUser(
@@ -409,7 +409,8 @@ public class SecurityShared implements SecurityInternal {
       }
     }
 
-    return user.save(session);
+    user.save(session);
+    return user;
   }
 
   public SecurityUserImpl createUser(
@@ -425,7 +426,8 @@ public class SecurityShared implements SecurityInternal {
       }
     }
 
-    return user.save(session);
+    user.save(session);
+    return user;
   }
 
   public boolean dropUser(final DatabaseSession session, final String iUserName) {
@@ -443,7 +445,7 @@ public class SecurityShared implements SecurityInternal {
       SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
 
       if (clazz != null && clazz.isRole()) {
-        return new Role(db, entity);
+        return new Role((DatabaseSessionInternal) db, entity);
       }
     } catch (RecordNotFoundException rnf) {
       return null;
@@ -460,7 +462,7 @@ public class SecurityShared implements SecurityInternal {
     try (final ResultSet result =
         session.query("select from " + Role.CLASS_NAME + " where name = ? limit 1", iRoleName)) {
       if (result.hasNext()) {
-        return new Role(session,
+        return new Role((DatabaseSessionInternal) session,
             (EntityImpl) result.next().getEntity().get());
       }
     }
@@ -524,9 +526,9 @@ public class SecurityShared implements SecurityInternal {
   }
 
   @Override
-  public Map<String, SecurityPolicy> getSecurityPolicies(
+  public Map<String, ? extends SecurityPolicy> getSecurityPolicies(
       DatabaseSession session, SecurityRole role) {
-    Map<String, SecurityPolicy> result = role.getPolicies(session);
+    var result = role.getPolicies(session);
     return result != null ? result : Collections.emptyMap();
   }
 
@@ -738,7 +740,7 @@ public class SecurityShared implements SecurityInternal {
 
   private Role createDefaultWriterRole(final DatabaseSessionInternal session) {
     final Role writerRole =
-        createRole(session, DEFAULT_WRITER_ROLE_NAME, Role.ALLOW_MODES.DENY_ALL_BUT);
+        createRole(session, DEFAULT_WRITER_ROLE_NAME);
     sedDefaultWriterPermissions(session, writerRole);
     return writerRole;
   }
@@ -930,7 +932,7 @@ public class SecurityShared implements SecurityInternal {
 
   private void createDefaultAdminRole(final DatabaseSessionInternal session) {
     Role adminRole;
-    adminRole = createRole(session, Role.ADMIN, Role.ALLOW_MODES.DENY_ALL_BUT);
+    adminRole = createRole(session, Role.ADMIN);
     setDefaultAdminPermissions(session, adminRole);
   }
 
@@ -1220,7 +1222,7 @@ public class SecurityShared implements SecurityInternal {
     try (ResultSet result =
         session.query("select from OUser where name = ? limit 1", iUserName)) {
       if (result.hasNext()) {
-        return new SecurityUserImpl(session,
+        return new SecurityUserImpl((DatabaseSessionInternal) session,
             (EntityImpl) result.next().getEntity().get());
       }
     }
@@ -1778,8 +1780,12 @@ public class SecurityShared implements SecurityInternal {
             this,
             "database.function." + function.getName(),
             SecurityPolicy.Scope.EXECUTE);
+    if (predicate == null) {
+      return true;
+    }
+
     return SecurityEngine.evaluateSecuirtyPolicyPredicate(
-        session, predicate, function.getDocument(session));
+        session, predicate, function.getIdentity().getEntity(session));
   }
 
   protected SQLBooleanExpression getPredicateFromCache(String roleName, String key) {

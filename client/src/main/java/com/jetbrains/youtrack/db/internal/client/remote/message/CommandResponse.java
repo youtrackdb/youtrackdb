@@ -161,7 +161,7 @@ public final class CommandResponse implements BinaryResponse {
         if (result instanceof IdentityWrapper) {
           // RECORD
           channel.writeByte((byte) 'r');
-          final EntityImpl entity = ((IdentityWrapper) result).getDocument(db);
+          var entity = ((IdentityWrapper) result).getIdentity().getEntity(db);
           if (listener != null) {
             listener.result(db, entity);
           }

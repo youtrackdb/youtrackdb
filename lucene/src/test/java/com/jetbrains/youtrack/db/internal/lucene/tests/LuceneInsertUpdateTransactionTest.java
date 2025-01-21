@@ -77,7 +77,7 @@ public class LuceneInsertUpdateTransactionTest extends LuceneBaseTest {
     db.save(doc);
 
     SecurityUserImpl user = new SecurityUserImpl(db, "test", "test");
-    db.save(user.getDocument(db));
+    user.save(db);
 
     db.commit();
     try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {

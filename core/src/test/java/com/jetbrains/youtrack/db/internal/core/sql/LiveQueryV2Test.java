@@ -187,7 +187,7 @@ public class LiveQueryV2Test extends DbTestBase {
         db.query("select from OUSer where name = 'reader'").toEntityList();
 
     final Identifiable reader = query.getFirst().getIdentity();
-    final Identifiable current = db.geCurrentUser().getIdentity(db);
+    final Identifiable current = db.geCurrentUser().getIdentity();
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
 

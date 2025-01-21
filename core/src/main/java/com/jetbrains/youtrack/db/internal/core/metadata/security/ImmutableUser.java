@@ -34,7 +34,7 @@ public class ImmutableUser implements SecurityUser {
     this.name = user.getName(session);
     this.password = user.getPassword(session);
     this.status = user.getAccountStatus(session);
-    this.rid = user.getIdentity(session).getIdentity();
+    this.rid = user.getIdentity().getIdentity();
     this.userType = user.getUserType();
 
     for (SecurityRole role : user.getRoles()) {
@@ -249,7 +249,7 @@ public class ImmutableUser implements SecurityUser {
   }
 
   @Override
-  public Identifiable getIdentity(DatabaseSessionInternal session) {
+  public Identifiable getIdentity() {
     return rid;
   }
 

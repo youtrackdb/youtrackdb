@@ -16,15 +16,13 @@ import java.util.Set;
  */
 public class ImmutableRole implements SecurityRole {
 
-  private static final long serialVersionUID = 1L;
-  private final ALLOW_MODES mode;
   private final SecurityRole parentRole;
 
   private final Map<Rule.ResourceGeneric, Rule> rules =
       new HashMap<Rule.ResourceGeneric, Rule>();
   private final String name;
   private final RID rid;
-  private final Map<String, SecurityPolicy> policies;
+  private final Map<String, ? extends SecurityPolicy> policies;
 
   public ImmutableRole(DatabaseSessionInternal session, SecurityRole role) {
     if (role.getParentRole() == null) {
@@ -33,20 +31,17 @@ public class ImmutableRole implements SecurityRole {
       this.parentRole = new ImmutableRole(session, role.getParentRole());
     }
 
-    this.mode = role.getMode();
     this.name = role.getName(session);
     this.rid = role.getIdentity().getIdentity();
 
     for (Rule rule : role.getRuleSet()) {
       rules.put(rule.getResourceGeneric(), rule);
     }
-    Map<String, SecurityPolicy> policies = role.getPolicies(session);
+    var policies = role.getPolicies(session);
     if (policies != null) {
-      Map<String, SecurityPolicy> result = new HashMap<String, SecurityPolicy>();
+      Map<String, SecurityPolicy> result = new HashMap<>();
       policies
-          .entrySet()
-          .forEach(
-              x -> result.put(x.getKey(), new ImmutableSecurityPolicy(session, x.getValue())));
+          .forEach((key, value) -> result.put(key, new ImmutableSecurityPolicy(session, value)));
       this.policies = result;
     } else {
       this.policies = null;
@@ -57,14 +52,12 @@ public class ImmutableRole implements SecurityRole {
       ImmutableRole parent,
       String name,
       Map<ResourceGeneric, Rule> rules,
-      Map<String, ImmutableSecurityPolicy> policies) {
+      Map<String, ? extends SecurityPolicy> policies) {
     this.parentRole = parent;
-
-    this.mode = ALLOW_MODES.DENY_ALL_BUT;
     this.name = name;
     this.rid = new RecordId(-1, -1);
     this.rules.putAll(rules);
-    this.policies = (Map<String, SecurityPolicy>) (Map) policies;
+    this.policies = policies;
   }
 
   public boolean allow(
@@ -167,14 +160,6 @@ public class ImmutableRole implements SecurityRole {
     return name;
   }
 
-  public ALLOW_MODES getMode() {
-    return mode;
-  }
-
-  public Role setMode(final ALLOW_MODES iMode) {
-    throw new UnsupportedOperationException();
-  }
-
   public SecurityRole getParentRole() {
     return parentRole;
   }
@@ -184,7 +169,7 @@ public class ImmutableRole implements SecurityRole {
   }
 
   public Set<Rule> getRuleSet() {
-    return new HashSet<Rule>(rules.values());
+    return new HashSet<>(rules.values());
   }
 
   @Override
@@ -198,7 +183,7 @@ public class ImmutableRole implements SecurityRole {
   }
 
   @Override
-  public Map<String, SecurityPolicy> getPolicies(DatabaseSession session) {
+  public Map<String, ? extends SecurityPolicy> getPolicies(DatabaseSession session) {
     return policies;
   }
 

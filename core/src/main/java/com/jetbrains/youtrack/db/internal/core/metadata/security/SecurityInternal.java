@@ -88,7 +88,8 @@ public interface SecurityInternal {
 
   List<EntityImpl> getAllRoles(DatabaseSession session);
 
-  Map<String, SecurityPolicy> getSecurityPolicies(DatabaseSession session, SecurityRole role);
+  Map<String, ? extends SecurityPolicy> getSecurityPolicies(DatabaseSession session,
+      SecurityRole role);
 
   /**
    * Returns the security policy policy assigned to a role for a specific resource (not recursive on
@@ -160,8 +161,8 @@ public interface SecurityInternal {
    * For property-level security. Returns the list of the properties that are hidden (ie. not
    * allowed to be read) for current session, regarding a specific entity
    *
-   * @param session  the db session
-   * @param entity the entity to filter
+   * @param session the db session
+   * @param entity  the entity to filter
    * @return the list of the properties that are hidden (ie. not allowed to be read) on current
    * entity for current session
    */
@@ -171,7 +172,7 @@ public interface SecurityInternal {
    * For property-level security
    *
    * @param session
-   * @param entity     current entity to check for proeprty-level security
+   * @param entity       current entity to check for proeprty-level security
    * @param propertyName the property to check for write access
    * @return
    */

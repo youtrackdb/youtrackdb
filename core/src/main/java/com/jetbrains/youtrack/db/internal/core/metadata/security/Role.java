@@ -430,7 +430,7 @@ public class Role extends IdentityWrapper implements SecurityRole {
   }
 
   @Override
-  public Map<String, SecurityPolicy> getPolicies(DatabaseSession db) {
+  public Map<String, ? extends SecurityPolicy> getPolicies(DatabaseSession db) {
     Map<String, Identifiable> policies = getProperty(POLICIES);
     if (policies == null) {
       return null;
