@@ -22,7 +22,7 @@ package com.jetbrains.youtrack.db.internal.core.metadata.security;
 /**
  * Contains all the resources used by the Database instance to check permissions
  *
- * @see SecurityUserIml , Security
+ * @see SecurityUserImpl , Security
  */
 public class DatabaseSecurityResources {
 

@@ -39,7 +39,7 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.R
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37Client;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerStringAbstract;
 import com.jetbrains.youtrack.db.internal.core.sql.query.BasicLegacyResultSet;
-import com.jetbrains.youtrack.db.internal.core.type.EntityWrapper;
+import com.jetbrains.youtrack.db.internal.core.type.IdentityWrapper;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
@@ -158,10 +158,10 @@ public final class CommandResponse implements BinaryResponse {
 
         MessageHelper.writeIdentifiable(db, channel, identifiable, recordSerializer);
       } else {
-        if (result instanceof EntityWrapper) {
+        if (result instanceof IdentityWrapper) {
           // RECORD
           channel.writeByte((byte) 'r');
-          final EntityImpl entity = ((EntityWrapper) result).getDocument(db);
+          final EntityImpl entity = ((IdentityWrapper) result).getDocument(db);
           if (listener != null) {
             listener.result(db, entity);
           }

@@ -1,19 +1,19 @@
 package com.jetbrains.youtrack.db.internal.core.command.script;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.CommandScriptException;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.common.concur.resource.ResourcePool;
 import com.jetbrains.youtrack.db.internal.common.concur.resource.ResourcePoolListener;
-import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.script.transformer.ScriptTransformer;
 import com.jetbrains.youtrack.db.internal.core.command.traverse.AbstractScriptExecutor;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -158,7 +158,7 @@ public class PolyglotScriptExecutor extends AbstractScriptExecutor
     final Function f = database.getMetadata().getFunctionLibrary().getFunction(functionName);
 
     database.checkSecurity(Rule.ResourceGeneric.FUNCTION, Role.PERMISSION_READ,
-        f.getName(database));
+        f.getName());
 
     final ScriptManager scriptManager =
         database.getSharedContext().getYouTrackDB().getScriptManager();

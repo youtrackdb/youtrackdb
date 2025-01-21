@@ -28,7 +28,7 @@ import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityManager;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
@@ -145,8 +145,8 @@ public class SQLFunctionsTest extends BaseDBTest {
     db.getMetadata().getSchema().createClass("QueryCountExtendsRestrictedClass", restricted);
 
     db.begin();
-    SecurityUserIml admin = db.getMetadata().getSecurity().getUser("admin");
-    SecurityUserIml reader = db.getMetadata().getSecurity().getUser("reader");
+    SecurityUserImpl admin = db.getMetadata().getSecurity().getUser("admin");
+    SecurityUserImpl reader = db.getMetadata().getSecurity().getUser("reader");
 
     @SuppressWarnings("deprecation")
     Role byPassRestrictedRole =

@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.JwtPayload;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.TokenHeader;
@@ -40,7 +40,7 @@ public class TokenHandlerImplTest extends BaseMemoryInternalDatabase {
 
     assertTrue(tok.getIsVerified());
 
-    SecurityUserIml user = tok.getUser(db);
+    SecurityUserImpl user = tok.getUser(db);
     assertEquals(user.getName(db), original.getName(db));
     boolean boole = handler.validateToken(tok, "open", db.getName());
     assertTrue(boole);
@@ -135,7 +135,7 @@ public class TokenHandlerImplTest extends BaseMemoryInternalDatabase {
 
     assertTrue(tok.getIsVerified());
 
-    SecurityUserIml user = tok.getUser(db);
+    SecurityUserImpl user = tok.getUser(db);
     assertEquals(user.getName(db), original.getName(db));
     boolean boole = handler.validateBinaryToken(tok);
     assertTrue(boole);

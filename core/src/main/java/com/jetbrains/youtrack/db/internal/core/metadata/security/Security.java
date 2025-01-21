@@ -120,18 +120,18 @@ public interface Security {
       final String iRoleName);
 
   @Deprecated
-  SecurityUserIml authenticate(String iUsername, String iUserPassword);
+  SecurityUserImpl authenticate(String iUsername, String iUserPassword);
 
   @Deprecated
-  SecurityUserIml authenticate(final Token authToken);
+  SecurityUserImpl authenticate(final Token authToken);
 
-  SecurityUserIml getUser(String iUserName);
+  SecurityUserImpl getUser(String iUserName);
 
-  SecurityUserIml getUser(final RID iUserId);
+  SecurityUserImpl getUser(final RID iUserId);
 
-  SecurityUserIml createUser(String iUserName, String iUserPassword, String... iRoles);
+  SecurityUserImpl createUser(String iUserName, String iUserPassword, String... iRoles);
 
-  SecurityUserIml createUser(String iUserName, String iUserPassword, Role... iRoles);
+  SecurityUserImpl createUser(String iUserName, String iUserPassword, Role... iRoles);
 
   boolean dropUser(String iUserName);
 

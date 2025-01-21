@@ -276,7 +276,7 @@ public class ClassTrigger {
         database.getSharedContext().getYouTrackDB().getScriptManager();
 
     final ScriptEngine scriptEngine =
-        scriptManager.acquireDatabaseEngine(database.getName(), func.getLanguage(database));
+        scriptManager.acquireDatabaseEngine(database.getName(), func.getLanguage());
     try {
       final Bindings binding = scriptEngine.getBindings(ScriptContext.ENGINE_SCOPE);
 
@@ -285,9 +285,9 @@ public class ClassTrigger {
 
       String result = null;
       try {
-        if (func.getLanguage(database) == null) {
+        if (func.getLanguage() == null) {
           throw new ConfigurationException(
-              "Database function '" + func.getName(database) + "' has no language");
+              "Database function '" + func.getName() + "' has no language");
         }
         final String funcStr = scriptManager.getFunctionDefinition(database, func);
         if (funcStr != null) {
@@ -299,16 +299,16 @@ public class ClassTrigger {
         }
         if (scriptEngine instanceof Invocable invocableEngine) {
           Object[] empty = CommonConst.EMPTY_OBJECT_ARRAY;
-          result = (String) invocableEngine.invokeFunction(func.getName(database), empty);
+          result = (String) invocableEngine.invokeFunction(func.getName(), empty);
         }
       } catch (ScriptException e) {
         throw BaseException.wrapException(
             new CommandScriptException(
-                "Error on execution of the script", func.getName(database), e.getColumnNumber()),
+                "Error on execution of the script", func.getName(), e.getColumnNumber()),
             e);
       } catch (NoSuchMethodException e) {
         throw BaseException.wrapException(
-            new CommandScriptException("Error on execution of the script", func.getName(database),
+            new CommandScriptException("Error on execution of the script", func.getName(),
                 0), e);
       } catch (CommandScriptException e) {
         // PASS THROUGH
@@ -323,7 +323,7 @@ public class ClassTrigger {
       return RecordHook.RESULT.valueOf(result);
 
     } finally {
-      scriptManager.releaseDatabaseEngine(func.getLanguage(database), database.getName(),
+      scriptManager.releaseDatabaseEngine(func.getLanguage(), database.getName(),
           scriptEngine);
     }
   }

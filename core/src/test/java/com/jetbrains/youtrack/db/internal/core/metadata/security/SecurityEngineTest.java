@@ -215,7 +215,8 @@ public class SecurityEngineTest {
 
     db.begin();
     db.command(
-        "Update OUser set roles = roles || (select from orole where name = 'reader') where name ="
+        "Update " + Role.CLASS_NAME + " set roles = roles || (select from " + Role.CLASS_NAME
+            + " where name = 'reader') where name ="
             + " 'admin'");
     db.commit();
     db.close();

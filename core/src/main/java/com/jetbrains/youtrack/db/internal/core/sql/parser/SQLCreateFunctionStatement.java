@@ -2,8 +2,8 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
@@ -43,14 +43,14 @@ public class SQLCreateFunctionStatement extends SQLSimpleExecStatement {
     var database = ctx.getDatabase();
     final Function f =
         database.getMetadata().getFunctionLibrary().createFunction(name.getStringValue());
-    f.setCode(database, code);
-    f.setIdempotent(database, Boolean.TRUE.equals(idempotent));
+    f.setCode(code);
+    f.setIdempotent(Boolean.TRUE.equals(idempotent));
     if (parameters != null) {
-      f.setParameters(database,
+      f.setParameters(
           parameters.stream().map(x -> x.getStringValue()).collect(Collectors.toList()));
     }
     if (language != null) {
-      f.setLanguage(database, language.getStringValue());
+      f.setLanguage(language.getStringValue());
     }
     f.save(database);
     RID functionId = f.getId(database);

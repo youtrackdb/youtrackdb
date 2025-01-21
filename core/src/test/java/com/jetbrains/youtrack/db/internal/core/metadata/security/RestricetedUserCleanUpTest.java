@@ -23,8 +23,8 @@ public class RestricetedUserCleanUpTest extends DbTestBase {
     Security security = db.getMetadata().getSecurity();
 
     db.begin();
-    SecurityUserIml auser = security.createUser("auser", "wherever", new String[]{});
-    SecurityUserIml reader = security.getUser("admin");
+    SecurityUserImpl auser = security.createUser("auser", "wherever", new String[]{});
+    SecurityUserImpl reader = security.getUser("admin");
     EntityImpl doc = (EntityImpl) db.newEntity("TestRecord");
     Set<Identifiable> users = new HashSet<Identifiable>();
     users.add(auser.getIdentity(db));

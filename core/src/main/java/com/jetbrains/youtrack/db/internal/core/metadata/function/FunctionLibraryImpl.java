@@ -48,7 +48,7 @@ import java.util.regex.Pattern;
 public class FunctionLibraryImpl {
 
   public static final String CLASSNAME = "OFunction";
-  protected final Map<String, Function> functions = new ConcurrentHashMap<String, Function>();
+  protected final ConcurrentHashMap<String, Function> functions = new ConcurrentHashMap<>();
   private final AtomicBoolean needReload = new AtomicBoolean(false);
 
   public FunctionLibraryImpl() {
@@ -56,10 +56,6 @@ public class FunctionLibraryImpl {
 
   public static void create(DatabaseSessionInternal db) {
     init(db);
-  }
-
-  public void load() {
-    throw new UnsupportedOperationException();
   }
 
   public void load(DatabaseSessionInternal db) {
@@ -79,16 +75,16 @@ public class FunctionLibraryImpl {
       try (ResultSet result = db.query("select from OFunction order by name")) {
         while (result.hasNext()) {
           Result res = result.next();
-          EntityImpl d = (EntityImpl) res.getEntity().get();
+          EntityImpl d = (EntityImpl) res.getEntity().orElseThrow();
           // skip the function records which do not contain real data
           if (d.fields() == 0) {
             continue;
           }
 
-          final Function f = new Function(d);
+          final Function f = new Function(db, d);
 
           // RESTORE CALLBACK IF ANY
-          f.setCallback(callbacks.get(f.getName(db)));
+          f.setCallback(callbacks.get(f.getName()));
 
           functions.put(d.field("name").toString().toUpperCase(Locale.ENGLISH), f);
         }
@@ -101,9 +97,9 @@ public class FunctionLibraryImpl {
     onFunctionsChanged(DatabaseRecordThreadLocal.instance().get());
   }
 
-  public void createdFunction(EntityImpl function) {
+  public void createdFunction(DatabaseSessionInternal db, EntityImpl function) {
     EntityImpl metadataCopy = function.copy();
-    final Function f = new Function(metadataCopy);
+    final Function f = new Function(db, metadataCopy);
     functions.put(metadataCopy.field("name").toString().toUpperCase(Locale.ENGLISH), f);
     onFunctionsChanged(DatabaseRecordThreadLocal.instance().get());
   }
@@ -117,17 +113,13 @@ public class FunctionLibraryImpl {
     return functions.get(iName.toUpperCase(Locale.ENGLISH));
   }
 
-  public Function createFunction(final String iName) {
-    throw new UnsupportedOperationException("Use Create function with database on internal api");
-  }
-
   public synchronized Function createFunction(
       DatabaseSessionInternal database, final String iName) {
     init(database);
     reloadIfNeeded(DatabaseRecordThreadLocal.instance().get());
 
     database.begin();
-    final Function f = new Function(database).setName(database, iName);
+    final Function f = new Function(database).setName(iName);
     try {
       f.save(database);
       functions.put(iName.toUpperCase(Locale.ENGLISH), f);
@@ -171,9 +163,8 @@ public class FunctionLibraryImpl {
 
   public synchronized void dropFunction(DatabaseSessionInternal session, Function function) {
     reloadIfNeeded(session);
-    String name = function.getName(session);
-    EntityImpl entity = function.getDocument(session);
-    entity.delete();
+    String name = function.getName();
+    function.delete(session);
     functions.remove(name.toUpperCase(Locale.ENGLISH));
   }
 
@@ -183,14 +174,12 @@ public class FunctionLibraryImpl {
     session.executeInTx(
         () -> {
           Function function = getFunction(iName);
-          EntityImpl entity = function.getDocument(session);
-          entity.delete();
+          function.delete(session);
           functions.remove(iName.toUpperCase(Locale.ENGLISH));
         });
   }
 
-  public void updatedFunction(EntityImpl function) {
-    DatabaseSessionInternal database = DatabaseRecordThreadLocal.instance().get();
+  public void updatedFunction(DatabaseSessionInternal database, EntityImpl function) {
     reloadIfNeeded(database);
     String oldName = (String) function.getOriginalValue("name");
     if (oldName != null) {
@@ -202,10 +191,12 @@ public class FunctionLibraryImpl {
     if (oldFunction != null) {
       callBack = oldFunction.getCallback();
     }
-    final Function f = new Function(metadataCopy);
+
+    final Function f = new Function(database, metadataCopy);
     if (callBack != null) {
       f.setCallback(callBack);
     }
+
     functions.put(metadataCopy.field("name").toString().toUpperCase(Locale.ENGLISH), f);
     onFunctionsChanged(database);
   }

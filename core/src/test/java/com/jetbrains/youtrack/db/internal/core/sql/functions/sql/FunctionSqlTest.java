@@ -30,9 +30,9 @@ public class FunctionSqlTest extends DbTestBase {
 
     db.begin();
     Function function = new Function(db);
-    function.setName(db, "test");
-    function.setCode(db, "select from Test where name = :name");
-    function.setParameters(db,
+    function.setName("test");
+    function.setCode("select from Test where name = :name");
+    function.setParameters(
         new ArrayList<>() {
           {
             add("name");
@@ -65,10 +65,10 @@ public class FunctionSqlTest extends DbTestBase {
 
     db.begin();
     Function function = new Function(db);
-    function.setName(db, "test");
-    function.setCode(db,
+    function.setName("test");
+    function.setCode(
         "select name from Test where name = :name and hello(:name) = 'Hello Enrico'");
-    function.setParameters(db,
+    function.setParameters(
         new ArrayList<>() {
           {
             add("name");
@@ -79,10 +79,10 @@ public class FunctionSqlTest extends DbTestBase {
 
     db.begin();
     Function function1 = new Function(db);
-    function1.setName(db, "hello");
-    function1.setLanguage(db, "javascript");
-    function1.setCode(db, "return 'Hello ' + name");
-    function1.setParameters(db,
+    function1.setName("hello");
+    function1.setLanguage("javascript");
+    function1.setCode("return 'Hello ' + name");
+    function1.setParameters(
         new ArrayList<>() {
           {
             add("name");

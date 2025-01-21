@@ -66,12 +66,12 @@ public class CommandExecutorFunction extends CommandExecutorAbstract {
     DatabaseSessionInternal db = iContext.getDatabase();
     final Function f = db.getMetadata().getFunctionLibrary().getFunction(parserText);
 
-    db.checkSecurity(Rule.ResourceGeneric.FUNCTION, Role.PERMISSION_READ, f.getName(db));
+    db.checkSecurity(Rule.ResourceGeneric.FUNCTION, Role.PERMISSION_READ, f.getName());
 
     final ScriptManager scriptManager = db.getSharedContext().getYouTrackDB().getScriptManager();
 
     final ScriptEngine scriptEngine =
-        scriptManager.acquireDatabaseEngine(db.getName(), f.getLanguage(db));
+        scriptManager.acquireDatabaseEngine(db.getName(), f.getLanguage());
     try {
       final Bindings binding =
           scriptManager.bindContextVariables(
@@ -104,7 +104,7 @@ public class CommandExecutorFunction extends CommandExecutorAbstract {
           result = scriptEngine.eval(scriptManager.getFunctionInvoke(db, f, args), binding);
         }
         return CommandExecutorUtility.transformResult(
-            scriptManager.handleResult(f.getLanguage(db), result, scriptEngine, binding, db));
+            scriptManager.handleResult(f.getLanguage(), result, scriptEngine, binding, db));
 
       } catch (ScriptException e) {
         throw BaseException.wrapException(
@@ -123,7 +123,7 @@ public class CommandExecutorFunction extends CommandExecutorAbstract {
         scriptManager.unbind(scriptEngine, binding, iContext, iArgs);
       }
     } finally {
-      scriptManager.releaseDatabaseEngine(f.getLanguage(db), db.getName(), scriptEngine);
+      scriptManager.releaseDatabaseEngine(f.getLanguage(), db.getName(), scriptEngine);
     }
   }
 

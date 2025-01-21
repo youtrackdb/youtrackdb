@@ -35,7 +35,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityRole;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecuritySystemUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecuritySystemUserImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.authenticator.DatabaseUserAuthenticator;
@@ -428,7 +428,7 @@ public class DefaultSecuritySystem implements SecuritySystem {
                 if (resultset != null && resultset.hasNext()) {
                   return new ImmutableUser(sessionInternal,
                       0,
-                      new SecuritySystemUserIml(sessionInternal,
+                      new SecuritySystemUserImpl(sessionInternal,
                           resultset.next().getEntity().orElseThrow().getRecord(session), dbName));
                 }
                 return null;

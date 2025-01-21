@@ -28,7 +28,7 @@ import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityRole;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import java.io.IOException;
@@ -180,7 +180,8 @@ public class SecurityTest extends BaseDBTest {
 
       try {
         db.begin();
-        SecurityUserIml child = security.createUser("writerChild", "writerChild", writerGrandChild);
+        SecurityUserImpl child = security.createUser("writerChild", "writerChild",
+            writerGrandChild);
         child.save(db);
         db.commit();
 
@@ -236,7 +237,7 @@ public class SecurityTest extends BaseDBTest {
     db = createSessionInstance();
     db.begin();
     security = db.getMetadata().getSecurity();
-    SecurityUserIml user = security.getUser("user'quoted");
+    SecurityUserImpl user = security.getUser("user'quoted");
     Assert.assertNotNull(user);
     security.dropUser(user.getName(db));
     db.commit();

@@ -25,11 +25,11 @@ import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequestWrapper;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponseWrapper;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
 import java.io.IOException;
 
@@ -49,7 +49,7 @@ public abstract class ServerCommandAbstractLogic extends ServerCommandAuthentica
         throw new IllegalArgumentException("Function '" + parts[2] + "' is not configured");
       }
 
-      if (iRequest.getHttpMethod().equalsIgnoreCase("GET") && !f.isIdempotent(db)) {
+      if (iRequest.getHttpMethod().equalsIgnoreCase("GET") && !f.isIdempotent()) {
         iResponse.send(
             HttpUtils.STATUS_BADREQ_CODE,
             HttpUtils.STATUS_BADREQ_DESCRIPTION,

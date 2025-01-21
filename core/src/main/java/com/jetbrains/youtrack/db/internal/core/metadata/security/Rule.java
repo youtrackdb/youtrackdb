@@ -13,7 +13,6 @@ public class Rule implements Serializable {
 
   public abstract static class ResourceGeneric implements Serializable {
 
-    private static final long serialVersionUID = 1L;
     private static final TreeMap<String, ResourceGeneric> nameToGenericMap =
         new TreeMap<String, ResourceGeneric>();
     private static final TreeMap<String, ResourceGeneric> legacyToGenericMap =
@@ -23,91 +22,72 @@ public class Rule implements Serializable {
 
     public static final ResourceGeneric ALL =
         new ResourceGeneric("ALL", DatabaseSecurityResources.ALL) {
-          private static final long serialVersionUID = 1L;
         };
 
     public static final ResourceGeneric FUNCTION =
         new ResourceGeneric("FUNCTION", DatabaseSecurityResources.FUNCTION) {
-          private static final long serialVersionUID = 1L;
         };
     public static final ResourceGeneric CLASS =
         new ResourceGeneric("CLASS", DatabaseSecurityResources.CLASS) {
-          private static final long serialVersionUID = 1L;
         };
     public static final ResourceGeneric CLUSTER =
         new ResourceGeneric("CLUSTER", DatabaseSecurityResources.CLUSTER) {
-          private static final long serialVersionUID = 1L;
         };
     public static final ResourceGeneric BYPASS_RESTRICTED =
         new ResourceGeneric("BYPASS_RESTRICTED", DatabaseSecurityResources.BYPASS_RESTRICTED) {
-          private static final long serialVersionUID = 1L;
         };
     public static final ResourceGeneric DATABASE =
         new ResourceGeneric("DATABASE", DatabaseSecurityResources.DATABASE) {
-          private static final long serialVersionUID = 1L;
         };
     public static final ResourceGeneric SCHEMA =
         new ResourceGeneric("SCHEMA", DatabaseSecurityResources.SCHEMA) {
-          private static final long serialVersionUID = 1L;
         };
     public static final ResourceGeneric COMMAND =
         new ResourceGeneric("COMMAND", DatabaseSecurityResources.COMMAND) {
-          private static final long serialVersionUID = 1L;
         };
 
     public static final ResourceGeneric COMMAND_GREMLIN =
         new ResourceGeneric("COMMAND_GREMLIN", DatabaseSecurityResources.COMMAND_GREMLIN) {
-          private static final long serialVersionUID = 1L;
         };
 
     public static final ResourceGeneric RECORD_HOOK =
         new ResourceGeneric("RECORD_HOOK", DatabaseSecurityResources.RECORD_HOOK) {
-          private static final long serialVersionUID = 1L;
         };
 
     public static final ResourceGeneric SYSTEM_CLUSTERS =
         new ResourceGeneric("SYSTEM_CLUSTER", DatabaseSecurityResources.SYSTEMCLUSTERS) {
-          private static final long serialVersionUID = 1L;
         };
 
     public static final ResourceGeneric SERVER =
         new ResourceGeneric("SERVER", "server") {
-          private static final long serialVersionUID = 1L;
         };
 
     public static final ResourceGeneric DATABASE_COPY =
         new ResourceGeneric("DATABASE_COPY", "database.copy") {
-          private static final long serialVersionUID = 1L;
         };
 
     public static final ResourceGeneric DATABASE_CREATE =
         new ResourceGeneric("DATABASE_CREATE", "database.create") {
-          private static final long serialVersionUID = 1L;
         };
 
     public static final ResourceGeneric DATABASE_DROP =
         new ResourceGeneric("DATABASE_DROP", "database.drop") {
-          private static final long serialVersionUID = 1L;
         };
 
     public static final ResourceGeneric DATABASE_EXISTS =
         new ResourceGeneric("DATABASE_EXISTS", "database.exists") {
-          private static final long serialVersionUID = 1L;
         };
 
     public static final ResourceGeneric DATABASE_FREEZE =
         new ResourceGeneric("DATABASE_FREEZE", "database.freeze") {
-          private static final long serialVersionUID = 1L;
         };
 
     public static final ResourceGeneric DATABASE_RELEASE =
         new ResourceGeneric("DATABASE_RELEASE", "database.release") {
-          private static final long serialVersionUID = 1L;
         };
 
     public static final ResourceGeneric DATABASE_PASSTHROUGH =
         new ResourceGeneric("DATABASE_PASSTHROUGH", "database.passthrough") {
-          private static final long serialVersionUID = 1L;
         };
 
     private final String name;
@@ -157,8 +137,6 @@ public class Rule implements Serializable {
           + "]";
     }
   }
-
-  private static final long serialVersionUID = 1L;
 
   private final ResourceGeneric resourceGeneric;
   private final Map<String, Byte> specificResources = new HashMap<String, Byte>();

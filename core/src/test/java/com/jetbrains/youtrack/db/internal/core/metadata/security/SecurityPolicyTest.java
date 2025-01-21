@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
@@ -145,7 +145,7 @@ public class SecurityPolicyTest extends DbTestBase {
     db.commit();
 
     RID policyRid = policy.getElement(db).getIdentity();
-    try (ResultSet rs = db.query("select from ORole where name = 'reader'")) {
+    try (ResultSet rs = db.query("select from " + Role.CLASS_NAME + " where name = 'reader'")) {
       Map<String, Identifiable> rolePolicies = rs.next().getProperty("policies");
       Identifiable id = rolePolicies.get(resource);
       Assert.assertEquals(id.getIdentity(), policyRid);

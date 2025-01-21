@@ -70,7 +70,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.query.Query;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
@@ -122,7 +122,6 @@ import javax.annotation.Nonnull;
 @SuppressWarnings("unchecked")
 public abstract class DatabaseSessionAbstract extends ListenerManger<SessionListener>
     implements DatabaseSessionInternal {
-
   protected final Map<String, Object> properties = new HashMap<>();
   protected Map<RecordHook, RecordHook.HOOK_POSITION> unmodifiableHooks;
   protected final Set<Identifiable> inHook = new HashSet<>();
@@ -412,7 +411,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   public void setUser(final SecurityUser user) {
     assert assertIfNotActive();
-    if (user instanceof SecurityUserIml) {
+    if (user instanceof SecurityUserImpl) {
       final Metadata metadata = getMetadata();
       if (metadata != null) {
         final SecurityInternal security = sharedContext.getSecurity();
@@ -427,22 +426,23 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   public void reloadUser() {
     assert assertIfNotActive();
+
     if (user != null) {
-      if (user.checkIfAllowed(this, Rule.ResourceGeneric.CLASS, SecurityUserIml.CLASS_NAME,
+      if (user.checkIfAllowed(this, Rule.ResourceGeneric.CLASS, SecurityUserImpl.CLASS_NAME,
           Role.PERMISSION_READ)
           != null) {
+
         Metadata metadata = getMetadata();
         if (metadata != null) {
           final SecurityInternal security = sharedContext.getSecurity();
-          final SecurityUserIml secGetUser = security.getUser(this, user.getName(this));
-
+          final SecurityUserImpl secGetUser = security.getUser(this, user.getName(this));
           if (secGetUser != null) {
             user = new ImmutableUser(this, security.getVersion(this), secGetUser);
           } else {
-            user = new ImmutableUser(this, -1, new SecurityUserIml());
+            user = new ImmutableUser(this, -1, new SecurityUserImpl(this));
           }
         } else {
-          user = new ImmutableUser(this, -1, new SecurityUserIml());
+          user = new ImmutableUser(this, -1, new SecurityUserImpl());
         }
       }
     }

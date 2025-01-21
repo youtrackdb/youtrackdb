@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
 import com.jetbrains.youtrack.db.api.exception.SecurityException;
@@ -32,6 +31,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule.ResourceGe
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityManager;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
+import com.jetbrains.youtrack.db.internal.core.type.IdentityWrapper;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -44,8 +44,7 @@ import java.util.Set;
  *
  * @see Role
  */
-public class SecurityUserIml extends Identity implements SecurityUser {
-
+public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
   public static final String ADMIN = "admin";
   public static final String CLASS_NAME = "OUser";
   public static final String PASSWORD_FIELD = "password";
@@ -55,22 +54,17 @@ public class SecurityUserIml extends Identity implements SecurityUser {
   // AVOID THE INVOCATION OF SETTER
   protected Set<Role> roles = new HashSet<Role>();
 
-  /**
-   * Constructor used in unmarshalling.
-   */
-  public SecurityUserIml() {
-  }
-
-  public SecurityUserIml(DatabaseSessionInternal db, final String iName) {
+  public SecurityUserImpl(DatabaseSessionInternal db, final String iName) {
     super(db, CLASS_NAME);
-    getDocument(db).field("name", iName);
+
+    setProperty("name", iName);
     setAccountStatus(db, STATUSES.ACTIVE);
   }
 
-  public SecurityUserIml(DatabaseSessionInternal db, String iUserName,
+  public SecurityUserImpl(DatabaseSessionInternal db, String iUserName,
       final String iUserPassword) {
     super(db, "OUser");
-    getDocument(db).field("name", iUserName);
+    setProperty("name", iUserName);
     setPassword(db, iUserPassword);
     setAccountStatus(db, STATUSES.ACTIVE);
   }
@@ -78,8 +72,29 @@ public class SecurityUserIml extends Identity implements SecurityUser {
   /**
    * Create the user by reading the source entity.
    */
-  public SecurityUserIml(DatabaseSession session, final EntityImpl iSource) {
-    fromStream((DatabaseSessionInternal) session, iSource);
+  public SecurityUserImpl(DatabaseSessionInternal session, final EntityImpl iSource) {
+    super(session, iSource);
+
+    roles = new HashSet<>();
+    final Collection<Identifiable> loadedRoles = getProperty("roles");
+    if (loadedRoles != null) {
+      for (final Identifiable d : loadedRoles) {
+        if (d != null) {
+          Role role = createRole(session, d.getRecord(session));
+          if (role != null) {
+            roles.add(role);
+          }
+        } else {
+          LogManager.instance()
+              .warn(
+                  this,
+                  "User '%s' is declared to have a role that does not exist in the database. "
+                      + " Ignoring it.",
+                  getName(session));
+        }
+      }
+    }
+
   }
 
   public static String encryptPassword(final String iPassword) {
@@ -112,35 +127,6 @@ public class SecurityUserIml extends Identity implements SecurityUser {
     return false;
   }
 
-  @Override
-  public void fromStream(DatabaseSessionInternal db, final EntityImpl entity) {
-    if (getDocument(db) != null) {
-      return;
-    }
-
-    setDocument(db, entity);
-
-    roles = new HashSet<>();
-    final Collection<Identifiable> loadedRoles = entity.field("roles");
-    if (loadedRoles != null) {
-      for (final Identifiable d : loadedRoles) {
-        if (d != null) {
-          Role role = createRole(db, d.getRecord(db));
-          if (role != null) {
-            roles.add(role);
-          }
-        } else {
-          LogManager.instance()
-              .warn(
-                  this,
-                  "User '%s' is declared to have a role that does not exist in the database. "
-                      + " Ignoring it.",
-                  getName(db));
-        }
-      }
-    }
-  }
-
   /**
    * Derived classes can override createRole() to return an extended Role implementation or null if
    * the role should not be added.
@@ -163,28 +149,18 @@ public class SecurityUserIml extends Identity implements SecurityUser {
       DatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
       String resourceSpecific,
       final int iOperation) {
-    var sessionInternal = session;
-    var entity = getDocument(session);
     if (roles == null || roles.isEmpty()) {
-      if (entity.field("roles") != null
-          && !((Collection<Identifiable>) entity.field("roles")).isEmpty()) {
-        final EntityImpl e = entity;
-        entity = null;
-        fromStream(sessionInternal, e);
-      } else {
-        throw new SecurityAccessException(
-            sessionInternal.getName(),
-            "User '" + entity.field("name") + "' has no role defined");
-      }
+      throw new SecurityAccessException(
+          session.getName(),
+          "User '" + getProperty("name") + "' has no role defined");
     }
 
     final Role role = checkIfAllowed(session, resourceGeneric, resourceSpecific, iOperation);
-
     if (role == null) {
       throw new SecurityAccessException(
-          entity.getSession().getName(),
+          session.getName(),
           "User '"
-              + entity.field("name")
+              + getProperty("name")
               + "' does not have permission to execute the operation '"
               + Role.permissionToString(iOperation)
               + "' against the resource: "
@@ -292,29 +268,29 @@ public class SecurityUserIml extends Identity implements SecurityUser {
   }
 
   public boolean checkPassword(DatabaseSessionInternal session, final String iPassword) {
-    return SecurityManager.checkPassword(iPassword, getDocument(session).field(PASSWORD_FIELD));
+    return SecurityManager.checkPassword(iPassword, getProperty(PASSWORD_FIELD));
   }
 
   public String getName(DatabaseSessionInternal session) {
-    return getDocument(session).field("name");
+    return getProperty("name");
   }
 
-  public SecurityUserIml setName(DatabaseSessionInternal session, final String iName) {
-    getDocument(session).field("name", iName);
+  public SecurityUserImpl setName(DatabaseSessionInternal session, final String iName) {
+    setProperty("name", iName);
     return this;
   }
 
   public String getPassword(DatabaseSessionInternal session) {
-    return getDocument(session).field(PASSWORD_FIELD);
+    return getProperty(PASSWORD_FIELD);
   }
 
-  public SecurityUserIml setPassword(DatabaseSessionInternal session, final String iPassword) {
-    getDocument(session).field(PASSWORD_FIELD, iPassword);
+  public SecurityUserImpl setPassword(DatabaseSessionInternal session, final String iPassword) {
+    setProperty(PASSWORD_FIELD, iPassword);
     return this;
   }
 
   public STATUSES getAccountStatus(DatabaseSessionInternal session) {
-    final String status = getDocument(session).field("status");
+    final String status = getProperty("status");
     if (status == null) {
       throw new SecurityException("User '" + getName(session) + "' has no status");
     }
@@ -322,14 +298,14 @@ public class SecurityUserIml extends Identity implements SecurityUser {
   }
 
   public void setAccountStatus(DatabaseSessionInternal session, STATUSES accountStatus) {
-    getDocument(session).field("status", accountStatus);
+    setProperty("status", accountStatus);
   }
 
   public Set<Role> getRoles() {
     return roles;
   }
 
-  public SecurityUserIml addRole(DatabaseSessionInternal session, final String iRole) {
+  public SecurityUserImpl addRole(DatabaseSessionInternal session, final String iRole) {
     if (iRole != null) {
       addRole(session, session.getMetadata().getSecurity().getRole(iRole));
     }
@@ -337,7 +313,7 @@ public class SecurityUserIml extends Identity implements SecurityUser {
   }
 
   @Override
-  public SecurityUserIml addRole(DatabaseSessionInternal session, final SecurityRole iRole) {
+  public SecurityUserImpl addRole(DatabaseSessionInternal session, final SecurityRole iRole) {
     if (iRole != null) {
       roles.add((Role) iRole);
     }
@@ -346,13 +322,12 @@ public class SecurityUserIml extends Identity implements SecurityUser {
     for (Role r : roles) {
       persistentRoles.add(r.toStream(session));
     }
-    getDocument(session).field("roles", persistentRoles);
+    setProperty("roles", persistentRoles);
     return this;
   }
 
   public boolean removeRole(DatabaseSessionInternal session, final String iRoleName) {
     boolean removed = false;
-    var entity = getDocument(session);
     for (Iterator<Role> it = roles.iterator(); it.hasNext(); ) {
       if (it.next().getName(session).equals(iRoleName)) {
         it.remove();
@@ -363,9 +338,10 @@ public class SecurityUserIml extends Identity implements SecurityUser {
     if (removed) {
       final HashSet<EntityImpl> persistentRoles = new HashSet<EntityImpl>();
       for (Role r : roles) {
+        r.save(session);
         persistentRoles.add(r.toStream(session));
       }
-      entity.field("roles", persistentRoles);
+      setProperty("roles", persistentRoles);
     }
 
     return removed;
@@ -395,7 +371,7 @@ public class SecurityUserIml extends Identity implements SecurityUser {
 
   @Override
   @SuppressWarnings("unchecked")
-  public SecurityUserIml save(DatabaseSessionInternal session) {
+  public SecurityUserImpl save(DatabaseSessionInternal session) {
     getDocument(session).save();
     return this;
   }
@@ -407,7 +383,7 @@ public class SecurityUserIml extends Identity implements SecurityUser {
       return getName(database);
     }
 
-    return SecurityUserIml.class.getName();
+    return SecurityUserImpl.class.getName();
   }
 
   @Override

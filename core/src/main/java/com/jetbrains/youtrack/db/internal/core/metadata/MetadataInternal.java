@@ -16,7 +16,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata;
 
-import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManager;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
@@ -25,7 +24,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Identity;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,7 +41,7 @@ public interface MetadataInternal extends Metadata {
       Collections.unmodifiableSet(
           new HashSet<String>(
               Arrays.asList(
-                  SecurityUserIml.CLASS_NAME.toLowerCase(Locale.ENGLISH),
+                  SecurityUserImpl.CLASS_NAME.toLowerCase(Locale.ENGLISH),
                   Role.CLASS_NAME.toLowerCase(Locale.ENGLISH),
                   Identity.CLASS_NAME.toLowerCase(Locale.ENGLISH),
                   Security.RESTRICTED_CLASSNAME.toLowerCase(Locale.ENGLISH),

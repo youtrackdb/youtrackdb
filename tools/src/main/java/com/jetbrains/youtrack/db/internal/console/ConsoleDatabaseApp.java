@@ -75,7 +75,7 @@ import com.jetbrains.youtrack.db.internal.core.iterator.IdentifiableIterator;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityManager;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
@@ -326,10 +326,10 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     disconnect();
 
     if (userName == null) {
-      userName = SecurityUserIml.ADMIN;
+      userName = SecurityUserImpl.ADMIN;
     }
     if (userPassword == null) {
-      userPassword = SecurityUserIml.ADMIN;
+      userPassword = SecurityUserImpl.ADMIN;
     }
 
     currentDatabaseUserName = userName;

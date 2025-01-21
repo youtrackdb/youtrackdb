@@ -197,7 +197,7 @@ public class SecurityEngine {
       SecurityRole role,
       Function clazz,
       SecurityPolicy.Scope scope) {
-    String resource = "database.function." + clazz.getName(session);
+    String resource = "database.function." + clazz.getName();
     Map<String, SecurityPolicy> definedPolicies = security.getSecurityPolicies(session, role);
     SecurityPolicy policy = definedPolicies.get(resource);
 

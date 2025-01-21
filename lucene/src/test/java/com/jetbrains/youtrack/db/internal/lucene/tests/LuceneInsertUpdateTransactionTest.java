@@ -24,7 +24,7 @@ import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -76,7 +76,7 @@ public class LuceneInsertUpdateTransactionTest extends LuceneBaseTest {
     doc.field("name", "Rome");
     db.save(doc);
 
-    SecurityUserIml user = new SecurityUserIml(db, "test", "test");
+    SecurityUserImpl user = new SecurityUserImpl(db, "test", "test");
     db.save(user.getDocument(db));
 
     db.commit();

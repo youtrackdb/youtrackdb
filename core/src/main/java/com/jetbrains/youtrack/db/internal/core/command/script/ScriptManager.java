@@ -19,7 +19,10 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command.script;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.CommandScriptException;
+import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.StringParser;
 import com.jetbrains.youtrack.db.internal.common.util.ClassLoaderHelper;
@@ -34,10 +37,7 @@ import com.jetbrains.youtrack.db.internal.core.command.script.formatter.SQLScrip
 import com.jetbrains.youtrack.db.internal.core.command.script.formatter.ScriptFormatter;
 import com.jetbrains.youtrack.db.internal.core.command.script.js.JSScriptEngineFactory;
 import com.jetbrains.youtrack.db.internal.core.command.script.transformer.ScriptTransformerImpl;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionUtilWrapper;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLScriptEngine;
@@ -151,10 +151,10 @@ public class ScriptManager {
 
   public String getFunctionDefinition(DatabaseSession session, final Function iFunction) {
     final ScriptFormatter formatter =
-        formatters.get(iFunction.getLanguage(session).toLowerCase(Locale.ENGLISH));
+        formatters.get(iFunction.getLanguage().toLowerCase(Locale.ENGLISH));
     if (formatter == null) {
       throw new IllegalArgumentException(
-          "Cannot find script formatter for the language '" + iFunction.getLanguage(session) + "'");
+          "Cannot find script formatter for the language '" + iFunction.getLanguage() + "'");
     }
 
     return formatter.getFunctionDefinition((DatabaseSessionInternal) session, iFunction);
@@ -163,10 +163,10 @@ public class ScriptManager {
   public String getFunctionInvoke(DatabaseSessionInternal session, final Function iFunction,
       final Object[] iArgs) {
     final ScriptFormatter formatter =
-        formatters.get(iFunction.getLanguage(session).toLowerCase(Locale.ENGLISH));
+        formatters.get(iFunction.getLanguage().toLowerCase(Locale.ENGLISH));
     if (formatter == null) {
       throw new IllegalArgumentException(
-          "Cannot find script formatter for the language '" + iFunction.getLanguage(session) + "'");
+          "Cannot find script formatter for the language '" + iFunction.getLanguage() + "'");
     }
 
     return formatter.getFunctionInvoke(session, iFunction, iArgs);
@@ -192,11 +192,11 @@ public class ScriptManager {
     for (String fName : functions) {
       final Function f = db.getMetadata().getFunctionLibrary().getFunction(fName);
 
-      if (f.getLanguage(db) == null) {
+      if (f.getLanguage() == null) {
         throw new ConfigurationException("Database function '" + fName + "' has no language");
       }
 
-      if (f.getLanguage(db).equalsIgnoreCase(iLanguage)) {
+      if (f.getLanguage().equalsIgnoreCase(iLanguage)) {
         final String def = getFunctionDefinition(db, f);
         if (def != null) {
           code.append(def);

@@ -32,11 +32,11 @@ public class RubyScriptFormatter implements ScriptFormatter {
 
     final StringBuilder fCode = new StringBuilder(1024);
     fCode.append("def ");
-    fCode.append(f.getName(session));
+    fCode.append(f.getName());
     fCode.append('(');
     int i = 0;
-    if (f.getParameters(session) != null) {
-      for (String p : f.getParameters(session)) {
+    if (f.getParameters() != null) {
+      for (String p : f.getParameters()) {
         if (i++ > 0) {
           fCode.append(',');
         }
@@ -45,7 +45,7 @@ public class RubyScriptFormatter implements ScriptFormatter {
     }
     fCode.append(")\n");
 
-    final Scanner scanner = new Scanner(f.getCode(session));
+    final Scanner scanner = new Scanner(f.getCode());
     try {
       scanner.useDelimiter("\n").skip("\r");
 
@@ -66,7 +66,7 @@ public class RubyScriptFormatter implements ScriptFormatter {
       final Object[] iArgs) {
     final StringBuilder code = new StringBuilder(1024);
 
-    code.append(iFunction.getName(session));
+    code.append(iFunction.getName());
     code.append('(');
     if (iArgs != null) {
       int i = 0;

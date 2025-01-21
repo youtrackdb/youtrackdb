@@ -17,8 +17,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityPolicy;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityPolicyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityResourceProperty;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityRole;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityRole.ALLOW_MODES;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -117,7 +116,8 @@ public class SecurityRemote implements SecurityInternal {
     }
 
     try (final ResultSet result =
-        session.query("select @rid as rid from ORole where name = ? limit 1", iRoleName)) {
+        session.query("select @rid as rid from " + Role.CLASS_NAME + " where name = ? limit 1",
+            iRoleName)) {
 
       if (result.hasNext()) {
         return result.next().getProperty("rid");
@@ -150,18 +150,18 @@ public class SecurityRemote implements SecurityInternal {
   }
 
   @Override
-  public SecurityUserIml authenticate(DatabaseSessionInternal session, String iUsername,
+  public SecurityUserImpl authenticate(DatabaseSessionInternal session, String iUsername,
       String iUserPassword) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public SecurityUserIml createUser(
+  public SecurityUserImpl createUser(
       final DatabaseSessionInternal session,
       final String iUserName,
       final String iUserPassword,
       final String... iRoles) {
-    final SecurityUserIml user = new SecurityUserIml(session, iUserName, iUserPassword);
+    final SecurityUserImpl user = new SecurityUserImpl(session, iUserName, iUserPassword);
     if (iRoles != null) {
       for (String r : iRoles) {
         user.addRole(session, r);
@@ -171,12 +171,12 @@ public class SecurityRemote implements SecurityInternal {
   }
 
   @Override
-  public SecurityUserIml createUser(
+  public SecurityUserImpl createUser(
       final DatabaseSessionInternal session,
       final String userName,
       final String userPassword,
       final Role... roles) {
-    final SecurityUserIml user = new SecurityUserIml(session, userName, userPassword);
+    final SecurityUserImpl user = new SecurityUserImpl(session, userName, userPassword);
 
     if (roles != null) {
       for (Role r : roles) {
@@ -188,49 +188,47 @@ public class SecurityRemote implements SecurityInternal {
   }
 
   @Override
-  public SecurityUserIml authenticate(DatabaseSessionInternal session, Token authToken) {
+  public SecurityUserImpl authenticate(DatabaseSessionInternal session, Token authToken) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public Role createRole(
-      final DatabaseSessionInternal session, final String iRoleName,
-      final ALLOW_MODES iAllowMode) {
-    return createRole(session, iRoleName, null, iAllowMode);
+      final DatabaseSessionInternal session, final String iRoleName) {
+    return createRole(session, iRoleName, null);
   }
 
   @Override
   public Role createRole(
       final DatabaseSessionInternal session,
       final String iRoleName,
-      final Role iParent,
-      final ALLOW_MODES iAllowMode) {
-    final Role role = new Role(session, iRoleName, iParent, iAllowMode);
+      final Role iParent) {
+    final Role role = new Role(session, iRoleName, iParent);
     return role.save(session);
   }
 
   @Override
-  public SecurityUserIml getUser(final DatabaseSession session, final String iUserName) {
+  public SecurityUserImpl getUser(final DatabaseSession session, final String iUserName) {
     try (ResultSet result = session.query("select from OUser where name = ? limit 1",
         iUserName)) {
       if (result.hasNext()) {
-        return new SecurityUserIml(session, (EntityImpl) result.next().getEntity().get());
+        return new SecurityUserImpl(session, (EntityImpl) result.next().getEntity().get());
       }
     }
     return null;
   }
 
-  public SecurityUserIml getUser(final DatabaseSession session, final RID iRecordId) {
+  public SecurityUserImpl getUser(final DatabaseSession session, final RID iRecordId) {
     if (iRecordId == null) {
       return null;
     }
 
     EntityImpl result;
     result = session.load(iRecordId);
-    if (!result.getClassName().equals(SecurityUserIml.CLASS_NAME)) {
+    if (!result.getClassName().equals(SecurityUserImpl.CLASS_NAME)) {
       result = null;
     }
-    return new SecurityUserIml(session, result);
+    return new SecurityUserImpl(session, result);
   }
 
   public Role getRole(final DatabaseSession session, final Identifiable iRole) {
@@ -249,7 +247,7 @@ public class SecurityRemote implements SecurityInternal {
     }
 
     try (final ResultSet result =
-        session.query("select from ORole where name = ? limit 1", iRoleName)) {
+        session.query("select from " + Role.CLASS_NAME + " where name = ? limit 1", iRoleName)) {
       if (result.hasNext()) {
         return new Role(session, (EntityImpl) result.next().getEntity().get());
       }
@@ -266,7 +264,7 @@ public class SecurityRemote implements SecurityInternal {
   }
 
   public List<EntityImpl> getAllRoles(final DatabaseSession session) {
-    try (ResultSet rs = session.query("select from ORole")) {
+    try (ResultSet rs = session.query("select from " + Role.CLASS_NAME)) {
       return rs.stream().map((e) -> (EntityImpl) e.getEntity().get())
           .collect(Collectors.toList());
     }
@@ -328,7 +326,7 @@ public class SecurityRemote implements SecurityInternal {
   public boolean dropRole(final DatabaseSession session, final String iRoleName) {
     final Number removed =
         session
-            .command("delete from ORole where name = '" + iRoleName + "'")
+            .command("delete from " + Role.CLASS_NAME + " where name = '" + iRoleName + "'")
             .next()
             .getProperty("count");
 
@@ -351,7 +349,7 @@ public class SecurityRemote implements SecurityInternal {
   }
 
   @Override
-  public SecurityUserIml create(DatabaseSessionInternal session) {
+  public SecurityUserImpl create(DatabaseSessionInternal session) {
     throw new UnsupportedOperationException();
   }
 

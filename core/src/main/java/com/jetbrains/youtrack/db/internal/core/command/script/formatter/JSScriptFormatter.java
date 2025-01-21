@@ -31,11 +31,11 @@ public class JSScriptFormatter implements ScriptFormatter {
 
     final StringBuilder fCode = new StringBuilder(1024);
     fCode.append("function ");
-    fCode.append(f.getName(session));
+    fCode.append(f.getName());
     fCode.append('(');
     int i = 0;
-    if (f.getParameters(session) != null) {
-      for (String p : f.getParameters(session)) {
+    if (f.getParameters() != null) {
+      for (String p : f.getParameters()) {
         if (i++ > 0) {
           fCode.append(',');
         }
@@ -43,7 +43,7 @@ public class JSScriptFormatter implements ScriptFormatter {
       }
     }
     fCode.append(") {\n");
-    fCode.append(f.getCode(session));
+    fCode.append(f.getCode());
     fCode.append("\n}\n");
 
     return fCode.toString();
@@ -54,7 +54,7 @@ public class JSScriptFormatter implements ScriptFormatter {
       final Object[] iArgs) {
     final StringBuilder code = new StringBuilder(1024);
 
-    code.append(iFunction.getName(session));
+    code.append(iFunction.getName());
     code.append('(');
     if (iArgs != null) {
       int i = 0;

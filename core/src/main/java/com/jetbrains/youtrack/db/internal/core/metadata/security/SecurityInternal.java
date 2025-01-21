@@ -1,14 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.security.SecurityUser;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityRole.ALLOW_MODES;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
 import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.List;
 import java.util.Map;
@@ -58,29 +57,28 @@ public interface SecurityInternal {
       DatabaseSessionInternal session, EntityImpl entity, String iAllowFieldName,
       Identifiable iId);
 
-  SecurityUserIml authenticate(DatabaseSessionInternal session, String iUsername,
+  SecurityUserImpl authenticate(DatabaseSessionInternal session, String iUsername,
       String iUserPassword);
 
-  SecurityUserIml createUser(
+  SecurityUserImpl createUser(
       DatabaseSessionInternal session, String iUserName, String iUserPassword, String[] iRoles);
 
-  SecurityUserIml createUser(
+  SecurityUserImpl createUser(
       DatabaseSessionInternal session, String iUserName, String iUserPassword, Role[] iRoles);
 
-  SecurityUserIml authenticate(DatabaseSessionInternal session, Token authToken);
+  SecurityUserImpl authenticate(DatabaseSessionInternal session, Token authToken);
 
   Role createRole(
       DatabaseSessionInternal session,
       String iRoleName,
-      Role iParent,
-      ALLOW_MODES iAllowMode);
+      Role iParent);
 
   Role createRole(
-      DatabaseSessionInternal session, String iRoleName, ALLOW_MODES iAllowMode);
+      DatabaseSessionInternal session, String iRoleName);
 
-  SecurityUserIml getUser(DatabaseSession session, String iUserName);
+  SecurityUserImpl getUser(DatabaseSession session, String iUserName);
 
-  SecurityUserIml getUser(DatabaseSession session, RID userId);
+  SecurityUserImpl getUser(DatabaseSession session, RID userId);
 
   Role getRole(DatabaseSession session, String iRoleName);
 
@@ -152,7 +150,7 @@ public interface SecurityInternal {
 
   void incrementVersion(DatabaseSession session);
 
-  SecurityUserIml create(DatabaseSessionInternal session);
+  SecurityUserImpl create(DatabaseSessionInternal session);
 
   void load(DatabaseSessionInternal session);
 

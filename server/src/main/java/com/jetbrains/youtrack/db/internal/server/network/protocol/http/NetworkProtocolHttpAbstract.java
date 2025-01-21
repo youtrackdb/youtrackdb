@@ -32,7 +32,7 @@ import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.QueryDatabaseState;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
@@ -124,7 +124,7 @@ public abstract class NetworkProtocolHttpAbstract extends NetworkProtocol
   private final StringBuilder requestContent = new StringBuilder(512);
   protected ClientConnection connection;
   protected SocketChannelTextServer channel;
-  protected SecurityUserIml account;
+  protected SecurityUserImpl account;
   protected HttpRequest request;
   protected HttpResponse response;
   protected HttpNetworkCommandManager cmdManager;
@@ -368,7 +368,7 @@ public abstract class NetworkProtocolHttpAbstract extends NetworkProtocol
     return channel;
   }
 
-  public SecurityUserIml getAccount() {
+  public SecurityUserImpl getAccount() {
     return account;
   }
 

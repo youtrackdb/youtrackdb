@@ -59,7 +59,7 @@ public class RestrictedAccessHook {
       } else if (identityType.equals("role")) {
         final Set<? extends SecurityRole> roles = database.geCurrentUser().getRoles();
         if (!roles.isEmpty()) {
-          identity = roles.iterator().next().getIdentity(database);
+          identity = roles.iterator().next().getIdentity();
         }
       } else {
         throw new ConfigurationException(

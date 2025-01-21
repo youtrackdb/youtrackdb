@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule.ResourceGeneric;
 import java.util.HashMap;
@@ -35,7 +35,7 @@ public class ImmutableRole implements SecurityRole {
 
     this.mode = role.getMode();
     this.name = role.getName(session);
-    this.rid = role.getIdentity(session).getIdentity();
+    this.rid = role.getIdentity().getIdentity();
 
     for (Rule rule : role.getRuleSet()) {
       rules.put(rule.getResourceGeneric(), rule);
@@ -179,7 +179,7 @@ public class ImmutableRole implements SecurityRole {
     return parentRole;
   }
 
-  public Role setParentRole(DatabaseSession session, final SecurityRole iParent) {
+  public void setParentRole(DatabaseSession session, final SecurityRole iParent) {
     throw new UnsupportedOperationException();
   }
 
@@ -193,7 +193,7 @@ public class ImmutableRole implements SecurityRole {
   }
 
   @Override
-  public Identifiable getIdentity(DatabaseSession session) {
+  public Identifiable getIdentity() {
     return rid;
   }
 

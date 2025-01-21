@@ -241,33 +241,33 @@ public class SchedulerTest {
     return youTrackDB;
   }
 
-  private void createLogEvent(DatabaseSessionInternal db) {
+  private static void createLogEvent(DatabaseSessionInternal db) {
     Function func = createFunction(db);
 
     db.executeInTx(() -> {
       Map<Object, Object> args = new HashMap<>();
       args.put("note", "test");
 
-      new ScheduledEventBuilder(db)
-          .setName(db, "test")
-          .setRule(db, "0/1 * * * * ?")
-          .setFunction(db, func)
-          .setArguments(db, args)
+      new ScheduledEventBuilder()
+          .setName("test")
+          .setRule("0/1 * * * * ?")
+          .setFunction(func)
+          .setArguments(args)
           .build(db);
     });
   }
 
-  private Function createFunction(DatabaseSessionInternal db) {
+  private static Function createFunction(DatabaseSessionInternal db) {
     db.getMetadata().getSchema().createClass("scheduler_log");
 
     return db.computeInTx(
         () -> {
           Function func = db.getMetadata().getFunctionLibrary().createFunction("logEvent");
-          func.setLanguage(db, "SQL");
-          func.setCode(db, "insert into scheduler_log set timestamp = sysdate(), note = :note");
+          func.setLanguage("SQL");
+          func.setCode("insert into scheduler_log set timestamp = sysdate(), note = :note");
           final List<String> pars = new ArrayList<>();
           pars.add("note");
-          func.setParameters(db, pars);
+          func.setParameters(pars);
           func.save(db);
           return func;
         });

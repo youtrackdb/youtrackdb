@@ -118,13 +118,13 @@ public class CommandExecutorSQLCreateFunction extends CommandExecutorSQLAbstract
 
     var database = getDatabase();
     final Function f = database.getMetadata().getFunctionLibrary().createFunction(name);
-    f.setCode(database, code);
-    f.setIdempotent(database, idempotent);
+    f.setCode(code);
+    f.setIdempotent(idempotent);
     if (parameters != null) {
-      f.setParameters(database, parameters);
+      f.setParameters(parameters);
     }
     if (language != null) {
-      f.setLanguage(database, language);
+      f.setLanguage(language);
     }
 
     f.save(database);

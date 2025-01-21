@@ -19,16 +19,15 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.List;
 
 /**
  *
  */
-public class SecuritySystemUserIml extends SecurityUserIml {
-
+public class SecuritySystemUserImpl extends SecurityUserImpl {
   private String databaseName;
   private String userType;
 
@@ -36,22 +35,16 @@ public class SecuritySystemUserIml extends SecurityUserIml {
     return databaseName;
   }
 
-  /**
-   * Constructor used in unmarshalling.
-   */
-  public SecuritySystemUserIml() {
-  }
-
-  public SecuritySystemUserIml(DatabaseSessionInternal session, final String iName) {
+  public SecuritySystemUserImpl(DatabaseSessionInternal session, final String iName) {
     super(session, iName);
   }
 
-  public SecuritySystemUserIml(DatabaseSessionInternal session, String iUserName,
+  public SecuritySystemUserImpl(DatabaseSessionInternal session, String iUserName,
       final String iUserPassword) {
     super(session, iUserName, iUserPassword);
   }
 
-  public SecuritySystemUserIml(DatabaseSessionInternal session, String iUserName,
+  public SecuritySystemUserImpl(DatabaseSessionInternal session, String iUserName,
       final String iUserPassword,
       String userType) {
     super(session, iUserName, iUserPassword);
@@ -61,38 +54,37 @@ public class SecuritySystemUserIml extends SecurityUserIml {
   /**
    * Create the user by reading the source document.
    */
-  public SecuritySystemUserIml(DatabaseSessionInternal session, final EntityImpl iSource) {
+  public SecuritySystemUserImpl(DatabaseSessionInternal session, final EntityImpl iSource) {
     super(session, iSource);
   }
 
   /**
    * dbName is the name of the source database and is used for filtering roles.
    */
-  public SecuritySystemUserIml(DatabaseSessionInternal session, final EntityImpl iSource,
+  public SecuritySystemUserImpl(DatabaseSessionInternal session, final EntityImpl iSource,
       final String dbName) {
     databaseName = dbName;
-    fromStream(session, iSource);
   }
 
   /**
    * Derived classes can override createRole() to return an extended Role implementation.
    */
-  protected Role createRole(DatabaseSessionInternal session, final EntityImpl roleDoc) {
+  protected Role createRole(DatabaseSessionInternal session, final EntityImpl roleEntity) {
     Role role = null;
 
     // If databaseName is set, then only allow roles with the same databaseName.
     if (databaseName != null && !databaseName.isEmpty()) {
-      if (roleDoc != null
-          && roleDoc.containsField(SystemRole.DB_FILTER)
-          && roleDoc.fieldType(SystemRole.DB_FILTER) == PropertyType.EMBEDDEDLIST) {
+      if (roleEntity != null
+          && roleEntity.containsField(SystemRole.DB_FILTER)
+          && roleEntity.fieldType(SystemRole.DB_FILTER) == PropertyType.EMBEDDEDLIST) {
 
-        List<String> dbNames = roleDoc.field(SystemRole.DB_FILTER, PropertyType.EMBEDDEDLIST);
+        List<String> dbNames = roleEntity.field(SystemRole.DB_FILTER, PropertyType.EMBEDDEDLIST);
 
         for (String dbName : dbNames) {
           if (dbName != null
               && !dbName.isEmpty()
               && (dbName.equalsIgnoreCase(databaseName) || dbName.equals("*"))) {
-            role = new SystemRole(session, roleDoc);
+            role = new SystemRole(session, roleEntity);
             break;
           }
         }
@@ -100,16 +92,17 @@ public class SecuritySystemUserIml extends SecurityUserIml {
     } else {
       // If databaseName is not set, only return roles without a SystemRole.DB_FILTER property or
       // if set to "*".
-      if (roleDoc != null) {
-        if (!roleDoc.containsField(SystemRole.DB_FILTER)) {
-          role = new SystemRole(session, roleDoc);
+      if (roleEntity != null) {
+        if (!roleEntity.containsField(SystemRole.DB_FILTER)) {
+          role = new SystemRole(session, roleEntity);
         } else { // It does use the dbFilter property.
-          if (roleDoc.fieldType(SystemRole.DB_FILTER) == PropertyType.EMBEDDEDLIST) {
-            List<String> dbNames = roleDoc.field(SystemRole.DB_FILTER, PropertyType.EMBEDDEDLIST);
+          if (roleEntity.fieldType(SystemRole.DB_FILTER) == PropertyType.EMBEDDEDLIST) {
+            List<String> dbNames = roleEntity.field(SystemRole.DB_FILTER,
+                PropertyType.EMBEDDEDLIST);
 
             for (String dbName : dbNames) {
               if (dbName != null && !dbName.isEmpty() && dbName.equals("*")) {
-                role = new SystemRole(session, roleDoc);
+                role = new SystemRole(session, roleEntity);
                 break;
               }
             }

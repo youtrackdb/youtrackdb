@@ -61,7 +61,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityPolicy;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -430,8 +430,8 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     database.dropCluster(MetadataDefault.CLUSTER_MANUAL_INDEX_NAME);
 
     final Schema schema = database.getMetadata().getSchema();
-    if (schema.existsClass(SecurityUserIml.CLASS_NAME)) {
-      schema.dropClass(SecurityUserIml.CLASS_NAME);
+    if (schema.existsClass(SecurityUserImpl.CLASS_NAME)) {
+      schema.dropClass(SecurityUserImpl.CLASS_NAME);
     }
     if (schema.existsClass(Role.CLASS_NAME)) {
       schema.dropClass(Role.CLASS_NAME);
@@ -504,7 +504,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     final Schema schema = database.getMetadata().getSchema();
     final Collection<SchemaClass> classes = schema.getClasses();
     final SchemaClass role = schema.getClass(Role.CLASS_NAME);
-    final SchemaClass user = schema.getClass(SecurityUserIml.CLASS_NAME);
+    final SchemaClass user = schema.getClass(SecurityUserImpl.CLASS_NAME);
     final SchemaClass identity = schema.getClass(Identity.CLASS_NAME);
     // final SchemaClass oSecurityPolicy = schema.getClass(SecurityPolicy.class.getSimpleName());
     final Map<String, SchemaClass> classesToDrop = new HashMap<>();
@@ -751,7 +751,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       this.setLinkedClasses();
 
       if (exporterVersion < 11) {
-        SchemaClass role = database.getMetadata().getSchema().getClass("ORole");
+        SchemaClass role = database.getMetadata().getSchema().getClass(Role.CLASS_NAME);
         role.dropProperty(database, "rules");
       }
 
@@ -1254,10 +1254,10 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       if (cls != null) {
         assert record instanceof EntityImpl;
 
-        if (cls.getName().equals(SecurityUserIml.CLASS_NAME)) {
+        if (cls.getName().equals(SecurityUserImpl.CLASS_NAME)) {
           try (var resultSet =
               database.query(
-                  "select from " + SecurityUserIml.CLASS_NAME + " where name = ?",
+                  "select from " + SecurityUserImpl.CLASS_NAME + " where name = ?",
                   ((EntityImpl) record).<String>getProperty("name"))) {
             if (resultSet.hasNext()) {
               systemRecord = resultSet.next().toEntity();

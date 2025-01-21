@@ -65,7 +65,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceAction;
@@ -869,7 +869,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
         }
         if (clazz.isUser()) {
           entity.validate();
-          changed = SecurityUserIml.encodePassword(this, entity);
+          changed = SecurityUserImpl.encodePassword(this, entity);
         }
         if (clazz.isTriggered()) {
           triggerChanged = ClassTrigger.onRecordBeforeCreate(entity, this);
@@ -906,7 +906,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
           getSharedContext().getScheduler().preHandleUpdateScheduleInTx(this, entity);
         }
         if (clazz.isUser()) {
-          SecurityUserIml.encodePassword(this, entity);
+          SecurityUserImpl.encodePassword(this, entity);
         }
         if (clazz.isTriggered()) {
           ClassTrigger.onRecordBeforeUpdate(entity, this);
@@ -1027,12 +1027,13 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   public void afterCreateOperations(final Identifiable id) {
     assert assertIfNotActive();
+
     if (id instanceof EntityImpl entity) {
       final SchemaImmutableClass clazz =
           EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
         if (clazz.isFunction()) {
-          this.getSharedContext().getFunctionLibrary().createdFunction(entity);
+          this.getSharedContext().getFunctionLibrary().createdFunction(this, entity);
         }
         if (clazz.isUser() || clazz.isRole() || clazz.isSecurityPolicy()) {
           sharedContext.getSecurity().incrementVersion(this);
@@ -1175,7 +1176,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
           SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
           if (clazz != null) {
             if (clazz.isFunction()) {
-              this.getSharedContext().getFunctionLibrary().updatedFunction(entity);
+              this.getSharedContext().getFunctionLibrary().updatedFunction(this, entity);
             }
             if (clazz.isScheduler()) {
               getSharedContext().getScheduler().postHandleUpdateScheduleAfterTxCommit(this, entity);

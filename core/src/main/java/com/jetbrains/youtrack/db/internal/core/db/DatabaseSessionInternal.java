@@ -766,7 +766,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
    *
    * @param iListener the listener to register
    */
-  @Deprecated
   void registerListener(SessionListener iListener);
 
   /**
@@ -774,7 +773,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
    *
    * @param iListener the listener to unregister
    */
-  @Deprecated
   void unregisterListener(SessionListener iListener);
 
   @Deprecated

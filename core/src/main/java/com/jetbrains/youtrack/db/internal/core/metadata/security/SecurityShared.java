@@ -49,7 +49,6 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule.ResourceGeneric;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityRole.ALLOW_MODES;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -269,11 +268,11 @@ public class SecurityShared implements SecurityInternal {
         // CHECK IF AT LEAST ONE OF THE USER'S ROLES IS ENLISTED
         for (SecurityRole r : currentUser.getRoles()) {
           // CHECK AGAINST GENERIC _ALLOW
-          if (iAllowAll != null && iAllowAll.contains(r.getIdentity(session))) {
+          if (iAllowAll != null && iAllowAll.contains(r.getIdentity())) {
             return true;
           }
           // CHECK AGAINST SPECIFIC _ALLOW OPERATION
-          if (iAllowOperation != null && iAllowOperation.contains(r.getIdentity(session))) {
+          if (iAllowOperation != null && iAllowOperation.contains(r.getIdentity())) {
             return true;
           }
           // CHECK inherited permissions from parent roles, fixes #1980: Record Level Security:
@@ -281,11 +280,11 @@ public class SecurityShared implements SecurityInternal {
           // inheritance
           SecurityRole parentRole = r.getParentRole();
           while (parentRole != null) {
-            if (iAllowAll != null && iAllowAll.contains(parentRole.getIdentity(session))) {
+            if (iAllowAll != null && iAllowAll.contains(parentRole.getIdentity())) {
               return true;
             }
             if (iAllowOperation != null && iAllowOperation.contains(
-                parentRole.getIdentity(session))) {
+                parentRole.getIdentity())) {
               return true;
             }
             parentRole = parentRole.getParentRole();
@@ -353,20 +352,20 @@ public class SecurityShared implements SecurityInternal {
   }
 
   @Override
-  public SecurityUserIml authenticate(
+  public SecurityUserImpl authenticate(
       DatabaseSessionInternal session, final String iUsername, final String iUserPassword) {
     return null;
   }
 
   // Token MUST be validated before being passed to this method.
-  public SecurityUserIml authenticate(final DatabaseSessionInternal session,
+  public SecurityUserImpl authenticate(final DatabaseSessionInternal session,
       final Token authToken) {
     final String dbName = session.getName();
     if (!authToken.getIsValid()) {
       throw new SecurityAccessException(dbName, "Token not valid");
     }
 
-    SecurityUserIml user = authToken.getUser(session);
+    SecurityUserImpl user = authToken.getUser(session);
     if (user == null && authToken.getUserName() != null) {
       // Token handler may not support returning an OUser so let's get username (subject) and query:
       user = getUser(session, authToken.getUserName());
@@ -384,25 +383,25 @@ public class SecurityShared implements SecurityInternal {
     return user;
   }
 
-  public SecurityUserIml getUser(final DatabaseSession session, final RID iRecordId) {
+  public SecurityUserImpl getUser(final DatabaseSession session, final RID iRecordId) {
     if (iRecordId == null) {
       return null;
     }
 
     EntityImpl result;
     result = session.load(iRecordId);
-    if (!result.getClassName().equals(SecurityUserIml.CLASS_NAME)) {
+    if (!result.getClassName().equals(SecurityUserImpl.CLASS_NAME)) {
       result = null;
     }
-    return new SecurityUserIml(session, result);
+    return new SecurityUserImpl(session, result);
   }
 
-  public SecurityUserIml createUser(
+  public SecurityUserImpl createUser(
       final DatabaseSessionInternal session,
       final String iUserName,
       final String iUserPassword,
       final String... iRoles) {
-    final SecurityUserIml user = new SecurityUserIml(session, iUserName, iUserPassword);
+    final SecurityUserImpl user = new SecurityUserImpl(session, iUserName, iUserPassword);
 
     if (iRoles != null) {
       for (String r : iRoles) {
@@ -413,12 +412,12 @@ public class SecurityShared implements SecurityInternal {
     return user.save(session);
   }
 
-  public SecurityUserIml createUser(
+  public SecurityUserImpl createUser(
       final DatabaseSessionInternal session,
       final String userName,
       final String userPassword,
       final Role... roles) {
-    final SecurityUserIml user = new SecurityUserIml(session, userName, userPassword);
+    final SecurityUserImpl user = new SecurityUserImpl(session, userName, userPassword);
 
     if (roles != null) {
       for (Role r : roles) {
@@ -459,7 +458,7 @@ public class SecurityShared implements SecurityInternal {
     }
 
     try (final ResultSet result =
-        session.query("select from ORole where name = ? limit 1", iRoleName)) {
+        session.query("select from " + Role.CLASS_NAME + " where name = ? limit 1", iRoleName)) {
       if (result.hasNext()) {
         return new Role(session,
             (EntityImpl) result.next().getEntity().get());
@@ -475,7 +474,8 @@ public class SecurityShared implements SecurityInternal {
     }
 
     try (final ResultSet result =
-        session.query("select @rid as rid from ORole where name = ? limit 1", iRoleName)) {
+        session.query("select @rid as rid from " + Role.CLASS_NAME + " where name = ? limit 1",
+            iRoleName)) {
 
       if (result.hasNext()) {
         return result.next().getProperty("rid");
@@ -485,25 +485,24 @@ public class SecurityShared implements SecurityInternal {
   }
 
   public Role createRole(
-      final DatabaseSessionInternal session, final String iRoleName,
-      final ALLOW_MODES iAllowMode) {
-    return createRole(session, iRoleName, null, iAllowMode);
+      final DatabaseSessionInternal session, final String iRoleName) {
+    return createRole(session, iRoleName, null);
   }
 
+  @Override
   public Role createRole(
       final DatabaseSessionInternal session,
       final String iRoleName,
-      final Role iParent,
-      final ALLOW_MODES iAllowMode) {
-    final Role role = new Role(session, iRoleName, iParent,
-        iAllowMode);
-    return role.save(session);
+      final Role iParent) {
+    final Role role = new Role(session, iRoleName, iParent);
+    role.save(session);
+    return role;
   }
 
   public boolean dropRole(final DatabaseSession session, final String iRoleName) {
     final Number removed;
     try (ResultSet result =
-        session.command("delete from ORole where name = '" + iRoleName + "'")) {
+        session.command("delete from " + Role.CLASS_NAME + " where name = '" + iRoleName + "'")) {
       removed = result.next().getProperty("count");
     }
 
@@ -518,7 +517,7 @@ public class SecurityShared implements SecurityInternal {
   }
 
   public List<EntityImpl> getAllRoles(final DatabaseSession session) {
-    try (ResultSet rs = session.query("select from ORole")) {
+    try (ResultSet rs = session.query("select from " + Role.CLASS_NAME)) {
       return rs.stream().map((e) -> (EntityImpl) e.getEntity().get())
           .collect(Collectors.toList());
     }
@@ -565,7 +564,7 @@ public class SecurityShared implements SecurityInternal {
       DatabaseSessionInternal session, SecurityRole role, String resource,
       SecurityPolicyImpl policy) {
     var currentResource = normalizeSecurityResource(session, resource);
-    Entity roleEntity = session.load(role.getIdentity(session).getIdentity());
+    Entity roleEntity = session.load(role.getIdentity().getIdentity());
     validatePolicyWithIndexes(session, currentResource);
     Map<String, Identifiable> policies = roleEntity.getProperty("policies");
     if (policies == null) {
@@ -655,7 +654,7 @@ public class SecurityShared implements SecurityInternal {
   public void removeSecurityPolicy(DatabaseSession session, Role role, String resource) {
     var sessionInternal = (DatabaseSessionInternal) session;
     String calculatedResource = normalizeSecurityResource(session, resource);
-    final Entity roleEntity = session.load(role.getIdentity(session).getIdentity());
+    final Entity roleEntity = session.load(role.getIdentity().getIdentity());
     Map<String, Identifiable> policies = roleEntity.getProperty("policies");
     if (policies == null) {
       return;
@@ -672,13 +671,13 @@ public class SecurityShared implements SecurityInternal {
     return resource; // TODO
   }
 
-  public SecurityUserIml create(final DatabaseSessionInternal session) {
+  public SecurityUserImpl create(final DatabaseSessionInternal session) {
     if (!session.getMetadata().getSchema().getClasses().isEmpty()) {
       return null;
     }
 
     skipRoleHasPredicateSecurityForClassUpdate = true;
-    SecurityUserIml adminUser = null;
+    SecurityUserImpl adminUser = null;
     try {
       SchemaClass identityClass =
           session.getMetadata().getSchema().getClass(Identity.CLASS_NAME); // SINCE 1.2.0
@@ -716,17 +715,17 @@ public class SecurityShared implements SecurityInternal {
         });
   }
 
-  private SecurityUserIml createDefaultUsers(final DatabaseSessionInternal session) {
+  private SecurityUserImpl createDefaultUsers(final DatabaseSessionInternal session) {
     boolean createDefUsers =
         session.getConfiguration().getValueAsBoolean(GlobalConfiguration.CREATE_DEFAULT_USERS);
 
-    SecurityUserIml adminUser = null;
+    SecurityUserImpl adminUser = null;
     // This will return the global value if a local storage context configuration value does not
     // exist.
     if (createDefUsers) {
       session.computeInTx(
           () -> {
-            var admin = createUser(session, SecurityUserIml.ADMIN, SecurityUserIml.ADMIN,
+            var admin = createUser(session, SecurityUserImpl.ADMIN, SecurityUserImpl.ADMIN,
                 Role.ADMIN);
             createUser(session, "reader", "reader", DEFAULT_READER_ROLE_NAME);
             createUser(session, "writer", "writer", DEFAULT_WRITER_ROLE_NAME);
@@ -788,7 +787,8 @@ public class SecurityShared implements SecurityInternal {
     setSecurityPolicyWithBitmask(
         session,
         writerRole,
-        Rule.ResourceGeneric.CLUSTER.getLegacyName() + ".orole",
+        Rule.ResourceGeneric.CLUSTER.getLegacyName() + "." + Role.CLASS_NAME.toLowerCase(
+            Locale.ROOT),
         Role.PERMISSION_READ);
     setSecurityPolicyWithBitmask(
         session,
@@ -844,11 +844,10 @@ public class SecurityShared implements SecurityInternal {
         Role.PERMISSION_NONE);
   }
 
-  private Role createDefaultReaderRole(final DatabaseSessionInternal session) {
+  private void createDefaultReaderRole(final DatabaseSessionInternal session) {
     final Role readerRole =
-        createRole(session, DEFAULT_READER_ROLE_NAME, Role.ALLOW_MODES.DENY_ALL_BUT);
+        createRole(session, DEFAULT_READER_ROLE_NAME);
     setDefaultReaderPermissions(session, readerRole);
-    return readerRole;
   }
 
   private void setDefaultReaderPermissions(final DatabaseSessionInternal session,
@@ -860,7 +859,8 @@ public class SecurityShared implements SecurityInternal {
     readerRole.addRule(session,
         ResourceGeneric.CLUSTER,
         MetadataDefault.CLUSTER_INTERNAL_NAME, Role.PERMISSION_READ);
-    readerRole.addRule(session, ResourceGeneric.CLUSTER, "orole", Role.PERMISSION_READ);
+    readerRole.addRule(session, ResourceGeneric.CLUSTER, Role.CLASS_NAME.toLowerCase(Locale.ROOT),
+        Role.PERMISSION_READ);
     readerRole.addRule(session, ResourceGeneric.CLUSTER, "ouser", Role.PERMISSION_READ);
     readerRole.addRule(session, ResourceGeneric.CLASS, null, Role.PERMISSION_READ);
     readerRole.addRule(session, ResourceGeneric.CLASS, "OUser", Role.PERMISSION_NONE);
@@ -886,7 +886,8 @@ public class SecurityShared implements SecurityInternal {
     setSecurityPolicyWithBitmask(
         session,
         readerRole,
-        Rule.ResourceGeneric.CLUSTER.getLegacyName() + ".orole",
+        Rule.ResourceGeneric.CLUSTER.getLegacyName() + "." + Role.CLASS_NAME.toLowerCase(
+            Locale.ROOT),
         Role.PERMISSION_READ);
     setSecurityPolicyWithBitmask(
         session,
@@ -1021,9 +1022,9 @@ public class SecurityShared implements SecurityInternal {
             "OUser.name", INDEX_TYPE.UNIQUE, NullOutputListener.INSTANCE, "name");
       }
     }
-    if (!userClass.existsProperty(SecurityUserIml.PASSWORD_FIELD)) {
+    if (!userClass.existsProperty(SecurityUserImpl.PASSWORD_FIELD)) {
       userClass
-          .createProperty(database, SecurityUserIml.PASSWORD_FIELD, PropertyType.STRING,
+          .createProperty(database, SecurityUserImpl.PASSWORD_FIELD, PropertyType.STRING,
               (PropertyType) null, unsafe)
           .setMandatory(database, true)
           .setNotNull(database, true);
@@ -1101,11 +1102,11 @@ public class SecurityShared implements SecurityInternal {
   private static SchemaClass createOrUpdateORoleClass(final DatabaseSessionInternal database,
       SchemaClass identityClass) {
     SchemaClassInternal roleClass = database.getMetadata().getSchemaInternal()
-        .getClassInternal("ORole");
+        .getClassInternal(Role.CLASS_NAME);
     boolean unsafe = false;
     if (roleClass == null) {
       roleClass = (SchemaClassInternal) database.getMetadata().getSchema()
-          .createClass("ORole", identityClass);
+          .createClass(Role.CLASS_NAME, identityClass);
       unsafe = true;
     } else if (!roleClass.getSuperClasses().contains(identityClass))
     // MIGRATE AUTOMATICALLY TO 1.2.0
@@ -1119,7 +1120,8 @@ public class SecurityShared implements SecurityInternal {
           .setMandatory(database, true)
           .setNotNull(database, true)
           .setCollate(database, "ci");
-      roleClass.createIndex(database, "ORole.name", INDEX_TYPE.UNIQUE, NullOutputListener.INSTANCE,
+      roleClass.createIndex(database, Role.CLASS_NAME + "." + Role.NAME, INDEX_TYPE.UNIQUE,
+          NullOutputListener.INSTANCE,
           "name");
     } else {
       final PropertyInternal name = roleClass.getPropertyInternal("name");
@@ -1174,28 +1176,7 @@ public class SecurityShared implements SecurityInternal {
       }
 
       // ROLE
-      final SchemaClassInternal roleClass = session.getMetadata().getSchema()
-          .getClassInternal("ORole");
-
-      final Property rules = roleClass.getProperty("rules");
-      if (rules != null && !PropertyType.EMBEDDEDMAP.equals(rules.getType())) {
-        roleClass.dropProperty(session, "rules");
-      }
-
-      if (!roleClass.existsProperty("inheritedRole")) {
-        roleClass.createProperty(session, "inheritedRole", PropertyType.LINK, roleClass);
-      }
-
-      p = roleClass.getProperty("name");
-      if (p == null) {
-        p = roleClass.createProperty(session, "name", PropertyType.STRING).
-            setMandatory(session, true)
-            .setNotNull(session, true);
-      }
-
-      if (roleClass.getInvolvedIndexes(session, "name") == null) {
-        p.createIndex(session, INDEX_TYPE.UNIQUE);
-      }
+      Role.generateSchema(session);
 
       // TODO migrate Role to use security policies
     }
@@ -1234,12 +1215,12 @@ public class SecurityShared implements SecurityInternal {
     }
   }
 
-  public static SecurityUserIml getUserInternal(final DatabaseSession session,
+  public static SecurityUserImpl getUserInternal(final DatabaseSession session,
       final String iUserName) {
     try (ResultSet result =
         session.query("select from OUser where name = ? limit 1", iUserName)) {
       if (result.hasNext()) {
-        return new SecurityUserIml(session,
+        return new SecurityUserImpl(session,
             (EntityImpl) result.next().getEntity().get());
       }
     }
@@ -1248,7 +1229,7 @@ public class SecurityShared implements SecurityInternal {
   }
 
   @Override
-  public SecurityUserIml getUser(DatabaseSession session, String username) {
+  public SecurityUserImpl getUser(DatabaseSession session, String username) {
     return getUserInternal(session, username);
   }
 
@@ -1357,14 +1338,14 @@ public class SecurityShared implements SecurityInternal {
     if (!session
         .getMetadata()
         .getImmutableSchemaSnapshot()
-        .existsClass("ORole")) {
+        .existsClass(Role.CLASS_NAME)) {
       return;
     }
 
     session.executeInTx(
         () -> {
           synchronized (this) {
-            try (ResultSet rs = session.query("select name, policies from ORole")) {
+            try (ResultSet rs = session.query("select name, policies from " + Role.CLASS_NAME)) {
               while (rs.hasNext()) {
                 Result item = rs.next();
                 String roleName = item.getProperty("name");
@@ -1795,7 +1776,7 @@ public class SecurityShared implements SecurityInternal {
         SecurityEngine.getPredicateForSecurityResource(
             session,
             this,
-            "database.function." + function.getName(session),
+            "database.function." + function.getName(),
             SecurityPolicy.Scope.EXECUTE);
     return SecurityEngine.evaluateSecuirtyPolicyPredicate(
         session, predicate, function.getDocument(session));
@@ -1894,10 +1875,10 @@ public class SecurityShared implements SecurityInternal {
     if (!db
         .getMetadata()
         .getImmutableSchemaSnapshot()
-        .existsClass("ORole")) {
+        .existsClass(Role.CLASS_NAME)) {
       return Collections.emptySet();
     }
-    try (ResultSet rs = db.query("select policies from ORole")) {
+    try (ResultSet rs = db.query("select policies from " + Role.CLASS_NAME)) {
       while (rs.hasNext()) {
         Result item = rs.next();
         Map<String, Identifiable> policies = item.getProperty("policies");

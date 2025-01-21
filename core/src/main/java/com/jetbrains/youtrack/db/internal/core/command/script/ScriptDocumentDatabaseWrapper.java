@@ -35,7 +35,7 @@ import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClass;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.Metadata;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLQuery;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransaction;
@@ -229,7 +229,7 @@ public class ScriptDocumentDatabaseWrapper {
     return database.geCurrentUser();
   }
 
-  public void setUser(SecurityUserIml user) {
+  public void setUser(SecurityUserImpl user) {
     database.setUser(user);
   }
 

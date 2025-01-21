@@ -19,7 +19,6 @@ package com.jetbrains.youtrack.db.internal.core.schedule;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.CommandScriptException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
@@ -31,7 +30,7 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.schedule.Scheduler.STATUS;
-import com.jetbrains.youtrack.db.internal.core.type.EntityWrapper;
+import com.jetbrains.youtrack.db.internal.core.type.IdentityWrapper;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.Date;
@@ -46,7 +45,7 @@ import javax.annotation.Nonnull;
  *
  * @since Mar 28, 2013
  */
-public class ScheduledEvent extends EntityWrapper {
+public class ScheduledEvent extends IdentityWrapper {
 
   public static final String CLASS_NAME = "OSchedule";
 
@@ -58,7 +57,7 @@ public class ScheduledEvent extends EntityWrapper {
   public static final String PROP_STARTTIME = "starttime";
   public static final String PROP_EXEC_ID = "nextExecId";
 
-  private Function function;
+
   private final AtomicBoolean running;
   private CronExpression cron;
   private volatile TimerTask timer;
@@ -68,15 +67,15 @@ public class ScheduledEvent extends EntityWrapper {
    * Creates a scheduled event object from a configuration.
    */
   public ScheduledEvent(final EntityImpl entity, DatabaseSessionInternal db) {
-    super(entity);
+    super(db, entity);
     running = new AtomicBoolean(false);
-    nextExecutionId = new AtomicLong(getNextExecutionId(db));
+    nextExecutionId = new AtomicLong(getNextExecutionId());
     getFunction(db);
     try {
-      cron = new CronExpression(getRule(db));
+      cron = new CronExpression(getRule());
     } catch (ParseException e) {
       LogManager.instance()
-          .error(this, "Error on compiling cron expression " + getRule(db), e);
+          .error(this, "Error on compiling cron expression " + getRule(), e);
     }
   }
 
@@ -98,26 +97,26 @@ public class ScheduledEvent extends EntityWrapper {
     return fun;
   }
 
-  public String getRule(DatabaseSession session) {
-    return getDocument(session).field(PROP_RULE);
+  public String getRule() {
+    return getProperty(PROP_RULE);
   }
 
-  public String getName(DatabaseSession session) {
-    return getDocument(session).field(PROP_NAME);
+  public String getName() {
+    return getProperty(PROP_NAME);
   }
 
-  public long getNextExecutionId(DatabaseSession session) {
-    Long value = getDocument(session).field(PROP_EXEC_ID);
+  public long getNextExecutionId() {
+    Long value = getProperty(PROP_EXEC_ID);
     return value != null ? value : 0;
   }
 
-  public String getStatus(DatabaseSession session) {
-    return getDocument(session).field(PROP_STATUS);
+  public String getStatus() {
+    return getProperty(PROP_STATUS);
   }
 
   @Nonnull
-  public Map<String, Object> getArguments(DatabaseSession session) {
-    var value = getDocument(session).<Map<String, Object>>getProperty(PROP_ARGUMENTS);
+  public Map<String, Object> getArguments() {
+    Map<String, Object> value = getProperty(PROP_ARGUMENTS);
 
     if (value == null) {
       return Collections.emptyMap();
@@ -126,8 +125,8 @@ public class ScheduledEvent extends EntityWrapper {
     return value;
   }
 
-  public Date getStartTime(DatabaseSession session) {
-    return getDocument(session).field(PROP_STARTTIME);
+  public Date getStartTime() {
+    return getProperty(PROP_STARTTIME);
   }
 
   public boolean isRunning() {
@@ -155,30 +154,19 @@ public class ScheduledEvent extends EntityWrapper {
     var database = DatabaseRecordThreadLocal.instance().getIfDefined();
     if (database == null) {
       return "OSchedule [name:"
-          + getName(database)
+          + getName()
           + ",rule:"
-          + getRule(database)
+          + getRule()
           + ",current status:"
-          + getStatus(database)
+          + getStatus()
           + ",func:"
           + getFunctionSafe(database)
           + ",started:"
-          + getStartTime(database)
+          + getStartTime()
           + "]";
     }
 
     return super.toString();
-  }
-
-  @Override
-  public void fromStream(DatabaseSessionInternal session, final EntityImpl entity) {
-    super.fromStream(session, entity);
-    try {
-      cron.buildExpression(getRule(session));
-    } catch (ParseException e) {
-      LogManager.instance()
-          .error(this, "Error on compiling cron expression " + getRule(session), e);
-    }
   }
 
   private void setRunning(boolean running) {
@@ -186,17 +174,16 @@ public class ScheduledEvent extends EntityWrapper {
   }
 
   private Function getFunctionSafe(DatabaseSessionInternal db) {
-    var entity = getDocument(db);
     if (function == null) {
-      final Object funcDoc = entity.field(PROP_FUNC);
+      final Object funcDoc = getProperty(PROP_FUNC);
       if (funcDoc != null) {
         switch (funcDoc) {
           case Function function1 -> {
             function = function1;
             // OVERWRITE FUNCTION ID
-            entity.field(PROP_FUNC, function.getId(db));
+            setProperty(PROP_FUNC, function.getId(db));
           }
-          case EntityImpl entries -> function = new Function(entries);
+          case EntityImpl entries -> function = new Function(db, entries);
           case RecordId recordId -> function = new Function(db, recordId);
           default -> {
           }
@@ -248,7 +235,7 @@ public class ScheduledEvent extends EntityWrapper {
         LogManager.instance()
             .error(
                 this,
-                "Error: The scheduled event '" + event.getName(db) + "' is already running",
+                "Error: The scheduled event '" + event.getName() + "' is already running",
                 null);
         return;
       }
@@ -257,7 +244,7 @@ public class ScheduledEvent extends EntityWrapper {
         LogManager.instance()
             .error(
                 this,
-                "Error: The scheduled event '" + event.getName(db) + "' has no configured function",
+                "Error: The scheduled event '" + event.getName() + "' has no configured function",
                 null);
         return;
       }
@@ -269,7 +256,7 @@ public class ScheduledEvent extends EntityWrapper {
             .info(
                 this,
                 "Checking for the execution of the scheduled event '%s' executionId=%d...",
-                event.getName(db),
+                event.getName(),
                 event.nextExecutionId.get());
         try {
           boolean executeEvent = executeEvent(db);
@@ -278,7 +265,7 @@ public class ScheduledEvent extends EntityWrapper {
                 .info(
                     this,
                     "Executing scheduled event '%s' executionId=%d...",
-                    event.getName(db),
+                    event.getName(),
                     event.nextExecutionId.get());
             executeEventFunction(db);
           }
@@ -296,7 +283,7 @@ public class ScheduledEvent extends EntityWrapper {
       }
     }
 
-    private boolean executeEvent(DatabaseSession db) {
+    private boolean executeEvent(DatabaseSessionInternal db) {
       for (int retry = 0; retry < 10; ++retry) {
         try {
           if (isEventAlreadyExecuted(db)) {
@@ -304,12 +291,11 @@ public class ScheduledEvent extends EntityWrapper {
           }
 
           db.begin();
-          var eventDoc = event.getDocument(db);
-          eventDoc.field(PROP_STATUS, STATUS.RUNNING);
-          eventDoc.field(PROP_STARTTIME, System.currentTimeMillis());
-          eventDoc.field(PROP_EXEC_ID, event.nextExecutionId.get());
+          event.setProperty(PROP_STATUS, STATUS.RUNNING);
+          event.setProperty(PROP_STARTTIME, System.currentTimeMillis());
+          event.setProperty(PROP_EXEC_ID, event.nextExecutionId.get());
 
-          eventDoc.save();
+          event.save(db);
           db.commit();
 
           // OK
@@ -325,7 +311,7 @@ public class ScheduledEvent extends EntityWrapper {
                   this,
                   "Cannot change the status of the scheduled event '%s' executionId=%d, retry %d",
                   e,
-                  event.getName(db),
+                  event.getName(),
                   event.nextExecutionId.get(),
                   retry);
 
@@ -335,7 +321,7 @@ public class ScheduledEvent extends EntityWrapper {
                   this,
                   "Scheduled event '%s' executionId=%d not found on database, removing event",
                   e,
-                  event.getName(db),
+                  event.getName(),
                   event.nextExecutionId.get());
           event.interrupt();
           break;
@@ -346,7 +332,7 @@ public class ScheduledEvent extends EntityWrapper {
                   this,
                   "Error during starting of scheduled event '%s' executionId=%d",
                   e,
-                  event.getName(db),
+                  event.getName(),
                   event.nextExecutionId.get());
 
           event.interrupt();
@@ -356,35 +342,34 @@ public class ScheduledEvent extends EntityWrapper {
       return false;
     }
 
-    private void executeEventFunction(DatabaseSession session) {
+    private void executeEventFunction(DatabaseSessionInternal session) {
       Object result = null;
       try {
         var context = new BasicCommandContext();
-        context.setDatabase((DatabaseSessionInternal) session);
+        context.setDatabase(session);
 
         result = session.computeInTx(
-            () -> event.function.executeInContext(context, event.getArguments(session)));
+            () -> event.function.executeInContext(context, event.getArguments()));
       } finally {
         LogManager.instance()
             .info(
                 this,
                 "Scheduled event '%s' executionId=%d completed with result: %s",
-                event.getName(session),
+                event.getName(),
                 event.nextExecutionId.get(),
                 result);
         for (int retry = 0; retry < 10; ++retry) {
           session.executeInTx(
               () -> {
-                var eventDoc = event.getDocument(session);
                 try {
-                  eventDoc.field(PROP_STATUS, STATUS.WAITING);
-                  eventDoc.save();
+                  event.setProperty(PROP_STATUS, STATUS.WAITING);
+                  event.save(session);
                 } catch (NeedRetryException e) {
-                  eventDoc.unload();
+                  //continue
                 } catch (Exception e) {
                   LogManager.instance()
                       .error(this, "Error on saving status for event '%s'", e,
-                          event.getName(session));
+                          event.getName());
                 }
               });
         }
@@ -392,15 +377,13 @@ public class ScheduledEvent extends EntityWrapper {
     }
 
     private boolean isEventAlreadyExecuted(@Nonnull DatabaseSession db) {
-      final Record rec;
       try {
-        rec = event.getDocument(db).getIdentity().getRecord(db);
+        event.getIdentity().getRecord(db);
       } catch (RecordNotFoundException e) {
         return true;
       }
 
-      final EntityImpl updated = db.load(rec.getIdentity());
-      final Long currentExecutionId = updated.field(PROP_EXEC_ID);
+      final Long currentExecutionId = event.getProperty(PROP_EXEC_ID);
       if (currentExecutionId == null) {
         return false;
       }
@@ -410,7 +393,7 @@ public class ScheduledEvent extends EntityWrapper {
             .info(
                 this,
                 "Scheduled event '%s' with id %d is already running (current id=%d)",
-                event.getName(db),
+                event.getName(),
                 event.nextExecutionId.get(),
                 currentExecutionId);
         // ALREADY RUNNING

@@ -28,15 +28,15 @@ import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.server.OTokenHandler;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequestException;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpSession;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -305,7 +305,7 @@ public abstract class ServerCommandAuthenticatedDbAbstract extends ServerCommand
         if (!currentUserId.equals(
             localDatabase.geCurrentUser().getIdentity(localDatabase).getIdentity())) {
           EntityImpl userDoc = localDatabase.load(currentUserId);
-          localDatabase.setUser(new SecurityUserIml(localDatabase, userDoc));
+          localDatabase.setUser(new SecurityUserImpl(localDatabase, userDoc));
         }
       }
     }
@@ -340,7 +340,7 @@ public abstract class ServerCommandAuthenticatedDbAbstract extends ServerCommand
         if (!currentUserId.equals(
             localDatabase.geCurrentUser().getIdentity(localDatabase).toString())) {
           EntityImpl userDoc = localDatabase.load(new RecordId(currentUserId));
-          localDatabase.setUser(new SecurityUserIml(localDatabase, userDoc));
+          localDatabase.setUser(new SecurityUserImpl(localDatabase, userDoc));
         }
       }
     }

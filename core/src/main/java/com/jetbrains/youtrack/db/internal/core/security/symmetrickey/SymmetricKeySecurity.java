@@ -18,12 +18,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.security.symmetrickey;
 
-import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.RestrictedOperation;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
@@ -32,12 +34,9 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityPolicy;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityPolicyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityResourceProperty;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityRole;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityRole.ALLOW_MODES;
-import com.jetbrains.youtrack.db.api.security.SecurityUser;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityManager;
 import java.util.List;
@@ -65,7 +64,7 @@ public class SymmetricKeySecurity implements SecurityInternal {
     return authenticate(session, userName, password);
   }
 
-  public SecurityUserIml authenticate(
+  public SecurityUserImpl authenticate(
       DatabaseSessionInternal session, final String username, final String password) {
     if (delegate == null) {
       throw new SecurityAccessException(
@@ -79,7 +78,7 @@ public class SymmetricKeySecurity implements SecurityInternal {
 
     final String dbName = session.getName();
 
-    SecurityUserIml user = delegate.getUser(session, username);
+    SecurityUserImpl user = delegate.getUser(session, username);
 
     if (user == null) {
       throw new SecurityAccessException(
@@ -182,7 +181,7 @@ public class SymmetricKeySecurity implements SecurityInternal {
     return delegate.disallowIdentity(session, entity, iAllowFieldName, iId);
   }
 
-  public SecurityUserIml create(DatabaseSessionInternal session) {
+  public SecurityUserImpl create(DatabaseSessionInternal session) {
     return delegate.create(session);
   }
 
@@ -190,19 +189,19 @@ public class SymmetricKeySecurity implements SecurityInternal {
     delegate.load(session);
   }
 
-  public SecurityUserIml authenticate(DatabaseSessionInternal session, final Token authToken) {
+  public SecurityUserImpl authenticate(DatabaseSessionInternal session, final Token authToken) {
     return null;
   }
 
-  public SecurityUserIml getUser(DatabaseSession session, final String iUserName) {
+  public SecurityUserImpl getUser(DatabaseSession session, final String iUserName) {
     return delegate.getUser(session, iUserName);
   }
 
-  public SecurityUserIml getUser(DatabaseSession session, final RID iUserId) {
+  public SecurityUserImpl getUser(DatabaseSession session, final RID iUserId) {
     return delegate.getUser(session, iUserId);
   }
 
-  public SecurityUserIml createUser(
+  public SecurityUserImpl createUser(
       DatabaseSessionInternal session,
       final String iUserName,
       final String iUserPassword,
@@ -210,7 +209,7 @@ public class SymmetricKeySecurity implements SecurityInternal {
     return delegate.createUser(session, iUserName, iUserPassword, iRoles);
   }
 
-  public SecurityUserIml createUser(
+  public SecurityUserImpl createUser(
       DatabaseSessionInternal session,
       final String iUserName,
       final String iUserPassword,
@@ -228,17 +227,15 @@ public class SymmetricKeySecurity implements SecurityInternal {
 
   public Role createRole(
       DatabaseSessionInternal session,
-      final String iRoleName,
-      final ALLOW_MODES iAllowMode) {
-    return delegate.createRole(session, iRoleName, iAllowMode);
+      final String iRoleName) {
+    return delegate.createRole(session, iRoleName);
   }
 
   public Role createRole(
       DatabaseSessionInternal session,
       final String iRoleName,
-      final Role iParent,
-      final ALLOW_MODES iAllowMode) {
-    return delegate.createRole(session, iRoleName, iParent, iAllowMode);
+      final Role iParent) {
+    return delegate.createRole(session, iRoleName, iParent);
   }
 
   public List<EntityImpl> getAllUsers(DatabaseSession session) {

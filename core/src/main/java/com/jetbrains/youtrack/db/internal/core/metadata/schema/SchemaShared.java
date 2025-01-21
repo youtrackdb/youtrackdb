@@ -86,7 +86,7 @@ public abstract class SchemaShared implements CloseableInStorage {
 
   static {
     internalClasses.add("ouser");
-    internalClasses.add("orole");
+    internalClasses.add(Role.CLASS_NAME.toLowerCase(Locale.ROOT));
     internalClasses.add("osecuritypolicy");
     internalClasses.add("oidentity");
     internalClasses.add("ofunction");

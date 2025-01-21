@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
+import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule.ResourceGeneric;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityManager;
 import java.util.Collections;
@@ -182,7 +182,7 @@ public class ImmutableUser implements SecurityUser {
     return name;
   }
 
-  public SecurityUserIml setName(DatabaseSessionInternal session, final String iName) {
+  public SecurityUserImpl setName(DatabaseSessionInternal session, final String iName) {
     throw new UnsupportedOperationException();
   }
 
@@ -190,7 +190,7 @@ public class ImmutableUser implements SecurityUser {
     return password;
   }
 
-  public SecurityUserIml setPassword(DatabaseSessionInternal session, final String iPassword) {
+  public SecurityUserImpl setPassword(DatabaseSessionInternal session, final String iPassword) {
     throw new UnsupportedOperationException();
   }
 
@@ -206,11 +206,11 @@ public class ImmutableUser implements SecurityUser {
     return Collections.unmodifiableSet(roles);
   }
 
-  public SecurityUserIml addRole(DatabaseSessionInternal session, final String iRole) {
+  public SecurityUserImpl addRole(DatabaseSessionInternal session, final String iRole) {
     throw new UnsupportedOperationException();
   }
 
-  public SecurityUserIml addRole(DatabaseSessionInternal session, final SecurityRole iRole) {
+  public SecurityUserImpl addRole(DatabaseSessionInternal session, final SecurityRole iRole) {
     throw new UnsupportedOperationException();
   }
 

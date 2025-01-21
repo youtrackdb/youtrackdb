@@ -4,7 +4,7 @@ import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.BinaryTokenPayload;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.TokenHeader;
@@ -43,12 +43,12 @@ public class BinaryToken implements Token {
   }
 
   @Override
-  public SecurityUserIml getUser(DatabaseSessionInternal db) {
+  public SecurityUserImpl getUser(DatabaseSessionInternal db) {
     if (this.payload.getUserRid() != null) {
       try {
         EntityImpl result = db.load(new RecordId(this.payload.getUserRid()));
-        if (result.getClassName().equals(SecurityUserIml.CLASS_NAME)) {
-          return new SecurityUserIml(db, result);
+        if (result.getClassName().equals(SecurityUserImpl.CLASS_NAME)) {
+          return new SecurityUserImpl(db, result);
         }
       } catch (RecordNotFoundException e) {
         return null;

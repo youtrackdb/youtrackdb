@@ -46,6 +46,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.EntitySerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.type.IdentityWrapper;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -601,6 +602,8 @@ public enum PropertyType {
                 String.format(
                     "Error in conversion of value '%s' to type '%s'", value, targetClass));
           }
+        } else if (value instanceof IdentityWrapper entityWrapper) {
+          return (T) entityWrapper.getIdentity();
         }
       }
 

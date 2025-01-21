@@ -13,17 +13,17 @@
  */
 package com.jetbrains.youtrack.db.internal.jdbc;
 
+import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibrary;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.sql.Connection;
@@ -667,15 +667,15 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
 
         final Function f = functionLibrary.getFunction(procedureNamePattern);
 
-        for (String p : f.getParameters(database)) {
+        for (String p : f.getParameters()) {
           final ResultInternal entity = new ResultInternal(database);
           entity.setProperty("PROCEDURE_CAT", database.getName());
           entity.setProperty("PROCEDURE_SCHEM", database.getName());
-          entity.setProperty("PROCEDURE_NAME", f.getName(database));
+          entity.setProperty("PROCEDURE_NAME", f.getName());
           entity.setProperty("COLUMN_NAME", p);
           entity.setProperty("COLUMN_TYPE", procedureColumnIn);
           entity.setProperty("DATA_TYPE", java.sql.Types.OTHER);
-          entity.setProperty("SPECIFIC_NAME", f.getName(database));
+          entity.setProperty("SPECIFIC_NAME", f.getName());
 
           resultSet.add(entity);
         }
@@ -684,11 +684,11 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
 
         entity.setProperty("PROCEDURE_CAT", database.getName());
         entity.setProperty("PROCEDURE_SCHEM", database.getName());
-        entity.setProperty("PROCEDURE_NAME", f.getName(database));
+        entity.setProperty("PROCEDURE_NAME", f.getName());
         entity.setProperty("COLUMN_NAME", "return");
         entity.setProperty("COLUMN_TYPE", procedureColumnReturn);
         entity.setProperty("DATA_TYPE", java.sql.Types.OTHER);
-        entity.setProperty("SPECIFIC_NAME", f.getName(database));
+        entity.setProperty("SPECIFIC_NAME", f.getName());
 
         resultSet.add(entity);
       }
@@ -1401,26 +1401,26 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
     final Function f =
         database.getMetadata().getFunctionLibrary().getFunction(functionNamePattern);
 
-    for (String p : f.getParameters(database)) {
+    for (String p : f.getParameters()) {
       final ResultInternal res = new ResultInternal(database);
       res.setProperty("FUNCTION_CAT", null);
       res.setProperty("FUNCTION_SCHEM", null);
-      res.setProperty("FUNCTION_NAME", f.getName(database));
+      res.setProperty("FUNCTION_NAME", f.getName());
       res.setProperty("COLUMN_NAME", p);
       res.setProperty("COLUMN_TYPE", procedureColumnIn);
       res.setProperty("DATA_TYPE", java.sql.Types.OTHER);
-      res.setProperty("SPECIFIC_NAME", f.getName(database));
+      res.setProperty("SPECIFIC_NAME", f.getName());
       resultSet.add(res);
     }
 
     final ResultInternal res = new ResultInternal(database);
     res.setProperty("FUNCTION_CAT", null);
     res.setProperty("FUNCTION_SCHEM", null);
-    res.setProperty("FUNCTION_NAME", f.getName(database));
+    res.setProperty("FUNCTION_NAME", f.getName());
     res.setProperty("COLUMN_NAME", "return");
     res.setProperty("COLUMN_TYPE", procedureColumnReturn);
     res.setProperty("DATA_TYPE", java.sql.Types.OTHER);
-    res.setProperty("SPECIFIC_NAME", f.getName(database));
+    res.setProperty("SPECIFIC_NAME", f.getName());
 
     resultSet.add(res);
 

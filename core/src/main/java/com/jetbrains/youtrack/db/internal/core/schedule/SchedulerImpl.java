@@ -55,7 +55,7 @@ public class SchedulerImpl {
   }
 
   public void scheduleEvent(DatabaseSession session, final ScheduledEvent event) {
-    if (events.putIfAbsent(event.getName(session), event) == null) {
+    if (events.putIfAbsent(event.getName(), event) == null) {
       String database = session.getName();
       event.schedule(database, "admin", youtrackDB);
     }
@@ -91,7 +91,7 @@ public class SchedulerImpl {
   }
 
   public void updateEvent(DatabaseSessionInternal session, final ScheduledEvent event) {
-    final ScheduledEvent oldEvent = events.remove(event.getName(session));
+    final ScheduledEvent oldEvent = events.remove(event.getName());
     if (oldEvent != null) {
       oldEvent.interrupt();
     }

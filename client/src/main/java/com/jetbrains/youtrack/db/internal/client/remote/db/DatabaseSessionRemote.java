@@ -58,7 +58,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaProxy;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ImmutableUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceAction;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
@@ -244,7 +244,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
       this.user =
           new ImmutableUser(this,
               -1,
-              new SecurityUserIml(this, user, password)); // .addRole(new Role("passthrough", null,
+              new SecurityUserImpl(this, user, password)); // .addRole(new Role("passthrough", null,
       // Role.ALLOW_MODES.ALLOW_ALL_BUT)));
 
       // WAKE UP LISTENERS

@@ -34,12 +34,12 @@ import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedServerAbstract;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -192,9 +192,9 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
     }
 
     json.beginCollection(db, 1, false, "users");
-    SecurityUserIml user;
+    SecurityUserImpl user;
     for (EntityImpl entity : db.getMetadata().getSecurity().getAllUsers()) {
-      user = new SecurityUserIml(db, entity);
+      user = new SecurityUserImpl(db, entity);
       json.beginObject(2, true, null);
       json.writeAttribute(db, 3, false, "name", user.getName(db));
       json.writeAttribute(db,
@@ -214,7 +214,7 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
       json.writeAttribute(db, 3, false, "mode", role.getMode().toString());
 
       json.beginCollection(db, 3, true, "rules");
-      for (Map.Entry<String, Byte> rule : role.getRules().entrySet()) {
+      for (Map.Entry<String, Byte> rule : role.getEncodedRules().entrySet()) {
         json.beginObject(4);
         json.writeAttribute(db, 4, true, "name", rule.getKey());
         json.writeAttribute(db, 4, false, "create",

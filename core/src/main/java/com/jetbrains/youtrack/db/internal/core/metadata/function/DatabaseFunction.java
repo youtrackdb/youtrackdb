@@ -58,7 +58,7 @@ public class DatabaseFunction implements SQLFunction {
 
   @Override
   public String getName(DatabaseSession session) {
-    return f.getName(session);
+    return f.getName();
   }
 
   @Override
@@ -68,15 +68,15 @@ public class DatabaseFunction implements SQLFunction {
 
   @Override
   public int getMaxParams(DatabaseSession session) {
-    return f.getParameters(session) != null ? f.getParameters(session).size() : 0;
+    return f.getParameters() != null ? f.getParameters().size() : 0;
   }
 
   @Override
   public String getSyntax(DatabaseSession session) {
     final StringBuilder buffer = new StringBuilder(512);
-    buffer.append(f.getName(session));
+    buffer.append(f.getName());
     buffer.append('(');
-    final List<String> params = f.getParameters(session);
+    final List<String> params = f.getParameters();
     for (int p = 0; p < params.size(); ++p) {
       if (p > 0) {
         buffer.append(',');

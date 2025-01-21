@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.security.authenticator;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.TokenAuthInfo;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.UserPasswordAuthInfo;
@@ -42,7 +42,7 @@ public class DatabaseUserAuthenticator extends SecurityAuthenticatorAbstract {
         throw new SecurityAccessException(session.getName(), "Token not valid");
       }
 
-      SecurityUserIml user = token.getToken().getUser(session);
+      SecurityUserImpl user = token.getToken().getUser(session);
       if (user == null && token.getToken().getUserName() != null) {
         SecurityShared databaseSecurity =
             (SecurityShared) session.getSharedContext().getSecurity();
@@ -61,7 +61,7 @@ public class DatabaseUserAuthenticator extends SecurityAuthenticatorAbstract {
     }
 
     String dbName = session.getName();
-    SecurityUserIml user = SecurityShared.getUserInternal(session, username);
+    SecurityUserImpl user = SecurityShared.getUserInternal(session, username);
     if (user == null) {
       return null;
     }
