@@ -29,6 +29,7 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.security.ParsedToken;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.TokenSecurityException;
+import com.jetbrains.youtrack.db.internal.server.monitoring.NetworkConnectionsStatsEvent;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.NetworkProtocol;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.binary.NetworkProtocolBinary;
 import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginHelper;
@@ -45,6 +46,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.net.ssl.SSLSocket;
+import jdk.jfr.FlightRecorder;
 
 public class ClientConnectionManager {
 
@@ -74,17 +76,10 @@ public class ClientConnectionManager {
                 delay,
                 delay);
 
-    YouTrackDBEnginesManager.instance()
-        .getProfiler()
-        .registerHookValue(
-            "server.connections.actives",
-            "Number of active network connections",
-            METRIC_TYPE.COUNTER,
-            new ProfilerHookValue() {
-              public Object getValue() {
-                return (long) connections.size();
-              }
-            });
+    FlightRecorder.addPeriodicEvent(NetworkConnectionsStatsEvent.class, () -> {
+      new NetworkConnectionsStatsEvent(connections.size()).commit();
+    });
+
     this.server = server;
   }
 

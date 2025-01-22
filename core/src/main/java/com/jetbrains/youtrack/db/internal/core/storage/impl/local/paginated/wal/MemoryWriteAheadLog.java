@@ -25,6 +25,7 @@ import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atom
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.common.WriteableWALRecord;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -166,5 +167,10 @@ public class MemoryWriteAheadLog extends AbstractWriteAheadLog {
   @Override
   public boolean appendNewSegment() {
     return false;
+  }
+
+  @Override
+  public Path getPath() {
+    return null;
   }
 }

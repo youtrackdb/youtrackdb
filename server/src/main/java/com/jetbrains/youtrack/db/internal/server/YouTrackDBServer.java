@@ -419,26 +419,6 @@ public class YouTrackDBServer {
     LogManager.instance()
         .info(this, "Databases directory: " + new File(databaseDirectory).getAbsolutePath());
 
-    YouTrackDBEnginesManager.instance()
-        .getProfiler()
-        .registerHookValue(
-            "system.databases",
-            "List of databases configured in Server",
-            METRIC_TYPE.TEXT,
-            new ProfilerHookValue() {
-              @Override
-              public Object getValue() {
-                final StringBuilder dbs = new StringBuilder(64);
-                for (String dbName : getAvailableStorageNames().keySet()) {
-                  if (dbs.length() > 0) {
-                    dbs.append(',');
-                  }
-                  dbs.append(dbName);
-                }
-                return dbs.toString();
-              }
-            });
-
     return this;
   }
 
@@ -600,8 +580,6 @@ public class YouTrackDBServer {
       if (shutdownHook != null) {
         shutdownHook.cancel();
       }
-
-      YouTrackDBEnginesManager.instance().getProfiler().unregisterHookValue("system.databases");
 
       for (OServerLifecycleListener l : lifecycleListeners) {
         l.onBeforeDeactivate();

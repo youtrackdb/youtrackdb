@@ -1,5 +1,6 @@
 package com.jetbrains.youtrack.db.internal.client.remote.db;
 
+import com.jetbrains.youtrack.db.internal.common.monitoring.database.MetadataLoadEvent;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.YouTrackDBRemote;
@@ -35,26 +36,23 @@ public class SharedContextRemote extends SharedContext {
   }
 
   public synchronized void load(DatabaseSessionInternal database) {
-    final long timer = PROFILER.startChrono();
+    if (loaded) {
+      return;
+    }
 
+    final var meEvent = new MetadataLoadEvent(database.getName());
     try {
-      if (!loaded) {
-        schema.load(database);
-        indexManager.load(database);
-        // The Immutable snapshot should be after index and schema that require and before
-        // everything else that use it
-        schema.forceSnapshot(database);
-        security.load(database);
-        sequenceLibrary.load(database);
-        schema.onPostIndexManagement(database);
-        loaded = true;
-      }
+      schema.load(database);
+      indexManager.load(database);
+      // The Immutable snapshot should be after index and schema that require and before
+      // everything else that use it
+      schema.forceSnapshot(database);
+      security.load(database);
+      sequenceLibrary.load(database);
+      schema.onPostIndexManagement(database);
+      loaded = true;
     } finally {
-      PROFILER.stopChrono(
-          PROFILER.getDatabaseMetric(database.getName(), "metadata.load"),
-          "Loading of database metadata",
-          timer,
-          "db.*.metadata.load");
+      meEvent.commit();
     }
   }
 

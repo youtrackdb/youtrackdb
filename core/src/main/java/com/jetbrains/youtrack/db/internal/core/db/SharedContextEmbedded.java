@@ -1,6 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.db;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.common.monitoring.database.MetadataLoadEvent;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.IndexFactory;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerShared;
@@ -80,29 +81,26 @@ public class SharedContextEmbedded extends SharedContext {
   }
 
   public synchronized void load(DatabaseSessionInternal database) {
-    final long timer = PROFILER.startChrono();
+    if (loaded) {
+      return;
+    }
+    final var event = new MetadataLoadEvent(database.getName());
 
     try {
-      if (!loaded) {
-        schema.load(database);
-        schema.forceSnapshot(database);
-        indexManager.load(database);
-        // The Immutable snapshot should be after index and schema that require and before
-        // everything else that use it
-        schema.forceSnapshot(database);
-        security.load(database);
-        functionLibrary.load(database);
-        scheduler.load(database);
-        sequenceLibrary.load(database);
-        schema.onPostIndexManagement(database);
-        loaded = true;
-      }
+      schema.load(database);
+      schema.forceSnapshot(database);
+      indexManager.load(database);
+      // The Immutable snapshot should be after index and schema that require and before
+      // everything else that use it
+      schema.forceSnapshot(database);
+      security.load(database);
+      functionLibrary.load(database);
+      scheduler.load(database);
+      sequenceLibrary.load(database);
+      schema.onPostIndexManagement(database);
+      loaded = true;
     } finally {
-      PROFILER.stopChrono(
-          PROFILER.getDatabaseMetric(database.getName(), "metadata.load"),
-          "Loading of database metadata",
-          timer,
-          "db.*.metadata.load");
+      event.commit();
     }
   }
 

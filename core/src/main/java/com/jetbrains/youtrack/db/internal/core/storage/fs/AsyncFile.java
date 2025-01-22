@@ -4,6 +4,8 @@ import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.ScalableRWLock;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.ThreadInterruptedException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.common.monitoring.process.DiskReadEvent;
+import com.jetbrains.youtrack.db.internal.common.monitoring.process.DiskWriteEvent;
 import com.jetbrains.youtrack.db.internal.common.util.RawPairLongObject;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import java.io.EOFException;
@@ -245,11 +247,11 @@ public final class AsyncFile implements File {
   @Override
   public void read(long offset, ByteBuffer buffer, boolean throwOnEof) throws IOException {
     lock.sharedLock();
+    int read = 0;
     try {
       checkForClose();
       checkPosition(offset);
 
-      int read = 0;
       do {
         buffer.position(read);
         final Future<Integer> readFuture = fileChannel.read(buffer, offset + HEADER_SIZE + read);
@@ -276,6 +278,7 @@ public final class AsyncFile implements File {
       } while (read < buffer.limit());
     } finally {
       lock.sharedUnlock();
+      new DiskReadEvent(read).commit();
     }
   }
 
@@ -432,7 +435,8 @@ public final class AsyncFile implements File {
     }
 
     @Override
-    public void completed(Integer result, CountDownLatch attachment) {
+    public void completed(Integer bytesWritten, CountDownLatch attachment) {
+      new DiskWriteEvent(bytesWritten).commit();
       if (byteBuffer.remaining() > 0) {
         lock.sharedLock();
         try {

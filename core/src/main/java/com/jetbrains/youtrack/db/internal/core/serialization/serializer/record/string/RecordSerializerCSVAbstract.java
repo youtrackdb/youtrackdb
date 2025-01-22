@@ -30,6 +30,7 @@ import com.jetbrains.youtrack.db.internal.common.collection.LazyIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.common.monitoring.process.FieldSerializationEvent;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
@@ -375,8 +376,6 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       return;
     }
 
-    final long timer = PROFILER.startChrono();
-
     switch (iType) {
       case LINK: {
         if (!(iValue instanceof Identifiable)) {
@@ -386,215 +385,227 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
                   + iValue);
         }
 
-        if (!((RecordId) ((Identifiable) iValue).getIdentity()).isValid()
-            && iValue instanceof EntityImpl
-            && ((EntityImpl) iValue).isEmbedded()) {
-          // WRONG: IT'S EMBEDDED!
-          fieldToStream(
-              iRecord,
-              iOutput,
-              PropertyType.EMBEDDED,
-              iLinkedClass,
-              iLinkedType,
-              iName,
-              iValue,
-              iSaveOnlyDirty);
-        } else {
-          final Object link = linkToStream(iOutput, iRecord, iValue);
-          if (link != null)
-          // OVERWRITE CONTENT
-          {
-            iRecord.field(iName, link);
+        final var event = new FieldSerializationEvent(PropertyType.LINK);
+        try {
+          if (!((RecordId) ((Identifiable) iValue).getIdentity()).isValid()
+              && iValue instanceof EntityImpl
+              && ((EntityImpl) iValue).isEmbedded()) {
+            // WRONG: IT'S EMBEDDED!
+            fieldToStream(
+                iRecord,
+                iOutput,
+                PropertyType.EMBEDDED,
+                iLinkedClass,
+                iLinkedType,
+                iName,
+                iValue,
+                iSaveOnlyDirty);
+          } else {
+            final Object link = linkToStream(iOutput, iRecord, iValue);
+            if (link != null)
+            // OVERWRITE CONTENT
+            {
+              iRecord.field(iName, link);
+            }
           }
-          PROFILER.stopChrono(
-              PROFILER.getProcessMetric("serializer.record.string.link2string"),
-              "Serialize link to string",
-              timer);
+        } finally {
+          event.commit();
         }
         break;
       }
 
       case LINKLIST: {
-        iOutput.append(StringSerializerHelper.LIST_BEGIN);
-        final LinkList coll;
-        final Iterator<Identifiable> it;
-        if (iValue instanceof MultiCollectionIterator<?>) {
-          final MultiCollectionIterator<Identifiable> iterator =
-              (MultiCollectionIterator<Identifiable>) iValue;
-          iterator.reset();
-          it = iterator;
-          coll = null;
-        } else if (!(iValue instanceof LinkList)) {
-          // FIRST TIME: CONVERT THE ENTIRE COLLECTION
-          coll = new LinkList(iRecord);
+        final var event = new FieldSerializationEvent(PropertyType.LINKLIST);
+        try {
+          iOutput.append(StringSerializerHelper.LIST_BEGIN);
+          final LinkList coll;
+          final Iterator<Identifiable> it;
+          if (iValue instanceof MultiCollectionIterator<?>) {
+            final MultiCollectionIterator<Identifiable> iterator =
+                (MultiCollectionIterator<Identifiable>) iValue;
+            iterator.reset();
+            it = iterator;
+            coll = null;
+          } else if (!(iValue instanceof LinkList)) {
+            // FIRST TIME: CONVERT THE ENTIRE COLLECTION
+            coll = new LinkList(iRecord);
 
-          if (iValue.getClass().isArray()) {
-            Iterable<Object> iterab = MultiValue.getMultiValueIterable(iValue);
-            for (Object i : iterab) {
-              coll.add((Identifiable) i);
+            if (iValue.getClass().isArray()) {
+              Iterable<Object> iterab = MultiValue.getMultiValueIterable(iValue);
+              for (Object i : iterab) {
+                coll.add((Identifiable) i);
+              }
+            } else {
+              coll.addAll((Collection<? extends Identifiable>) iValue);
+              ((Collection<? extends Identifiable>) iValue).clear();
             }
+
+            iRecord.field(iName, coll);
+            it = coll.rawIterator();
           } else {
-            coll.addAll((Collection<? extends Identifiable>) iValue);
-            ((Collection<? extends Identifiable>) iValue).clear();
+            // LAZY LIST
+            coll = (LinkList) iValue;
+            it = coll.rawIterator();
           }
 
-          iRecord.field(iName, coll);
-          it = coll.rawIterator();
-        } else {
-          // LAZY LIST
-          coll = (LinkList) iValue;
-          it = coll.rawIterator();
-        }
+          if (it != null && it.hasNext()) {
+            final StringBuilder buffer = new StringBuilder(128);
+            for (int items = 0; it.hasNext(); items++) {
+              if (items > 0) {
+                buffer.append(StringSerializerHelper.RECORD_SEPARATOR);
+              }
 
-        if (it != null && it.hasNext()) {
-          final StringBuilder buffer = new StringBuilder(128);
-          for (int items = 0; it.hasNext(); items++) {
-            if (items > 0) {
-              buffer.append(StringSerializerHelper.RECORD_SEPARATOR);
+              final Identifiable item = it.next();
+
+              final Identifiable newRid = linkToStream(buffer, iRecord, item);
+              if (newRid != null) {
+                ((LazyIterator<Identifiable>) it).update(newRid);
+              }
             }
 
-            final Identifiable item = it.next();
-
-            final Identifiable newRid = linkToStream(buffer, iRecord, item);
-            if (newRid != null) {
-              ((LazyIterator<Identifiable>) it).update(newRid);
+            if (coll != null) {
+              coll.convertRecords2Links();
             }
+
+            iOutput.append(buffer);
           }
 
-          if (coll != null) {
-            coll.convertRecords2Links();
-          }
-
-          iOutput.append(buffer);
+          iOutput.append(StringSerializerHelper.LIST_END);
+        } finally {
+          event.commit();
         }
-
-        iOutput.append(StringSerializerHelper.LIST_END);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.linkList2string"),
-            "Serialize linklist to string",
-            timer);
         break;
       }
 
       case LINKSET: {
-        if (!(iValue instanceof StringBuilderSerializable coll)) {
-          final Collection<Identifiable> coll;
-          // FIRST TIME: CONVERT THE ENTIRE COLLECTION
-          if (!(iValue instanceof LinkSet)) {
-            final LinkSet set = new LinkSet(iRecord);
-            set.addAll((Collection<Identifiable>) iValue);
-            iRecord.field(iName, set);
-            coll = set;
+        final var event = new FieldSerializationEvent(PropertyType.LINKSET);
+        try {
+          if (!(iValue instanceof StringBuilderSerializable coll)) {
+            final Collection<Identifiable> coll;
+            // FIRST TIME: CONVERT THE ENTIRE COLLECTION
+            if (!(iValue instanceof LinkSet)) {
+              final LinkSet set = new LinkSet(iRecord);
+              set.addAll((Collection<Identifiable>) iValue);
+              iRecord.field(iName, set);
+              coll = set;
+            } else {
+              coll = (Collection<Identifiable>) iValue;
+            }
+
+            serializeSet(coll, iOutput);
+
           } else {
-            coll = (Collection<Identifiable>) iValue;
+            // LAZY SET
+            coll.toStream(iOutput);
           }
-
-          serializeSet(coll, iOutput);
-
-        } else {
-          // LAZY SET
-          coll.toStream(iOutput);
+        } finally {
+          event.commit();
         }
 
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.linkSet2string"),
-            "Serialize linkset to string",
-            timer);
         break;
       }
 
       case LINKMAP: {
-        iOutput.append(StringSerializerHelper.MAP_BEGIN);
+        final var event = new FieldSerializationEvent(PropertyType.LINKMAP);
+        try {
+          iOutput.append(StringSerializerHelper.MAP_BEGIN);
 
-        Map<Object, Object> map = (Map<Object, Object>) iValue;
+          Map<Object, Object> map = (Map<Object, Object>) iValue;
 
-        boolean invalidMap = false;
-        int items = 0;
-        for (Map.Entry<Object, Object> entry : map.entrySet()) {
-          if (items++ > 0) {
-            iOutput.append(StringSerializerHelper.RECORD_SEPARATOR);
-          }
-
-          fieldTypeToString(iOutput, PropertyType.STRING, entry.getKey());
-          iOutput.append(StringSerializerHelper.ENTRY_SEPARATOR);
-          final Object link = linkToStream(iOutput, iRecord, entry.getValue());
-
-          if (link != null && !invalidMap)
-          // IDENTITY IS CHANGED, RE-SET INTO THE COLLECTION TO RECOMPUTE THE HASH
-          {
-            invalidMap = true;
-          }
-        }
-
-        if (invalidMap) {
-          final LinkMap newMap = new LinkMap(iRecord, EntityImpl.RECORD_TYPE);
-
-          // REPLACE ALL CHANGED ITEMS
+          boolean invalidMap = false;
+          int items = 0;
           for (Map.Entry<Object, Object> entry : map.entrySet()) {
-            newMap.put(entry.getKey(), (Identifiable) entry.getValue());
-          }
-          map.clear();
-          iRecord.field(iName, newMap);
-        }
+            if (items++ > 0) {
+              iOutput.append(StringSerializerHelper.RECORD_SEPARATOR);
+            }
 
-        iOutput.append(StringSerializerHelper.MAP_END);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.linkMap2string"),
-            "Serialize linkmap to string",
-            timer);
+            fieldTypeToString(iOutput, PropertyType.STRING, entry.getKey());
+            iOutput.append(StringSerializerHelper.ENTRY_SEPARATOR);
+            final Object link = linkToStream(iOutput, iRecord, entry.getValue());
+
+            if (link != null && !invalidMap)
+            // IDENTITY IS CHANGED, RE-SET INTO THE COLLECTION TO RECOMPUTE THE HASH
+            {
+              invalidMap = true;
+            }
+          }
+
+          if (invalidMap) {
+            final LinkMap newMap = new LinkMap(iRecord, EntityImpl.RECORD_TYPE);
+
+            // REPLACE ALL CHANGED ITEMS
+            for (Map.Entry<Object, Object> entry : map.entrySet()) {
+              newMap.put(entry.getKey(), (Identifiable) entry.getValue());
+            }
+            map.clear();
+            iRecord.field(iName, newMap);
+          }
+
+          iOutput.append(StringSerializerHelper.MAP_END);
+        } finally {
+          event.commit();
+        }
         break;
       }
 
-      case EMBEDDED:
-        if (iValue instanceof DBRecord) {
-          iOutput.append(StringSerializerHelper.EMBEDDED_BEGIN);
-          toString((DBRecord) iValue, iOutput, null, true);
-          iOutput.append(StringSerializerHelper.EMBEDDED_END);
-        } else if (iValue instanceof DocumentSerializable) {
-          final EntityImpl entity = ((DocumentSerializable) iValue).toDocument();
-          entity.field(DocumentSerializable.CLASS_NAME, iValue.getClass().getName());
+      case EMBEDDED: {
+        final var event = new FieldSerializationEvent(PropertyType.EMBEDDED);
+        try {
+          if (iValue instanceof DBRecord) {
+            iOutput.append(StringSerializerHelper.EMBEDDED_BEGIN);
+            toString((DBRecord) iValue, iOutput, null, true);
+            iOutput.append(StringSerializerHelper.EMBEDDED_END);
+          } else if (iValue instanceof DocumentSerializable) {
+            final EntityImpl entity = ((DocumentSerializable) iValue).toDocument();
+            entity.field(DocumentSerializable.CLASS_NAME, iValue.getClass().getName());
 
-          iOutput.append(StringSerializerHelper.EMBEDDED_BEGIN);
-          toString(entity, iOutput, null, true);
-          iOutput.append(StringSerializerHelper.EMBEDDED_END);
+            iOutput.append(StringSerializerHelper.EMBEDDED_BEGIN);
+            toString(entity, iOutput, null, true);
+            iOutput.append(StringSerializerHelper.EMBEDDED_END);
 
-        } else if (iValue != null) {
-          iOutput.append(iValue);
+          } else if (iValue != null) {
+            iOutput.append(iValue);
+          }
+        } finally {
+          event.commit();
         }
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.embed2string"),
-            "Serialize embedded to string",
-            timer);
         break;
+      }
 
-      case EMBEDDEDLIST:
-        embeddedCollectionToStream(
-            null, iOutput, iLinkedClass, iLinkedType, iValue, iSaveOnlyDirty, false);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.embedList2string"),
-            "Serialize embeddedlist to string",
-            timer);
+      case EMBEDDEDLIST: {
+        final var event = new FieldSerializationEvent(PropertyType.EMBEDDEDLIST);
+        try {
+          embeddedCollectionToStream(
+              null, iOutput, iLinkedClass, iLinkedType, iValue, iSaveOnlyDirty, false);
+        } finally {
+          event.commit();
+        }
         break;
+      }
 
-      case EMBEDDEDSET:
-        embeddedCollectionToStream(
-            null, iOutput, iLinkedClass, iLinkedType, iValue, iSaveOnlyDirty, true);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.embedSet2string"),
-            "Serialize embeddedset to string",
-            timer);
+      case EMBEDDEDSET: {
+        final var event = new FieldSerializationEvent(PropertyType.EMBEDDEDSET);
+        try {
+          embeddedCollectionToStream(
+              null, iOutput, iLinkedClass, iLinkedType, iValue, iSaveOnlyDirty, true);
+        } finally {
+          event.commit();
+        }
         break;
+      }
 
       case EMBEDDEDMAP: {
-        embeddedMapToStream(null, iOutput, iLinkedClass, iLinkedType, iValue, iSaveOnlyDirty);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.embedMap2string"),
-            "Serialize embeddedmap to string",
-            timer);
+        final var event = new FieldSerializationEvent(PropertyType.EMBEDDEDMAP);
+        try {
+          embeddedMapToStream(null, iOutput, iLinkedClass, iLinkedType, iValue, iSaveOnlyDirty);
+        } finally {
+          event.commit();
+        }
         break;
       }
 
       case LINKBAG: {
+        // need a jfr event here?
         iOutput.append(StringSerializerHelper.BAG_BEGIN);
         ((RidBag) iValue).toStream(iOutput);
         iOutput.append(StringSerializerHelper.BAG_END);

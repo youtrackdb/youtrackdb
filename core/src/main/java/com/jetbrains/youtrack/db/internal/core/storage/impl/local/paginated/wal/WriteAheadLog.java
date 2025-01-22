@@ -25,6 +25,7 @@ import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atom
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.common.WriteableWALRecord;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -153,4 +154,9 @@ public interface WriteAheadLog extends AutoCloseable {
    * @return <code>true</code> if new segment is added, and <code>false</code> otherwise.
    */
   boolean appendNewSegment();
+
+  /**
+   * Returns the path of the log on disk, or null if the log is in-memory.
+   */
+  Path getPath();
 }

@@ -400,6 +400,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     assertEquals(1, qResult.size());
   }
 
+  @Ignore("Should be rewritten using the new JFR-based monitoring")
   @Test
   public void testUseIndexWithOr() throws Exception {
     long idxUsagesBefore = indexUsages(db);
@@ -424,6 +425,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     assertEquals(indexUsages(db), idxUsagesBefore);
   }
 
+  @Ignore("Should be rewritten using the new JFR-based monitoring")
   @Test
   public void testCompositeIndex() {
     long idxUsagesBefore = indexUsages(db);
@@ -459,6 +461,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     }
   }
 
+  @Ignore("Should be rewritten using the new JFR-based monitoring")
   @Test
   public void testCompositeIndex2() {
     long idxUsagesBefore = indexUsages(db);

@@ -215,3 +215,9 @@ local.properties
 .cache-main
 .scala_dependencies
 .worksheet
+
+# JEnv Java version file
+.java-version
+
+# stack-pr config
+.stack-pr.cfg

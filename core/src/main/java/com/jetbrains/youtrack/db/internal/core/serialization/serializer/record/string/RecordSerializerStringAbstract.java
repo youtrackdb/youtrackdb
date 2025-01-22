@@ -24,6 +24,9 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
+import com.jetbrains.youtrack.db.internal.common.monitoring.process.RecordDeserializationEvent;
+import com.jetbrains.youtrack.db.internal.common.monitoring.process.FieldSerializationEvent;
+import com.jetbrains.youtrack.db.internal.common.monitoring.process.RecordSerializationEvent;
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
@@ -133,8 +136,6 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
       return;
     }
 
-    final long timer = PROFILER.startChrono();
-
     if (iType == null) {
       if (iValue instanceof RID) {
         iType = PropertyType.LINK;
@@ -143,182 +144,72 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
       }
     }
 
-    switch (iType) {
-      case STRING:
-        simpleValueToStream(iBuffer, iType, iValue);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.string2string"),
-            "Serialize string to string",
-            timer);
-        break;
+    final var event = new FieldSerializationEvent(iType);
+    try {
+      switch (iType) {
+        case STRING, BOOLEAN, INTEGER, FLOAT, DECIMAL, LONG, DOUBLE, SHORT, BYTE, BINARY, DATE,
+             DATETIME:
+          simpleValueToStream(iBuffer, iType, iValue);
+          break;
 
-      case BOOLEAN:
-        simpleValueToStream(iBuffer, iType, iValue);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.bool2string"),
-            "Serialize boolean to string",
-            timer);
-        break;
+        case LINK:
+          if (iValue instanceof RecordId) {
+            ((RecordId) iValue).toString(iBuffer);
+          } else {
+            ((RecordId) ((Identifiable) iValue).getIdentity()).toString(iBuffer);
+          }
+          break;
 
-      case INTEGER:
-        simpleValueToStream(iBuffer, iType, iValue);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.int2string"),
-            "Serialize integer to string",
-            timer);
-        break;
+        case EMBEDDEDSET:
+          RecordSerializerSchemaAware2CSV.INSTANCE.embeddedCollectionToStream(
+              DatabaseRecordThreadLocal.instance().getIfDefined(),
+              iBuffer,
+              null,
+              null,
+              iValue,
+              true,
+              true);
+          break;
 
-      case FLOAT:
-        simpleValueToStream(iBuffer, iType, iValue);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.float2string"),
-            "Serialize float to string",
-            timer);
-        break;
+        case EMBEDDEDLIST:
+          RecordSerializerSchemaAware2CSV.INSTANCE.embeddedCollectionToStream(
+              DatabaseRecordThreadLocal.instance().getIfDefined(),
+              iBuffer,
+              null,
+              null,
+              iValue,
+              true,
+              false);
+          break;
 
-      case DECIMAL:
-        simpleValueToStream(iBuffer, iType, iValue);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.decimal2string"),
-            "Serialize decimal to string",
-            timer);
-        break;
+        case EMBEDDEDMAP:
+          RecordSerializerSchemaAware2CSV.INSTANCE.embeddedMapToStream(
+              DatabaseRecordThreadLocal.instance().getIfDefined(),
+              iBuffer,
+              null,
+              null,
+              iValue,
+              true);
+          break;
 
-      case LONG:
-        simpleValueToStream(iBuffer, iType, iValue);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.long2string"),
-            "Serialize long to string",
-            timer);
-        break;
+        case EMBEDDED:
+          if (iValue instanceof EntityImpl) {
+            RecordSerializerSchemaAware2CSV.INSTANCE.toString((EntityImpl) iValue, iBuffer, null);
+          } else {
+            StringSerializerEmbedded.INSTANCE.toStream(iBuffer, iValue);
+          }
+          break;
 
-      case DOUBLE:
-        simpleValueToStream(iBuffer, iType, iValue);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.double2string"),
-            "Serialize double to string",
-            timer);
-        break;
+        case CUSTOM:
+          StringSerializerAnyStreamable.INSTANCE.toStream(iBuffer, iValue);
+          break;
 
-      case SHORT:
-        simpleValueToStream(iBuffer, iType, iValue);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.short2string"),
-            "Serialize short to string",
-            timer);
-        break;
-
-      case BYTE:
-        simpleValueToStream(iBuffer, iType, iValue);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.byte2string"),
-            "Serialize byte to string",
-            timer);
-        break;
-
-      case BINARY:
-        simpleValueToStream(iBuffer, iType, iValue);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.binary2string"),
-            "Serialize binary to string",
-            timer);
-        break;
-
-      case DATE:
-        simpleValueToStream(iBuffer, iType, iValue);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.date2string"),
-            "Serialize date to string",
-            timer);
-        break;
-
-      case DATETIME:
-        simpleValueToStream(iBuffer, iType, iValue);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.datetime2string"),
-            "Serialize datetime to string",
-            timer);
-        break;
-
-      case LINK:
-        if (iValue instanceof RecordId) {
-          ((RecordId) iValue).toString(iBuffer);
-        } else {
-          ((RecordId) ((Identifiable) iValue).getIdentity()).toString(iBuffer);
-        }
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.link2string"),
-            "Serialize link to string",
-            timer);
-        break;
-
-      case EMBEDDEDSET:
-        RecordSerializerSchemaAware2CSV.INSTANCE.embeddedCollectionToStream(
-            DatabaseRecordThreadLocal.instance().getIfDefined(),
-            iBuffer,
-            null,
-            null,
-            iValue,
-            true,
-            true);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.embedSet2string"),
-            "Serialize embeddedset to string",
-            timer);
-        break;
-
-      case EMBEDDEDLIST:
-        RecordSerializerSchemaAware2CSV.INSTANCE.embeddedCollectionToStream(
-            DatabaseRecordThreadLocal.instance().getIfDefined(),
-            iBuffer,
-            null,
-            null,
-            iValue,
-            true,
-            false);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.embedList2string"),
-            "Serialize embeddedlist to string",
-            timer);
-        break;
-
-      case EMBEDDEDMAP:
-        RecordSerializerSchemaAware2CSV.INSTANCE.embeddedMapToStream(
-            DatabaseRecordThreadLocal.instance().getIfDefined(),
-            iBuffer,
-            null,
-            null,
-            iValue,
-            true);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.embedMap2string"),
-            "Serialize embeddedmap to string",
-            timer);
-        break;
-
-      case EMBEDDED:
-        if (iValue instanceof EntityImpl) {
-          RecordSerializerSchemaAware2CSV.INSTANCE.toString((EntityImpl) iValue, iBuffer, null);
-        } else {
-          StringSerializerEmbedded.INSTANCE.toStream(iBuffer, iValue);
-        }
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.embed2string"),
-            "Serialize embedded to string",
-            timer);
-        break;
-
-      case CUSTOM:
-        StringSerializerAnyStreamable.INSTANCE.toStream(iBuffer, iValue);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.custom2string"),
-            "Serialize custom to string",
-            timer);
-        break;
-
-      default:
-        throw new IllegalArgumentException(
-            "Type " + iType + " not supported to convert value: " + iValue);
+        default:
+          throw new IllegalArgumentException(
+              "Type " + iType + " not supported to convert value: " + iValue);
+      }
+    } finally {
+      event.commit();
     }
   }
 
@@ -776,32 +667,24 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
   public RecordAbstract fromStream(
       DatabaseSessionInternal db, final byte[] iSource, final RecordAbstract iRecord,
       final String[] iFields) {
-    final long timer = PROFILER.startChrono();
+    final var event = new RecordDeserializationEvent();
 
     try {
       return fromString(db, new String(iSource, StandardCharsets.UTF_8), iRecord, iFields);
     } finally {
-
-      PROFILER.stopChrono(
-          PROFILER.getProcessMetric("serializer.record.string.fromStream"),
-          "Deserialize record from stream",
-          timer);
+      event.commit();
     }
   }
 
   public byte[] toStream(DatabaseSessionInternal session, final RecordAbstract iRecord) {
-    final long timer = PROFILER.startChrono();
+    final var event = new RecordSerializationEvent();
 
     try {
       return toString(iRecord, new StringBuilder(2048), null, true)
           .toString()
           .getBytes(StandardCharsets.UTF_8);
     } finally {
-
-      PROFILER.stopChrono(
-          PROFILER.getProcessMetric("serializer.record.string.toStream"),
-          "Serialize record to stream",
-          timer);
+      event.commit();
     }
   }
 

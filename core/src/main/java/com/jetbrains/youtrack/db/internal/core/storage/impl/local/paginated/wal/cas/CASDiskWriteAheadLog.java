@@ -7,6 +7,7 @@ import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAlloca
 import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator.Intention;
 import com.jetbrains.youtrack.db.internal.common.directmemory.Pointer;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.common.monitoring.process.DiskWriteEvent;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.common.thread.ThreadPoolExecutors;
@@ -1358,6 +1359,11 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
     checkpointRequestListeners.removeAll(itemsToRemove);
   }
 
+  @Override
+  public Path getPath() {
+    return walLocation;
+  }
+
   private void doFlush(final boolean forceSync) {
     final Future<?> future = commitExecutor.submit(new RecordsWriter(this, forceSync, true));
     try {
@@ -2075,9 +2081,11 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       assert buffer.limit() == limit;
       assert file.position() == expectedPosition - buffer.limit();
 
+      long totalWritten = 0;
       while (buffer.remaining() > 0) {
         final int initialPos = buffer.position();
         final int written = file.write(buffer);
+        totalWritten += written;
         assert buffer.position() == initialPos + written;
         assert file.position() == expectedPosition - buffer.limit() + initialPos + written
             : "File position "
@@ -2089,6 +2097,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
             + " written "
             + written;
       }
+      new DiskWriteEvent(totalWritten).commit();
 
       assert file.position() == expectedPosition;
 

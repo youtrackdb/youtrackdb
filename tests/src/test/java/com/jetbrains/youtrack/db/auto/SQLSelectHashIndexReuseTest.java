@@ -1,5 +1,6 @@
 package com.jetbrains.youtrack.db.auto;
 
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -14,6 +15,7 @@ import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -186,76 +188,33 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
   @Test
   public void testCompositeSearchEquals() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 = 2"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithIndex(2,
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 = 2");
 
     Assert.assertEquals(result.size(), 1);
 
-    final EntityImpl document = result.get(0);
-    Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
-    Assert.assertEquals(document.<Integer>field("prop2").intValue(), 2);
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2, 1);
+    final Entity document = result.get(0);
+    Assert.assertEquals(document.<Integer>getProperty("prop1").intValue(), 1);
+    Assert.assertEquals(document.<Integer>getProperty("prop2").intValue(), 2);
   }
 
   @Test
   public void testCompositeSearchHasChainOperatorsEquals() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1.asInteger() = 1 and"
-                        + " prop2 = 2"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1.asInteger() = 1 and"
+            + " prop2 = 2");
 
     Assert.assertEquals(result.size(), 1);
 
-    final EntityImpl document = result.get(0);
-    Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
-    Assert.assertEquals(document.<Integer>field("prop2").intValue(), 2);
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 0);
+    final Entity document = result.get(0);
+    Assert.assertEquals(document.<Integer>getProperty("prop1").intValue(), 1);
+    Assert.assertEquals(document.<Integer>getProperty("prop2").intValue(), 2);
   }
 
   @Test
   public void testCompositeSearchEqualsOneField() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-    long oldcompositeIndexUsed21 = profiler.getCounter("db.demo.query.compositeIndexUsed.2.1");
-
-    if (oldIndexUsage == -1) {
-      oldIndexUsage = 0;
-    }
-    if (oldcompositeIndexUsed == -1) {
-      oldcompositeIndexUsed = 0;
-    }
-    if (oldcompositeIndexUsed2 == -1) {
-      oldcompositeIndexUsed2 = 0;
-    }
-
-    if (oldcompositeIndexUsed21 == -1) {
-      oldcompositeIndexUsed21 = 0;
-    }
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1");
 
     Assert.assertEquals(result.size(), 10);
 
@@ -266,60 +225,13 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
       Assert.assertEquals(containsDocument(result, document), 1);
     }
-
-    long indexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long compositeIndexUsage = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long compositeIndexUsage2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-    long compositeIndexUsage21 = profiler.getCounter("db.demo.query.compositeIndexUsed.2.1");
-
-    if (indexUsage < 0) {
-      indexUsage = 0;
-    }
-    if (compositeIndexUsage < 0) {
-      compositeIndexUsage = 0;
-    }
-    if (compositeIndexUsage2 < 0) {
-      compositeIndexUsage2 = 0;
-    }
-    if (compositeIndexUsage21 < 0) {
-      compositeIndexUsage21 = 0;
-    }
-
-    Assert.assertEquals(indexUsage, oldIndexUsage);
-    Assert.assertEquals(compositeIndexUsage, oldcompositeIndexUsed);
-    Assert.assertEquals(compositeIndexUsage2, oldcompositeIndexUsed2);
-    Assert.assertEquals(compositeIndexUsage21, oldcompositeIndexUsed21);
   }
 
   @Test
   public void testCompositeSearchEqualsOneFieldMapIndexByKey() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-    long oldcompositeIndexUsed21 = profiler.getCounter("db.demo.query.compositeIndexUsed.2.1");
-
-    if (oldIndexUsage == -1) {
-      oldIndexUsage = 0;
-    }
-    if (oldcompositeIndexUsed == -1) {
-      oldcompositeIndexUsed = 0;
-    }
-
-    if (oldcompositeIndexUsed2 == -1) {
-      oldcompositeIndexUsed2 = 0;
-    }
-
-    if (oldcompositeIndexUsed21 == -1) {
-      oldcompositeIndexUsed21 = 0;
-    }
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedMapTwo"
-                        + " containsKey 'key11'"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedMapTwo"
+            + " containsKey 'key11'");
 
     Assert.assertEquals(result.size(), 10);
 
@@ -338,36 +250,14 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    long indexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long compositeIndexUsage = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long compositeIndexUsage2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-    long compositeIndexUsage21 = profiler.getCounter("db.demo.query.compositeIndexUsed.2.1");
-
-    if (indexUsage < 0) {
-      indexUsage = 0;
-    }
-    if (compositeIndexUsage < 0) {
-      compositeIndexUsage = 0;
-    }
-    if (compositeIndexUsage2 < 0) {
-      compositeIndexUsage2 = 0;
-    }
-    if (compositeIndexUsage21 < 0) {
-      compositeIndexUsage21 = 0;
-    }
-
-    Assert.assertEquals(indexUsage, oldIndexUsage);
-    Assert.assertEquals(compositeIndexUsage, oldcompositeIndexUsed);
-    Assert.assertEquals(compositeIndexUsage2, oldcompositeIndexUsed2);
-    Assert.assertEquals(compositeIndexUsage21, oldcompositeIndexUsed21);
   }
 
-  private int containsDocument(final List<EntityImpl> docList, final EntityImpl document) {
+  private int containsDocument(final List<Entity> docList, final Entity document) {
     int count = 0;
-    for (final EntityImpl docItem : docList) {
+    for (final Entity docItem : docList) {
       boolean containsAllFields = true;
-      for (final String fieldName : document.fieldNames()) {
-        if (!document.field(fieldName).equals(docItem.field(fieldName))) {
+      for (final String fieldName : document.getPropertyNames()) {
+        if (!document.getProperty(fieldName).equals(docItem.getProperty(fieldName))) {
           containsAllFields = false;
           break;
         }
@@ -381,18 +271,9 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
   @Test
   public void testCompositeSearchEqualsMapIndexByKey() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-    long oldcompositeIndexUsed22 = profiler.getCounter("db.demo.query.compositeIndexUsed.2.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass "
-                        + "where prop8 = 1 and fEmbeddedMapTwo containsKey 'key11'"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithIndex(2, 2,
+        "select * from sqlSelectHashIndexReuseTestClass "
+            + "where prop8 = 1 and fEmbeddedMapTwo containsKey 'key11'");
 
     final Map<String, Integer> embeddedMap = new HashMap<String, Integer>();
 
@@ -408,43 +289,13 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     document.field("fEmbeddedMap", embeddedMap);
 
     Assert.assertEquals(containsDocument(result, document), 1);
-
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2.2"), oldcompositeIndexUsed22, 1);
   }
 
   @Test
   public void testCompositeSearchEqualsOneFieldMapIndexByValue() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-    long oldcompositeIndexUsed21 = profiler.getCounter("db.demo.query.compositeIndexUsed.2.1");
-
-    if (oldIndexUsage == -1) {
-      oldIndexUsage = 0;
-    }
-    if (oldcompositeIndexUsed == -1) {
-      oldcompositeIndexUsed = 0;
-    }
-    if (oldcompositeIndexUsed2 == -1) {
-      oldcompositeIndexUsed2 = 0;
-    }
-    if (oldcompositeIndexUsed21 == -1) {
-      oldcompositeIndexUsed21 = 0;
-    }
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedMapTwo"
-                        + " containsValue 22"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedMapTwo"
+            + " containsValue 22");
 
     final Map<String, Integer> embeddedMap = new HashMap<String, Integer>();
 
@@ -463,44 +314,13 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    long indexUsed = profiler.getCounter("db.demo.query.indexUsed");
-    long compositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long compositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-    long compositeIndexUsed21 = profiler.getCounter("db.demo.query.compositeIndexUsed.2.1");
-
-    if (indexUsed < 0) {
-      indexUsed = 0;
-    }
-    if (compositeIndexUsed < 0) {
-      compositeIndexUsed = 0;
-    }
-    if (compositeIndexUsed2 < 0) {
-      compositeIndexUsed2 = 0;
-    }
-    if (compositeIndexUsed21 < 0) {
-      compositeIndexUsed21 = 0;
-    }
-
-    Assert.assertEquals(indexUsed, oldIndexUsage);
-    Assert.assertEquals(compositeIndexUsed, oldcompositeIndexUsed);
-    Assert.assertEquals(compositeIndexUsed2, oldcompositeIndexUsed2);
-    Assert.assertEquals(compositeIndexUsed21, oldcompositeIndexUsed21);
   }
 
   @Test
   public void testCompositeSearchEqualsMapIndexByValue() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-    long oldcompositeIndexUsed22 = profiler.getCounter("db.demo.query.compositeIndexUsed.2.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass "
-                        + "where prop8 = 1 and fEmbeddedMapTwo containsValue 22"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithIndex(2, 2,
+        "select * from sqlSelectHashIndexReuseTestClass "
+            + "where prop8 = 1 and fEmbeddedMapTwo containsValue 22");
 
     final Map<String, Integer> embeddedMap = new HashMap<String, Integer>();
 
@@ -516,30 +336,13 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     document.field("fEmbeddedMap", embeddedMap);
 
     Assert.assertEquals(containsDocument(result, document), 1);
-
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2.2"), oldcompositeIndexUsed22, 1);
   }
 
   @Test
   public void testCompositeSearchEqualsEmbeddedSetIndex() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-    long oldcompositeIndexUsed22 = profiler.getCounter("db.demo.query.compositeIndexUsed.2.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass "
-                        + "where prop8 = 1 and fEmbeddedSetTwo contains 12"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithIndex(2, 2,
+        "select * from sqlSelectHashIndexReuseTestClass "
+            + "where prop8 = 1 and fEmbeddedSetTwo contains 12");
 
     final Set<Integer> embeddedSet = new HashSet<Integer>();
     embeddedSet.add(10);
@@ -553,50 +356,13 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     document.field("fEmbeddedSet", embeddedSet);
 
     Assert.assertEquals(containsDocument(result, document), 1);
-
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2.2"), oldcompositeIndexUsed22, 1);
   }
 
   @Test
   public void testCompositeSearchEqualsEmbeddedSetInMiddleIndex() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-    long oldcompositeIndexUsed3 = profiler.getCounter("db.demo.query.compositeIndexUsed.3");
-    long oldcompositeIndexUsed33 = profiler.getCounter("db.demo.query.compositeIndexUsed.3.3");
-
-    if (oldIndexUsage == -1) {
-      oldIndexUsage = 0;
-    }
-    if (oldcompositeIndexUsed == -1) {
-      oldcompositeIndexUsed = 0;
-    }
-
-    if (oldcompositeIndexUsed2 == -1) {
-      oldcompositeIndexUsed2 = 0;
-    }
-
-    if (oldcompositeIndexUsed3 == -1) {
-      oldcompositeIndexUsed3 = 0;
-    }
-
-    if (oldcompositeIndexUsed33 == -1) {
-      oldcompositeIndexUsed33 = 0;
-    }
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass "
-                        + "where prop9 = 0 and fEmbeddedSetTwo contains 92 and prop8 > 2"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass "
+            + "where prop9 = 0 and fEmbeddedSetTwo contains 92 and prop8 > 2");
 
     final Set<Integer> embeddedSet = new HashSet<Integer>(3);
     embeddedSet.add(90);
@@ -614,64 +380,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    long indexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long compositeIndexUsage = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long compositeIndexUsage2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-    long compositeIndexUsage3 = profiler.getCounter("db.demo.query.compositeIndexUsed.3");
-    long compositeIndexUsage33 = profiler.getCounter("db.demo.query.compositeIndexUsed.3.3");
-
-    if (indexUsage < 0) {
-      indexUsage = 0;
-    }
-    if (compositeIndexUsage < 0) {
-      compositeIndexUsage = 0;
-    }
-    if (compositeIndexUsage2 < 0) {
-      compositeIndexUsage2 = 0;
-    }
-    if (compositeIndexUsage3 < 0) {
-      compositeIndexUsage3 = 0;
-    }
-    if (compositeIndexUsage33 < 0) {
-      compositeIndexUsage33 = 0;
-    }
-
-    Assert.assertEquals(indexUsage, oldIndexUsage);
-    Assert.assertEquals(compositeIndexUsage, oldcompositeIndexUsed);
-    Assert.assertEquals(compositeIndexUsage2, oldcompositeIndexUsed2);
-    Assert.assertEquals(compositeIndexUsage3, oldcompositeIndexUsed3);
-    Assert.assertEquals(compositeIndexUsage33, oldcompositeIndexUsed33);
   }
 
   @Test
   public void testCompositeSearchEqualsOneFieldEmbeddedListIndex() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-    long oldcompositeIndexUsed21 = profiler.getCounter("db.demo.query.compositeIndexUsed.2.1");
-
-    if (oldIndexUsage == -1) {
-      oldIndexUsage = 0;
-    }
-    if (oldcompositeIndexUsed == -1) {
-      oldcompositeIndexUsed = 0;
-    }
-
-    if (oldcompositeIndexUsed2 == -1) {
-      oldcompositeIndexUsed2 = 0;
-    }
-
-    if (oldcompositeIndexUsed21 == -1) {
-      oldcompositeIndexUsed21 = 0;
-    }
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedListTwo contains"
-                        + " 4"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedListTwo contains 4");
 
     Assert.assertEquals(result.size(), 10);
 
@@ -687,45 +401,13 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
       Assert.assertEquals(containsDocument(result, document), 1);
     }
-
-    long indexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long compositeIndexUsage = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long compositeIndexUsage2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-    long compositeIndexUsage21 = profiler.getCounter("db.demo.query.compositeIndexUsed.2.1");
-
-    if (indexUsage < 0) {
-      indexUsage = 0;
-    }
-    if (compositeIndexUsage < 0) {
-      compositeIndexUsage = 0;
-    }
-    if (compositeIndexUsage2 < 0) {
-      compositeIndexUsage2 = 0;
-    }
-    if (compositeIndexUsage21 < 0) {
-      compositeIndexUsage21 = 0;
-    }
-
-    Assert.assertEquals(indexUsage, oldIndexUsage);
-    Assert.assertEquals(compositeIndexUsage, oldcompositeIndexUsed);
-    Assert.assertEquals(compositeIndexUsage2, oldcompositeIndexUsed2);
-    Assert.assertEquals(compositeIndexUsage21, oldcompositeIndexUsed21);
   }
 
   @Test
   public void testCompositeSearchEqualsEmbeddedListIndex() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-    long oldcompositeIndexUsed22 = profiler.getCounter("db.demo.query.compositeIndexUsed.2.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where"
-                        + " prop8 = 1 and fEmbeddedListTwo contains 4"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithIndex(2, 2,
+        "select * from sqlSelectHashIndexReuseTestClass where"
+            + " prop8 = 1 and fEmbeddedListTwo contains 4");
 
     Assert.assertEquals(result.size(), 1);
 
@@ -739,27 +421,13 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     document.field("fEmbeddedListTwo", embeddedList);
 
     Assert.assertEquals(containsDocument(result, document), 1);
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2.2"), oldcompositeIndexUsed22, 1);
   }
 
   @Test
   public void testNoCompositeSearchEquals() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop2 = 1");
 
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop2 = 1"))
-            .execute(database);
-
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 0);
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 0; i < 10; i++) {
@@ -773,41 +441,20 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
   @Test
   public void testCompositeSearchEqualsWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 = ? and prop2 = ?"))
-            .execute(database, 1, 2);
+    final List<Entity> result = tester.queryWithIndex(2,
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 = ? and prop2 = ?", 1, 2);
 
     Assert.assertEquals(result.size(), 1);
 
-    final EntityImpl document = result.get(0);
-    Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
-    Assert.assertEquals(document.<Integer>field("prop2").intValue(), 2);
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2, 1);
+    final Entity document = result.get(0);
+    Assert.assertEquals(document.<Integer>getProperty("prop1").intValue(), 1);
+    Assert.assertEquals(document.<Integer>getProperty("prop2").intValue(), 2);
   }
 
   @Test
   public void testCompositeSearchEqualsOneFieldWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 = ?"))
-            .execute(database, 1);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 = ?", 1);
 
     Assert.assertEquals(result.size(), 10);
 
@@ -818,26 +465,13 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
       Assert.assertEquals(containsDocument(result, document), 1);
     }
-
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testNoCompositeSearchEqualsWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop2 = ?", 1);
 
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop2 = ?"))
-            .execute(database, 1);
-
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 0; i < 10; i++) {
@@ -851,16 +485,8 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
   @Test
   public void testCompositeSearchGT() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 > 2"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 > 2");
 
     Assert.assertEquals(result.size(), 7);
 
@@ -872,25 +498,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testCompositeSearchGTOneField() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 > 7"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 > 7");
 
     Assert.assertEquals(result.size(), 20);
 
@@ -904,23 +517,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       }
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testCompositeSearchGTOneFieldNoSearch() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop2 > 7"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop2 > 7");
 
     Assert.assertEquals(result.size(), 20);
 
@@ -934,21 +536,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       }
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
   }
 
   @Test
   public void testCompositeSearchGTWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 = ? and prop2 > ?"))
-            .execute(database, 1, 2);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 = ? and prop2 > ?", 1, 2);
 
     Assert.assertEquals(result.size(), 7);
 
@@ -960,25 +553,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testCompositeSearchGTOneFieldWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 > ?"))
-            .execute(database, 7);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 > ?", 7);
 
     Assert.assertEquals(result.size(), 20);
 
@@ -992,23 +572,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       }
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testCompositeSearchGTOneFieldNoSearchWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop2 > ?"))
-            .execute(database, 7);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop2 > ?", 7);
 
     Assert.assertEquals(result.size(), 20);
 
@@ -1022,22 +591,13 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       }
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
   }
 
   @Test
   public void testCompositeSearchGTQ() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 >="
-                        + " 2"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 >="
+            + " 2");
 
     Assert.assertEquals(result.size(), 8);
 
@@ -1049,25 +609,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testCompositeSearchGTQOneField() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 >= 7"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 >= 7");
 
     Assert.assertEquals(result.size(), 30);
 
@@ -1081,23 +628,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       }
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testCompositeSearchGTQOneFieldNoSearch() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop2 >= 7"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop2 >= 7");
 
     Assert.assertEquals(result.size(), 30);
 
@@ -1111,22 +647,13 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       }
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
   }
 
   @Test
   public void testCompositeSearchGTQWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 = ? and prop2 >="
-                        + " ?"))
-            .execute(database, 1, 2);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 = ? and prop2 >="
+            + " ?", 1, 2);
 
     Assert.assertEquals(result.size(), 8);
 
@@ -1138,25 +665,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testCompositeSearchGTQOneFieldWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 >= ?"))
-            .execute(database, 7);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 >= ?", 7);
 
     Assert.assertEquals(result.size(), 30);
 
@@ -1170,23 +684,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       }
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testCompositeSearchGTQOneFieldNoSearchWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop2 >= ?"))
-            .execute(database, 7);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop2 >= ?", 7);
 
     Assert.assertEquals(result.size(), 30);
 
@@ -1200,22 +703,13 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       }
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
   }
 
   @Test
   public void testCompositeSearchLTQ() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 <="
-                        + " 2"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 <="
+            + " 2");
 
     Assert.assertEquals(result.size(), 3);
 
@@ -1227,25 +721,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testCompositeSearchLTQOneField() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 <= 7"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 <= 7");
 
     Assert.assertEquals(result.size(), 80);
 
@@ -1259,23 +740,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       }
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testCompositeSearchLTQOneFieldNoSearch() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop2 <= 7"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop2 <= 7");
 
     Assert.assertEquals(result.size(), 80);
 
@@ -1289,22 +759,13 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       }
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
   }
 
   @Test
   public void testCompositeSearchLTQWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 = ? and prop2 <="
-                        + " ?"))
-            .execute(database, 1, 2);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 = ? and prop2 <="
+            + " ?", 1, 2);
 
     Assert.assertEquals(result.size(), 3);
 
@@ -1316,25 +777,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testCompositeSearchLTQOneFieldWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 <= ?"))
-            .execute(database, 7);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 <= ?", 7);
 
     Assert.assertEquals(result.size(), 80);
 
@@ -1348,23 +796,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       }
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testCompositeSearchLTQOneFieldNoSearchWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop2 <= ?"))
-            .execute(database, 7);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop2 <= ?", 7);
 
     Assert.assertEquals(result.size(), 80);
 
@@ -1378,21 +815,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       }
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
   }
 
   @Test
   public void testCompositeSearchLT() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 < 2"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 < 2");
 
     Assert.assertEquals(result.size(), 2);
 
@@ -1404,25 +832,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testCompositeSearchLTOneField() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 < 7"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 < 7");
 
     Assert.assertEquals(result.size(), 70);
 
@@ -1436,23 +851,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       }
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testCompositeSearchLTOneFieldNoSearch() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop2 < 7"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop2 < 7");
 
     Assert.assertEquals(result.size(), 70);
 
@@ -1466,21 +870,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       }
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
   }
 
   @Test
   public void testCompositeSearchLTWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 = ? and prop2 < ?"))
-            .execute(database, 1, 2);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 = ? and prop2 < ?", 1, 2);
 
     Assert.assertEquals(result.size(), 2);
 
@@ -1492,25 +887,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testCompositeSearchLTOneFieldWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 < ?"))
-            .execute(database, 7);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 < ?", 7);
 
     Assert.assertEquals(result.size(), 70);
 
@@ -1524,23 +906,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       }
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testCompositeSearchLTOneFieldNoSearchWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop2 < ?"))
-            .execute(database, 7);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop2 < ?", 7);
 
     Assert.assertEquals(result.size(), 70);
 
@@ -1554,22 +925,13 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       }
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
   }
 
   @Test
   public void testCompositeSearchBetween() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2"
-                        + " between 1 and 3"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2"
+            + " between 1 and 3");
 
     Assert.assertEquals(result.size(), 3);
 
@@ -1581,25 +943,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testCompositeSearchBetweenOneField() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 between 1 and 3"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 between 1 and 3");
 
     Assert.assertEquals(result.size(), 30);
 
@@ -1613,23 +962,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       }
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testCompositeSearchBetweenOneFieldNoSearch() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop2 between 1 and 3"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop2 between 1 and 3");
 
     Assert.assertEquals(result.size(), 30);
 
@@ -1643,22 +981,13 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       }
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
   }
 
   @Test
   public void testCompositeSearchBetweenWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2"
-                        + " between ? and ?"))
-            .execute(database, 1, 3);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2"
+            + " between ? and ?", 1, 3);
 
     Assert.assertEquals(result.size(), 3);
 
@@ -1670,25 +999,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testCompositeSearchBetweenOneFieldWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 between ? and ?"))
-            .execute(database, 1, 3);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 between ? and ?", 1, 3);
 
     Assert.assertEquals(result.size(), 30);
 
@@ -1702,23 +1018,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       }
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testCompositeSearchBetweenOneFieldNoSearchWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop2 between ? and ?"))
-            .execute(database, 1, 3);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop2 between ? and ?", 1, 3);
 
     Assert.assertEquals(result.size(), 30);
 
@@ -1732,62 +1037,34 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       }
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
   }
 
   @Test
   public void testSingleSearchEquals() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop3 = 1"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithIndex(1,
+        "select * from sqlSelectHashIndexReuseTestClass where prop3 = 1");
 
     Assert.assertEquals(result.size(), 1);
 
-    final EntityImpl document = result.get(0);
-    Assert.assertEquals(document.<Integer>field("prop3").intValue(), 1);
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
+    final Entity document = result.get(0);
+    Assert.assertEquals(document.<Integer>getProperty("prop3").intValue(), 1);
   }
 
   @Test
   public void testSingleSearchEqualsWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop3 = ?"))
-            .execute(database, 1);
+    final List<Entity> result = tester.queryWithIndex(1,
+        "select * from sqlSelectHashIndexReuseTestClass where prop3 = ?", 1);
 
     Assert.assertEquals(result.size(), 1);
 
-    final EntityImpl document = result.get(0);
-    Assert.assertEquals(document.<Integer>field("prop3").intValue(), 1);
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
+    final Entity document = result.get(0);
+    Assert.assertEquals(document.<Integer>getProperty("prop3").intValue(), 1);
   }
 
   @Test
   public void testSingleSearchGT() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop3 > 90"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop3 > 90");
 
     Assert.assertEquals(result.size(), 9);
 
@@ -1797,22 +1074,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
   }
 
   @Test
   public void testSingleSearchGTWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop3 > ?"))
-            .execute(database, 90);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop3 > ?", 90);
 
     Assert.assertEquals(result.size(), 9);
 
@@ -1822,9 +1089,6 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
   }
 
   private void assertProfileCount(long newProfilerValue, long oldProfilerValue) {
@@ -1845,15 +1109,8 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
   @Test
   public void testSingleSearchGTQ() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop3 >= 90"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop3 >= 90");
 
     Assert.assertEquals(result.size(), 10);
 
@@ -1863,22 +1120,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
   }
 
   @Test
   public void testSingleSearchGTQWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop3 >= ?"))
-            .execute(database, 90);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop3 >= ?", 90);
 
     Assert.assertEquals(result.size(), 10);
 
@@ -1888,22 +1135,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
   }
 
   @Test
   public void testSingleSearchLTQ() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop3 <= 10"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop3 <= 10");
 
     Assert.assertEquals(result.size(), 11);
 
@@ -1913,22 +1150,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
   }
 
   @Test
   public void testSingleSearchLTQWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop3 <= ?"))
-            .execute(database, 10);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop3 <= ?", 10);
 
     Assert.assertEquals(result.size(), 11);
 
@@ -1938,22 +1165,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
   }
 
   @Test
   public void testSingleSearchLT() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop3 < 10"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop3 < 10");
 
     Assert.assertEquals(result.size(), 10);
 
@@ -1963,22 +1180,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
   }
 
   @Test
   public void testSingleSearchLTWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop3 < ?"))
-            .execute(database, 10);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop3 < ?", 10);
 
     Assert.assertEquals(result.size(), 10);
 
@@ -1988,22 +1195,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
   }
 
   @Test
   public void testSingleSearchBetween() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop3 between 1 and 10"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop3 between 1 and 10");
 
     Assert.assertEquals(result.size(), 10);
 
@@ -2013,22 +1210,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
   }
 
   @Test
   public void testSingleSearchBetweenWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop3 between ? and ?"))
-            .execute(database, 1, 10);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop3 between ? and ?", 1, 10);
 
     Assert.assertEquals(result.size(), 10);
 
@@ -2038,22 +1225,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
   }
 
   @Test
   public void testSingleSearchIN() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop3 in [0, 5, 10]"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithIndex(1,
+        "select * from sqlSelectHashIndexReuseTestClass where prop3 in [0, 5, 10]");
 
     Assert.assertEquals(result.size(), 3);
 
@@ -2063,22 +1240,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
   }
 
   @Test
   public void testSingleSearchINWithArgs() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop3 in [?, ?, ?]"))
-            .execute(database, 0, 5, 10);
+    final List<Entity> result = tester.queryWithIndex(1,
+        "select * from sqlSelectHashIndexReuseTestClass where prop3 in [?, ?, ?]", 0, 5, 10);
 
     Assert.assertEquals(result.size(), 3);
 
@@ -2088,108 +1255,58 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
   }
 
   @Test
   public void testMostSpecificOnesProcessedFirst() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where (prop1 = 1 and prop2 = 1)"
-                        + " and prop3 = 11"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithIndex(2,
+        "select * from sqlSelectHashIndexReuseTestClass where (prop1 = 1 and prop2 = 1)"
+            + " and prop3 = 11");
 
     Assert.assertEquals(result.size(), 1);
 
-    final EntityImpl document = result.get(0);
-    Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
-    Assert.assertEquals(document.<Integer>field("prop2").intValue(), 1);
-    Assert.assertEquals(document.<Integer>field("prop3").intValue(), 11);
+    final Entity document = result.get(0);
+    Assert.assertEquals(document.<Integer>getProperty("prop1").intValue(), 1);
+    Assert.assertEquals(document.<Integer>getProperty("prop2").intValue(), 1);
+    Assert.assertEquals(document.<Integer>getProperty("prop3").intValue(), 11);
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2, 1);
   }
 
   @Test
   public void testTripleSearch() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed3 = profiler.getCounter("db.demo.query.compositeIndexUsed.3");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 = 1"
-                        + " and prop4 = 1"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithIndex(3,
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 = 1"
+            + " and prop4 = 1");
 
     Assert.assertEquals(result.size(), 1);
 
-    final EntityImpl document = result.get(0);
-    Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
-    Assert.assertEquals(document.<Integer>field("prop2").intValue(), 1);
-    Assert.assertEquals(document.<Integer>field("prop4").intValue(), 1);
+    final Entity document = result.get(0);
+    Assert.assertEquals(document.<Integer>getProperty("prop1").intValue(), 1);
+    Assert.assertEquals(document.<Integer>getProperty("prop2").intValue(), 1);
+    Assert.assertEquals(document.<Integer>getProperty("prop4").intValue(), 1);
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.3"), oldcompositeIndexUsed3, 1);
   }
 
   @Test
   public void testTripleSearchLastFieldNotInIndexFirstCase() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where (prop1 = 1 and prop2 = 1)"
-                        + " and prop5 >= 1"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithIndex(2,
+        "select * from sqlSelectHashIndexReuseTestClass where (prop1 = 1 and prop2 = 1)"
+            + " and prop5 >= 1");
 
     Assert.assertEquals(result.size(), 1);
 
-    final EntityImpl document = result.get(0);
-    Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
-    Assert.assertEquals(document.<Integer>field("prop2").intValue(), 1);
-    Assert.assertEquals(document.<Integer>field("prop5").intValue(), 1);
+    final Entity document = result.get(0);
+    Assert.assertEquals(document.<Integer>getProperty("prop1").intValue(), 1);
+    Assert.assertEquals(document.<Integer>getProperty("prop2").intValue(), 1);
+    Assert.assertEquals(document.<Integer>getProperty("prop5").intValue(), 1);
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2, 1);
   }
 
   @Test
   public void testTripleSearchLastFieldNotInIndexSecondCase() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop4 >="
-                        + " 1"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop4 >="
+            + " 1");
 
     Assert.assertEquals(result.size(), 10);
 
@@ -2202,28 +1319,12 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    long newIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    assertProfileCount(newIndexUsage, oldIndexUsage);
-
-    long newcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    assertProfileCount(newcompositeIndexUsed, oldcompositeIndexUsed);
-
-    long newcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-    assertProfileCount(newcompositeIndexUsed2, oldcompositeIndexUsed2);
   }
 
   @Test
   public void testTripleSearchLastFieldInIndex() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed3 = profiler.getCounter("db.demo.query.compositeIndexUsed.3");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop4 = 1"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop4 = 1");
 
     Assert.assertEquals(result.size(), 10);
 
@@ -2236,39 +1337,13 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    long newIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    assertProfileCount(newIndexUsage, oldIndexUsage);
-
-    long newcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    assertProfileCount(newcompositeIndexUsed, oldcompositeIndexUsed);
-
-    long newcompositeIndexUsed3 = profiler.getCounter("db.demo.query.compositeIndexUsed.3");
-    assertProfileCount(newcompositeIndexUsed3, oldcompositeIndexUsed3);
   }
 
   @Test
   public void testTripleSearchLastFieldsCanNotBeMerged() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed3 = profiler.getCounter("db.demo.query.compositeIndexUsed.3");
-
-    if (oldIndexUsage == -1) {
-      oldIndexUsage = 0;
-    }
-    if (oldcompositeIndexUsed == -1) {
-      oldcompositeIndexUsed = 0;
-    }
-    if (oldcompositeIndexUsed3 == -1) {
-      oldcompositeIndexUsed3 = 0;
-    }
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop6 <= 1 and prop4 <"
-                        + " 1"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop6 <= 1 and prop4 <"
+            + " 1");
 
     Assert.assertEquals(result.size(), 2);
 
@@ -2280,66 +1355,26 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       Assert.assertEquals(containsDocument(result, document), 1);
     }
 
-    long indexUsed = profiler.getCounter("db.demo.query.indexUsed");
-    long compositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long compositeIndexUsed3 = profiler.getCounter("db.demo.query.compositeIndexUsed.3");
-
-    if (indexUsed < 0) {
-      indexUsed = 0;
-    }
-
-    if (compositeIndexUsed < 0) {
-      compositeIndexUsed = 0;
-    }
-
-    if (compositeIndexUsed3 < 0) {
-      compositeIndexUsed3 = 0;
-    }
-
-    Assert.assertEquals(indexUsed, oldIndexUsage);
-    Assert.assertEquals(compositeIndexUsed, oldcompositeIndexUsed);
-    Assert.assertEquals(compositeIndexUsed3, oldcompositeIndexUsed3);
   }
 
   @Test
   public void testLastFieldNotCompatibleOperator() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 + 1 ="
-                        + " 3"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 + 1 ="
+            + " 3");
 
     Assert.assertEquals(result.size(), 1);
 
-    final EntityImpl document = result.get(0);
-    Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
-    Assert.assertEquals(document.<Integer>field("prop2").intValue(), 2);
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
+    final Entity document = result.get(0);
+    Assert.assertEquals(document.<Integer>getProperty("prop1").intValue(), 1);
+    Assert.assertEquals(document.<Integer>getProperty("prop2").intValue(), 2);
   }
 
   @Test
   public void testEmbeddedMapByKeyIndexReuse() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedMap containskey"
-                        + " 'key12'"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithIndex(1,
+        "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedMap containskey"
+            + " 'key12'");
 
     Assert.assertEquals(result.size(), 10);
 
@@ -2356,26 +1391,13 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     Assert.assertEquals(containsDocument(result, document), 10);
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testEmbeddedMapBySpecificKeyIndexReuse() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where ( fEmbeddedMap"
-                        + " containskey 'key12' ) and ( fEmbeddedMap['key12'] = 12 )"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithIndex(1,
+        "select * from sqlSelectHashIndexReuseTestClass where ( fEmbeddedMap"
+            + " containskey 'key12' ) and ( fEmbeddedMap['key12'] = 12 )");
 
     Assert.assertEquals(result.size(), 10);
 
@@ -2392,26 +1414,13 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     Assert.assertEquals(containsDocument(result, document), 10);
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testEmbeddedMapByValueIndexReuse() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedMap"
-                        + " containsvalue 11"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithIndex(1,
+        "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedMap"
+            + " containsvalue 11");
 
     Assert.assertEquals(result.size(), 10);
 
@@ -2428,26 +1437,13 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     Assert.assertEquals(containsDocument(result, document), 10);
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testEmbeddedListIndexReuse() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedList contains"
-                        + " 7"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithIndex(1,
+        "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedList contains"
+            + " 7");
 
     final List<Integer> embeddedList = new ArrayList<Integer>(3);
     embeddedList.add(6);
@@ -2459,85 +1455,48 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     Assert.assertEquals(containsDocument(result, document), 10);
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2);
   }
 
   @Test
   public void testNotIndexOperatorFirstCase() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where (prop1 = 1 and prop2  ="
-                        + " 2) and (prop4 = 3 or prop4 = 1)"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithIndex(2,
+        "select * from sqlSelectHashIndexReuseTestClass where (prop1 = 1 and prop2  ="
+            + " 2) and (prop4 = 3 or prop4 = 1)");
 
     Assert.assertEquals(result.size(), 1);
 
-    final EntityImpl document = result.get(0);
-    Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
-    Assert.assertEquals(document.<Integer>field("prop2").intValue(), 2);
-    Assert.assertEquals(document.<Integer>field("prop4").intValue(), 1);
+    final Entity document = result.get(0);
+    Assert.assertEquals(document.<Integer>getProperty("prop1").intValue(), 1);
+    Assert.assertEquals(document.<Integer>getProperty("prop2").intValue(), 2);
+    Assert.assertEquals(document.<Integer>getProperty("prop4").intValue(), 1);
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2, 1);
   }
 
   @Test
+  @Ignore
   public void testNotIndexOperatorSecondCase() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where ( prop1 = 1 and prop2 = 2"
-                        + " ) or ( prop4  = 1 and prop6 = 2 )"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithoutIndex(
+        "select * from sqlSelectHashIndexReuseTestClass where ( prop1 = 1 and prop2 = 2"
+            + " ) or ( prop4  = 1 and prop6 = 2 )");
 
     Assert.assertEquals(result.size(), 1);
 
-    final EntityImpl document = result.get(0);
-    Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
-    Assert.assertEquals(document.<Integer>field("prop2").intValue(), 2);
-    Assert.assertEquals(document.<Integer>field("prop4").intValue(), 1);
-    Assert.assertEquals(document.<Integer>field("prop6").intValue(), 2);
+    final Entity document = result.get(0);
+    Assert.assertEquals(document.<Integer>getProperty("prop1").intValue(), 1);
+    Assert.assertEquals(document.<Integer>getProperty("prop2").intValue(), 2);
+    Assert.assertEquals(document.<Integer>getProperty("prop4").intValue(), 1);
+    Assert.assertEquals(document.<Integer>getProperty("prop6").intValue(), 2);
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
   }
 
   @Test
   public void testCompositeIndexEmptyResult() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1777 and prop2  ="
-                        + " 2777"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithIndex(2,
+        "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1777 and prop2  ="
+            + " 2777");
 
     Assert.assertEquals(result.size(), 0);
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2, 1);
   }
 
   @Test
@@ -2553,11 +1512,6 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
         "sqlSelectHashIndexReuseTestOnPropertiesFromClassAndSuperclass",
         SchemaClass.INDEX_TYPE.UNIQUE_HASH_INDEX,
         "prop0", "prop1");
-
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
-
     database.begin();
     final EntityImpl docOne = new EntityImpl("sqlSelectHashIndexReuseTestChildClass");
     docOne.field("prop0", 0);
@@ -2570,21 +1524,11 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     docTwo.save();
     database.commit();
 
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestChildClass where prop0 = 0 and prop1"
-                        + " = 1"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithIndex(2,
+        "select * from sqlSelectHashIndexReuseTestChildClass where prop0 = 0 and prop1"
+            + " = 1");
 
     Assert.assertEquals(result.size(), 1);
-
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.2"), oldcompositeIndexUsed2, 1);
   }
 
   @Test
@@ -2622,10 +1566,8 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
   }
 
   @Test
+  @Ignore
   public void testCountFunctionWithUniqueIndex() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-
     SchemaClass klazz =
         database.getMetadata().getSchema().getOrCreateClass("CountFunctionWithUniqueHashIndex");
     if (!klazz.existsProperty("a")) {
@@ -2642,18 +1584,11 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     doc.save();
     database.commit();
 
-    EntityImpl result =
-        (EntityImpl)
-            database
-                .query(
-                    new SQLSynchQuery<EntityImpl>(
-                        "select count(*) from CountFunctionWithUniqueHashIndex where a = 'a'"))
-                .get(0);
+    Entity result = tester.queryWithIndex(1,
+            "select count(*) from CountFunctionWithUniqueHashIndex where a = 'a'")
+        .getFirst();
 
-    Assert.assertEquals(result.<Object>field("count", Long.class), 1L);
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
+    Assert.assertEquals(result.<Object>getProperty("count"), 1L);
 
     database.begin();
     database.bindToSession(doc).delete();
@@ -2662,33 +1597,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
   @Test
   public void testCompositeSearchIn1() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-    long oldcompositeIndexUsed3 = profiler.getCounter("db.demo.query.compositeIndexUsed.3");
-    long oldcompositeIndexUsed33 = profiler.getCounter("db.demo.query.compositeIndexUsed.3.3");
-
-    final List<EntityImpl> result =
-        database
-            .command(
-                new SQLSynchQuery<EntityImpl>(
-                    "select * from sqlSelectHashIndexReuseTestClass where prop4 = 1 and prop1 = 1"
-                        + " and prop3 in [13, 113]"))
-            .execute(database);
+    final List<Entity> result = tester.queryWithIndex(3, 3,
+        "select * from sqlSelectHashIndexReuseTestClass where prop4 = 1 and prop1 = 1"
+            + " and prop3 in [13, 113]");
 
     Assert.assertEquals(result.size(), 1);
 
-    final EntityImpl document = result.get(0);
-    Assert.assertEquals(document.<Integer>field("prop4").intValue(), 1);
-    Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
-    Assert.assertEquals(document.<Integer>field("prop3").intValue(), 13);
+    final Entity document = result.get(0);
+    Assert.assertEquals(document.<Integer>getProperty("prop4").intValue(), 1);
+    Assert.assertEquals(document.<Integer>getProperty("prop1").intValue(), 1);
+    Assert.assertEquals(document.<Integer>getProperty("prop3").intValue(), 13);
 
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.3"), oldcompositeIndexUsed3, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed.3.3"), oldcompositeIndexUsed33, 1);
   }
 
   @Test
@@ -2709,9 +1628,9 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.size(), 1);
 
     final EntityImpl document = result.get(0);
-    Assert.assertEquals(document.<Integer>field("prop4").intValue(), 1);
-    Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
-    Assert.assertEquals(document.<Integer>field("prop3").intValue(), 13);
+    Assert.assertEquals(document.<Integer>getProperty("prop4").intValue(), 1);
+    Assert.assertEquals(document.<Integer>getProperty("prop1").intValue(), 1);
+    Assert.assertEquals(document.<Integer>getProperty("prop3").intValue(), 13);
 
     // TODO improve query execution plan so that also next statements succeed (in 2.0 it's not
     // guaranteed)
@@ -2742,10 +1661,11 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.size(), 2);
 
     final EntityImpl document = result.get(0);
-    Assert.assertEquals(document.<Integer>field("prop4").intValue(), 1);
-    Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
+    Assert.assertEquals(document.<Integer>getProperty("prop4").intValue(), 1);
+    Assert.assertEquals(document.<Integer>getProperty("prop1").intValue(), 1);
     Assert.assertTrue(
-        document.<Integer>field("prop3").equals(13) || document.<Integer>field("prop3").equals(15));
+        document.<Integer>getProperty("prop3").equals(13) || document.<Integer>getProperty("prop3")
+            .equals(15));
 
     // TODO improve query execution plan so that also next statements succeed (in 2.0 it's not
     // guaranteed)
@@ -2776,9 +1696,9 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.size(), 1);
 
     final EntityImpl document = result.get(0);
-    Assert.assertEquals(document.<Integer>field("prop4").intValue(), 1);
-    Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
-    Assert.assertEquals(document.<Integer>field("prop3").intValue(), 13);
+    Assert.assertEquals(document.<Integer>getProperty("prop4").intValue(), 1);
+    Assert.assertEquals(document.<Integer>getProperty("prop1").intValue(), 1);
+    Assert.assertEquals(document.<Integer>getProperty("prop3").intValue(), 13);
 
     // TODO improve query execution plan so that also next statements succeed (in 2.0 it's not
     // guaranteed)

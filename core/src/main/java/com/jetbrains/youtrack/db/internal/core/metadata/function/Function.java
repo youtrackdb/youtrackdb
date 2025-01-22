@@ -20,8 +20,8 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.function;
 
 import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
+import com.jetbrains.youtrack.db.internal.common.monitoring.database.FunctionExecuteEvent;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.ScriptExecutor;
@@ -205,39 +205,34 @@ public class Function extends EntityWrapper {
 
   @Deprecated
   public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
-    final long start = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
-
+    final var event =
+        new FunctionExecuteEvent(DatabaseRecordThreadLocal.instance().get().getName());
     Object result;
-    while (true) {
-      try {
-        if (callback != null) {
-          return callback.call(iArgs);
+
+    try {
+      while (true) {
+        try {
+          if (callback != null) {
+            return callback.call(iArgs);
+          }
+
+          ScriptExecutor executor =
+              session
+                  .getSharedContext()
+                  .getYouTrackDB()
+                  .getScriptManager()
+                  .getCommandManager()
+                  .getScriptExecutor(getLanguage(session));
+
+          result = session.computeInTx(() -> executor.execute(session, getCode(session), iArgs));
+
+          break;
+
+        } catch (NeedRetryException | RetryQueryException ignore) {
         }
-
-        ScriptExecutor executor =
-            session
-                .getSharedContext()
-                .getYouTrackDB()
-                .getScriptManager()
-                .getCommandManager()
-                .getScriptExecutor(getLanguage(session));
-
-        result = session.computeInTx(() -> executor.execute(session, getCode(session), iArgs));
-
-        break;
-
-      } catch (NeedRetryException | RetryQueryException ignore) {
       }
-    }
-
-    if (YouTrackDBEnginesManager.instance().getProfiler().isRecording()) {
-      YouTrackDBEnginesManager.instance()
-          .getProfiler()
-          .stopChrono(
-              "db." + DatabaseRecordThreadLocal.instance().get().getName() + ".function.execute",
-              "Time to execute a function",
-              start,
-              "db.*.function.execute");
+    } finally {
+      event.commit();
     }
 
     return result;

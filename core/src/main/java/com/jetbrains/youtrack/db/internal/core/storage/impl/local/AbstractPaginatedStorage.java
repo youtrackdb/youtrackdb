@@ -43,21 +43,26 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
-import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.api.session.SessionListener;
 import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.ScalableRWLock;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.ThreadInterruptedException;
 import com.jetbrains.youtrack.db.internal.common.io.YTIOException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.profiler.ModifiableLongProfileHookValue;
-import com.jetbrains.youtrack.db.internal.common.profiler.Profiler.METRIC_TYPE;
+import com.jetbrains.youtrack.db.internal.common.monitoring.database.CommandExecuteEvent;
+import com.jetbrains.youtrack.db.internal.common.monitoring.database.DatabaseDropEvent;
+import com.jetbrains.youtrack.db.internal.common.monitoring.database.DatabaseShutdownEvent;
+import com.jetbrains.youtrack.db.internal.common.monitoring.database.DatabaseSynchEvent;
+import com.jetbrains.youtrack.db.internal.common.monitoring.database.RecordCreateEvent;
+import com.jetbrains.youtrack.db.internal.common.monitoring.database.RecordDeleteEvent;
+import com.jetbrains.youtrack.db.internal.common.monitoring.database.RecordReadEvent;
+import com.jetbrains.youtrack.db.internal.common.monitoring.database.RecordUpdateEvent;
+import com.jetbrains.youtrack.db.internal.common.monitoring.database.TransactionWriteEvent;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.UTF8Serializer;
 import com.jetbrains.youtrack.db.internal.common.thread.ThreadPoolExecutors;
 import com.jetbrains.youtrack.db.internal.common.types.ModifiableBoolean;
-import com.jetbrains.youtrack.db.internal.common.types.ModifiableLong;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
@@ -303,18 +308,6 @@ public abstract class AbstractPaginatedStorage
   private UUID uuid;
   private volatile byte[] lastMetadata = null;
 
-  private final ModifiableLong recordCreated = new ModifiableLong();
-  private final ModifiableLong recordUpdated = new ModifiableLong();
-  private final ModifiableLong recordRead = new ModifiableLong();
-  private final ModifiableLong recordDeleted = new ModifiableLong();
-
-  private final ModifiableLong recordScanned = new ModifiableLong();
-  private final ModifiableLong recordRecycled = new ModifiableLong();
-  private final ModifiableLong recordConflict = new ModifiableLong();
-  private final ModifiableLong txBegun = new ModifiableLong();
-  private final ModifiableLong txCommit = new ModifiableLong();
-  private final ModifiableLong txRollback = new ModifiableLong();
-
   private final AtomicInteger sessionCount = new AtomicInteger(0);
   private volatile long lastCloseTime = System.currentTimeMillis();
 
@@ -352,8 +345,6 @@ public abstract class AbstractPaginatedStorage
 
     this.id = id;
     sbTreeCollectionManager = new SBTreeCollectionManagerShared(this);
-
-    registerProfilerHooks();
   }
 
   protected static String normalizeName(String name) {
@@ -1088,15 +1079,13 @@ public abstract class AbstractPaginatedStorage
   @Override
   public final void delete() {
     try {
-      final long timer = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
+      final var event = new DatabaseDropEvent(name);
       stateLock.writeLock().lock();
       try {
         doDelete();
       } finally {
         stateLock.writeLock().unlock();
-        YouTrackDBEnginesManager.instance()
-            .getProfiler()
-            .stopChrono("db." + name + ".drop", "Drop a database", timer, "db.*.drop");
+        event.commit();
       }
     } catch (final RuntimeException ee) {
       throw logAndPrepareForRethrow(ee);
@@ -2219,8 +2208,6 @@ public abstract class AbstractPaginatedStorage
     //
     //
     try {
-      txBegun.increment();
-
       final DatabaseSessionInternal database = transaction.getDatabase();
       final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
       final TreeMap<String, FrontendTransactionIndexChanges> indexOperations =
@@ -2368,6 +2355,7 @@ public abstract class AbstractPaginatedStorage
               endStorageTx();
             }
             this.transaction.set(null);
+            new TransactionWriteEvent(error == null).commit();
           }
         } finally {
           atomicOperationsManager.ensureThatComponentsUnlocked();
@@ -3615,8 +3603,6 @@ public abstract class AbstractPaginatedStorage
     atomicOperationsManager.endAtomicOperation(error);
 
     assert atomicOperationsManager.getCurrentOperation() == null;
-
-    txRollback.increment();
   }
 
   public void moveToErrorStateIfNeeded(final Throwable error) {
@@ -3647,7 +3633,7 @@ public abstract class AbstractPaginatedStorage
       stateLock.readLock().lock();
       try {
 
-        final long timer = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
+        final var event = new DatabaseSynchEvent(name);
         final long lockId = atomicOperationsManager.freezeAtomicOperations(null, null);
         try {
           checkOpennessAndMigration();
@@ -3681,9 +3667,7 @@ public abstract class AbstractPaginatedStorage
 
         } finally {
           atomicOperationsManager.releaseAtomicOperations(lockId);
-          YouTrackDBEnginesManager.instance()
-              .getProfiler()
-              .stopChrono("db." + name + ".synch", "Synch a database", timer, "db.*.synch");
+          event.commit();
         }
       } finally {
         stateLock.readLock().unlock();
@@ -4037,7 +4021,7 @@ public abstract class AbstractPaginatedStorage
       if (iCommand.isIdempotent() && !executor.isIdempotent()) {
         throw new CommandExecutionException("Cannot execute non idempotent command");
       }
-      final long beginTime = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
+      final var event = new CommandExecuteEvent();
       try {
         final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().get();
         // CALL BEFORE COMMAND
@@ -4057,23 +4041,14 @@ public abstract class AbstractPaginatedStorage
             new CommandExecutionException("Error on execution of command: " + iCommand), e);
 
       } finally {
-        if (YouTrackDBEnginesManager.instance().getProfiler().isRecording()) {
+        if (event.shouldCommit()) {
           final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
           if (db != null) {
-            final SecurityUser user = db.geCurrentUser();
-            final String userString = Optional.ofNullable(user).map(Object::toString).orElse(null);
-            YouTrackDBEnginesManager.instance()
-                .getProfiler()
-                .stopChrono(
-                    "db."
-                        + DatabaseRecordThreadLocal.instance().get().getName()
-                        + ".command."
-                        + iCommand,
-                    "Command executed against the database",
-                    beginTime,
-                    "db.*.command.*",
-                    null,
-                    userString);
+            event.setDatabaseName(db.getName());
+            event.setUser(
+                Optional.ofNullable(db.geCurrentUser()).map(Object::toString).orElse(null));
+            event.setCommand(iCommand.toString());
+            event.commit();
           }
         }
       }
@@ -4259,11 +4234,6 @@ public abstract class AbstractPaginatedStorage
       ((ClusterBasedStorageConfiguration) configuration)
           .setConflictStrategy(atomicOperation, conflictResolver.getName());
     }
-  }
-
-  @SuppressWarnings("unused")
-  public long getRecordScanned() {
-    return recordScanned.value;
   }
 
   @SuppressWarnings("unused")
@@ -4603,8 +4573,6 @@ public abstract class AbstractPaginatedStorage
   private void endStorageTx() throws IOException {
     atomicOperationsManager.endAtomicOperation(null);
     assert atomicOperationsManager.getCurrentOperation() == null;
-
-    txCommit.increment();
   }
 
   private void startStorageTx(final TransactionInternal clientTx) throws IOException {
@@ -4699,6 +4667,7 @@ public abstract class AbstractPaginatedStorage
       recordVersion = 0;
     }
 
+    final var event = new RecordCreateEvent(name);
     PhysicalPosition ppos;
     try {
       ppos = cluster.createRecord(content, recordVersion, recordType, allocated, atomicOperation);
@@ -4712,6 +4681,8 @@ public abstract class AbstractPaginatedStorage
       LogManager.instance().error(this, "Error on creating record in cluster: " + cluster, e);
       throw DatabaseException.wrapException(
           new StorageException("Error during creation of record"), e);
+    } finally {
+      event.commit();
     }
 
     if (callback != null) {
@@ -4722,8 +4693,6 @@ public abstract class AbstractPaginatedStorage
       LogManager.instance()
           .debug(this, "Created record %s v.%s size=%d bytes", rid, recordVersion, content.length);
     }
-
-    recordCreated.increment();
 
     return new StorageOperationResult<>(ppos);
   }
@@ -4738,7 +4707,7 @@ public abstract class AbstractPaginatedStorage
       final RecordCallback<Integer> callback,
       final StorageCluster cluster) {
 
-    YouTrackDBEnginesManager.instance().getProfiler().startChrono();
+    final var event = new RecordUpdateEvent(name);
     try {
 
       final PhysicalPosition ppos =
@@ -4799,21 +4768,21 @@ public abstract class AbstractPaginatedStorage
             .debug(this, "Updated record %s v.%s size=%d", rid, newRecordVersion, content.length);
       }
 
-      recordUpdated.increment();
-
       if (contentModified) {
         return new StorageOperationResult<>(newRecordVersion, content, false);
       } else {
         return new StorageOperationResult<>(newRecordVersion);
       }
     } catch (final ConcurrentModificationException e) {
-      recordConflict.increment();
+      event.setConflict(true);
       throw e;
     } catch (final IOException ioe) {
       throw BaseException.wrapException(
           new StorageException(
               "Error on updating record " + rid + " (cluster: " + cluster.getName() + ")"),
           ioe);
+    } finally {
+      event.commit();
     }
   }
 
@@ -4822,7 +4791,7 @@ public abstract class AbstractPaginatedStorage
       final RecordId rid,
       final int version,
       final StorageCluster cluster) {
-    YouTrackDBEnginesManager.instance().getProfiler().startChrono();
+    final var event = new RecordDeleteEvent(name);
     try {
 
       final PhysicalPosition ppos =
@@ -4835,7 +4804,7 @@ public abstract class AbstractPaginatedStorage
 
       // MVCC TRANSACTION: CHECK IF VERSION IS THE SAME
       if (version > -1 && ppos.recordVersion != version) {
-        recordConflict.increment();
+        event.setConflict(true);
 
         if (FastConcurrentModificationException.enabled()) {
           throw FastConcurrentModificationException.instance();
@@ -4856,20 +4825,21 @@ public abstract class AbstractPaginatedStorage
         LogManager.instance().debug(this, "Deleted record %s v.%s", rid, version);
       }
 
-      recordDeleted.increment();
-
       return new StorageOperationResult<>(true);
     } catch (final IOException ioe) {
       throw BaseException.wrapException(
           new StorageException(
               "Error on deleting record " + rid + "( cluster: " + cluster.getName() + ")"),
           ioe);
+    } finally {
+      event.commit();
     }
   }
 
   @Nonnull
   private RawBuffer doReadRecord(
       final StorageCluster clusterSegment, final RecordId rid, final boolean prefetchRecords) {
+    final var event = new RecordReadEvent(name);
     try {
 
       final RawBuffer buff = clusterSegment.readRecord(rid.getClusterPosition(), prefetchRecords);
@@ -4884,12 +4854,12 @@ public abstract class AbstractPaginatedStorage
                 buff.buffer != null ? buff.buffer.length : 0);
       }
 
-      recordRead.increment();
-
       return buff;
     } catch (final IOException e) {
       throw BaseException.wrapException(
           new StorageException("Error during read of record with rid = " + rid), e);
+    } finally {
+      event.commit();
     }
   }
 
@@ -5106,7 +5076,7 @@ public abstract class AbstractPaginatedStorage
   }
 
   protected void doShutdown() throws IOException {
-    final long timer = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
+    final var event = new DatabaseShutdownEvent(name);
     try {
       if (status == STATUS.CLOSED) {
         return;
@@ -5176,9 +5146,7 @@ public abstract class AbstractPaginatedStorage
       migration = new CountDownLatch(1);
       status = STATUS.CLOSED;
     } finally {
-      YouTrackDBEnginesManager.instance()
-          .getProfiler()
-          .stopChrono("db." + name + ".close", "Close a database", timer, "db.*.close");
+      event.commit();
     }
   }
 
@@ -5836,98 +5804,6 @@ public abstract class AbstractPaginatedStorage
         }
       }
     }
-  }
-
-  private void registerProfilerHooks() {
-    YouTrackDBEnginesManager.instance()
-        .getProfiler()
-        .registerHookValue(
-            "db." + this.name + ".createRecord",
-            "Number of created records",
-            METRIC_TYPE.COUNTER,
-            new ModifiableLongProfileHookValue(recordCreated),
-            "db.*.createRecord");
-
-    YouTrackDBEnginesManager.instance()
-        .getProfiler()
-        .registerHookValue(
-            "db." + this.name + ".readRecord",
-            "Number of read records",
-            METRIC_TYPE.COUNTER,
-            new ModifiableLongProfileHookValue(recordRead),
-            "db.*.readRecord");
-
-    YouTrackDBEnginesManager.instance()
-        .getProfiler()
-        .registerHookValue(
-            "db." + this.name + ".updateRecord",
-            "Number of updated records",
-            METRIC_TYPE.COUNTER,
-            new ModifiableLongProfileHookValue(recordUpdated),
-            "db.*.updateRecord");
-
-    YouTrackDBEnginesManager.instance()
-        .getProfiler()
-        .registerHookValue(
-            "db." + this.name + ".deleteRecord",
-            "Number of deleted records",
-            METRIC_TYPE.COUNTER,
-            new ModifiableLongProfileHookValue(recordDeleted),
-            "db.*.deleteRecord");
-
-    YouTrackDBEnginesManager.instance()
-        .getProfiler()
-        .registerHookValue(
-            "db." + this.name + ".scanRecord",
-            "Number of read scanned",
-            METRIC_TYPE.COUNTER,
-            new ModifiableLongProfileHookValue(recordScanned),
-            "db.*.scanRecord");
-
-    YouTrackDBEnginesManager.instance()
-        .getProfiler()
-        .registerHookValue(
-            "db." + this.name + ".recyclePosition",
-            "Number of recycled records",
-            METRIC_TYPE.COUNTER,
-            new ModifiableLongProfileHookValue(recordRecycled),
-            "db.*.recyclePosition");
-
-    YouTrackDBEnginesManager.instance()
-        .getProfiler()
-        .registerHookValue(
-            "db." + this.name + ".conflictRecord",
-            "Number of conflicts during updating and deleting records",
-            METRIC_TYPE.COUNTER,
-            new ModifiableLongProfileHookValue(recordConflict),
-            "db.*.conflictRecord");
-
-    YouTrackDBEnginesManager.instance()
-        .getProfiler()
-        .registerHookValue(
-            "db." + this.name + ".txBegun",
-            "Number of transactions begun",
-            METRIC_TYPE.COUNTER,
-            new ModifiableLongProfileHookValue(txBegun),
-            "db.*.txBegun");
-
-    YouTrackDBEnginesManager.instance()
-        .getProfiler()
-        .registerHookValue(
-            "db." + this.name + ".txCommit",
-            "Number of committed transactions",
-            METRIC_TYPE.COUNTER,
-            new ModifiableLongProfileHookValue(txCommit),
-            "db.*.txCommit");
-
-    YouTrackDBEnginesManager.instance()
-        .getProfiler()
-        .registerHookValue(
-            "db." + this.name + ".txRollback",
-            "Number of rolled back transactions",
-            METRIC_TYPE.COUNTER,
-            new ModifiableLongProfileHookValue(txRollback),
-            "db.*.txRollback");
   }
 
   protected RuntimeException logAndPrepareForRethrow(final RuntimeException runtimeException) {

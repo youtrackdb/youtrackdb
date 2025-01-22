@@ -2,7 +2,7 @@ package com.jetbrains.youtrack.db.internal.common.collection.closabledictionary;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.internal.common.monitoring.EvictOpenFilesEvent;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -823,54 +823,51 @@ public class ClosableLinkedContainer<K, V extends ClosableItem> {
   }
 
   private void evict() {
-    final long start = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
+    final var evictEvent = new EvictOpenFilesEvent();
 
-    final int initialSize = lruList.size();
-    int closedFiles = 0;
+    try {
+      final int initialSize = lruList.size();
+      int closedFiles = 0;
 
-    while (lruList.size() > openLimit) {
-      // we may only close items in open state so we "peek" them first
-      Iterator<ClosableEntry<K, V>> iterator = lruList.iterator();
+      while (lruList.size() > openLimit) {
+        // we may only close items in open state so we "peek" them first
+        Iterator<ClosableEntry<K, V>> iterator = lruList.iterator();
 
-      boolean entryClosed = false;
+        boolean entryClosed = false;
 
-      while (iterator.hasNext()) {
-        ClosableEntry<K, V> entry = iterator.next();
-        if (entry.makeClosed()) {
-          closedFiles++;
-          iterator.remove();
-          entryClosed = true;
+        while (iterator.hasNext()) {
+          ClosableEntry<K, V> entry = iterator.next();
+          if (entry.makeClosed()) {
+            closedFiles++;
+            iterator.remove();
+            entryClosed = true;
 
-          countClosedFiles();
+            countClosedFiles();
+            break;
+          }
+        }
+
+        // there are no items in open state stop eviction
+        if (!entryClosed) {
           break;
         }
       }
 
-      // there are no items in open state stop eviction
-      if (!entryClosed) {
-        break;
+      if (closedFiles > 0) {
+        LogManager.instance()
+            .debug(
+                this,
+                "Reached maximum of opened files %d (max=%d), closed %d files. Consider to raise this"
+                    + " limit by increasing the global setting '%s' and the OS limit on opened files"
+                    + " per processor",
+                initialSize,
+                openLimit,
+                closedFiles,
+                GlobalConfiguration.OPEN_FILES_LIMIT.getKey());
       }
+    } finally {
+      evictEvent.commit();
     }
-
-    if (closedFiles > 0) {
-      LogManager.instance()
-          .debug(
-              this,
-              "Reached maximum of opened files %d (max=%d), closed %d files. Consider to raise this"
-                  + " limit by increasing the global setting '%s' and the OS limit on opened files"
-                  + " per processor",
-              initialSize,
-              openLimit,
-              closedFiles,
-              GlobalConfiguration.OPEN_FILES_LIMIT.getKey());
-    }
-
-    YouTrackDBEnginesManager.instance()
-        .getProfiler()
-        .stopChrono(
-            "disk.closeFiles",
-            "Close the opened files because reached the configured limit",
-            start);
   }
 
   private class LogAdd implements Runnable {

@@ -32,6 +32,7 @@ import com.jetbrains.youtrack.db.api.record.RecordHook.TYPE;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.common.monitoring.database.TransactionEvent;
 import com.jetbrains.youtrack.db.internal.core.cache.LocalRecordCache;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
@@ -119,6 +120,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
 
     if (txStartCounter == 0) {
       status = TXSTATUS.BEGUN;
+      new TransactionEvent().commit();
 
       var localCache = database.getLocalCache();
       localCache.unloadNotModifiedRecords();

@@ -44,6 +44,8 @@ import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.api.session.SessionListener;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.common.monitoring.database.DatabaseFreezeEvent;
+import com.jetbrains.youtrack.db.internal.common.monitoring.database.DatabaseReleaseEvent;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.cache.LocalRecordCache;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
@@ -1655,17 +1657,16 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       return;
     }
 
-    final long startTime = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
+    final var freezeEvent = new DatabaseFreezeEvent(this.getName());
 
-    final FreezableStorageComponent storage = getFreezableStorage();
-    if (storage != null) {
-      storage.freeze(throwException);
+    try {
+      final FreezableStorageComponent storage = getFreezableStorage();
+      if (storage != null) {
+        storage.freeze(throwException);
+      }
+    } finally {
+      freezeEvent.commit();
     }
-
-    YouTrackDBEnginesManager.instance()
-        .getProfiler()
-        .stopChrono(
-            "db." + getName() + ".freeze", "Time to freeze the database", startTime, "db.*.freeze");
   }
 
   /**
@@ -1692,20 +1693,15 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       return;
     }
 
-    final long startTime = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
-
-    final FreezableStorageComponent storage = getFreezableStorage();
-    if (storage != null) {
-      storage.release();
+    final var releaseEvent = new DatabaseReleaseEvent(this.getName());
+    try {
+      final FreezableStorageComponent storage = getFreezableStorage();
+      if (storage != null) {
+        storage.release();
+      }
+    } finally {
+      releaseEvent.commit();
     }
-
-    YouTrackDBEnginesManager.instance()
-        .getProfiler()
-        .stopChrono(
-            "db." + getName() + ".release",
-            "Time to release the database",
-            startTime,
-            "db.*.release");
   }
 
   private FreezableStorageComponent getFreezableStorage() {
