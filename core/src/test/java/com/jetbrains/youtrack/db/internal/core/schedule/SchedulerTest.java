@@ -210,7 +210,7 @@ public class SchedulerTest {
         try {
           // DELETE
           db.begin();
-          db.command("delete from oschedule where name = 'test'", func.getId(db)).close();
+          db.command("delete from oschedule where name = 'test'", func.getIdentity()).close();
           db.commit();
           break;
         } catch (NeedRetryException e) {

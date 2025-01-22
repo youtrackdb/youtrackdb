@@ -864,7 +864,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       if (clazz != null) {
         checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_CREATE, clazz.getName());
         if (clazz.isScheduler()) {
-          getSharedContext().getScheduler().initScheduleRecord(this, entity);
+          getSharedContext().getScheduler().initScheduleRecord(entity);
           changed = true;
         }
         if (clazz.isUser()) {

@@ -156,7 +156,7 @@ public class SQLFunctionsTest extends BaseDBTest {
             .createRole("byPassRestrictedRole");
     byPassRestrictedRole.addRule(db,
         Rule.ResourceGeneric.BYPASS_RESTRICTED, null, Role.PERMISSION_READ);
-    byPassRestrictedRole.save(dbName);
+    byPassRestrictedRole.save(db);
 
     db
         .getMetadata()

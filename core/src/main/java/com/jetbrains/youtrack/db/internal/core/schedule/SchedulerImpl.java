@@ -76,17 +76,13 @@ public class SchedulerImpl {
     final ScheduledEvent event = removeEventInternal(eventName);
 
     if (event != null) {
-      try {
-        session.load(event.getDocument(session).getIdentity());
-      } catch (RecordNotFoundException ignore) {
-        // ALREADY DELETED, JUST RETURN
-        return;
-      }
-
       // RECORD EXISTS: DELETE THE EVENT RECORD
-      session.begin();
-      event.getDocument(session).delete();
-      session.commit();
+      session.executeInTx(() -> {
+        try {
+          event.delete(session);
+        } catch (RecordNotFoundException ignore) {
+        }
+      });
     }
   }
 
@@ -101,7 +97,7 @@ public class SchedulerImpl {
             this,
             "Updated scheduled event '%s' rid=%s...",
             event,
-            event.getDocument(session).getIdentity());
+            event.getIdentity());
   }
 
   public Map<String, ScheduledEvent> getEvents() {
@@ -164,10 +160,10 @@ public class SchedulerImpl {
         true);
   }
 
-  public void initScheduleRecord(DatabaseSessionInternal session, EntityImpl entity) {
+  public void initScheduleRecord(EntityImpl entity) {
     String name = entity.field(ScheduledEvent.PROP_NAME);
     final ScheduledEvent event = getEvent(name);
-    if (event != null && event.getDocument(session) != entity) {
+    if (event != null && event.getIdentity().equals(entity.getIdentity())) {
       throw new DatabaseException(
           "Scheduled event with name '" + name + "' already exists in database");
     }

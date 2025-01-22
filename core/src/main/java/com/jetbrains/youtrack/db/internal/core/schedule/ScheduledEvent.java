@@ -19,14 +19,13 @@ package com.jetbrains.youtrack.db.internal.core.schedule;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.CommandScriptException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseExportException;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.schedule.Scheduler.STATUS;
@@ -57,7 +56,6 @@ public class ScheduledEvent extends IdentityWrapper {
   public static final String PROP_STARTTIME = "starttime";
   public static final String PROP_EXEC_ID = "nextExecId";
 
-
   private final AtomicBoolean running;
   private CronExpression cron;
   private volatile TimerTask timer;
@@ -70,13 +68,25 @@ public class ScheduledEvent extends IdentityWrapper {
     super(db, entity);
     running = new AtomicBoolean(false);
     nextExecutionId = new AtomicLong(getNextExecutionId());
-    getFunction(db);
     try {
       cron = new CronExpression(getRule());
     } catch (ParseException e) {
       LogManager.instance()
           .error(this, "Error on compiling cron expression " + getRule(), e);
     }
+  }
+
+  @Override
+  protected Object deserializeProperty(DatabaseSessionInternal db, String propertyName,
+      Object value) {
+    if (PROP_FUNC.equals(propertyName)) {
+      var functionIdentifiable = (Identifiable) value;
+      var functionEntity = (EntityImpl) functionIdentifiable.getEntity(db);
+
+      return new Function(db, functionEntity);
+    }
+
+    return super.deserializeProperty(db, propertyName, value);
   }
 
   public void interrupt() {
@@ -89,11 +99,12 @@ public class ScheduledEvent extends IdentityWrapper {
     }
   }
 
-  public Function getFunction(DatabaseSessionInternal db) {
-    final Function fun = getFunctionSafe(db);
+  public Function getFunction() {
+    final Function fun = getProperty(PROP_FUNC);
     if (fun == null) {
       throw new CommandScriptException("Function cannot be null");
     }
+
     return fun;
   }
 
@@ -149,48 +160,8 @@ public class ScheduledEvent extends IdentityWrapper {
     return this;
   }
 
-  @Override
-  public String toString() {
-    var database = DatabaseRecordThreadLocal.instance().getIfDefined();
-    if (database == null) {
-      return "OSchedule [name:"
-          + getName()
-          + ",rule:"
-          + getRule()
-          + ",current status:"
-          + getStatus()
-          + ",func:"
-          + getFunctionSafe(database)
-          + ",started:"
-          + getStartTime()
-          + "]";
-    }
-
-    return super.toString();
-  }
-
   private void setRunning(boolean running) {
     this.running.set(running);
-  }
-
-  private Function getFunctionSafe(DatabaseSessionInternal db) {
-    if (function == null) {
-      final Object funcDoc = getProperty(PROP_FUNC);
-      if (funcDoc != null) {
-        switch (funcDoc) {
-          case Function function1 -> {
-            function = function1;
-            // OVERWRITE FUNCTION ID
-            setProperty(PROP_FUNC, function.getId(db));
-          }
-          case EntityImpl entries -> function = new Function(db, entries);
-          case RecordId recordId -> function = new Function(db, recordId);
-          default -> {
-          }
-        }
-      }
-    }
-    return function;
   }
 
   private static class ScheduledTimerTask extends TimerTask {
@@ -230,7 +201,7 @@ public class ScheduledEvent extends IdentityWrapper {
           });
     }
 
-    private void runTask(DatabaseSession db) {
+    private void runTask(DatabaseSessionInternal db) {
       if (event.running.get()) {
         LogManager.instance()
             .error(
@@ -240,7 +211,7 @@ public class ScheduledEvent extends IdentityWrapper {
         return;
       }
 
-      if (event.function == null) {
+      if (event.getProperty(PROP_FUNC) == null) {
         LogManager.instance()
             .error(
                 this,
@@ -349,7 +320,7 @@ public class ScheduledEvent extends IdentityWrapper {
         context.setDatabase(session);
 
         result = session.computeInTx(
-            () -> event.function.executeInContext(context, event.getArguments()));
+            () -> event.getFunction().executeInContext(context, event.getArguments()));
       } finally {
         LogManager.instance()
             .info(
