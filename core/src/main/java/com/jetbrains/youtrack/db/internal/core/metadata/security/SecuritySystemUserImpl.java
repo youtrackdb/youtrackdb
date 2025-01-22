@@ -19,103 +19,89 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
-/**
- *
- */
 public class SecuritySystemUserImpl extends SecurityUserImpl {
-  private String databaseName;
-  private String userType;
 
-  protected String getDatabaseName() {
-    return databaseName;
-  }
+  public static final String SYSTEM_USER = "SYSTEM_USER";
 
-  public SecuritySystemUserImpl(DatabaseSessionInternal session, final String iName) {
-    super(session, iName);
-  }
-
-  public SecuritySystemUserImpl(DatabaseSessionInternal session, String iUserName,
-      final String iUserPassword) {
-    super(session, iUserName, iUserPassword);
-  }
-
-  public SecuritySystemUserImpl(DatabaseSessionInternal session, String iUserName,
-      final String iUserPassword,
-      String userType) {
-    super(session, iUserName, iUserPassword);
-    this.userType = userType;
-  }
-
-  /**
-   * Create the user by reading the source document.
-   */
-  public SecuritySystemUserImpl(DatabaseSessionInternal session, final EntityImpl iSource) {
-    super(session, iSource);
-  }
+  private final String databaseName;
+  private final Set<Role> systemRoles = ConcurrentHashMap.newKeySet();
 
   /**
    * dbName is the name of the source database and is used for filtering roles.
    */
-  public SecuritySystemUserImpl(DatabaseSessionInternal session, final EntityImpl iSource,
+  public SecuritySystemUserImpl(DatabaseSessionInternal session, final EntityImpl source,
       final String dbName) {
+    super(session, source);
+
     databaseName = dbName;
+    populateSystemRoles(session);
   }
 
-  /**
-   * Derived classes can override createRole() to return an extended Role implementation.
-   */
-  protected Role createRole(DatabaseSessionInternal session, final EntityImpl roleEntity) {
-    Role role = null;
+  @Override
+  public SecurityUserImpl addRole(DatabaseSessionInternal session, SecurityRole role) {
+    super.addRole(session, role);
+    populateSystemRoles(session);
+    return this;
+  }
 
-    // If databaseName is set, then only allow roles with the same databaseName.
-    if (databaseName != null && !databaseName.isEmpty()) {
-      if (roleEntity != null
-          && roleEntity.containsField(SystemRole.DB_FILTER)
-          && roleEntity.fieldType(SystemRole.DB_FILTER) == PropertyType.EMBEDDEDLIST) {
+  @Override
+  public boolean removeRole(DatabaseSessionInternal session, String roleName) {
+    var result = super.removeRole(session, roleName);
 
-        List<String> dbNames = roleEntity.field(SystemRole.DB_FILTER, PropertyType.EMBEDDEDLIST);
+    if (result) {
+      populateSystemRoles(session);
+    }
 
+    return result;
+  }
+
+  @Override
+  public String getUserType() {
+    return SYSTEM_USER;
+  }
+
+  @Override
+  public Set<Role> getRoles() {
+    return systemRoles;
+  }
+
+  private void populateSystemRoles(DatabaseSessionInternal databaseSession) {
+    systemRoles.clear();
+    var roles = getUserRoles();
+
+    for (Role role : roles) {
+      // If databaseName is set, then only allow roles with the same databaseName.
+      if (databaseName != null && !databaseName.isEmpty()) {
+        List<String> dbNames = role.getProperty(SystemRole.DB_FILTER);
         for (String dbName : dbNames) {
-          if (dbName != null
-              && !dbName.isEmpty()
+          if (!dbName.isEmpty()
               && (dbName.equalsIgnoreCase(databaseName) || dbName.equals("*"))) {
-            role = new SystemRole(session, roleEntity);
+            systemRoles.add(role);
             break;
           }
         }
-      }
-    } else {
-      // If databaseName is not set, only return roles without a SystemRole.DB_FILTER property or
-      // if set to "*".
-      if (roleEntity != null) {
-        if (!roleEntity.containsField(SystemRole.DB_FILTER)) {
-          role = new SystemRole(session, roleEntity);
-        } else { // It does use the dbFilter property.
-          if (roleEntity.fieldType(SystemRole.DB_FILTER) == PropertyType.EMBEDDEDLIST) {
-            List<String> dbNames = roleEntity.field(SystemRole.DB_FILTER,
-                PropertyType.EMBEDDEDLIST);
 
-            for (String dbName : dbNames) {
-              if (dbName != null && !dbName.isEmpty() && dbName.equals("*")) {
-                role = new SystemRole(session, roleEntity);
-                break;
-              }
+      } else {
+        // If databaseName is not set, only return roles without a SystemRole.DB_FILTER property or
+        // if set to "*".
+        List<String> dbNames = role.getProperty(SystemRole.DB_FILTER);
+        if (dbNames == null || dbNames.isEmpty()) {
+          systemRoles.add(role);
+        } else { // It does use the dbFilter property.
+          for (String dbName : dbNames) {
+            if (dbName != null && dbName.equals("*")) {
+              systemRoles.add(role);
+              break;
             }
           }
         }
       }
     }
-
-    return role;
-  }
-
-  @Override
-  public String getUserType() {
-    return userType;
   }
 }

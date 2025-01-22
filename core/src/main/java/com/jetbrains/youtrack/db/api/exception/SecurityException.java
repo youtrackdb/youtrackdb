@@ -34,4 +34,8 @@ public class SecurityException extends CoreException implements HighLevelExcepti
   public SecurityException(final String message) {
     super(message);
   }
+
+  public SecurityException(String message, String dbName) {
+    super(message, null, dbName);
+  }
 }

@@ -122,6 +122,7 @@ import javax.annotation.Nonnull;
 @SuppressWarnings("unchecked")
 public abstract class DatabaseSessionAbstract extends ListenerManger<SessionListener>
     implements DatabaseSessionInternal {
+
   protected final Map<String, Object> properties = new HashMap<>();
   protected Map<RecordHook, RecordHook.HOOK_POSITION> unmodifiableHooks;
   protected final Set<Identifiable> inHook = new HashSet<>();
@@ -439,10 +440,10 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
           if (secGetUser != null) {
             user = new ImmutableUser(this, security.getVersion(this), secGetUser);
           } else {
-            user = new ImmutableUser(this, -1, new SecurityUserImpl(this));
+            throw new SecurityException("User not found", url);
           }
         } else {
-          user = new ImmutableUser(this, -1, new SecurityUserImpl());
+          throw new SecurityException("Metadata not found", url);
         }
       }
     }

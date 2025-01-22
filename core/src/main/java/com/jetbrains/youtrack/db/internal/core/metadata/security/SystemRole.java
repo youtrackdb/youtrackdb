@@ -21,20 +21,12 @@ package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import java.util.Map;
 
 /**
  *
  */
 public class SystemRole extends Role {
   public static final String DB_FILTER = "dbFilter";
-
-  public SystemRole(
-      DatabaseSessionInternal session, final String iName,
-      final Role iParent,
-      Map<String, SecurityPolicy> policies) {
-    super(session, iName, iParent, policies);
-  }
 
   /**
    * Create the role by reading the source entity.

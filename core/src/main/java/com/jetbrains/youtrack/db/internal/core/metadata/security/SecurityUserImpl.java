@@ -49,6 +49,7 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
   public static final String ADMIN = "admin";
   public static final String CLASS_NAME = "OUser";
   public static final String PASSWORD_FIELD = "password";
+  public static final String DATABASE_USER = "Database";
 
   public SecurityUserImpl(DatabaseSessionInternal db, final String iName) {
     super(db, CLASS_NAME);
@@ -80,7 +81,7 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
       if (value != null) {
         //noinspection rawtypes
         for (final Object o : (Collection) value) {
-          roles.add(createRole(db, (EntityImpl) ((RID) o).getEntity(db)));
+          roles.add(new Role(db, (EntityImpl) ((RID) o).getEntity(db)));
         }
       }
 
@@ -121,25 +122,17 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
   }
 
   /**
-   * Derived classes can override createRole() to return an extended Role implementation or null if
-   * the role should not be added.
-   */
-  protected Role createRole(DatabaseSessionInternal session, final EntityImpl roleEntity) {
-    return new Role(session, roleEntity);
-  }
-
-  /**
    * Checks if the user has the permission to access to the requested resource for the requested
    * operation.
    *
-   * @param iOperation Requested operation
+   * @param operation Requested operation
    * @return The role that has granted the permission if any, otherwise a SecurityAccessException
    * exception is raised
    */
   public Role allow(
       DatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
       String resourceSpecific,
-      final int iOperation) {
+      final int operation) {
     var roles = getRoles();
     if (roles == null || roles.isEmpty()) {
       throw new SecurityAccessException(
@@ -147,14 +140,14 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
           "User '" + getProperty("name") + "' has no role defined");
     }
 
-    final Role role = checkIfAllowed(session, resourceGeneric, resourceSpecific, iOperation);
+    final Role role = checkIfAllowed(session, resourceGeneric, resourceSpecific, operation);
     if (role == null) {
       throw new SecurityAccessException(
           session.getName(),
           "User '"
               + getProperty("name")
               + "' does not have permission to execute the operation '"
-              + Role.permissionToString(iOperation)
+              + Role.permissionToString(operation)
               + "' against the resource: "
               + resourceGeneric
               + "."
@@ -296,6 +289,10 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
   }
 
   public Set<Role> getRoles() {
+    return getUserRoles();
+  }
+
+  protected Set<Role> getUserRoles() {
     return getProperty("roles");
   }
 
@@ -307,10 +304,10 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
   }
 
   @Override
-  public SecurityUserImpl addRole(DatabaseSessionInternal session, final SecurityRole iRole) {
-    if (iRole != null) {
-      var roles = getRoles();
-      roles.add((Role) iRole);
+  public SecurityUserImpl addRole(DatabaseSessionInternal session, final SecurityRole role) {
+    if (role != null) {
+      var roles = getUserRoles();
+      roles.add((Role) role);
     }
 
     return this;
@@ -318,8 +315,8 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
 
   public boolean removeRole(DatabaseSessionInternal session, final String roleName) {
     boolean removed = false;
-    var roles = getRoles();
 
+    var roles = getUserRoles();
     roles.removeIf(role -> role.getName(session).equals(roleName));
 
     return removed;
@@ -360,6 +357,6 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
 
   @Override
   public String getUserType() {
-    return "Database";
+    return DATABASE_USER;
   }
 }

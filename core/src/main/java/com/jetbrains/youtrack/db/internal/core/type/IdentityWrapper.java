@@ -69,7 +69,7 @@ public class IdentityWrapper implements Serializable {
     return rid;
   }
 
-  protected <T> T getProperty(String name) {
+  public <T> T getProperty(String name) {
     return (T) data.get(name);
   }
 
