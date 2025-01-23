@@ -553,6 +553,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
                   EntityInternalUtils.getImmutableSchemaClass(database, entity);
               if (clazz != null) {
                 ClassIndexManager.checkIndexesAfterCreate(entity, database);
+                txEntry.indexTrackingDirtyCounter = record.getDirtyCounter();
               }
             }
           }
@@ -561,8 +562,9 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
             if (record instanceof EntityImpl entity) {
               final SchemaImmutableClass clazz =
                   EntityInternalUtils.getImmutableSchemaClass(database, entity);
-              if (clazz != null) {
+              if (clazz != null && record.getDirtyCounter() != txEntry.indexTrackingDirtyCounter) {
                 ClassIndexManager.checkIndexesAfterUpdate(entity, database);
+                txEntry.indexTrackingDirtyCounter = record.getDirtyCounter();
               }
             }
           }
@@ -685,7 +687,15 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
           }
 
           entity.recordFormat = serializer;
+
+          if (entity.getDirtyCounter() != recordOperation.indexTrackingDirtyCounter) {
+            if (className != null) {
+              ClassIndexManager.checkIndexesAfterUpdate(entity, database);
+              recordOperation.indexTrackingDirtyCounter = record.getDirtyCounter();
+            }
+          }
         }
+
         if (recordOperation.type == RecordOperation.CREATED) {
           if (processRecordCreation(recordOperation, record)) {
             if (changedRecords == null) {
@@ -716,7 +726,13 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
       while (!changedRecords.isEmpty()) {
         for (var record : changedRecords) {
           var recordOperation = new RecordOperation(record, RecordOperation.UPDATED);
-          recordOperation.dirtyCounter = record.getDirtyCounter();
+          recordOperation.recordCallBackDirtyCounter = record.getDirtyCounter();
+          recordOperation.indexTrackingDirtyCounter = record.getDirtyCounter();
+
+          if (record instanceof EntityImpl entity && entity.getClassName() != null) {
+            ClassIndexManager.checkIndexesAfterUpdate(entity, database);
+            recordOperation.indexTrackingDirtyCounter = record.getDirtyCounter();
+          }
 
           if (processRecordUpdate(recordOperation, record)) {
             recordsChangedInLoop.add(record);
@@ -744,14 +760,14 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
     } finally {
       database.callbackHooks(TYPE.FINALIZE_DELETION, record);
     }
-    recordOperation.dirtyCounter = record.getDirtyCounter();
+    recordOperation.recordCallBackDirtyCounter = record.getDirtyCounter();
   }
 
   private boolean processRecordUpdate(RecordOperation recordOperation, RecordAbstract record) {
     var dirtyCounter = record.getDirtyCounter();
     var clusterName = database.getClusterNameById(record.getIdentity().getClusterId());
-    if (recordOperation.dirtyCounter != record.getDirtyCounter()) {
-      recordOperation.dirtyCounter = dirtyCounter;
+    if (recordOperation.recordCallBackDirtyCounter != record.getDirtyCounter()) {
+      recordOperation.recordCallBackDirtyCounter = dirtyCounter;
       database.beforeUpdateOperations(record, clusterName);
       try {
         database.afterUpdateOperations(record);
@@ -765,7 +781,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
         database.callbackHooks(TYPE.FINALIZE_UPDATE, record);
       }
 
-      return record.getDirtyCounter() != recordOperation.dirtyCounter;
+      return record.getDirtyCounter() != recordOperation.recordCallBackDirtyCounter;
     }
 
     return false;
@@ -775,7 +791,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
     database.assignAndCheckCluster(recordOperation.record, null);
     var clusterName = database.getClusterNameById(record.getIdentity().getClusterId());
 
-    recordOperation.dirtyCounter = record.getDirtyCounter();
+    recordOperation.recordCallBackDirtyCounter = record.getDirtyCounter();
     database.beforeCreateOperations(record, clusterName);
     try {
       database.afterCreateOperations(record);
@@ -789,7 +805,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
       database.callbackHooks(TYPE.FINALIZE_CREATION, record);
     }
 
-    return recordOperation.dirtyCounter != record.getDirtyCounter();
+    return recordOperation.recordCallBackDirtyCounter != record.getDirtyCounter();
   }
 
   public void resetChangesTracking() {

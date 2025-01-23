@@ -403,7 +403,6 @@ public class Role extends IdentityWrapper implements SecurityRole {
       return this;
     }
 
-    var rules = getRules();
     Rule rule = rules.get(resourceGeneric);
 
     if (rule == null) {

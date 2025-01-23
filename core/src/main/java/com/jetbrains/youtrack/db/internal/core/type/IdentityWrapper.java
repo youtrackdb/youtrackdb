@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
  */
 public abstract class IdentityWrapper implements Serializable {
 
-  private final RID rid;
+  private final @Nonnull RID rid;
 
   public IdentityWrapper(DatabaseSessionInternal sessionInternal, final String iClassName) {
     var entity = sessionInternal.newEntity(iClassName);
@@ -57,4 +57,19 @@ public abstract class IdentityWrapper implements Serializable {
     db.delete(entity);
   }
 
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    IdentityWrapper that = (IdentityWrapper) o;
+    return rid.equals(that.rid);
+  }
+
+  @Override
+  public int hashCode() {
+    return rid.hashCode();
+  }
 }

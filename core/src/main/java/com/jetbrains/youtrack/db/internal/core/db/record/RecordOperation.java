@@ -33,7 +33,9 @@ public final class RecordOperation implements Comparable<RecordOperation> {
 
   public byte type;
   public final RecordAbstract record;
-  public long dirtyCounter;
+
+  public long recordCallBackDirtyCounter;
+  public long indexTrackingDirtyCounter;
 
   // used in processing of server transactions
   public boolean callHooksOnServerTx = false;
@@ -42,7 +44,6 @@ public final class RecordOperation implements Comparable<RecordOperation> {
     // CLONE RECORD AND CONTENT
     this.record = record;
     this.type = status;
-    this.dirtyCounter = record.getDirtyCounter();
   }
 
   @Override
