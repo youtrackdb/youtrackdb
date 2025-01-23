@@ -1024,9 +1024,9 @@ public class SecurityShared implements SecurityInternal {
             "OUser.name", INDEX_TYPE.UNIQUE, NullOutputListener.INSTANCE, "name");
       }
     }
-    if (!userClass.existsProperty(SecurityUserImpl.PASSWORD_FIELD)) {
+    if (!userClass.existsProperty(SecurityUserImpl.PASSWORD_PROPERTY)) {
       userClass
-          .createProperty(database, SecurityUserImpl.PASSWORD_FIELD, PropertyType.STRING,
+          .createProperty(database, SecurityUserImpl.PASSWORD_PROPERTY, PropertyType.STRING,
               (PropertyType) null, unsafe)
           .setMandatory(database, true)
           .setNotNull(database, true);

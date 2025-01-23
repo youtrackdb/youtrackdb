@@ -32,11 +32,14 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule.ResourceGe
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.type.IdentityWrapper;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nonnull;
 
 /**
  * Contains the user settings about security and permissions roles.<br> Allowed operation are the
@@ -78,6 +81,12 @@ public class Role extends IdentityWrapper implements SecurityRole {
   // CRUD OPERATIONS
   private static Int2ObjectOpenHashMap<String> PERMISSION_BIT_NAMES;
 
+  private final ConcurrentHashMap<ResourceGeneric, Rule> rules = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<String, SecurityPolicy> policies = new ConcurrentHashMap<>();
+
+  private final String name;
+  private volatile SecurityRole parent;
+
   public Role(DatabaseSessionInternal db, final String iName, final Role parent) {
     this(db, iName, parent, null);
   }
@@ -87,15 +96,11 @@ public class Role extends IdentityWrapper implements SecurityRole {
       Map<String, SecurityPolicy> policies) {
     super(db, CLASS_NAME);
 
-    setProperty(NAME, name);
-    setProperty(INHERITED_ROLE,
-        parent != null ? parent.getIdentity() : null);
+    this.name = name;
+    this.parent = parent;
 
     if (policies != null) {
-      Map<String, Identifiable> p = new HashMap<>();
-      policies.forEach((k, v) -> p.put(k,
-          ((SecurityPolicyImpl) v).getElement(db)));
-      setProperty(POLICIES, p);
+      this.policies.putAll(policies);
     }
 
     save(db);
@@ -104,8 +109,64 @@ public class Role extends IdentityWrapper implements SecurityRole {
   /**
    * Create the role by reading the source entity.
    */
-  public Role(DatabaseSessionInternal session, final EntityImpl iSource) {
-    super(session, iSource);
+  public Role(DatabaseSessionInternal session, final EntityImpl source) {
+    super(source);
+
+    name = source.getProperty(NAME);
+    var inheritedParent = source.getLinkProperty(INHERITED_ROLE);
+
+    if (inheritedParent != null) {
+      parent = session.getMetadata().getSecurity().getRole(inheritedParent);
+    } else {
+      parent = null;
+    }
+
+    Map<String, Number> storedRules = source.getProperty(RULES);
+    if (storedRules != null) {
+      for (Entry<String, Number> a : storedRules.entrySet()) {
+        Rule.ResourceGeneric resourceGeneric =
+            Rule.mapLegacyResourceToGenericResource(a.getKey());
+
+        Rule rule = rules.get(resourceGeneric);
+        if (rule == null) {
+          rule = new Rule(resourceGeneric, null, null);
+          rules.put(resourceGeneric, rule);
+        }
+
+        String specificResource = Rule.mapLegacyResourceToSpecificResource(a.getKey());
+        if (specificResource == null || specificResource.equals("*")) {
+          rule.grantAccess(null, a.getValue().intValue());
+        } else {
+          rule.grantAccess(specificResource, a.getValue().intValue());
+        }
+      }
+    }
+
+    Map<String, Identifiable> policies = source.getProperty(POLICIES);
+    if (policies != null) {
+      policies.forEach(
+          (key, value) -> {
+            try {
+              Entity rec = value.getRecord(session);
+              this.policies.put(key, new SecurityPolicyImpl(rec));
+            } catch (RecordNotFoundException rnf) {
+              // ignore
+            }
+          });
+    }
+  }
+
+  @Override
+  protected void toEntity(@Nonnull DatabaseSessionInternal db, @Nonnull EntityImpl entity) {
+    entity.setProperty(NAME, name);
+    entity.setProperty(INHERITED_ROLE, parent != null ? parent.getIdentity() : null);
+    entity.setProperty(RULES, getEncodedRules());
+
+    var storedPolicies = new HashMap<String, Identifiable>();
+    for (Map.Entry<String, SecurityPolicy> policy : policies.entrySet()) {
+      storedPolicies.put(policy.getKey(), policy.getValue().getIdentity());
+    }
+    entity.setProperty(POLICIES, storedPolicies);
   }
 
   /**
@@ -158,19 +219,19 @@ public class Role extends IdentityWrapper implements SecurityRole {
 
   static void generateSchema(DatabaseSessionInternal session) {
     Property p;
-    final SchemaClassInternal roleClass = session.getMetadata().getSchema()
-        .getClassInternal(CLASS_NAME);
+    var schema = session.getMetadata().getSchema();
+    final SchemaClassInternal roleClass = schema.getClassInternal(CLASS_NAME);
 
     final Property rules = roleClass.getProperty(RULES);
-    if (rules != null && !PropertyType.EMBEDDEDMAP.equals(rules.getType())) {
-      roleClass.dropProperty(session, RULES);
+    if (rules == null) {
+      roleClass.createProperty(session, RULES, PropertyType.EMBEDDEDSET);
     }
 
     if (!roleClass.existsProperty(INHERITED_ROLE)) {
       roleClass.createProperty(session, INHERITED_ROLE, PropertyType.LINK, roleClass);
     }
 
-    p = roleClass.getProperty("name");
+    p = roleClass.getProperty(NAME);
     if (p == null) {
       p = roleClass.createProperty(session, NAME, PropertyType.STRING).
           setMandatory(session, true)
@@ -180,54 +241,19 @@ public class Role extends IdentityWrapper implements SecurityRole {
     if (roleClass.getInvolvedIndexes(session, NAME) == null) {
       p.createIndex(session, INDEX_TYPE.UNIQUE);
     }
-  }
 
-  @Override
-  protected Object deserializeProperty(DatabaseSessionInternal db, String propertyName,
-      Object value) {
-
-    if (propertyName.equals(INHERITED_ROLE)) {
-      if (value == null || value instanceof Role) {
-        return value;
-      }
-
-      return db.getMetadata().getSecurity().getRole((Identifiable) value);
-    } else if (propertyName.equals(RULES)) {
-      if (value == null) {
-        return null;
-      }
-
-      @SuppressWarnings("unchecked")
-      var storedRules = (Set<Map<String, Object>>) value;
-      var rules = new HashMap<Rule.ResourceGeneric, Rule>();
-
-      for (var ruleDoc : storedRules) {
-        final Rule.ResourceGeneric resourceGeneric =
-            Rule.ResourceGeneric.valueOf(ruleDoc.get("resourceGeneric").toString());
-        if (resourceGeneric == null) {
-          continue;
-        }
-
-        @SuppressWarnings("unchecked") final Map<String, Byte> specificResources = (Map<String, Byte>) ruleDoc.get(
-            "specificResources");
-        final Byte access = (Byte) ruleDoc.get("access");
-
-        final Rule rule = new Rule(resourceGeneric, specificResources, access);
-        rules.put(resourceGeneric, rule);
-      }
-
-      return rules;
+    if (!roleClass.existsProperty(POLICIES)) {
+      roleClass.createProperty(session, POLICIES, PropertyType.LINKMAP,
+          schema.getClass(SecurityPolicy.CLASS_NAME));
     }
-
-    return super.deserializeProperty(db, propertyName, value);
   }
 
   private Map<ResourceGeneric, Rule> getRules() {
-    return getProperty(RULES);
+    return Collections.unmodifiableMap(rules);
   }
 
-  public Role getParentRole() {
-    return getProperty(INHERITED_ROLE);
+  public SecurityRole getParentRole() {
+    return parent;
   }
 
   public boolean allow(
@@ -242,10 +268,9 @@ public class Role extends IdentityWrapper implements SecurityRole {
       }
     }
 
-    var parentRole = getParentRole();
-    if (parentRole != null) // DELEGATE TO THE PARENT ROLE IF ANY
+    if (parent != null) // DELEGATE TO THE PARENT ROLE IF ANY
     {
-      return parentRole.allow(resourceGeneric, resourceSpecific, iCRUDOperation);
+      return parent.allow(resourceGeneric, resourceSpecific, iCRUDOperation);
     }
 
     return false;
@@ -265,9 +290,7 @@ public class Role extends IdentityWrapper implements SecurityRole {
   public Role addRule(
       DatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
       final int iOperation) {
-    var rules = getRules();
     Rule rule = rules.get(resourceGeneric);
-
     if (rule == null) {
       rule = new Rule(resourceGeneric, null, null);
       rules.put(resourceGeneric, rule);
@@ -356,7 +379,6 @@ public class Role extends IdentityWrapper implements SecurityRole {
   public Role grant(
       DatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
       final int iOperation) {
-    var rules = getRules();
     Rule rule = rules.get(resourceGeneric);
 
     if (rule == null) {
@@ -398,20 +420,19 @@ public class Role extends IdentityWrapper implements SecurityRole {
   }
 
   public String getName(DatabaseSession session) {
-    return getProperty(NAME);
+    return name;
   }
 
   public void setParentRole(DatabaseSession session, final SecurityRole parent) {
-    setProperty(INHERITED_ROLE, parent);
+    this.parent = parent;
   }
 
   public Set<Rule> getRuleSet() {
     return new HashSet<>(getRules().values());
   }
 
-  @Deprecated
   public Map<String, Byte> getEncodedRules() {
-    final Map<String, Byte> result = new HashMap<String, Byte>();
+    final Map<String, Byte> result = new HashMap<>();
 
     var rules = getRules();
     for (Rule rule : rules.values()) {
@@ -431,42 +452,12 @@ public class Role extends IdentityWrapper implements SecurityRole {
 
   @Override
   public Map<String, ? extends SecurityPolicy> getPolicies(DatabaseSession db) {
-    Map<String, Identifiable> policies = getProperty(POLICIES);
-    if (policies == null) {
-      return null;
-    }
-    Map<String, SecurityPolicy> result = new HashMap<>();
-    policies.forEach(
-        (key, value) -> {
-          try {
-            Entity rec = value.getRecord(db);
-            result.put(key, new SecurityPolicyImpl(rec));
-          } catch (RecordNotFoundException rnf) {
-            // ignore
-          }
-        });
-    return result;
+    return Collections.unmodifiableMap(policies);
   }
 
   @Override
   public SecurityPolicy getPolicy(DatabaseSession db, String resource) {
-    Map<String, Identifiable> policies = getProperty(POLICIES);
-    if (policies == null) {
-      return null;
-    }
-    Identifiable entry = policies.get(resource);
-    if (entry == null) {
-      return null;
-    }
-    Entity policy;
-    try {
-      policy = entry.getRecord(db);
-
-    } catch (RecordNotFoundException rnf) {
-      return null;
-    }
-
-    return new SecurityPolicyImpl(policy);
+    return policies.get(resource);
   }
 }
 

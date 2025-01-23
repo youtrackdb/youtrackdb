@@ -16,10 +16,8 @@
 
 package com.jetbrains.youtrack.db.internal.core.schedule;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.exception.CommandScriptException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
@@ -34,6 +32,7 @@ import java.text.ParseException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -60,33 +59,51 @@ public class ScheduledEvent extends IdentityWrapper {
   private CronExpression cron;
   private volatile TimerTask timer;
   private final AtomicLong nextExecutionId;
+  private volatile STATUS status;
+  private volatile long startTime;
+
+  private final Function function;
+  private final String rule;
+  private final String name;
+  private final Map<String, Object> arguments;
 
   /**
    * Creates a scheduled event object from a configuration.
    */
   public ScheduledEvent(final EntityImpl entity, DatabaseSessionInternal db) {
-    super(db, entity);
+    super(entity);
+
+    var functionEntity = entity.getEntityProperty(PROP_FUNC);
+    function = db.getMetadata().getFunctionLibrary().getFunction(
+        functionEntity.getProperty(Function.NAME_PROPERTY));
+    rule = entity.getProperty(PROP_RULE);
+    name = entity.getProperty(PROP_NAME);
+    status = STATUS.valueOf(entity.getProperty(PROP_STATUS));
+
+    Map<String, Object> args = entity.getProperty(PROP_ARGUMENTS);
+    this.arguments = Objects.requireNonNullElse(args, Collections.emptyMap());
+
     running = new AtomicBoolean(false);
-    nextExecutionId = new AtomicLong(getNextExecutionId());
+    Long execId = entity.getProperty(PROP_EXEC_ID);
+
+    nextExecutionId = new AtomicLong(execId != null ? execId : 0);
     try {
-      cron = new CronExpression(getRule());
+      cron = new CronExpression(rule);
     } catch (ParseException e) {
       LogManager.instance()
-          .error(this, "Error on compiling cron expression " + getRule(), e);
+          .error(this, "Error on compiling cron expression " + rule, e);
     }
   }
 
   @Override
-  protected Object deserializeProperty(DatabaseSessionInternal db, String propertyName,
-      Object value) {
-    if (PROP_FUNC.equals(propertyName)) {
-      var functionIdentifiable = (Identifiable) value;
-      var functionEntity = (EntityImpl) functionIdentifiable.getEntity(db);
-
-      return new Function(db, functionEntity);
-    }
-
-    return super.deserializeProperty(db, propertyName, value);
+  protected void toEntity(@Nonnull DatabaseSessionInternal db, @Nonnull EntityImpl entity) {
+    entity.setProperty(PROP_NAME, name);
+    entity.setProperty(PROP_RULE, rule);
+    entity.setProperty(PROP_ARGUMENTS, arguments);
+    entity.setProperty(PROP_STATUS, status);
+    entity.setProperty(PROP_FUNC, function.getIdentity());
+    entity.setProperty(PROP_EXEC_ID, nextExecutionId.get());
+    entity.setProperty(PROP_STARTTIME, startTime);
   }
 
   public void interrupt() {
@@ -100,44 +117,20 @@ public class ScheduledEvent extends IdentityWrapper {
   }
 
   public Function getFunction() {
-    final Function fun = getProperty(PROP_FUNC);
-    if (fun == null) {
-      throw new CommandScriptException("Function cannot be null");
-    }
-
-    return fun;
+    return function;
   }
 
   public String getRule() {
-    return getProperty(PROP_RULE);
+    return rule;
   }
 
   public String getName() {
-    return getProperty(PROP_NAME);
-  }
-
-  public long getNextExecutionId() {
-    Long value = getProperty(PROP_EXEC_ID);
-    return value != null ? value : 0;
-  }
-
-  public String getStatus() {
-    return getProperty(PROP_STATUS);
+    return name;
   }
 
   @Nonnull
   public Map<String, Object> getArguments() {
-    Map<String, Object> value = getProperty(PROP_ARGUMENTS);
-
-    if (value == null) {
-      return Collections.emptyMap();
-    }
-
-    return value;
-  }
-
-  public Date getStartTime() {
-    return getProperty(PROP_STARTTIME);
+    return arguments;
   }
 
   public boolean isRunning() {
@@ -167,6 +160,7 @@ public class ScheduledEvent extends IdentityWrapper {
   private static class ScheduledTimerTask extends TimerTask {
 
     private final ScheduledEvent event;
+
     private final String database;
     private final String user;
     private final YouTrackDBInternal youTrackDBInternal;
@@ -211,15 +205,6 @@ public class ScheduledEvent extends IdentityWrapper {
         return;
       }
 
-      if (event.getProperty(PROP_FUNC) == null) {
-        LogManager.instance()
-            .error(
-                this,
-                "Error: The scheduled event '" + event.getName() + "' has no configured function",
-                null);
-        return;
-      }
-
       try {
         event.setRunning(true);
 
@@ -257,24 +242,35 @@ public class ScheduledEvent extends IdentityWrapper {
     private boolean executeEvent(DatabaseSessionInternal db) {
       for (int retry = 0; retry < 10; ++retry) {
         try {
-          if (isEventAlreadyExecuted(db)) {
-            break;
+          try {
+            return db.computeInTx(() -> {
+              var eventEntity = db.loadEntity(event.getIdentity());
+              if (isEventAlreadyExecuted(eventEntity)) {
+                return false;
+              }
+
+              event.status = STATUS.RUNNING;
+              event.startTime = System.currentTimeMillis();
+
+              eventEntity.setProperty(PROP_STATUS, event.status);
+              eventEntity.setProperty(PROP_STARTTIME, event.startTime);
+              eventEntity.setProperty(PROP_EXEC_ID, event.nextExecutionId.get());
+
+              event.save(db);
+
+              return true;
+            });
+          } catch (RecordNotFoundException e) {
+            event.interrupt();
+            return false;
           }
-
-          db.begin();
-          event.setProperty(PROP_STATUS, STATUS.RUNNING);
-          event.setProperty(PROP_STARTTIME, System.currentTimeMillis());
-          event.setProperty(PROP_EXEC_ID, event.nextExecutionId.get());
-
-          event.save(db);
-          db.commit();
-
-          // OK
-          return true;
         } catch (NeedRetryException e) {
-          // CONCURRENT UPDATE, PROBABLY EXECUTED BY ANOTHER SERVER
-          if (isEventAlreadyExecuted(db)) {
-            break;
+          if (db.computeInTx(() -> {
+            var eventEntity = db.loadEntity(event.getIdentity());
+            // CONCURRENT UPDATE, PROBABLY EXECUTED BY ANOTHER SERVER
+            return isEventAlreadyExecuted(eventEntity);
+          })) {
+            return false;
           }
 
           LogManager.instance()
@@ -333,7 +329,7 @@ public class ScheduledEvent extends IdentityWrapper {
           session.executeInTx(
               () -> {
                 try {
-                  event.setProperty(PROP_STATUS, STATUS.WAITING);
+                  event.status = STATUS.WAITING;
                   event.save(session);
                 } catch (NeedRetryException e) {
                   //continue
@@ -347,14 +343,8 @@ public class ScheduledEvent extends IdentityWrapper {
       }
     }
 
-    private boolean isEventAlreadyExecuted(@Nonnull DatabaseSession db) {
-      try {
-        event.getIdentity().getRecord(db);
-      } catch (RecordNotFoundException e) {
-        return true;
-      }
-
-      final Long currentExecutionId = event.getProperty(PROP_EXEC_ID);
+    private boolean isEventAlreadyExecuted(Entity eventEntity) {
+      final Long currentExecutionId = eventEntity.getProperty(PROP_EXEC_ID);
       if (currentExecutionId == null) {
         return false;
       }

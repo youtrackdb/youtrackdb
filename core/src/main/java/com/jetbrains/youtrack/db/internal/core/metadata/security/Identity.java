@@ -17,6 +17,6 @@ public abstract class Identity extends IdentityWrapper {
 
   public Identity(DatabaseSessionInternal db,
       EntityImpl entity) {
-    super(db, entity);
+    super(entity);
   }
 }

@@ -23,19 +23,19 @@ package com.jetbrains.youtrack.db.internal.core.metadata.security;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
 import com.jetbrains.youtrack.db.api.exception.SecurityException;
-import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule.ResourceGeneric;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityManager;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
 import com.jetbrains.youtrack.db.internal.core.type.IdentityWrapper;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nonnull;
 
 /**
  * Contains the user settings about security and permissions. Each user has one or more roles
@@ -48,47 +48,57 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
 
   public static final String ADMIN = "admin";
   public static final String CLASS_NAME = "OUser";
-  public static final String PASSWORD_FIELD = "password";
+  public static final String PASSWORD_PROPERTY = "password";
   public static final String DATABASE_USER = "Database";
+  public static final String ROLES_PROPERTY = "roles";
+  public static final String NAME_PROPERTY = "name";
+  public static final String STATUS_PROPERTY = "status";
 
-  public SecurityUserImpl(DatabaseSessionInternal db, final String iName) {
+  private volatile String name;
+  private volatile String password;
+  private volatile STATUSES status;
+  protected final Set<Role> roles = ConcurrentHashMap.newKeySet();
+
+  public SecurityUserImpl(DatabaseSessionInternal db, final String userName) {
     super(db, CLASS_NAME);
 
-    setProperty("name", iName);
-    setAccountStatus(db, STATUSES.ACTIVE);
+    this.name = userName;
+    this.status = STATUSES.ACTIVE;
   }
 
-  public SecurityUserImpl(DatabaseSessionInternal db, String iUserName,
-      final String iUserPassword) {
-    super(db, "OUser");
-    setProperty("name", iUserName);
-    setPassword(db, iUserPassword);
-    setAccountStatus(db, STATUSES.ACTIVE);
+  public SecurityUserImpl(DatabaseSessionInternal db, String userName,
+      final String userPassword) {
+    super(db, CLASS_NAME);
+
+    this.name = userName;
+    this.password = userPassword;
+    this.status = STATUSES.ACTIVE;
   }
 
   /**
    * Create the user by reading the source entity.
    */
-  public SecurityUserImpl(DatabaseSessionInternal session, final EntityImpl iSource) {
-    super(session, iSource);
+  public SecurityUserImpl(DatabaseSessionInternal session, final EntityImpl source) {
+    super(source);
+
+    this.name = source.getProperty(NAME_PROPERTY);
+    this.password = source.getProperty(PASSWORD_PROPERTY);
+    this.status = STATUSES.valueOf(source.getProperty(STATUS_PROPERTY));
+
+    var storedRoles = source.<Set<Identifiable>>getProperty(ROLES_PROPERTY);
+
+    var security = session.getMetadata().getSecurity();
+    for (var storeRole : storedRoles) {
+      roles.add(security.getRole(storeRole));
+    }
   }
 
   @Override
-  protected Object deserializeProperty(DatabaseSessionInternal db, String propertyName,
-      Object value) {
-    if (propertyName.equals("roles")) {
-      final Set<Role> roles = new HashSet<>();
-      if (value != null) {
-        //noinspection rawtypes
-        for (final Object o : (Collection) value) {
-          roles.add(new Role(db, (EntityImpl) ((RID) o).getEntity(db)));
-        }
-      }
-
-      return roles;
-    }
-
-    return super.deserializeProperty(db, propertyName, value);
+  protected void toEntity(@Nonnull DatabaseSessionInternal db, @Nonnull EntityImpl entity) {
+    entity.setProperty(NAME_PROPERTY, name);
+    entity.setProperty(PASSWORD_PROPERTY, password);
+    entity.setProperty(STATUS_PROPERTY, status.name());
+    entity.setProperty(ROLES_PROPERTY, roles);
   }
 
   public static String encryptPassword(final String password) {
@@ -100,7 +110,7 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
 
   public static boolean encodePassword(
       DatabaseSessionInternal session, final EntityImpl entity) {
-    final String name = entity.field("name");
+    final String name = entity.field(NAME_PROPERTY);
     if (name == null) {
       throw new SecurityException("User name not found");
     }
@@ -108,7 +118,7 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
     final String password = entity.field("password");
 
     if (password == null) {
-      throw new SecurityException("User '" + entity.field("name") + "' has no password");
+      throw new SecurityException("User '" + entity.field(NAME_PROPERTY) + "' has no password");
     }
     SecuritySystem security = session.getSharedContext().getYouTrackDB().getSecuritySystem();
     security.validatePassword(name, password);
@@ -137,7 +147,7 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
     if (roles == null || roles.isEmpty()) {
       throw new SecurityAccessException(
           session.getName(),
-          "User '" + getProperty("name") + "' has no role defined");
+          "User '" + name + "' has no role defined");
     }
 
     final Role role = checkIfAllowed(session, resourceGeneric, resourceSpecific, operation);
@@ -145,7 +155,7 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
       throw new SecurityAccessException(
           session.getName(),
           "User '"
-              + getProperty("name")
+              + name
               + "' does not have permission to execute the operation '"
               + Role.permissionToString(operation)
               + "' against the resource: "
@@ -255,45 +265,37 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
   }
 
   public boolean checkPassword(DatabaseSessionInternal session, final String iPassword) {
-    return SecurityManager.checkPassword(iPassword, getProperty(PASSWORD_FIELD));
+    return SecurityManager.checkPassword(iPassword, password);
   }
 
   public String getName(DatabaseSessionInternal session) {
-    return getProperty("name");
+    return name;
   }
 
   public SecurityUserImpl setName(DatabaseSessionInternal session, final String iName) {
-    setProperty("name", iName);
+    this.name = iName;
     return this;
   }
 
   public String getPassword(DatabaseSessionInternal session) {
-    return getProperty(PASSWORD_FIELD);
+    return password;
   }
 
-  public SecurityUserImpl setPassword(DatabaseSessionInternal session, final String iPassword) {
-    setProperty(PASSWORD_FIELD, iPassword);
+  public SecurityUserImpl setPassword(DatabaseSessionInternal session, final String password) {
+    this.password = password;
     return this;
   }
 
   public STATUSES getAccountStatus(DatabaseSessionInternal session) {
-    final String status = getProperty("status");
-    if (status == null) {
-      throw new SecurityException("User '" + getName(session) + "' has no status");
-    }
-    return STATUSES.valueOf(status);
+    return status;
   }
 
   public void setAccountStatus(DatabaseSessionInternal session, STATUSES accountStatus) {
-    setProperty("status", accountStatus);
+    this.status = accountStatus;
   }
 
   public Set<Role> getRoles() {
-    return getUserRoles();
-  }
-
-  protected Set<Role> getUserRoles() {
-    return getProperty("roles");
+    return Collections.unmodifiableSet(roles);
   }
 
   public SecurityUserImpl addRole(DatabaseSessionInternal session, final String iRole) {
@@ -306,7 +308,6 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
   @Override
   public SecurityUserImpl addRole(DatabaseSessionInternal session, final SecurityRole role) {
     if (role != null) {
-      var roles = getUserRoles();
       roles.add((Role) role);
     }
 
@@ -314,27 +315,20 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
   }
 
   public boolean removeRole(DatabaseSessionInternal session, final String roleName) {
-    boolean removed = false;
-
-    var roles = getUserRoles();
-    roles.removeIf(role -> role.getName(session).equals(roleName));
-
-    return removed;
+    return roles.removeIf(role -> role.getName(session).equals(roleName));
   }
 
-  public boolean hasRole(DatabaseSessionInternal session, final String iRoleName,
-      final boolean iIncludeInherited) {
-    var roles = getRoles();
-
+  public boolean hasRole(DatabaseSessionInternal session, final String roleName,
+      final boolean includeInherited) {
     for (final Role role : roles) {
-      if (role.getName(session).equals(iRoleName)) {
+      if (role.getName(session).equals(roleName)) {
         return true;
       }
 
-      if (iIncludeInherited) {
-        Role r = role.getParentRole();
+      if (includeInherited) {
+        var r = role.getParentRole();
         while (r != null) {
-          if (r.getName(session).equals(iRoleName)) {
+          if (r.getName(session).equals(roleName)) {
             return true;
           }
           r = r.getParentRole();
@@ -343,16 +337,6 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
     }
 
     return false;
-  }
-
-  @Override
-  public String toString() {
-    var database = DatabaseRecordThreadLocal.instance().getIfDefined();
-    if (database != null) {
-      return getName(database);
-    }
-
-    return SecurityUserImpl.class.getName();
   }
 
   @Override

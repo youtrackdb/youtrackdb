@@ -21,12 +21,12 @@ package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SecuritySystemUserImpl extends SecurityUserImpl {
-
   public static final String SYSTEM_USER = "SYSTEM_USER";
 
   private final String databaseName;
@@ -68,17 +68,17 @@ public class SecuritySystemUserImpl extends SecurityUserImpl {
 
   @Override
   public Set<Role> getRoles() {
-    return systemRoles;
+    return Collections.unmodifiableSet(systemRoles);
   }
 
   private void populateSystemRoles(DatabaseSessionInternal databaseSession) {
     systemRoles.clear();
-    var roles = getUserRoles();
 
     for (Role role : roles) {
+      var entity = role.getIdentity().getEntity(databaseSession);
       // If databaseName is set, then only allow roles with the same databaseName.
       if (databaseName != null && !databaseName.isEmpty()) {
-        List<String> dbNames = role.getProperty(SystemRole.DB_FILTER);
+        List<String> dbNames = entity.getProperty(SystemRole.DB_FILTER);
         for (String dbName : dbNames) {
           if (!dbName.isEmpty()
               && (dbName.equalsIgnoreCase(databaseName) || dbName.equals("*"))) {
@@ -90,7 +90,7 @@ public class SecuritySystemUserImpl extends SecurityUserImpl {
       } else {
         // If databaseName is not set, only return roles without a SystemRole.DB_FILTER property or
         // if set to "*".
-        List<String> dbNames = role.getProperty(SystemRole.DB_FILTER);
+        List<String> dbNames = entity.getProperty(SystemRole.DB_FILTER);
         if (dbNames == null || dbNames.isEmpty()) {
           systemRoles.add(role);
         } else { // It does use the dbFilter property.
