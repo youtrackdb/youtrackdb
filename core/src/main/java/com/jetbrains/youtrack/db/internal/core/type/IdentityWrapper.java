@@ -19,6 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.type;
 
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -53,8 +54,12 @@ public abstract class IdentityWrapper implements Serializable {
   }
 
   public void delete(DatabaseSessionInternal db) {
-    var entity = db.loadEntity(rid);
-    db.delete(entity);
+    try {
+      var entity = db.loadEntity(rid);
+      db.delete(entity);
+    } catch (RecordNotFoundException e) {
+      // Ignore
+    }
   }
 
 
