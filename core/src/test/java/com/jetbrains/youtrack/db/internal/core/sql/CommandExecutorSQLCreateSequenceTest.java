@@ -22,10 +22,9 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.Test;
 
 public class CommandExecutorSQLCreateSequenceTest extends DbTestBase {
@@ -34,28 +33,22 @@ public class CommandExecutorSQLCreateSequenceTest extends DbTestBase {
   public void testSimple() {
     db.command("CREATE SEQUENCE Sequence1 TYPE ORDERED").close();
 
-    List<Entity> results =
-        db.query("select sequence('Sequence1').next() as val").stream()
-            .map(result2 -> result2.toEntity())
-            .collect(Collectors.toList());
+    List<Result> results =
+        db.query("select sequence('Sequence1').next() as val").toList();
     assertEquals(1, results.size());
-    for (Entity result : results) {
+    for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(1L);
     }
     results =
-        db.query("select sequence('Sequence1').next() as val").stream()
-            .map(result2 -> result2.toEntity())
-            .collect(Collectors.toList());
+        db.query("select sequence('Sequence1').next() as val").toList();
     assertEquals(1, results.size());
-    for (Entity result : results) {
+    for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(2L);
     }
     results =
-        db.query("select sequence('Sequence1').next() as val").stream()
-            .map(result1 -> result1.toEntity())
-            .collect(Collectors.toList());
+        db.query("select sequence('Sequence1').next() as val").toList();
     assertEquals(1, results.size());
-    for (Entity result : results) {
+    for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(3L);
     }
   }
@@ -63,29 +56,22 @@ public class CommandExecutorSQLCreateSequenceTest extends DbTestBase {
   @Test
   public void testIncrement() {
     db.command("CREATE SEQUENCE SequenceIncrement TYPE ORDERED INCREMENT 3").close();
-
-    List<Entity> results =
-        db.query("select sequence('SequenceIncrement').next() as val").stream()
-            .map(result1 -> result1.toEntity())
-            .collect(Collectors.toList());
+    var results =
+        db.query("select sequence('SequenceIncrement').next() as val").toList();
     assertEquals(1, results.size());
-    for (Entity result : results) {
+    for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(3L);
     }
     results =
-        db.query("select sequence('SequenceIncrement').next() as val").stream()
-            .map(result1 -> result1.toEntity())
-            .collect(Collectors.toList());
+        db.query("select sequence('SequenceIncrement').next() as val").toList();
     assertEquals(1, results.size());
-    for (Entity result : results) {
+    for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(6L);
     }
     results =
-        db.query("select sequence('SequenceIncrement').next() as val").stream()
-            .map(result1 -> result1.toEntity())
-            .collect(Collectors.toList());
+        db.query("select sequence('SequenceIncrement').next() as val").toList();
     assertEquals(1, results.size());
-    for (Entity result : results) {
+    for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(9L);
     }
   }
@@ -94,28 +80,22 @@ public class CommandExecutorSQLCreateSequenceTest extends DbTestBase {
   public void testStart() {
     db.command("CREATE SEQUENCE SequenceStart TYPE ORDERED START 3").close();
 
-    List<Entity> results =
-        db.query("select sequence('SequenceStart').next() as val").stream()
-            .map(result1 -> result1.toEntity())
-            .collect(Collectors.toList());
+    var results =
+        db.query("select sequence('SequenceStart').next() as val").toList();
     assertEquals(1, results.size());
-    for (Entity result : results) {
+    for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(4L);
     }
     results =
-        db.query("select sequence('SequenceStart').next() as val").stream()
-            .map(result1 -> result1.toEntity())
-            .collect(Collectors.toList());
+        db.query("select sequence('SequenceStart').next() as val").toList();
     assertEquals(1, results.size());
-    for (Entity result : results) {
+    for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(5L);
     }
     results =
-        db.query("select sequence('SequenceStart').next() as val").stream()
-            .map(result1 -> result1.toEntity())
-            .collect(Collectors.toList());
+        db.query("select sequence('SequenceStart').next() as val").toList();
     assertEquals(1, results.size());
-    for (Entity result : results) {
+    for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(6L);
     }
   }
@@ -124,28 +104,22 @@ public class CommandExecutorSQLCreateSequenceTest extends DbTestBase {
   public void testStartIncrement() {
     db.command("CREATE SEQUENCE SequenceStartIncrement TYPE ORDERED START 3 INCREMENT 10").close();
 
-    List<Entity> results =
-        db.query("select sequence('SequenceStartIncrement').next() as val").stream()
-            .map(result1 -> result1.toEntity())
-            .collect(Collectors.toList());
+    var results =
+        db.query("select sequence('SequenceStartIncrement').next() as val").toList();
     assertEquals(1, results.size());
-    for (Entity result : results) {
+    for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(13L);
     }
     results =
-        db.query("select sequence('SequenceStartIncrement').next() as val").stream()
-            .map(result2 -> result2.toEntity())
-            .collect(Collectors.toList());
+        db.query("select sequence('SequenceStartIncrement').next() as val").toList();
     assertEquals(1, results.size());
-    for (Entity result : results) {
+    for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(23L);
     }
     results =
-        db.query("select sequence('SequenceStartIncrement').next() as val").stream()
-            .map(result1 -> result1.toEntity())
-            .collect(Collectors.toList());
+        db.query("select sequence('SequenceStartIncrement').next() as val").toList();
     assertEquals(1, results.size());
-    for (Entity result : results) {
+    for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(33L);
     }
   }

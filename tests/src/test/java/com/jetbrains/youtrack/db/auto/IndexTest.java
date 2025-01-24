@@ -125,13 +125,13 @@ public class IndexTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "testDuplicatedIndexOnUnique")
   public void testUseOfIndex() {
-    final List<EntityImpl> result = executeQuery("select * from Profile where nick = 'Jay'");
+    var resultSet = executeQuery("select * from Profile where nick = 'Jay'");
 
-    Assert.assertFalse(result.isEmpty());
+    Assert.assertFalse(resultSet.isEmpty());
 
     Entity record;
-    for (EntityImpl entries : result) {
-      record = entries;
+    for (var entries : resultSet) {
+      record = entries.asEntity();
       Assert.assertTrue(record.<String>getProperty("name").equalsIgnoreCase("Jay"));
     }
   }
@@ -140,21 +140,21 @@ public class IndexTest extends BaseDBTest {
   public void testIndexEntries() {
     checkEmbeddedDB();
 
-    List<EntityImpl> result = executeQuery("select * from Profile where nick is not null");
+    var resultSet = executeQuery("select * from Profile where nick is not null");
 
     Index idx =
         db.getMetadata().getIndexManagerInternal().getIndex(db, "Profile.nick");
 
-    Assert.assertEquals(idx.getInternal().size(db), result.size());
+    Assert.assertEquals(idx.getInternal().size(db), resultSet.size());
   }
 
   @Test(dependsOnMethods = "testDuplicatedIndexOnUnique")
   public void testIndexSize() {
     checkEmbeddedDB();
 
-    List<EntityImpl> result = executeQuery("select * from Profile where nick is not null");
+    var resultSet = executeQuery("select * from Profile where nick is not null");
 
-    int profileSize = result.size();
+    int profileSize = resultSet.size();
 
     Assert.assertEquals(
         db
@@ -188,7 +188,7 @@ public class IndexTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "testUseOfIndex")
   public void testChangeOfIndexToNotUnique() {
-    dropIndexes("Profile", "nick");
+    dropIndexes();
 
     db
         .getMetadata()
@@ -198,12 +198,12 @@ public class IndexTest extends BaseDBTest {
         .createIndex(db, INDEX_TYPE.NOTUNIQUE);
   }
 
-  private void dropIndexes(String className, String propertyName) {
+  private void dropIndexes() {
     if (remoteDB) {
-      db.command("drop index " + className + "." + propertyName).close();
+      db.command("drop index " + "Profile" + "." + "nick").close();
     } else {
-      for (var indexName : db.getMetadata().getSchema().getClassInternal(className)
-          .getPropertyInternal(propertyName).getAllIndexes(db)) {
+      for (var indexName : db.getMetadata().getSchema().getClassInternal("Profile")
+          .getPropertyInternal("nick").getAllIndexes(db)) {
         db.getMetadata().getIndexManagerInternal().dropIndex(db, indexName);
       }
     }
@@ -224,7 +224,7 @@ public class IndexTest extends BaseDBTest {
   @Test(dependsOnMethods = "testDuplicatedIndexOnNotUnique")
   public void testChangeOfIndexToUnique() {
     try {
-      dropIndexes("Profile", "nick");
+      dropIndexes();
       db
           .getMetadata()
           .getSchema()
@@ -426,7 +426,7 @@ public class IndexTest extends BaseDBTest {
       return;
     }
 
-    dropIndexes("Profile", "nick");
+    dropIndexes();
   }
 
   @Test(dependsOnMethods = "removeNotUniqueIndexOnNick")
@@ -512,7 +512,7 @@ public class IndexTest extends BaseDBTest {
         .getProperty("account")
         .createIndex(db, INDEX_TYPE.NOTUNIQUE);
 
-    final List<EntityImpl> result = executeQuery("select * from Account limit 1");
+    var resultSet = executeQuery("select * from Account limit 1");
     final Index idx =
         db.getMetadata().getIndexManagerInternal().getIndex(db, "Whiz.account");
 
@@ -522,7 +522,7 @@ public class IndexTest extends BaseDBTest {
 
       whiz.field("id", i);
       whiz.field("text", "This is a test");
-      whiz.field("account", result.get(0).getIdentity());
+      whiz.field("account", resultSet.getFirst().asEntity().getIdentity());
 
       whiz.save();
       db.commit();
@@ -530,13 +530,14 @@ public class IndexTest extends BaseDBTest {
 
     Assert.assertEquals(idx.getInternal().size(db), 5);
 
-    final List<EntityImpl> indexedResult =
-        executeQuery("select * from Whiz where account = ?", result.get(0).getIdentity());
+    var indexedResult =
+        executeQuery("select * from Whiz where account = ?",
+            resultSet.getFirst().getIdentity().orElseThrow());
     Assert.assertEquals(indexedResult.size(), 5);
 
     db.begin();
-    for (final EntityImpl resDoc : indexedResult) {
-      db.bindToSession(resDoc).delete();
+    for (var res : indexedResult) {
+      res.asEntity().delete();
     }
 
     Entity whiz = db.newEntity("Whiz");
@@ -976,13 +977,13 @@ public class IndexTest extends BaseDBTest {
     try (ResultSet result =
         db.command("select * from ChildTestClass where testParentProperty = 10")) {
 
-      Assert.assertEquals(10L, result.next().<Object>getProperty("testParentProperty"));
+      Assert.assertEquals(result.next().<Object>getProperty("testParentProperty"), 10L);
       Assert.assertFalse(result.hasNext());
     }
 
     try (ResultSet result =
         db.command("select * from AnotherChildTestClass where testParentProperty = 11")) {
-      Assert.assertEquals(11L, result.next().<Object>getProperty("testParentProperty"));
+      Assert.assertEquals(result.next().<Object>getProperty("testParentProperty"), 11L);
       Assert.assertFalse(result.hasNext());
     }
   }
@@ -1105,7 +1106,7 @@ public class IndexTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "testIndexRebuildDuringDetachAllNonProxiedObjectDelete")
   public void testRestoreUniqueIndex() {
-    dropIndexes("Profile", "nick");
+    dropIndexes();
     db
         .command(
             "CREATE INDEX Profile.nick on Profile (nick) UNIQUE METADATA {ignoreNullValues: true}")
@@ -1137,13 +1138,12 @@ public class IndexTest extends BaseDBTest {
     docTwo.save();
     db.commit();
 
-    List<EntityImpl> result =
+    var result =
         executeQuery(
             "select from CompoundSQLIndexTest2 where address in (select from"
                 + " CompoundSQLIndexTest1 where city='Montreal')");
     Assert.assertEquals(result.size(), 1);
-
-    Assert.assertEquals(result.get(0).getIdentity(), docTwo.getIdentity());
+    Assert.assertEquals(result.getFirst().getIdentity().orElseThrow(), docTwo.getIdentity());
   }
 
   public void testIndexWithLimitAndOffset() {
@@ -1167,14 +1167,14 @@ public class IndexTest extends BaseDBTest {
       db.commit();
     }
 
-    final List<EntityImpl> result =
+    var resultSet =
         executeQuery("select from IndexWithLimitAndOffsetClass where val = 1 offset 5 limit 2");
-    Assert.assertEquals(result.size(), 2);
+    Assert.assertEquals(resultSet.size(), 2);
 
     for (int i = 0; i < 2; i++) {
-      final EntityImpl document = result.get(i);
-      Assert.assertEquals(document.<Object>field("val"), 1);
-      Assert.assertEquals(document.<Object>field("index"), 15 + i);
+      var result = resultSet.get(i);
+      Assert.assertEquals(result.<Object>getProperty("val"), 1);
+      Assert.assertEquals(result.<Object>getProperty("index"), 15 + i);
     }
   }
 
@@ -1204,18 +1204,18 @@ public class IndexTest extends BaseDBTest {
       db.commit();
     }
 
-    List<EntityImpl> result =
+    var resultSet =
         executeQuery("select from NullIndexKeysSupport where nullField = 'val3'");
-    Assert.assertEquals(result.size(), 1);
+    Assert.assertEquals(resultSet.size(), 1);
 
-    Assert.assertEquals(result.get(0).field("nullField"), "val3");
+    Assert.assertEquals(resultSet.getFirst().getProperty("nullField"), "val3");
 
     final String query = "select from NullIndexKeysSupport where nullField is null";
-    result = executeQuery("select from NullIndexKeysSupport where nullField is null");
+    resultSet = executeQuery("select from NullIndexKeysSupport where nullField is null");
 
-    Assert.assertEquals(result.size(), 4);
-    for (EntityImpl document : result) {
-      Assert.assertNull(document.field("nullField"));
+    Assert.assertEquals(resultSet.size(), 4);
+    for (var result : resultSet) {
+      Assert.assertNull(result.getProperty("nullField"));
     }
 
     final EntityImpl explain = db.command(new CommandSQL("explain " + query))
@@ -1257,7 +1257,7 @@ public class IndexTest extends BaseDBTest {
                 "select from NullHashIndexKeysSupport where nullField = 'val3'"));
     Assert.assertEquals(result.size(), 1);
 
-    Assert.assertEquals(result.get(0).field("nullField"), "val3");
+    Assert.assertEquals(result.getFirst().field("nullField"), "val3");
 
     final String query = "select from NullHashIndexKeysSupport where nullField is null";
     result =
@@ -1312,7 +1312,7 @@ public class IndexTest extends BaseDBTest {
                 "select from NullIndexKeysSupportInTx where nullField = 'val3'"));
     Assert.assertEquals(result.size(), 1);
 
-    Assert.assertEquals(result.get(0).field("nullField"), "val3");
+    Assert.assertEquals(result.getFirst().field("nullField"), "val3");
 
     final String query = "select from NullIndexKeysSupportInTx where nullField is null";
     result =
@@ -1369,7 +1369,7 @@ public class IndexTest extends BaseDBTest {
                 "select from NullIndexKeysSupportInMiddleTx where nullField = 'val3'"));
     Assert.assertEquals(result.size(), 1);
 
-    Assert.assertEquals(result.get(0).field("nullField"), "val3");
+    Assert.assertEquals(result.getFirst().field("nullField"), "val3");
 
     final String query = "select from NullIndexKeysSupportInMiddleTx where nullField is null";
     result =
@@ -1416,12 +1416,12 @@ public class IndexTest extends BaseDBTest {
 
     final String queryOne = "select from TestCreateIndexAbstractClass where value = 'val1'";
 
-    List<EntityImpl> resultOne = executeQuery(queryOne);
+    var resultOne = executeQuery(queryOne);
     Assert.assertEquals(resultOne.size(), 1);
-    Assert.assertEquals(resultOne.get(0).getIdentity(), docOne.getIdentity());
+    Assert.assertEquals(resultOne.getFirst().getRecordId(), docOne.getIdentity());
 
     try (var result = db.command("explain " + queryOne)) {
-      var explain = result.next().toEntity();
+      var explain = result.next();
       Assert.assertTrue(
           explain
               .<String>getProperty("executionPlanAsString")
@@ -1429,9 +1429,9 @@ public class IndexTest extends BaseDBTest {
 
       final String queryTwo = "select from TestCreateIndexAbstractClass where value = 'val2'";
 
-      List<EntityImpl> resultTwo = executeQuery(queryTwo);
+      var resultTwo = executeQuery(queryTwo);
       Assert.assertEquals(resultTwo.size(), 1);
-      Assert.assertEquals(resultTwo.get(0).getIdentity(), docTwo.getIdentity());
+      Assert.assertEquals(resultTwo.getFirst().getRecordId(), docTwo.getIdentity());
 
       explain = db.command(new CommandSQL("explain " + queryTwo)).execute(db);
       Assert.assertTrue(

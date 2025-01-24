@@ -1088,7 +1088,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     document = db.bindToSession(document);
     Assert.assertEquals(map, document.field("linkMap"));
 
-    final List<EntityImpl> resultByValue =
+    var resultByValue =
         executeQuery(
             "select * from LinkMapIndexTestClass where linkMap  containsvalue ?",
             docOne.getIdentity());

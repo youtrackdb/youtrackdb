@@ -74,9 +74,6 @@ public interface Result {
   @Nullable
   Entity asEntity();
 
-  @Nullable
-  Entity toEntity();
-
   default boolean isVertex() {
     return getEntity().map(x -> x.isVertex()).orElse(false);
   }
@@ -87,12 +84,12 @@ public interface Result {
 
   @Nullable
   default Vertex toVertex() {
-    var element = toEntity();
-    if (element == null) {
+    var entity = asEntity();
+    if (entity == null) {
       return null;
     }
 
-    return element.toVertex();
+    return entity.toVertex();
   }
 
   default boolean isEdge() {
@@ -105,12 +102,12 @@ public interface Result {
 
   @Nullable
   default Edge toEdge() {
-    var element = toEntity();
-    if (element == null) {
+    var entity = asEntity();
+    if (entity == null) {
       return null;
     }
 
-    return element.toEdge();
+    return entity.toEdge();
   }
 
   boolean isBlob();

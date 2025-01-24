@@ -240,7 +240,7 @@ public class DatabaseDocumentTxTest extends DbTestBase {
       Assert.assertTrue(
           db.load(((Identifiable) linkedVal).getIdentity()) instanceof Identifiable);
 
-      Assert.assertTrue(res.toEntity().getProperty("linked") instanceof Vertex);
+      Assert.assertTrue(res.asEntity().getProperty("linked") instanceof Vertex);
     }
   }
 

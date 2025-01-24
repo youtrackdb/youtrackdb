@@ -86,21 +86,21 @@ public class SQLCreateLinkTest extends BaseDBTest {
         db
             .command("INSERT INTO POST2 (id, title) VALUES ( 10, 'NoSQL movement' )")
             .next()
-            .toEntity();
+            .asEntity();
     Assert.assertTrue(p1 instanceof EntityImpl);
     Object p2 =
         db
             .command("INSERT INTO POST2 (id, title) VALUES ( 20, 'New YouTrackDB' )")
             .next()
-            .toEntity();
+            .asEntity();
     Assert.assertTrue(p2 instanceof EntityImpl);
 
     Object p3 =
-        db.command("INSERT INTO POST2 (id, title) VALUES ( 30, '(')").next().toEntity();
+        db.command("INSERT INTO POST2 (id, title) VALUES ( 30, '(')").next().asEntity();
     Assert.assertTrue(p3 instanceof EntityImpl);
 
     Object p4 =
-        db.command("INSERT INTO POST2 (id, title) VALUES ( 40, ')')").next().toEntity();
+        db.command("INSERT INTO POST2 (id, title) VALUES ( 40, ')')").next().asEntity();
     Assert.assertTrue(p4 instanceof EntityImpl);
     db.commit();
 

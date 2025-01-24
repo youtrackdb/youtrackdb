@@ -16,8 +16,6 @@ import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.id.ContextualRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
@@ -372,49 +370,6 @@ public class ResultInternal implements Result {
     }
 
     return null;
-  }
-
-  @Override
-  public Entity toEntity() {
-    if (isEntity()) {
-      return getEntity().get();
-    }
-
-    EntityImpl entity = new EntityImpl(session);
-    for (String s : getPropertyNames()) {
-      if (s == null) {
-        continue;
-      } else {
-        if (s.equalsIgnoreCase("@rid")) {
-          Object newRid = getProperty(s);
-          if (newRid instanceof Identifiable) {
-            newRid = ((Identifiable) newRid).getIdentity();
-          } else {
-            continue;
-          }
-          RecordId oldId = entity.getIdentity();
-          oldId.setClusterId(((RID) newRid).getClusterId());
-          oldId.setClusterPosition(((RID) newRid).getClusterPosition());
-        } else {
-          if (s.equalsIgnoreCase("@version")) {
-            Object v = getProperty(s);
-            if (v instanceof Number) {
-              RecordInternal.setVersion(entity, ((Number) v).intValue());
-            } else {
-              continue;
-            }
-          } else {
-            if (s.equalsIgnoreCase("@class")) {
-              entity.setClassName(getProperty(s));
-            } else {
-              entity.setProperty(s, convertToEntity(getProperty(s)));
-            }
-          }
-        }
-      }
-    }
-
-    return entity;
   }
 
   @Override

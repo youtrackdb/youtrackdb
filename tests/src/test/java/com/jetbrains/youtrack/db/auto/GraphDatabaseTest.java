@@ -270,7 +270,7 @@ public class GraphDatabaseTest extends BaseDBTest {
         db
             .command("insert into E set in = #9:0, out = #9:1, a = 33 unsafe")
             .next()
-            .toEntity();
+            .asEntity();
     db.commit();
 
     Assert.assertNotNull(insertedEdge);

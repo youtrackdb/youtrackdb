@@ -27,12 +27,12 @@ public abstract class SQLFunctionMoveFiltered extends SQLFunctionMove
 
   @Override
   public Object execute(
-      final Object iThis,
+      final Object current,
       final Identifiable iCurrentRecord,
       final Object iCurrentResult,
       final Object[] iParameters,
-      final Iterable<Identifiable> iPossibleResults,
-      final CommandContext iContext) {
+      final Iterable<Identifiable> possibleResults,
+      final CommandContext context) {
     final String[] labels;
     if (iParameters != null && iParameters.length > 0 && iParameters[0] != null) {
       labels =
@@ -51,14 +51,9 @@ public abstract class SQLFunctionMoveFiltered extends SQLFunctionMove
     }
 
     return SQLEngine.foreachRecord(
-        new CallableFunction<Object, Identifiable>() {
-          @Override
-          public Object call(final Identifiable iArgument) {
-            return move(iContext.getDatabase(), iArgument, labels, iPossibleResults);
-          }
-        },
-        iThis,
-        iContext);
+        argument -> move(context.getDatabase(), argument, labels, possibleResults),
+        current,
+        context);
   }
 
   protected abstract Object move(

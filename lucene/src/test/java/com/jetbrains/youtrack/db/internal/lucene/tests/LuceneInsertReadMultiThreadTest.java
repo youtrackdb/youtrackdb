@@ -144,7 +144,7 @@ public class LuceneInsertReadMultiThreadTest extends LuceneBaseTest {
             db.query("select from City where SEARCH_FIELDS(['name'], 'Rome') =true ");
 
         if (resultSet.hasNext()) {
-          assertThat(resultSet.next().toEntity().<String>getProperty("name"))
+          assertThat(resultSet.next().asEntity().<String>getProperty("name"))
               .isEqualToIgnoringCase("rome");
         }
         resultSet.close();

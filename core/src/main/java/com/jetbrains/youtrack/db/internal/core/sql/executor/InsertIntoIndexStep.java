@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
@@ -133,8 +133,8 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
     if (value instanceof Identifiable) {
       insertIntoIndex(ctx.getDatabase(), index, key, (Identifiable) value);
       count++;
-    } else if (value instanceof Result && ((Result) value).isEntity()) {
-      insertIntoIndex(ctx.getDatabase(), index, key, ((Result) value).toEntity());
+    } else if (value instanceof Result result && result.isEntity()) {
+      insertIntoIndex(ctx.getDatabase(), index, key, result.asEntity());
       count++;
     } else if (value instanceof ResultSet) {
       ((ResultSet) value).entityStream().forEach(x -> index.put(ctx.getDatabase(), key, x));
@@ -145,8 +145,8 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
         if (item instanceof Identifiable) {
           insertIntoIndex(ctx.getDatabase(), index, key, (Identifiable) item);
           count++;
-        } else if (item instanceof Result && ((Result) item).isEntity()) {
-          insertIntoIndex(ctx.getDatabase(), index, key, ((Result) item).toEntity());
+        } else if (item instanceof Result result && result.isEntity()) {
+          insertIntoIndex(ctx.getDatabase(), index, key, result.asEntity());
           count++;
         } else {
           throw new CommandExecutionException("Cannot insert into index " + item);

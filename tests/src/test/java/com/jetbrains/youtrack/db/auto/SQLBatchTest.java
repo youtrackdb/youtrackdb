@@ -15,9 +15,8 @@
  */
 package com.jetbrains.youtrack.db.auto;
 
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
@@ -36,17 +35,18 @@ public class SQLBatchTest extends BaseDBTest {
   public void createEdgeFailIfNoSourceOrTargetVertices() {
     try {
       db.execute("sql",
-          "BEGIN;\n"
-              + "LET credential = INSERT INTO V SET email = '123', password = '123';\n"
-              + "LET order = SELECT FROM V WHERE cannotFindThisAttribute = true;\n"
-              + "LET edge = CREATE EDGE E FROM $credential TO $order set crazyName = 'yes';\n"
-              + "COMMIT;\n"
-              + "RETURN $credential;");
+          """
+              BEGIN;
+              LET credential = INSERT INTO V SET email = '123', password = '123';
+              LET order = SELECT FROM V WHERE cannotFindThisAttribute = true;
+              LET edge = CREATE EDGE E FROM $credential TO $order set crazyName = 'yes';
+              COMMIT;
+              RETURN $credential;""");
 
       Assert.fail("Tx has been committed while a rollback was expected");
     } catch (CommandExecutionException e) {
 
-      List<EntityImpl> result = executeQuery("select from V where email = '123'");
+      var result = executeQuery("select from V where email = '123'");
       Assert.assertTrue(result.isEmpty());
 
       result = executeQuery("select from E where crazyName = 'yes'");
@@ -80,9 +80,9 @@ public class SQLBatchTest extends BaseDBTest {
 
     db.execute("sql", script);
 
-    List<EntityImpl> result = executeQuery("select from " + className2);
+    var result = executeQuery("select from " + className2);
     Assert.assertEquals(result.size(), 1);
-    List foos = result.get(0).field("foos");
+    List foos = result.getFirst().getProperty("foos");
     Assert.assertEquals(foos.size(), 3);
     Assert.assertTrue(foos.get(0) instanceof Identifiable);
     Assert.assertTrue(foos.get(1) instanceof Identifiable);
@@ -115,9 +115,9 @@ public class SQLBatchTest extends BaseDBTest {
 
     db.execute("sql", script);
 
-    List<EntityImpl> result = executeQuery("select from " + className2);
+    var result = executeQuery("select from " + className2);
     Assert.assertEquals(result.size(), 1);
-    List foos = result.get(0).field("foos");
+    List foos = result.getFirst().getProperty("foos");
     Assert.assertEquals(foos.size(), 3);
     Assert.assertTrue(foos.get(0) instanceof Identifiable);
     Assert.assertTrue(foos.get(1) instanceof Identifiable);

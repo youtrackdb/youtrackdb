@@ -3,6 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.db.tool;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.Vertex;
@@ -117,7 +118,7 @@ public class GraphRecoveringTest {
         session.begin();
         for (var e :
             session.query("select from E").stream()
-                .map(result -> result.toEntity())
+                .map(Result::asEntity)
                 .map(Entity::toEdge)
                 .toList()) {
           e.<EntityImpl>getRecord(session).removeField("out");
@@ -155,7 +156,7 @@ public class GraphRecoveringTest {
         session.begin();
         for (var v :
             session.query("select from V").stream()
-                .map(result -> result.toEntity())
+                .map(Result::asEntity)
                 .filter(Objects::nonNull)
                 .map(Entity::toVertex)
                 .toList()) {

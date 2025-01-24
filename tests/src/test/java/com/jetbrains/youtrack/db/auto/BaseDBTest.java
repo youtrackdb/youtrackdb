@@ -11,7 +11,6 @@ import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStepInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.FetchFromIndexStep;
 import java.util.ArrayList;
@@ -64,46 +63,34 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
     return (DatabaseSessionInternal) session;
   }
 
-  protected List<EntityImpl> executeQuery(String sql, DatabaseSessionInternal db,
+  protected List<Result> executeQuery(String sql, DatabaseSessionInternal db,
       Object... args) {
     return db.query(sql, args).stream()
-        .map(result -> result.toEntity())
-        .map(element -> (EntityImpl) element)
         .toList();
   }
 
-  protected List<EntityImpl> executeQuery(String sql, DatabaseSessionInternal db, Map args) {
+  protected List<Result> executeQuery(String sql, DatabaseSessionInternal db, Map args) {
     return db.query(sql, args).stream()
-        .map(result -> result.toEntity())
-        .map(element -> (EntityImpl) element)
         .toList();
   }
 
-  protected List<EntityImpl> executeQuery(String sql, DatabaseSessionInternal db) {
+  protected List<Result> executeQuery(String sql, DatabaseSessionInternal db) {
     return db.query(sql).stream()
-        .map(result -> result.toEntity())
-        .map(element -> (EntityImpl) element)
         .toList();
   }
 
-  protected List<EntityImpl> executeQuery(String sql, Object... args) {
+  protected List<Result> executeQuery(String sql, Object... args) {
     return db.query(sql, args).stream()
-        .map(result -> result.toEntity())
-        .map(element -> (EntityImpl) element)
         .toList();
   }
 
-  protected List<EntityImpl> executeQuery(String sql, Map<?, ?> args) {
+  protected List<Result> executeQuery(String sql, Map<?, ?> args) {
     return db.query(sql, args).stream()
-        .map(result -> result.toEntity())
-        .map(element -> (EntityImpl) element)
         .toList();
   }
 
-  protected List<EntityImpl> executeQuery(String sql) {
+  protected List<Result> executeQuery(String sql) {
     return db.query(sql).stream()
-        .map(result -> result.toEntity())
-        .map(element -> (EntityImpl) element)
         .toList();
   }
 

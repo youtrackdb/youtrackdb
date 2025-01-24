@@ -56,7 +56,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
   }
 
   @Test(dependsOnMethods = "validationMandatoryNullableNoCloseDb")
-  public void validationDisabledAdDatabaseLevel() throws ParseException {
+  public void validationDisabledAdDatabaseLevel() {
     db.getMetadata().reload();
     try {
       EntityImpl entity = ((EntityImpl) db.newEntity("MyTestClass"));
@@ -143,7 +143,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
   }
 
   @Test(dependsOnMethods = "validationMinDate", expectedExceptions = DatabaseException.class)
-  public void validationEmbeddedType() throws ParseException {
+  public void validationEmbeddedType() {
     db.begin();
     record = db.newInstance("Whiz");
     record.field("account", db.geCurrentUser());
@@ -154,7 +154,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
   @Test(
       dependsOnMethods = "validationEmbeddedType",
       expectedExceptions = ValidationException.class)
-  public void validationStrictClass() throws ParseException {
+  public void validationStrictClass() {
     db.begin();
     EntityImpl doc = ((EntityImpl) db.newEntity("StrictTest"));
     doc.field("id", 122112);
@@ -169,7 +169,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
   }
 
   @Test(dependsOnMethods = "closeDb")
-  public void createSchemaForMandatoryNullableTest() throws ParseException {
+  public void createSchemaForMandatoryNullableTest() {
     if (db.getMetadata().getSchema().existsClass("MyTestClass")) {
       db.getMetadata().getSchema().dropClass("MyTestClass");
     }
@@ -199,7 +199,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
     List<Result> result =
         db.query("SELECT FROM MyTestClass WHERE keyField = ?", "K1").stream().toList();
     Assert.assertEquals(result.size(), 1);
-    Result doc = result.get(0);
+    Result doc = result.getFirst();
     Assert.assertTrue(doc.hasProperty("keyField"));
     Assert.assertTrue(doc.hasProperty("dateTimeField"));
     Assert.assertTrue(doc.hasProperty("stringField"));
@@ -211,7 +211,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
         db.query("SELECT FROM MyTestClass WHERE keyField = ?", "K1").stream().toList();
     db.begin();
     Assert.assertEquals(result.size(), 1);
-    Entity readDoc = result.get(0).toEntity();
+    Entity readDoc = result.getFirst().asEntity();
     assert readDoc != null;
     readDoc.setProperty("keyField", "K1N");
     readDoc.save();
@@ -219,7 +219,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
   }
 
   @Test(dependsOnMethods = "testUpdateDocDefined")
-  public void validationMandatoryNullableCloseDb() throws ParseException {
+  public void validationMandatoryNullableCloseDb() {
     EntityImpl doc = ((EntityImpl) db.newEntity("MyTestClass"));
     doc.field("keyField", "K2");
     doc.field("dateTimeField", (Date) null);
@@ -235,7 +235,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
         db.query("SELECT FROM MyTestClass WHERE keyField = ?", "K2").stream().toList();
     db.begin();
     Assert.assertEquals(result.size(), 1);
-    Entity readDoc = result.get(0).toEntity();
+    Entity readDoc = result.getFirst().asEntity();
     assert readDoc != null;
     readDoc.setProperty("keyField", "K2N");
     readDoc.save();
@@ -243,7 +243,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
   }
 
   @Test(dependsOnMethods = "validationMandatoryNullableCloseDb")
-  public void validationMandatoryNullableNoCloseDb() throws ParseException {
+  public void validationMandatoryNullableNoCloseDb() {
     EntityImpl doc = ((EntityImpl) db.newEntity("MyTestClass"));
     doc.field("keyField", "K3");
     doc.field("dateTimeField", (Date) null);
@@ -257,7 +257,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
     List<Result> result =
         db.query("SELECT FROM MyTestClass WHERE keyField = ?", "K3").stream().toList();
     Assert.assertEquals(result.size(), 1);
-    Entity readDoc = result.get(0).toEntity();
+    Entity readDoc = result.getFirst().asEntity();
     assert readDoc != null;
     readDoc.setProperty("keyField", "K3N");
     readDoc.save();
@@ -265,7 +265,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
   }
 
   @Test(dependsOnMethods = "validationDisabledAdDatabaseLevel")
-  public void dropSchemaForMandatoryNullableTest() throws ParseException {
+  public void dropSchemaForMandatoryNullableTest() {
     db.command("DROP CLASS MyTestClass").close();
     db.getMetadata().reload();
   }

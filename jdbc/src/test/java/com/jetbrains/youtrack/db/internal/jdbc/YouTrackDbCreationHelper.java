@@ -41,8 +41,7 @@ public class YouTrackDbCreationHelper {
 
     db.begin();
     for (int i = 1; i <= documents; i++) {
-      EntityImpl doc = ((EntityImpl) db.newEntity());
-      doc.setClassName("Item");
+      EntityImpl doc = ((EntityImpl) db.newEntity("Item"));
       doc = createItem(i, doc);
       ((DatabaseSessionInternal) db).save(doc, "Item");
     }

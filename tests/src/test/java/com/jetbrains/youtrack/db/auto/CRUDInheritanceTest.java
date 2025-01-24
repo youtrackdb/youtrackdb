@@ -19,8 +19,6 @@ import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Optional;
@@ -57,15 +55,15 @@ public class CRUDInheritanceTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "testCreate")
   public void queryByBaseType() {
-    final List<EntityImpl> result = executeQuery("select from Company where name.length() > 0");
+    var resultSet = executeQuery("select from Company where name.length() > 0");
 
-    Assert.assertFalse(result.isEmpty());
-    Assert.assertEquals(result.size(), TOT_COMPANY_RECORDS);
+    Assert.assertFalse(resultSet.isEmpty());
+    Assert.assertEquals(resultSet.size(), TOT_COMPANY_RECORDS);
 
     int companyRecords = 0;
-    EntityImpl account;
-    for (EntityImpl entries : result) {
-      account = entries;
+    Entity account;
+    for (var entries : resultSet) {
+      account = entries.asEntity();
 
       if ("Company".equals(account.getClassName())) {
         companyRecords++;
@@ -79,13 +77,13 @@ public class CRUDInheritanceTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "queryByBaseType")
   public void queryPerSuperType() {
-    final List<EntityImpl> result = executeQuery("select * from Company where name.length() > 0");
+    var resultSet = executeQuery("select * from Company where name.length() > 0");
 
-    Assert.assertEquals(result.size(), TOT_COMPANY_RECORDS);
+    Assert.assertEquals(resultSet.size(), TOT_COMPANY_RECORDS);
 
     Entity account;
-    for (EntityImpl entries : result) {
-      account = entries;
+    for (var entries : resultSet) {
+      account = entries.asEntity();
       Assert.assertNotSame(account.<String>getProperty("name").length(), 0);
     }
   }
@@ -134,8 +132,8 @@ public class CRUDInheritanceTest extends BaseDBTest {
     db.save(b);
     db.commit();
 
-    final List<EntityImpl> result1 = executeQuery("select from InheritanceTestBaseClass");
-    Assert.assertEquals(2, result1.size());
+    var resultSet = executeQuery("select from InheritanceTestBaseClass");
+    Assert.assertEquals(resultSet.size(), 2);
   }
 
   @Test
@@ -143,8 +141,8 @@ public class CRUDInheritanceTest extends BaseDBTest {
     SchemaClass klass = db.getMetadata().getSchema().createClass("Not");
 
     SchemaClass klass1 = db.getMetadata().getSchema().createClass("Extends_Not", klass);
-    Assert.assertEquals(1, klass1.getSuperClasses().size(), 1);
-    Assert.assertEquals("Not", klass1.getSuperClasses().get(0).getName());
+    Assert.assertEquals(klass1.getSuperClasses().size(), 1, 1);
+    Assert.assertEquals(klass1.getSuperClasses().getFirst().getName(), "Not");
   }
 
   @Test
@@ -217,13 +215,14 @@ public class CRUDInheritanceTest extends BaseDBTest {
     checkProperty(testSchemaClass, "embeddedList", PropertyType.EMBEDDEDLIST, childClass);
   }
 
-  protected void checkProperty(SchemaClass iClass, String iPropertyName, PropertyType iType) {
+  protected static void checkProperty(SchemaClass iClass, String iPropertyName,
+      PropertyType iType) {
     Property prop = iClass.getProperty(iPropertyName);
     Assert.assertNotNull(prop);
     Assert.assertEquals(prop.getType(), iType);
   }
 
-  protected void checkProperty(
+  protected static void checkProperty(
       SchemaClass iClass, String iPropertyName, PropertyType iType, SchemaClass iLinkedClass) {
     Property prop = iClass.getProperty(iPropertyName);
     Assert.assertNotNull(prop);
@@ -231,7 +230,7 @@ public class CRUDInheritanceTest extends BaseDBTest {
     Assert.assertEquals(prop.getLinkedClass(), iLinkedClass);
   }
 
-  protected void checkProperty(
+  protected static void checkProperty(
       SchemaClass iClass, String iPropertyName, PropertyType iType, PropertyType iLinkedType) {
     Property prop = iClass.getProperty(iPropertyName);
     Assert.assertNotNull(prop);

@@ -22,12 +22,12 @@ package com.jetbrains.youtrack.db.internal.core.index;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -104,7 +104,7 @@ public class TxNonUniqueIndexWithCollationTest extends DbTestBase {
 
     final List<EntityImpl> r =
         db.query("select * from user where name in ['Abc', 'Abd', 'Abz'] order by name").stream()
-            .map(x -> ((EntityImpl) (x.toEntity())))
+            .map(x -> ((EntityImpl) (x.asEntity())))
             .toList();
     assertEquals(4, r.size());
     assertEquals("abc", r.get(0).field("name"));

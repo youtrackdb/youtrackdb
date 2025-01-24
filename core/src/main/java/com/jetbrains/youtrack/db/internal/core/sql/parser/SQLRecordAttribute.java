@@ -90,9 +90,9 @@ public class SQLRecordAttribute extends SimpleNode {
       }
       return identity;
     } else if (name.equalsIgnoreCase("@class")) {
-      var element = iCurrentRecord.toEntity();
-      if (element != null) {
-        return element.getSchemaType().map(SchemaClass::getName).orElse(null);
+      var entity = iCurrentRecord.asEntity();
+      if (entity != null) {
+        return entity.getSchemaType().map(SchemaClass::getName).orElse(null);
       }
       return null;
     } else if (name.equalsIgnoreCase("@version")) {

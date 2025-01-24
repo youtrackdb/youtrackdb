@@ -187,7 +187,7 @@ public class JSONTest extends BaseDBTest {
     Assert.assertTrue(loadedDoc.containsField("embeddedList"));
     Assert.assertTrue(loadedDoc.field("embeddedList") instanceof List<?>);
     Assert.assertTrue(
-        ((List<EntityImpl>) loadedDoc.field("embeddedList")).get(0) instanceof EntityImpl);
+        ((List<EntityImpl>) loadedDoc.field("embeddedList")).getFirst() instanceof EntityImpl);
 
     EntityImpl newDoc = ((List<EntityImpl>) loadedDoc.field("embeddedList")).get(0);
     Assert.assertEquals(newDoc.field("name"), "Luca");
@@ -370,7 +370,8 @@ public class JSONTest extends BaseDBTest {
     Assert.assertTrue(docMerge1.containsField("embeddedList"));
     Assert.assertTrue(docMerge1.field("embeddedList") instanceof List<?>);
     Assert.assertEquals(((List<String>) docMerge1.field("embeddedList")).size(), 4);
-    Assert.assertTrue(((List<String>) docMerge1.field("embeddedList")).get(0) instanceof String);
+    Assert.assertTrue(
+        ((List<String>) docMerge1.field("embeddedList")).getFirst() instanceof String);
     Assert.assertEquals(((Integer) docMerge1.field("salary")).intValue(), 10000);
     Assert.assertEquals(((Integer) docMerge1.field("years")).intValue(), 32);
 
@@ -380,7 +381,8 @@ public class JSONTest extends BaseDBTest {
     Assert.assertTrue(docMerge2.containsField("embeddedList"));
     Assert.assertTrue(docMerge2.field("embeddedList") instanceof List<?>);
     Assert.assertEquals(((List<String>) docMerge2.field("embeddedList")).size(), 2);
-    Assert.assertTrue(((List<String>) docMerge2.field("embeddedList")).get(0) instanceof String);
+    Assert.assertTrue(
+        ((List<String>) docMerge2.field("embeddedList")).getFirst() instanceof String);
     Assert.assertEquals(((Integer) docMerge2.field("salary")).intValue(), 10000);
     Assert.assertEquals(((Integer) docMerge2.field("years")).intValue(), 32);
 
@@ -392,7 +394,8 @@ public class JSONTest extends BaseDBTest {
     Assert.assertTrue(docMerge3.containsField("embeddedList"));
     Assert.assertTrue(docMerge3.field("embeddedList") instanceof List<?>);
     Assert.assertEquals(((List<String>) docMerge3.field("embeddedList")).size(), 2);
-    Assert.assertTrue(((List<String>) docMerge3.field("embeddedList")).get(0) instanceof String);
+    Assert.assertTrue(
+        ((List<String>) docMerge3.field("embeddedList")).getFirst() instanceof String);
     Assert.assertFalse(docMerge3.containsField("salary"));
     Assert.assertFalse(docMerge3.containsField("years"));
   }
@@ -434,20 +437,19 @@ public class JSONTest extends BaseDBTest {
 
   @Test
   public void testFetchedJson() {
-    List<EntityImpl> result =
+    var resultSet =
         db
             .command("select * from Profile where name = 'Barack' and surname = 'Obama'")
-            .stream()
-            .map((e) -> (EntityImpl) e.toEntity())
             .toList();
 
-    for (EntityImpl doc : result) {
+    for (var result : resultSet) {
       String jsonFull =
-          doc.toJSON("type,rid,version,class,keepTypes,attribSameRow,indent:0,fetchPlan:*:-1");
+          result.asEntity()
+              .toJSON("type,rid,version,class,keepTypes,attribSameRow,indent:0,fetchPlan:*:-1");
       EntityImpl loadedDoc = ((EntityImpl) db.newEntity());
       loadedDoc.fromJSON(jsonFull);
 
-      Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
+      Assert.assertTrue(((EntityImpl) result.asEntity()).hasSameContentOf(loadedDoc));
     }
   }
 
@@ -568,7 +570,7 @@ public class JSONTest extends BaseDBTest {
         doc2.field("blabla", j);
         docMap.put(String.valueOf(j), doc2);
         EntityImpl doc3 = ((EntityImpl) db.newEntity());
-        doc3.field("blubli", String.valueOf(i + j));
+        doc3.field("blubli", String.valueOf(0));
         doc2.field("out", doc3);
       }
       doc1.field("out", docMap);
@@ -669,13 +671,13 @@ public class JSONTest extends BaseDBTest {
     db.commit();
 
     ResultSet result = db.query("select from device where domainset.domain contains 'abc'");
-    Assert.assertTrue(result.stream().count() > 0);
+    Assert.assertTrue(result.stream().findAny().isPresent());
 
     result = db.query("select from device where domainset[domain = 'abc'] is not null");
-    Assert.assertTrue(result.stream().count() > 0);
+    Assert.assertTrue(result.stream().findAny().isPresent());
 
     result = db.query("select from device where domainset.domain contains 'pqr'");
-    Assert.assertTrue(result.stream().count() > 0);
+    Assert.assertTrue(result.stream().findAny().isPresent());
   }
 
   public void testNestedEmbeddedJson() {
@@ -690,7 +692,7 @@ public class JSONTest extends BaseDBTest {
     db.commit();
 
     ResultSet result = db.query("select from device where domainset.domain = 'eee'");
-    Assert.assertTrue(result.stream().count() > 0);
+    Assert.assertTrue(result.stream().findAny().isPresent());
   }
 
   public void testNestedMultiLevelEmbeddedJson() {
@@ -709,7 +711,7 @@ public class JSONTest extends BaseDBTest {
     ResultSet result =
         db.query("select from device where domainset.domain.lvlone.value = 'five'");
 
-    Assert.assertTrue(result.stream().count() > 0);
+    Assert.assertTrue(result.stream().findAny().isPresent());
   }
 
   public void testSpaces() {
@@ -723,7 +725,7 @@ public class JSONTest extends BaseDBTest {
             + "}"
             + "}";
     doc.fromJSON(test);
-    Assert.assertTrue(doc.toJSON("fetchPlan:*:0,rid").indexOf("this is a test") > -1);
+    Assert.assertTrue(doc.toJSON("fetchPlan:*:0,rid").contains("this is a test"));
   }
 
   public void testEscaping() {
@@ -744,21 +746,22 @@ public class JSONTest extends BaseDBTest {
   public void testEscapingDoubleQuotes() {
     final EntityImpl doc = ((EntityImpl) db.newEntity());
     String sb =
-        " {\n"
-            + "    \"foo\":{\n"
-            + "            \"bar\":{\n"
-            + "                \"P357\":[\n"
-            + "                            {\n"
-            + "\n"
-            + "                                \"datavalue\":{\n"
-            + "                                    \"value\":\"\\\"\\\"\" \n"
-            + "                                }\n"
-            + "                        }\n"
-            + "                ]   \n"
-            + "            },\n"
-            + "            \"three\": \"a\"\n"
-            + "        }\n"
-            + "} ";
+        """
+             {
+                "foo":{
+                        "bar":{
+                            "P357":[
+                                        {
+            
+                                            "datavalue":{
+                                                "value":"\\"\\""\s
+                                            }
+                                    }
+                            ]  \s
+                        },
+                        "three": "a"
+                    }
+            }\s""";
     doc.fromJSON(sb);
     Assert.assertEquals(doc.field("foo.three"), "a");
     final Collection c = doc.field("foo.bar.P357");
@@ -887,31 +890,31 @@ public class JSONTest extends BaseDBTest {
     try {
       doc.fromJSON("{");
       Assert.fail();
-    } catch (SerializationException e) {
+    } catch (SerializationException ignored) {
     }
 
     try {
       doc.fromJSON("{\"foo\":{}");
       Assert.fail();
-    } catch (SerializationException e) {
+    } catch (SerializationException ignored) {
     }
 
     try {
       doc.fromJSON("{{}");
       Assert.fail();
-    } catch (SerializationException e) {
+    } catch (SerializationException ignored) {
     }
 
     try {
       doc.fromJSON("{}}");
       Assert.fail();
-    } catch (SerializationException e) {
+    } catch (SerializationException ignored) {
     }
 
     try {
       doc.fromJSON("}");
       Assert.fail();
-    } catch (SerializationException e) {
+    } catch (SerializationException ignored) {
     }
   }
 

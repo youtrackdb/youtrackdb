@@ -86,7 +86,7 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
 
   private ExecutionStream edges(DatabaseSessionInternal db, Object from) {
     if (from instanceof Result) {
-      from = ((Result) from).toEntity();
+      from = ((Result) from).asEntity();
     }
     if (from instanceof Identifiable && !(from instanceof Entity)) {
       from = ((Identifiable) from).getRecord(db);

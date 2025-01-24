@@ -43,38 +43,38 @@ public class SQLMethodToJSON extends AbstractSQLMethod {
 
   @Override
   public Object execute(
-      Object iThis,
+      Object current,
       Identifiable iCurrentRecord,
       CommandContext iContext,
       Object ioResult,
       Object[] iParams) {
-    if (iThis == null) {
+    if (current == null) {
       return null;
     }
 
     final String format = iParams.length > 0 ? ((String) iParams[0]).replace("\"", "") : null;
 
-    if (iThis instanceof Result) {
-      iThis = ((Result) iThis).toEntity();
+    if (current instanceof Result result && result.isEntity()) {
+      current = result.asEntity();
     }
-    if (iThis instanceof Record record) {
+    if (current instanceof Record record) {
 
       if (record.isUnloaded()) {
         record = iContext.getDatabase().bindToSession(record);
       }
 
       return iParams.length == 1 ? record.toJSON(format) : record.toJSON();
-    } else if (iThis instanceof Map) {
+    } else if (current instanceof Map) {
 
       final EntityImpl entity = new EntityImpl(null);
       //noinspection unchecked
-      entity.fromMap((Map<String, Object>) iThis);
+      entity.fromMap((Map<String, Object>) current);
       return iParams.length == 1 ? entity.toJSON(format) : entity.toJSON();
-    } else if (MultiValue.isMultiValue(iThis)) {
+    } else if (MultiValue.isMultiValue(current)) {
       StringBuilder builder = new StringBuilder();
       builder.append("[");
       boolean first = true;
-      for (Object o : MultiValue.getMultiValueIterable(iThis)) {
+      for (Object o : MultiValue.getMultiValueIterable(current)) {
         if (!first) {
           builder.append(",");
         }

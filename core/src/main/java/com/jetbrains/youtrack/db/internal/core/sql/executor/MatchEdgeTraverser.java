@@ -182,7 +182,8 @@ public class MatchEdgeTraverser {
             newPath.addAll(pathToHere);
           }
 
-          Entity elem = origin.toEntity();
+          assert origin.isEntity();
+          Entity elem = origin.asEntity();
           newPath.add(elem.getIdentity());
 
           ExecutionStream subResult =
@@ -212,7 +213,9 @@ public class MatchEdgeTraverser {
       matched.setProperty(
           getStartingPointAlias(), sourceRecord.getProperty(getStartingPointAlias()));
     }
-    Entity elem = next.toEntity();
+    assert next.isEntity();
+
+    Entity elem = next.asEntity();
     iCommandContext.setVariable("$currentMatch", elem);
     if (matchesFilters(iCommandContext, theFilter, elem)
         && matchesClass(iCommandContext, theClassName, elem)

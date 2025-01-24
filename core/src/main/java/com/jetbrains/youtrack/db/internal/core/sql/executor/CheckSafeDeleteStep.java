@@ -34,7 +34,7 @@ public class CheckSafeDeleteStep extends AbstractExecutionStep {
 
   private Result mapResult(Result result, CommandContext ctx) {
     if (result.isEntity()) {
-      var elem = result.toEntity();
+      var elem = result.asEntity();
       SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass((EntityImpl) elem);
       if (clazz != null) {
         if (clazz.getName().equalsIgnoreCase("V") || clazz.isSubClassOf("V")) {

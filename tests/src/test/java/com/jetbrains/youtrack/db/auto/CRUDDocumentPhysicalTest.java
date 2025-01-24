@@ -169,8 +169,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
             .collect(HashSet::new, HashSet::add, HashSet::addAll);
 
     db.begin();
-    EntityImpl vDoc = db.newInstance();
-    vDoc.setClassName("Profile");
+    EntityImpl vDoc = db.newInstance("Profile");
     vDoc.field("nick", "JayM1").field("name", "Jay").field("surname", "Miner");
     vDoc.save();
 
@@ -206,14 +205,12 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
   @Test(dependsOnMethods = "testDoubleChanges")
   public void testMultiValues() {
     db.begin();
-    EntityImpl vDoc = db.newInstance();
-    vDoc.setClassName("Profile");
+    EntityImpl vDoc = db.newInstance("Profile");
     vDoc.field("nick", "Jacky").field("name", "Jack").field("surname", "Tramiel");
     vDoc.save();
 
     // add a new record with the same name "nameA".
-    vDoc = db.newInstance();
-    vDoc.setClassName("Profile");
+    vDoc = db.newInstance("Profile");
     vDoc.field("nick", "Jack").field("name", "Jack").field("surname", "Bauer");
     vDoc.save();
     db.commit();
@@ -244,8 +241,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
   @Test(dependsOnMethods = "testMultiValues")
   public void testUnderscoreField() {
     db.begin();
-    EntityImpl vDoc = db.newInstance();
-    vDoc.setClassName("Profile");
+    EntityImpl vDoc = db.newInstance("Profile");
     vDoc.field("nick", "MostFamousJack")
         .field("name", "Kiefer")
         .field("surname", "Sutherland")
@@ -288,9 +284,8 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
   public void testDbCacheUpdated() {
     db.createClassIfNotExist("Profile");
     db.begin();
-    EntityImpl vDoc = db.newInstance();
-    vDoc.setClassName("Profile");
 
+    EntityImpl vDoc = db.newInstance("Profile");
     Set<String> tags = new HashSet<>();
     tags.add("test");
     tags.add("yeah");
@@ -309,7 +304,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
             .execute(db);
 
     Assert.assertEquals(result.size(), 1);
-    EntityImpl dexter = result.get(0);
+    EntityImpl dexter = result.getFirst();
 
     db.begin();
     dexter = db.bindToSession(dexter);
@@ -542,9 +537,9 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     newAccount.save();
     db.commit();
 
-    List<EntityImpl> superClassResult = executeQuery("select from Account");
+    var superClassResult = executeQuery("select from Account");
 
-    List<EntityImpl> subClassResult = executeQuery("select from Company");
+    var subClassResult = executeQuery("select from Company");
 
     Assert.assertFalse(superClassResult.isEmpty());
     Assert.assertFalse(subClassResult.isEmpty());
@@ -552,8 +547,8 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
 
     // VERIFY ALL THE SUBCLASS RESULT ARE ALSO CONTAINED IN SUPERCLASS
     // RESULT
-    for (EntityImpl d : subClassResult) {
-      Assert.assertTrue(superClassResult.contains(d));
+    for (var result : subClassResult) {
+      Assert.assertTrue(superClassResult.contains(result));
     }
 
     HashSet<EntityImpl> browsed = new HashSet<>();
@@ -596,10 +591,10 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     newAccount.save();
     db.commit();
 
-    List<EntityImpl> allResult = executeQuery("select from Account");
-    List<EntityImpl> superClassResult = executeQuery(
+    var allResult = executeQuery("select from Account");
+    var superClassResult = executeQuery(
         "select from Account where @class = 'Account'");
-    List<EntityImpl> subClassResult = executeQuery(
+    var subClassResult = executeQuery(
         "select from Company where @class = 'Company'");
 
     Assert.assertFalse(allResult.isEmpty());
@@ -607,8 +602,8 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     Assert.assertFalse(subClassResult.isEmpty());
 
     // VERIFY ALL THE SUBCLASS RESULT ARE NOT CONTAINED IN SUPERCLASS RESULT
-    for (EntityImpl d : subClassResult) {
-      Assert.assertFalse(superClassResult.contains(d));
+    for (var r : subClassResult) {
+      Assert.assertFalse(superClassResult.contains(r));
     }
 
     HashSet<EntityImpl> browsed = new HashSet<>();
@@ -743,10 +738,10 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "readAndBrowseDescendingAndCheckHoleUtilization")
   public void testUpdateNoVersionCheck() {
-    List<EntityImpl> result = executeQuery("select from Account");
+    var resultSet = executeQuery("select from Account");
 
     db.begin();
-    EntityImpl doc = db.bindToSession(result.get(0));
+    EntityImpl doc = (EntityImpl) resultSet.getFirst().asEntity();
     doc.field("name", "modified");
     int oldVersion = doc.getVersion();
 

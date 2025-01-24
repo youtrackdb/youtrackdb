@@ -706,10 +706,6 @@ public class EntityImpl extends RecordAbstract
     final char begin = name.charAt(0);
     if (begin == '@') {
       switch (name.toLowerCase(Locale.ROOT)) {
-        case EntityHelper.ATTRIBUTE_CLASS -> {
-          setClassName(value.toString());
-          return;
-        }
         case EntityHelper.ATTRIBUTE_RID -> {
           if (status == STATUS.UNMARSHALLING) {
             recordId = new RecordId(value.toString());
@@ -725,6 +721,9 @@ public class EntityImpl extends RecordAbstract
           }
           throw new DatabaseException(
               "Attribute " + EntityHelper.ATTRIBUTE_VERSION + " is read-only");
+        }
+        default -> {
+          throw new DatabaseException("Attribute " + name + " can not be set");
         }
       }
     }
@@ -861,18 +860,17 @@ public class EntityImpl extends RecordAbstract
     checkForBinding();
     checkForFields();
 
-    if (EntityHelper.ATTRIBUTE_CLASS.equalsIgnoreCase(name)) {
-      setClassName(null);
-    } else {
-      if (EntityHelper.ATTRIBUTE_RID.equalsIgnoreCase(name)) {
+    if (EntityHelper.ATTRIBUTE_RID.equalsIgnoreCase(name)) {
+      throw new DatabaseException(
+          "Attribute " + EntityHelper.ATTRIBUTE_RID + " is read-only");
+    } else if (EntityHelper.ATTRIBUTE_VERSION.equalsIgnoreCase(name)) {
+      if (EntityHelper.ATTRIBUTE_VERSION.equalsIgnoreCase(name)) {
         throw new DatabaseException(
-            "Attribute " + EntityHelper.ATTRIBUTE_RID + " is read-only");
-      } else if (EntityHelper.ATTRIBUTE_VERSION.equalsIgnoreCase(name)) {
-        if (EntityHelper.ATTRIBUTE_VERSION.equalsIgnoreCase(name)) {
-          throw new DatabaseException(
-              "Attribute " + EntityHelper.ATTRIBUTE_VERSION + " is read-only");
-        }
+            "Attribute " + EntityHelper.ATTRIBUTE_VERSION + " is read-only");
       }
+    } else if (EntityHelper.ATTRIBUTE_CLASS.equalsIgnoreCase(name)) {
+      throw new DatabaseException(
+          "Attribute " + EntityHelper.ATTRIBUTE_CLASS + " is read-only");
     }
 
     final EntityEntry entry = fields.get(name);
@@ -1902,10 +1900,6 @@ public class EntityImpl extends RecordAbstract
     }
 
     switch (iFieldName) {
-      case EntityHelper.ATTRIBUTE_CLASS -> {
-        setClassName(iPropertyValue.toString());
-        return this;
-      }
       case EntityHelper.ATTRIBUTE_RID -> {
         recordId.fromString(iPropertyValue.toString());
         return this;
@@ -2158,7 +2152,7 @@ public class EntityImpl extends RecordAbstract
     checkForFields();
 
     if (EntityHelper.ATTRIBUTE_CLASS.equalsIgnoreCase(iFieldName)) {
-      setClassName(null);
+      throw new UnsupportedOperationException("Cannot remove the class attribute");
     } else {
       if (EntityHelper.ATTRIBUTE_RID.equalsIgnoreCase(iFieldName)) {
         recordId = new ChangeableRecordId();
@@ -2969,7 +2963,7 @@ public class EntityImpl extends RecordAbstract
     return className;
   }
 
-  public void setClassName(final String className) {
+  private void setClassName(final String className) {
     checkForBinding();
 
     immutableClazz = null;

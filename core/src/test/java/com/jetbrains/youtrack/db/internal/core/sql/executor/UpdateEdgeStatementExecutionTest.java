@@ -2,9 +2,9 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,7 +28,7 @@ public class UpdateEdgeStatementExecutionTest extends DbTestBase {
     try (ResultSet res1 = db.command("create vertex")) {
       Result r = res1.next();
       Assert.assertEquals("V", r.getProperty("@class"));
-      v1 = r.toEntity();
+      v1 = r.asEntity();
     }
     db.commit();
 
@@ -37,7 +37,7 @@ public class UpdateEdgeStatementExecutionTest extends DbTestBase {
     try (ResultSet res2 = db.command("create vertex V1")) {
       Result r = res2.next();
       Assert.assertEquals("V1", r.getProperty("@class"));
-      v2 = r.toEntity();
+      v2 = r.asEntity();
     }
     db.commit();
 
@@ -47,7 +47,7 @@ public class UpdateEdgeStatementExecutionTest extends DbTestBase {
       Result r = res3.next();
       Assert.assertEquals("V", r.getProperty("@class"));
       Assert.assertEquals("fiat", r.getProperty("brand"));
-      v3 = r.toEntity();
+      v3 = r.asEntity();
     }
     db.commit();
 
@@ -59,7 +59,7 @@ public class UpdateEdgeStatementExecutionTest extends DbTestBase {
       Assert.assertEquals("V1", r.getProperty("@class"));
       Assert.assertEquals("fiat", r.getProperty("brand"));
       Assert.assertEquals("wow", r.getProperty("name"));
-      v4 = r.toEntity();
+      v4 = r.asEntity();
     }
     db.commit();
 
@@ -71,7 +71,7 @@ public class UpdateEdgeStatementExecutionTest extends DbTestBase {
     Assert.assertTrue(edges.hasNext());
     Result edge = edges.next();
     Assert.assertFalse(edges.hasNext());
-    Assert.assertEquals("E1", ((EntityImpl) edge.toEntity().getRecord(db)).getClassName());
+    Assert.assertEquals("E1", ((EntityImpl) edge.asEntity().getRecord(db)).getClassName());
     edges.close();
 
     db.begin();
@@ -81,7 +81,7 @@ public class UpdateEdgeStatementExecutionTest extends DbTestBase {
             + ", in = "
             + v4.getIdentity()
             + " where @rid = "
-            + edge.toEntity().getIdentity());
+            + edge.asEntity().getIdentity());
     db.commit();
 
     ResultSet result = db.query("select expand(out('E1')) from " + v3.getIdentity());
@@ -127,7 +127,7 @@ public class UpdateEdgeStatementExecutionTest extends DbTestBase {
     Result edge = edges.next();
 
     db.begin();
-    db.command("UPDATE EDGE " + edge.toEntity().getIdentity() + " SET in = " + v3.getIdentity())
+    db.command("UPDATE EDGE " + edge.asEntity().getIdentity() + " SET in = " + v3.getIdentity())
         .close();
     db.commit();
     edges.close();

@@ -19,10 +19,9 @@ package com.jetbrains.youtrack.db.internal.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.lucene.analyzer.LucenePerFieldAnalyzerWrapper;
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +38,6 @@ import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
@@ -61,7 +59,7 @@ public class LuceneIndexVsLuceneTest extends LuceneBaseTest {
 
     db.execute("sql", getScriptFromStream(stream));
 
-    Schema schema = db.getMetadata().getSchema();
+    db.getMetadata().getSchema();
 
     FileUtils.deleteRecursively(getPath().getAbsoluteFile());
     try {
@@ -114,7 +112,6 @@ public class LuceneIndexVsLuceneTest extends LuceneBaseTest {
 
     Query query = new MultiFieldQueryParser(new String[]{"title"}, analyzer).parse("down the");
     final TopDocs docs = searcher.search(query, Integer.MAX_VALUE);
-    ScoreDoc[] hits = docs.scoreDocs;
 
     ResultSet resultSet =
         db.query("select *,$score from Song where search_class('down the')=true");
@@ -123,17 +120,9 @@ public class LuceneIndexVsLuceneTest extends LuceneBaseTest {
         .forEach(
             r -> {
               System.out.println("r = " + r);
-              assertThat((Object[]) r.toEntity().getProperty("$score")).isNotNull();
+              assertThat((Object[]) r.getProperty("$score")).isNotNull();
             });
 
-    //    int i = 0;
-    //    for (ScoreDoc hit : hits) {
-    ////      Assert.assertEquals(oDocs.get(i).field("$score"), hit.score);
-    //
-    //      assertThat(resultSet.get(i).<Float>field("$score")).isEqualTo(hit.score);
-    //      i++;
-    //    }
-    //    reader.close();
     resultSet.close();
   }
 }

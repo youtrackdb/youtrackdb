@@ -72,11 +72,11 @@ public class LuceneContextTest extends LuceneBaseTest {
     List<Result> results = docs.stream().collect(Collectors.toList());
     assertThat(results).hasSize(1);
 
-    Result doc = results.get(0);
-    System.out.println("doc.toEntity().toJSON() = " + doc.toEntity().toJSON());
+    Result result = results.get(0);
+    System.out.println("doc.toEntity().toJSON() = " + result.toJSON());
 
-    assertThat(doc.<Long>getProperty("$totalHits")).isEqualTo(14L);
-    assertThat(doc.<Long>getProperty("$Song_title_totalHits")).isEqualTo(14L);
+    assertThat(result.<Long>getProperty("$totalHits")).isEqualTo(14L);
+    assertThat(result.<Long>getProperty("$Song_title_totalHits")).isEqualTo(14L);
     docs.close();
   }
 }

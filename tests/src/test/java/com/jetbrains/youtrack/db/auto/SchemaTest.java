@@ -418,7 +418,6 @@ public class SchemaTest extends BaseDBTest {
 
     document = ((EntityImpl) db.newEntity("RenameClassTest"));
 
-    document.setClassName("RenameClassTest");
     document.save();
     db.commit();
 

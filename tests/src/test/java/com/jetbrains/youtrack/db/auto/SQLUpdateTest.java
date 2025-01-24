@@ -194,7 +194,7 @@ public class SQLUpdateTest extends BaseDBTest {
                 "insert into O (equaledges, name, properties) values ('no',"
                     + " 'circleUpdate', {'round':'eeee', 'blaaa':'zigzag'} )")
             .next()
-            .toEntity();
+            .asEntity();
 
     Assert.assertNotNull(element);
 

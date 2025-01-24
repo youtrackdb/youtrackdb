@@ -166,18 +166,6 @@ public class ResultBinary implements Result {
   }
 
   @Override
-  public Entity toEntity() {
-    assert db != null && db.assertIfNotActive();
-
-    EntityImpl entity = new EntityImpl(db);
-    BytesContainer bytes = new BytesContainer(this.bytes);
-    bytes.skip(offset);
-
-    serializer.deserialize(db, entity, bytes);
-    return entity;
-  }
-
-  @Override
   public boolean isBlob() {
     return false;
   }

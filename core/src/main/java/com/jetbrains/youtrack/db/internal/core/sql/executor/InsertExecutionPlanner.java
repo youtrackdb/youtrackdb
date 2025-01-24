@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.index.IndexAbstract;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.index.IndexAbstract;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCluster;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIndexIdentifier;
@@ -62,7 +62,7 @@ public class InsertExecutionPlanner {
       } else {
         handleCreateRecord(result, this.insertBody, ctx, enableProfiling);
       }
-      handleTargetClass(result, ctx, enableProfiling);
+      handleTargetClass(ctx);
       handleSetFields(result, insertBody, ctx, enableProfiling);
       var database = ctx.getDatabase();
       if (targetCluster != null) {
@@ -79,7 +79,7 @@ public class InsertExecutionPlanner {
     return result;
   }
 
-  private void handleSave(
+  private static void handleSave(
       InsertExecutionPlan result,
       SQLIdentifier targetClusterName,
       CommandContext ctx,
@@ -87,7 +87,7 @@ public class InsertExecutionPlanner {
     result.chain(new SaveElementStep(ctx, targetClusterName, profilingEnabled));
   }
 
-  private void handleReturn(
+  private static void handleReturn(
       InsertExecutionPlan result,
       SQLProjection returnStatement,
       CommandContext ctx,
@@ -97,7 +97,7 @@ public class InsertExecutionPlanner {
     }
   }
 
-  private void handleSetFields(
+  private static void handleSetFields(
       InsertExecutionPlan result,
       SQLInsertBody insertBody,
       CommandContext ctx,
@@ -133,8 +133,7 @@ public class InsertExecutionPlanner {
     }
   }
 
-  private void handleTargetClass(
-      InsertExecutionPlan result, CommandContext ctx, boolean profilingEnabled) {
+  private SQLIdentifier handleTargetClass(CommandContext ctx) {
     var database = ctx.getDatabase();
     Schema schema = database.getMetadata().getSchema();
     SQLIdentifier tc = null;
@@ -149,8 +148,7 @@ public class InsertExecutionPlanner {
       if (targetClass != null) {
         tc = new SQLIdentifier(targetClass.getName());
       }
-    } else if (this.targetClass == null) {
-
+    } else {
       SchemaClass targetClass =
           schema.getClassByClusterId(
               database.getClusterIdByName(targetClusterName.getStringValue()));
@@ -158,9 +156,8 @@ public class InsertExecutionPlanner {
         tc = new SQLIdentifier(targetClass.getName());
       }
     }
-    if (tc != null) {
-      result.chain(new SetDocumentClassStep(tc, ctx, profilingEnabled));
-    }
+
+    return tc;
   }
 
   private void handleCreateRecord(
@@ -169,28 +166,28 @@ public class InsertExecutionPlanner {
       CommandContext ctx,
       boolean profilingEnabled) {
     int tot = 1;
-
     if (body != null
         && body.getValueExpressions() != null
-        && body.getValueExpressions().size() > 0) {
+        && !body.getValueExpressions().isEmpty()) {
       tot = body.getValueExpressions().size();
     }
     if (body != null
         && body.getContentInputParam() != null
-        && body.getContentInputParam().size() > 0) {
+        && !body.getContentInputParam().isEmpty()) {
       tot = body.getContentInputParam().size();
-      if (body != null && body.getContent() != null && body.getContent().size() > 0) {
+      if (body.getContent() != null && !body.getContent().isEmpty()) {
         tot += body.getContent().size();
       }
     } else {
-      if (body != null && body.getContent() != null && body.getContent().size() > 0) {
+      if (body != null && body.getContent() != null && !body.getContent().isEmpty()) {
         tot = body.getContent().size();
       }
     }
-    result.chain(new CreateRecordStep(ctx, tot, profilingEnabled));
+
+    result.chain(new CreateRecordStep(ctx, handleTargetClass(ctx), tot, profilingEnabled));
   }
 
-  private void handleInsertSelect(
+  private static void handleInsertSelect(
       InsertExecutionPlan result,
       SQLSelectStatement selectStatement,
       CommandContext ctx,

@@ -23,14 +23,14 @@ public class ConvertToResultInternalStep extends AbstractExecutionStep {
       throw new IllegalStateException("filter step requires a previous step");
     }
     ExecutionStream resultSet = prev.start(ctx);
-    return resultSet.filter(this::filterMap);
+    return resultSet.filter(ConvertToResultInternalStep::filterMap);
   }
 
-  private Result filterMap(Result result, CommandContext ctx) {
+  private static Result filterMap(Result result, CommandContext ctx) {
     if (result instanceof UpdatableResult) {
-      var element = result.toEntity();
-      if (element != null) {
-        return new ResultInternal(ctx.getDatabase(), element);
+      if (result.isEntity()) {
+        var entity = result.asEntity();
+        return new ResultInternal(ctx.getDatabase(), entity);
       }
       return result;
     }

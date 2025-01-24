@@ -236,12 +236,14 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
 
   private static EntityImpl createEntityFromMap(DatabaseSessionInternal db,
       SchemaClass embeddedType, Map<String, Object> o) {
-    final EntityImpl entity = new EntityImpl(db);
+    final EntityImpl entity;
     if (embeddedType != null) {
-      entity.setClassName(embeddedType.getName());
+      entity = db.newInstance(embeddedType.getName());
+    } else {
+      entity = db.newInstance();
     }
-
     entity.fromMap(o);
+
     return entity;
   }
 

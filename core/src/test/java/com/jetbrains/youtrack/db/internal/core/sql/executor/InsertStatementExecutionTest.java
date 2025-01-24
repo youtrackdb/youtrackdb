@@ -6,8 +6,8 @@ import static org.junit.Assert.assertFalse;
 
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
@@ -397,7 +397,7 @@ public class InsertStatementExecutionTest extends DbTestBase {
       Object o = ((List) list).get(0);
       Assert.assertTrue(o instanceof Result);
       Assert.assertEquals("foo", ((Result) o).getProperty("name"));
-      Assert.assertEquals(className1, ((Result) o).toEntity().getSchemaType().get().getName());
+      Assert.assertEquals(className1, ((Result) o).asEntity().getSchemaType().get().getName());
     }
     result.close();
   }
@@ -429,7 +429,7 @@ public class InsertStatementExecutionTest extends DbTestBase {
       Object o = ((List) list).get(0);
       Assert.assertTrue(o instanceof Result);
       Assert.assertEquals("foo", ((Result) o).getProperty("name"));
-      Assert.assertEquals(className1, ((Result) o).toEntity().getSchemaType().get().getName());
+      Assert.assertEquals(className1, ((Result) o).asEntity().getSchemaType().get().getName());
     }
     result.close();
   }

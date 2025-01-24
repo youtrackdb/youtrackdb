@@ -609,7 +609,7 @@ public class TransactionConsistencyTest extends BaseDBTest {
     Assert.assertEquals(foos.size(), 1);
 
     db.begin();
-    db.delete(db.bindToSession(foos.get(0).toEntity()));
+    db.delete(db.bindToSession(foos.getFirst().asEntity()));
     db.commit();
   }
 

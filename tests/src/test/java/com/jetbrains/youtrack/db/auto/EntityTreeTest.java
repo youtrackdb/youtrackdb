@@ -22,7 +22,6 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -77,12 +76,12 @@ public class EntityTreeTest extends BaseDBTest {
   @Test(dependsOnMethods = "testPersonSaving")
   public void testCityEquality() {
     db.begin();
-    List<EntityImpl> resultset =
+    var resultSet =
         executeQuery("select from profile where location.city.name = 'Rome'");
-    Assert.assertEquals(resultset.size(), 2);
+    Assert.assertEquals(resultSet.size(), 2);
 
-    var p1 = resultset.get(0);
-    var p2 = resultset.get(1);
+    var p1 = resultSet.get(0);
+    var p2 = resultSet.get(1);
 
     Assert.assertNotSame(p1, p2);
     Assert.assertSame(
@@ -137,12 +136,13 @@ public class EntityTreeTest extends BaseDBTest {
   @Test(dependsOnMethods = "testSaveMultiCircular")
   public void testQueryMultiCircular() {
     db.begin();
-    List<EntityImpl> result =
+    var resultSet =
         executeQuery("select * from Profile where name = 'Barack' and surname = 'Obama'");
 
-    Assert.assertEquals(result.size(), 1);
-    for (EntityImpl profile : result) {
-      final Collection<Identifiable> followers = profile.field("followers");
+    Assert.assertEquals(resultSet.size(), 1);
+    for (var result : resultSet) {
+      var profile = result.asEntity();
+      final Collection<Identifiable> followers = profile.getProperty("followers");
       if (followers != null) {
         for (Identifiable follower : followers) {
           Assert.assertTrue(
@@ -276,9 +276,9 @@ public class EntityTreeTest extends BaseDBTest {
     db.begin();
     RID rid = p.getIdentity();
     p = db.load(rid);
-    sat = p.<List<Identifiable>>getProperty("satellites").get(0).getEntity(db);
+    sat = p.<List<Identifiable>>getProperty("satellites").getFirst().getEntity(db);
     near = sat.getEntityProperty("near");
-    satNear = near.<List<Identifiable>>getProperty("satellites").get(0).getEntity(db);
+    satNear = near.<List<Identifiable>>getProperty("satellites").getFirst().getEntity(db);
     Assert.assertEquals(satNear.<Long>getProperty("diameter"), 10);
 
     satNear.setProperty("diameter", 100);
@@ -289,9 +289,9 @@ public class EntityTreeTest extends BaseDBTest {
 
     db.begin();
     p = db.load(rid);
-    sat = p.<List<Identifiable>>getProperty("satellites").get(0).getEntity(db);
+    sat = p.<List<Identifiable>>getProperty("satellites").getFirst().getEntity(db);
     near = sat.getEntityProperty("near");
-    satNear = near.<List<Identifiable>>getProperty("satellites").get(0).getEntity(db);
+    satNear = near.<List<Identifiable>>getProperty("satellites").getFirst().getEntity(db);
     Assert.assertEquals(satNear.<Long>getProperty("diameter"), 100);
     db.commit();
   }

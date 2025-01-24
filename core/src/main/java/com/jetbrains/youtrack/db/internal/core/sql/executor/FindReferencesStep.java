@@ -130,7 +130,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
     while (nextSlot.hasNext(ctx)) {
       Result nextRes = nextSlot.next(ctx);
       if (nextRes.isEntity()) {
-        ridsToFind.add(nextRes.toEntity().getIdentity());
+        ridsToFind.add(nextRes.asEntity().getIdentity());
       }
     }
     nextSlot.close(ctx);

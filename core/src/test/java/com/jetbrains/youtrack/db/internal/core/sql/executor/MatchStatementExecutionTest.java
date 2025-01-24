@@ -87,8 +87,8 @@ public class MatchStatementExecutionTest extends DbTestBase {
     int nodes = 1000;
     for (int i = 0; i < nodes; i++) {
       db.begin();
-      EntityImpl doc = (EntityImpl) db.newEntity("IndexedVertex");
-      doc.field("uid", i);
+      var doc = db.newEntity("IndexedVertex");
+      doc.setProperty("uid", i);
       doc.save();
       db.commit();
     }
@@ -275,39 +275,39 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSimple() throws Exception {
-    List<EntityImpl> qResult = collect(
+    List<Result> qResult = collect(
         db.command("match {class:Person, as: person} return person"));
     assertEquals(6, qResult.size());
-    for (EntityImpl doc : qResult) {
-      assertEquals(1, doc.fieldNames().length);
-      Identifiable personId = doc.field("person");
+    for (var doc : qResult) {
+      assertEquals(1, doc.getPropertyNames().size());
+      Identifiable personId = doc.getProperty("person");
       EntityImpl person = personId.getRecord(db);
-      String name = person.field("name");
-      assertTrue(name.startsWith("n"));
+      String name = person.getProperty("name");
+      assertTrue(!name.isEmpty() && name.charAt(0) == 'n');
     }
   }
 
   @Test
   public void testSimpleWhere() throws Exception {
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return"
                     + " person"));
 
     assertEquals(2, qResult.size());
-    for (EntityImpl doc : qResult) {
-      assertEquals(1, doc.fieldNames().length);
-      Identifiable personId = doc.field("person");
+    for (var doc : qResult) {
+      assertEquals(1, doc.getPropertyNames().size());
+      Identifiable personId = doc.getProperty("person");
       EntityImpl person = personId.getRecord(db);
-      String name = person.field("name");
+      String name = person.getProperty("name");
       assertTrue(name.equals("n1") || name.equals("n2"));
     }
   }
 
   @Test
   public void testSimpleLimit() throws Exception {
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return"
@@ -318,7 +318,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSimpleLimit2() throws Exception {
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return"
@@ -329,7 +329,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSimpleLimit3() throws Exception {
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return"
@@ -340,7 +340,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSimpleUnnamedParams() throws Exception {
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "match {class:Person, as: person, where: (name = ? or name = ?)} return person",
@@ -348,221 +348,218 @@ public class MatchStatementExecutionTest extends DbTestBase {
                 "n2"));
 
     assertEquals(2, qResult.size());
-    for (EntityImpl doc : qResult) {
-      assertEquals(1, doc.fieldNames().length);
-      Identifiable personId = doc.field("person");
+    for (var doc : qResult) {
+      assertEquals(1, doc.getPropertyNames().size());
+      Identifiable personId = doc.getProperty("person");
       EntityImpl person = personId.getRecord(db);
-      String name = person.field("name");
+      String name = person.getProperty("name");
       assertTrue(name.equals("n1") || name.equals("n2"));
     }
   }
 
   @Test
-  public void testCommonFriends() throws Exception {
-
-    List<EntityImpl> qResult =
+  public void testCommonFriends() {
+    List<Result> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name"
                     + " = 'n4')} return $matches)"));
     assertEquals(1, qResult.size());
-    assertEquals("n2", qResult.get(0).field("name"));
+    assertEquals("n2", qResult.getFirst().getProperty("name"));
   }
 
   @Test
-  public void testCommonFriendsArrows() throws Exception {
-
-    List<EntityImpl> qResult =
+  public void testCommonFriendsArrows() {
+    List<Result> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}-Friend-{as:friend}-Friend-{class: Person, where:(name = 'n4')}"
                     + " return $matches)"));
     assertEquals(1, qResult.size());
-    assertEquals("n2", qResult.get(0).field("name"));
+    assertEquals("n2", qResult.getFirst().getProperty("name"));
   }
 
   @Test
   public void testCommonFriends2() throws Exception {
 
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name ="
                     + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name"
                     + " = 'n4')} return friend.name as name"));
     assertEquals(1, qResult.size());
-    assertEquals("n2", qResult.get(0).field("name"));
+    assertEquals("n2", qResult.getFirst().getProperty("name"));
   }
 
   @Test
-  public void testCommonFriends2Arrows() throws Exception {
-
-    List<EntityImpl> qResult =
+  public void testCommonFriends2Arrows() {
+    List<Result> qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class:"
                     + " Person, where:(name = 'n4')} return friend.name as name"));
     assertEquals(1, qResult.size());
-    assertEquals("n2", qResult.get(0).field("name"));
+    assertEquals("n2", qResult.getFirst().getProperty("name"));
   }
 
   @Test
-  public void testReturnMethod() throws Exception {
-    List<EntityImpl> qResult =
+  public void testReturnMethod() {
+    List<Result> qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name ="
                     + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name"
                     + " = 'n4')} return friend.name.toUpperCase(Locale.ENGLISH) as name"));
     assertEquals(1, qResult.size());
-    assertEquals("N2", qResult.get(0).field("name"));
+    assertEquals("N2", qResult.getFirst().getProperty("name"));
   }
 
   @Test
-  public void testReturnMethodArrows() throws Exception {
-    List<EntityImpl> qResult =
+  public void testReturnMethodArrows() {
+    List<Result> qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class:"
                     + " Person, where:(name = 'n4')} return friend.name.toUpperCase(Locale.ENGLISH)"
                     + " as name"));
     assertEquals(1, qResult.size());
-    assertEquals("N2", qResult.get(0).field("name"));
+    assertEquals("N2", qResult.getFirst().getProperty("name"));
   }
 
   @Test
-  public void testReturnExpression() throws Exception {
-    List<EntityImpl> qResult =
+  public void testReturnExpression() {
+    List<Result> qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name ="
                     + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name"
                     + " = 'n4')} return friend.name + ' ' +friend.name as name"));
     assertEquals(1, qResult.size());
-    assertEquals("n2 n2", qResult.get(0).field("name"));
+    assertEquals("n2 n2", qResult.getFirst().getProperty("name"));
   }
 
   @Test
-  public void testReturnExpressionArrows() throws Exception {
-    List<EntityImpl> qResult =
+  public void testReturnExpressionArrows() {
+    List<Result> qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class:"
                     + " Person, where:(name = 'n4')} return friend.name + ' ' +friend.name as"
                     + " name"));
     assertEquals(1, qResult.size());
-    assertEquals("n2 n2", qResult.get(0).field("name"));
+    assertEquals("n2 n2", qResult.getFirst().getProperty("name"));
   }
 
   @Test
   public void testReturnDefaultAlias() throws Exception {
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name ="
                     + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name"
                     + " = 'n4')} return friend.name"));
     assertEquals(1, qResult.size());
-    assertEquals("n2", qResult.get(0).getProperty("friend.name"));
+    assertEquals("n2", qResult.getFirst().getProperty("friend.name"));
   }
 
   @Test
   public void testReturnDefaultAliasArrows() throws Exception {
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class:"
                     + " Person, where:(name = 'n4')} return friend.name"));
     assertEquals(1, qResult.size());
-    assertEquals("n2", qResult.get(0).getProperty("friend.name"));
+    assertEquals("n2", qResult.getFirst().getProperty("friend.name"));
   }
 
   @Test
   public void testFriendsOfFriends() throws Exception {
 
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}.out('Friend').out('Friend'){as:friend} return $matches)"));
     assertEquals(1, qResult.size());
-    assertEquals("n4", qResult.get(0).field("name"));
+    assertEquals("n4", qResult.getFirst().getProperty("name"));
   }
 
   @Test
   public void testFriendsOfFriendsArrows() throws Exception {
 
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}-Friend->{}-Friend->{as:friend} return $matches)"));
     assertEquals(1, qResult.size());
-    assertEquals("n4", qResult.get(0).field("name"));
+    assertEquals("n4", qResult.getFirst().getProperty("name"));
   }
 
   @Test
   public void testFriendsOfFriends2() throws Exception {
 
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name = 'n1'), as:"
                     + " me}.both('Friend').both('Friend'){as:friend, where: ($matched.me !="
                     + " $currentMatch)} return $matches)"));
 
-    for (EntityImpl doc : qResult) {
-      assertNotEquals(doc.field("name"), "n1");
+    for (var doc : qResult) {
+      assertNotEquals("n1", doc.getProperty("name"));
     }
   }
 
   @Test
   public void testFriendsOfFriends2Arrows() throws Exception {
 
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name = 'n1'), as:"
                     + " me}-Friend-{}-Friend-{as:friend, where: ($matched.me != $currentMatch)}"
                     + " return $matches)"));
 
-    for (EntityImpl doc : qResult) {
-      assertNotEquals(doc.field("name"), "n1");
+    for (var doc : qResult) {
+      assertNotEquals("n1", doc.getProperty("name"));
     }
   }
 
   @Test
   public void testFriendsWithName() throws Exception {
 
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name = 'n1' and 1 + 1"
                     + " = 2)}.out('Friend'){as:friend, where:(name = 'n2' and 1 + 1 = 2)} return"
                     + " friend)"));
     assertEquals(1, qResult.size());
-    assertEquals("n2", qResult.get(0).field("name"));
+    assertEquals("n2", qResult.getFirst().getProperty("name"));
   }
 
   @Test
   public void testFriendsWithNameArrows() throws Exception {
 
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name = 'n1' and 1 + 1"
                     + " = 2)}-Friend->{as:friend, where:(name = 'n2' and 1 + 1 = 2)} return"
                     + " friend)"));
     assertEquals(1, qResult.size());
-    assertEquals("n2", qResult.get(0).field("name"));
+    assertEquals("n2", qResult.getFirst().getProperty("name"));
   }
 
   @Test
   public void testWhile() throws Exception {
 
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
@@ -610,7 +607,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   @Test
   public void testWhileArrows() throws Exception {
 
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
@@ -643,7 +640,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testMaxDepth() throws Exception {
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
@@ -676,7 +673,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testMaxDepthArrow() throws Exception {
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
@@ -711,15 +708,15 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testManager() {
     // the manager of a person is the manager of the department that person belongs to.
     // if that department does not have a direct manager, climb up the hierarchy until you find one
-    assertEquals("c", getManager("p10").field("name"));
-    assertEquals("c", getManager("p12").field("name"));
-    assertEquals("b", getManager("p6").field("name"));
-    assertEquals("b", getManager("p11").field("name"));
+    assertEquals("c", getManager("p10").getProperty("name"));
+    assertEquals("c", getManager("p12").getProperty("name"));
+    assertEquals("b", getManager("p6").getProperty("name"));
+    assertEquals("b", getManager("p11").getProperty("name"));
 
-    assertEquals("c", getManagerArrows("p10").field("name"));
-    assertEquals("c", getManagerArrows("p12").field("name"));
-    assertEquals("b", getManagerArrows("p6").field("name"));
-    assertEquals("b", getManagerArrows("p11").field("name"));
+    assertEquals("c", getManagerArrows("p10").getProperty("name"));
+    assertEquals("c", getManagerArrows("p12").getProperty("name"));
+    assertEquals("b", getManagerArrows("p6").getProperty("name"));
+    assertEquals("b", getManagerArrows("p11").getProperty("name"));
   }
 
   private EntityImpl getManager(String personName) {
@@ -739,7 +736,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     List<Identifiable> qResult = collectIdentifiable(db.command(query));
     assertEquals(1, qResult.size());
-    return qResult.get(0).getRecord(db);
+    return qResult.getFirst().getRecord(db);
   }
 
   private EntityImpl getManagerArrows(String personName) {
@@ -757,22 +754,22 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     List<Identifiable> qResult = collectIdentifiable(db.command(query));
     assertEquals(1, qResult.size());
-    return qResult.get(0).getRecord(db);
+    return qResult.getFirst().getRecord(db);
   }
 
   @Test
   public void testManager2() {
     // the manager of a person is the manager of the department that person belongs to.
     // if that department does not have a direct manager, climb up the hierarchy until you find one
-    assertEquals("c", getManager2("p10").field("name"));
-    assertEquals("c", getManager2("p12").field("name"));
-    assertEquals("b", getManager2("p6").field("name"));
-    assertEquals("b", getManager2("p11").field("name"));
+    assertEquals("c", getManager2("p10").getProperty("name"));
+    assertEquals("c", getManager2("p12").getProperty("name"));
+    assertEquals("b", getManager2("p6").getProperty("name"));
+    assertEquals("b", getManager2("p11").getProperty("name"));
 
-    assertEquals("c", getManager2Arrows("p10").field("name"));
-    assertEquals("c", getManager2Arrows("p12").field("name"));
-    assertEquals("b", getManager2Arrows("p6").field("name"));
-    assertEquals("b", getManager2Arrows("p11").field("name"));
+    assertEquals("c", getManager2Arrows("p10").getProperty("name"));
+    assertEquals("c", getManager2Arrows("p12").getProperty("name"));
+    assertEquals("b", getManager2Arrows("p6").getProperty("name"));
+    assertEquals("b", getManager2Arrows("p11").getProperty("name"));
   }
 
   private EntityImpl getManager2(String personName) {
@@ -793,7 +790,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     List<Identifiable> qResult = collectIdentifiable(db.command(query));
     assertEquals(1, qResult.size());
-    return qResult.get(0).getRecord(db);
+    return qResult.getFirst().getRecord(db);
   }
 
   private EntityImpl getManager2Arrows(String personName) {
@@ -812,7 +809,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     List<Identifiable> qResult = collectIdentifiable(db.command(query));
     assertEquals(1, qResult.size());
-    return qResult.get(0).getRecord(db);
+    return qResult.getFirst().getRecord(db);
   }
 
   @Test
@@ -821,7 +818,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     // sub-departments without a manager
     List<Identifiable> managedByA = getManagedBy("a");
     assertEquals(1, managedByA.size());
-    assertEquals("p1", ((EntityImpl) managedByA.get(0).getRecord(db)).field("name"));
+    assertEquals("p1", ((EntityImpl) managedByA.getFirst().getRecord(db)).getProperty("name"));
 
     List<Identifiable> managedByB = getManagedBy("b");
     assertEquals(5, managedByB.size());
@@ -834,7 +831,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     Set<String> names = new HashSet<String>();
     for (Identifiable id : managedByB) {
       EntityImpl doc = id.getRecord(db);
-      String name = doc.field("name");
+      String name = doc.getProperty("name");
       names.add(name);
     }
     assertEquals(expectedNames, names);
@@ -864,7 +861,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     // sub-departments without a manager
     List<Identifiable> managedByA = getManagedByArrows("a");
     assertEquals(1, managedByA.size());
-    assertEquals("p1", ((EntityImpl) managedByA.get(0).getRecord(db)).field("name"));
+    assertEquals("p1", ((EntityImpl) managedByA.getFirst().getRecord(db)).getProperty("name"));
 
     List<Identifiable> managedByB = getManagedByArrows("b");
     assertEquals(5, managedByB.size());
@@ -877,7 +874,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     Set<String> names = new HashSet<String>();
     for (Identifiable id : managedByB) {
       EntityImpl doc = id.getRecord(db);
-      String name = doc.field("name");
+      String name = doc.getProperty("name");
       names.add(name);
     }
     assertEquals(expectedNames, names);
@@ -905,7 +902,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     // sub-departments without a manager
     List<Identifiable> managedByA = getManagedBy2("a");
     assertEquals(1, managedByA.size());
-    assertEquals("p1", ((EntityImpl) managedByA.get(0).getRecord(db)).field("name"));
+    assertEquals("p1", ((EntityImpl) managedByA.getFirst().getRecord(db)).getProperty("name"));
 
     List<Identifiable> managedByB = getManagedBy2("b");
     assertEquals(5, managedByB.size());
@@ -918,7 +915,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     Set<String> names = new HashSet<String>();
     for (Identifiable id : managedByB) {
       EntityImpl doc = id.getRecord(db);
-      String name = doc.field("name");
+      String name = doc.getProperty("name");
       names.add(name);
     }
     assertEquals(expectedNames, names);
@@ -948,7 +945,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     // sub-departments without a manager
     List<Identifiable> managedByA = getManagedBy2Arrows("a");
     assertEquals(1, managedByA.size());
-    assertEquals("p1", ((EntityImpl) managedByA.get(0).getRecord(db)).field("name"));
+    assertEquals("p1", ((EntityImpl) managedByA.getFirst().getRecord(db)).getProperty("name"));
 
     List<Identifiable> managedByB = getManagedBy2Arrows("b");
     assertEquals(5, managedByB.size());
@@ -961,7 +958,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     Set<String> names = new HashSet<String>();
     for (Identifiable id : managedByB) {
       EntityImpl doc = id.getRecord(db);
-      String name = doc.field("name");
+      String name = doc.getProperty("name");
       names.add(name);
     }
     assertEquals(expectedNames, names);
@@ -1021,12 +1018,12 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  .out('TriangleE'){as: friend3}"
             + "return $matches";
 
-    List<EntityImpl> result = collect(db.command(query));
+    List<Result> result = collect(db.command(query));
     assertEquals(1, result.size());
-    EntityImpl doc = result.get(0);
-    EntityImpl friend1 = ((Identifiable) doc.field("friend1")).getRecord(db);
-    EntityImpl friend2 = ((Identifiable) doc.field("friend2")).getRecord(db);
-    EntityImpl friend3 = ((Identifiable) doc.field("friend3")).getRecord(db);
+    var doc = result.getFirst();
+    EntityImpl friend1 = ((Identifiable) doc.getProperty("friend1")).getRecord(db);
+    EntityImpl friend2 = ((Identifiable) doc.getProperty("friend2")).getRecord(db);
+    EntityImpl friend3 = ((Identifiable) doc.getProperty("friend3")).getRecord(db);
     assertEquals(0, friend1.<Object>field("uid"));
     assertEquals(1, friend2.<Object>field("uid"));
     assertEquals(2, friend3.<Object>field("uid"));
@@ -1043,12 +1040,12 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  .out('TriangleE'){as: friend3}"
             + "return $patterns";
 
-    List<EntityImpl> result = collect(db.command(query));
+    List<Result> result = collect(db.command(query));
     assertEquals(1, result.size());
-    EntityImpl doc = result.get(0);
-    EntityImpl friend1 = ((Identifiable) doc.field("friend1")).getRecord(db);
-    EntityImpl friend2 = ((Identifiable) doc.field("friend2")).getRecord(db);
-    EntityImpl friend3 = ((Identifiable) doc.field("friend3")).getRecord(db);
+    var doc = result.getFirst();
+    EntityImpl friend1 = ((Identifiable) doc.getProperty("friend1")).getRecord(db);
+    EntityImpl friend2 = ((Identifiable) doc.getProperty("friend2")).getRecord(db);
+    EntityImpl friend3 = ((Identifiable) doc.getProperty("friend3")).getRecord(db);
     assertEquals(0, friend1.<Object>field("uid"));
     assertEquals(1, friend2.<Object>field("uid"));
     assertEquals(2, friend3.<Object>field("uid"));
@@ -1065,12 +1062,12 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  -TriangleE->{as: friend3}"
             + "return $matches";
 
-    List<EntityImpl> result = collect(db.command(query));
+    List<Result> result = collect(db.command(query));
     assertEquals(1, result.size());
-    EntityImpl doc = result.get(0);
-    EntityImpl friend1 = ((Identifiable) doc.field("friend1")).getRecord(db);
-    EntityImpl friend2 = ((Identifiable) doc.field("friend2")).getRecord(db);
-    EntityImpl friend3 = ((Identifiable) doc.field("friend3")).getRecord(db);
+    var doc = result.getFirst();
+    EntityImpl friend1 = ((Identifiable) doc.getProperty("friend1")).getRecord(db);
+    EntityImpl friend2 = ((Identifiable) doc.getProperty("friend2")).getRecord(db);
+    EntityImpl friend3 = ((Identifiable) doc.getProperty("friend3")).getRecord(db);
     assertEquals(0, friend1.<Object>field("uid"));
     assertEquals(1, friend2.<Object>field("uid"));
     assertEquals(2, friend3.<Object>field("uid"));
@@ -1087,7 +1084,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  -TriangleE->{as: friend3}"
             + "return $matches";
 
-    List<EntityImpl> result = collect(db.command(query));
+    List<Result> result = collect(db.command(query));
     assertEquals(1, result.size());
   }
 
@@ -1148,7 +1145,9 @@ public class MatchStatementExecutionTest extends DbTestBase {
     assertEquals(2, result.size());
     for (Identifiable d : result) {
       assertEquals(
-          ((EntityImpl) ((EntityImpl) d.getRecord(db)).field("friend1")).<Object>field("uid"), 1);
+          1,
+          ((EntityImpl) ((EntityImpl) d.getRecord(db)).getProperty("friend1")).<Object>field(
+              "uid"));
     }
   }
 
@@ -1164,7 +1163,9 @@ public class MatchStatementExecutionTest extends DbTestBase {
     assertEquals(1, result.size());
     for (Identifiable d : result) {
       assertEquals(
-          ((EntityImpl) ((EntityImpl) d.getRecord(db)).field("friend1")).<Object>field("uid"), 1);
+          1,
+          ((EntityImpl) ((EntityImpl) d.getRecord(db)).getProperty("friend1")).<Object>field(
+              "uid"));
     }
   }
 
@@ -1175,10 +1176,10 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0] as foo";
 
-    List<?> result = collect(db.command(query));
+    var result = collect(db.command(query));
     assertEquals(1, result.size());
-    EntityImpl doc = (EntityImpl) result.get(0);
-    Object foo = doc.field("foo");
+    var doc = result.getFirst();
+    Object foo = doc.getProperty("foo");
     assertNotNull(foo);
     Assert.assertTrue(((Entity) foo).isVertex());
   }
@@ -1190,10 +1191,10 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0,1] as foo";
 
-    List<?> result = collect(db.command(query));
+    var result = collect(db.command(query));
     assertEquals(1, result.size());
-    EntityImpl doc = (EntityImpl) result.get(0);
-    Object foo = doc.field("foo");
+    var doc = result.getFirst();
+    Object foo = doc.getProperty("foo");
     assertNotNull(foo);
     assertTrue(foo instanceof List);
     assertEquals(2, ((List) foo).size());
@@ -1206,10 +1207,10 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0..1] as foo";
 
-    List<?> result = collect(db.command(query));
+    var result = collect(db.command(query));
     assertEquals(1, result.size());
-    EntityImpl doc = (EntityImpl) result.get(0);
-    Object foo = doc.field("foo");
+    var doc = result.getFirst();
+    Object foo = doc.getProperty("foo");
     assertNotNull(foo);
     assertTrue(foo instanceof List);
     assertEquals(1, ((List) foo).size());
@@ -1222,10 +1223,10 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0..2] as foo";
 
-    List<?> result = collect(db.command(query));
+    var result = collect(db.command(query));
     assertEquals(1, result.size());
-    EntityImpl doc = (EntityImpl) result.get(0);
-    Object foo = doc.field("foo");
+    var doc = result.getFirst();
+    Object foo = doc.getProperty("foo");
     assertNotNull(foo);
     assertTrue(foo instanceof List);
     assertEquals(2, ((List) foo).size());
@@ -1238,10 +1239,10 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0..3] as foo";
 
-    List<?> result = collect(db.command(query));
+    var result = collect(db.command(query));
     assertEquals(1, result.size());
-    EntityImpl doc = (EntityImpl) result.get(0);
-    Object foo = doc.field("foo");
+    var doc = result.getFirst();
+    Object foo = doc.getProperty("foo");
     assertNotNull(foo);
     assertTrue(foo instanceof List);
     assertEquals(2, ((List) foo).size());
@@ -1254,14 +1255,14 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[uid = 2] as foo";
 
-    List<?> result = collect(db.command(query));
+    var result = collect(db.command(query));
     assertEquals(1, result.size());
-    EntityImpl doc = (EntityImpl) result.get(0);
-    Object foo = doc.field("foo");
+    var doc = result.getFirst();
+    Object foo = doc.getProperty("foo");
     assertNotNull(foo);
     assertTrue(foo instanceof List);
     assertEquals(1, ((List) foo).size());
-    Vertex resultVertex = (Vertex) ((List) foo).get(0);
+    Vertex resultVertex = (Vertex) ((List) foo).getFirst();
     assertEquals(2, resultVertex.<Object>getProperty("uid"));
   }
 
@@ -1296,11 +1297,11 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "{class:IndexedVertex, as: one, where: (uid = 0)} "
             + "return {'name':'foo', 'uuid':one.uid}";
 
-    List<EntityImpl> result = collect(db.command(query));
+    List<Result> result = collect(db.command(query));
     assertEquals(1, result.size());
-    //    EntityImpl doc = result.get(0);
-    //    assertEquals("foo", doc.field("name"));
-    //    assertEquals(0, doc.field("uuid"));
+    //    var doc = result.get(0);
+    //    assertEquals("foo", doc.getProperty("name"));
+    //    assertEquals(0, doc.getProperty("uuid"));
   }
 
   @Test
@@ -1310,11 +1311,11 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "{class:IndexedVertex, as: one, where: (uid = 0)} "
             + "return {'name':'foo', 'sub': {'uuid':one.uid}}";
 
-    List<EntityImpl> result = collect(db.command(query));
+    List<Result> result = collect(db.command(query));
     assertEquals(1, result.size());
-    //    EntityImpl doc = result.get(0);
-    //    assertEquals("foo", doc.field("name"));
-    //    assertEquals(0, doc.field("sub.uuid"));
+    //    var doc = result.get(0);
+    //    assertEquals("foo", doc.getProperty("name"));
+    //    assertEquals(0, doc.getProperty("sub.uuid"));
   }
 
   @Test
@@ -1324,11 +1325,11 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "{class:IndexedVertex, as: one, where: (uid = 0)} "
             + "return {'name':'foo', 'sub': [{'uuid':one.uid}]}";
 
-    List<EntityImpl> result = collect(db.command(query));
+    List<Result> result = collect(db.command(query));
     assertEquals(1, result.size());
-    //    EntityImpl doc = result.get(0);
-    //    assertEquals("foo", doc.field("name"));
-    //    assertEquals(0, doc.field("sub[0].uuid"));
+    //    var doc = result.get(0);
+    //    assertEquals("foo", doc.getProperty("name"));
+    //    assertEquals(0, doc.getProperty("sub[0].uuid"));
   }
 
   @Test
@@ -1351,15 +1352,15 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     result = db.query(query.toString()).toEntityList();
     assertEquals(1, result.size());
-    //    EntityImpl doc = result.get(0);
-    //    assertEquals("foo", doc.field("name"));
-    //    assertEquals(0, doc.field("sub[0].uuid"));
+    //    var doc = result.get(0);
+    //    assertEquals("foo", doc.getProperty("name"));
+    //    assertEquals(0, doc.getProperty("sub[0].uuid"));
   }
 
   @Test
   @Ignore
   public void testManagedElements() {
-    List<? extends Identifiable> managedByB = getManagedElements("b");
+    List<? extends Identifiable> managedByB = getManagedElements();
     assertEquals(6, managedByB.size());
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("b");
@@ -1371,16 +1372,16 @@ public class MatchStatementExecutionTest extends DbTestBase {
     Set<String> names = new HashSet<String>();
     for (Identifiable id : managedByB) {
       EntityImpl doc = id.getRecord(db);
-      String name = doc.field("name");
+      String name = doc.getProperty("name");
       names.add(name);
     }
     assertEquals(expectedNames, names);
   }
 
-  private List<? extends Identifiable> getManagedElements(String managerName) {
+  private List<? extends Identifiable> getManagedElements() {
     String query =
         "  match {class:Employee, as:boss, where: (name = '"
-            + managerName
+            + "b"
             + "')}"
             + "  -ManagerOf->{}<-ParentDepartment-{"
             + "      while: ($depth = 0 or in('ManagerOf').size() = 0),"
@@ -1410,7 +1411,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     Set<String> names = new HashSet<String>();
     for (Identifiable id : managedByB) {
       EntityImpl doc = id.getRecord(db);
-      String name = doc.field("name");
+      String name = doc.getProperty("name");
       names.add(name);
     }
     assertEquals(expectedNames, names);
@@ -1418,41 +1419,41 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testOptional() throws Exception {
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "match {class:Person, as: person} -NonExistingEdge-> {as:b, optional:true} return"
                     + " person, b.name"));
     assertEquals(6, qResult.size());
-    for (EntityImpl doc : qResult) {
-      assertEquals(2, doc.fieldNames().length);
-      Identifiable personId = doc.field("person");
+    for (var doc : qResult) {
+      assertEquals(2, doc.getPropertyNames().size());
+      Identifiable personId = doc.getProperty("person");
       EntityImpl person = personId.getRecord(db);
-      String name = person.field("name");
-      assertTrue(name.startsWith("n"));
+      String name = person.getProperty("name");
+      assertTrue(!name.isEmpty() && name.charAt(0) == 'n');
     }
   }
 
   @Test
   public void testOptional2() throws Exception {
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "match {class:Person, as: person} --> {as:b, optional:true, where:(nonExisting ="
                     + " 12)} return person, b.name"));
     assertEquals(6, qResult.size());
-    for (EntityImpl doc : qResult) {
-      assertEquals(2, doc.fieldNames().length);
-      Identifiable personId = doc.field("person");
+    for (var doc : qResult) {
+      assertEquals(2, doc.getPropertyNames().size());
+      Identifiable personId = doc.getProperty("person");
       EntityImpl person = personId.getRecord(db);
-      String name = person.field("name");
-      assertTrue(name.startsWith("n"));
+      String name = person.getProperty("name");
+      assertTrue(!name.isEmpty() && name.charAt(0) == 'n');
     }
   }
 
   @Test
   public void testOptional3() throws Exception {
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, as:a, where:(name = 'n1' and"
@@ -1460,18 +1461,19 @@ public class MatchStatementExecutionTest extends DbTestBase {
                     + " 2)},{as:a}.out(){as:b, where:(nonExisting = 12),"
                     + " optional:true},{as:friend}.out(){as:b, optional:true} return friend)"));
     assertEquals(1, qResult.size());
-    assertEquals("n2", qResult.get(0).field("name"));
+    assertEquals("n2", qResult.getFirst().getProperty("name"));
   }
 
   @Test
   public void testAliasesWithSubquery() throws Exception {
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "select from ( match {class:Person, as:A} return A.name as namexx ) limit 1"));
     assertEquals(1, qResult.size());
-    assertNotNull(qResult.get(0).field("namexx"));
-    assertTrue(qResult.get(0).field("namexx").toString().startsWith("n"));
+    assertNotNull(qResult.getFirst().getProperty("namexx"));
+    assertTrue(!qResult.getFirst().getProperty("namexx").toString().isEmpty()
+        && qResult.getFirst().getProperty("namexx").toString().charAt(0) == 'n');
   }
 
   @Test
@@ -1485,7 +1487,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     db.command("CREATE VERTEX testEvalInReturn SET name = 'bar'").close();
     db.commit();
 
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "MATCH {class: testEvalInReturn, as: p} RETURN if(eval(\"p.name = 'foo'\"), 1, 2)"
@@ -1493,8 +1495,8 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     assertEquals(2, qResult.size());
     int sum = 0;
-    for (EntityImpl doc : qResult) {
-      sum += ((Number) doc.field("b")).intValue();
+    for (var doc : qResult) {
+      sum += ((Number) doc.getProperty("b")).intValue();
     }
     assertEquals(3, sum);
 
@@ -1530,7 +1532,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
         .close();
     db.commit();
 
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "MATCH {class: testCheckClassAsCondition, as: p} -E- {class:"
@@ -1542,7 +1544,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   @Test
   public void testInstanceof() {
 
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "MATCH {class: Person, as: p, where: ($currentMatch instanceof 'Person')} return"
@@ -1596,19 +1598,19 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     for (int i = 0; i < 1000; i++) {
       db.begin();
-      EntityImpl doc = db.newInstance("testBigEntryPoint1");
-      doc.field("a", i);
+      var doc = db.newInstance("testBigEntryPoint1");
+      doc.setProperty("a", i);
       doc.save();
       db.commit();
     }
 
     db.begin();
-    EntityImpl doc = db.newInstance("testBigEntryPoint2");
-    doc.field("b", "b");
+    var doc = db.newInstance("testBigEntryPoint2");
+    doc.setProperty("b", "b");
     doc.save();
     db.commit();
 
-    List<EntityImpl> qResult =
+    List<Result> qResult =
         collect(
             db.command(
                 "MATCH {class: testBigEntryPoint1, as: a}, {class: testBigEntryPoint2, as: b}"
@@ -1649,22 +1651,24 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     ResultSet result =
         db.query(
-            "MATCH \n"
-                + "{class: testMatched1_Foo, as: foo}.out('testMatched1_Foo_Bar') {as: bar}, \n"
-                + "{class: testMatched1_Bar,as: bar}.out('testMatched1_Bar_Baz') {as: baz}, \n"
-                + "{class: testMatched1_Foo,as: foo}.out('testMatched1_Foo_Far') {where:"
-                + " ($matched.baz IS null),as: far}\n"
-                + "RETURN $matches");
+            """
+                MATCH\s
+                {class: testMatched1_Foo, as: foo}.out('testMatched1_Foo_Bar') {as: bar},\s
+                {class: testMatched1_Bar,as: bar}.out('testMatched1_Bar_Baz') {as: baz},\s
+                {class: testMatched1_Foo,as: foo}.out('testMatched1_Foo_Far') {where:\
+                 ($matched.baz IS null),as: far}
+                RETURN $matches""");
     assertFalse(result.hasNext());
 
     result =
         db.query(
-            "MATCH \n"
-                + "{class: testMatched1_Foo, as: foo}.out('testMatched1_Foo_Bar') {as: bar}, \n"
-                + "{class: testMatched1_Bar,as: bar}.out('testMatched1_Bar_Baz') {as: baz}, \n"
-                + "{class: testMatched1_Foo,as: foo}.out('testMatched1_Foo_Far') {where:"
-                + " ($matched.baz IS not null),as: far}\n"
-                + "RETURN $matches");
+            """
+                MATCH\s
+                {class: testMatched1_Foo, as: foo}.out('testMatched1_Foo_Bar') {as: bar},\s
+                {class: testMatched1_Bar,as: bar}.out('testMatched1_Bar_Baz') {as: baz},\s
+                {class: testMatched1_Foo,as: foo}.out('testMatched1_Foo_Far') {where:\
+                 ($matched.baz IS not null),as: far}
+                RETURN $matches""");
     assertEquals(1, result.stream().count());
   }
 
@@ -1707,22 +1711,23 @@ public class MatchStatementExecutionTest extends DbTestBase {
     List result =
         db.query(
 
-            "MATCH {\n"
-                + "    class: testDependencyOrdering1_Foo,\n"
-                + "    as: foo\n"
-                + "}.out('testDependencyOrdering1_Foo_Far') {\n"
-                + "    optional: true,\n"
-                + "    where: ($matched.bar IS NOT null),\n"
-                + "    as: far\n"
-                + "}, {\n"
-                + "    as: foo\n"
-                + "}.out('testDependencyOrdering1_Foo_Bar') {\n"
-                + "    where: ($matched.foo IS NOT null),\n"
-                + "    as: bar\n"
-                + "}.out('testDependencyOrdering1_Bar_Baz') {\n"
-                + "    where: ($matched.far IS NOT null),\n"
-                + "    as: baz\n"
-                + "} RETURN $matches").toList();
+            """
+                MATCH {
+                    class: testDependencyOrdering1_Foo,
+                    as: foo
+                }.out('testDependencyOrdering1_Foo_Far') {
+                    optional: true,
+                    where: ($matched.bar IS NOT null),
+                    as: far
+                }, {
+                    as: foo
+                }.out('testDependencyOrdering1_Foo_Bar') {
+                    where: ($matched.foo IS NOT null),
+                    as: bar
+                }.out('testDependencyOrdering1_Bar_Baz') {
+                    where: ($matched.far IS NOT null),
+                    as: baz
+                } RETURN $matches""").toList();
     assertEquals(1, result.size());
   }
 
@@ -1763,21 +1768,22 @@ public class MatchStatementExecutionTest extends DbTestBase {
     // - bar depends on far
     SQLSynchQuery query =
         new SQLSynchQuery(
-            "MATCH {\n"
-                + "    class: testCircularDependency_Foo,\n"
-                + "    as: foo\n"
-                + "}.out('testCircularDependency_Foo_Far') {\n"
-                + "    where: ($matched.baz IS NOT null),\n"
-                + "    as: far\n"
-                + "}, {\n"
-                + "    as: foo\n"
-                + "}.out('testCircularDependency_Foo_Bar') {\n"
-                + "    where: ($matched.far IS NOT null),\n"
-                + "    as: bar\n"
-                + "}.out('testCircularDependency_Bar_Baz') {\n"
-                + "    where: ($matched.bar IS NOT null),\n"
-                + "    as: baz\n"
-                + "} RETURN $matches");
+            """
+                MATCH {
+                    class: testCircularDependency_Foo,
+                    as: foo
+                }.out('testCircularDependency_Foo_Far') {
+                    where: ($matched.baz IS NOT null),
+                    as: far
+                }, {
+                    as: foo
+                }.out('testCircularDependency_Foo_Bar') {
+                    where: ($matched.far IS NOT null),
+                    as: bar
+                }.out('testCircularDependency_Bar_Baz') {
+                    where: ($matched.bar IS NOT null),
+                    as: baz
+                } RETURN $matches""");
 
     try {
       db.query(query);
@@ -1808,13 +1814,14 @@ public class MatchStatementExecutionTest extends DbTestBase {
     // "bar" in the following query declares a dependency on the alias "baz", which doesn't exist.
     SQLSynchQuery query =
         new SQLSynchQuery(
-            "MATCH {\n"
-                + "    class: testUndefinedAliasDependency_Foo,\n"
-                + "    as: foo\n"
-                + "}.out('testUndefinedAliasDependency_Foo_Bar') {\n"
-                + "    where: ($matched.baz IS NOT null),\n"
-                + "    as: bar\n"
-                + "} RETURN $matches");
+            """
+                MATCH {
+                    class: testUndefinedAliasDependency_Foo,
+                    as: foo
+                }.out('testUndefinedAliasDependency_Foo_Bar') {
+                    where: ($matched.baz IS NOT null),
+                    as: bar
+                } RETURN $matches""");
 
     try {
       db.query(query);
@@ -1859,20 +1866,21 @@ public class MatchStatementExecutionTest extends DbTestBase {
     db.commit();
 
     String query =
-        "MATCH {\n"
-            + "    class: testCyclicDeepTraversalV,\n"
-            + "    as: foo,\n"
-            + "    where: (name = 'a')\n"
-            + "}.out() {\n"
-            + "    while: ($depth < 2),\n"
-            + "    where: (name = 'z'),\n"
-            + "    as: bar\n"
-            + "}, {\n"
-            + "    as: bar\n"
-            + "}.out() {\n"
-            + "    while: ($depth < 2),\n"
-            + "    as: foo\n"
-            + "} RETURN $patterns";
+        """
+            MATCH {
+                class: testCyclicDeepTraversalV,
+                as: foo,
+                where: (name = 'a')
+            }.out() {
+                while: ($depth < 2),
+                where: (name = 'z'),
+                as: bar
+            }, {
+                as: bar
+            }.out() {
+                while: ($depth < 2),
+                as: foo
+            } RETURN $patterns""";
 
     ResultSet result = db.query(query);
     assertEquals(1, result.stream().count());
@@ -1892,24 +1900,15 @@ public class MatchStatementExecutionTest extends DbTestBase {
     return db.command(query).stream().map(Result::getRecordId).toList();
   }
 
-  private List<EntityImpl> collect(ResultSet set) {
-    return set.stream()
-        .map(
-            (r) -> {
-              if (r.isEntity()) {
-                return (EntityImpl) r.getEntity().get();
-              } else {
-                return (EntityImpl) r.toEntity();
-              }
-            })
-        .collect(Collectors.toList());
+  private static List<Result> collect(ResultSet set) {
+    return set.toList();
   }
 
-  private List<Identifiable> collectIdentifiable(ResultSet set) {
-    return set.stream().map((r) -> (EntityImpl) r.toEntity()).collect(Collectors.toList());
+  private static List<Identifiable> collectIdentifiable(ResultSet set) {
+    return set.stream().map((r) -> r.asEntity()).collect(Collectors.toList());
   }
 
-  private Profiler getProfilerInstance() {
+  private static Profiler getProfilerInstance() {
     return YouTrackDBEnginesManager.instance().getProfiler();
   }
 }

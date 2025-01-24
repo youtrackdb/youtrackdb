@@ -19,6 +19,7 @@ package com.jetbrains.youtrack.db.auto;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandPredicate;
@@ -43,7 +44,6 @@ public class TraverseTest extends BaseDBTest {
 
   private int totalElements = 0;
   private Vertex tomCruise;
-  private Vertex megRyan;
   private Vertex nicoleKidman;
 
   @Parameters(value = "remote")
@@ -67,7 +67,7 @@ public class TraverseTest extends BaseDBTest {
 
     totalElements++;
 
-    megRyan = db.newVertex("Actor");
+    Vertex megRyan = db.newVertex("Actor");
     megRyan.setProperty("name", "Meg Ryan");
     megRyan.save();
 
@@ -153,7 +153,7 @@ public class TraverseTest extends BaseDBTest {
                     "traverse out_ from " + tomCruise.getIdentity() + " while $depth <= 1"))
             .execute(db);
 
-    Assert.assertTrue(result1.size() != 0);
+    Assert.assertFalse(result1.isEmpty());
   }
 
   @Test
@@ -164,7 +164,7 @@ public class TraverseTest extends BaseDBTest {
                 new SQLSynchQuery<EntityImpl>(
                     "select from ( traverse any() from Movie ) where @class = 'Movie'"))
             .execute(db);
-    Assert.assertTrue(result1.size() > 0);
+    Assert.assertFalse(result1.isEmpty());
     for (EntityImpl d : result1) {
       Assert.assertEquals(d.getClassName(), "Movie");
     }
@@ -180,23 +180,20 @@ public class TraverseTest extends BaseDBTest {
                         + tomCruise.getIdentity()
                         + ") where @class = 'Movie'"))
             .execute(db);
-    Assert.assertTrue(result1.size() > 0);
+    Assert.assertFalse(result1.isEmpty());
     for (Entity d : result1) {
-      Assert.assertEquals(d.getSchemaType().map(x -> x.getName()).orElse(null), "Movie");
+      Assert.assertEquals(d.getSchemaType().map(SchemaClass::getName).orElse(null), "Movie");
     }
   }
 
   @Test
   public void traverseSQLMoviesOnlyDepth() {
-    List<Entity> result1 =
+    var result1 =
         db
             .query(
-                "select from ( traverse * from "
+                "select from (traverse * from "
                     + tomCruise.getIdentity()
-                    + " while $depth <= 1 ) where @class = 'Movie'")
-            .stream()
-            .map(result -> result.toEntity())
-            .toList();
+                    + " while $depth <= 1 ) where @class = 'Movie'").toList();
     Assert.assertTrue(result1.isEmpty());
 
     List<EntityImpl> result2 =
@@ -207,7 +204,7 @@ public class TraverseTest extends BaseDBTest {
                         + tomCruise.getIdentity()
                         + " while $depth <= 2 ) where @class = 'Movie'"))
             .execute(db);
-    Assert.assertTrue(result2.size() > 0);
+    Assert.assertFalse(result2.isEmpty());
     for (EntityImpl d : result2) {
       Assert.assertEquals(d.getClassName(), "Movie");
     }
@@ -220,7 +217,7 @@ public class TraverseTest extends BaseDBTest {
                         + tomCruise.getIdentity()
                         + " ) where @class = 'Movie'"))
             .execute(db);
-    Assert.assertTrue(result3.size() > 0);
+    Assert.assertFalse(result3.isEmpty());
     Assert.assertTrue(result3.size() > result2.size());
     for (EntityImpl d : result3) {
       Assert.assertEquals(d.getClassName(), "Movie");
@@ -396,7 +393,7 @@ public class TraverseTest extends BaseDBTest {
                         + tomCruise.getIdentity()
                         + ")"))
             .execute(db);
-    Assert.assertTrue(result1.size() > 0);
+    Assert.assertFalse(result1.isEmpty());
     boolean found = false;
     for (EntityImpl doc : result1) {
       String name = doc.field("name");
@@ -421,7 +418,7 @@ public class TraverseTest extends BaseDBTest {
                         + tomCruise.getIdentity()
                         + ")"))
             .execute(db, params);
-    Assert.assertTrue(result1.size() > 0);
+    Assert.assertFalse(result1.isEmpty());
     boolean found = false;
     for (EntityImpl doc : result1) {
       String name = doc.field("name");
@@ -435,7 +432,7 @@ public class TraverseTest extends BaseDBTest {
 
   @Test
   public void traverseAndCheckDepthInSelect() {
-    List<EntityImpl> result1 =
+    var result1 =
         executeQuery(
             "select *, $depth as d from ( traverse out_married  from "
                 + tomCruise.getIdentity()
@@ -444,8 +441,8 @@ public class TraverseTest extends BaseDBTest {
 
     boolean found = false;
     int i = 0;
-    for (EntityImpl doc : result1) {
-      Integer depth = doc.field("d");
+    for (var res : result1) {
+      Integer depth = res.getProperty("d");
       Assert.assertEquals(depth, i++);
     }
   }

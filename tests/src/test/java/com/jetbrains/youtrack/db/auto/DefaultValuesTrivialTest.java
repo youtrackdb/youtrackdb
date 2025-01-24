@@ -143,11 +143,10 @@ public class DefaultValuesTrivialTest {
     }
 
     {
-      EntityImpl doc = ((EntityImpl) db.newEntity());
+      EntityImpl doc = ((EntityImpl) db.newEntity(classA.getName()));
       assertNull(doc.field("name"));
       assertNull(doc.field("date"));
       assertNull(doc.field("active"));
-      doc.setClassName(classA.getName());
       assertEquals("default name", doc.field("name"));
       assertNotNull(doc.field("date"));
       assertEquals((Boolean) true, doc.field("active"));

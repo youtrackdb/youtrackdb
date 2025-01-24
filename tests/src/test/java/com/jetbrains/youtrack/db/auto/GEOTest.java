@@ -80,8 +80,7 @@ public class GEOTest extends BaseDBTest {
     EntityImpl point;
 
     for (int i = 0; i < 10000; ++i) {
-      point = ((EntityImpl) db.newEntity());
-      point.setClassName("MapPoint");
+      point = ((EntityImpl) db.newEntity("MapPoint"));
 
       point.field("x", (52.20472d + i / 100d));
       point.field("y", (0.14056d + i / 100d));
@@ -103,7 +102,7 @@ public class GEOTest extends BaseDBTest {
                     "select from MapPoint where distance(x, y,52.20472, 0.14056 ) <= 30"))
             .execute(db);
 
-    Assert.assertTrue(result.size() != 0);
+    Assert.assertFalse(result.isEmpty());
 
     for (EntityImpl d : result) {
       Assert.assertEquals(d.getClassName(), "MapPoint");
@@ -116,29 +115,28 @@ public class GEOTest extends BaseDBTest {
     Assert.assertEquals(db.countClass("MapPoint"), 10000);
 
     // MAKE THE FIRST RECORD DIRTY TO TEST IF DISTANCE JUMP IT
-    List<EntityImpl> result =
-        db.command(new SQLSynchQuery<EntityImpl>("select from MapPoint limit 1"))
-            .execute(db);
+    var resultSet =
+        db.command("select from MapPoint limit 1").toList();
     try {
-      result.get(0).field("x", "--wrong--");
+      resultSet.getFirst().asEntity().setProperty("x", "--wrong--");
       Assert.fail();
     } catch (DatabaseException e) {
       Assert.assertTrue(true);
     }
 
-    result =
+    resultSet =
         executeQuery(
             "select distance(x, y,52.20472, 0.14056 ) as distance from MapPoint order by"
                 + " distance desc");
 
-    Assert.assertTrue(result.size() != 0);
+    Assert.assertFalse(resultSet.isEmpty());
 
     Double lastDistance = null;
-    for (EntityImpl d : result) {
-      if (lastDistance != null && d.field("distance") != null) {
-        Assert.assertTrue(((Double) d.field("distance")).compareTo(lastDistance) <= 0);
+    for (var result : resultSet) {
+      if (lastDistance != null && result.getProperty("distance") != null) {
+        Assert.assertTrue(((Double) result.getProperty("distance")).compareTo(lastDistance) <= 0);
       }
-      lastDistance = d.field("distance");
+      lastDistance = result.getProperty("distance");
     }
   }
 }

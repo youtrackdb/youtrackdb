@@ -426,9 +426,8 @@ public class CRUDTest extends BaseDBTest {
 
     db = createSessionInstance();
     db.begin();
-    List<EntityImpl> agendas = executeQuery("SELECT FROM " + rid);
-
-    EntityImpl testLoadedEntity = agendas.get(0);
+    var agendas = executeQuery("SELECT FROM " + rid);
+    var testLoadedEntity = (EntityImpl) agendas.getFirst().asEntity();
 
     checkCollectionImplementations(testLoadedEntity);
 
@@ -470,8 +469,8 @@ public class CRUDTest extends BaseDBTest {
 
     db = createSessionInstance();
     db.begin();
-    List<EntityImpl> agendas = executeQuery("SELECT FROM " + rid);
-    var testLoadedEntity = agendas.get(0);
+    var agendas = executeQuery("SELECT FROM " + rid);
+    var testLoadedEntity = (EntityImpl) agendas.getFirst().asEntity();
 
     checkCollectionImplementations(testLoadedEntity);
 
@@ -508,8 +507,8 @@ public class CRUDTest extends BaseDBTest {
 
     db = createSessionInstance();
     db.begin();
-    List<EntityImpl> agendas = executeQuery("SELECT FROM " + rid);
-    var testLoadedEntity = agendas.get(0);
+    var agendas = executeQuery("SELECT FROM " + rid);
+    var testLoadedEntity = (EntityImpl) agendas.getFirst();
     checkCollectionImplementations(testLoadedEntity);
 
     testLoadedEntity = db.save(testLoadedEntity);
@@ -535,7 +534,7 @@ public class CRUDTest extends BaseDBTest {
     }
     collectionObj = doc.field("set");
     validImplementation =
-        (collectionObj instanceof TrackedSet<?>) || (collectionObj instanceof LinkSet);
+        collectionObj instanceof TrackedSet<?>;
     if (!validImplementation) {
       Assert.fail(
           "Document set implementation "
@@ -587,14 +586,14 @@ public class CRUDTest extends BaseDBTest {
       Assert.assertEquals(a.<List<Identifiable>>getProperty("addresses").size(), 1);
       Assert.assertEquals(
           a.<List<Identifiable>>getProperty("addresses")
-              .get(0)
+              .getFirst()
               .<Entity>getRecord(db)
               .getEntityProperty("city")
               .getProperty("name"),
           rome.<String>getProperty("name"));
       Assert.assertEquals(
           a.<List<Identifiable>>getProperty("addresses")
-              .get(0)
+              .getFirst()
               .<Entity>getRecord(db)
               .getEntityProperty("city")
               .getEntityProperty("country")
@@ -655,8 +654,7 @@ public class CRUDTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    List<EntityImpl> cresult = executeQuery("select * from Child");
-
+    var cresult = executeQuery("select * from Child");
     Assert.assertFalse(cresult.isEmpty());
 
     RID rid = p.getIdentity();
@@ -751,8 +749,8 @@ public class CRUDTest extends BaseDBTest {
 
     db = createSessionInstance();
     db.begin();
-    List<EntityImpl> agendas = executeQuery("SELECT FROM " + rid);
-    Entity agenda = agendas.get(0);
+    var agendas = executeQuery("SELECT FROM " + rid);
+    Entity agenda = agendas.getFirst().asEntity();
     //noinspection unused,StatementWithEmptyBody
     for (var e : agenda.<List<Entity>>getProperty("events")) {
       // NO NEED TO DO ANYTHING, JUST NEED TO ITERATE THE LIST
@@ -784,7 +782,7 @@ public class CRUDTest extends BaseDBTest {
   @Test(dependsOnMethods = "listObjectsIterationTest")
   public void mapObjectsListEmbeddedTest() {
     db.begin();
-    List<EntityImpl> cresult = executeQuery("select * from Child");
+    var cresult = executeQuery("select * from Child");
 
     int childSize = cresult.size();
 
@@ -885,8 +883,7 @@ public class CRUDTest extends BaseDBTest {
   @Test(dependsOnMethods = "mapObjectsListEmbeddedTest")
   public void mapObjectsSetEmbeddedTest() {
     db.begin();
-    List<EntityImpl> cresult = executeQuery("select * from Child");
-
+    var cresult = executeQuery("select * from Child");
     int childSize = cresult.size();
 
     Entity p = db.newInstance("JavaComplexTestClass");
@@ -950,10 +947,9 @@ public class CRUDTest extends BaseDBTest {
   @Test(dependsOnMethods = "mapObjectsSetEmbeddedTest")
   public void mapObjectsMapEmbeddedTest() {
     db.begin();
-    List<EntityImpl> cresult = executeQuery("select * from Child");
+    var cresult = executeQuery("select * from Child");
 
     int childSize = cresult.size();
-
     Entity p = db.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Silvester");
 
@@ -1050,8 +1046,7 @@ public class CRUDTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    List<EntityImpl> cresult = executeQuery("select * from Child");
-
+    var cresult = executeQuery("select * from Child");
     Assert.assertFalse(cresult.isEmpty());
 
     RID rid = p.getIdentity();
@@ -1134,7 +1129,7 @@ public class CRUDTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    List<EntityImpl> cresult = executeQuery("select * from Child");
+    var cresult = executeQuery("select * from Child");
     Assert.assertFalse(cresult.isEmpty());
 
     RID rid = p.getIdentity();
@@ -2350,7 +2345,7 @@ public class CRUDTest extends BaseDBTest {
             newAddress.setProperty("city", city);
 
             var newAddresses = new ArrayList<>(addresses);
-            newAddresses.add(0, newAddress);
+            newAddresses.addFirst(newAddress);
             a.setProperty("addresses", newAddresses);
           }
 
@@ -2367,12 +2362,12 @@ public class CRUDTest extends BaseDBTest {
     db.begin();
     Entity a;
     for (var iterator = db.query("select from Account"); iterator.hasNext(); ) {
-      a = iterator.next().toEntity();
+      a = iterator.next().asEntity();
 
       if (i % 2 == 0) {
         Assert.assertEquals(
             a.<List<Identifiable>>getProperty("addresses")
-                .get(0)
+                .getFirst()
                 .<Entity>getRecord(db)
                 .<Identifiable>getProperty("city")
                 .<Entity>getRecord(db)
@@ -2384,7 +2379,7 @@ public class CRUDTest extends BaseDBTest {
       } else {
         Assert.assertEquals(
             a.<List<Identifiable>>getProperty("addresses")
-                .get(0)
+                .getFirst()
                 .<Entity>getRecord(db)
                 .<Identifiable>getProperty("city")
                 .<Entity>getRecord(db)
@@ -2466,13 +2461,13 @@ public class CRUDTest extends BaseDBTest {
   @Test(dependsOnMethods = "checkLazyLoadingOff")
   public void queryPerFloat() {
     db.begin();
-    final List<EntityImpl> result = executeQuery("select * from Account where salary = 500.10");
+    var resultSet = executeQuery("select * from Account where salary = 500.10");
 
-    Assert.assertFalse(result.isEmpty());
+    Assert.assertFalse(resultSet.isEmpty());
 
     Entity account;
-    for (EntityImpl entries : result) {
-      account = entries;
+    for (var entries : resultSet) {
+      account = entries.asEntity();
       Assert.assertEquals(account.<Float>getProperty("salary"), 500.10f);
     }
     db.commit();
@@ -2481,14 +2476,14 @@ public class CRUDTest extends BaseDBTest {
   @Test(dependsOnMethods = "checkLazyLoadingOff")
   public void queryCross3Levels() {
     db.begin();
-    final List<EntityImpl> result =
+    var resultSet =
         executeQuery("select from Profile where location.city.country.name = 'Spain'");
 
-    Assert.assertFalse(result.isEmpty());
+    Assert.assertFalse(resultSet.isEmpty());
 
     Entity profile;
-    for (EntityImpl entries : result) {
-      profile = entries;
+    for (var entries : resultSet) {
+      profile = entries.asEntity();
       Assert.assertEquals(
           profile
               .getEntityProperty("location")
@@ -2521,20 +2516,20 @@ public class CRUDTest extends BaseDBTest {
   @Test
   public void commandWithPositionalParameters() {
     db.begin();
-    List<EntityImpl> result =
+    var resultSet =
         executeQuery("select from Profile where name = ? and surname = ?", "Barack", "Obama");
 
-    Assert.assertFalse(result.isEmpty());
+    Assert.assertFalse(resultSet.isEmpty());
     db.commit();
   }
 
   @Test
   public void queryWithPositionalParameters() {
     db.begin();
-    List<EntityImpl> result =
+    var resultSet =
         executeQuery("select from Profile where name = ? and surname = ?", "Barack", "Obama");
 
-    Assert.assertFalse(result.isEmpty());
+    Assert.assertFalse(resultSet.isEmpty());
     db.commit();
   }
 
@@ -2542,10 +2537,10 @@ public class CRUDTest extends BaseDBTest {
   public void queryWithRidAsParameters() {
     db.begin();
     Entity profile = db.browseClass("Profile").next();
-    List<EntityImpl> result =
+    var resultSet =
         executeQuery("select from Profile where @rid = ?", profile.getIdentity());
 
-    Assert.assertEquals(result.size(), 1);
+    Assert.assertEquals(resultSet.size(), 1);
     db.commit();
   }
 
@@ -2553,10 +2548,10 @@ public class CRUDTest extends BaseDBTest {
   public void queryWithRidStringAsParameters() {
     db.begin();
     Entity profile = db.browseClass("Profile").next();
-    List<EntityImpl> result =
+    var resultSet =
         executeQuery("select from Profile where @rid = ?", profile.getIdentity());
 
-    Assert.assertEquals(result.size(), 1);
+    Assert.assertEquals(resultSet.size(), 1);
     db.commit();
   }
 
@@ -2569,9 +2564,9 @@ public class CRUDTest extends BaseDBTest {
     params.put("surname", "Obama");
 
     db.begin();
-    List<EntityImpl> result =
+    var resultSet =
         executeQuery("select from Profile where name = :name and surname = :surname", params);
-    Assert.assertFalse(result.isEmpty());
+    Assert.assertFalse(resultSet.isEmpty());
     db.commit();
   }
 
@@ -2635,8 +2630,8 @@ public class CRUDTest extends BaseDBTest {
 
     parent = db.save(parent);
 
-    List<EntityImpl> presult = executeQuery("select from Parent");
-    List<EntityImpl> cresult = executeQuery("select from EmbeddedChild");
+    var presult = executeQuery("select from Parent");
+    var cresult = executeQuery("select from EmbeddedChild");
     Assert.assertEquals(presult.size(), 1);
     Assert.assertEquals(cresult.size(), 0);
 
@@ -2691,10 +2686,9 @@ public class CRUDTest extends BaseDBTest {
   @Test
   public void queryById() {
     db.begin();
-    List<EntityImpl> result1 = executeQuery("select from Profile limit 1");
-
-    List<EntityImpl> result2 =
-        executeQuery("select from Profile where @rid = ?", result1.get(0).getIdentity());
+    var result1 = executeQuery("select from Profile limit 1");
+    var result2 =
+        executeQuery("select from Profile where @rid = ?", result1.getFirst().getIdentity());
 
     Assert.assertFalse(result2.isEmpty());
     db.commit();
@@ -2707,11 +2701,11 @@ public class CRUDTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    List<EntityImpl> result1 = executeQuery("select from Profile where nick = 'foo'");
+    var result1 = executeQuery("select from Profile where nick = 'foo'");
 
     Assert.assertEquals(result1.size(), 1);
-    Assert.assertEquals(result1.get(0).getClassName(), "Profile");
-    Entity profile = result1.get(0);
+    Assert.assertEquals(result1.getFirst().asEntity().getClassName(), "Profile");
+    Entity profile = result1.getFirst().asEntity();
 
     Assert.assertEquals(profile.getProperty("nick"), "foo");
     db.commit();

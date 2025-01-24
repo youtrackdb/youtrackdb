@@ -16,10 +16,10 @@ package com.jetbrains.youtrack.db.internal.spatial;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.spatial.shape.legacy.PointLegecyBuilder;
 import java.io.IOException;
 import java.util.List;
@@ -45,12 +45,12 @@ public class LuceneSpatialFunctionFromTextTest extends BaseSpatialLuceneTest {
 
     assertTrue(docs.hasNext());
 
-    Entity geom = ((Result) docs.next().getProperty("geom")).toEntity();
+    Entity geom = ((Result) docs.next().getProperty("geom")).asEntity();
     assertGeometry(source, geom);
     assertFalse(docs.hasNext());
   }
 
-  private void assertGeometry(Entity source, Entity geom) {
+  private static void assertGeometry(Entity source, Entity geom) {
     Assert.assertNotNull(geom);
 
     Assert.assertNotNull(geom.getProperty("coordinates"));
@@ -115,7 +115,7 @@ public class LuceneSpatialFunctionFromTextTest extends BaseSpatialLuceneTest {
     ResultSet docs = db.command(query);
 
     assertTrue(docs.hasNext());
-    Entity geom = ((Result) docs.next().getProperty("geom")).toEntity();
+    Entity geom = ((Result) docs.next().getProperty("geom")).asEntity();
     assertFalse(docs.hasNext());
     Assert.assertNotNull(geom);
 

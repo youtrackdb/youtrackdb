@@ -23,19 +23,16 @@ public class ConvertToUpdatableResultStep extends AbstractExecutionStep {
       throw new IllegalStateException("filter step requires a previous step");
     }
     ExecutionStream resultSet = prev.start(ctx);
-    return resultSet.filter(this::filterMap);
+    return resultSet.filter(ConvertToUpdatableResultStep::filterMap);
   }
 
-  private Result filterMap(Result result, CommandContext ctx) {
+  private static Result filterMap(Result result, CommandContext ctx) {
     if (result instanceof UpdatableResult) {
       return result;
     }
     if (result.isEntity()) {
-      var element = result.toEntity();
-      if (element != null) {
-        return new UpdatableResult(ctx.getDatabase(), element);
-      }
-      return result;
+      var element = result.asEntity();
+      return new UpdatableResult(ctx.getDatabase(), element);
     }
     return null;
   }

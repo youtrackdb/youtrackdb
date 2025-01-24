@@ -103,11 +103,11 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
 
     Iterator<?> toIter = (Iterator<?>) toValues;
     if (toIter != null) {
-      final Set<RID> toList = new HashSet<RID>();
+      final Set<RID> toList = new HashSet<>();
       while (toIter.hasNext()) {
         Object elem = toIter.next();
-        if (elem instanceof Result) {
-          elem = ((Result) elem).toEntity();
+        if (elem instanceof Result result && result.isEntity()) {
+          elem = result.asEntity();
         }
         if (elem instanceof Identifiable && !(elem instanceof Entity)) {
           elem = ((Identifiable) elem).getRecord(db);
@@ -143,8 +143,8 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
   }
 
   private static Iterable<Edge> loadNextResults(DatabaseSessionInternal db, Object from) {
-    if (from instanceof Result) {
-      from = ((Result) from).toEntity();
+    if (from instanceof Result result && result.isEntity()) {
+      from = result.asEntity();
     }
     if (from instanceof Identifiable && !(from instanceof Entity)) {
       from = ((Identifiable) from).getRecord(db);

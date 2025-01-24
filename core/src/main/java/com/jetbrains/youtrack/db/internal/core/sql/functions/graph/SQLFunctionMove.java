@@ -63,12 +63,7 @@ public abstract class SQLFunctionMove extends SQLFunctionConfigurableAbstract {
     }
 
     return SQLEngine.foreachRecord(
-        new CallableFunction<Object, Identifiable>() {
-          @Override
-          public Object call(final Identifiable iArgument) {
-            return move(db, iArgument, labels);
-          }
-        },
+        iArgument -> move(db, iArgument, labels),
         iThis,
         iContext);
   }

@@ -17,7 +17,6 @@ package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Optional;
@@ -76,13 +75,13 @@ public class FetchPlanComplexNestedLevelsTest extends BaseDBTest {
 
   @Test
   public void queryAll2() {
-    final List<EntityImpl> result =
+    var resultSet =
         executeQuery(
             "select @this.toJSON('fetchPlan:*:2') as json from (select from PersonTest where"
                 + " name='A')");
 
-    Assert.assertEquals(result.size(), 1);
-    String json = result.get(0).rawField("json");
+    Assert.assertEquals(resultSet.size(), 1);
+    String json = resultSet.getFirst().getProperty("json");
 
     Assert.assertNotNull(json);
 
@@ -94,12 +93,12 @@ public class FetchPlanComplexNestedLevelsTest extends BaseDBTest {
 
   @Test
   public void queryOutWildcard2() {
-    final List<EntityImpl> result =
+    var resultSet =
         executeQuery("select @this.toJSON('fetchPlan:out_*:2') as json from (select from PersonTest"
             + " where name='A')");
 
-    Assert.assertEquals(result.size(), 1);
-    String json = result.get(0).rawField("json");
+    Assert.assertEquals(resultSet.size(), 1);
+    String json = resultSet.getFirst().getProperty("json");
 
     Assert.assertNotNull(json);
 
@@ -111,13 +110,13 @@ public class FetchPlanComplexNestedLevelsTest extends BaseDBTest {
 
   @Test
   public void queryOutOneLevelOnly() {
-    final List<EntityImpl> result =
+    var resultSet =
         executeQuery(
             "select @this.toJSON('fetchPlan:[0]out_*:0') as json from (select from PersonTest"
                 + " where name='A')");
 
-    Assert.assertEquals(result.size(), 1);
-    String json = result.get(0).field("json");
+    Assert.assertEquals(resultSet.size(), 1);
+    String json = resultSet.getFirst().getProperty("json");
 
     Assert.assertNotNull(json);
 
@@ -129,13 +128,13 @@ public class FetchPlanComplexNestedLevelsTest extends BaseDBTest {
 
   @Test
   public void startZeroGetOutStar2() {
-    final List<EntityImpl> result =
+    var resultSet =
         executeQuery(
             "select @this.toJSON('fetchPlan:[0]out_*:2') as json from (select from PersonTest"
                 + " where name='A')");
 
-    Assert.assertEquals(result.size(), 1);
-    String json = result.get(0).field("json");
+    Assert.assertEquals(resultSet.size(), 1);
+    String json = resultSet.getFirst().getProperty("json");
 
     Assert.assertNotNull(json);
 
@@ -145,13 +144,13 @@ public class FetchPlanComplexNestedLevelsTest extends BaseDBTest {
 
   @Test
   public void start2GetOutStar2() {
-    final List<EntityImpl> result =
+    var resultSet =
         executeQuery(
             "select @this.toJSON('fetchPlan:[2]out_*:2') as json from (select from PersonTest"
                 + " where name='A')");
 
-    Assert.assertEquals(result.size(), 1);
-    String json = result.get(0).field("json");
+    Assert.assertEquals(resultSet.size(), 1);
+    String json = resultSet.getFirst().getProperty("json");
 
     Assert.assertNotNull(json);
 

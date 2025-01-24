@@ -23,7 +23,6 @@ public class FunctionSqlTest extends DbTestBase {
     doc1.field("name", "Enrico");
     db.save(doc1);
     doc1 = ((EntityImpl) db.newEntity("Test"));
-    doc1.setClassName("Test");
     doc1.field("name", "Luca");
     db.save(doc1);
     db.commit();
@@ -58,7 +57,6 @@ public class FunctionSqlTest extends DbTestBase {
     doc1.field("name", "Enrico");
     db.save(doc1);
     doc1 = ((EntityImpl) db.newEntity("Test"));
-    doc1.setClassName("Test");
     doc1.field("name", "Luca");
     db.save(doc1);
     db.commit();

@@ -57,8 +57,8 @@ public class SQLMethodField extends AbstractSQLMethod {
     final String paramAsString = iParams[0].toString();
 
     if (ioResult != null) {
-      if (ioResult instanceof Result) {
-        ioResult = ((Result) ioResult).toEntity();
+      if (ioResult instanceof Result result && result.isEntity()) {
+        ioResult = result.asEntity();
       }
       if (ioResult instanceof Iterable && !(ioResult instanceof EntityImpl)) {
         ioResult = ((Iterable) ioResult).iterator();

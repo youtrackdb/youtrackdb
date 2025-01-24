@@ -1111,7 +1111,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   public EntityImpl newInstance() {
     assert assertIfNotActive();
-    return new EntityImpl(this, Entity.DEFAULT_CLASS_NAME);
+    return newInstance(Entity.DEFAULT_CLASS_NAME);
   }
 
   @Override
@@ -1162,7 +1162,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   @Override
   public Entity newEntity() {
     assert assertIfNotActive();
-    return newInstance();
+    return newInstance(Entity.DEFAULT_CLASS_NAME);
   }
 
   @Override

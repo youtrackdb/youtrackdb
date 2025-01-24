@@ -79,16 +79,14 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void queryMaxInline() {
-    List<EntityImpl> result =
-        db.query("select max(1,2,7,0,-2,3) as max").stream()
-            .map(r -> (EntityImpl) r.toEntity())
-            .toList();
+    var result =
+        db.query("select max(1,2,7,0,-2,3) as max").toList();
 
     Assert.assertEquals(result.size(), 1);
-    for (EntityImpl d : result) {
-      Assert.assertNotNull(d.field("max"));
+    for (var r : result) {
+      Assert.assertNotNull(r.getProperty("max"));
 
-      Assert.assertEquals(((Number) d.field("max")).intValue(), 7);
+      Assert.assertEquals(((Number) r.getProperty("max")).intValue(), 7);
     }
   }
 
@@ -106,16 +104,14 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void queryMinInline() {
-    List<EntityImpl> result =
-        db.query("select min(1,2,7,0,-2,3) as min").stream()
-            .map(r -> (EntityImpl) r.toEntity())
-            .toList();
+    var resultSet =
+        db.query("select min(1,2,7,0,-2,3) as min").toList();
 
-    Assert.assertEquals(result.size(), 1);
-    for (EntityImpl d : result) {
-      Assert.assertNotNull(d.field("min"));
+    Assert.assertEquals(resultSet.size(), 1);
+    for (var r : resultSet) {
+      Assert.assertNotNull(r.getProperty("min"));
 
-      Assert.assertEquals(((Number) d.field("min")).intValue(), -2);
+      Assert.assertEquals(((Number) r.getProperty("min")).intValue(), -2);
     }
   }
 
@@ -164,7 +160,7 @@ public class SQLFunctionsTest extends BaseDBTest {
         .createUser("superReader", "superReader", "reader", "byPassRestrictedRole");
 
     EntityImpl docAdmin = ((EntityImpl) db.newEntity("QueryCountExtendsRestrictedClass"));
-    docAdmin.field(
+    docAdmin.setProperty(
         "_allowRead",
         new HashSet<Identifiable>(
             Collections.singletonList(admin.getIdentity().getIdentity())));
@@ -174,38 +170,32 @@ public class SQLFunctionsTest extends BaseDBTest {
 
     db.begin();
     EntityImpl docReader = ((EntityImpl) db.newEntity("QueryCountExtendsRestrictedClass"));
-    docReader.field("_allowRead",
+    docReader.setProperty("_allowRead",
         new HashSet<>(Collections.singletonList(reader.getIdentity())));
     docReader.save();
     db.commit();
 
-    List<EntityImpl> result =
-        db.query("select count(*) from QueryCountExtendsRestrictedClass").stream()
-            .map(r -> (EntityImpl) r.toEntity())
-            .toList();
-    EntityImpl count = result.get(0);
-    Assert.assertEquals(2L, count.<Object>field("count(*)"));
+    var resultSet =
+        db.query("select count(*) from QueryCountExtendsRestrictedClass").toList();
+    var count = resultSet.getFirst();
+    Assert.assertEquals(count.<Object>getProperty("count(*)"), 2L);
 
     db.close();
     //noinspection deprecation
     db = createSessionInstance();
 
-    result =
-        db.query("select count(*) as count from QueryCountExtendsRestrictedClass").stream()
-            .map(r -> (EntityImpl) r.toEntity())
-            .toList();
-    count = result.get(0);
-    Assert.assertEquals(2L, count.<Object>field("count"));
+    resultSet =
+        db.query("select count(*) as count from QueryCountExtendsRestrictedClass").toList();
+    count = resultSet.getFirst();
+    Assert.assertEquals(count.<Object>getProperty("count"), 2L);
 
     db.close();
     db = createSessionInstance("superReader", "superReader");
 
-    result =
-        db.query("select count(*) as count from QueryCountExtendsRestrictedClass").stream()
-            .map(r -> (EntityImpl) r.toEntity())
-            .toList();
-    count = result.get(0);
-    Assert.assertEquals(2L, count.<Object>field("count"));
+    resultSet =
+        db.query("select count(*) as count from QueryCountExtendsRestrictedClass").toList();
+    count = resultSet.getFirst();
+    Assert.assertEquals(count.<Object>getProperty("count"), 2L);
   }
 
   @Test
@@ -215,34 +205,29 @@ public class SQLFunctionsTest extends BaseDBTest {
     indexed.createIndex(db, "keyed", SchemaClass.INDEX_TYPE.NOTUNIQUE, "key");
 
     db.begin();
-    db.<EntityImpl>newInstance("Indexed").field("key", "one").save();
-    db.<EntityImpl>newInstance("Indexed").field("key", "two").save();
+    db.<EntityImpl>newInstance("Indexed").setProperty("key", "one");
+    db.<EntityImpl>newInstance("Indexed").setProperty("key", "two");
     db.commit();
 
-    List<EntityImpl> result =
-        db.query("select count(*) as total from Indexed where key > 'one'").stream()
-            .map(r -> (EntityImpl) r.toEntity())
-            .toList();
+    var resultSet =
+        db.query("select count(*) as total from Indexed where key > 'one'").toList();
 
-    Assert.assertEquals(result.size(), 1);
-    for (EntityImpl d : result) {
-      Assert.assertNotNull(d.field("total"));
-      Assert.assertTrue(((Number) d.field("total")).longValue() > 0);
+    Assert.assertEquals(resultSet.size(), 1);
+    for (var result : resultSet) {
+      Assert.assertNotNull(result.getProperty("total"));
+      Assert.assertTrue(((Number) result.getProperty("total")).longValue() > 0);
     }
   }
 
   @Test
   public void queryDistinct() {
-    List<EntityImpl> result =
-        db.query("select distinct(name) as name from City").stream()
-            .map(r -> (EntityImpl) r.toEntity())
-            .toList();
+    var resultSet =
+        db.query("select distinct(name) as name from City").toList();
+    Assert.assertTrue(resultSet.size() > 1);
 
-    Assert.assertTrue(result.size() > 1);
-
-    Set<String> cities = new HashSet<String>();
-    for (EntityImpl city : result) {
-      String cityName = city.field("name");
+    Set<String> cities = new HashSet<>();
+    for (var city : resultSet) {
+      String cityName = city.getProperty("name");
       Assert.assertFalse(cities.contains(cityName));
       cities.add(cityName);
     }
@@ -250,45 +235,37 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void queryFunctionRenamed() {
-    List<EntityImpl> result =
-        db.query("select distinct(name) as dist from City").stream()
-            .map(r -> (EntityImpl) r.toEntity())
-            .toList();
+    var result =
+        db.query("select distinct(name) as dist from City").toList();
 
     Assert.assertTrue(result.size() > 1);
-
-    for (EntityImpl city : result) {
-      Assert.assertTrue(city.containsField("dist"));
+    for (var city : result) {
+      Assert.assertTrue(city.hasProperty("dist"));
     }
   }
 
   @Test
   public void queryUnionAllAsAggregationNotRemoveDuplicates() {
-    List<EntityImpl> result =
-        db.query("select from City").stream().map(r -> (EntityImpl) r.toEntity()).toList();
+    var result = db.query("select from City").toList();
     int count = result.size();
 
     result =
-        db.query("select unionAll(name) as name from City").stream()
-            .map(r -> (EntityImpl) r.toEntity())
-            .toList();
-    Collection<Object> citiesFound = result.get(0).field("name");
+        db.query("select unionAll(name) as name from City").toList();
+    Collection<Object> citiesFound = result.getFirst().getProperty("name");
     Assert.assertEquals(citiesFound.size(), count);
   }
 
   @Test
   public void querySetNotDuplicates() {
-    List<EntityImpl> result =
-        db.query("select set(name) as name from City").stream()
-            .map(r -> (EntityImpl) r.toEntity())
-            .toList();
+    var result =
+        db.query("select set(name) as name from City").toList();
 
     Assert.assertEquals(result.size(), 1);
 
-    Collection<Object> citiesFound = result.get(0).field("name");
+    Collection<Object> citiesFound = result.getFirst().getProperty("name");
     Assert.assertTrue(citiesFound.size() > 1);
 
-    Set<String> cities = new HashSet<String>();
+    Set<String> cities = new HashSet<>();
     for (Object city : citiesFound) {
       Assert.assertFalse(cities.contains(city.toString()));
       cities.add(city.toString());
@@ -297,32 +274,28 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void queryList() {
-    List<EntityImpl> result =
-        db.query("select list(name) as names from City").stream()
-            .map(r -> (EntityImpl) r.toEntity())
-            .toList();
+    var result =
+        db.query("select list(name) as names from City").toList();
 
     Assert.assertFalse(result.isEmpty());
 
-    for (EntityImpl d : result) {
-      List<Object> citiesFound = d.field("names");
+    for (var d : result) {
+      List<Object> citiesFound = d.getProperty("names");
       Assert.assertTrue(citiesFound.size() > 1);
     }
   }
 
   public void testSelectMap() {
-    List<EntityImpl> result =
+    var result =
         db
             .query("select list( 1, 4, 5.00, 'john', map( 'kAA', 'vAA' ) ) as myresult")
-            .stream()
-            .map(r -> (EntityImpl) r.toEntity())
             .toList();
 
     Assert.assertEquals(result.size(), 1);
 
-    EntityImpl document = result.get(0);
+    var document = result.getFirst();
     @SuppressWarnings("rawtypes")
-    List myresult = document.field("myresult");
+    List myresult = document.getProperty("myresult");
     Assert.assertNotNull(myresult);
 
     Assert.assertTrue(myresult.remove(Integer.valueOf(1)));
@@ -332,9 +305,9 @@ public class SQLFunctionsTest extends BaseDBTest {
 
     Assert.assertEquals(myresult.size(), 1);
 
-    Assert.assertTrue(myresult.get(0) instanceof Map, "The object is: " + myresult.getClass());
+    Assert.assertTrue(myresult.getFirst() instanceof Map, "The object is: " + myresult.getClass());
     @SuppressWarnings("rawtypes")
-    Map map = (Map) myresult.get(0);
+    Map map = (Map) myresult.getFirst();
 
     String value = (String) map.get("kAA");
     Assert.assertEquals(value, "vAA");
@@ -344,90 +317,81 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void querySet() {
-    List<EntityImpl> result =
-        db.query("select set(name) as names from City").stream()
-            .map(r -> (EntityImpl) r.toEntity())
-            .toList();
+    var result =
+        db.query("select set(name) as names from City").toList();
 
     Assert.assertFalse(result.isEmpty());
 
-    for (EntityImpl d : result) {
-      Set<Object> citiesFound = d.field("names");
+    for (var d : result) {
+      Set<Object> citiesFound = d.getProperty("names");
       Assert.assertTrue(citiesFound.size() > 1);
     }
   }
 
   @Test
   public void queryMap() {
-    List<EntityImpl> result =
-        db.query("select map(name, country.name) as names from City").stream()
-            .map(r -> (EntityImpl) r.toEntity())
-            .toList();
+    var result =
+        db.query("select map(name, country.name) as names from City").toList();
 
     Assert.assertFalse(result.isEmpty());
 
-    for (EntityImpl d : result) {
-      Map<Object, Object> citiesFound = d.field("names");
+    for (var d : result) {
+      Map<Object, Object> citiesFound = d.getProperty("names");
       Assert.assertTrue(citiesFound.size() > 1);
     }
   }
 
   @Test
   public void queryUnionAllAsInline() {
-    List<EntityImpl> result =
-        db.query("select unionAll(out, in) as edges from V").stream()
-            .map(r -> (EntityImpl) r.toEntity())
-            .toList();
+    var result =
+        db.query("select unionAll(out, in) as edges from V").toList();
 
     Assert.assertTrue(result.size() > 1);
-    for (EntityImpl d : result) {
-      Assert.assertEquals(d.fieldNames().length, 1);
-      Assert.assertTrue(d.containsField("edges"));
+    for (var d : result) {
+      Assert.assertEquals(d.getPropertyNames().size(), 1);
+      Assert.assertTrue(d.hasProperty("edges"));
     }
   }
 
   @Test
   public void queryComposedAggregates() {
-    List<EntityImpl> result =
+    var result =
         db
             .query(
                 "select MIN(id) as min, max(id) as max, AVG(id) as average, sum(id) as total"
-                    + " from Account")
-            .stream()
-            .map(r -> (EntityImpl) r.toEntity())
-            .toList();
+                    + " from Account").toList();
 
     Assert.assertEquals(result.size(), 1);
-    for (EntityImpl d : result) {
-      Assert.assertNotNull(d.field("min"));
-      Assert.assertNotNull(d.field("max"));
-      Assert.assertNotNull(d.field("average"));
-      Assert.assertNotNull(d.field("total"));
+    for (var d : result) {
+      Assert.assertNotNull(d.getProperty("min"));
+      Assert.assertNotNull(d.getProperty("max"));
+      Assert.assertNotNull(d.getProperty("average"));
+      Assert.assertNotNull(d.getProperty("total"));
 
       Assert.assertTrue(
-          ((Number) d.field("max")).longValue() > ((Number) d.field("average")).longValue());
+          ((Number) d.getProperty("max")).longValue() > ((Number) d.getProperty(
+              "average")).longValue());
       Assert.assertTrue(
-          ((Number) d.field("average")).longValue() >= ((Number) d.field("min")).longValue());
+          ((Number) d.getProperty("average")).longValue() >= ((Number) d.getProperty(
+              "min")).longValue());
       Assert.assertTrue(
-          ((Number) d.field("total")).longValue() >= ((Number) d.field("max")).longValue(),
-          "Total " + d.field("total") + " max " + d.field("max"));
+          ((Number) d.getProperty("total")).longValue() >= ((Number) d.getProperty(
+              "max")).longValue(),
+          "Total " + d.getProperty("total") + " max " + d.getProperty("max"));
     }
   }
 
   @Test
   public void queryFormat() {
-    List<EntityImpl> result =
+    var result =
         db
             .query(
                 "select format('%d - %s (%s)', nr, street, type, dummy ) as output from"
-                    + " Account")
-            .stream()
-            .map(r -> (EntityImpl) r.toEntity())
-            .toList();
+                    + " Account").toList();
 
     Assert.assertTrue(result.size() > 1);
-    for (EntityImpl d : result) {
-      Assert.assertNotNull(d.field("output"));
+    for (var d : result) {
+      Assert.assertNotNull(d.getProperty("output"));
     }
   }
 
@@ -444,14 +408,13 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void querySysdateWithFormat() {
-    List<EntityImpl> result =
-        db.query("select sysdate('dd-MM-yyyy') as date from Account").stream()
-            .map(r -> (EntityImpl) r.toEntity())
+    var result =
+        db.query("select sysdate('dd-MM-yyyy') as date from Account")
             .toList();
 
     Assert.assertTrue(result.size() > 1);
-    for (EntityImpl d : result) {
-      Assert.assertNotNull(d.field("date"));
+    for (var d : result) {
+      Assert.assertNotNull(d.getProperty("date"));
     }
   }
 
@@ -496,9 +459,7 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test(expectedExceptions = CommandSQLParsingException.class)
   public void queryUndefinedFunction() {
-    //noinspection ResultOfMethodCallIgnored
-    db.query("select blaaaa(salary) as max from Account").stream()
-        .map(r -> (EntityImpl) r.toEntity())
+    db.query("select blaaaa(salary) as max from Account")
         .toList();
   }
 
@@ -540,14 +501,12 @@ public class SQLFunctionsTest extends BaseDBTest {
               }
             });
 
-    List<EntityImpl> result =
-        db.query("select from Account where bigger(id,1000) = 1000").stream()
-            .map(r -> (EntityImpl) r.toEntity())
-            .toList();
+    var result =
+        db.query("select from Account where bigger(id,1000) = 1000").toList();
 
     Assert.assertFalse(result.isEmpty());
-    for (EntityImpl d : result) {
-      Assert.assertTrue((Integer) d.field("id") <= 1000);
+    for (var d : result) {
+      Assert.assertTrue((Integer) d.getProperty("id") <= 1000);
     }
 
     SQLEngine.getInstance().unregisterFunction("bigger");
@@ -560,48 +519,44 @@ public class SQLFunctionsTest extends BaseDBTest {
         "select numberString.asLong() as value from ( select '"
             + moreThanInteger
             + "' as numberString from Account ) limit 1";
-    List<EntityImpl> result =
-        db.query(sql).stream().map(r -> (EntityImpl) r.toEntity()).toList();
+    var result = db.query(sql).toList();
 
     Assert.assertEquals(result.size(), 1);
-    for (EntityImpl d : result) {
-      Assert.assertNotNull(d.field("value"));
-      Assert.assertTrue(d.field("value") instanceof Long);
-      Assert.assertEquals(moreThanInteger, d.<Object>field("value"));
+    for (var d : result) {
+      Assert.assertNotNull(d.getProperty("value"));
+      Assert.assertTrue(d.getProperty("value") instanceof Long);
+      Assert.assertEquals(d.<Object>getProperty("value"), moreThanInteger);
     }
   }
 
   @Test
   public void testHashMethod() throws UnsupportedEncodingException, NoSuchAlgorithmException {
-    List<EntityImpl> result =
+    var result =
         db
             .query("select name, name.hash() as n256, name.hash('sha-512') as n512 from OUser")
-            .stream()
-            .map(r -> (EntityImpl) r.toEntity())
             .toList();
 
     Assert.assertFalse(result.isEmpty());
-    for (EntityImpl d : result) {
-      final String name = d.field("name");
+    for (var d : result) {
+      final String name = d.getProperty("name");
 
-      Assert.assertEquals(SecurityManager.createHash(name, "SHA-256"), d.field("n256"));
-      Assert.assertEquals(SecurityManager.createHash(name, "SHA-512"), d.field("n512"));
+      Assert.assertEquals(SecurityManager.createHash(name, "SHA-256"), d.getProperty("n256"));
+      Assert.assertEquals(SecurityManager.createHash(name, "SHA-512"), d.getProperty("n512"));
     }
   }
 
   @Test
-  public void testFirstFunction() throws UnsupportedEncodingException, NoSuchAlgorithmException {
-    List<Long> sequence = new ArrayList<Long>(100);
+  public void testFirstFunction() {
+    List<Long> sequence = new ArrayList<>(100);
     for (long i = 0; i < 100; ++i) {
       sequence.add(i);
     }
 
     db.begin();
-    ((EntityImpl) db.newEntity("V")).field("sequence", sequence, PropertyType.EMBEDDEDLIST).save();
+    db.newEntity("V").setProperty("sequence", sequence, PropertyType.EMBEDDEDLIST);
     var newSequence = new ArrayList<>(sequence);
-    newSequence.remove(0);
-    ((EntityImpl) db.newEntity("V")).field("sequence", newSequence, PropertyType.EMBEDDEDLIST)
-        .save();
+    newSequence.removeFirst();
+    db.newEntity("V").setProperty("sequence", newSequence, PropertyType.EMBEDDEDLIST);
     db.commit();
 
     var result =
@@ -615,19 +570,19 @@ public class SQLFunctionsTest extends BaseDBTest {
   }
 
   @Test
-  public void testLastFunction() throws UnsupportedEncodingException, NoSuchAlgorithmException {
-    List<Long> sequence = new ArrayList<Long>(100);
+  public void testLastFunction() {
+    List<Long> sequence = new ArrayList<>(100);
     for (long i = 0; i < 100; ++i) {
       sequence.add(i);
     }
 
     db.begin();
-    ((EntityImpl) db.newEntity("V")).field("sequence2", sequence).save();
+    db.newEntity("V").setProperty("sequence2", sequence);
 
     var newSequence = new ArrayList<>(sequence);
     newSequence.remove(sequence.size() - 1);
 
-    ((EntityImpl) db.newEntity("V")).field("sequence2", newSequence).save();
+    db.newEntity("V").setProperty("sequence2", newSequence);
     db.commit();
 
     var result =
@@ -645,15 +600,14 @@ public class SQLFunctionsTest extends BaseDBTest {
   public void querySplit() {
     String sql = "select v.split('-') as value from ( select '1-2-3' as v ) limit 1";
 
-    List<EntityImpl> result =
-        db.query(sql).stream().map(r -> (EntityImpl) r.toEntity()).toList();
+    var result = db.query(sql).toList();
 
     Assert.assertEquals(result.size(), 1);
-    for (EntityImpl d : result) {
-      Assert.assertNotNull(d.field("value"));
-      Assert.assertTrue(d.field("value").getClass().isArray());
+    for (var d : result) {
+      Assert.assertNotNull(d.getProperty("value"));
+      Assert.assertTrue(d.getProperty("value").getClass().isArray());
 
-      Object[] array = d.field("value");
+      Object[] array = d.getProperty("value");
 
       Assert.assertEquals(array.length, 3);
       Assert.assertEquals(array[0], "1");

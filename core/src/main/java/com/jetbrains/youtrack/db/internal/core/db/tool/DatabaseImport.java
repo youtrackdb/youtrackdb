@@ -1260,7 +1260,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
                   "select from " + SecurityUserImpl.CLASS_NAME + " where name = ?",
                   ((EntityImpl) record).<String>getProperty("name"))) {
             if (resultSet.hasNext()) {
-              systemRecord = resultSet.next().toEntity();
+              systemRecord = resultSet.next().asEntity();
             }
           }
         } else if (cls.getName().equals(Role.CLASS_NAME)) {
@@ -1269,7 +1269,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
                   "select from " + Role.CLASS_NAME + " where name = ?",
                   ((EntityImpl) record).<String>getProperty("name"))) {
             if (resultSet.hasNext()) {
-              systemRecord = resultSet.next().toEntity();
+              systemRecord = resultSet.next().asEntity();
             }
           }
         } else if (cls.getName().equals(SecurityPolicy.class.getSimpleName())) {
@@ -1278,7 +1278,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
                   "select from " + SecurityPolicy.class.getSimpleName() + " where name = ?",
                   ((EntityImpl) record).<String>getProperty("name"))) {
             if (resultSet.hasNext()) {
-              systemRecord = resultSet.next().toEntity();
+              systemRecord = resultSet.next().asEntity();
             }
           }
         } else if (cls.getName().equals("V") || cls.getName().equals("E")) {

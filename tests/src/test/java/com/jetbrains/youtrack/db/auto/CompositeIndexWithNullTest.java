@@ -1,16 +1,13 @@
 package com.jetbrains.youtrack.db.auto;
 
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
@@ -56,13 +53,12 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     }
 
     String query = "select from compositeIndexNullPointQueryClass where prop1 = 1 and prop2 = 2";
-    List<Entity> result =
-        db.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
-    Assert.assertEquals(result.size(), 5);
+    var resultSet = db.query(query).toList();
+    Assert.assertEquals(resultSet.size(), 5);
     for (int k = 0; k < 5; k++) {
-      Entity document = result.get(k);
-      Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
-      Assert.assertEquals(document.<Object>getProperty("prop2"), 2);
+      var result = resultSet.get(k);
+      Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
+      Assert.assertEquals(result.<Object>getProperty("prop2"), 2);
     }
 
     EntityImpl explain = db.command(new CommandSQL("explain " + query)).execute(db);
@@ -74,11 +70,11 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     query =
         "select from compositeIndexNullPointQueryClass where prop1 = 1 and prop2 = 2 and prop3 is"
             + " null";
-    result = db.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
+    resultSet = db.query(query).toList();
 
-    Assert.assertEquals(result.size(), 2);
-    for (Entity document : result) {
-      Assert.assertNull(document.getProperty("prop3"));
+    Assert.assertEquals(resultSet.size(), 2);
+    for (var result : resultSet) {
+      Assert.assertNull(result.getProperty("prop3"));
     }
 
     explain = db.command(new CommandSQL("explain " + query)).execute(db);
@@ -120,13 +116,12 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
     String query =
         "select from compositeIndexNullPointQueryInTxClass where prop1 = 1 and prop2 = 2";
-    List<Entity> result =
-        db.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
-    Assert.assertEquals(result.size(), 5);
+    var resultSet = db.query(query).toList();
+    Assert.assertEquals(resultSet.size(), 5);
     for (int k = 0; k < 5; k++) {
-      Entity document = result.get(k);
-      Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
-      Assert.assertEquals(document.<Object>getProperty("prop2"), 2);
+      var result = resultSet.get(k);
+      Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
+      Assert.assertEquals(result.<Object>getProperty("prop2"), 2);
     }
 
     EntityImpl explain = db.command(new CommandSQL("explain " + query)).execute(db);
@@ -138,11 +133,11 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     query =
         "select from compositeIndexNullPointQueryInTxClass where prop1 = 1 and prop2 = 2 and prop3"
             + " is null";
-    result = db.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
+    resultSet = db.query(query).toList();
 
-    Assert.assertEquals(result.size(), 2);
-    for (Entity document : result) {
-      Assert.assertNull(document.getProperty("prop3"));
+    Assert.assertEquals(resultSet.size(), 2);
+    for (var result : resultSet) {
+      Assert.assertNull(result.getProperty("prop3"));
     }
 
     explain = db.command(new CommandSQL("explain " + query)).execute(db);
@@ -188,14 +183,13 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
     String query =
         "select from compositeIndexNullPointQueryInMiddleTxClass where prop1 = 1 and prop2 = 2";
-    List<Entity> result =
-        db.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
-    Assert.assertEquals(result.size(), 5);
+    var resultSet = db.query(query).toList();
+    Assert.assertEquals(resultSet.size(), 5);
 
     for (int k = 0; k < 5; k++) {
-      Entity document = result.get(k);
-      Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
-      Assert.assertEquals(document.<Object>getProperty("prop2"), 2);
+      var result = resultSet.get(k);
+      Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
+      Assert.assertEquals(result.<Object>getProperty("prop2"), 2);
     }
 
     EntityImpl explain = db.command(new CommandSQL("explain " + query)).execute(db);
@@ -207,11 +201,11 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     query =
         "select from compositeIndexNullPointQueryInMiddleTxClass where prop1 = 1 and prop2 = 2 and"
             + " prop3 is null";
-    result = db.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
+    resultSet = db.query(query).toList();
 
-    Assert.assertEquals(result.size(), 2);
-    for (Entity document : result) {
-      Assert.assertNull(document.getProperty("prop3"));
+    Assert.assertEquals(resultSet.size(), 2);
+    for (var result : resultSet) {
+      Assert.assertNull(result.getProperty("prop3"));
     }
 
     explain = db.command(new CommandSQL("explain " + query)).execute(db);
@@ -254,14 +248,13 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     }
 
     String query = "select from compositeIndexNullRangeQueryClass where prop1 = 1 and prop2 > 2";
-    List<Entity> result =
-        db.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
+    var resultSet = db.query(query).toList();
 
-    Assert.assertEquals(result.size(), 5);
+    Assert.assertEquals(resultSet.size(), 5);
     for (int k = 0; k < 5; k++) {
-      Entity document = result.get(k);
-      Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
-      Assert.assertTrue(document.<Integer>getProperty("prop2") > 2);
+      var result = resultSet.get(k);
+      Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
+      Assert.assertTrue(result.<Integer>getProperty("prop2") > 2);
     }
 
     EntityImpl explain = db.command(new CommandSQL("explain " + query)).execute(db);
@@ -271,12 +264,12 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
             .contains("compositeIndexNullRangeQueryIndex"));
 
     query = "select from compositeIndexNullRangeQueryClass where prop1 > 0";
-    result = db.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
+    resultSet = db.query(query).toList();
 
-    Assert.assertEquals(result.size(), 10);
+    Assert.assertEquals(resultSet.size(), 10);
     for (int k = 0; k < 10; k++) {
-      Entity document = result.get(k);
-      Assert.assertTrue(document.<Integer>getProperty("prop1") > 0);
+      var result = resultSet.get(k);
+      Assert.assertTrue(result.<Integer>getProperty("prop1") > 0);
     }
   }
 
@@ -316,14 +309,13 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
     String query =
         "select from compositeIndexNullRangeQueryInMiddleTxClass where prop1 = 1 and prop2 > 2";
-    List<Entity> result =
-        db.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
+    var resultSet = db.query(query).toList();
 
-    Assert.assertEquals(result.size(), 5);
+    Assert.assertEquals(resultSet.size(), 5);
     for (int k = 0; k < 5; k++) {
-      Entity document = result.get(k);
-      Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
-      Assert.assertTrue(document.<Integer>getProperty("prop2") > 2);
+      var result = resultSet.get(k);
+      Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
+      Assert.assertTrue(result.<Integer>getProperty("prop2") > 2);
     }
 
     EntityImpl explain = db.command(new CommandSQL("explain " + query)).execute(db);
@@ -333,12 +325,12 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
             .contains("compositeIndexNullRangeQueryInMiddleTxIndex"));
 
     query = "select from compositeIndexNullRangeQueryInMiddleTxClass where prop1 > 0";
-    result = db.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
+    resultSet = db.query(query).toList();
 
-    Assert.assertEquals(result.size(), 10);
+    Assert.assertEquals(resultSet.size(), 10);
     for (int k = 0; k < 10; k++) {
-      Entity document = result.get(k);
-      Assert.assertTrue(document.<Integer>getProperty("prop1") > 0);
+      var result = resultSet.get(k);
+      Assert.assertTrue(result.<Integer>getProperty("prop1") > 0);
     }
 
     db.commit();
@@ -377,12 +369,11 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     }
 
     String query = "select from compositeIndexNullPointQueryNullInTheMiddleClass where prop1 = 1";
-    List<Entity> result =
-        db.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
-    Assert.assertEquals(result.size(), 10);
+    var resultSet = db.query(query).toList();
+    Assert.assertEquals(resultSet.size(), 10);
     for (int k = 0; k < 10; k++) {
-      Entity document = result.get(k);
-      Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
+      var result = resultSet.get(k);
+      Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
     }
 
     EntityImpl explain = db.command(new CommandSQL("explain " + query)).execute(db);
@@ -394,12 +385,12 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     query =
         "select from compositeIndexNullPointQueryNullInTheMiddleClass where prop1 = 1 and prop2 is"
             + " null";
-    result = db.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
+    resultSet = db.query(query).toList();
 
-    Assert.assertEquals(result.size(), 5);
-    for (Entity document : result) {
-      Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
-      Assert.assertNull(document.getProperty("prop2"));
+    Assert.assertEquals(resultSet.size(), 5);
+    for (var result : resultSet) {
+      Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
+      Assert.assertNull(result.getProperty("prop2"));
     }
 
     explain = db.command(new CommandSQL("explain " + query)).execute(db);
@@ -411,9 +402,8 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     query =
         "select from compositeIndexNullPointQueryNullInTheMiddleClass where prop1 = 1 and prop2 is"
             + " null and prop3 = 13";
-    result = db.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
-
-    Assert.assertEquals(result.size(), 1);
+    resultSet = db.query(query).toList();
+    Assert.assertEquals(resultSet.size(), 1);
 
     explain = db.command(new CommandSQL("explain " + query)).execute(db);
     Assert.assertTrue(
@@ -460,12 +450,11 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
     String query =
         "select from compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass where prop1 = 1";
-    List<Entity> result =
-        db.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
-    Assert.assertEquals(result.size(), 10);
+    var resultSet = db.query(query).toList();
+    Assert.assertEquals(resultSet.size(), 10);
     for (int k = 0; k < 10; k++) {
-      Entity document = result.get(k);
-      Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
+      var result = resultSet.get(k);
+      Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
     }
 
     EntityImpl explain = db.command(new CommandSQL("explain " + query)).execute(db);
@@ -477,12 +466,12 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     query =
         "select from compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass where prop1 = 1 and"
             + " prop2 is null";
-    result = db.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
+    resultSet = db.query(query).toList();
 
-    Assert.assertEquals(result.size(), 5);
-    for (Entity document : result) {
-      Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
-      Assert.assertNull(document.getProperty("prop2"));
+    Assert.assertEquals(resultSet.size(), 5);
+    for (var result : resultSet) {
+      Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
+      Assert.assertNull(result.getProperty("prop2"));
     }
 
     explain = db.command(new CommandSQL("explain " + query)).execute(db);
@@ -494,9 +483,9 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     query =
         "select from compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass where prop1 = 1 and"
             + " prop2 is null and prop3 = 13";
-    result = db.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
+    resultSet = db.query(query).toList();
 
-    Assert.assertEquals(result.size(), 1);
+    Assert.assertEquals(resultSet.size(), 1);
 
     explain = db.command(new CommandSQL("explain " + query)).execute(db);
     Assert.assertTrue(
@@ -540,12 +529,11 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
     final String query =
         "select from compositeIndexNullRangeQueryNullInTheMiddleClass where prop1 > 0";
-    List<Entity> result =
-        db.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
-    Assert.assertEquals(result.size(), 10);
+    var resultSet = db.query(query).toList();
+    Assert.assertEquals(resultSet.size(), 10);
     for (int k = 0; k < 10; k++) {
-      Entity document = result.get(k);
-      Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
+      var result = resultSet.get(k);
+      Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
     }
 
     EntityImpl explain = db.command(new CommandSQL("explain " + query)).execute(db);
@@ -592,12 +580,11 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
     final String query =
         "select from compositeIndexNullRangeQueryNullInTheMiddleInMiddleTxClass where prop1 > 0";
-    List<Entity> result =
-        db.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
-    Assert.assertEquals(result.size(), 10);
+    var resultSet = db.query(query).toList();
+    Assert.assertEquals(resultSet.size(), 10);
     for (int k = 0; k < 10; k++) {
-      Entity document = result.get(k);
-      Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
+      var result = resultSet.get(k);
+      Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
     }
 
     EntityImpl explain = db.command(new CommandSQL("explain " + query)).execute(db);

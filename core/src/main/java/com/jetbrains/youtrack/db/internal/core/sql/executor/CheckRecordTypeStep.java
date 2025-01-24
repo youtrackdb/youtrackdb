@@ -33,7 +33,7 @@ public class CheckRecordTypeStep extends AbstractExecutionStep {
     if (!result.isEntity()) {
       throw new CommandExecutionException("record " + result + " is not an instance of " + clazz);
     }
-    Entity entity = result.toEntity();
+    Entity entity = result.asEntity();
     if (entity == null) {
       throw new CommandExecutionException("record " + result + " is not an instance of " + clazz);
     }

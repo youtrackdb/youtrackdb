@@ -365,8 +365,8 @@ public class SQLUpdateItem extends SimpleNode {
   }
 
   public static Object convertResultToDocument(Object value) {
-    if (value instanceof Result) {
-      return ((Result) value).toEntity();
+    if (value instanceof Result result && result.isEntity()) {
+      return result.asEntity();
     }
     if (value instanceof Identifiable) {
       return value;

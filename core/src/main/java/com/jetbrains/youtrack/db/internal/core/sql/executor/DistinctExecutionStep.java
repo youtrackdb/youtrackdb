@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.HashSet;
 import java.util.Set;
@@ -50,7 +50,7 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
 
   private void markAsVisited(Result nextValue, Set<RID> pastRids, Set<Result> pastItems) {
     if (nextValue.isEntity()) {
-      RID identity = nextValue.toEntity().getIdentity();
+      RID identity = nextValue.asEntity().getIdentity();
       int cluster = identity.getClusterId();
       long pos = identity.getClusterPosition();
       if (cluster >= 0 && pos >= 0) {
@@ -70,9 +70,10 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
     }
   }
 
-  private boolean alreadyVisited(Result nextValue, Set<RID> pastRids, Set<Result> pastItems) {
+  private static boolean alreadyVisited(Result nextValue, Set<RID> pastRids,
+      Set<Result> pastItems) {
     if (nextValue.isEntity()) {
-      RID identity = nextValue.toEntity().getIdentity();
+      RID identity = nextValue.asEntity().getIdentity();
       int cluster = identity.getClusterId();
       long pos = identity.getClusterPosition();
       if (cluster >= 0 && pos >= 0) {

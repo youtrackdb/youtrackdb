@@ -28,7 +28,7 @@ public class TraverseTest extends DbTestBase {
 
   @Test
   public void testDepthTraverse() {
-
+    db.begin();
     final EntityImpl aa = (EntityImpl) db.newEntity();
     final EntityImpl ab = (EntityImpl) db.newEntity();
     final EntityImpl ba = (EntityImpl) db.newEntity();
@@ -61,8 +61,10 @@ public class TraverseTest extends DbTestBase {
     rootDocument.setProperty("c", new ArrayList<>(Arrays.asList(c1, c2, c3)),
         PropertyType.LINKLIST);
 
-    db.executeInTx(() -> rootDocument.save());
+    rootDocument.save();
+    db.commit();
 
+    db.begin();
     rootDocument = db.bindToSession(rootDocument);
     final List<EntityImpl> expectedResult =
         Arrays.asList(
@@ -86,6 +88,7 @@ public class TraverseTest extends DbTestBase {
     final List<Identifiable> results = traverse.execute(db);
 
     compareTraverseResults(expectedResult, results);
+    db.commit();
   }
 
   @Test

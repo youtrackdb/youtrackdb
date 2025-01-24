@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,8 +35,7 @@ public class TestOrderByIndexPropDesc extends DbTestBase {
     EntityImpl doc;
     for (int i = 0; i < count; i++) {
       db.begin();
-      doc = db.newInstance();
-      doc.setClassName(DOCUMENT_CLASS_NAME);
+      doc = db.newInstance(DOCUMENT_CLASS_NAME);
       doc.field(PROP_INDEXED_STRING, i);
       db.save(doc);
       db.commit();

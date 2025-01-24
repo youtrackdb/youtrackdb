@@ -369,7 +369,7 @@ public class SQLInsertTest extends BaseDBTest {
         db
             .command(
                 "insert into Account cluster anotherdefault (id, title) values (10, 'NoSQL"
-                    + " movement')").stream().findFirst().orElseThrow().toEntity();
+                    + " movement')").stream().findFirst().orElseThrow().asEntity();
     db.commit();
 
     Assert.assertNotNull(doc);
