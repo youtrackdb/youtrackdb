@@ -47,9 +47,9 @@ import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryption;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EmbeddedEntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityEntry;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImplEmbedded;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.EntitySerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
@@ -1186,7 +1186,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
 
   protected Object deserializeEmbeddedAsDocument(
       DatabaseSessionInternal db, final BytesContainer bytes, final RecordElement owner) {
-    Object value = new EntityImplEmbedded(db);
+    Object value = new EmbeddedEntityImpl(db);
     deserializeWithClassName(db, (EntityImpl) value, bytes);
     if (((EntityImpl) value).containsField(EntitySerializable.CLASS_NAME)) {
       String className = ((EntityImpl) value).field(EntitySerializable.CLASS_NAME);

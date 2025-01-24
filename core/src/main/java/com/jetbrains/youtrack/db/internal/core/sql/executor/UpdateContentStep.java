@@ -46,10 +46,11 @@ public class UpdateContentStep extends AbstractExecutionStep {
 
   private Result mapResult(Result result, CommandContext ctx) {
     if (result instanceof ResultInternal) {
-      var elem = result.toEntity();
-      assert elem != null;
-      handleContent((EntityInternal) elem, ctx);
+      var entity = result.asEntity();
+      assert entity != null;
+      handleContent((EntityInternal) entity, ctx);
     }
+
     return result;
   }
 

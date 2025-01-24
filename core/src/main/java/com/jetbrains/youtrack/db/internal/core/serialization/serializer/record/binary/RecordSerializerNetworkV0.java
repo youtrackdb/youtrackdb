@@ -47,9 +47,9 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryption;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EmbeddedEntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityEntry;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImplEmbedded;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.EntitySerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
@@ -362,7 +362,7 @@ public class RecordSerializerNetworkV0 implements EntitySerializer {
         value = new Date(savedTime);
         break;
       case EMBEDDED:
-        value = new EntityImplEmbedded(db);
+        value = new EmbeddedEntityImpl(db);
         deserialize(db, (EntityImpl) value, bytes);
         if (((EntityImpl) value).containsField(EntitySerializable.CLASS_NAME)) {
           String className = ((EntityImpl) value).field(EntitySerializable.CLASS_NAME);

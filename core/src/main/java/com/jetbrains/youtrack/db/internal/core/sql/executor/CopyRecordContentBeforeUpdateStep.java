@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHookV2;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
@@ -26,21 +26,21 @@ public class CopyRecordContentBeforeUpdateStep extends AbstractExecutionStep {
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
     ExecutionStream lastFetched = prev.start(ctx);
-    return lastFetched.map(this::mapResult);
+    return lastFetched.map(CopyRecordContentBeforeUpdateStep::mapResult);
   }
 
-  private Result mapResult(Result result, CommandContext ctx) {
+  private static Result mapResult(Result result, CommandContext ctx) {
     var db = ctx.getDatabase();
     if (result instanceof UpdatableResult) {
       ResultInternal prevValue = new ResultInternal(db);
-      var rec = result.toEntity();
+      var rec = result.asEntity();
       prevValue.setProperty("@rid", rec.getIdentity());
       prevValue.setProperty("@version", rec.getVersion());
       if (rec instanceof EntityImpl) {
         prevValue.setProperty(
             "@class", EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) rec)).getName());
       }
-      if (!result.toEntity().getIdentity().isNew()) {
+      if (!result.asEntity().getIdentity().isNew()) {
         for (String propName : result.getPropertyNames()) {
           prevValue.setProperty(
               propName, LiveQueryHookV2.unboxRidbags(result.getProperty(propName)));

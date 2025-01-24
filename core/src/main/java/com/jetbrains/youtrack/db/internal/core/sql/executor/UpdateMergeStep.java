@@ -29,8 +29,8 @@ public class UpdateMergeStep extends AbstractExecutionStep {
 
   private Result mapResult(Result result, CommandContext ctx) {
     if (result instanceof ResultInternal) {
-      if (!(result.getEntity().orElse(null) instanceof EntityImpl)) {
-        ((ResultInternal) result).setIdentifiable(result.toEntity().getRecord(ctx.getDatabase()));
+      if (result.isEntity()) {
+        ((ResultInternal) result).setIdentifiable(result.asEntity().getRecord(ctx.getDatabase()));
       }
       if (!(result.getEntity().orElse(null) instanceof EntityImpl)) {
         return result;

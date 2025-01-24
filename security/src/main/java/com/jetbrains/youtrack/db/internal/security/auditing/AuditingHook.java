@@ -49,8 +49,8 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
       new HashMap<String, AuditingClassConfig>(20);
   private final AuditingLoggingThread auditingThread;
 
-  private final Map<DatabaseSession, List<EntityImpl>> operations = new ConcurrentHashMap<>();
-  private volatile LinkedBlockingQueue<EntityImpl> auditingQueue;
+  private final Map<DatabaseSession, List<Map<String, ?>>> operations = new ConcurrentHashMap<>();
+  private volatile LinkedBlockingQueue<Map<String, ?>> auditingQueue;
   private final Set<AuditingCommandConfig> commands = new HashSet<AuditingCommandConfig>();
   private boolean onGlobalCreate;
   private boolean onGlobalRead;
@@ -130,8 +130,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
   }
 
   // Handles the auditing-config "schema" configuration.
-  private class AuditingSchemaConfig extends AuditingConfig {
-
+  private static class AuditingSchemaConfig extends AuditingConfig {
     private boolean onCreateClassEnabled = false;
     private final String onCreateClassMessage;
 
@@ -219,7 +218,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
       schemaConfig = new AuditingSchemaConfig(schemaCfgDoc);
     }
 
-    auditingQueue = new LinkedBlockingQueue<EntityImpl>();
+    auditingQueue = new LinkedBlockingQueue<>();
     auditingThread =
         new AuditingLoggingThread(
             DatabaseRecordThreadLocal.instance().get().getName(),
@@ -231,7 +230,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
   }
 
   public AuditingHook(final SecuritySystem server) {
-    auditingQueue = new LinkedBlockingQueue<EntityImpl>();
+    auditingQueue = new LinkedBlockingQueue<>();
     auditingThread =
         new AuditingLoggingThread(
             SystemDatabase.SYSTEM_DB_NAME, auditingQueue, server.getContext(), server);
@@ -261,21 +260,16 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
 
   @Override
   public void onAfterTxCommit(DatabaseSession iDatabase) {
-
-    List<EntityImpl> oDocuments = null;
+    List<Map<String, ?>> entries;
 
     synchronized (operations) {
-      oDocuments = operations.remove(iDatabase);
+      entries = operations.remove(iDatabase);
     }
-    if (oDocuments != null) {
-      for (EntityImpl oDocument : oDocuments) {
+    if (entries != null) {
+      for (var oDocument : entries) {
         auditingQueue.offer(oDocument);
       }
     }
-  }
-
-  @Override
-  public void onClose(DatabaseSession iDatabase) {
   }
 
   public EntityImpl getConfiguration() {
@@ -343,8 +337,8 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
       if (command.matches(cfg.regex)) {
         final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().get();
 
-        final EntityImpl entity =
-            createLogEntity(db
+        final Map<String, ?> entity =
+            createLogEntry(db
                 , AuditingOperation.COMMAND,
                 db.getName(),
                 db.geCurrentUser(), formatCommandNote(command, cfg.message));
@@ -353,7 +347,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
     }
   }
 
-  private String formatCommandNote(final String command, String message) {
+  private static String formatCommandNote(final String command, String message) {
     if (message == null || message.isEmpty()) {
       return command;
     }
@@ -362,14 +356,11 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
             message,
             "${",
             "}",
-            new VariableParserListener() {
-              @Override
-              public Object resolve(final String iVariable) {
-                if (iVariable.startsWith("command")) {
-                  return command;
-                }
-                return null;
+            variable -> {
+              if (variable.startsWith("command")) {
+                return command;
               }
+              return null;
             });
   }
 
@@ -429,29 +420,25 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
         break;
     }
 
-    final EntityImpl entity =
-        createLogEntity(db, operation, db.getName(), db.geCurrentUser(),
+    var entity =
+        createLogEntry(db, operation, db.getName(), db.geCurrentUser(),
             formatNote(iRecord, note));
-    entity.field("record", iRecord.getIdentity());
+    entity.put("record", iRecord.getIdentity());
     if (changes != null) {
-      entity.field("changes", changes, PropertyType.EMBEDDED);
+      entity.put("changes", changes);
     }
 
     if (((DatabaseSessionInternal) db).getTransaction().isActive()) {
       synchronized (operations) {
-        List<EntityImpl> oDocuments = operations.get(db);
-        if (oDocuments == null) {
-          oDocuments = new ArrayList<EntityImpl>();
-          operations.put(db, oDocuments);
-        }
-        oDocuments.add(entity);
+        var entries = operations.computeIfAbsent(db, k -> new ArrayList<>());
+        entries.add(entity);
       }
     } else {
       auditingQueue.offer(entity);
     }
   }
 
-  private String formatNote(final Record iRecord, final String iNote) {
+  private static String formatNote(final Record iRecord, final String iNote) {
     if (iNote == null) {
       return null;
     }
@@ -521,67 +508,12 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
     }
   }
 
-  /*
-    private AuditingClassConfig getAuditConfiguration(SchemaClass cls) {
-      AuditingClassConfig cfg = null;
-
-      if (cls != null) {
-
-        cfg = classes.get(cls.getName());
-
-        // BROWSE SUPER CLASSES UP TO ROOT
-        while (cfg == null && cls != null) {
-          cls = cls.getSuperClass();
-
-          if (cls != null) {
-            cfg = classes.get(cls.getName());
-
-            if (cfg != null && !cfg.polymorphic) {
-              // NOT POLYMORPHIC: IGNORE IT AND EXIT FROM THE LOOP
-              cfg = null;
-              break;
-            }
-          }
-        }
-      }
-
-      if (cfg == null)
-        // ASSIGN DEFAULT CFG (*)
-        cfg = defaultConfig;
-
-      return cfg;
-    }
-  */
-  private String formatClassNote(final SchemaClass cls, final String note) {
-    if (note == null || note.isEmpty()) {
-      return cls.getName();
-    }
-
-    return (String)
-        VariableParser.resolveVariables(
-            note,
-            "${",
-            "}",
-            new VariableParserListener() {
-              @Override
-              public Object resolve(final String iVariable) {
-
-                if (iVariable.equalsIgnoreCase("class")) {
-                  return cls.getName();
-                }
-
-                return null;
-              }
-            });
-  }
-
   protected void logClass(final AuditingOperation operation, final String note) {
     final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().get();
 
     final SecurityUser user = db.geCurrentUser();
 
-    final EntityImpl entity = createLogEntity(db, operation, db.getName(), user, note);
-
+    var entity = createLogEntry(db, operation, db.getName(), user, note);
     auditingQueue.offer(entity);
   }
 
@@ -605,32 +537,31 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
       SecurityUser user,
       final String message) {
     if (auditingQueue != null) {
-      auditingQueue.offer(createLogEntity(db, operation, dbName, user, message));
+      auditingQueue.offer(createLogEntry(db, operation, dbName, user, message));
     }
   }
 
-  private static EntityImpl createLogEntity(
+  private static Map<String, Object> createLogEntry(
       DatabaseSession session, final AuditingOperation operation,
       final String dbName,
       SecurityUser user,
       final String message) {
-    EntityImpl entity = null;
+    final HashMap<String, Object> entity = new HashMap<>();
 
-    entity = new EntityImpl((DatabaseSessionInternal) session);
-    entity.field("date", System.currentTimeMillis());
-    entity.field("operation", operation.getByte());
+    entity.put("date", System.currentTimeMillis());
+    entity.put("operation", operation.getByte());
 
     if (user != null) {
-      entity.field("user", user.getName((DatabaseSessionInternal) session));
-      entity.field("userType", user.getUserType());
+      entity.put("user", user.getName((DatabaseSessionInternal) session));
+      entity.put("userType", user.getUserType());
     }
 
     if (message != null) {
-      entity.field("note", message);
+      entity.put("note", message);
     }
 
     if (dbName != null) {
-      entity.field("database", dbName);
+      entity.put("database", dbName);
     }
 
     return entity;

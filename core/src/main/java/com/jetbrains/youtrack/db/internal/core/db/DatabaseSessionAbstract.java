@@ -77,8 +77,8 @@ import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeDelegate;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeEntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EmbeddedEntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImplEmbedded;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexEntityImpl;
@@ -1174,19 +1174,19 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   @Override
   public Entity newEmbededEntity(String className) {
     assert assertIfNotActive();
-    return new EntityImplEmbedded(className, this);
+    return new EmbeddedEntityImpl(className, this);
   }
 
   @Override
   public Entity newEmbededEntity(SchemaClass schemaClass) {
     assert assertIfNotActive();
-    return new EntityImplEmbedded(schemaClass.getName(), this);
+    return new EmbeddedEntityImpl(schemaClass.getName(), this);
   }
 
   @Override
   public Entity newEmbededEntity() {
     assert assertIfNotActive();
-    return new EntityImplEmbedded(this);
+    return new EmbeddedEntityImpl(this);
   }
 
 

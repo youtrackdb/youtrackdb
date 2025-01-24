@@ -9,7 +9,6 @@ import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
@@ -22,9 +21,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -629,33 +626,19 @@ public interface VertexInternal extends Vertex, EntityInternal {
     }
 
     var oldIdentity = ((RecordId) getIdentity()).copy();
+    final EntityImpl oldRecord = (EntityImpl) oldIdentity.getEntity(db);
 
-    final Record oldRecord = oldIdentity.getRecord(db);
-    var entity = baseEntity.copy();
-    RecordInternal.setIdentity(entity, new ChangeableRecordId());
+    var newEntity = (EntityImpl) db.newEntity(className);
+    newEntity.copyPropertiesFromOtherEntity(oldRecord);
 
     // DELETE THE OLD RECORD FIRST TO AVOID ISSUES WITH UNIQUE CONSTRAINTS
-    copyRidBags(db, oldRecord, entity);
-    detachRidbags(oldRecord);
     db.delete(oldRecord);
 
-    var delegate = new VertexDelegate(entity);
+    var delegate = new VertexDelegate(newEntity);
     final Iterable<Edge> outEdges = delegate.getEdges(Direction.OUT);
     final Iterable<Edge> inEdges = delegate.getEdges(Direction.IN);
-    if (className != null) {
-      entity.setClassName(className);
-    }
 
-    // SAVE THE NEW VERTEX
-    entity.setDirty();
-
-    RecordInternal.setIdentity(entity, new ChangeableRecordId());
-    db.save(entity, clusterName);
-    if (db.getTransaction().getEntryCount() == 2) {
-      System.out.println("WTF");
-      db.save(entity, clusterName);
-    }
-    final RID newIdentity = entity.getIdentity();
+    final RID newIdentity = newEntity.getIdentity();
 
     // CONVERT OUT EDGES
     for (Edge oe : outEdges) {
@@ -675,7 +658,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
       // link to itself
       EntityImpl inRecord;
       if (inVLink.equals(oldIdentity)) {
-        inRecord = entity;
+        inRecord = newEntity;
       } else {
         inRecord = inVLink.getRecord(db);
       }
@@ -708,7 +691,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
       EntityImpl outRecord;
       if (outVLink.equals(oldIdentity)) {
-        outRecord = entity;
+        outRecord = newEntity;
       } else {
         outRecord = outVLink.getRecord(db);
       }
@@ -725,25 +708,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
     }
 
     // FINAL SAVE
-    db.save(entity);
     return newIdentity;
-  }
-
-  private static void detachRidbags(Record oldRecord) {
-    EntityImpl oldEntity = (EntityImpl) oldRecord;
-    for (String field : oldEntity.getPropertyNamesInternal()) {
-      if (field.equalsIgnoreCase(EdgeInternal.DIRECTION_OUT)
-          || field.equalsIgnoreCase(EdgeInternal.DIRECTION_IN)
-          || field.startsWith(DIRECTION_OUT_PREFIX)
-          || field.startsWith(DIRECTION_IN_PREFIX)
-          || field.startsWith("OUT_")
-          || field.startsWith("IN_")) {
-        Object val = oldEntity.rawField(field);
-        if (val instanceof RidBag) {
-          oldEntity.removePropertyInternal(field);
-        }
-      }
-    }
   }
 
   static boolean checkDeletedInTx(RID id) {
@@ -757,30 +722,6 @@ public interface VertexInternal extends Vertex, EntityInternal {
       return id.isTemporary();
     } else {
       return oper.type == RecordOperation.DELETED;
-    }
-  }
-
-  private static void copyRidBags(DatabaseSessionInternal db, Record oldRecord,
-      EntityImpl newDoc) {
-    EntityImpl oldEntity = (EntityImpl) oldRecord;
-    for (String field : oldEntity.getPropertyNamesInternal()) {
-      if (field.equalsIgnoreCase(EdgeInternal.DIRECTION_OUT)
-          || field.equalsIgnoreCase(EdgeInternal.DIRECTION_IN)
-          || field.startsWith(DIRECTION_OUT_PREFIX)
-          || field.startsWith(DIRECTION_IN_PREFIX)
-          || field.startsWith("OUT_")
-          || field.startsWith("IN_")) {
-        Object val = oldEntity.rawField(field);
-        if (val instanceof RidBag bag) {
-          if (!bag.isEmbedded()) {
-            RidBag newBag = new RidBag(db);
-            for (Identifiable identifiable : bag) {
-              newBag.add(identifiable.getIdentity());
-            }
-            newDoc.setPropertyInternal(field, newBag);
-          }
-        }
-      }
     }
   }
 

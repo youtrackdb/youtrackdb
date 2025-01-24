@@ -67,10 +67,9 @@ public class LuceneSearchOnClassFunction extends LuceneSearchFunctionTemplate {
       result = new ResultInternal(ctx.getDatabase(), (Identifiable) iThis);
     }
 
-    Entity element = result.toEntity();
+    Entity entity = result.asEntity();
 
-    String className = element.getSchemaType().get().getName();
-
+    String className = entity.getSchemaType().get().getName();
     LuceneFullTextIndex index = searchForIndex(ctx, className);
 
     if (index == null) {
@@ -83,7 +82,7 @@ public class LuceneSearchOnClassFunction extends LuceneSearchFunctionTemplate {
 
     List<Object> key =
         index.getDefinition().getFields().stream()
-            .map(s -> element.getProperty(s))
+            .map(s -> entity.getProperty(s))
             .collect(Collectors.toList());
 
     for (IndexableField field : index.buildDocument(ctx.getDatabase(), key).getFields()) {

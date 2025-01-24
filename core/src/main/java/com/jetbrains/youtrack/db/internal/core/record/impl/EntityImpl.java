@@ -649,26 +649,73 @@ public class EntityImpl extends RecordAbstract
       return;
     }
 
+    var sameCluster = from.recordId.getClusterId() == recordId.getClusterId();
+    var session = getSession();
+
     for (Map.Entry<String, EntityEntry> entry : fromFields.entrySet()) {
       if (entry.getValue().exists()) {
-        var fromValue = entry.getValue();
-        var currentEntry = fields.get(entry.getKey());
+        var fromEntry = entry.getValue();
 
-        if (!(currentEntry.value instanceof RidBag ridBag)) {
-          if (!Objects.equals(fromValue.type, currentEntry.type)) {
-            setPropertyInternal(entry.getKey(), fromValue.value, fromValue.type);
-          }
+        var currentEntry = fields.get(entry.getKey());
+        var currentValue = currentEntry != null ? currentEntry.value : null;
+        var fromValue = fromEntry.value;
+
+        if (fromValue != null && currentValue == null) {
+          setPropertyInternal(entry.getKey(),
+              copyRidBagIfNecessary(session, fromValue, sameCluster), fromEntry.type);
+        } else if (fromValue == null && currentValue != null) {
+          setPropertyInternal(entry.getKey(), null, currentEntry.type);
+        } else if (fromValue.getClass() != currentValue.getClass()) {
+          setPropertyInternal(entry.getKey(),
+              copyRidBagIfNecessary(session, fromValue, sameCluster),
+              fromEntry.type);
         } else {
-          if (ridBag.isEmbedded()) {
-            if (!Objects.equals(fromValue.type, currentEntry.type)) {
-              setPropertyInternal(entry.getKey(), fromValue.value, fromValue.type);
+          if (!(currentValue instanceof RidBag ridBag)) {
+            if (!Objects.equals(fromEntry.type, currentEntry.type)) {
+              setPropertyInternal(entry.getKey(), fromValue, fromEntry.type);
             }
           } else {
-            setPropertyInternal(entry.getKey(), fromValue.value, fromValue.type);
+            if (ridBag.isEmbedded() || ((RidBag) fromValue).isEmbedded()) {
+              if (!Objects.equals(fromEntry.type, currentEntry.type)) {
+                setPropertyInternal(entry.getKey(),
+                    copyRidBagIfNecessary(session,
+                        copyRidBagIfNecessary(session, fromValue, sameCluster), sameCluster),
+                    fromEntry.type);
+              }
+            } else {
+              setPropertyInternal(entry.getKey(),
+                  copyRidBagIfNecessary(session, fromValue, sameCluster), fromEntry.type);
+            }
           }
         }
       }
     }
+  }
+
+  /**
+   * All tree based ridbags are partitioned by clusters, so if we move entity to another cluster we
+   * need to copy ridbags to avoid inconsistency.
+   */
+  private static Object copyRidBagIfNecessary(DatabaseSessionInternal seession, Object value,
+      boolean sameCluster) {
+    if (sameCluster) {
+      return value;
+    }
+
+    if (!(value instanceof RidBag ridBag)) {
+      return value;
+    }
+
+    if (ridBag.isEmbedded()) {
+      return ridBag;
+    }
+
+    var ridBagCopy = new RidBag(seession);
+    for (var rid : ridBag) {
+      ridBagCopy.add(rid);
+    }
+
+    return ridBagCopy;
   }
 
   /**

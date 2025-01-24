@@ -56,7 +56,6 @@ public class YouTrackDbCreationHelper {
   public static EntityImpl createItem(int id, EntityImpl doc) {
     String itemKey = Integer.valueOf(id).toString();
 
-    doc.setClassName("Item");
     doc.field("stringKey", itemKey);
     doc.field("intKey", id);
     String contents =

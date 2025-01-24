@@ -157,12 +157,12 @@ public class ResultBinary implements Result {
 
   @Override
   public Optional<Entity> getEntity() {
-    return Optional.of(toEntity());
+    return Optional.of(asEntity());
   }
 
   @Override
   public Entity asEntity() {
-    return toEntity();
+    return toEntityImpl();
   }
 
   @Override
@@ -172,12 +172,12 @@ public class ResultBinary implements Result {
 
   @Override
   public Map<String, ?> toMap() {
-    return toEntity().toMap();
+    return toEntityImpl().toMap();
   }
 
   @Override
   public String toJSON() {
-    return toEntity().toJSON();
+    return toEntityImpl().toJSON();
   }
 
   @Override
@@ -187,7 +187,7 @@ public class ResultBinary implements Result {
 
   @Override
   public Optional<Record> getRecord() {
-    return Optional.of(toEntity());
+    return Optional.of(toEntityImpl());
   }
 
   @Override
@@ -209,5 +209,14 @@ public class ResultBinary implements Result {
   public boolean hasProperty(String varName) {
     throw new UnsupportedOperationException(
         "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
+  }
+
+  private EntityImpl toEntityImpl() {
+    EntityImpl entity = new EntityImpl(db);
+    BytesContainer bytes = new BytesContainer(this.bytes);
+    bytes.skip(offset);
+
+    serializer.deserialize(db, entity, bytes);
+    return entity;
   }
 }

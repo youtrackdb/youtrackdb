@@ -452,29 +452,6 @@ public class ResultInternal implements Result {
     return metadata == null ? Collections.emptySet() : metadata.keySet();
   }
 
-  private static Object convertToEntity(Object property) {
-    if (property instanceof Result) {
-      return ((Result) property).toEntity();
-    }
-    if (property instanceof List) {
-      return ((List) property).stream().map(x -> convertToEntity(x)).collect(Collectors.toList());
-    }
-
-    if (property instanceof Set) {
-      return ((Set) property).stream().map(x -> convertToEntity(x)).collect(Collectors.toSet());
-    }
-
-    if (property instanceof Map) {
-      Map<Object, Object> result = new HashMap<>();
-      Map<Object, Object> prop = ((Map) property);
-      for (Map.Entry<Object, Object> o : prop.entrySet()) {
-        result.put(o.getKey(), convertToEntity(o.getValue()));
-      }
-    }
-
-    return property;
-  }
-
   public void loadIdentifiable() {
     switch (identifiable) {
       case null -> {

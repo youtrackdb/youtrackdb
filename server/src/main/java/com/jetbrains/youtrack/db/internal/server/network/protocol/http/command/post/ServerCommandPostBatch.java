@@ -19,6 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.post;
 
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
@@ -183,7 +184,7 @@ public class ServerCommandPostBatch extends ServerCommandDocumentAbstract {
           } else {
             result = db.execute(language, commandAsString, (Object[]) params);
           }
-          lastResult = result.stream().map(x -> x.toEntity()).collect(Collectors.toList());
+          lastResult = result.stream().map(Result::toMap).collect(Collectors.toList());
           result.close();
         } else if (type.equals("script")) {
           // COMMAND
@@ -228,7 +229,7 @@ public class ServerCommandPostBatch extends ServerCommandDocumentAbstract {
             result = db.execute(language, text.toString(), (Object[]) params);
           }
 
-          lastResult = result.stream().map(x -> x.toEntity()).collect(Collectors.toList());
+          lastResult = result.stream().map(Result::toMap).collect(Collectors.toList());
           result.close();
         }
       }

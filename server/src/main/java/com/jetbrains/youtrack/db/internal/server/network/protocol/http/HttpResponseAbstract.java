@@ -322,7 +322,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
 
                 if (r instanceof Result result) {
                   if (result.isEntity()) {
-                    var entity = result.toEntity();
+                    var entity = result.asEntity();
                     entity
                         .getSchemaType()
                         .ifPresent(x -> x.properties(db)

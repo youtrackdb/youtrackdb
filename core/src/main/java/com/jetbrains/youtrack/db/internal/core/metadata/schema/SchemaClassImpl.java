@@ -1510,7 +1510,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
           case EMBEDDEDSET:
           case LINKSET:
             try {
-              Collection emb = item.toEntity().getProperty(propertyName);
+              Collection<?> emb = item.getProperty(propertyName);
               emb.stream()
                   .filter(x -> !matchesType(db, x, linkedClass))
                   .findFirst()
@@ -1556,7 +1556,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
 
   protected static boolean matchesType(DatabaseSession db, Object x, SchemaClass linkedClass) {
     if (x instanceof Result) {
-      x = ((Result) x).toEntity();
+      x = ((Result) x).asEntity();
     }
     if (x instanceof RID) {
       try {

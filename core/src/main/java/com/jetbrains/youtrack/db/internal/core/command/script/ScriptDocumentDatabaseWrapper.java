@@ -22,6 +22,7 @@ package com.jetbrains.youtrack.db.internal.core.command.script;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.DatabaseSession.ATTRIBUTES;
 import com.jetbrains.youtrack.db.api.DatabaseSession.STATUS;
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
@@ -49,7 +50,6 @@ import java.util.Map.Entry;
 /**
  * Document Database wrapper class to use from scripts.
  */
-@SuppressWarnings("unchecked")
 @Deprecated
 public class ScriptDocumentDatabaseWrapper {
 
@@ -59,13 +59,13 @@ public class ScriptDocumentDatabaseWrapper {
     this.database = database;
   }
 
-  public Identifiable[] query(final String iText) {
+  public Map<?, ?>[] query(final String iText) {
     return query(iText, (Object[]) null);
   }
 
-  public Identifiable[] query(final String iText, final Object... iParameters) {
+  public Map<?, ?>[] query(final String iText, final Object... iParameters) {
     try (ResultSet rs = database.query(iText, iParameters)) {
-      return rs.stream().map(result -> result.toEntity()).toArray(Identifiable[]::new);
+      return (Map<?, ?>[]) rs.stream().map(Result::toMap).toArray();
     }
   }
 
@@ -97,7 +97,7 @@ public class ScriptDocumentDatabaseWrapper {
 
   public Object command(final String iText, final Object... iParameters) {
     try (ResultSet rs = database.command(iText, iParameters)) {
-      return rs.stream().map(x -> x.toEntity()).toArray(size -> new Identifiable[size]);
+      return rs.stream().map(Result::toMap).toArray();
     }
   }
 

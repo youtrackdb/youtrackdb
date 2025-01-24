@@ -9,14 +9,14 @@ import java.lang.ref.WeakReference;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
-public class EntityImplEmbedded extends EntityImpl {
+public class EmbeddedEntityImpl extends EntityImpl {
 
-  public EntityImplEmbedded(String clazz, DatabaseSessionInternal session) {
+  public EmbeddedEntityImpl(String clazz, DatabaseSessionInternal session) {
     super(session, clazz);
     checkEmbeddable();
   }
 
-  public EntityImplEmbedded(DatabaseSessionInternal session) {
+  public EmbeddedEntityImpl(DatabaseSessionInternal session) {
     super(session);
   }
 
@@ -26,10 +26,10 @@ public class EntityImplEmbedded extends EntityImpl {
   }
 
   @Override
-  public EntityImplEmbedded copy() {
-    var entity = new EntityImplEmbedded(getSession());
+  public EmbeddedEntityImpl copy() {
+    var entity = new EmbeddedEntityImpl(getSession());
     RecordInternal.unsetDirty(entity);
-    var newEntity = (EntityImplEmbedded) copyTo(entity);
+    var newEntity = (EmbeddedEntityImpl) copyTo(entity);
     newEntity.dirty = 1;
     return newEntity;
   }

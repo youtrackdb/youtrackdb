@@ -20,8 +20,8 @@
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.post;
 
 import com.jetbrains.youtrack.db.api.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedServerAbstract;
@@ -106,7 +106,7 @@ public class ServerCommandPostServerCommand extends ServerCommandAuthenticatedSe
     if (returnExecutionPlan) {
       result
           .getExecutionPlan()
-          .ifPresent(x -> additionalContent.put("executionPlan", x.toResult(null).toEntity()));
+          .ifPresent(x -> additionalContent.put("executionPlan", x.toResult(null).toMap()));
     }
 
     result.close();

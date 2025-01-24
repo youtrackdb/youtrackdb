@@ -122,7 +122,7 @@ public abstract class SpatialFunctionAbstractIndexable extends SpatialFunctionAb
           if (propertyNames.size() == 1) {
             Object property = inner.getProperty(propertyNames.iterator().next());
             if (property instanceof Result) {
-              shape = ((Result) property).toEntity();
+              shape = ((Result) property).asEntity();
             }
           } else {
             return new LuceneResultSetEmpty();
@@ -134,7 +134,7 @@ public abstract class SpatialFunctionAbstractIndexable extends SpatialFunctionAb
     }
 
     if (shape instanceof ResultInternal) {
-      shape = ((ResultInternal) shape).toEntity();
+      shape = ((ResultInternal) shape).asEntity();
     }
     queryParams.put(SpatialQueryBuilderAbstract.SHAPE, shape);
 

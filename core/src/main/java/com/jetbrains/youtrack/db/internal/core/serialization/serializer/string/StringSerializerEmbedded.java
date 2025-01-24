@@ -23,8 +23,8 @@ import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EmbeddedEntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImplEmbedded;
 import com.jetbrains.youtrack.db.internal.core.serialization.EntitySerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerSchemaAware2CSV;
@@ -48,7 +48,7 @@ public class StringSerializerEmbedded implements StringSerializer {
       return null;
     }
 
-    final EntityImpl instance = new EntityImplEmbedded(db);
+    final EntityImpl instance = new EmbeddedEntityImpl(db);
     RecordSerializerSchemaAware2CSV.INSTANCE.fromStream(db,
         iStream.getBytes(StandardCharsets.UTF_8), instance, null);
 
@@ -76,7 +76,7 @@ public class StringSerializerEmbedded implements StringSerializer {
       try {
         final EntitySerializable entitySerializable =
             (EntitySerializable) clazz.newInstance();
-        final EntityImpl docClone = new EntityImplEmbedded(db);
+        final EntityImpl docClone = new EmbeddedEntityImpl(db);
         instance.copyTo(docClone);
         docClone.removeField(EntitySerializable.CLASS_NAME);
         entitySerializable.fromDocument(docClone);

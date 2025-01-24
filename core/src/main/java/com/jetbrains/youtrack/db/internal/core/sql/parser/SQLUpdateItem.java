@@ -186,40 +186,14 @@ public class SQLUpdateItem extends SimpleNode {
 
   private SchemaClass calculateLinkedTypeForThisItem(ResultInternal entity, CommandContext ctx) {
     if (entity.isEntity()) {
-      var elem = entity.toEntity();
+      var elem = entity.asEntity();
 
-    }
-    return null;
-  }
-
-  private PropertyType calculateTypeForThisItem(ResultInternal entity, String propertyName,
-      CommandContext ctx) {
-    Entity elem = entity.toEntity();
-    SchemaClass clazz = elem.getSchemaType().orElse(null);
-    if (clazz == null) {
-      return null;
-    }
-    return calculateTypeForThisItem(clazz, left.getStringValue(), leftModifier, ctx);
-  }
-
-  private PropertyType calculateTypeForThisItem(
-      SchemaClass clazz, String propName, SQLModifier modifier, CommandContext ctx) {
-    Property prop = clazz.getProperty(propName);
-    if (prop == null) {
-      return null;
-    }
-    PropertyType type = prop.getType();
-    if (type == PropertyType.LINKMAP && modifier != null) {
-      if (prop.getLinkedClass() != null && modifier.next != null) {
-        if (modifier.suffix == null) {
-          return null;
-        }
-        return calculateTypeForThisItem(
-            prop.getLinkedClass(), modifier.suffix.toString(), modifier.next, ctx);
+      SchemaClass clazz = elem.getSchemaType().orElse(null);
+      if (clazz == null) {
+        return null;
       }
-      return PropertyType.LINK;
     }
-    // TODO specialize more
+
     return null;
   }
 
@@ -269,11 +243,13 @@ public class SQLUpdateItem extends SimpleNode {
 
   public static Object convertToPropertyType(
       ResultInternal res, SQLIdentifier attrName, Object newValue, CommandContext ctx) {
-    Entity entity = res.toEntity();
+
+    Entity entity = res.asEntity();
     Optional<SchemaClass> optSchema = entity.getSchemaType();
-    if (!optSchema.isPresent()) {
+    if (optSchema.isEmpty()) {
       return newValue;
     }
+
     Property prop = optSchema.get().getProperty(attrName.getStringValue());
     if (prop == null) {
       return newValue;

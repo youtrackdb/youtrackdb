@@ -65,11 +65,11 @@ public class LuceneSearchOnFieldsFunction extends LuceneSearchFunctionTemplate {
     }
     Result result = (Result) iThis;
 
-    Entity element = result.toEntity();
-    if (!element.getSchemaType().isPresent()) {
+    Entity entity = result.asEntity();
+    if (!entity.getSchemaType().isPresent()) {
       return false;
     }
-    String className = element.getSchemaType().get().getName();
+    String className = entity.getSchemaType().get().getName();
     List<String> fieldNames = (List<String>) params[0];
 
     LuceneFullTextIndex index = searchForIndex(className, ctx, fieldNames);
@@ -84,7 +84,7 @@ public class LuceneSearchOnFieldsFunction extends LuceneSearchFunctionTemplate {
 
     List<Object> key =
         index.getDefinition().getFields().stream()
-            .map(s -> element.getProperty(s))
+            .map(s -> entity.getProperty(s))
             .collect(Collectors.toList());
 
     for (IndexableField field : index.buildDocument(ctx.getDatabase(), key).getFields()) {

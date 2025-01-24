@@ -34,8 +34,8 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLTraverseStatement;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -150,7 +150,7 @@ public class ServerCommandPostCommand extends ServerCommandAuthenticatedDbAbstra
         var dbRef = db;
         result
             .getExecutionPlan()
-            .ifPresent(x -> additionalContent.put("executionPlan", x.toResult(dbRef).toEntity()));
+            .ifPresent(x -> additionalContent.put("executionPlan", x.toResult(dbRef).toMap()));
       }
 
       result.close();
@@ -167,7 +167,7 @@ public class ServerCommandPostCommand extends ServerCommandAuthenticatedDbAbstra
 
       additionalContent.put("elapsedMs", elapsedMs);
       DatabaseStats dbStats = db.getStats();
-      additionalContent.put("dbStats", dbStats.toResult(db).toEntity());
+      additionalContent.put("dbStats", dbStats.toResult(db).toMap());
 
       iResponse.writeResult(response, format, accept, additionalContent, mode, db);
       ok = true;

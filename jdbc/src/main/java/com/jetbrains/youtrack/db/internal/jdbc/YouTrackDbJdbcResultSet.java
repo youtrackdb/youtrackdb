@@ -19,7 +19,7 @@ import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
@@ -52,6 +52,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -97,7 +98,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
     activateDatabaseOnCurrentThread();
 
     if (!records.isEmpty()) {
-      result = records.get(0);
+      result = records.getFirst();
     } else {
       result = new ResultInternal(statement.database);
     }
@@ -226,12 +227,12 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
     return absolute(++cursor);
   }
 
-  public void afterLast() throws SQLException {
+  public void afterLast() {
     // OUT OF LAST ITEM
     cursor = rowCount;
   }
 
-  public void beforeFirst() throws SQLException {
+  public void beforeFirst() {
     // OUT OF FIRST ITEM
     cursor = -1;
   }
@@ -240,7 +241,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
     return absolute(cursor + iRows);
   }
 
-  public boolean absolute(int iRowNumber) throws SQLException {
+  public boolean absolute(int iRowNumber) {
     if (iRowNumber > rowCount - 1) {
       // OUT OF LAST ITEM
       cursor = rowCount;
@@ -256,11 +257,11 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
     return true;
   }
 
-  public boolean isAfterLast() throws SQLException {
+  public boolean isAfterLast() {
     return cursor >= rowCount - 1;
   }
 
-  public boolean isBeforeFirst() throws SQLException {
+  public boolean isBeforeFirst() {
     return cursor < 0;
   }
 
@@ -268,24 +269,28 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
     return records == null;
   }
 
-  public boolean isFirst() throws SQLException {
+  public boolean isFirst() {
     return cursor == 0;
   }
 
-  public boolean isLast() throws SQLException {
+  public boolean isLast() {
     return cursor == rowCount - 1;
   }
 
-  public Statement getStatement() throws SQLException {
+  public Statement getStatement() {
     return statement;
   }
 
-  public ResultSetMetaData getMetaData() throws SQLException {
+  public ResultSetMetaData getMetaData() {
     return resultSetMetaData;
   }
 
   public void deleteRow() throws SQLException {
-    result.toEntity().delete();
+    if (result.isEntity()) {
+      result.asEntity().delete();
+    } else {
+      throw new SQLException("The current record is not an entity and can not be deleted");
+    }
   }
 
   public int findColumn(String columnLabel) throws SQLException {
@@ -309,7 +314,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
     return column;
   }
 
-  private int getFieldIndex(final int columnIndex) throws SQLException {
+  private static int getFieldIndex(final int columnIndex) throws SQLException {
     if (columnIndex < 1) {
       throw new SQLException("The column index cannot be less than 1");
     }
@@ -321,28 +326,25 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
   }
 
   public Array getArray(String columnLabel) throws SQLException {
+    var value = result.getProperty(columnLabel);
+    if (!(value instanceof Collection<?> collection)) {
+      throw new SQLException(
+          "The column '"
+              + columnLabel
+              + "' does not contain a collection of and can not be converted to an Array");
+    }
 
-    PropertyType columnType =
-        result
-            .toEntity()
-            .getSchemaType()
-            .map(t -> t.getProperty(columnLabel).getType())
-            .orElse(PropertyType.EMBEDDEDLIST);
-
-    assert columnType.isEmbedded() && columnType.isMultiValue();
-
-    Array array = new YouTrackDbJdbcArray(result.getProperty(columnLabel));
-
-    lastReadWasNull = array == null;
+    Array array = new YouTrackDbJdbcArray(collection);
+    lastReadWasNull = false;
     return array;
   }
 
-  public InputStream getAsciiStream(int columnIndex) throws SQLException {
+  public InputStream getAsciiStream(int columnIndex) {
     lastReadWasNull = true;
     return null;
   }
 
-  public InputStream getAsciiStream(final String columnLabel) throws SQLException {
+  public InputStream getAsciiStream(final String columnLabel) {
     lastReadWasNull = true;
     return null;
   }
@@ -461,7 +463,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
           "An error occurred during the retrieval of the boolean value at column '"
               + columnLabel
               + "' ---> "
-              + result.toEntity().toJSON(),
+              + result.toJSON(),
           e);
     }
   }
@@ -514,31 +516,31 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
     }
   }
 
-  public Reader getCharacterStream(int columnIndex) throws SQLException {
+  public Reader getCharacterStream(int columnIndex) {
     lastReadWasNull = true;
     return null;
   }
 
-  public Reader getCharacterStream(String columnLabel) throws SQLException {
+  public Reader getCharacterStream(String columnLabel) {
     lastReadWasNull = true;
     return null;
   }
 
-  public Clob getClob(int columnIndex) throws SQLException {
+  public Clob getClob(int columnIndex) {
     lastReadWasNull = true;
     return null;
   }
 
-  public Clob getClob(String columnLabel) throws SQLException {
+  public Clob getClob(String columnLabel) {
     lastReadWasNull = true;
     return null;
   }
 
-  public int getConcurrency() throws SQLException {
+  public int getConcurrency() {
     return concurrency;
   }
 
-  public String getCursorName() throws SQLException {
+  public String getCursorName() {
     return null;
   }
 
@@ -611,18 +613,18 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
     }
   }
 
-  public int getFetchDirection() throws SQLException {
+  public int getFetchDirection() {
     return 0;
   }
 
-  public void setFetchDirection(int direction) throws SQLException {
+  public void setFetchDirection(int direction) {
   }
 
-  public int getFetchSize() throws SQLException {
+  public int getFetchSize() {
     return rowCount;
   }
 
-  public void setFetchSize(int rows) throws SQLException {
+  public void setFetchSize(int rows) {
   }
 
   public float getFloat(int columnIndex) throws SQLException {
@@ -644,7 +646,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
     }
   }
 
-  public int getHoldability() throws SQLException {
+  public int getHoldability() {
     return holdability;
   }
 
@@ -654,7 +656,12 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
 
   public int getInt(String columnLabel) throws SQLException {
     if ("@version".equals(columnLabel)) {
-      return result.toEntity().getVersion();
+      if (result.isEntity()) {
+        return result.asEntity().getVersion();
+      } else {
+        throw new SQLException(
+            "The current record is not an entity so its version can not be retrieved");
+      }
     }
 
     try {
@@ -690,22 +697,22 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
     }
   }
 
-  public Reader getNCharacterStream(int columnIndex) throws SQLException {
+  public Reader getNCharacterStream(int columnIndex) {
     lastReadWasNull = true;
     return null;
   }
 
-  public Reader getNCharacterStream(String columnLabel) throws SQLException {
+  public Reader getNCharacterStream(String columnLabel) {
     lastReadWasNull = true;
     return null;
   }
 
-  public NClob getNClob(int columnIndex) throws SQLException {
+  public NClob getNClob(int columnIndex) {
     lastReadWasNull = true;
     return null;
   }
 
-  public NClob getNClob(String columnLabel) throws SQLException {
+  public NClob getNClob(String columnLabel) {
     lastReadWasNull = true;
     return null;
   }
@@ -740,7 +747,11 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
     }
 
     if ("@class".equals(columnLabel) || "class".equals(columnLabel)) {
-      String r = result.toEntity().getSchemaType().map(t -> t.getName()).orElse(null);
+      if (!result.isEntity()) {
+        throw new SQLException(
+            "The current record is not an entity. Its class can not be retrieved");
+      }
+      String r = result.asEntity().getSchemaType().map(SchemaClass::getName).orElse(null);
       lastReadWasNull = r == null;
       return r;
     }
@@ -770,24 +781,27 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
     throw new SQLFeatureNotSupportedException("This method has not been implemented.");
   }
 
-  public Ref getRef(int columnIndex) throws SQLException {
+  public Ref getRef(int columnIndex) {
     lastReadWasNull = true;
     return null;
   }
 
-  public Ref getRef(String columnLabel) throws SQLException {
+  public Ref getRef(String columnLabel) {
     lastReadWasNull = true;
     return null;
   }
 
-  public int getRow() throws SQLException {
+  public int getRow() {
     return cursor;
   }
 
   public RowId getRowId(final int columnIndex) throws SQLException {
     try {
       lastReadWasNull = false;
-      return new YouTrackDbRowId((RecordId) result.toEntity().getIdentity());
+      if (!result.isEntity()) {
+        throw new SQLException("The current record is not an entity and does not have a rowid");
+      }
+      return new YouTrackDbRowId((RecordId) result.asEntity().getIdentity());
     } catch (Exception e) {
       throw new SQLException(
           "An error occurred during the retrieval of the rowid for record '" + result + "'", e);
@@ -798,12 +812,12 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
     return getRowId(0);
   }
 
-  public SQLXML getSQLXML(int columnIndex) throws SQLException {
+  public SQLXML getSQLXML(int columnIndex) {
     lastReadWasNull = true;
     return null;
   }
 
-  public SQLXML getSQLXML(String columnLabel) throws SQLException {
+  public SQLXML getSQLXML(String columnLabel) {
     lastReadWasNull = true;
     return null;
   }
@@ -837,13 +851,21 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
   public String getString(String columnLabel) throws SQLException {
 
     if ("@rid".equals(columnLabel) || "rid".equals(columnLabel)) {
+      if (!result.isEntity()) {
+        throw new SQLException(
+            "The current record is not an entity. Its identity can not be retrieved");
+      }
       lastReadWasNull = false;
-      return result.toEntity().getIdentity().toString();
+      return result.asEntity().getIdentity().toString();
     }
 
     if ("@class".equals(columnLabel) || "class".equals(columnLabel)) {
+      if (!result.isEntity()) {
+        throw new SQLException(
+            "The current record is not an entity. Its class can not be retrieved");
+      }
       lastReadWasNull = false;
-      return result.toEntity().getSchemaType().map(c -> c.getName()).orElse("NOCLASS");
+      return result.asEntity().getSchemaType().map(SchemaClass::getName).orElse("NOCLASS");
     }
 
     try {
@@ -883,7 +905,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
     return getTime(date);
   }
 
-  private Time getTime(java.util.Date date) {
+  private static Time getTime(java.util.Date date) {
     return date != null ? new Time(date.getTime()) : null;
   }
 
@@ -899,7 +921,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
     return getTimestamp(date);
   }
 
-  private Timestamp getTimestamp(Date date) {
+  private static Timestamp getTimestamp(Date date) {
     return date != null ? new Timestamp(date.getTime()) : null;
   }
 
@@ -921,325 +943,316 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
     return getTimestamp(date);
   }
 
-  public int getType() throws SQLException {
+  public int getType() {
     return type;
   }
 
-  public URL getURL(int columnIndex) throws SQLException {
+  public URL getURL(int columnIndex) {
     lastReadWasNull = true;
     return null;
   }
 
-  public URL getURL(String columnLabel) throws SQLException {
+  public URL getURL(String columnLabel) {
     lastReadWasNull = true;
     return null;
   }
 
-  public InputStream getUnicodeStream(int columnIndex) throws SQLException {
+  public InputStream getUnicodeStream(int columnIndex) {
     lastReadWasNull = true;
     return null;
   }
 
-  public InputStream getUnicodeStream(String columnLabel) throws SQLException {
+  public InputStream getUnicodeStream(String columnLabel) {
     lastReadWasNull = true;
     return null;
   }
 
-  public SQLWarning getWarnings() throws SQLException {
+  public SQLWarning getWarnings() {
 
     return null;
   }
 
-  public void insertRow() throws SQLException {
+  public void insertRow() {
   }
 
-  public void moveToCurrentRow() throws SQLException {
+  public void moveToCurrentRow() {
   }
 
-  public void moveToInsertRow() throws SQLException {
+  public void moveToInsertRow() {
   }
 
-  public void refreshRow() throws SQLException {
+  public void refreshRow() {
   }
 
-  public boolean rowDeleted() throws SQLException {
+  public boolean rowDeleted() {
 
     return false;
   }
 
-  public boolean rowInserted() throws SQLException {
+  public boolean rowInserted() {
 
     return false;
   }
 
-  public boolean rowUpdated() throws SQLException {
+  public boolean rowUpdated() {
 
     return false;
   }
 
-  public void updateArray(int columnIndex, Array x) throws SQLException {
+  public void updateArray(int columnIndex, Array x) {
   }
 
-  public void updateArray(String columnLabel, Array x) throws SQLException {
+  public void updateArray(String columnLabel, Array x) {
   }
 
-  public void updateAsciiStream(int columnIndex, InputStream x) throws SQLException {
+  public void updateAsciiStream(int columnIndex, InputStream x) {
   }
 
-  public void updateAsciiStream(String columnLabel, InputStream x) throws SQLException {
+  public void updateAsciiStream(String columnLabel, InputStream x) {
   }
 
-  public void updateAsciiStream(int columnIndex, InputStream x, int length) throws SQLException {
+  public void updateAsciiStream(int columnIndex, InputStream x, int length) {
   }
 
-  public void updateAsciiStream(String columnLabel, InputStream x, int length)
-      throws SQLException {
+  public void updateAsciiStream(String columnLabel, InputStream x, int length) {
   }
 
-  public void updateAsciiStream(int columnIndex, InputStream x, long length) throws SQLException {
+  public void updateAsciiStream(int columnIndex, InputStream x, long length) {
   }
 
-  public void updateAsciiStream(String columnLabel, InputStream x, long length)
-      throws SQLException {
+  public void updateAsciiStream(String columnLabel, InputStream x, long length) {
   }
 
-  public void updateBigDecimal(int columnIndex, BigDecimal x) throws SQLException {
+  public void updateBigDecimal(int columnIndex, BigDecimal x) {
   }
 
-  public void updateBigDecimal(String columnLabel, BigDecimal x) throws SQLException {
+  public void updateBigDecimal(String columnLabel, BigDecimal x) {
   }
 
-  public void updateBinaryStream(int columnIndex, InputStream x) throws SQLException {
+  public void updateBinaryStream(int columnIndex, InputStream x) {
   }
 
-  public void updateBinaryStream(String columnLabel, InputStream x) throws SQLException {
+  public void updateBinaryStream(String columnLabel, InputStream x) {
   }
 
-  public void updateBinaryStream(int columnIndex, InputStream x, int length) throws SQLException {
+  public void updateBinaryStream(int columnIndex, InputStream x, int length) {
   }
 
-  public void updateBinaryStream(String columnLabel, InputStream x, int length)
-      throws SQLException {
+  public void updateBinaryStream(String columnLabel, InputStream x, int length) {
   }
 
-  public void updateBinaryStream(int columnIndex, InputStream x, long length) throws SQLException {
+  public void updateBinaryStream(int columnIndex, InputStream x, long length) {
   }
 
-  public void updateBinaryStream(String columnLabel, InputStream x, long length)
-      throws SQLException {
+  public void updateBinaryStream(String columnLabel, InputStream x, long length) {
   }
 
-  public void updateBlob(int columnIndex, java.sql.Blob x) throws SQLException {
+  public void updateBlob(int columnIndex, java.sql.Blob x) {
   }
 
-  public void updateBlob(String columnLabel, java.sql.Blob x) throws SQLException {
+  public void updateBlob(String columnLabel, java.sql.Blob x) {
   }
 
-  public void updateBlob(int columnIndex, InputStream inputStream) throws SQLException {
+  public void updateBlob(int columnIndex, InputStream inputStream) {
   }
 
-  public void updateBlob(String columnLabel, InputStream inputStream) throws SQLException {
+  public void updateBlob(String columnLabel, InputStream inputStream) {
   }
 
-  public void updateBlob(int columnIndex, InputStream inputStream, long length)
-      throws SQLException {
+  public void updateBlob(int columnIndex, InputStream inputStream, long length) {
   }
 
-  public void updateBlob(String columnLabel, InputStream inputStream, long length)
-      throws SQLException {
+  public void updateBlob(String columnLabel, InputStream inputStream, long length) {
   }
 
-  public void updateBoolean(int columnIndex, boolean x) throws SQLException {
+  public void updateBoolean(int columnIndex, boolean x) {
   }
 
-  public void updateBoolean(String columnLabel, boolean x) throws SQLException {
+  public void updateBoolean(String columnLabel, boolean x) {
   }
 
-  public void updateByte(int columnIndex, byte x) throws SQLException {
+  public void updateByte(int columnIndex, byte x) {
   }
 
-  public void updateByte(String columnLabel, byte x) throws SQLException {
+  public void updateByte(String columnLabel, byte x) {
   }
 
-  public void updateBytes(int columnIndex, byte[] x) throws SQLException {
+  public void updateBytes(int columnIndex, byte[] x) {
   }
 
-  public void updateBytes(String columnLabel, byte[] x) throws SQLException {
+  public void updateBytes(String columnLabel, byte[] x) {
   }
 
-  public void updateCharacterStream(int columnIndex, Reader x) throws SQLException {
+  public void updateCharacterStream(int columnIndex, Reader x) {
   }
 
-  public void updateCharacterStream(String columnLabel, Reader reader) throws SQLException {
+  public void updateCharacterStream(String columnLabel, Reader reader) {
   }
 
-  public void updateCharacterStream(int columnIndex, Reader x, int length) throws SQLException {
+  public void updateCharacterStream(int columnIndex, Reader x, int length) {
   }
 
-  public void updateCharacterStream(String columnLabel, Reader reader, int length)
-      throws SQLException {
+  public void updateCharacterStream(String columnLabel, Reader reader, int length) {
   }
 
-  public void updateCharacterStream(int columnIndex, Reader x, long length) throws SQLException {
+  public void updateCharacterStream(int columnIndex, Reader x, long length) {
   }
 
-  public void updateCharacterStream(String columnLabel, Reader reader, long length)
-      throws SQLException {
+  public void updateCharacterStream(String columnLabel, Reader reader, long length) {
   }
 
-  public void updateClob(int columnIndex, Clob x) throws SQLException {
+  public void updateClob(int columnIndex, Clob x) {
   }
 
-  public void updateClob(String columnLabel, Clob x) throws SQLException {
+  public void updateClob(String columnLabel, Clob x) {
   }
 
-  public void updateClob(int columnIndex, Reader reader) throws SQLException {
+  public void updateClob(int columnIndex, Reader reader) {
   }
 
-  public void updateClob(String columnLabel, Reader reader) throws SQLException {
+  public void updateClob(String columnLabel, Reader reader) {
   }
 
-  public void updateClob(int columnIndex, Reader reader, long length) throws SQLException {
+  public void updateClob(int columnIndex, Reader reader, long length) {
   }
 
-  public void updateClob(String columnLabel, Reader reader, long length) throws SQLException {
+  public void updateClob(String columnLabel, Reader reader, long length) {
   }
 
-  public void updateDate(int columnIndex, Date x) throws SQLException {
+  public void updateDate(int columnIndex, Date x) {
   }
 
-  public void updateDate(String columnLabel, Date x) throws SQLException {
+  public void updateDate(String columnLabel, Date x) {
   }
 
-  public void updateDouble(int columnIndex, double x) throws SQLException {
+  public void updateDouble(int columnIndex, double x) {
   }
 
-  public void updateDouble(String columnLabel, double x) throws SQLException {
+  public void updateDouble(String columnLabel, double x) {
   }
 
-  public void updateFloat(int columnIndex, float x) throws SQLException {
+  public void updateFloat(int columnIndex, float x) {
   }
 
-  public void updateFloat(String columnLabel, float x) throws SQLException {
+  public void updateFloat(String columnLabel, float x) {
   }
 
-  public void updateInt(int columnIndex, int x) throws SQLException {
+  public void updateInt(int columnIndex, int x) {
   }
 
-  public void updateInt(String columnLabel, int x) throws SQLException {
+  public void updateInt(String columnLabel, int x) {
   }
 
-  public void updateLong(int columnIndex, long x) throws SQLException {
+  public void updateLong(int columnIndex, long x) {
   }
 
-  public void updateLong(String columnLabel, long x) throws SQLException {
+  public void updateLong(String columnLabel, long x) {
   }
 
-  public void updateNCharacterStream(int columnIndex, Reader x) throws SQLException {
+  public void updateNCharacterStream(int columnIndex, Reader x) {
   }
 
-  public void updateNCharacterStream(String columnLabel, Reader reader) throws SQLException {
+  public void updateNCharacterStream(String columnLabel, Reader reader) {
   }
 
-  public void updateNCharacterStream(int columnIndex, Reader x, long length) throws SQLException {
+  public void updateNCharacterStream(int columnIndex, Reader x, long length) {
   }
 
-  public void updateNCharacterStream(String columnLabel, Reader reader, long length)
-      throws SQLException {
+  public void updateNCharacterStream(String columnLabel, Reader reader, long length) {
   }
 
-  public void updateNClob(int columnIndex, NClob nClob) throws SQLException {
+  public void updateNClob(int columnIndex, NClob nClob) {
   }
 
-  public void updateNClob(String columnLabel, NClob nClob) throws SQLException {
+  public void updateNClob(String columnLabel, NClob nClob) {
   }
 
-  public void updateNClob(int columnIndex, Reader reader) throws SQLException {
+  public void updateNClob(int columnIndex, Reader reader) {
   }
 
-  public void updateNClob(String columnLabel, Reader reader) throws SQLException {
+  public void updateNClob(String columnLabel, Reader reader) {
   }
 
-  public void updateNClob(int columnIndex, Reader reader, long length) throws SQLException {
+  public void updateNClob(int columnIndex, Reader reader, long length) {
   }
 
-  public void updateNClob(String columnLabel, Reader reader, long length) throws SQLException {
+  public void updateNClob(String columnLabel, Reader reader, long length) {
   }
 
-  public void updateNString(int columnIndex, String nString) throws SQLException {
+  public void updateNString(int columnIndex, String nString) {
   }
 
-  public void updateNString(String columnLabel, String nString) throws SQLException {
+  public void updateNString(String columnLabel, String nString) {
   }
 
-  public void updateNull(int columnIndex) throws SQLException {
+  public void updateNull(int columnIndex) {
   }
 
-  public void updateNull(String columnLabel) throws SQLException {
+  public void updateNull(String columnLabel) {
   }
 
-  public void updateObject(int columnIndex, Object x) throws SQLException {
+  public void updateObject(int columnIndex, Object x) {
   }
 
-  public void updateObject(String columnLabel, Object x) throws SQLException {
+  public void updateObject(String columnLabel, Object x) {
   }
 
-  public void updateObject(int columnIndex, Object x, int scaleOrLength) throws SQLException {
+  public void updateObject(int columnIndex, Object x, int scaleOrLength) {
   }
 
-  public void updateObject(String columnLabel, Object x, int scaleOrLength) throws SQLException {
+  public void updateObject(String columnLabel, Object x, int scaleOrLength) {
   }
 
-  public void updateRef(int columnIndex, Ref x) throws SQLException {
+  public void updateRef(int columnIndex, Ref x) {
   }
 
-  public void updateRef(String columnLabel, Ref x) throws SQLException {
+  public void updateRef(String columnLabel, Ref x) {
   }
 
-  public void updateRow() throws SQLException {
+  public void updateRow() {
   }
 
-  public void updateRowId(int columnIndex, RowId x) throws SQLException {
+  public void updateRowId(int columnIndex, RowId x) {
   }
 
-  public void updateRowId(String columnLabel, RowId x) throws SQLException {
+  public void updateRowId(String columnLabel, RowId x) {
   }
 
-  public void updateSQLXML(int columnIndex, SQLXML xmlObject) throws SQLException {
+  public void updateSQLXML(int columnIndex, SQLXML xmlObject) {
   }
 
-  public void updateSQLXML(String columnLabel, SQLXML xmlObject) throws SQLException {
+  public void updateSQLXML(String columnLabel, SQLXML xmlObject) {
   }
 
-  public void updateShort(int columnIndex, short x) throws SQLException {
+  public void updateShort(int columnIndex, short x) {
   }
 
-  public void updateShort(String columnLabel, short x) throws SQLException {
+  public void updateShort(String columnLabel, short x) {
   }
 
-  public void updateString(int columnIndex, String x) throws SQLException {
+  public void updateString(int columnIndex, String x) {
   }
 
-  public void updateString(String columnLabel, String x) throws SQLException {
+  public void updateString(String columnLabel, String x) {
   }
 
-  public void updateTime(int columnIndex, Time x) throws SQLException {
+  public void updateTime(int columnIndex, Time x) {
   }
 
-  public void updateTime(String columnLabel, Time x) throws SQLException {
+  public void updateTime(String columnLabel, Time x) {
   }
 
-  public void updateTimestamp(int columnIndex, Timestamp x) throws SQLException {
+  public void updateTimestamp(int columnIndex, Timestamp x) {
   }
 
-  public void updateTimestamp(String columnLabel, Timestamp x) throws SQLException {
+  public void updateTimestamp(String columnLabel, Timestamp x) {
   }
 
-  public boolean wasNull() throws SQLException {
+  public boolean wasNull() {
     return lastReadWasNull;
   }
 
-  public boolean isWrapperFor(Class<?> iface) throws SQLException {
+  public boolean isWrapperFor(Class<?> iface) {
     return EntityImpl.class.isAssignableFrom(iface);
   }
 
@@ -1251,17 +1264,17 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
     }
   }
 
-  public void cancelRowUpdates() throws SQLException {
+  public void cancelRowUpdates() {
   }
 
-  public void clearWarnings() throws SQLException {
+  public void clearWarnings() {
   }
 
-  public <T> T getObject(int arg0, Class<T> arg1) throws SQLException {
+  public <T> T getObject(int arg0, Class<T> arg1) {
     return null;
   }
 
-  public <T> T getObject(String arg0, Class<T> arg1) throws SQLException {
+  public <T> T getObject(String arg0, Class<T> arg1) {
     return null;
   }
 }

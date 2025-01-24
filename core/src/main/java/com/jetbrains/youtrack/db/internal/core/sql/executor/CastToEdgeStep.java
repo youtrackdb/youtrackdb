@@ -21,19 +21,19 @@ public class CastToEdgeStep extends AbstractExecutionStep {
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
     ExecutionStream upstream = prev.start(ctx);
-    return upstream.map(this::mapResult);
+    return upstream.map(CastToEdgeStep::mapResult);
   }
 
-  private Result mapResult(Result result, CommandContext ctx) {
+  private static Result mapResult(Result result, CommandContext ctx) {
     if (result.getEntity().orElse(null) instanceof Edge) {
       return result;
     }
     var db = ctx.getDatabase();
     if (result.isEdge()) {
       if (result instanceof ResultInternal) {
-        ((ResultInternal) result).setIdentifiable(result.toEntity().toEdge());
+        ((ResultInternal) result).setIdentifiable(result.asEntity().toEdge());
       } else {
-        result = new ResultInternal(db, result.toEntity().toEdge());
+        result = new ResultInternal(db, result.asEntity().toEdge());
       }
     } else {
       throw new CommandExecutionException("Current entity is not a vertex: " + result);

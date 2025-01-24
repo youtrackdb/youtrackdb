@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
 
 /**
@@ -34,11 +34,6 @@ public class UpdatableResult extends ResultInternal {
       result = (T) ((Identifiable) result).getIdentity();
     }
     return result;
-  }
-
-  @Override
-  public Entity toEntity() {
-    return (Entity) identifiable;
   }
 
   @Override

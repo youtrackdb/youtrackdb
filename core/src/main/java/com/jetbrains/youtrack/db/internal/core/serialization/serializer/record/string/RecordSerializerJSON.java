@@ -52,9 +52,9 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordStringable;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EmbeddedEntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImplEmbedded;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
@@ -727,7 +727,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
             return new RecordId(iFieldValueAsString);
           }
         case EMBEDDED:
-          return fromString(db, iFieldValueAsString, new EntityImplEmbedded(db), null);
+          return fromString(db, iFieldValueAsString, new EmbeddedEntityImpl(db), null);
         case DATE:
           if (iFieldValueAsString == null || iFieldValueAsString.isEmpty()) {
             return null;

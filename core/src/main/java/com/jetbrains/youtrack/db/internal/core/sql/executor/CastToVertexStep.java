@@ -20,19 +20,19 @@ public class CastToVertexStep extends AbstractExecutionStep {
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
     ExecutionStream upstream = prev.start(ctx);
-    return upstream.map(this::mapResult);
+    return upstream.map(CastToVertexStep::mapResult);
   }
 
-  private Result mapResult(Result result, CommandContext ctx) {
+  private static Result mapResult(Result result, CommandContext ctx) {
     if (result.getEntity().orElse(null) instanceof Vertex) {
       return result;
     }
     var db = ctx.getDatabase();
     if (result.isVertex()) {
       if (result instanceof ResultInternal) {
-        ((ResultInternal) result).setIdentifiable(result.toEntity().toVertex());
+        ((ResultInternal) result).setIdentifiable(result.asEntity().toVertex());
       } else {
-        result = new ResultInternal(db, result.toEntity().toVertex());
+        result = new ResultInternal(db, result.asEntity().toVertex());
       }
     } else {
       throw new CommandExecutionException("Current entity is not a vertex: " + result);

@@ -332,10 +332,8 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
     rec.getIdentity().reset();
 
     if (rec instanceof EntityImpl entity) {
-
       if (className != null) {
-        entity.setClassName(className);
-        entity.setTrackingChanges(true);
+        throw new UnsupportedOperationException("Cannot insert a record with a specific class");
       }
     }
 

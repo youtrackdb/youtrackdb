@@ -13,10 +13,10 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial.shape;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -89,7 +89,7 @@ public class ShapeFactory extends ComplexShapeBuilder {
       return fromDoc((EntityImpl) obj);
     }
     if (obj instanceof Result) {
-      Entity entity = ((Result) obj).toEntity();
+      Entity entity = ((Result) obj).asEntity();
       return fromDoc((EntityImpl) entity);
     }
     if (obj instanceof Map) {
@@ -123,7 +123,7 @@ public class ShapeFactory extends ComplexShapeBuilder {
   public String asText(Object obj) {
 
     if (obj instanceof Result) {
-      Entity entity = ((Result) obj).toEntity();
+      Entity entity = ((Result) obj).asEntity();
       return asText((EntityImpl) entity);
     }
     if (obj instanceof EntityImpl) {

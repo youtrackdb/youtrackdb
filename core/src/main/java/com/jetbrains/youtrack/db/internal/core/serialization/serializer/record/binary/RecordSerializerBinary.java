@@ -20,11 +20,9 @@
 
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary;
 
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
@@ -166,10 +164,5 @@ public class RecordSerializerBinary implements RecordSerializer {
   @Override
   public String getName() {
     return NAME;
-  }
-
-  public Result getBinaryResult(DatabaseSessionInternal db, byte[] bytes, RecordId id) {
-    EntitySerializer serializer = getSerializer(bytes[0]);
-    return new ResultBinary(db, bytes, 1, bytes.length, serializer, id);
   }
 }

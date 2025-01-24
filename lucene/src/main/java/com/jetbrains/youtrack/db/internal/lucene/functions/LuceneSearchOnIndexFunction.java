@@ -50,8 +50,8 @@ public class LuceneSearchOnIndexFunction extends LuceneSearchFunctionTemplate {
       Object iCurrentResult,
       Object[] params,
       CommandContext ctx) {
-    Entity element =
-        iThis instanceof Entity ? (Entity) iThis : ((Result) iThis).toEntity();
+    Entity entity =
+        iThis instanceof Entity ? (Entity) iThis : ((Result) iThis).asEntity();
 
     String indexName = (String) params[0];
 
@@ -67,7 +67,7 @@ public class LuceneSearchOnIndexFunction extends LuceneSearchFunctionTemplate {
 
     List<Object> key =
         index.getDefinition().getFields().stream()
-            .map(s -> element.getProperty(s))
+            .map(s -> entity.getProperty(s))
             .collect(Collectors.toList());
 
     for (IndexableField field : index.buildDocument(ctx.getDatabase(), key).getFields()) {
