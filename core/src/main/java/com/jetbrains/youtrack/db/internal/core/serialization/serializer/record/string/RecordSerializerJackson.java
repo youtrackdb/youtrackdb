@@ -91,10 +91,10 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
         if (token != JsonToken.START_OBJECT) {
           throw new SerializationException("Invalid JSON content: " + source);
         }
+        token = jsonParser.nextToken();
 
         int metaFilesProcessed = 0;
         while (metaFilesProcessed < 3 && token != JsonToken.END_OBJECT) {
-          token = jsonParser.nextToken();
           if (token == JsonToken.FIELD_NAME) {
             var fieldName = jsonParser.currentName();
 
@@ -154,15 +154,15 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
             if (token == JsonToken.START_ARRAY) {
               // ARRAY
               jsonParser.skipChildren();
+            } else if (token == JsonToken.START_OBJECT) {
+              // OBJECT
+              jsonParser.skipChildren();
             } else {
-              if (token == JsonToken.START_OBJECT) {
-                // OBJECT
-                jsonParser.skipChildren();
-              } else {
-                // VALUE
-                throw new SerializationException("Invalid JSON content: " + source);
-              }
+              token = jsonParser.nextToken();
             }
+          } else {
+            throw new SerializationException(
+                "Expected field name. JSON content:\r\n " + source);
           }
         }
       }
@@ -176,6 +176,9 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
 
         RecordInternal.unsetDirty(record);
       }
+      if (fieldTypes == null) {
+        fieldTypes = new HashMap<>();
+      }
 
       try (JsonParser jsonParser = jsonFactory.createParser(source)) {
         var token = jsonParser.nextToken();
@@ -183,12 +186,13 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
           throw new SerializationException("Invalid JSON content: " + source);
         }
 
+        token = jsonParser.nextToken();
         while (token != JsonToken.END_OBJECT) {
-          token = jsonParser.nextToken();
           if (token == JsonToken.FIELD_NAME) {
             var fieldName = jsonParser.currentName();
             parseRecord(db, fieldTypes, record, jsonParser, fieldName, source);
           }
+          token = jsonParser.nextToken();
         }
       }
 
@@ -395,7 +399,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
       case "x" -> PropertyType.LINK;
       case "n" -> PropertyType.LINKSET;
       case "u" -> PropertyType.CUSTOM;
-
+      case null -> null;
       default -> null;
     };
 

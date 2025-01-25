@@ -64,8 +64,10 @@ public class JSONTest extends BaseDBTest {
 
   @Test
   public void testAlmostLink() {
-    final EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.updateFromJSON("{'title': '#330: Dollar Coins Are Done'}");
+    db.executeInTx(() -> {
+      final EntityImpl doc = ((EntityImpl) db.newEntity());
+      doc.updateFromJSON("{\"title\": \"#330: Dollar Coins Are Done\"}");
+    });
   }
 
   @Test
