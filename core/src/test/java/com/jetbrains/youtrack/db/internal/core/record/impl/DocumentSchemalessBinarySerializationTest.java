@@ -865,7 +865,7 @@ public class DocumentSchemalessBinarySerializationTest extends DbTestBase {
         new String[]{});
 
     assertNotNull(extr.field("seri"));
-    assertEquals(extr.fieldType("seri"), PropertyType.CUSTOM);
+    assertEquals(extr.getPropertyType("seri"), PropertyType.CUSTOM);
     SimpleSerializableClass newser = extr.field("seri");
     assertEquals(newser.name, ser.name);
     GlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(old);

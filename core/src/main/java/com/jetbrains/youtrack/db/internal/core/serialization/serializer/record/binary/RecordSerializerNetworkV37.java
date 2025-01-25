@@ -469,7 +469,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
     return newValue;
   }
 
-  private Map<Object, Identifiable> readLinkMap(
+  private Map<String, Identifiable> readLinkMap(
       DatabaseSessionInternal db, final BytesContainer bytes, final RecordElement owner) {
     int size = VarIntSerializer.readAsInteger(bytes);
     LinkMap result = new LinkMap(owner);
@@ -478,9 +478,9 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
       Object key = deserializeValue(db, bytes, keyType, result);
       Identifiable value = readOptimizedLink(db, bytes);
       if (value.equals(NULL_RECORD_ID)) {
-        result.putInternal(key, null);
+        result.putInternal(key.toString(), null);
       } else {
-        result.putInternal(key, value);
+        result.putInternal(key.toString(), value);
       }
     }
     return result;
@@ -876,12 +876,6 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
 
   protected String stringFromBytes(final byte[] bytes, final int offset, final int len) {
     return new String(bytes, offset, len, StandardCharsets.UTF_8);
-  }
-
-  public BinaryField deserializeField(
-      final BytesContainer bytes, final SchemaClass iClass, final String iFieldName) {
-    // TODO: check if integrate the binary disc binary comparator here
-    throw new UnsupportedOperationException("network serializer doesn't support comparators");
   }
 
   private long convertDayToTimezone(TimeZone from, TimeZone to, long time) {

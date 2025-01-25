@@ -77,7 +77,7 @@ public abstract class ServerCommandAbstractLogic extends ServerCommandAuthentica
         // PARSE PARAMETERS FROM CONTENT PAYLOAD
         try {
           final EntityImpl params = new EntityImpl(null);
-          params.fromJSON(iRequest.getContent());
+          params.updateFromJSON(iRequest.getContent());
           functionResult = f.executeInContext(context, params.toMap());
         } catch (Exception e) {
           throw BaseException.wrapException(

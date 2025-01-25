@@ -101,7 +101,7 @@ public abstract class SpatialFunctionAbstractIndexable extends SpatialFunctionAb
     var db = ctx.getDatabase();
     if (args[1].getValue() instanceof SQLJson json) {
       EntityImpl doc = new EntityImpl(null);
-      doc.fromJSON(json.toString());
+      doc.updateFromJSON(json.toString());
       shape = doc.toMap();
     } else {
       shape = args[1].execute((Identifiable) null, ctx);

@@ -902,7 +902,7 @@ public class DefaultSecuritySystem implements SecuritySystem {
             final byte[] buffer = new byte[(int) file.length()];
             fis.read(buffer);
 
-            securityEntity = new EntityImpl(null).fromJSON(new String(buffer), "noMap");
+            securityEntity = new EntityImpl(null).updateFromJSON(new String(buffer), "noMap");
           } finally {
             if (fis != null) {
               fis.close();

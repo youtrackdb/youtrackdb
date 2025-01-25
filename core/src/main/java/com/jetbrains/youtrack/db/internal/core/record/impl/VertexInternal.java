@@ -855,7 +855,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
       DatabaseSessionInternal db, final EntityImpl fromVertex, final Identifiable to,
       final String fieldName) {
     final Object out;
-    PropertyType outType = fromVertex.fieldType(fieldName);
+    PropertyType outType = fromVertex.getPropertyType(fieldName);
     Object found = fromVertex.getPropertyInternal(fieldName);
 
     final SchemaClass linkClass = EntityInternalUtils.getImmutableSchemaClass(fromVertex);

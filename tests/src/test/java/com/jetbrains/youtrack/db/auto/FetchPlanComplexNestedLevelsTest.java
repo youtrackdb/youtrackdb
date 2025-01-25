@@ -86,7 +86,7 @@ public class FetchPlanComplexNestedLevelsTest extends BaseDBTest {
     Assert.assertNotNull(json);
 
     final EntityImpl parsed = ((EntityImpl) db.newEntity());
-    parsed.fromJSON(json);
+    parsed.updateFromJSON(json);
 
     Assert.assertNotNull(parsed.rawField("out_FollowTest.in.out_FollowTest"));
   }
@@ -103,7 +103,7 @@ public class FetchPlanComplexNestedLevelsTest extends BaseDBTest {
     Assert.assertNotNull(json);
 
     final EntityImpl parsed = ((EntityImpl) db.newEntity());
-    parsed.fromJSON(json);
+    parsed.updateFromJSON(json);
 
     Assert.assertNotNull(parsed.rawField("out_FollowTest.in.out_FollowTest"));
   }

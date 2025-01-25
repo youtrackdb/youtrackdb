@@ -483,7 +483,7 @@ public class FetchHelper {
     }
 
     fieldValue = EntityInternalUtils.getRawProperty(record, fieldName);
-    final PropertyType fieldType = record.fieldType(fieldName);
+    final PropertyType fieldType = record.getPropertyType(fieldName);
     boolean fetch =
         !format.contains("shallow")
             && (!(fieldValue instanceof Identifiable)
@@ -540,7 +540,7 @@ public class FetchHelper {
     }
 
     fieldValue = EntityInternalUtils.getRawProperty(record, fieldName);
-    final PropertyType fieldType = record.fieldType(fieldName);
+    final PropertyType fieldType = record.getPropertyType(fieldName);
     boolean fetch =
         !format.contains("shallow")
             && (!(fieldValue instanceof Identifiable)

@@ -288,7 +288,7 @@ public class AutomaticBackup extends ServerPluginAbstract implements OServerPlug
       try {
         final String configurationContent = IOUtils.readFileAsString(f);
         configuration = new EntityImpl(null);
-        configuration.fromJSON(configurationContent);
+        configuration.updateFromJSON(configurationContent);
       } catch (IOException e) {
         throw BaseException.wrapException(
             new ConfigurationException(

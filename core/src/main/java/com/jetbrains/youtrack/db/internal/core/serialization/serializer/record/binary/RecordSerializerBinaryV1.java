@@ -731,9 +731,9 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
       final PropertyType type = HelperClasses.readType(bytes);
       if (type != null) {
         Object value = deserializeValue(db, bytes, type, result);
-        result.putInternal(key, value);
+        result.putInternal(key.toString(), value);
       } else {
-        result.putInternal(key, null);
+        result.putInternal(key.toString(), null);
       }
     }
     return result;

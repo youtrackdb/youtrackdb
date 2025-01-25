@@ -52,7 +52,7 @@ public class JSONStreamTest extends BaseDBTest {
   @Test
   public void testAlmostLink() throws IOException {
     final EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON(
+    doc.updateFromJSON(
         new ByteArrayInputStream(
             "{'title': '#330: Dollar Coins Are Done'}".getBytes(StandardCharsets.UTF_8)));
   }
@@ -60,7 +60,7 @@ public class JSONStreamTest extends BaseDBTest {
   @Test
   public void testNullList() throws Exception {
     final EntityImpl documentSource = ((EntityImpl) db.newEntity());
-    documentSource.fromJSON(
+    documentSource.updateFromJSON(
         new ByteArrayInputStream(
             "{\"list\" : [\"string\", null]}".getBytes(StandardCharsets.UTF_8)));
 
@@ -75,7 +75,7 @@ public class JSONStreamTest extends BaseDBTest {
   @Test
   public void testBooleanList() throws IOException {
     final EntityImpl documentSource = ((EntityImpl) db.newEntity());
-    documentSource.fromJSON(
+    documentSource.updateFromJSON(
         new ByteArrayInputStream("{\"list\" : [true, false]}".getBytes(StandardCharsets.UTF_8)));
 
     final EntityImpl documentTarget = ((EntityImpl) db.newEntity());
@@ -89,7 +89,7 @@ public class JSONStreamTest extends BaseDBTest {
   @Test
   public void testNumericIntegerList() throws IOException {
     final EntityImpl documentSource = ((EntityImpl) db.newEntity());
-    documentSource.fromJSON(
+    documentSource.updateFromJSON(
         new ByteArrayInputStream("{\"list\" : [17,42]}".getBytes(StandardCharsets.UTF_8)));
 
     final EntityImpl documentTarget = ((EntityImpl) db.newEntity());
@@ -103,7 +103,7 @@ public class JSONStreamTest extends BaseDBTest {
   @Test
   public void testNumericLongList() throws IOException {
     final EntityImpl documentSource = ((EntityImpl) db.newEntity());
-    documentSource.fromJSON(
+    documentSource.updateFromJSON(
         new ByteArrayInputStream(
             "{\"list\" : [100000000000,100000000001]}".getBytes(StandardCharsets.UTF_8)));
 
@@ -118,7 +118,7 @@ public class JSONStreamTest extends BaseDBTest {
   @Test
   public void testNumericFloatList() throws IOException {
     final EntityImpl documentSource = ((EntityImpl) db.newEntity());
-    documentSource.fromJSON(
+    documentSource.updateFromJSON(
         new ByteArrayInputStream("{\"list\" : [17.3,42.7]}".getBytes(StandardCharsets.UTF_8)));
 
     final EntityImpl documentTarget = ((EntityImpl) db.newEntity());
@@ -137,10 +137,10 @@ public class JSONStreamTest extends BaseDBTest {
             + " Ave\","
             + "\"street2\":null,\"city\":\"GORDONSVILLE\",\"state\":\"VA\",\"code\":\"22942\"},\"dob\":\"2011-11-17"
             + " 03:17:04\"}";
-    doc.fromJSON(new ByteArrayInputStream(docString.getBytes(StandardCharsets.UTF_8)));
+    doc.updateFromJSON(new ByteArrayInputStream(docString.getBytes(StandardCharsets.UTF_8)));
     final String json = doc.toJSON();
     final EntityImpl loadedDoc = ((EntityImpl) db.newEntity());
-    loadedDoc.fromJSON(json);
+    loadedDoc.updateFromJSON(json);
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
   }
 
@@ -155,7 +155,7 @@ public class JSONStreamTest extends BaseDBTest {
 
     final String json = doc.toJSON();
     final EntityImpl loadedDoc =
-        ((EntityImpl) db.newEntity()).fromJSON(
+        ((EntityImpl) db.newEntity()).updateFromJSON(
             new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
     Assert.assertTrue(loadedDoc.containsField("embeddedList"));
@@ -182,7 +182,7 @@ public class JSONStreamTest extends BaseDBTest {
 
     final String json = doc.toJSON();
     final EntityImpl loadedDoc =
-        ((EntityImpl) db.newEntity()).fromJSON(
+        ((EntityImpl) db.newEntity()).updateFromJSON(
             new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
 
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
@@ -215,7 +215,7 @@ public class JSONStreamTest extends BaseDBTest {
     final String jsonResult = JSONWriter.listToJSON(db, list, null);
     final EntityImpl doc = ((EntityImpl) db.newEntity());
     final String docString = "{\"result\": " + jsonResult + "}";
-    doc.fromJSON(new ByteArrayInputStream(docString.getBytes(StandardCharsets.UTF_8)));
+    doc.updateFromJSON(new ByteArrayInputStream(docString.getBytes(StandardCharsets.UTF_8)));
     final Collection<EntityImpl> result = doc.field("result");
     Assert.assertTrue(result instanceof Collection);
     Assert.assertEquals(result.size(), 2);
@@ -234,7 +234,7 @@ public class JSONStreamTest extends BaseDBTest {
 
     final String json = doc.toJSON();
     final EntityImpl loadedDoc =
-        ((EntityImpl) db.newEntity()).fromJSON(
+        ((EntityImpl) db.newEntity()).updateFromJSON(
             new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
     Assert.assertTrue(loadedDoc.containsField("embeddedMap"));
@@ -282,7 +282,7 @@ public class JSONStreamTest extends BaseDBTest {
       final String json = doc.toJSON();
 
       final EntityImpl loadedDoc =
-          ((EntityImpl) db.newEntity()).fromJSON(
+          ((EntityImpl) db.newEntity()).updateFromJSON(
               new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
       Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
       Assert.assertTrue(loadedDoc.field("long") instanceof Long);
@@ -351,7 +351,7 @@ public class JSONStreamTest extends BaseDBTest {
 
     String json = newDoc.toJSON();
     final EntityImpl loadedDoc =
-        ((EntityImpl) db.newEntity()).fromJSON(
+        ((EntityImpl) db.newEntity()).updateFromJSON(
             new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
 
     Assert.assertTrue(newDoc.hasSameContentOf(loadedDoc));
@@ -386,7 +386,7 @@ public class JSONStreamTest extends BaseDBTest {
           doc.toJSON("type,rid,version,class,keepTypes,attribSameRow,indent:0,fetchPlan:*:-1");
       final EntityImpl loadedDoc =
           ((EntityImpl) db.newEntity())
-              .fromJSON(new ByteArrayInputStream(jsonFull.getBytes(StandardCharsets.UTF_8)));
+              .updateFromJSON(new ByteArrayInputStream(jsonFull.getBytes(StandardCharsets.UTF_8)));
       Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
     }
   }
@@ -395,7 +395,7 @@ public class JSONStreamTest extends BaseDBTest {
   public void testSpecialChar() throws IOException {
     final EntityImpl doc =
         ((EntityImpl) db.newEntity())
-            .fromJSON(
+            .updateFromJSON(
                 new ByteArrayInputStream(
                     "{name:{\"%Field\":[\"value1\",\"value2\"],\"%Field2\":{},\"%Field3\":\"value3\"}}"
                         .getBytes(StandardCharsets.UTF_8)));
@@ -410,7 +410,7 @@ public class JSONStreamTest extends BaseDBTest {
   // Required loading @class
   public void testArrayOfArray() throws IOException {
     final EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON(
+    doc.updateFromJSON(
         new ByteArrayInputStream(
             "{\"@type\": \"d\",\"@class\": \"Track\",\"type\": \"LineString\",\"coordinates\": [ [ 100,  0 ],  [ 101, 1 ] ]}"
                 .getBytes(StandardCharsets.UTF_8)));
@@ -426,7 +426,7 @@ public class JSONStreamTest extends BaseDBTest {
   // Required loading @class
   public void testLongTypes() throws IOException {
     final EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON(
+    doc.updateFromJSON(
         new ByteArrayInputStream(
             "{\"@type\": \"d\",\"@class\": \"Track\",\"type\": \"LineString\",\"coordinates\": [ [ 32874387347347,  0 ],  [ -23736753287327, 1 ] ]}"
                 .getBytes(StandardCharsets.UTF_8)));
@@ -442,7 +442,7 @@ public class JSONStreamTest extends BaseDBTest {
   public void testSpecialChars() throws IOException {
     final EntityImpl doc =
         ((EntityImpl) db.newEntity())
-            .fromJSON(
+            .updateFromJSON(
                 new ByteArrayInputStream(
                     "{Field:{\"Key1\":[\"Value1\",\"Value2\"],\"Key2\":{\"%%dummy%%\":null},\"Key3\":\"Value3\"}}"
                         .getBytes(StandardCharsets.UTF_8)));
@@ -460,7 +460,7 @@ public class JSONStreamTest extends BaseDBTest {
         "{Key1:{\"%Field1\":[{},{},{},{},{}],\"%Field2\":false,\"%Field3\":\"Value1\"}}";
     final EntityImpl doc1 =
         ((EntityImpl) db.newEntity())
-            .fromJSON(new ByteArrayInputStream(doc1Json.getBytes(StandardCharsets.UTF_8)));
+            .updateFromJSON(new ByteArrayInputStream(doc1Json.getBytes(StandardCharsets.UTF_8)));
     final String doc1String = new String(
         RecordSerializerSchemaAware2CSV.INSTANCE.toStream(db, doc1));
     Assert.assertEquals(doc1Json, "{" + doc1String + "}");
@@ -469,7 +469,7 @@ public class JSONStreamTest extends BaseDBTest {
         "{Key1:{\"%Field1\":[{},{},{},{},{}],\"%Field2\":false,\"%Field3\":\"Value1\"}}";
     final EntityImpl doc2 =
         ((EntityImpl) db.newEntity())
-            .fromJSON(new ByteArrayInputStream(doc2Json.getBytes(StandardCharsets.UTF_8)));
+            .updateFromJSON(new ByteArrayInputStream(doc2Json.getBytes(StandardCharsets.UTF_8)));
     final String doc2String = new String(
         RecordSerializerSchemaAware2CSV.INSTANCE.toStream(db, doc2));
     Assert.assertEquals(doc2Json, "{" + doc2String + "}");
@@ -588,7 +588,7 @@ public class JSONStreamTest extends BaseDBTest {
     doc.field("theList", list);
     String json = doc.toJSON();
     EntityImpl newDoc =
-        ((EntityImpl) db.newEntity()).fromJSON(
+        ((EntityImpl) db.newEntity()).updateFromJSON(
             new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(newDoc.toJSON(), json);
   }
@@ -603,7 +603,7 @@ public class JSONStreamTest extends BaseDBTest {
             + "}"
             + "}"
             + "}";
-    doc.fromJSON(new ByteArrayInputStream(test.getBytes(StandardCharsets.UTF_8)));
+    doc.updateFromJSON(new ByteArrayInputStream(test.getBytes(StandardCharsets.UTF_8)));
     Assert.assertTrue(doc.toJSON("fetchPlan:*:0,rid").indexOf("this is a test") > -1);
   }
 
@@ -613,7 +613,7 @@ public class JSONStreamTest extends BaseDBTest {
         "{\"name\": \"test\", \"nested\": { \"key\": \"value\", \"anotherKey\": 123 }, \"deep\":"
             + " {\"deeper\": { \"k\": \"v\",\"quotes\": \"\\\"\\\",\\\"oops\\\":\\\"123\\\"\","
             + " \"likeJson\": \"[1,2,3]\",\"spaces\": \"value with spaces\"}}}";
-    doc.fromJSON(new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8)));
+    doc.updateFromJSON(new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(doc.field("deep[deeper][quotes]"), "\"\",\"oops\":\"123\"");
 
     final String res = doc.toJSON();
@@ -640,7 +640,7 @@ public class JSONStreamTest extends BaseDBTest {
             + "            \"three\": \"a\"\n"
             + "        }\n"
             + "} ";
-    doc.fromJSON(new ByteArrayInputStream(sb.getBytes(StandardCharsets.UTF_8)));
+    doc.updateFromJSON(new ByteArrayInputStream(sb.getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(doc.field("foo.three"), "a");
     final Collection c = doc.field("foo.bar.P357");
     Assert.assertEquals(c.size(), 1);
@@ -669,7 +669,7 @@ public class JSONStreamTest extends BaseDBTest {
             + "        }\n"
             + "} ";
 
-    doc.fromJSON(new ByteArrayInputStream(sb.getBytes(StandardCharsets.UTF_8)));
+    doc.updateFromJSON(new ByteArrayInputStream(sb.getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(doc.field("foo.three"), "a");
     final Collection c = doc.field("foo.bar.P357");
     Assert.assertEquals(c.size(), 1);
@@ -696,7 +696,7 @@ public class JSONStreamTest extends BaseDBTest {
             + "        }\n"
             + "} ";
 
-    doc.fromJSON(new ByteArrayInputStream(sb.getBytes(StandardCharsets.UTF_8)));
+    doc.updateFromJSON(new ByteArrayInputStream(sb.getBytes(StandardCharsets.UTF_8)));
     final Collection c = doc.field("foo.bar.P357");
     Assert.assertEquals(c.size(), 1);
     final Map doc2 = (Map) c.iterator().next();
@@ -706,7 +706,7 @@ public class JSONStreamTest extends BaseDBTest {
   public void testEmbeddedQuotes() throws IOException {
     final EntityImpl doc = ((EntityImpl) db.newEntity());
     // FROM ISSUE 3151
-    doc.fromJSON(
+    doc.updateFromJSON(
         new ByteArrayInputStream(
             "{\"mainsnak\":{\"datavalue\":{\"value\":\"Sub\\\\urban\"}}}"
                 .getBytes(StandardCharsets.UTF_8)));
@@ -715,7 +715,7 @@ public class JSONStreamTest extends BaseDBTest {
 
   public void testEmbeddedQuotes2() throws IOException {
     final EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON(
+    doc.updateFromJSON(
         new ByteArrayInputStream(
             "{\"datavalue\":{\"value\":\"Sub\\\\urban\"}}".getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(doc.field("datavalue.value"), "Sub\\urban");
@@ -723,7 +723,7 @@ public class JSONStreamTest extends BaseDBTest {
 
   public void testEmbeddedQuotes2a() throws IOException {
     final EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON(
+    doc.updateFromJSON(
         new ByteArrayInputStream(
             "{\"datavalue\":\"Sub\\\\urban\"}".getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(doc.field("datavalue"), "Sub\\urban");
@@ -758,7 +758,7 @@ public class JSONStreamTest extends BaseDBTest {
 
   public void testEmbeddedQuotes6() throws IOException {
     final EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON(
+    doc.updateFromJSON(
         new ByteArrayInputStream(
             "{\"mainsnak\":{\"datavalue\":{\"value\":\"Suburban\\\\\"}}}"
                 .getBytes(StandardCharsets.UTF_8)));
@@ -767,7 +767,7 @@ public class JSONStreamTest extends BaseDBTest {
 
   public void testEmbeddedQuotes7() throws IOException {
     final EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON(
+    doc.updateFromJSON(
         new ByteArrayInputStream(
             "{\"datavalue\":{\"value\":\"Suburban\\\\\"}}".getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(doc.field("datavalue.value"), "Suburban\\");
@@ -775,7 +775,7 @@ public class JSONStreamTest extends BaseDBTest {
 
   public void testEmbeddedQuotes8() throws IOException {
     EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON(
+    doc.updateFromJSON(
         new ByteArrayInputStream(
             "{\"datavalue\":\"Suburban\\\\\"}".getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(doc.field("datavalue"), "Suburban\\");
@@ -783,38 +783,38 @@ public class JSONStreamTest extends BaseDBTest {
 
   public void testEmpty() throws IOException {
     final EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON(new ByteArrayInputStream("{}".getBytes(StandardCharsets.UTF_8)));
+    doc.updateFromJSON(new ByteArrayInputStream("{}".getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(doc.fieldNames().length, 0);
   }
 
   public void testInvalidJson() {
     final EntityImpl doc = ((EntityImpl) db.newEntity());
     try {
-      doc.fromJSON(new ByteArrayInputStream("{".getBytes(StandardCharsets.UTF_8)));
+      doc.updateFromJSON(new ByteArrayInputStream("{".getBytes(StandardCharsets.UTF_8)));
       Assert.fail();
     } catch (SerializationException | IOException e) {
     }
 
     try {
-      doc.fromJSON(new ByteArrayInputStream("{\"foo\":{}".getBytes(StandardCharsets.UTF_8)));
+      doc.updateFromJSON(new ByteArrayInputStream("{\"foo\":{}".getBytes(StandardCharsets.UTF_8)));
       Assert.fail();
     } catch (SerializationException | IOException e) {
     }
 
     try {
-      doc.fromJSON(new ByteArrayInputStream("{{}".getBytes(StandardCharsets.UTF_8)));
+      doc.updateFromJSON(new ByteArrayInputStream("{{}".getBytes(StandardCharsets.UTF_8)));
       Assert.fail();
     } catch (SerializationException | IOException e) {
     }
 
     try {
-      doc.fromJSON(new ByteArrayInputStream("{}}".getBytes(StandardCharsets.UTF_8)));
+      doc.updateFromJSON(new ByteArrayInputStream("{}}".getBytes(StandardCharsets.UTF_8)));
       Assert.fail();
     } catch (SerializationException | IOException e) {
     }
 
     try {
-      doc.fromJSON(new ByteArrayInputStream("}".getBytes(StandardCharsets.UTF_8)));
+      doc.updateFromJSON(new ByteArrayInputStream("}".getBytes(StandardCharsets.UTF_8)));
       Assert.fail();
     } catch (SerializationException | IOException e) {
     }
@@ -834,7 +834,7 @@ public class JSONStreamTest extends BaseDBTest {
     final String json = doc.toJSON();
 
     final EntityImpl unmarshalled =
-        ((EntityImpl) db.newEntity()).fromJSON(
+        ((EntityImpl) db.newEntity()).updateFromJSON(
             new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(unmarshalled.field("date"), now);
   }
@@ -842,7 +842,7 @@ public class JSONStreamTest extends BaseDBTest {
   @Test
   public void testList() throws IOException {
     final EntityImpl documentSource = ((EntityImpl) db.newEntity());
-    documentSource.fromJSON(
+    documentSource.updateFromJSON(
         new ByteArrayInputStream("{\"list\" : [\"string\", 42]}".getBytes(StandardCharsets.UTF_8)));
 
     final EntityImpl documentTarget = ((EntityImpl) db.newEntity());
@@ -856,7 +856,7 @@ public class JSONStreamTest extends BaseDBTest {
   @Test
   public void testEmbeddedRIDBagDeserialisationWhenFieldTypeIsProvided() throws Exception {
     final EntityImpl documentSource = ((EntityImpl) db.newEntity());
-    documentSource.fromJSON(
+    documentSource.updateFromJSON(
         new ByteArrayInputStream(
             "{FirstName:\"Student A 0\",in_EHasGoodStudents:[#57:0],@fieldTypes:\"in_EHasGoodStudents=g\"}"
                 .getBytes(StandardCharsets.UTF_8)));
@@ -879,7 +879,7 @@ public class JSONStreamTest extends BaseDBTest {
     EntityImpl cerseiDoc = ((EntityImpl) db.newEntity("NestedLinkCreation"));
     final String jsonString =
         "{\"@type\":\"d\",\"name\":\"cersei\",\"valonqar\":" + jaimeDoc.toJSON() + "}";
-    cerseiDoc.fromJSON(new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8)));
+    cerseiDoc.updateFromJSON(new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8)));
     db.begin();
     cerseiDoc.save();
     db.commit();
@@ -891,7 +891,8 @@ public class JSONStreamTest extends BaseDBTest {
             + " \"relationship\":\"brother\",\"contact\":"
             + jaimeDoc.toJSON()
             + "}}";
-    tyrionDoc.fromJSON(new ByteArrayInputStream(jsonString2.getBytes(StandardCharsets.UTF_8)));
+    tyrionDoc.updateFromJSON(
+        new ByteArrayInputStream(jsonString2.getBytes(StandardCharsets.UTF_8)));
     db.begin();
     tyrionDoc.save();
     db.commit();
@@ -1027,7 +1028,7 @@ public class JSONStreamTest extends BaseDBTest {
 
   public void testInnerDocCreation() throws IOException {
     EntityImpl adamDoc = ((EntityImpl) db.newEntity("InnerDocCreation"));
-    adamDoc.fromJSON(
+    adamDoc.updateFromJSON(
         new ByteArrayInputStream("{\"name\":\"adam\"}".getBytes(StandardCharsets.UTF_8)));
 
     db.begin();
@@ -1037,7 +1038,7 @@ public class JSONStreamTest extends BaseDBTest {
     EntityImpl eveDoc = ((EntityImpl) db.newEntity("InnerDocCreation"));
     final String jsonString =
         "{\"@type\":\"d\",\"name\":\"eve\",\"friends\":[" + adamDoc.toJSON() + "]}";
-    eveDoc.fromJSON(new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8)));
+    eveDoc.updateFromJSON(new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8)));
 
     db.begin();
     eveDoc.save();
@@ -1161,7 +1162,8 @@ public class JSONStreamTest extends BaseDBTest {
     final EntityImpl nestedWithTypeD = ((EntityImpl) db.newEntity(classNameTwo));
     final String jsonString =
         "{\"@type\":\"d\",\"event_name\":\"world cup 2014\",\"admin\":[" + eveDoc.toJSON() + "]}";
-    nestedWithTypeD.fromJSON(new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8)));
+    nestedWithTypeD.updateFromJSON(
+        new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8)));
     nestedWithTypeD.save();
     db.commit();
     Assert.assertEquals(db.countClass(classNameOne), 1);
@@ -1205,7 +1207,8 @@ public class JSONStreamTest extends BaseDBTest {
             + ","
             + adamDoc.toJSON()
             + "]}";
-    nestedWithTypeD.fromJSON(new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8)));
+    nestedWithTypeD.updateFromJSON(
+        new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8)));
     nestedWithTypeD.save();
     db.commit();
     Assert.assertEquals(db.countClass("JSONTxDocOne"), 2);
@@ -1227,7 +1230,7 @@ public class JSONStreamTest extends BaseDBTest {
 
   public void testInvalidLink() throws IOException {
     final EntityImpl nullRefDoc = ((EntityImpl) db.newEntity());
-    nullRefDoc.fromJSON(
+    nullRefDoc.updateFromJSON(
         new ByteArrayInputStream(
             "{\"name\":\"Luca\", \"ref\":\"#-1:-1\"}".getBytes(StandardCharsets.UTF_8)));
     // Assert.assertNull(nullRefDoc.rawField("ref"));
@@ -1241,7 +1244,7 @@ public class JSONStreamTest extends BaseDBTest {
 
   public void testOtherJson() throws IOException {
     ((EntityImpl) db.newEntity())
-        .fromJSON(
+        .updateFromJSON(
             new ByteArrayInputStream(
                 "{\"Salary\":1500.0,\"Type\":\"Person\",\"Address\":[{\"Zip\":\"JX2 MSX\",\"Type\":\"Home\",\"Street1\":\"13 Marge Street\",\"Country\":\"Holland\",\"Id\":\"Address-28813211\",\"City\":\"Amsterdam\",\"From\":\"1996-02-01\",\"To\":\"1998-01-01\"},{\"Zip\":\"90210\",\"Type\":\"Work\",\"Street1\":\"100 Hollywood Drive\",\"Country\":\"USA\",\"Id\":\"Address-11595040\",\"City\":\"Los Angeles\",\"From\":\"2009-09-01\"}],\"Id\":\"Person-7464251\",\"Name\":\"Stan\"}"
                     .getBytes(StandardCharsets.UTF_8)));
@@ -1250,7 +1253,7 @@ public class JSONStreamTest extends BaseDBTest {
   @Test
   public void testNumericFloatListScientific() throws IOException {
     final EntityImpl documentSource = ((EntityImpl) db.newEntity());
-    documentSource.fromJSON(
+    documentSource.updateFromJSON(
         new ByteArrayInputStream(
             "{\"list\" : [-9.27415E-31,741800E+290]}".getBytes(StandardCharsets.UTF_8)));
 
@@ -1265,7 +1268,7 @@ public class JSONStreamTest extends BaseDBTest {
   @Test
   public void testScientificNotation() throws IOException {
     final EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON(
+    doc.updateFromJSON(
         new ByteArrayInputStream(
             "{'number1': -9.2741500e-31, 'number2': 741800E+290}"
                 .getBytes(StandardCharsets.UTF_8)));

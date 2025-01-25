@@ -110,7 +110,7 @@ public class DefaultValueTest extends DbTestBase {
 
     db.begin();
     EntityImpl doc = (EntityImpl) db.newEntity();
-    doc.fromJSON("{'@class':'ClassA','other':'other'}");
+    doc.updateFromJSON("{'@class':'ClassA','other':'other'}");
     EntityImpl saved = db.save(doc);
     db.commit();
 
@@ -131,7 +131,7 @@ public class DefaultValueTest extends DbTestBase {
     String value1 = DateHelper.getDateTimeFormatInstance().format(new Date());
     db.begin();
     EntityImpl doc = (EntityImpl) db.newEntity();
-    doc.fromJSON("{'@class':'ClassA','date':'" + value1 + "','other':'other'}");
+    doc.updateFromJSON("{'@class':'ClassA','date':'" + value1 + "','other':'other'}");
     EntityImpl saved = db.save(doc);
     db.commit();
 
@@ -153,7 +153,7 @@ public class DefaultValueTest extends DbTestBase {
 
     db.begin();
     EntityImpl doc = (EntityImpl) db.newEntity();
-    doc.fromJSON("{'@class':'ClassA','other':'other'}");
+    doc.updateFromJSON("{'@class':'ClassA','other':'other'}");
     EntityImpl saved = db.save(doc);
     db.commit();
 
@@ -175,7 +175,7 @@ public class DefaultValueTest extends DbTestBase {
 
     String value1 = DateHelper.getDateTimeFormatInstance().format(new Date());
     EntityImpl doc = (EntityImpl) db.newEntity();
-    doc.fromJSON("{'@class':'ClassA','date':'" + value1 + "','other':'other'}");
+    doc.updateFromJSON("{'@class':'ClassA','date':'" + value1 + "','other':'other'}");
     db.begin();
     EntityImpl saved = db.save(doc);
     db.commit();
@@ -197,7 +197,7 @@ public class DefaultValueTest extends DbTestBase {
 
     db.begin();
     EntityImpl doc = (EntityImpl) db.newEntity();
-    doc.fromJSON("{'@class':'ClassA','other':'other'}");
+    doc.updateFromJSON("{'@class':'ClassA','other':'other'}");
     EntityImpl saved = db.save(doc);
     db.commit();
 
@@ -210,7 +210,7 @@ public class DefaultValueTest extends DbTestBase {
     assertNotNull(saved.field("other"));
     String val = DateHelper.getDateTimeFormatInstance().format(doc.field("date"));
     EntityImpl doc1 = (EntityImpl) db.newEntity();
-    doc1.fromJSON("{'@class':'ClassA','date':'" + val + "','other':'other1'}");
+    doc1.updateFromJSON("{'@class':'ClassA','date':'" + val + "','other':'other1'}");
     saved.merge(doc1, true, true);
 
     saved = db.save(saved);

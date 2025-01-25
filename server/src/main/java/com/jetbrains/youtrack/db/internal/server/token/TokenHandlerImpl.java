@@ -384,7 +384,7 @@ public class TokenHandlerImpl implements OTokenHandler {
 
   protected static YouTrackDBJwtHeader deserializeWebHeader(final byte[] decodedHeader) {
     final EntityImpl entity = new EntityImpl(null);
-    entity.fromJSON(new String(decodedHeader, StandardCharsets.UTF_8));
+    entity.updateFromJSON(new String(decodedHeader, StandardCharsets.UTF_8));
     final YouTrackDBJwtHeader header = new YouTrackDBJwtHeader();
     header.setType(entity.field("typ"));
     header.setAlgorithm(entity.field("alg"));
@@ -398,7 +398,7 @@ public class TokenHandlerImpl implements OTokenHandler {
       throw new SystemException("Payload class not registered:" + type);
     }
     final EntityImpl entity = new EntityImpl(null);
-    entity.fromJSON(new String(decodedPayload, StandardCharsets.UTF_8));
+    entity.updateFromJSON(new String(decodedPayload, StandardCharsets.UTF_8));
     final YouTrackDBJwtPayload payload = new YouTrackDBJwtPayload();
     payload.setUserName(entity.field("username"));
     payload.setIssuer(entity.field("iss"));

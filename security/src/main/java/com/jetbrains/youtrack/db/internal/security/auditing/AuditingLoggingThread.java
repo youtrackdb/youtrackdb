@@ -87,7 +87,7 @@ public class AuditingLoggingThread extends Thread {
           systemSession.executeInTx(
               () -> {
                 var log = systemSession.newEntity(className);
-                log.fromMap(logEntry);
+                log.updateFromMap(logEntry);
 
                 if (security.getSyslog() != null) {
                   byte byteOp = AuditingOperation.UNSPECIFIED.getByte();

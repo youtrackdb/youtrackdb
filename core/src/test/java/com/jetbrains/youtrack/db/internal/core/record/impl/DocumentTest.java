@@ -52,9 +52,9 @@ public class DocumentTest extends DbTestBase {
     assertEquals("YouTrackDB", doc2.field("string"));
 
     Assertions.assertThat(doc2.<Double>field("a")).isEqualTo(123.3d);
-    assertEquals(PropertyType.INTEGER, doc2.fieldType("integer"));
-    assertEquals(PropertyType.STRING, doc2.fieldType("string"));
-    assertEquals(PropertyType.BINARY, doc2.fieldType("binary"));
+    assertEquals(PropertyType.INTEGER, doc2.getPropertyType("integer"));
+    assertEquals(PropertyType.STRING, doc2.getPropertyType("string"));
+    assertEquals(PropertyType.BINARY, doc2.getPropertyType("binary"));
 
     assertNotNull(doc2.getOwner());
 
@@ -65,9 +65,9 @@ public class DocumentTest extends DbTestBase {
     assertNull(doc2.field("string"));
     assertNull(doc2.field("a"));
 
-    assertNull(doc2.fieldType("integer"));
-    assertNull(doc2.fieldType("string"));
-    assertNull(doc2.fieldType("binary"));
+    assertNull(doc2.getPropertyType("integer"));
+    assertNull(doc2.getPropertyType("string"));
+    assertNull(doc2.getPropertyType("binary"));
 
     assertNull(doc2.getOwner());
   }
@@ -79,15 +79,15 @@ public class DocumentTest extends DbTestBase {
     doc.setFieldType("string", PropertyType.STRING);
     doc.setFieldType("binary", PropertyType.BINARY);
 
-    assertEquals(PropertyType.INTEGER, doc.fieldType("integer"));
-    assertEquals(PropertyType.STRING, doc.fieldType("string"));
-    assertEquals(PropertyType.BINARY, doc.fieldType("binary"));
+    assertEquals(PropertyType.INTEGER, doc.getPropertyType("integer"));
+    assertEquals(PropertyType.STRING, doc.getPropertyType("string"));
+    assertEquals(PropertyType.BINARY, doc.getPropertyType("binary"));
 
     doc.clear();
 
-    assertNull(doc.fieldType("integer"));
-    assertNull(doc.fieldType("string"));
-    assertNull(doc.fieldType("binary"));
+    assertNull(doc.getPropertyType("integer"));
+    assertNull(doc.getPropertyType("string"));
+    assertNull(doc.getPropertyType("binary"));
   }
 
   @Test
@@ -97,15 +97,15 @@ public class DocumentTest extends DbTestBase {
     doc.setFieldType("string", PropertyType.STRING);
     doc.setFieldType("binary", PropertyType.BINARY);
 
-    assertEquals(PropertyType.INTEGER, doc.fieldType("integer"));
-    assertEquals(PropertyType.STRING, doc.fieldType("string"));
-    assertEquals(PropertyType.BINARY, doc.fieldType("binary"));
+    assertEquals(PropertyType.INTEGER, doc.getPropertyType("integer"));
+    assertEquals(PropertyType.STRING, doc.getPropertyType("string"));
+    assertEquals(PropertyType.BINARY, doc.getPropertyType("binary"));
 
     doc = (EntityImpl) db.newEntity();
 
-    assertNull(doc.fieldType("integer"));
-    assertNull(doc.fieldType("string"));
-    assertNull(doc.fieldType("binary"));
+    assertNull(doc.getPropertyType("integer"));
+    assertNull(doc.getPropertyType("string"));
+    assertNull(doc.getPropertyType("binary"));
   }
 
   @Test
@@ -115,9 +115,9 @@ public class DocumentTest extends DbTestBase {
     doc.field("string", 20, PropertyType.STRING);
     doc.field("binary", new byte[]{30}, PropertyType.BINARY);
 
-    assertEquals(PropertyType.INTEGER, doc.fieldType("integer"));
-    assertEquals(PropertyType.STRING, doc.fieldType("string"));
-    assertEquals(PropertyType.BINARY, doc.fieldType("binary"));
+    assertEquals(PropertyType.INTEGER, doc.getPropertyType("integer"));
+    assertEquals(PropertyType.STRING, doc.getPropertyType("string"));
+    assertEquals(PropertyType.BINARY, doc.getPropertyType("binary"));
   }
 
   @Test
@@ -128,18 +128,18 @@ public class DocumentTest extends DbTestBase {
     doc.field("string", 20, PropertyType.STRING);
     doc.field("binary", new byte[]{30}, PropertyType.BINARY);
 
-    assertEquals(PropertyType.INTEGER, doc.fieldType("integer"));
-    assertEquals(PropertyType.LINK, doc.fieldType("link"));
-    assertEquals(PropertyType.STRING, doc.fieldType("string"));
-    assertEquals(PropertyType.BINARY, doc.fieldType("binary"));
+    assertEquals(PropertyType.INTEGER, doc.getPropertyType("integer"));
+    assertEquals(PropertyType.LINK, doc.getPropertyType("link"));
+    assertEquals(PropertyType.STRING, doc.getPropertyType("string"));
+    assertEquals(PropertyType.BINARY, doc.getPropertyType("binary"));
     RecordSerializer ser = DatabaseSessionAbstract.getDefaultSerializer();
     byte[] bytes = ser.toStream(db, doc);
     doc = (EntityImpl) db.newEntity();
     ser.fromStream(db, bytes, doc, null);
-    assertEquals(PropertyType.INTEGER, doc.fieldType("integer"));
-    assertEquals(PropertyType.STRING, doc.fieldType("string"));
-    assertEquals(PropertyType.BINARY, doc.fieldType("binary"));
-    assertEquals(PropertyType.LINK, doc.fieldType("link"));
+    assertEquals(PropertyType.INTEGER, doc.getPropertyType("integer"));
+    assertEquals(PropertyType.STRING, doc.getPropertyType("string"));
+    assertEquals(PropertyType.BINARY, doc.getPropertyType("binary"));
+    assertEquals(PropertyType.LINK, doc.getPropertyType("link"));
   }
 
   @Test
@@ -151,18 +151,18 @@ public class DocumentTest extends DbTestBase {
     doc.field("binary", new byte[]{30});
 
     // this is null because is not set on value set.
-    assertNull(doc.fieldType("integer"));
-    assertNull(doc.fieldType("link"));
-    assertNull(doc.fieldType("string"));
-    assertNull(doc.fieldType("binary"));
+    assertNull(doc.getPropertyType("integer"));
+    assertNull(doc.getPropertyType("link"));
+    assertNull(doc.getPropertyType("string"));
+    assertNull(doc.getPropertyType("binary"));
     RecordSerializer ser = DatabaseSessionAbstract.getDefaultSerializer();
     byte[] bytes = ser.toStream(db, doc);
     doc = (EntityImpl) db.newEntity();
     ser.fromStream(db, bytes, doc, null);
-    assertEquals(PropertyType.INTEGER, doc.fieldType("integer"));
-    assertEquals(PropertyType.STRING, doc.fieldType("string"));
-    assertEquals(PropertyType.BINARY, doc.fieldType("binary"));
-    assertEquals(PropertyType.LINK, doc.fieldType("link"));
+    assertEquals(PropertyType.INTEGER, doc.getPropertyType("integer"));
+    assertEquals(PropertyType.STRING, doc.getPropertyType("string"));
+    assertEquals(PropertyType.BINARY, doc.getPropertyType("binary"));
+    assertEquals(PropertyType.LINK, doc.getPropertyType("link"));
   }
 
   @Test
@@ -186,18 +186,18 @@ public class DocumentTest extends DbTestBase {
       doc.field("binary", new byte[]{30});
 
       // the types are from the schema.
-      assertEquals(PropertyType.INTEGER, doc.fieldType("integer"));
-      assertEquals(PropertyType.LINK, doc.fieldType("link"));
-      assertEquals(PropertyType.STRING, doc.fieldType("string"));
-      assertEquals(PropertyType.BINARY, doc.fieldType("binary"));
+      assertEquals(PropertyType.INTEGER, doc.getPropertyType("integer"));
+      assertEquals(PropertyType.LINK, doc.getPropertyType("link"));
+      assertEquals(PropertyType.STRING, doc.getPropertyType("string"));
+      assertEquals(PropertyType.BINARY, doc.getPropertyType("binary"));
       RecordSerializer ser = DatabaseSessionAbstract.getDefaultSerializer();
       byte[] bytes = ser.toStream(db, doc);
       doc = (EntityImpl) db.newEntity();
       ser.fromStream(db, bytes, doc, null);
-      assertEquals(PropertyType.INTEGER, doc.fieldType("integer"));
-      assertEquals(PropertyType.STRING, doc.fieldType("string"));
-      assertEquals(PropertyType.BINARY, doc.fieldType("binary"));
-      assertEquals(PropertyType.LINK, doc.fieldType("link"));
+      assertEquals(PropertyType.INTEGER, doc.getPropertyType("integer"));
+      assertEquals(PropertyType.STRING, doc.getPropertyType("string"));
+      assertEquals(PropertyType.BINARY, doc.getPropertyType("binary"));
+      assertEquals(PropertyType.LINK, doc.getPropertyType("link"));
     } finally {
       if (db != null) {
         db.close();
@@ -217,9 +217,9 @@ public class DocumentTest extends DbTestBase {
     byte[] bytes = ser.toStream(db, doc);
     doc = (EntityImpl) db.newEntity();
     ser.fromStream(db, bytes, doc, null);
-    assertEquals(PropertyType.LINK, doc.fieldType("link"));
+    assertEquals(PropertyType.LINK, doc.getPropertyType("link"));
     doc.field("link", new RidBag(db));
-    assertNotEquals(PropertyType.LINK, doc.fieldType("link"));
+    assertNotEquals(PropertyType.LINK, doc.getPropertyType("link"));
   }
 
   @Test

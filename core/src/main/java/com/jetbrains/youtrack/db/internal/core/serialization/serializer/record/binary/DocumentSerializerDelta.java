@@ -741,25 +741,25 @@ public class DocumentSerializerDelta {
 
   private void serializeDeltaLinkMap(DatabaseSessionInternal db, BytesContainer bytes,
       LinkMap value) {
-    MultiValueChangeTimeLine<Object, Identifiable> timeline = value.getTransactionTimeLine();
+    MultiValueChangeTimeLine<String, Identifiable> timeline = value.getTransactionTimeLine();
     assert timeline != null : "Collection timeline required for link* types serialization";
     VarIntSerializer.write(bytes, timeline.getMultiValueChangeEvents().size());
-    for (MultiValueChangeEvent<Object, Identifiable> event :
+    for (MultiValueChangeEvent<String, Identifiable> event :
         timeline.getMultiValueChangeEvents()) {
       switch (event.getChangeType()) {
         case ADD:
           serializeByte(bytes, CREATED);
-          writeString(bytes, event.getKey().toString());
+          writeString(bytes, event.getKey());
           writeOptimizedLink(db, bytes, event.getValue());
           break;
         case UPDATE:
           serializeByte(bytes, REPLACED);
-          writeString(bytes, event.getKey().toString());
+          writeString(bytes, event.getKey());
           writeOptimizedLink(db, bytes, event.getValue());
           break;
         case REMOVE:
           serializeByte(bytes, REMOVED);
-          writeString(bytes, event.getKey().toString());
+          writeString(bytes, event.getKey());
           break;
       }
     }
@@ -1398,7 +1398,7 @@ public class DocumentSerializerDelta {
     return found;
   }
 
-  private Map<Object, Identifiable> readLinkMap(
+  private Map<String, Identifiable> readLinkMap(
       DatabaseSessionInternal db, final BytesContainer bytes, final RecordElement owner) {
     int size = VarIntSerializer.readAsInteger(bytes);
     LinkMap result = new LinkMap(owner);
@@ -1407,9 +1407,9 @@ public class DocumentSerializerDelta {
       Object key = deserializeValue(db, bytes, keyType, result);
       Identifiable value = readOptimizedLink(db, bytes);
       if (value.equals(NULL_RECORD_ID)) {
-        result.putInternal(key, null);
+        result.putInternal(key.toString(), null);
       } else {
-        result.putInternal(key, value);
+        result.putInternal(key.toString(), value);
       }
     }
 

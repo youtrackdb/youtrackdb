@@ -242,7 +242,7 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
     } else {
       entity = db.newInstance();
     }
-    entity.fromMap(o);
+    entity.updateFromMap(o);
 
     return entity;
   }
@@ -264,7 +264,7 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
   protected EntityImpl parseJSON(DatabaseSessionInternal db) {
     final String contentAsString = parserRequiredWord(false, "JSON expected").trim();
     final EntityImpl json = new EntityImpl(db);
-    json.fromJSON(contentAsString);
+    json.updateFromJSON(contentAsString);
     parserSkipWhiteSpaces();
     return json;
   }

@@ -73,7 +73,7 @@ public class SymmetricKeyCI implements CredentialInterceptor {
     EntityImpl jsonDoc = null;
 
     try {
-      jsonDoc = new EntityImpl(null).fromJSON(password, "noMap");
+      jsonDoc = new EntityImpl(null).updateFromJSON(password, "noMap");
     } catch (Exception ex) {
       throw BaseException.wrapException(
           new SecurityException("SymmetricKeyCI.intercept() Exception: " + ex.getMessage()), ex);

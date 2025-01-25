@@ -50,7 +50,7 @@ public class CustomSQLFunctionPlugin extends ServerPluginAbstract {
       String configurationContent = IOUtils.readFileAsString(configFile);
       configurationContent = removeComments(configurationContent);
       configuration = new EntityImpl(null);
-      configuration.fromJSON(configurationContent);
+      configuration.updateFromJSON(configurationContent);
     } catch (IOException e) {
       throw BaseException.wrapException(
           new ConfigurationException(

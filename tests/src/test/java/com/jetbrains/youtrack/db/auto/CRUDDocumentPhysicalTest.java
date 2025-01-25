@@ -465,7 +465,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     jaimeDoc.save();
 
     EntityImpl cerseiDoc = ((EntityImpl) db.newEntity("PersonTest"));
-    cerseiDoc.fromJSON(
+    cerseiDoc.updateFromJSON(
         "{\"@type\":\"d\",\"name\":\"cersei\",\"valonqar\":" + jaimeDoc.toJSON("") + "}");
     cerseiDoc.save();
     db.commit();
@@ -474,7 +474,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     jaimeDoc = db.bindToSession(jaimeDoc);
     // The link between jamie and tyrion is not saved properly
     EntityImpl tyrionDoc = ((EntityImpl) db.newEntity("PersonTest"));
-    tyrionDoc.fromJSON(
+    tyrionDoc.updateFromJSON(
         "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":{\"relationship\":\"brother\",\"contact\":"
             + jaimeDoc.toJSON()
             + "}}");

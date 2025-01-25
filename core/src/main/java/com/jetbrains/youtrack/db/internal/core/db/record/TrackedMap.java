@@ -35,9 +35,8 @@ import java.util.Map;
  * Implementation of LinkedHashMap bound to a source Record object to keep track of changes. This
  * avoid to call the makeDirty() by hand when the map is changed.
  */
-@SuppressWarnings("serial")
-public class TrackedMap<T> extends LinkedHashMap<Object, T>
-    implements RecordElement, TrackedMultiValue<Object, T>, Serializable {
+public class TrackedMap<T> extends LinkedHashMap<String, T>
+    implements RecordElement, TrackedMultiValue<String, T>, Serializable {
 
   protected final RecordElement sourceRecord;
   protected Class<?> genericClass;
@@ -45,10 +44,10 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
   private boolean dirty = false;
   private boolean transactionDirty = false;
 
-  private final SimpleMultiValueTracker<Object, T> tracker = new SimpleMultiValueTracker<>(this);
+  private final SimpleMultiValueTracker<String, T> tracker = new SimpleMultiValueTracker<>(this);
 
   public TrackedMap(
-      final RecordElement iRecord, final Map<Object, T> iOrigin, final Class<?> cls) {
+      final RecordElement iRecord, final Map<String, T> iOrigin, final Class<?> cls) {
     this(iRecord);
     genericClass = cls;
     if (iOrigin != null && !iOrigin.isEmpty()) {
@@ -71,7 +70,7 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
     throw new UnsupportedOperationException();
   }
 
-  public T putInternal(final Object key, final T value) {
+  public T putInternal(final String key, final T value) {
     if (key == null) {
       throw new IllegalArgumentException("null key not supported by embedded map");
     }
@@ -93,7 +92,7 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
   }
 
   @Override
-  public T put(final Object key, final T value) {
+  public T put(final String key, final T value) {
     if (key == null) {
       throw new IllegalArgumentException("null key not supported by embedded map");
     }
@@ -120,28 +119,30 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
   }
 
   @Override
-  public T remove(final Object iKey) {
-    boolean containsKey = containsKey(iKey);
+  public T remove(final Object key) {
+    boolean containsKey = containsKey(key);
+
     if (containsKey) {
-      final T oldValue = super.remove(iKey);
-      removeEvent(iKey, oldValue);
+      final T oldValue = super.remove(key);
+      removeEvent(key.toString(), oldValue);
       return oldValue;
     } else {
       return null;
     }
   }
 
+
   @Override
   public void clear() {
-    for (Map.Entry<Object, T> entry : super.entrySet()) {
+    for (Map.Entry<String, T> entry : super.entrySet()) {
       removeEvent(entry.getKey(), entry.getValue());
     }
     super.clear();
   }
 
   @Override
-  public void putAll(Map<?, ? extends T> m) {
-    for (Map.Entry<?, ? extends T> entry : m.entrySet()) {
+  public void putAll(Map<? extends String, ? extends T> m) {
+    for (Map.Entry<? extends String, ? extends T> entry : m.entrySet()) {
       put(entry.getKey(), entry.getValue());
     }
   }
@@ -168,14 +169,14 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
 
   public Map<Object, T> returnOriginalState(
       DatabaseSessionInternal session,
-      final List<MultiValueChangeEvent<Object, T>> multiValueChangeEvents) {
+      final List<MultiValueChangeEvent<String, T>> multiValueChangeEvents) {
     final Map<Object, T> reverted = new HashMap<Object, T>(this);
 
-    final ListIterator<MultiValueChangeEvent<Object, T>> listIterator =
+    final ListIterator<MultiValueChangeEvent<String, T>> listIterator =
         multiValueChangeEvents.listIterator(multiValueChangeEvents.size());
 
     while (listIterator.hasPrevious()) {
-      final MultiValueChangeEvent<Object, T> event = listIterator.previous();
+      final MultiValueChangeEvent<String, T> event = listIterator.previous();
       switch (event.getChangeType()) {
         case ADD:
           reverted.remove(event.getKey());
@@ -204,10 +205,11 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
 
   @Override
   public void replace(MultiValueChangeEvent<Object, Object> event, Object newValue) {
-    super.put(event.getKey(), (T) newValue);
+    //noinspection unchecked
+    super.put(event.getKey().toString(), (T) newValue);
   }
 
-  private void addEvent(Object key, T value) {
+  private void addEvent(String key, T value) {
     addOwnerToEmbeddedDoc(value);
 
     if (tracker.isEnabled()) {
@@ -217,7 +219,7 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
     }
   }
 
-  private void updateEvent(Object key, T oldValue, T newValue) {
+  private void updateEvent(String key, T oldValue, T newValue) {
     if (oldValue instanceof EntityImpl) {
       EntityInternalUtils.removeOwner((EntityImpl) oldValue, this);
     }
@@ -231,12 +233,12 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
     }
   }
 
-  private void removeEvent(Object iKey, T removed) {
+  private void removeEvent(String key, T removed) {
     if (removed instanceof EntityImpl) {
       EntityInternalUtils.removeOwner((EntityImpl) removed, this);
     }
     if (tracker.isEnabled()) {
-      tracker.remove(iKey, removed);
+      tracker.remove(key, removed);
     } else {
       setDirty();
     }
@@ -279,7 +281,7 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
     return tracker.getTimeLine();
   }
 
-  public MultiValueChangeTimeLine<Object, T> getTransactionTimeLine() {
+  public MultiValueChangeTimeLine<String, T> getTransactionTimeLine() {
     return tracker.getTransactionTimeLine();
   }
 }

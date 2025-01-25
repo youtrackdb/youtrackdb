@@ -62,7 +62,7 @@ public class ScheduledEventBuilder {
 
   public ScheduledEvent build(DatabaseSessionInternal session) {
     var entity = (EntityImpl) session.newEntity(ScheduledEvent.CLASS_NAME);
-    entity.fromMap(properties);
+    entity.updateFromMap(properties);
 
     return new ScheduledEvent(entity, session);
   }

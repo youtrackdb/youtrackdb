@@ -141,7 +141,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
     try {
       InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("italy.json");
 
-      EntityImpl doc = ((EntityImpl) db.newEntity()).fromJSON(systemResourceAsStream);
+      EntityImpl doc = ((EntityImpl) db.newEntity()).updateFromJSON(systemResourceAsStream);
 
       Map geometry = doc.field("geometry");
 

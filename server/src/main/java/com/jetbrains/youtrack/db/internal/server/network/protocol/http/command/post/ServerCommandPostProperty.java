@@ -143,7 +143,7 @@ public class ServerCommandPostProperty extends ServerCommandAuthenticatedDbAbstr
     final SchemaClass cls = db.getMetadata().getSchema().getClass(urlParts[2]);
 
     final EntityImpl propertiesDoc = new EntityImpl(null);
-    propertiesDoc.fromJSON(iRequest.getContent());
+    propertiesDoc.updateFromJSON(iRequest.getContent());
 
     for (String propertyName : propertiesDoc.fieldNames()) {
       final Map<String, String> entity = propertiesDoc.field(propertyName);

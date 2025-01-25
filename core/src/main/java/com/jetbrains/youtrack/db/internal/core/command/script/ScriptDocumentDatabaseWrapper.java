@@ -166,7 +166,7 @@ public class ScriptDocumentDatabaseWrapper {
   }
 
   public EntityImpl save(final String iString) {
-    return database.save(new EntityImpl(database).fromJSON(iString, true));
+    return database.save(new EntityImpl(database).updateFromJSON(iString, true));
   }
 
   public EntityImpl save(Record iRecord) {

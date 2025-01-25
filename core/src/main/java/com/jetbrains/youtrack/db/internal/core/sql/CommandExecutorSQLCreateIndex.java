@@ -223,7 +223,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
         final String configString =
             parserText.substring(configPos + KEYWORD_METADATA.length()).trim();
         var doc = new EntityImpl(db);
-        doc.fromJSON(configString);
+        doc.updateFromJSON(configString);
         metadata = doc.toMap();
       }
 

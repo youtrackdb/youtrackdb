@@ -179,7 +179,7 @@ public class DefaultAuditing
         }
       }
     }
-    final EntityImpl cfg = new EntityImpl(null).fromJSON(content, "noMap");
+    final EntityImpl cfg = new EntityImpl(null).updateFromJSON(content, "noMap");
     return new AuditingHook(cfg, security);
   }
 

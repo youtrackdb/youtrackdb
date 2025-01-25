@@ -310,8 +310,8 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
               if (!mapValue.isEmpty()) {
                 linkedType = getType(mapValue);
                 if ((iName == null
-                    || iSourceDocument.fieldType(iName) == null
-                    || iSourceDocument.fieldType(iName) != PropertyType.EMBEDDEDMAP)
+                    || iSourceDocument.getPropertyType(iName) == null
+                    || iSourceDocument.getPropertyType(iName) != PropertyType.EMBEDDEDMAP)
                     && isConvertToLinkedMap(map, linkedType)) {
                   // CONVERT IT TO A LAZY MAP
                   map = new LinkMap(iSourceDocument, EntityImpl.RECORD_TYPE);
@@ -505,11 +505,11 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       case LINKMAP: {
         iOutput.append(StringSerializerHelper.MAP_BEGIN);
 
-        Map<Object, Object> map = (Map<Object, Object>) iValue;
+        Map<String, Object> map = (Map<String, Object>) iValue;
 
         boolean invalidMap = false;
         int items = 0;
-        for (Map.Entry<Object, Object> entry : map.entrySet()) {
+        for (var entry : map.entrySet()) {
           if (items++ > 0) {
             iOutput.append(StringSerializerHelper.RECORD_SEPARATOR);
           }
@@ -529,7 +529,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
           final LinkMap newMap = new LinkMap(iRecord, EntityImpl.RECORD_TYPE);
 
           // REPLACE ALL CHANGED ITEMS
-          for (Map.Entry<Object, Object> entry : map.entrySet()) {
+          for (var entry : map.entrySet()) {
             newMap.put(entry.getKey(), (Identifiable) entry.getValue());
           }
           map.clear();

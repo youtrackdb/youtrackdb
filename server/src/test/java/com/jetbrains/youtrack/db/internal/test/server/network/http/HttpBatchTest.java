@@ -43,7 +43,7 @@ public class HttpBatchTest extends BaseHttpDatabaseTest {
     Assert.assertNotNull(response);
 
     var responseDoc = new EntityImpl(null);
-    responseDoc.fromJSON(response);
+    responseDoc.updateFromJSON(response);
     EntityImpl insertedDocument =
         ((List<EntityImpl>) responseDoc.field("result")).get(0);
 
@@ -146,7 +146,7 @@ public class HttpBatchTest extends BaseHttpDatabaseTest {
     }
     System.out.println(string);
     EntityImpl doc = new EntityImpl(null);
-    doc.fromJSON(string);
+    doc.updateFromJSON(string);
 
     stream.close();
     Iterable iterable = (Iterable) doc.eval("result.value");

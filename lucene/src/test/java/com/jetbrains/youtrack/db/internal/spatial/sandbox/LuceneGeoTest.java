@@ -196,7 +196,7 @@ public class LuceneGeoTest extends BaseLuceneTest {
     try {
       InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("italy.json");
 
-      EntityImpl doc = new EntityImpl(session).fromJSON(systemResourceAsStream);
+      EntityImpl doc = new EntityImpl(session).updateFromJSON(systemResourceAsStream);
 
       Map geometry = doc.field("geometry");
 

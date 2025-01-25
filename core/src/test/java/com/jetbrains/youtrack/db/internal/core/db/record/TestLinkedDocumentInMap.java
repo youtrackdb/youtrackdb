@@ -26,7 +26,7 @@ public class TestLinkedDocumentInMap extends DbTestBase {
     db.begin();
     jaimeDoc = db.bindToSession(jaimeDoc);
     EntityImpl tyrionDoc = (EntityImpl) db.newEntity("PersonTest");
-    tyrionDoc.fromJSON(
+    tyrionDoc.updateFromJSON(
         "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":[{\"relationship\":\"brother\",\"contact\":"
             + jaimeDoc.toJSON()
             + "}]}");

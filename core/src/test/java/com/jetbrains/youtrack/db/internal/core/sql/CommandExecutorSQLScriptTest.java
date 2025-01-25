@@ -2,10 +2,10 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.Collection;
 import java.util.HashMap;
@@ -69,7 +69,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
     String qResult = db.command(new CommandScript("sql", script.toString())).execute(db);
     Assert.assertNotNull(qResult);
 
-    db.newEntity().fromJSON(qResult);
+    db.newEntity().updateFromJSON(qResult);
 
     script = new StringBuilder();
     script.append("let $a = select from V limit 2\n");
@@ -80,7 +80,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
     result = result.trim();
     Assert.assertTrue(result.startsWith("["));
     Assert.assertTrue(result.endsWith("]"));
-    db.newEntity().fromJSON(result.substring(1, result.length() - 1));
+    db.newEntity().updateFromJSON(result.substring(1, result.length() - 1));
   }
 
   @Test

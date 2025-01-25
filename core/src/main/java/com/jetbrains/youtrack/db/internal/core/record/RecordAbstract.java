@@ -35,7 +35,7 @@ import com.jetbrains.youtrack.db.internal.core.id.ImmutableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJSON;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJackson;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -213,11 +213,11 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   }
 
 
-  public <RET extends Record> RET fromJSON(final String iSource, final String iOptions) {
+  public <RET extends Record> RET updateFromJSON(final String iSource, final String iOptions) {
     status = STATUS.UNMARSHALLING;
     try {
-      RecordSerializerJSON.INSTANCE.fromString(getSessionIfDefined(),
-          iSource, this, null, iOptions, false); // Add new parameter to accommodate new API,
+      RecordSerializerJackson.INSTANCE.fromString(getSessionIfDefined(),
+          iSource, this, null);
       // nothing change
       return (RET) this;
     } finally {
@@ -225,33 +225,32 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     }
   }
 
-  public void fromJSON(final String iSource) {
+  public void updateFromJSON(final String iSource) {
     status = STATUS.UNMARSHALLING;
     try {
-      RecordSerializerJSON.INSTANCE.fromString(getSessionIfDefined(), iSource, this, null);
+      RecordSerializerJackson.INSTANCE.fromString(getSessionIfDefined(), iSource, this, null);
     } finally {
       status = STATUS.LOADED;
     }
   }
 
   // Add New API to load record if rid exist
-  public final <RET extends Record> RET fromJSON(final String iSource, boolean needReload) {
+  public final <RET extends Record> RET updateFromJSON(final String iSource, boolean needReload) {
     status = STATUS.UNMARSHALLING;
     try {
-      return (RET) RecordSerializerJSON.INSTANCE.fromString(getSession(), iSource, this, null,
-          needReload);
+      return (RET) RecordSerializerJackson.INSTANCE.fromString(getSession(), iSource, this, null);
     } finally {
       status = STATUS.LOADED;
     }
   }
 
-  public final <RET extends Record> RET fromJSON(final InputStream iContentResult)
+  public final <RET extends Record> RET updateFromJSON(final InputStream iContentResult)
       throws IOException {
     status = STATUS.UNMARSHALLING;
     try {
       final ByteArrayOutputStream out = new ByteArrayOutputStream();
       IOUtils.copyStream(iContentResult, out);
-      RecordSerializerJSON.INSTANCE.fromString(getSession(), out.toString(), this, null);
+      RecordSerializerJackson.INSTANCE.fromString(getSession(), out.toString(), this, null);
       return (RET) this;
     } finally {
       status = STATUS.LOADED;
@@ -266,7 +265,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   public String toJSON(final String format) {
     checkForBinding();
 
-    return RecordSerializerJSON.INSTANCE
+    return RecordSerializerJackson.INSTANCE
         .toString(getSessionIfDefined(), this, new StringBuilder(1024),
             format == null ? "" : format)
         .toString();
@@ -485,7 +484,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     dirty = 0;
   }
 
-  protected abstract byte getRecordType();
+  public abstract byte getRecordType();
 
   public void setup(DatabaseSessionInternal db) {
     if (recordId == null) {

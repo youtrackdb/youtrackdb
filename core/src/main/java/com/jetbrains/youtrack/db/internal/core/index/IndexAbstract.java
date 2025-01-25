@@ -758,7 +758,7 @@ public abstract class IndexAbstract implements IndexInternal {
 
     if (im.getMetadata() != null) {
       var imEntity = new EntityImpl(db);
-      imEntity.fromMap(im.getMetadata());
+      imEntity.updateFromMap(im.getMetadata());
       entity.field(METADATA, imEntity, PropertyType.EMBEDDED);
     }
 

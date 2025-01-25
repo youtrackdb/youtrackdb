@@ -534,7 +534,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     if (!parserIsEnded() && !parserGetLastWord().equals(KEYWORD_WHERE)) {
       final String contentAsString = parserRequiredWord(false, "entity to merge expected").trim();
       merge = new EntityImpl(db);
-      merge.fromJSON(contentAsString);
+      merge.updateFromJSON(contentAsString);
       parserSkipWhiteSpaces();
     }
 

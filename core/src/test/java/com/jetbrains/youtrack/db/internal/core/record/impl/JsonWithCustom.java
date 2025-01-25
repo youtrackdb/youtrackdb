@@ -29,7 +29,7 @@ public class JsonWithCustom extends DbTestBase {
     System.out.println(json);
 
     EntityImpl doc1 = (EntityImpl) db.newEntity();
-    doc1.fromJSON(json);
+    doc1.updateFromJSON(json);
     assertEquals(doc.<String>field("test"), doc1.field("test"));
     GlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(old);
   }
@@ -44,7 +44,7 @@ public class JsonWithCustom extends DbTestBase {
     System.out.println(json);
 
     EntityImpl doc1 = (EntityImpl) db.newEntity();
-    doc1.fromJSON(json);
+    doc1.updateFromJSON(json);
     assertEquals(doc.<String>field("test"), doc1.field("test"));
   }
 
@@ -66,7 +66,7 @@ public class JsonWithCustom extends DbTestBase {
         String json = doc.toJSON();
 
         EntityImpl doc1 = (EntityImpl) db.newEntity();
-        doc1.fromJSON(json);
+        doc1.updateFromJSON(json);
         assertEquals(TestCustom.ONE, TestCustom.valueOf(doc1.field("test")));
       }
     }

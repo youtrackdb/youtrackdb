@@ -63,7 +63,7 @@ public class ServerCommandPatchDocument extends ServerCommandDocumentAbstract {
 
                 // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
                 var entity = new EntityImpl(db);
-                entity.fromJSON(iRequest.getContent());
+                entity.updateFromJSON(iRequest.getContent());
 
                 if (iRequest.getIfMatch() != null)
                 // USE THE IF-MATCH HTTP HEADER AS VERSION

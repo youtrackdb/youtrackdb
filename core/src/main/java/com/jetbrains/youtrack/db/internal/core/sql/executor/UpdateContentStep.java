@@ -115,7 +115,7 @@ public class UpdateContentStep extends AbstractExecutionStep {
       } else if (val instanceof Map<?, ?> map) {
         var mapDoc = new EntityImpl(db);
         //noinspection unchecked
-        mapDoc.fromMap((Map<String, ?>) map);
+        mapDoc.updateFromMap((Map<String, ?>) map);
         entity.merge(mapDoc, false, false);
       } else {
         throw new CommandExecutionException("Invalid value for UPDATE CONTENT: " + val);

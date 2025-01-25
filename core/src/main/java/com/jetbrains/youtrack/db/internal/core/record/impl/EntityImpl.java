@@ -1782,7 +1782,7 @@ public class EntityImpl extends RecordAbstract
     var session = getSessionIfDefined();
     RET value = field(iFieldName);
     PropertyType original;
-    if (iFieldType != null && iFieldType != (original = fieldType(iFieldName))) {
+    if (iFieldType != null && iFieldType != (original = getPropertyType(iFieldName))) {
       // this is needed for the csv serializer that don't give back values
       if (original == null) {
         original = PropertyType.getTypeByValue(value);
@@ -1876,11 +1876,11 @@ public class EntityImpl extends RecordAbstract
    * Deprecated. Use fromMap(Map) instead.<br> Fills a entity passing the field names/values as a
    * Map String,Object where the keys are the field names and the values are the field values.
    *
-   * @see #fromMap(Map)
+   * @see #updateFromMap(Map)
    */
   @Deprecated
   public EntityImpl fields(final Map<String, Object> iMap) {
-    fromMap(iMap);
+    updateFromMap(iMap);
     return this;
   }
 
@@ -1891,7 +1891,7 @@ public class EntityImpl extends RecordAbstract
    *
    * @since 2.0
    */
-  public void fromMap(final Map<String, ?> map) {
+  public void updateFromMap(final Map<String, ?> map) {
     checkForBinding();
 
     status = STATUS.UNMARSHALLING;
@@ -1914,8 +1914,8 @@ public class EntityImpl extends RecordAbstract
     }
   }
 
-  public final EntityImpl fromJSON(final String iSource, final String iOptions) {
-    return super.fromJSON(iSource, iOptions);
+  public final EntityImpl updateFromJSON(final String iSource, final String iOptions) {
+    return super.updateFromJSON(iSource, iOptions);
   }
 
   /**
@@ -2563,15 +2563,16 @@ public class EntityImpl extends RecordAbstract
   /**
    * Returns the forced field type if any.
    *
-   * @param iFieldName name of field to check
+   * @param fieldName name of field to check
    */
-  public PropertyType fieldType(final String iFieldName) {
+  @Nullable
+  public PropertyType getPropertyType(final String fieldName) {
     checkForBinding();
-    checkForFields(iFieldName);
+    checkForFields(fieldName);
 
-    EntityEntry entry = fields.get(iFieldName);
+    EntityEntry entry = fields.get(fieldName);
     if (entry != null) {
-      if (propertyAccess == null || propertyAccess.isReadable(iFieldName)) {
+      if (propertyAccess == null || propertyAccess.isReadable(fieldName)) {
         return entry.type;
       } else {
         return null;
@@ -3010,7 +3011,7 @@ public class EntityImpl extends RecordAbstract
     return className;
   }
 
-  private void setClassName(final String className) {
+  protected void setClassName(final String className) {
     checkForBinding();
 
     immutableClazz = null;
@@ -3441,9 +3442,9 @@ public class EntityImpl extends RecordAbstract
             replaceListenerOnAutoconvert(entry);
           } else {
             if (type == PropertyType.EMBEDDEDMAP) {
-              Map<Object, Object> map = new TrackedMap<>(this);
-              Map<Object, Object> values = (Map<Object, Object>) value;
-              for (Entry<Object, Object> object : values.entrySet()) {
+              Map<String, Object> map = new TrackedMap<>(this);
+              Map<String, Object> values = (Map<String, Object>) value;
+              for (var object : values.entrySet()) {
                 map.put(
                     object.getKey(),
                     PropertyType.convert(session, object.getValue(),
@@ -3505,7 +3506,7 @@ public class EntityImpl extends RecordAbstract
           entry.disableTracking(this, value);
           EntityImpl newValue = new EntityImpl(getSession(), linkedClass);
           //noinspection rawtypes
-          newValue.fromMap((Map) value);
+          newValue.updateFromMap((Map) value);
           entry.value = newValue;
           newValue.addOwner(this);
         } else {
@@ -3530,7 +3531,7 @@ public class EntityImpl extends RecordAbstract
    * Internal.
    */
   @Override
-  protected byte getRecordType() {
+  public byte getRecordType() {
     return RECORD_TYPE;
   }
 
@@ -3634,7 +3635,7 @@ public class EntityImpl extends RecordAbstract
           if (fieldValue instanceof Map<?, ?>) {
             newValue = new TrackedMap<>(this);
             fillTrackedMap(
-                (Map<Object, Object>) newValue, newValue, (Map<Object, Object>) fieldValue);
+                (Map<String, Object>) newValue, newValue, (Map<String, Object>) fieldValue);
           }
           break;
         case LINKLIST:
@@ -3649,7 +3650,7 @@ public class EntityImpl extends RecordAbstract
           break;
         case LINKMAP:
           if (fieldValue instanceof Map<?, ?>) {
-            newValue = new LinkMap(this, (Map<Object, Identifiable>) fieldValue);
+            newValue = new LinkMap(this, (Map<String, Identifiable>) fieldValue);
           }
           break;
         case LINKBAG:
@@ -3710,7 +3711,7 @@ public class EntityImpl extends RecordAbstract
           } else {
             if (value instanceof Map) {
               TrackedMap<Object> newMap = new TrackedMap<>(this);
-              fillTrackedMap(newMap, newMap, (Map<Object, Object>) value);
+              fillTrackedMap(newMap, newMap, (Map<String, Object>) value);
               origin.replace(event, newMap);
             }
           }
@@ -3740,7 +3741,7 @@ public class EntityImpl extends RecordAbstract
           } else {
             if (cur instanceof Map) {
               TrackedMap<Object> newMap = new TrackedMap<>(parent);
-              fillTrackedMap(newMap, newMap, (Map<Object, Object>) cur);
+              fillTrackedMap(newMap, newMap, (Map<String, Object>) cur);
               cur = newMap;
             } else {
               if (cur instanceof RidBag) {
@@ -3755,9 +3756,9 @@ public class EntityImpl extends RecordAbstract
   }
 
   private void fillTrackedMap(
-      Map<Object, Object> dest, RecordElement parent, Map<Object, Object> source) {
-    for (Entry<Object, Object> cur : source.entrySet()) {
-      Object value = cur.getValue();
+      Map<String, Object> dest, RecordElement parent, Map<String, Object> source) {
+    for (var cur : source.entrySet()) {
+      var value = cur.getValue();
       if (value instanceof EntityImpl) {
         ((EntityImpl) value).convertAllMultiValuesToTrackedVersions();
         ((EntityImpl) value).clearTrackData();
@@ -3774,7 +3775,7 @@ public class EntityImpl extends RecordAbstract
           } else {
             if (value instanceof Map) {
               TrackedMap<Object> newMap = new TrackedMap<>(parent);
-              fillTrackedMap(newMap, newMap, (Map<Object, Object>) value);
+              fillTrackedMap(newMap, newMap, (Map<String, Object>) value);
               value = newMap;
             } else {
               if (value instanceof RidBag) {
@@ -4039,6 +4040,7 @@ public class EntityImpl extends RecordAbstract
         }
       }
     }
+
     return fieldType;
   }
 

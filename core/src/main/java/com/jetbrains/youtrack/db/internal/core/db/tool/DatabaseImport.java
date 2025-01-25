@@ -69,6 +69,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONReader;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJSON;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJackson;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.RidSet;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
@@ -1158,13 +1159,10 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     try {
       try {
         record =
-            RecordSerializerJSON.INSTANCE.fromString(database,
+            RecordSerializerJackson.INSTANCE.fromString(database,
                 value,
                 null,
-                null,
-                null,
-                false,
-                maxRidbagStringSizeBeforeLazyImport, skippedPartsIndexes);
+                null);
       } catch (final SerializationException e) {
         if (e.getCause() instanceof SchemaException) {
           // EXTRACT CLASS NAME If ANY
@@ -1180,13 +1178,10 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
             value = value1 + newClassName + value2;
             // OVERWRITE CLASS NAME WITH NEW NAME
             record =
-                RecordSerializerJSON.INSTANCE.fromString(database,
+                RecordSerializerJackson.INSTANCE.fromString(database,
                     value,
                     record,
-                    null,
-                    null,
-                    false,
-                    maxRidbagStringSizeBeforeLazyImport, skippedPartsIndexes);
+                    null);
           }
         } else {
           throw BaseException.wrapException(
@@ -1578,14 +1573,14 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
                   if (fieldName.equals("metadata")) {
                     final String jsonMetadata = jsonReader.readString(JSONReader.END_OBJECT, true);
                     metadata = new EntityImpl(database);
-                    metadata.fromJSON(jsonMetadata);
+                    metadata.updateFromJSON(jsonMetadata);
                     jsonReader.readNext(JSONReader.NEXT_IN_OBJECT);
                   } else {
                     if (fieldName.equals("engineProperties")) {
                       final String jsonEngineProperties =
                           jsonReader.readString(JSONReader.END_OBJECT, true);
                       var entity = new EntityImpl(database);
-                      entity.fromJSON(jsonEngineProperties);
+                      entity.updateFromJSON(jsonEngineProperties);
                       Map<String, ?> map = entity.toMap();
                       if (map != null) {
                         map.replaceAll((k, v) -> v);
@@ -1718,7 +1713,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
     final IndexDefinition indexDefinition;
     final EntityImpl indexDefinitionEntity =
-        (EntityImpl) RecordSerializerJSON.INSTANCE.fromString(database, value, null, null);
+        (EntityImpl) RecordSerializerJackson.INSTANCE.fromString(database, value, null, null);
     try {
       final Class<?> indexDefClass = Class.forName(className);
       indexDefinition = (IndexDefinition) indexDefClass.getDeclaredConstructor().newInstance();

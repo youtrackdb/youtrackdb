@@ -263,7 +263,7 @@ public interface Entity extends Record {
    * Fills a entity passing the property names/values as a Map String,Object where the keys are the
    * property names and the values are the property values.
    */
-  void fromMap(final Map<String, ?> map);
+  void updateFromMap(final Map<String, ?> map);
 
   /**
    * Returns the entity as Map String,Object . If the entity has identity, then the @rid entry is

@@ -74,7 +74,7 @@ public class ServerCommandPostCommand extends ServerCommandAuthenticatedDbAbstra
       if (iRequest.getContent().startsWith("{")) {
         // JSON PAYLOAD
         final EntityImpl entity = new EntityImpl(null);
-        entity.fromJSON(iRequest.getContent());
+        entity.updateFromJSON(iRequest.getContent());
         text = entity.field("command");
         params = entity.field("parameters");
         if (entity.containsField("mode")) {

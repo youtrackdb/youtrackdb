@@ -66,7 +66,7 @@ public class ServerDatabaseOperationsTest {
     try (DatabaseSession db = server.openDatabase(
         ServerDatabaseOperationsTest.class.getSimpleName())) {
       EntityImpl securityConfig = ((EntityImpl) db.newEntity());
-      securityConfig.fromJSON(
+      securityConfig.updateFromJSON(
           IOUtils.readStreamAsString(
               this.getClass().getClassLoader().getResourceAsStream("security.json")),
           "noMap");

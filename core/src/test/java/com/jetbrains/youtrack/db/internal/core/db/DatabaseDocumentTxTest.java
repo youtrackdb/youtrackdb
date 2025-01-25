@@ -139,7 +139,7 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     db.begin();
     EntityImpl doc = (EntityImpl) db.newEntity("testDocFromJsonEmbedded_Class1");
 
-    doc.fromJSON(
+    doc.updateFromJSON(
         "{\n"
             + "    \"account\": \"#25:0\",\n"
             + "    "

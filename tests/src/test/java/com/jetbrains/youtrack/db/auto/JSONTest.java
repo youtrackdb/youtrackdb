@@ -27,7 +27,7 @@ import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJSON;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJackson;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerSchemaAware2CSV;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.ArrayList;
@@ -65,13 +65,13 @@ public class JSONTest extends BaseDBTest {
   @Test
   public void testAlmostLink() {
     final EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON("{'title': '#330: Dollar Coins Are Done'}");
+    doc.updateFromJSON("{'title': '#330: Dollar Coins Are Done'}");
   }
 
   @Test
   public void testNullList() {
     final EntityImpl documentSource = ((EntityImpl) db.newEntity());
-    documentSource.fromJSON("{\"list\" : [\"string\", null]}");
+    documentSource.updateFromJSON("{\"list\" : [\"string\", null]}");
 
     final EntityImpl documentTarget = ((EntityImpl) db.newEntity());
     RecordInternal.unsetDirty(documentTarget);
@@ -85,7 +85,7 @@ public class JSONTest extends BaseDBTest {
   @Test
   public void testBooleanList() {
     final EntityImpl documentSource = ((EntityImpl) db.newEntity());
-    documentSource.fromJSON("{\"list\" : [true, false]}");
+    documentSource.updateFromJSON("{\"list\" : [true, false]}");
 
     final EntityImpl documentTarget = ((EntityImpl) db.newEntity());
     RecordInternal.unsetDirty(documentTarget);
@@ -99,7 +99,7 @@ public class JSONTest extends BaseDBTest {
   @Test
   public void testNumericIntegerList() {
     final EntityImpl documentSource = ((EntityImpl) db.newEntity());
-    documentSource.fromJSON("{\"list\" : [17,42]}");
+    documentSource.updateFromJSON("{\"list\" : [17,42]}");
 
     final EntityImpl documentTarget = ((EntityImpl) db.newEntity());
     RecordInternal.unsetDirty(documentTarget);
@@ -113,7 +113,7 @@ public class JSONTest extends BaseDBTest {
   @Test
   public void testNumericLongList() {
     final EntityImpl documentSource = ((EntityImpl) db.newEntity());
-    documentSource.fromJSON("{\"list\" : [100000000000,100000000001]}");
+    documentSource.updateFromJSON("{\"list\" : [100000000000,100000000001]}");
 
     final EntityImpl documentTarget = ((EntityImpl) db.newEntity());
     RecordInternal.unsetDirty(documentTarget);
@@ -127,7 +127,7 @@ public class JSONTest extends BaseDBTest {
   @Test
   public void testNumericFloatList() {
     final EntityImpl documentSource = ((EntityImpl) db.newEntity());
-    documentSource.fromJSON("{\"list\" : [17.3,42.7]}");
+    documentSource.updateFromJSON("{\"list\" : [17.3,42.7]}");
 
     final EntityImpl documentTarget = ((EntityImpl) db.newEntity());
     RecordInternal.unsetDirty(documentTarget);
@@ -141,14 +141,14 @@ public class JSONTest extends BaseDBTest {
   @Test
   public void testNullity() {
     final EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON(
+    doc.updateFromJSON(
         "{\"gender\":{\"name\":\"Male\"},\"firstName\":\"Jack\",\"lastName\":\"Williams\",\"phone\":\"561-401-3348\",\"email\":\"0586548571@example.com\",\"address\":{\"street1\":\"Smith"
             + " Ave\","
             + "\"street2\":null,\"city\":\"GORDONSVILLE\",\"state\":\"VA\",\"code\":\"22942\"},\"dob\":\"2011-11-17"
             + " 03:17:04\"}");
     final String json = doc.toJSON();
     final EntityImpl loadedDoc = ((EntityImpl) db.newEntity());
-    loadedDoc.fromJSON(json);
+    loadedDoc.updateFromJSON(json);
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
   }
 
@@ -182,7 +182,7 @@ public class JSONTest extends BaseDBTest {
 
     final String json = doc.toJSON();
     final EntityImpl loadedDoc = ((EntityImpl) db.newEntity());
-    loadedDoc.fromJSON(json);
+    loadedDoc.updateFromJSON(json);
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
     Assert.assertTrue(loadedDoc.containsField("embeddedList"));
     Assert.assertTrue(loadedDoc.field("embeddedList") instanceof List<?>);
@@ -207,7 +207,7 @@ public class JSONTest extends BaseDBTest {
 
     final String json = doc.toJSON();
     final EntityImpl loadedDoc = ((EntityImpl) db.newEntity());
-    loadedDoc.fromJSON(json);
+    loadedDoc.updateFromJSON(json);
 
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
 
@@ -237,7 +237,7 @@ public class JSONTest extends BaseDBTest {
 
     final String jsonResult = JSONWriter.listToJSON(db, list, null);
     final EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON("{\"result\": " + jsonResult + "}");
+    doc.updateFromJSON("{\"result\": " + jsonResult + "}");
     Collection<EntityImpl> result = doc.field("result");
     Assert.assertTrue(result instanceof Collection);
     Assert.assertEquals(result.size(), 2);
@@ -255,7 +255,7 @@ public class JSONTest extends BaseDBTest {
 
     final String json = doc.toJSON();
     final EntityImpl loadedDoc = ((EntityImpl) db.newEntity());
-    loadedDoc.fromJSON(json);
+    loadedDoc.updateFromJSON(json);
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
     Assert.assertTrue(loadedDoc.containsField("embeddedMap"));
     Assert.assertTrue(loadedDoc.field("embeddedMap") instanceof Map<?, ?>);
@@ -292,7 +292,7 @@ public class JSONTest extends BaseDBTest {
 
       final String json = newDoc.toJSON();
       EntityImpl loadedDoc = ((EntityImpl) db.newEntity());
-      loadedDoc.fromJSON(json);
+      loadedDoc.updateFromJSON(json);
 
       Assert.assertTrue(newDoc.hasSameContentOf(loadedDoc));
       Assert.assertTrue(loadedDoc.field("long") instanceof Long);
@@ -415,7 +415,7 @@ public class JSONTest extends BaseDBTest {
 
     String json = newDoc.toJSON();
     EntityImpl loadedDoc = ((EntityImpl) db.newEntity());
-    loadedDoc.fromJSON(json);
+    loadedDoc.updateFromJSON(json);
 
     Assert.assertTrue(newDoc.hasSameContentOf(loadedDoc));
 
@@ -447,7 +447,7 @@ public class JSONTest extends BaseDBTest {
           result.asEntity()
               .toJSON("type,rid,version,class,keepTypes,attribSameRow,indent:0,fetchPlan:*:-1");
       EntityImpl loadedDoc = ((EntityImpl) db.newEntity());
-      loadedDoc.fromJSON(jsonFull);
+      loadedDoc.updateFromJSON(jsonFull);
 
       Assert.assertTrue(((EntityImpl) result.asEntity()).hasSameContentOf(loadedDoc));
     }
@@ -456,7 +456,7 @@ public class JSONTest extends BaseDBTest {
   // Requires JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES
   public void testSpecialChar() {
     EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON(
+    doc.updateFromJSON(
         "{name:{\"%Field\":[\"value1\",\"value2\"],\"%Field2\":{},\"%Field3\":\"value3\"}}");
     db.begin();
     doc.save();
@@ -467,7 +467,7 @@ public class JSONTest extends BaseDBTest {
 
     Map<String, ?> map = doc.toMap();
     final EntityImpl docToCompare = ((EntityImpl) db.newEntity());
-    docToCompare.fromMap(map);
+    docToCompare.updateFromMap(map);
 
     final EntityImpl loadedDoc = db.load(doc.getIdentity());
 
@@ -478,7 +478,7 @@ public class JSONTest extends BaseDBTest {
 
   public void testArrayOfArray() {
     EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON(
+    doc.updateFromJSON(
         "{\"@type\": \"d\",\"@class\": \"Track\",\"type\": \"LineString\",\"coordinates\": [ [ 100,"
             + "  0 ],  [ 101, 1 ] ]}");
 
@@ -490,7 +490,7 @@ public class JSONTest extends BaseDBTest {
 
     Map<String, ?> map = doc.toMap();
     final EntityImpl docToCompare = ((EntityImpl) db.newEntity());
-    docToCompare.fromMap(map);
+    docToCompare.updateFromMap(map);
 
     final EntityImpl loadedDoc = db.load(doc.getIdentity());
     Assert.assertTrue(docToCompare.hasSameContentOf(loadedDoc));
@@ -498,7 +498,7 @@ public class JSONTest extends BaseDBTest {
 
   public void testLongTypes() {
     EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON(
+    doc.updateFromJSON(
         "{\"@type\": \"d\",\"@class\": \"Track\",\"type\": \"LineString\",\"coordinates\": [ ["
             + " 32874387347347,  0 ],  [ -23736753287327, 1 ] ]}");
 
@@ -510,7 +510,7 @@ public class JSONTest extends BaseDBTest {
     doc = db.bindToSession(doc);
     Map<String, ?> map = doc.toMap();
     final EntityImpl docToCompare = ((EntityImpl) db.newEntity());
-    docToCompare.fromMap(map);
+    docToCompare.updateFromMap(map);
 
     final EntityImpl loadedDoc = db.load(doc.getIdentity());
     Assert.assertTrue(docToCompare.hasSameContentOf(loadedDoc));
@@ -520,7 +520,7 @@ public class JSONTest extends BaseDBTest {
   // Requires JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES
   public void testSpecialChars() {
     EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON(
+    doc.updateFromJSON(
         "{Field:{\"Key1\":[\"Value1\",\"Value2\"],\"Key2\":{\"%%dummy%%\":null},\"Key3\":\"Value3\"}}");
     db.begin();
     doc.save();
@@ -530,7 +530,7 @@ public class JSONTest extends BaseDBTest {
 
     Map<String, ?> map = doc.toMap();
     final EntityImpl docToCompare = ((EntityImpl) db.newEntity());
-    docToCompare.fromMap(map);
+    docToCompare.updateFromMap(map);
 
     final EntityImpl loadedDoc = db.load(doc.getIdentity());
     Assert.assertEquals(docToCompare, loadedDoc);
@@ -542,7 +542,7 @@ public class JSONTest extends BaseDBTest {
     final String doc1Json =
         "{Key1:{\"%Field1\":[{},{},{},{},{}],\"%Field2\":false,\"%Field3\":\"Value1\"}}";
     final EntityImpl doc1 = new EntityImpl(db);
-    doc1.fromJSON(doc1Json);
+    doc1.updateFromJSON(doc1Json);
     final String doc1String = new String(
         RecordSerializerSchemaAware2CSV.INSTANCE.toStream(db, doc1));
     Assert.assertEquals("{" + doc1String + "}", doc1Json);
@@ -550,7 +550,7 @@ public class JSONTest extends BaseDBTest {
     final String doc2Json =
         "{Key1:{\"%Field1\":[{},{},{},{},{}],\"%Field2\":false,\"%Field3\":\"Value1\"}}";
     final EntityImpl doc2 = new EntityImpl(db);
-    doc2.fromJSON(doc2Json);
+    doc2.updateFromJSON(doc2Json);
     final String doc2String = new String(
         RecordSerializerSchemaAware2CSV.INSTANCE.toStream(db, doc2));
     Assert.assertEquals("{" + doc2String + "}", doc2Json);
@@ -580,7 +580,7 @@ public class JSONTest extends BaseDBTest {
 
     String json = doc.toJSON();
     EntityImpl newDoc = ((EntityImpl) db.newEntity());
-    newDoc.fromJSON(json);
+    newDoc.updateFromJSON(json);
 
     Assert.assertEquals(json, newDoc.toJSON());
     Assert.assertTrue(newDoc.hasSameContentOf(doc));
@@ -607,7 +607,7 @@ public class JSONTest extends BaseDBTest {
     doc.field("out", docMap);
     json = doc.toJSON();
     newDoc = ((EntityImpl) db.newEntity());
-    newDoc.fromJSON(json);
+    newDoc.updateFromJSON(json);
     Assert.assertEquals(newDoc.toJSON(), json);
     Assert.assertTrue(newDoc.hasSameContentOf(doc));
   }
@@ -631,7 +631,7 @@ public class JSONTest extends BaseDBTest {
     doc.field("theList", list);
     String json = doc.toJSON();
     EntityImpl newDoc = ((EntityImpl) db.newEntity());
-    newDoc.fromJSON(json);
+    newDoc.updateFromJSON(json);
     Assert.assertEquals(newDoc.toJSON(), json);
     Assert.assertTrue(newDoc.hasSameContentOf(doc));
   }
@@ -653,7 +653,7 @@ public class JSONTest extends BaseDBTest {
     doc.field("theList", list);
     String json = doc.toJSON();
     EntityImpl newDoc = ((EntityImpl) db.newEntity());
-    newDoc.fromJSON(json);
+    newDoc.updateFromJSON(json);
     Assert.assertEquals(newDoc.toJSON(), json);
   }
 
@@ -724,7 +724,7 @@ public class JSONTest extends BaseDBTest {
             + "}"
             + "}"
             + "}";
-    doc.fromJSON(test);
+    doc.updateFromJSON(test);
     Assert.assertTrue(doc.toJSON("fetchPlan:*:0,rid").contains("this is a test"));
   }
 
@@ -734,7 +734,7 @@ public class JSONTest extends BaseDBTest {
         "{\"name\": \"test\", \"nested\": { \"key\": \"value\", \"anotherKey\": 123 }, \"deep\":"
             + " {\"deeper\": { \"k\": \"v\",\"quotes\": \"\\\"\\\",\\\"oops\\\":\\\"123\\\"\","
             + " \"likeJson\": \"[1,2,3]\",\"spaces\": \"value with spaces\"}}}";
-    doc.fromJSON(s);
+    doc.updateFromJSON(s);
     Assert.assertEquals(doc.field("deep[deeper][quotes]"), "\"\",\"oops\":\"123\"");
 
     String res = doc.toJSON();
@@ -762,157 +762,159 @@ public class JSONTest extends BaseDBTest {
                         "three": "a"
                     }
             }\s""";
-    doc.fromJSON(sb);
+    doc.updateFromJSON(sb);
     Assert.assertEquals(doc.field("foo.three"), "a");
-    final Collection c = doc.field("foo.bar.P357");
+    final Collection<?> c = doc.field("foo.bar.P357");
     Assert.assertEquals(c.size(), 1);
-    final Map doc2 = (Map) c.iterator().next();
-    Assert.assertEquals(((Map) doc2.get("datavalue")).get("value"), "\"\"");
+    final Map<?, ?> doc2 = (Map<?, ?>) c.iterator().next();
+    Assert.assertEquals(((Map<?, ?>) doc2.get("datavalue")).get("value"), "\"\"");
   }
 
   public void testEscapingDoubleQuotes2() {
     final EntityImpl doc = ((EntityImpl) db.newEntity());
     String sb =
-        " {\n"
-            + "    \"foo\":{\n"
-            + "            \"bar\":{\n"
-            + "                \"P357\":[\n"
-            + "                            {\n"
-            + "\n"
-            + "                                \"datavalue\":{\n"
-            + "                                    \"value\":\"\\\"\",\n"
-            + "\n"
-            + "                                }\n"
-            + "                        }\n"
-            + "                ]   \n"
-            + "            },\n"
-            + "            \"three\": \"a\"\n"
-            + "        }\n"
-            + "} ";
+        """
+             {
+                "foo":{
+                        "bar":{
+                            "P357":[
+                                        {
+            
+                                            "datavalue":{
+                                                "value":"\\"",
+            
+                                            }
+                                    }
+                            ]  \s
+                        },
+                        "three": "a"
+                    }
+            }\s""";
 
-    doc.fromJSON(sb);
+    doc.updateFromJSON(sb);
     Assert.assertEquals(doc.field("foo.three"), "a");
-    final Collection c = doc.field("foo.bar.P357");
+    final Collection<?> c = doc.field("foo.bar.P357");
     Assert.assertEquals(c.size(), 1);
-    final Map doc2 = (Map) c.iterator().next();
-    Assert.assertEquals(((Map) doc2.get("datavalue")).get("value"), "\"");
+    final Map<?, ?> doc2 = (Map<?, ?>) c.iterator().next();
+    Assert.assertEquals(((Map<?, ?>) doc2.get("datavalue")).get("value"), "\"");
   }
 
   public void testEscapingDoubleQuotes3() {
     final EntityImpl doc = ((EntityImpl) db.newEntity());
     String sb =
-        " {\n"
-            + "    \"foo\":{\n"
-            + "            \"bar\":{\n"
-            + "                \"P357\":[\n"
-            + "                            {\n"
-            + "\n"
-            + "                                \"datavalue\":{\n"
-            + "                                    \"value\":\"\\\"\",\n"
-            + "\n"
-            + "                                }\n"
-            + "                        }\n"
-            + "                ]   \n"
-            + "            }\n"
-            + "        }\n"
-            + "} ";
+        """
+             {
+                "foo":{
+                        "bar":{
+                            "P357":[
+                                        {
+            
+                                            "datavalue":{
+                                                "value":"\\"",
+            
+                                            }
+                                    }
+                            ]  \s
+                        }
+                    }
+            }\s""";
 
-    doc.fromJSON(sb);
-    final Collection c = doc.field("foo.bar.P357");
+    doc.updateFromJSON(sb);
+    final Collection<?> c = doc.field("foo.bar.P357");
     Assert.assertEquals(c.size(), 1);
-    final Map doc2 = (Map) c.iterator().next();
-    Assert.assertEquals(((Map) doc2.get("datavalue")).get("value"), "\"");
+    final Map<?, ?> doc2 = (Map<?, ?>) c.iterator().next();
+    Assert.assertEquals(((Map<?, ?>) doc2.get("datavalue")).get("value"), "\"");
   }
 
   public void testEmbeddedQuotes() {
     EntityImpl doc = ((EntityImpl) db.newEntity());
     // FROM ISSUE 3151
-    doc.fromJSON("{\"mainsnak\":{\"datavalue\":{\"value\":\"Sub\\\\urban\"}}}");
+    doc.updateFromJSON("{\"mainsnak\":{\"datavalue\":{\"value\":\"Sub\\\\urban\"}}}");
     Assert.assertEquals(doc.field("mainsnak.datavalue.value"), "Sub\\urban");
   }
 
   public void testEmbeddedQuotes2() {
     EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON("{\"datavalue\":{\"value\":\"Sub\\\\urban\"}}");
+    doc.updateFromJSON("{\"datavalue\":{\"value\":\"Sub\\\\urban\"}}");
     Assert.assertEquals(doc.field("datavalue.value"), "Sub\\urban");
   }
 
   public void testEmbeddedQuotes2a() {
     EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON("{\"datavalue\":\"Sub\\\\urban\"}");
+    doc.updateFromJSON("{\"datavalue\":\"Sub\\\\urban\"}");
     Assert.assertEquals(doc.field("datavalue"), "Sub\\urban");
   }
 
   public void testEmbeddedQuotes3() {
     final EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON("{\"mainsnak\":{\"datavalue\":{\"value\":\"Suburban\\\\\"\"}}}");
+    doc.updateFromJSON("{\"mainsnak\":{\"datavalue\":{\"value\":\"Suburban\\\\\"\"}}}");
     Assert.assertEquals(doc.field("mainsnak.datavalue.value"), "Suburban\\\"");
   }
 
   public void testEmbeddedQuotes4() {
     final EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON("{\"datavalue\":{\"value\":\"Suburban\\\\\"\"}}");
+    doc.updateFromJSON("{\"datavalue\":{\"value\":\"Suburban\\\\\"\"}}");
     Assert.assertEquals(doc.field("datavalue.value"), "Suburban\\\"");
   }
 
   public void testEmbeddedQuotes5() {
     final EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON("{\"datavalue\":\"Suburban\\\\\"\"}");
+    doc.updateFromJSON("{\"datavalue\":\"Suburban\\\\\"\"}");
     Assert.assertEquals(doc.field("datavalue"), "Suburban\\\"");
   }
 
   public void testEmbeddedQuotes6() {
     EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON("{\"mainsnak\":{\"datavalue\":{\"value\":\"Suburban\\\\\"}}}");
+    doc.updateFromJSON("{\"mainsnak\":{\"datavalue\":{\"value\":\"Suburban\\\\\"}}}");
     Assert.assertEquals(doc.field("mainsnak.datavalue.value"), "Suburban\\");
   }
 
   public void testEmbeddedQuotes7() {
     EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON("{\"datavalue\":{\"value\":\"Suburban\\\\\"}}");
+    doc.updateFromJSON("{\"datavalue\":{\"value\":\"Suburban\\\\\"}}");
     Assert.assertEquals(doc.field("datavalue.value"), "Suburban\\");
   }
 
   public void testEmbeddedQuotes8() {
     EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON("{\"datavalue\":\"Suburban\\\\\"}");
+    doc.updateFromJSON("{\"datavalue\":\"Suburban\\\\\"}");
     Assert.assertEquals(doc.field("datavalue"), "Suburban\\");
   }
 
   public void testEmpty() {
     EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON("{}");
+    doc.updateFromJSON("{}");
     Assert.assertEquals(doc.fieldNames().length, 0);
   }
 
   public void testInvalidJson() {
     EntityImpl doc = ((EntityImpl) db.newEntity());
     try {
-      doc.fromJSON("{");
+      doc.updateFromJSON("{");
       Assert.fail();
     } catch (SerializationException ignored) {
     }
 
     try {
-      doc.fromJSON("{\"foo\":{}");
+      doc.updateFromJSON("{\"foo\":{}");
       Assert.fail();
     } catch (SerializationException ignored) {
     }
 
     try {
-      doc.fromJSON("{{}");
+      doc.updateFromJSON("{{}");
       Assert.fail();
     } catch (SerializationException ignored) {
     }
 
     try {
-      doc.fromJSON("{}}");
+      doc.updateFromJSON("{}}");
       Assert.fail();
     } catch (SerializationException ignored) {
     }
 
     try {
-      doc.fromJSON("}");
+      doc.updateFromJSON("}");
       Assert.fail();
     } catch (SerializationException ignored) {
     }
@@ -926,7 +928,7 @@ public class JSONTest extends BaseDBTest {
     final String json = doc.toJSON();
 
     final EntityImpl unmarshalled = ((EntityImpl) db.newEntity());
-    unmarshalled.fromJSON(json);
+    unmarshalled.updateFromJSON(json);
     Assert.assertEquals(unmarshalled.field("date"), now);
   }
 
@@ -935,7 +937,7 @@ public class JSONTest extends BaseDBTest {
     final String json = "{\"a\":\"{dd}\",\"bl\":{\"b\":\"c\",\"a\":\"d\"}}";
     final EntityImpl in =
         (EntityImpl)
-            RecordSerializerJSON.INSTANCE.fromString(db,
+            RecordSerializerJackson.INSTANCE.fromString(db,
                 json, db.newInstance(), new String[]{});
     Assert.assertEquals(in.field("a"), "{dd}");
     Assert.assertTrue(in.field("bl") instanceof Map);
@@ -944,7 +946,7 @@ public class JSONTest extends BaseDBTest {
   @Test
   public void testList() throws Exception {
     EntityImpl documentSource = ((EntityImpl) db.newEntity());
-    documentSource.fromJSON("{\"list\" : [\"string\", 42]}");
+    documentSource.updateFromJSON("{\"list\" : [\"string\", 42]}");
 
     EntityImpl documentTarget = ((EntityImpl) db.newEntity());
     RecordInternal.unsetDirty(documentTarget);
@@ -958,7 +960,7 @@ public class JSONTest extends BaseDBTest {
   @Test
   public void testEmbeddedRIDBagDeserialisationWhenFieldTypeIsProvided() throws Exception {
     EntityImpl documentSource = ((EntityImpl) db.newEntity());
-    documentSource.fromJSON(
+    documentSource.updateFromJSON(
         "{FirstName:\"Student A"
             + " 0\",in_EHasGoodStudents:[#57:0],@fieldTypes:\"in_EHasGoodStudents=g\"}");
 
@@ -980,7 +982,7 @@ public class JSONTest extends BaseDBTest {
     jaimeDoc = db.bindToSession(jaimeDoc);
     // The link between jaime and cersei is saved properly - the #2263 test case
     EntityImpl cerseiDoc = ((EntityImpl) db.newEntity("NestedLinkCreation"));
-    cerseiDoc.fromJSON(
+    cerseiDoc.updateFromJSON(
         "{\"@type\":\"d\",\"name\":\"cersei\",\"valonqar\":" + jaimeDoc.toJSON() + "}");
     db.begin();
     cerseiDoc.save();
@@ -989,7 +991,7 @@ public class JSONTest extends BaseDBTest {
     jaimeDoc = db.bindToSession(jaimeDoc);
     // The link between jamie and tyrion is not saved properly
     EntityImpl tyrionDoc = ((EntityImpl) db.newEntity("NestedLinkCreation"));
-    tyrionDoc.fromJSON(
+    tyrionDoc.updateFromJSON(
         "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":{\"@type\":\"d\","
             + " \"relationship\":\"brother\",\"contact\":"
             + jaimeDoc.toJSON()
@@ -1063,7 +1065,7 @@ public class JSONTest extends BaseDBTest {
 
     // The link between jaime and cersei is saved properly - the #2263 test case
     EntityImpl cerseiDoc = ((EntityImpl) db.newEntity("NestedLinkCreationFieldTypes"));
-    cerseiDoc.fromJSON(
+    cerseiDoc.updateFromJSON(
         "{\"@type\":\"d\",\"@fieldTypes\":\"valonqar=x\",\"name\":\"cersei\",\"valonqar\":"
             + jaimeDoc.getIdentity()
             + "}");
@@ -1074,7 +1076,7 @@ public class JSONTest extends BaseDBTest {
 
     // The link between jamie and tyrion is not saved properly
     EntityImpl tyrionDoc = ((EntityImpl) db.newEntity("NestedLinkCreationFieldTypes"));
-    tyrionDoc.fromJSON(
+    tyrionDoc.updateFromJSON(
         "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":{\"@type\":\"d\","
             + " \"@fieldTypes\":\"contact=x\",\"relationship\":\"brother\",\"contact\":"
             + jaimeDoc.getIdentity()
@@ -1138,7 +1140,7 @@ public class JSONTest extends BaseDBTest {
 
   public void testInnerDocCreation() {
     EntityImpl adamDoc = ((EntityImpl) db.newEntity("InnerDocCreation"));
-    adamDoc.fromJSON("{\"name\":\"adam\"}");
+    adamDoc.updateFromJSON("{\"name\":\"adam\"}");
 
     db.begin();
     adamDoc.save();
@@ -1147,7 +1149,8 @@ public class JSONTest extends BaseDBTest {
     db.begin();
     adamDoc = db.bindToSession(adamDoc);
     EntityImpl eveDoc = ((EntityImpl) db.newEntity("InnerDocCreation"));
-    eveDoc.fromJSON("{\"@type\":\"d\",\"name\":\"eve\",\"friends\":[" + adamDoc.toJSON() + "]}");
+    eveDoc.updateFromJSON(
+        "{\"@type\":\"d\",\"name\":\"eve\",\"friends\":[" + adamDoc.toJSON() + "]}");
 
     eveDoc.save();
     db.commit();
@@ -1197,14 +1200,14 @@ public class JSONTest extends BaseDBTest {
 
   public void testInnerDocCreationFieldTypes() {
     EntityImpl adamDoc = ((EntityImpl) db.newEntity("InnerDocCreationFieldTypes"));
-    adamDoc.fromJSON("{\"name\":\"adam\"}");
+    adamDoc.updateFromJSON("{\"name\":\"adam\"}");
 
     db.begin();
     adamDoc.save();
     db.commit();
 
     EntityImpl eveDoc = ((EntityImpl) db.newEntity("InnerDocCreationFieldTypes"));
-    eveDoc.fromJSON(
+    eveDoc.updateFromJSON(
         "{\"@type\":\"d\", \"@fieldTypes\" : \"friends=z\", \"name\":\"eve\",\"friends\":["
             + adamDoc.getIdentity()
             + "]}");
@@ -1273,7 +1276,7 @@ public class JSONTest extends BaseDBTest {
     eveDoc.save();
 
     final EntityImpl nestedWithTypeD = ((EntityImpl) db.newEntity(classNameDocTwo));
-    nestedWithTypeD.fromJSON(
+    nestedWithTypeD.updateFromJSON(
         "{\"@type\":\"d\",\"event_name\":\"world cup 2014\",\"admin\":[" + eveDoc.toJSON() + "]}");
     nestedWithTypeD.save();
     db.commit();
@@ -1313,7 +1316,7 @@ public class JSONTest extends BaseDBTest {
 
     adamDoc = db.bindToSession(adamDoc);
     final EntityImpl nestedWithTypeD = ((EntityImpl) db.newEntity("JSONTxDocTwo"));
-    nestedWithTypeD.fromJSON(
+    nestedWithTypeD.updateFromJSON(
         "{\"@type\":\"d\",\"event_name\":\"world cup 2014\",\"admin\":["
             + eveDoc.toJSON()
             + ","
@@ -1342,7 +1345,7 @@ public class JSONTest extends BaseDBTest {
 
   public void testInvalidLink() {
     EntityImpl nullRefDoc = ((EntityImpl) db.newEntity());
-    nullRefDoc.fromJSON("{\"name\":\"Luca\", \"ref\":\"#-1:-1\"}");
+    nullRefDoc.updateFromJSON("{\"name\":\"Luca\", \"ref\":\"#-1:-1\"}");
     // Assert.assertNull(nullRefDoc.rawField("ref"));
 
     String json = nullRefDoc.toJSON();
@@ -1354,7 +1357,7 @@ public class JSONTest extends BaseDBTest {
 
   public void testOtherJson() {
     db.newEntity()
-        .fromJSON(
+        .updateFromJSON(
             "{\"Salary\":1500.0,\"Type\":\"Person\",\"Address\":[{\"Zip\":\"JX2"
                 + " MSX\",\"Type\":\"Home\",\"Street1\":\"13 Marge"
                 + " Street\",\"Country\":\"Holland\",\"Id\":\"Address-28813211\",\"City\":\"Amsterdam\",\"From\":\"1996-02-01\",\"To\":\"1998-01-01\"},{\"Zip\":\"90210\",\"Type\":\"Work\",\"Street1\":\"100"
@@ -1366,7 +1369,7 @@ public class JSONTest extends BaseDBTest {
   @Test
   public void testScientificNotation() {
     final EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON("{'number1': -9.2741500e-31, 'number2': 741800E+290}");
+    doc.updateFromJSON("{'number1': -9.2741500e-31, 'number2': 741800E+290}");
 
     final double number1 = doc.field("number1");
     Assert.assertEquals(number1, -9.27415E-31);

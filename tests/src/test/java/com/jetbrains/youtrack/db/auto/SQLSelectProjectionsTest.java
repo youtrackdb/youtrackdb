@@ -187,7 +187,7 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
       Assert.assertTrue(r.getPropertyNames().size() <= 1);
       Assert.assertNotNull(r.getProperty("json"));
 
-      new EntityImpl(db).fromJSON((String) r.getProperty("json"));
+      new EntityImpl(db).updateFromJSON((String) r.getProperty("json"));
     }
   }
 

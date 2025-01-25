@@ -169,8 +169,8 @@ public final class VertexDelegate implements VertexInternal {
   }
 
   @Override
-  public void fromJSON(String iJson) {
-    entity.fromJSON(iJson);
+  public void updateFromJSON(String iJson) {
+    entity.updateFromJSON(iJson);
   }
 
   @Override
@@ -198,8 +198,8 @@ public final class VertexDelegate implements VertexInternal {
   }
 
   @Override
-  public void fromMap(Map<String, ?> map) {
-    entity.fromMap(map);
+  public void updateFromMap(Map<String, ?> map) {
+    entity.updateFromMap(map);
   }
 
   @Override

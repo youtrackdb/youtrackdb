@@ -224,7 +224,7 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
     db.begin();
     for (int g = 0; g < 1000; g++) {
       EntityImpl doc = ((EntityImpl) db.newEntity("Account"));
-      doc.fromJSON(json);
+      doc.updateFromJSON(json);
       doc.field("nr", g);
 
       doc.save();

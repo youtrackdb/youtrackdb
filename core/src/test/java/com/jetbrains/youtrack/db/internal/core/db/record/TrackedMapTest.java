@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -289,6 +290,7 @@ public class TrackedMapTest extends DbTestBase {
         super(database);
       }
 
+      @Serial
       private void writeObject(ObjectOutputStream oos) throws IOException {
         throw new NotSerializableException();
       }
@@ -296,8 +298,8 @@ public class TrackedMapTest extends DbTestBase {
 
     final TrackedMap<String> beforeSerialization =
         new TrackedMap<String>(new NotSerializableEntityImpl(db));
-    beforeSerialization.put(0, "firstVal");
-    beforeSerialization.put(1, "secondVal");
+    beforeSerialization.put("1", "firstVal");
+    beforeSerialization.put("2", "secondVal");
 
     final MemoryStream memoryStream = new MemoryStream();
     final ObjectOutputStream out = new ObjectOutputStream(memoryStream);
@@ -310,7 +312,7 @@ public class TrackedMapTest extends DbTestBase {
 
     Assert.assertEquals(afterSerialization.size(), beforeSerialization.size());
     for (int i = 0; i < afterSerialization.size(); i++) {
-      Assert.assertEquals(afterSerialization.get(i), beforeSerialization.get(i));
+      Assert.assertEquals(afterSerialization.get(i), beforeSerialization.get(String.valueOf(i)));
     }
   }
 }

@@ -180,7 +180,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
 
           } else {
             // SCHEMA PROPERTY NOT FOUND FOR THIS FIELD: TRY TO AUTODETERMINE THE BEST TYPE
-            type = record.fieldType(fieldName);
+            type = record.getPropertyType(fieldName);
             if (type == PropertyType.ANY) {
               type = null;
             }
@@ -376,7 +376,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
       }
       fieldClassName = getClassName(fieldValue);
 
-      type = record.fieldType(fieldName);
+      type = record.getPropertyType(fieldName);
       if (type == PropertyType.ANY) {
         type = null;
       }

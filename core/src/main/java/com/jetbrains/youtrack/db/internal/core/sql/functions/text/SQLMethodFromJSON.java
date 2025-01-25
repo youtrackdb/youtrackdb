@@ -50,7 +50,7 @@ public class SQLMethodFromJSON extends AbstractSQLMethod {
       var db = iContext.getDatabase();
       if (iParams.length > 0) {
         try {
-          final EntityImpl entity = new EntityImpl(db).fromJSON(iThis.toString(),
+          final EntityImpl entity = new EntityImpl(db).updateFromJSON(iThis.toString(),
               iParams[0].toString());
           if (iParams[0].toString().contains("embedded")) {
             EntityInternalUtils.addOwner(entity, iCurrentRecord.getRecord(db));
@@ -63,7 +63,7 @@ public class SQLMethodFromJSON extends AbstractSQLMethod {
       }
 
       var entity = new EntityImpl(db);
-      entity.fromJSON(iThis.toString());
+      entity.updateFromJSON(iThis.toString());
       return entity;
     }
 

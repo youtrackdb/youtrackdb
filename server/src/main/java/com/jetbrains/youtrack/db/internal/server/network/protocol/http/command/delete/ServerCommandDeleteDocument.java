@@ -25,9 +25,9 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandDocumentAbstract;
 
 public class ServerCommandDeleteDocument extends ServerCommandDocumentAbstract {
@@ -60,7 +60,7 @@ public class ServerCommandDeleteDocument extends ServerCommandDocumentAbstract {
             if (iRequest.getContent() != null)
             // GET THE VERSION FROM THE DOCUMENT
             {
-              entity.fromJSON(iRequest.getContent());
+              entity.updateFromJSON(iRequest.getContent());
             } else {
               if (iRequest.getIfMatch() != null)
               // USE THE IF-MATCH HTTP HEADER AS VERSION

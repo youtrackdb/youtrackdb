@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.lucene.engine.LuceneIndexWriterFactory;
 import com.jetbrains.youtrack.db.internal.lucene.test.BaseLuceneTest;
 import java.io.File;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -25,7 +24,7 @@ public class LuceneIndexWriterFactoryTest extends BaseLuceneTest {
 
     // sample metadata json
     var meta = ((EntityImpl) db.newEntity());
-    meta.fromJSON(
+    meta.updateFromJSON(
         IOUtils.readFileAsString(
             new File("./src/test/resources/index_metadata_new.json")));
 

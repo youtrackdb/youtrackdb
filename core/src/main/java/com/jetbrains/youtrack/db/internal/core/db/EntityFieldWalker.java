@@ -19,11 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
-import com.jetbrains.youtrack.db.internal.core.db.record.IdentifiableMultiValue;
 import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.core.db.record.IdentifiableMultiValue;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import java.util.Collections;
@@ -90,7 +90,7 @@ public class EntityFieldWalker {
     final SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
     for (String fieldName : entity.fieldNames()) {
 
-      final PropertyType concreteType = entity.fieldType(fieldName);
+      final PropertyType concreteType = entity.getPropertyType(fieldName);
       PropertyType fieldType = concreteType;
 
       PropertyType linkedType = null;

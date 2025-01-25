@@ -446,7 +446,7 @@ public class RecordSerializerNetworkV0 implements EntitySerializer {
     return newValue;
   }
 
-  private Map<Object, Identifiable> readLinkMap(
+  private Map<String, Identifiable> readLinkMap(
       DatabaseSessionInternal db, final BytesContainer bytes, final RecordElement owner) {
     int size = VarIntSerializer.readAsInteger(bytes);
     LinkMap result = new LinkMap(owner);
@@ -455,9 +455,9 @@ public class RecordSerializerNetworkV0 implements EntitySerializer {
       Object key = deserializeValue(db, bytes, keyType, result);
       RecordId value = readOptimizedLink(bytes);
       if (value.equals(NULL_RECORD_ID)) {
-        result.put(key, null);
+        result.put(key.toString(), null);
       } else {
-        result.put(key, value);
+        result.put(key.toString(), value);
       }
     }
     return result;
@@ -481,9 +481,9 @@ public class RecordSerializerNetworkV0 implements EntitySerializer {
           last = bytes.offset;
         }
         bytes.offset = headerCursor;
-        result.put(key, value);
+        result.put(key.toString(), value);
       } else {
-        result.put(key, null);
+        result.put(key.toString(), null);
       }
     }
     if (last > bytes.offset) {

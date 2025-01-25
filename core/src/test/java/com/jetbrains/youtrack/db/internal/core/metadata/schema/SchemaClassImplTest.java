@@ -223,17 +223,17 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
     oClass.createProperty(db, "test6", PropertyType.FLOAT);
 
     EntityImpl doc1 = db.load(rid);
-    assertEquals(doc1.fieldType("test1"), PropertyType.INTEGER);
+    assertEquals(doc1.getPropertyType("test1"), PropertyType.INTEGER);
     assertTrue(doc1.field("test1") instanceof Integer);
-    assertEquals(doc1.fieldType("test2"), PropertyType.LONG);
+    assertEquals(doc1.getPropertyType("test2"), PropertyType.LONG);
     assertTrue(doc1.field("test2") instanceof Long);
-    assertEquals(doc1.fieldType("test3"), PropertyType.DOUBLE);
+    assertEquals(doc1.getPropertyType("test3"), PropertyType.DOUBLE);
     assertTrue(doc1.field("test3") instanceof Double);
-    assertEquals(doc1.fieldType("test4"), PropertyType.DOUBLE);
+    assertEquals(doc1.getPropertyType("test4"), PropertyType.DOUBLE);
     assertTrue(doc1.field("test4") instanceof Double);
-    assertEquals(doc1.fieldType("test5"), PropertyType.DECIMAL);
+    assertEquals(doc1.getPropertyType("test5"), PropertyType.DECIMAL);
     assertTrue(doc1.field("test5") instanceof BigDecimal);
-    assertEquals(doc1.fieldType("test6"), PropertyType.FLOAT);
+    assertEquals(doc1.getPropertyType("test6"), PropertyType.FLOAT);
     assertTrue(doc1.field("test6") instanceof Float);
   }
 
@@ -264,12 +264,12 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
     oClass.createProperty(db, "test6", PropertyType.EMBEDDEDMAP);
 
     EntityImpl doc1 = db.load(rid);
-    assertEquals(doc1.fieldType("test1"), PropertyType.LINKLIST);
-    assertEquals(doc1.fieldType("test2"), PropertyType.EMBEDDEDLIST);
-    assertEquals(doc1.fieldType("test3"), PropertyType.LINKSET);
-    assertEquals(doc1.fieldType("test4"), PropertyType.EMBEDDEDSET);
-    assertEquals(doc1.fieldType("test5"), PropertyType.LINKMAP);
-    assertEquals(doc1.fieldType("test6"), PropertyType.EMBEDDEDMAP);
+    assertEquals(doc1.getPropertyType("test1"), PropertyType.LINKLIST);
+    assertEquals(doc1.getPropertyType("test2"), PropertyType.EMBEDDEDLIST);
+    assertEquals(doc1.getPropertyType("test3"), PropertyType.LINKSET);
+    assertEquals(doc1.getPropertyType("test4"), PropertyType.EMBEDDEDSET);
+    assertEquals(doc1.getPropertyType("test5"), PropertyType.LINKMAP);
+    assertEquals(doc1.getPropertyType("test6"), PropertyType.EMBEDDEDMAP);
   }
 
   @Test
@@ -384,17 +384,17 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
     oClass.getProperty("test6").setType(db, PropertyType.FLOAT);
 
     EntityImpl doc1 = db.load(rid);
-    assertEquals(doc1.fieldType("test1"), PropertyType.INTEGER);
+    assertEquals(doc1.getPropertyType("test1"), PropertyType.INTEGER);
     assertTrue(doc1.field("test1") instanceof Integer);
-    assertEquals(doc1.fieldType("test2"), PropertyType.LONG);
+    assertEquals(doc1.getPropertyType("test2"), PropertyType.LONG);
     assertTrue(doc1.field("test2") instanceof Long);
-    assertEquals(doc1.fieldType("test3"), PropertyType.DOUBLE);
+    assertEquals(doc1.getPropertyType("test3"), PropertyType.DOUBLE);
     assertTrue(doc1.field("test3") instanceof Double);
-    assertEquals(doc1.fieldType("test4"), PropertyType.DOUBLE);
+    assertEquals(doc1.getPropertyType("test4"), PropertyType.DOUBLE);
     assertTrue(doc1.field("test4") instanceof Double);
-    assertEquals(doc1.fieldType("test5"), PropertyType.DECIMAL);
+    assertEquals(doc1.getPropertyType("test5"), PropertyType.DECIMAL);
     assertTrue(doc1.field("test5") instanceof BigDecimal);
-    assertEquals(doc1.fieldType("test6"), PropertyType.FLOAT);
+    assertEquals(doc1.getPropertyType("test6"), PropertyType.FLOAT);
     assertTrue(doc1.field("test6") instanceof Float);
   }
 
@@ -433,17 +433,17 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
     oClass.getProperty("test6").setName(db, "test6a");
 
     EntityImpl doc1 = db.load(rid);
-    assertEquals(doc1.fieldType("test1a"), PropertyType.SHORT);
+    assertEquals(doc1.getPropertyType("test1a"), PropertyType.SHORT);
     assertTrue(doc1.field("test1a") instanceof Short);
-    assertEquals(doc1.fieldType("test2a"), PropertyType.INTEGER);
+    assertEquals(doc1.getPropertyType("test2a"), PropertyType.INTEGER);
     assertTrue(doc1.field("test2a") instanceof Integer);
-    assertEquals(doc1.fieldType("test3a"), PropertyType.LONG);
+    assertEquals(doc1.getPropertyType("test3a"), PropertyType.LONG);
     assertTrue(doc1.field("test3a") instanceof Long);
-    assertEquals(doc1.fieldType("test4a"), PropertyType.FLOAT);
+    assertEquals(doc1.getPropertyType("test4a"), PropertyType.FLOAT);
     assertTrue(doc1.field("test4a") instanceof Float);
-    assertEquals(doc1.fieldType("test5a"), PropertyType.DOUBLE);
+    assertEquals(doc1.getPropertyType("test5a"), PropertyType.DOUBLE);
     assertTrue(doc1.field("test5") instanceof Double);
-    assertEquals(doc1.fieldType("test6a"), PropertyType.INTEGER);
+    assertEquals(doc1.getPropertyType("test6a"), PropertyType.INTEGER);
     assertTrue(doc1.field("test6a") instanceof Integer);
   }
 
@@ -480,12 +480,12 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
         executor.submit(
             () -> {
               EntityImpl doc1 = db.copy().load(rid);
-              assertEquals(doc1.fieldType("test1"), PropertyType.LINKLIST);
-              assertEquals(doc1.fieldType("test2"), PropertyType.EMBEDDEDLIST);
-              assertEquals(doc1.fieldType("test3"), PropertyType.LINKSET);
-              assertEquals(doc1.fieldType("test4"), PropertyType.EMBEDDEDSET);
-              assertEquals(doc1.fieldType("test5"), PropertyType.LINKMAP);
-              assertEquals(doc1.fieldType("test6"), PropertyType.EMBEDDEDMAP);
+              assertEquals(doc1.getPropertyType("test1"), PropertyType.LINKLIST);
+              assertEquals(doc1.getPropertyType("test2"), PropertyType.EMBEDDEDLIST);
+              assertEquals(doc1.getPropertyType("test3"), PropertyType.LINKSET);
+              assertEquals(doc1.getPropertyType("test4"), PropertyType.EMBEDDEDSET);
+              assertEquals(doc1.getPropertyType("test5"), PropertyType.LINKMAP);
+              assertEquals(doc1.getPropertyType("test6"), PropertyType.EMBEDDEDMAP);
               return doc1;
             });
 

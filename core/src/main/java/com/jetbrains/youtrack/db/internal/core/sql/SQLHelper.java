@@ -162,7 +162,7 @@ public class SQLHelper {
       // TODO: IMPROVE THIS CASE AVOIDING DOUBLE PARSING
       {
         var entity = new EntityImpl(iContext.getDatabase());
-        entity.fromJSON(iValue);
+        entity.updateFromJSON(iValue);
         fieldValue = entity;
       } else {
         fieldValue = map;

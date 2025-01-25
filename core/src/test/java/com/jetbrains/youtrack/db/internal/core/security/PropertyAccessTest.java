@@ -7,8 +7,8 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyAccess;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -36,7 +36,7 @@ public class PropertyAccessTest extends DbTestBase {
     assertNull(doc.field("name", PropertyType.STRING));
     assertNull(doc.field("name", String.class));
     assertFalse(doc.containsField("name"));
-    assertNull(doc.fieldType("name"));
+    assertNull(doc.getPropertyType("name"));
   }
 
   @Test
@@ -49,7 +49,7 @@ public class PropertyAccessTest extends DbTestBase {
     assertEquals("one value", doc1.getProperty("name"));
     assertEquals("one value", doc1.field("name"));
     assertTrue(doc1.containsField("name"));
-    assertEquals(PropertyType.STRING, doc1.fieldType("name"));
+    assertEquals(PropertyType.STRING, doc1.getPropertyType("name"));
 
     Set<String> toHide = new HashSet<>();
     toHide.add("name");
@@ -57,7 +57,7 @@ public class PropertyAccessTest extends DbTestBase {
     assertNull(doc1.getProperty("name"));
     assertNull(doc1.field("name"));
     assertFalse(doc1.containsField("name"));
-    assertNull(doc1.fieldType("name"));
+    assertNull(doc1.getPropertyType("name"));
   }
 
   @Test

@@ -2090,7 +2090,7 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     serializerDelta.deserialize(db, res, extr);
 
     assertNotNull(extr.field("seri"));
-    assertEquals(PropertyType.CUSTOM, extr.fieldType("seri"));
+    assertEquals(PropertyType.CUSTOM, extr.getPropertyType("seri"));
     SimpleSerializableClass newser = extr.field("seri");
     assertEquals(newser.name, ser.name);
     GlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(old);

@@ -93,7 +93,7 @@ public interface Record extends Identifiable {
    *
    * @param iJson Object content in JSON format
    */
-  void fromJSON(String iJson);
+  void updateFromJSON(String iJson);
 
   /**
    * Exports the record in JSON format.

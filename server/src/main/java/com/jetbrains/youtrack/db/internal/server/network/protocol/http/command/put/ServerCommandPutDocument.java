@@ -67,7 +67,7 @@ public class ServerCommandPutDocument extends ServerCommandDocumentAbstract {
                 final EntityImpl entity;
                 // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
                 entity = new EntityImpl(db);
-                entity.fromJSON(iRequest.getContent());
+                entity.updateFromJSON(iRequest.getContent());
                 entity.setTrackingChanges(false);
 
                 if (iRequest.getIfMatch() != null)

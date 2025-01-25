@@ -350,12 +350,12 @@ public class EdgeDelegate implements EdgeInternal {
   }
 
   @Override
-  public void fromJSON(String iJson) {
+  public void updateFromJSON(String iJson) {
     if (entity == null) {
       throw new UnsupportedOperationException("fromJSON is not supported for lightweight edges");
     }
 
-    entity.fromJSON(iJson);
+    entity.updateFromJSON(iJson);
   }
 
   @Override
@@ -389,9 +389,9 @@ public class EdgeDelegate implements EdgeInternal {
   }
 
   @Override
-  public void fromMap(Map<String, ?> map) {
+  public void updateFromMap(Map<String, ?> map) {
     if (entity != null) {
-      entity.fromMap(map);
+      entity.updateFromMap(map);
     }
 
     throw new UnsupportedOperationException("fromMap is not supported for lightweight edges");

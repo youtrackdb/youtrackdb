@@ -132,7 +132,7 @@ public class AutomaticBackupTest {
         IOUtils.readStreamAsString(getClass().getResourceAsStream("automatic-backup.json"));
 
     EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON(jsonConfig);
+    doc.updateFromJSON(jsonConfig);
 
     doc.field("enabled", true);
     doc.field("targetFileName", "${DBNAME}.zip");
@@ -181,7 +181,7 @@ public class AutomaticBackupTest {
         IOUtils.readStreamAsString(getClass().getResourceAsStream("automatic-backup.json"));
 
     EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON(jsonConfig);
+    doc.updateFromJSON(jsonConfig);
 
     doc.field("enabled", true);
     doc.field("targetFileName", "${DBNAME}.zip");
@@ -264,7 +264,7 @@ public class AutomaticBackupTest {
         IOUtils.readStreamAsString(getClass().getResourceAsStream("automatic-backup.json"));
 
     EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON(jsonConfig);
+    doc.updateFromJSON(jsonConfig);
 
     doc.field("enabled", false);
     doc.field("targetFileName", "${DBNAME}.zip");

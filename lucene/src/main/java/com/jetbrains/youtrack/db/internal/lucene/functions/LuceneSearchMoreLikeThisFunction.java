@@ -181,7 +181,7 @@ public class LuceneSearchMoreLikeThisFunction extends SQLFunctionAbstract
   private static Map<String, ?> parseMetadata(SQLExpression[] args) {
     EntityImpl metadata = new EntityImpl(null);
     if (args.length == 2) {
-      metadata.fromJSON(args[1].toString());
+      metadata.updateFromJSON(args[1].toString());
     }
     return metadata.toMap();
   }

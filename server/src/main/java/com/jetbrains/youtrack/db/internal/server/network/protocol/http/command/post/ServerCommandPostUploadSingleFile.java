@@ -173,7 +173,7 @@ public class ServerCommandPostUploadSingleFile extends
           fileDocument = fileDocument.replace("$file", fileRID.toString());
         }
         EntityImpl entity = new EntityImpl(db);
-        entity.fromJSON(fileDocument);
+        entity.updateFromJSON(fileDocument);
         entity.save();
         writer.beginObject("updatedDocument");
         writer.writeAttribute(db, 1, true, "rid", entity.getIdentity().toString());

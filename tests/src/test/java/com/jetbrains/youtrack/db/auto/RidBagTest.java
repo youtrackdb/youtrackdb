@@ -1719,7 +1719,7 @@ public abstract class RidBagTest extends BaseDBTest {
     final String json = testDocument.toJSON(RecordAbstract.OLD_FORMAT_WITH_LATE_TYPES);
 
     final EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON(json);
+    doc.updateFromJSON(json);
 
     Assert.assertTrue(
         EntityHelper.hasSameContentOf(doc, db, testDocument, db, null));

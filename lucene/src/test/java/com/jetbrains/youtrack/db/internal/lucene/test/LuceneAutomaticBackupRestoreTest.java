@@ -170,7 +170,7 @@ public class LuceneAutomaticBackupRestoreTest {
             getClass().getClassLoader().getResourceAsStream("automatic-backup.json"));
 
     EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.fromJSON(jsonConfig);
+    doc.updateFromJSON(jsonConfig);
 
     doc.field("enabled", true);
     doc.field("targetFileName", "${DBNAME}.json");

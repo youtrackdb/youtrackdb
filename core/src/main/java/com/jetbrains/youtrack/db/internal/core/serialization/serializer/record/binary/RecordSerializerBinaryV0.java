@@ -828,7 +828,7 @@ public class RecordSerializerBinaryV0 implements EntitySerializer {
     return fullPos;
   }
 
-  protected Map<Object, Identifiable> readLinkMap(
+  protected Map<String, Identifiable> readLinkMap(
       DatabaseSessionInternal db, final BytesContainer bytes,
       final RecordElement owner,
       boolean justRunThrough,
@@ -844,9 +844,9 @@ public class RecordSerializerBinaryV0 implements EntitySerializer {
           schema);
       final RecordId value = readOptimizedLink(bytes, justRunThrough);
       if (value.equals(NULL_RECORD_ID)) {
-        result.putInternal(key, null);
+        result.putInternal(key.toString(), null);
       } else {
-        result.putInternal(key, value);
+        result.putInternal(key.toString(), value);
       }
     }
     return result;
@@ -871,9 +871,9 @@ public class RecordSerializerBinaryV0 implements EntitySerializer {
           last = bytes.offset;
         }
         bytes.offset = headerCursor;
-        result.putInternal(key, value);
+        result.putInternal(key.toString(), value);
       } else {
-        result.putInternal(key, null);
+        result.putInternal(key.toString(), null);
       }
     }
     if (last > bytes.offset) {

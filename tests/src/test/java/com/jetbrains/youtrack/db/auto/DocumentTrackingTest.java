@@ -793,7 +793,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     final Map<String, String> trackedMap = document.field("embeddedmap");
     trackedMap.put("key2", "value2");
 
-    final Map<Object, String> newTrackedMap = new TrackedMap<>(document);
+    final Map<String, String> newTrackedMap = new TrackedMap<>(document);
     document.field("embeddedmap", newTrackedMap);
     newTrackedMap.put("key3", "value3");
 

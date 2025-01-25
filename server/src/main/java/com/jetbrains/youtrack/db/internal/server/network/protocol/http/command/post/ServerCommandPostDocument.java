@@ -19,14 +19,13 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.post;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandDocumentAbstract;
 
 public class ServerCommandPostDocument extends ServerCommandDocumentAbstract {
@@ -45,7 +44,7 @@ public class ServerCommandPostDocument extends ServerCommandDocumentAbstract {
           db.computeInTx(
               () -> {
                 EntityImpl entity = new EntityImpl(db);
-                entity.fromJSON(iRequest.getContent());
+                entity.updateFromJSON(iRequest.getContent());
                 RecordInternal.setVersion(entity, 0);
 
                 // ASSURE TO MAKE THE RECORD ID INVALID

@@ -176,7 +176,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
 
     EntityImpl doc =
         ((EntityImpl) db.newEntity());
-    doc.fromJSON(jsonConfig);
+    doc.updateFromJSON(jsonConfig);
     doc.field("enabled", true)
         .field("targetFileName", "${DBNAME}.json")
         .field("targetDirectory", BACKUPDIR)

@@ -68,7 +68,7 @@ public class SQLMethodToJSON extends AbstractSQLMethod {
 
       final EntityImpl entity = new EntityImpl(null);
       //noinspection unchecked
-      entity.fromMap((Map<String, Object>) current);
+      entity.updateFromMap((Map<String, Object>) current);
       return iParams.length == 1 ? entity.toJSON(format) : entity.toJSON();
     } else if (MultiValue.isMultiValue(current)) {
       StringBuilder builder = new StringBuilder();

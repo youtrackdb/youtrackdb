@@ -27,6 +27,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import javax.annotation.Nonnull;
 
 /**
  * Lazy implementation of LinkedHashMap. It's bound to a source Record object to keep track of
@@ -48,7 +49,7 @@ public class LinkMap extends TrackedMap<Identifiable> implements Sizeable {
     this.recordType = iRecordType;
   }
 
-  public LinkMap(final EntityImpl iSourceRecord, final Map<Object, Identifiable> iOrigin) {
+  public LinkMap(final EntityImpl iSourceRecord, final Map<String, Identifiable> iOrigin) {
     this(iSourceRecord);
 
     if (iOrigin != null && !iOrigin.isEmpty()) {
@@ -72,7 +73,7 @@ public class LinkMap extends TrackedMap<Identifiable> implements Sizeable {
   }
 
   @Override
-  public Identifiable put(final Object key, Identifiable value) {
+  public Identifiable put(final String key, Identifiable value) {
     if (multiValueStatus == MULTIVALUE_CONTENT_TYPE.ALL_RIDS
         && value instanceof Record
         && !value.getIdentity().isNew())
@@ -87,6 +88,7 @@ public class LinkMap extends TrackedMap<Identifiable> implements Sizeable {
   }
 
   @Override
+  @Nonnull
   public Collection<Identifiable> values() {
     return super.values();
   }

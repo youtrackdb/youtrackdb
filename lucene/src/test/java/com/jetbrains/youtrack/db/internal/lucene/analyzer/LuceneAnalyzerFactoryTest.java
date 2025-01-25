@@ -6,7 +6,6 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -41,7 +40,7 @@ public class LuceneAnalyzerFactoryTest extends LuceneBaseTest {
     String metajson =
         IOUtils.readFileAsString(new File("./src/test/resources/index_metadata_new.json"));
     var metadataDocument = ((EntityImpl) db.newEntity());
-    metadataDocument.fromJSON(metajson);
+    metadataDocument.updateFromJSON(metajson);
     metadata = metadataDocument.toMap();
 
     indexDef = Mockito.mock(IndexDefinition.class);

@@ -360,6 +360,6 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
     EntityImpl extr = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(extr);
     extr.fromStream(res);
-    assertEquals(PropertyType.STRING, extr.fieldType("name"));
+    assertEquals(PropertyType.STRING, extr.getPropertyType("name"));
   }
 }

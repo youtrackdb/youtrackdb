@@ -82,7 +82,7 @@ public class DocumentTest extends DbTestBase {
 
     doc.field("some", 3);
     doc.setFieldType("some", PropertyType.STRING);
-    Assert.assertEquals(PropertyType.STRING, doc.fieldType("some"));
+    Assert.assertEquals(PropertyType.STRING, doc.getPropertyType("some"));
     Assert.assertEquals("3", doc.field("some"));
   }
 

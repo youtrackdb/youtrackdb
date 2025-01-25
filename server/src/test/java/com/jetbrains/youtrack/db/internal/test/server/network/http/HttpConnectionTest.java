@@ -99,7 +99,7 @@ public class HttpConnectionTest extends BaseHttpDatabaseTest {
           200);
 
       final EntityImpl serverStatus =
-          new EntityImpl(null).fromJSON(getResponse().getEntity().getContent());
+          new EntityImpl(null).updateFromJSON(getResponse().getEntity().getContent());
       conns = serverStatus.field("connections");
 
       final int openConnections = conns.size();

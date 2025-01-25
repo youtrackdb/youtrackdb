@@ -111,7 +111,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
   public void testCreateIndexEmbeddedMapJSON() {
     db.begin();
     var songDoc = ((EntityImpl) db.newEntity(SONG_CLASS));
-    songDoc.fromJSON(
+    songDoc.updateFromJSON(
         "{\n"
             + "    \"description\": \"Capital\",\n"
             + "    \"String"

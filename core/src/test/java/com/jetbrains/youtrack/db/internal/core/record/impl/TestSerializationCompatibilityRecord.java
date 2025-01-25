@@ -37,6 +37,6 @@ public class TestSerializationCompatibilityRecord extends DbTestBase {
     db.commit();
 
     EntityImpl record1 = db.load(id);
-    assertEquals(PropertyType.LINKMAP, record1.fieldType("map"));
+    assertEquals(PropertyType.LINKMAP, record1.getPropertyType("map"));
   }
 }

@@ -129,7 +129,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
 
     public EntityImpl toEntity(DatabaseSessionInternal db) {
       EntityImpl entity = new EntityImpl(null);
-      entity.fromMap(matched);
+      entity.updateFromMap(matched);
       return entity;
     }
   }
@@ -1065,7 +1065,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
 
       EntityImpl mapDoc = new EntityImpl(null);
       mapDoc.setTrackingChanges(false);
-      mapDoc.fromMap(matchContext.matched);
+      mapDoc.updateFromMap(matchContext.matched);
       ctx.setVariable("$current", mapDoc);
       for (SQLExpression item : returnItems) {
         SQLIdentifier returnAliasIdentifier = returnAliases.get(i);
@@ -1167,7 +1167,8 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
       var db = ctx.getDatabase();
       EntityImpl result = new EntityImpl(null);
       result.setTrackingChanges(false);
-      result.fromMap(((SQLJson) returnItems.get(0).value).toMap(matchContext.toEntity(db), ctx));
+      result.updateFromMap(
+          ((SQLJson) returnItems.get(0).value).toMap(matchContext.toEntity(db), ctx));
       return result;
     }
     throw new IllegalStateException("Match RETURN statement is not a plain JSON");

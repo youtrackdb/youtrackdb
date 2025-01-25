@@ -317,7 +317,7 @@ public class HelperClasses {
     return fullPos;
   }
 
-  public static Map<Object, Identifiable> readLinkMap(
+  public static Map<String, Identifiable> readLinkMap(
       final BytesContainer bytes, final RecordElement owner, boolean justRunThrough) {
     int size = VarIntSerializer.readAsInteger(bytes);
     LinkMap result = null;
