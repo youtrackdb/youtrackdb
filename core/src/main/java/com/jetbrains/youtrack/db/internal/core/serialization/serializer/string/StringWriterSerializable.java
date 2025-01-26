@@ -21,12 +21,13 @@ package com.jetbrains.youtrack.db.internal.core.serialization.serializer.string;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
+import java.io.StringWriter;
 
-public interface StringBuilderSerializable {
+public interface StringWriterSerializable {
 
-  StringBuilderSerializable toStream(DatabaseSessionInternal db, StringBuilder iOutput)
+  StringWriterSerializable toStream(DatabaseSessionInternal db, StringWriter iOutput)
       throws SerializationException;
 
-  StringBuilderSerializable fromStream(DatabaseSessionInternal db, StringBuilder iInput)
+  StringWriterSerializable fromStream(DatabaseSessionInternal db, StringWriter iInput)
       throws SerializationException;
 }

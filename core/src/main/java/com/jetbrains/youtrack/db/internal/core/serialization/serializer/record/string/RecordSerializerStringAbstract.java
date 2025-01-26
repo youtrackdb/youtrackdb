@@ -38,6 +38,7 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.string.S
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.string.StringSerializerEmbedded;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -128,7 +129,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
   }
 
   public static void fieldTypeToString(
-      DatabaseSessionInternal db, final StringBuilder iBuffer, PropertyType iType,
+      DatabaseSessionInternal db, final StringWriter iBuffer, PropertyType iType,
       final Object iValue) {
     if (iValue == null) {
       return;
@@ -243,9 +244,9 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
 
       case LINK:
         if (iValue instanceof RecordId) {
-          ((RecordId) iValue).toString(iBuffer);
+          iBuffer.append(iValue.toString());
         } else {
-          ((RecordId) ((Identifiable) iValue).getIdentity()).toString(iBuffer);
+          iBuffer.append(((Identifiable) iValue).getIdentity().toString());
         }
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.link2string"),
@@ -654,7 +655,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
   }
 
   public static void simpleValueToStream(
-      final StringBuilder iBuffer, final PropertyType iType, final Object iValue) {
+      final StringWriter iBuffer, final PropertyType iType, final Object iValue) {
     if (iValue == null || iType == null) {
       return;
     }
@@ -665,16 +666,12 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
         iBuffer.append('"');
         break;
 
-      case BOOLEAN:
-        iBuffer.append(iValue);
-        break;
-
-      case INTEGER:
-        iBuffer.append(iValue);
+      case BOOLEAN, INTEGER:
+        iBuffer.append(iValue.toString());
         break;
 
       case FLOAT:
-        iBuffer.append(iValue);
+        iBuffer.append(iValue.toString());
         iBuffer.append('f');
         break;
 
@@ -682,33 +679,33 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
         if (iValue instanceof BigDecimal) {
           iBuffer.append(((BigDecimal) iValue).toPlainString());
         } else {
-          iBuffer.append(iValue);
+          iBuffer.append(iValue.toString());
         }
         iBuffer.append('c');
         break;
 
       case LONG:
-        iBuffer.append(iValue);
+        iBuffer.append(iValue.toString());
         iBuffer.append('l');
         break;
 
       case DOUBLE:
-        iBuffer.append(iValue);
+        iBuffer.append(iValue.toString());
         iBuffer.append('d');
         break;
 
       case SHORT:
-        iBuffer.append(iValue);
+        iBuffer.append(iValue.toString());
         iBuffer.append('s');
         break;
 
       case BYTE:
-        if (iValue instanceof Character) {
-          iBuffer.append((int) ((Character) iValue).charValue());
+        if (iValue instanceof Character character) {
+          iBuffer.append(character);
         } else if (iValue instanceof String) {
-          iBuffer.append((int) ((String) iValue).charAt(0));
+          iBuffer.append(((String) iValue).charAt(0));
         } else {
-          iBuffer.append(iValue);
+          iBuffer.append(iValue.toString());
         }
         iBuffer.append('b');
         break;
@@ -734,18 +731,18 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
           calendar.set(Calendar.SECOND, 0);
           calendar.set(Calendar.MILLISECOND, 0);
 
-          iBuffer.append(calendar.getTimeInMillis());
+          iBuffer.append(String.valueOf(calendar.getTimeInMillis()));
         } else {
-          iBuffer.append(iValue);
+          iBuffer.append(iValue.toString());
         }
         iBuffer.append('a');
         break;
 
       case DATETIME:
         if (iValue instanceof Date) {
-          iBuffer.append(((Date) iValue).getTime());
+          iBuffer.append(String.valueOf(((Date) iValue).getTime()));
         } else {
-          iBuffer.append(iValue);
+          iBuffer.append(iValue.toString());
         }
         iBuffer.append('t');
         break;
@@ -755,8 +752,8 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
   public abstract <T extends Record> T fromString(
       DatabaseSessionInternal db, String iContent, RecordAbstract iRecord, String[] iFields);
 
-  public StringBuilder toString(
-      DatabaseSessionInternal db, final Record iRecord, final StringBuilder iOutput,
+  public StringWriter toString(
+      DatabaseSessionInternal db, final Record iRecord, final StringWriter iOutput,
       final String iFormat) {
     return toString(db, iRecord, iOutput, iFormat, true);
   }
@@ -792,7 +789,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
     final long timer = PROFILER.startChrono();
 
     try {
-      return toString(db, iRecord, new StringBuilder(2048), null, true)
+      return toString(db, iRecord, new StringWriter(2048), null, true)
           .toString()
           .getBytes(StandardCharsets.UTF_8);
     } finally {
@@ -804,9 +801,9 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
     }
   }
 
-  protected abstract StringBuilder toString(
+  protected abstract StringWriter toString(
       DatabaseSessionInternal db, final Record iRecord,
-      final StringBuilder iOutput,
+      final StringWriter iOutput,
       final String iFormat,
       boolean autoDetectCollectionType);
 

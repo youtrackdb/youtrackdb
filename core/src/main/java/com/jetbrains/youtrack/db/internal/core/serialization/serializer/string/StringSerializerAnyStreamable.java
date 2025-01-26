@@ -25,6 +25,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
+import java.io.StringWriter;
 import java.util.Base64;
 
 public class StringSerializerAnyStreamable implements StringSerializer {
@@ -73,7 +74,7 @@ public class StringSerializerAnyStreamable implements StringSerializer {
    * @param db
    * @param iValue
    */
-  public StringBuilder toStream(DatabaseSessionInternal db, final StringBuilder iOutput,
+  public StringWriter toStream(DatabaseSessionInternal db, final StringWriter iOutput,
       Object iValue) {
     if (iValue != null) {
       if (!(iValue instanceof SerializableStream stream)) {

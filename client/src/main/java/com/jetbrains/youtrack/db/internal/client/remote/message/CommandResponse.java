@@ -44,6 +44,7 @@ import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinar
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -264,7 +265,7 @@ public final class CommandResponse implements BinaryResponse {
       }
     } else {
       channel.writeByte((byte) 'a');
-      final StringBuilder value = new StringBuilder(64);
+      final StringWriter value = new StringWriter(64);
       if (listener != null) {
         EntityImpl entity = new EntityImpl(null);
         entity.field("result", result);

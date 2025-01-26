@@ -41,13 +41,14 @@ import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BytesContainer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.string.StringBuilderSerializable;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.string.StringWriterSerializable;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeBasedRidBag;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.Change;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.RemoteTreeRidBag;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.EdgeBTree;
+import java.io.StringWriter;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Iterator;
@@ -87,7 +88,7 @@ import javax.annotation.Nonnull;
  * @since 1.7rc1
  */
 public class RidBag
-    implements StringBuilderSerializable,
+    implements StringWriterSerializable,
     Iterable<RID>,
     Sizeable,
     TrackedMultiValue<RID, RID>,
@@ -324,7 +325,7 @@ public class RidBag
   }
 
   @Override
-  public StringBuilderSerializable toStream(DatabaseSessionInternal db, StringBuilder output)
+  public StringWriterSerializable toStream(DatabaseSessionInternal db, StringWriter output)
       throws SerializationException {
     final BytesContainer container = new BytesContainer();
     toStream(db, container);
@@ -342,7 +343,7 @@ public class RidBag
   }
 
   @Override
-  public StringBuilderSerializable fromStream(DatabaseSessionInternal db, StringBuilder input)
+  public StringWriterSerializable fromStream(DatabaseSessionInternal db, StringWriter input)
       throws SerializationException {
     final byte[] stream = Base64.getDecoder().decode(input.toString());
     fromStream(db, stream);

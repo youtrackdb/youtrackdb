@@ -41,6 +41,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.util.Arrays;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -238,7 +239,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   public final <RET extends Record> RET updateFromJSON(final String iSource, boolean needReload) {
     status = STATUS.UNMARSHALLING;
     try {
-      return (RET) RecordSerializerJackson.INSTANCE.fromString(getSession(), iSource, this, null);
+      return RecordSerializerJackson.INSTANCE.fromString(getSession(), iSource, this, null);
     } finally {
       status = STATUS.LOADED;
     }
@@ -266,7 +267,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     checkForBinding();
 
     return RecordSerializerJackson.INSTANCE
-        .toString(getSessionIfDefined(), this, new StringBuilder(1024),
+        .toString(getSessionIfDefined(), this, new StringWriter(1024),
             format == null ? "" : format)
         .toString();
   }

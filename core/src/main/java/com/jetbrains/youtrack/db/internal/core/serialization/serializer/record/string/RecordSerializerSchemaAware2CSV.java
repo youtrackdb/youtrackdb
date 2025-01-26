@@ -36,6 +36,7 @@ import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -333,9 +334,9 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
   }
 
   @Override
-  protected StringBuilder toString(
+  protected StringWriter toString(
       DatabaseSessionInternal db, Record iRecord,
-      final StringBuilder iOutput,
+      final StringWriter iOutput,
       final String iFormat,
       final boolean autoDetectCollectionType) {
     if (iRecord == null) {

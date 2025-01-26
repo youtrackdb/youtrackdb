@@ -47,8 +47,9 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.EntitySerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.string.StringBuilderSerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.string.StringSerializerEmbedded;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.string.StringWriterSerializable;
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -71,7 +72,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
    * @return
    */
   private static Identifiable linkToStream(
-      DatabaseSessionInternal db, final StringBuilder buffer, final EntityImpl iParentRecord,
+      DatabaseSessionInternal db, final StringWriter buffer, final EntityImpl iParentRecord,
       Object iLinked) {
     if (iLinked == null)
     // NULL REFERENCE
@@ -122,7 +123,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
     }
 
     if (rid.isValid()) {
-      rid.toString(buffer);
+      buffer.append(rid.toString());
     }
 
     return resultRid;
@@ -365,7 +366,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
   public void fieldToStream(
       DatabaseSessionInternal db, final EntityImpl iRecord,
-      final StringBuilder iOutput,
+      final StringWriter iOutput,
       final PropertyType iType,
       final SchemaClass iLinkedClass,
       final PropertyType iLinkedType,
@@ -446,7 +447,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         }
 
         if (it != null && it.hasNext()) {
-          final StringBuilder buffer = new StringBuilder(128);
+          final StringWriter buffer = new StringWriter(128);
           for (int items = 0; it.hasNext(); items++) {
             if (items > 0) {
               buffer.append(StringSerializerHelper.RECORD_SEPARATOR);
@@ -464,7 +465,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
             coll.convertRecords2Links();
           }
 
-          iOutput.append(buffer);
+          iOutput.append(buffer.toString());
         }
 
         iOutput.append(StringSerializerHelper.LIST_END);
@@ -476,7 +477,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       }
 
       case LINKSET: {
-        if (!(iValue instanceof StringBuilderSerializable coll)) {
+        if (!(iValue instanceof StringWriterSerializable coll)) {
           final Collection<Identifiable> coll;
           // FIRST TIME: CONVERT THE ENTIRE COLLECTION
           if (!(iValue instanceof LinkSet)) {
@@ -558,7 +559,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
           iOutput.append(StringSerializerHelper.EMBEDDED_END);
 
         } else {
-          iOutput.append(iValue);
+          iOutput.append(iValue.toString());
         }
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.embed2string"),
@@ -607,7 +608,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
   public void embeddedMapToStream(
       DatabaseSessionInternal db,
-      final StringBuilder iOutput,
+      final StringWriter iOutput,
       PropertyType iLinkedType,
       final Object iValue) {
     iOutput.append(StringSerializerHelper.MAP_BEGIN);
@@ -782,7 +783,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
   public void embeddedCollectionToStream(
       DatabaseSessionInternal db,
-      final StringBuilder iOutput,
+      final StringWriter iOutput,
       final SchemaClass iLinkedClass,
       final PropertyType iLinkedType,
       final Object iValue,
@@ -884,7 +885,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
     return convert;
   }
 
-  private void serializeSet(final Collection<Identifiable> coll, final StringBuilder iOutput) {
+  private void serializeSet(final Collection<Identifiable> coll, final StringWriter iOutput) {
     iOutput.append(StringSerializerHelper.SET_BEGIN);
     int i = 0;
     for (Identifiable rid : coll) {

@@ -22,12 +22,11 @@ package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import java.io.StringWriter;
 
 public class RecordSerializerJSON extends RecordSerializerStringAbstract {
-
   public static final String NAME = "json";
   public static final char[] PARAMETER_SEPARATOR = new char[]{':', ','};
-  public static final int INITIAL_SIZE = 5000;
 
   public static class FormatSettings {
     public boolean includeVer;
@@ -139,9 +138,9 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
   }
 
   @Override
-  public StringBuilder toString(
+  public StringWriter toString(
       DatabaseSessionInternal db, final Record record,
-      final StringBuilder output,
+      final StringWriter output,
       final String format,
       boolean autoDetectCollectionType) {
     throw new UnsupportedOperationException("Not implemented");

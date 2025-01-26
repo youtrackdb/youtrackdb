@@ -28,6 +28,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.EntitySerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerSchemaAware2CSV;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
 public class StringSerializerEmbedded implements StringSerializer {
@@ -94,7 +95,7 @@ public class StringSerializerEmbedded implements StringSerializer {
   /**
    * Serialize the class name size + class name + object content
    */
-  public StringBuilder toStream(DatabaseSessionInternal db, final StringBuilder iOutput,
+  public StringWriter toStream(DatabaseSessionInternal db, final StringWriter iOutput,
       Object iValue) {
     if (iValue != null) {
       if (iValue instanceof EntitySerializable) {

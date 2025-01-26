@@ -20,11 +20,14 @@
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string;
 
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
@@ -32,6 +35,7 @@ import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
+import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
@@ -55,7 +59,9 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSe
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJSON.FormatSettings;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.math.BigDecimal;
 import java.util.Base64;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -66,7 +72,6 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
   private static final JsonFactory JSON_FACTORY = new JsonFactory();
   public static final String NAME = "jackson";
   public static final RecordSerializerJackson INSTANCE = new RecordSerializerJackson();
-
 
   @Override
   public int getCurrentVersion() {
@@ -84,7 +89,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     try {
       String className = null;
       Map<String, String> fieldTypes = null;
-      byte recordType = EntityImpl.RECORD_TYPE;
+      char recordType = EntityImpl.RECORD_TYPE;
 
       try (JsonParser jsonParser = JSON_FACTORY.createParser(source)) {
         var token = jsonParser.nextToken();
@@ -125,7 +130,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
                       "Record type mismatch: " + fieldValueAsString + " != "
                           + record.getRecordType());
                 }
-                recordType = fieldValueAsString.getBytes()[0];
+                recordType = fieldValueAsString.charAt(0);
                 token = jsonParser.nextToken();
               }
               case EntityHelper.ATTRIBUTE_RID -> {
@@ -160,9 +165,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
                 className = "null".equals(fieldValueAsString) ? null : fieldValueAsString;
                 token = jsonParser.nextToken();
               }
-              default -> {
-                token = skipFieldValue(jsonParser);
-              }
+              default -> token = skipFieldValue(jsonParser);
             }
           } else {
             throw new SerializationException(
@@ -261,24 +264,18 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
           var fieldValue = nextToken.asString();
           if ("null".equals(fieldValue)) {
             record.fromStream(CommonConst.EMPTY_BYTE_ARRAY);
+          } else if (record instanceof Blob) {
+            // BYTES
+            RecordInternal.unsetDirty(record);
+            RecordInternal.fill(
+                record,
+                record.getIdentity(),
+                record.getVersion(),
+                Base64.getDecoder().decode(fieldValue),
+                true);
           } else {
-            if (record instanceof Blob) {
-              // BYTES
-              RecordInternal.unsetDirty(record);
-              RecordInternal.fill(
-                  record,
-                  record.getIdentity(),
-                  record.getVersion(),
-                  Base64.getDecoder().decode(fieldValue),
-                  true);
-            } else {
-              if (record instanceof RecordStringable) {
-                ((RecordStringable) record).value(fieldValue);
-              } else {
-                throw new SerializationException(
-                    "Unsupported type of record : " + record.getClass().getName());
-              }
-            }
+            throw new SerializationException(
+                "Unsupported type of record : " + record.getClass().getName());
           }
         } else {
           throw new SerializationException(
@@ -343,51 +340,232 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
   }
 
   @Override
-  public StringBuilder toString(
+  public StringWriter toString(
       DatabaseSessionInternal db, final Record record,
-      final StringBuilder output,
+      final StringWriter output,
       final String format,
       boolean autoDetectCollectionType) {
-    try {
-      final StringWriter buffer = new StringWriter(RecordSerializerJSON.INITIAL_SIZE);
-      final JSONWriter json = new JSONWriter(buffer, format);
-      final FormatSettings settings = new FormatSettings(format);
-
-      json.beginObject();
-
-      final JSONFetchContext context = new JSONFetchContext(json, settings);
-      context.writeSignature(db, json, record);
-      if (record instanceof EntityImpl) {
-        final FetchPlan fp = FetchHelper.buildFetchPlan(settings.fetchPlan);
-        FetchHelper.fetch(db, record, null, fp, new JSONFetchListener(), context, format);
-      } else {
-        if (record instanceof RecordStringable recordStringable) {
-          // STRINGABLE
-          json.writeAttribute(db, settings.indentLevel, true, "value", recordStringable.value());
-        } else {
-          if (record instanceof Blob recordBlob) {
-            // BYTES
-            json.writeAttribute(db,
-                settings.indentLevel,
-                true,
-                "value",
-                Base64.getEncoder().encodeToString(((RecordAbstract) recordBlob).toStream()));
-          } else {
-            throw new SerializationException(
-                "Error on marshalling record of type '"
-                    + record.getClass()
-                    + "' to JSON. The record type cannot be exported to JSON");
-          }
-        }
-      }
-      json.endObject(settings.indentLevel, true);
-
-      output.append(buffer);
+    try (var jsonGenerator = JSON_FACTORY.createGenerator(output)) {
+      toJson(record, jsonGenerator);
       return output;
     } catch (final IOException e) {
       throw BaseException.wrapException(
           new SerializationException("Error on marshalling of record to JSON"), e);
     }
+  }
+
+  private static void toJson(Record record, JsonGenerator jsonGenerator) throws IOException {
+    jsonGenerator.writeStartObject();
+    writeSignature(jsonGenerator, (RecordAbstract) record);
+
+    if (record instanceof EntityImpl entity) {
+      for (var propertyName : entity.getPropertyNames()) {
+        jsonGenerator.writeFieldName(propertyName);
+        var propertyValue = entity.getProperty(propertyName);
+
+        serializeValue(jsonGenerator, propertyValue);
+      }
+    } else if (record instanceof Blob recordBlob) {
+      // BYTES
+      jsonGenerator.writeFieldName("value");
+      jsonGenerator.writeBinary(((RecordAbstract) recordBlob).toStream());
+    } else {
+      throw new SerializationException(
+          "Error on marshalling record of type '"
+              + record.getClass()
+              + "' to JSON. The record type cannot be exported to JSON");
+    }
+    jsonGenerator.writeEndObject();
+  }
+
+  private static void serializeValue(JsonGenerator jsonGenerator, Object propertyValue)
+      throws IOException {
+    if (propertyValue != null) {
+      switch (propertyValue) {
+        case String string -> jsonGenerator.writeString(string);
+
+        case Integer integer -> jsonGenerator.writeNumber(integer);
+        case Long longValue -> jsonGenerator.writeNumber(longValue);
+        case Float floatValue -> jsonGenerator.writeNumber(floatValue);
+        case Double doubleValue -> jsonGenerator.writeNumber(doubleValue);
+        case Short shortValue -> jsonGenerator.writeNumber(shortValue);
+        case Byte byteValue -> jsonGenerator.writeNumber(byteValue);
+        case BigDecimal bigDecimal -> jsonGenerator.writeNumber(bigDecimal);
+
+        case Boolean booleanValue -> jsonGenerator.writeBoolean(booleanValue);
+
+        case byte[] byteArray -> jsonGenerator.writeBinary(byteArray);
+        case Entity entityValue -> {
+          if (entityValue.isEmbedded()) {
+            toJson(entityValue, jsonGenerator);
+          } else {
+            serializeLink(jsonGenerator, entityValue.getIdentity());
+          }
+        }
+
+        case RID link -> serializeLink(jsonGenerator, link);
+        case LinkList linkList -> {
+          jsonGenerator.writeStartArray();
+          for (var link : linkList) {
+            serializeLink(jsonGenerator, link.getIdentity());
+          }
+          jsonGenerator.writeEndArray();
+        }
+        case LinkSet linkSet -> {
+          jsonGenerator.writeStartArray();
+          for (var link : linkSet) {
+            serializeLink(jsonGenerator, link.getIdentity());
+          }
+          jsonGenerator.writeEndArray();
+        }
+        case RidBag ridBag -> {
+          jsonGenerator.writeStartArray();
+          for (var link : ridBag) {
+            serializeLink(jsonGenerator, link.getIdentity());
+          }
+          jsonGenerator.writeEndArray();
+        }
+        case LinkMap linkMap -> {
+          jsonGenerator.writeStartObject();
+          for (var entry : linkMap.entrySet()) {
+            jsonGenerator.writeFieldName(entry.getKey());
+            serializeLink(jsonGenerator, entry.getValue().getIdentity());
+          }
+          jsonGenerator.writeEndObject();
+        }
+
+        case TrackedList<?> trackedList -> {
+          jsonGenerator.writeStartArray();
+          for (var value : trackedList) {
+            serializeValue(jsonGenerator, value);
+          }
+          jsonGenerator.writeEndArray();
+        }
+        case TrackedSet<?> trackedSet -> {
+          jsonGenerator.writeStartArray();
+          for (var value : trackedSet) {
+            serializeValue(jsonGenerator, value);
+          }
+          jsonGenerator.writeEndArray();
+        }
+        case TrackedMap<?> trackedMap -> {
+          jsonGenerator.writeStartObject();
+          for (var entry : trackedMap.entrySet()) {
+            jsonGenerator.writeFieldName(entry.getKey());
+            serializeValue(jsonGenerator, entry.getValue());
+          }
+          jsonGenerator.writeEndObject();
+        }
+
+        case Date date -> jsonGenerator.writeNumber(date.getTime());
+        default -> throw new SerializationException(
+            "Error on marshalling of record to JSON. Unsupported value: " + propertyValue);
+      }
+    } else {
+      jsonGenerator.writeNull();
+    }
+  }
+
+  private static void serializeLink(JsonGenerator jsonGenerator, RID rid)
+      throws IOException {
+    if (!rid.isPersistent()) {
+      throw new SerializationException(
+          "Cannot serialize non-persistent link: " + rid);
+    }
+    jsonGenerator.writeString(rid.toString());
+  }
+
+  private static void writeSignature(JsonGenerator jsonGenerator,
+      RecordAbstract record)
+      throws IOException {
+    if (record instanceof EntityImpl entity) {
+      if (!entity.isEmbedded()) {
+        jsonGenerator.writeFieldName(EntityHelper.ATTRIBUTE_TYPE);
+        jsonGenerator.writeString(String.valueOf(record.getRecordType()));
+
+        jsonGenerator.writeFieldName(EntityHelper.ATTRIBUTE_RID);
+        serializeLink(jsonGenerator, entity.getIdentity());
+      }
+
+      var schemaClass = entity.getSchemaClass();
+      if (schemaClass != null) {
+        jsonGenerator.writeFieldName(EntityHelper.ATTRIBUTE_CLASS);
+        jsonGenerator.writeString(schemaClass.getName());
+      }
+
+      var fieldTypes = new HashMap<String, String>();
+      for (var propertyName : entity.getPropertyNames()) {
+        PropertyType type = fetchPropertyType(entity, propertyName,
+            schemaClass);
+
+        if (type != null) {
+          var charType = charType(type);
+          if (charType != null) {
+            fieldTypes.put(propertyName, charType);
+          }
+        }
+      }
+
+      jsonGenerator.writeFieldName(FieldTypesString.ATTRIBUTE_FIELD_TYPES);
+      jsonGenerator.writeStartObject();
+      for (var entry : fieldTypes.entrySet()) {
+        jsonGenerator.writeFieldName(entry.getKey());
+        jsonGenerator.writeString(entry.getValue());
+      }
+
+      jsonGenerator.writeEndObject();
+    } else {
+      jsonGenerator.writeFieldName(EntityHelper.ATTRIBUTE_TYPE);
+      jsonGenerator.writeString(String.valueOf(record.getRecordType()));
+
+      jsonGenerator.writeFieldName(EntityHelper.ATTRIBUTE_RID);
+      jsonGenerator.writeString(record.getIdentity().toString());
+    }
+  }
+
+  private static PropertyType fetchPropertyType(EntityImpl entity, String propertyName,
+      SchemaClass schemaClass) {
+    PropertyType type = null;
+    if (schemaClass != null) {
+      var property = schemaClass.getProperty(propertyName);
+
+      if (property != null) {
+        type = property.getType();
+      }
+    }
+
+    if (type == null) {
+      type = entity.getPropertyType(propertyName);
+    }
+
+    if (type == null) {
+      type = PropertyType.getTypeByValue(entity.getProperty(propertyName));
+    }
+
+    return type;
+  }
+
+  private static String charType(PropertyType type) {
+    return switch (type) {
+      case FLOAT -> "f";
+      case DECIMAL -> "c";
+      case LONG -> "l";
+      case BYTE -> "y";
+      case BINARY -> "b";
+      case DOUBLE -> "d";
+      case DATE -> "a";
+      case DATETIME -> "t";
+      case SHORT -> "s";
+      case EMBEDDEDSET -> "e";
+      case EMBEDDED -> "w";
+      case LINKBAG -> "g";
+      case LINKLIST -> "z";
+      case LINKMAP -> "m";
+      case LINK -> "x";
+      case LINKSET -> "n";
+      case CUSTOM -> "u";
+      default -> null;
+    };
   }
 
   @Override
@@ -417,6 +595,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
       case "c" -> PropertyType.DECIMAL;
       case "l" -> PropertyType.LONG;
       case "b" -> PropertyType.BINARY;
+      case "y" -> PropertyType.BYTE;
       case "d" -> PropertyType.DOUBLE;
       case "a" -> PropertyType.DATE;
       case "t" -> PropertyType.DATETIME;
@@ -428,8 +607,9 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
       case "x" -> PropertyType.LINK;
       case "n" -> PropertyType.LINKSET;
       case "u" -> PropertyType.CUSTOM;
+      case "w" -> PropertyType.EMBEDDED;
       case null -> null;
-      default -> null;
+      default -> throw new IllegalArgumentException("Invalid type: " + charType);
     };
 
     if (type != null) {
@@ -489,7 +669,6 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
       case START_OBJECT -> switch (type) {
         case EMBEDDED -> parseEmbeddedEntity(db, jsonParser, source);
         case EMBEDDEDMAP -> parseEmbeddedMap(db, entity, jsonParser, source);
-
         case null -> {
           var value = parseEmbeddedMap(db, entity, jsonParser, source);
 
