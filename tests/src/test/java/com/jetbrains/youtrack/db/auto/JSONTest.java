@@ -72,16 +72,18 @@ public class JSONTest extends BaseDBTest {
 
   @Test
   public void testNullList() {
-    final EntityImpl documentSource = ((EntityImpl) db.newEntity());
-    documentSource.updateFromJSON("{\"list\" : [\"string\", null]}");
+    db.executeInTx(() -> {
+      final EntityImpl documentSource = ((EntityImpl) db.newEntity());
+      documentSource.updateFromJSON("{\"list\" : [\"string\", null]}");
 
-    final EntityImpl documentTarget = ((EntityImpl) db.newEntity());
-    RecordInternal.unsetDirty(documentTarget);
-    documentTarget.fromStream(documentSource.toStream());
+      final EntityImpl documentTarget = ((EntityImpl) db.newEntity());
+      RecordInternal.unsetDirty(documentTarget);
+      documentTarget.fromStream(documentSource.toStream());
 
-    final TrackedList<Object> list = documentTarget.field("list", PropertyType.EMBEDDEDLIST);
-    Assert.assertEquals(list.get(0), "string");
-    Assert.assertNull(list.get(1));
+      final TrackedList<Object> list = documentTarget.field("list", PropertyType.EMBEDDEDLIST);
+      Assert.assertEquals(list.get(0), "string");
+      Assert.assertNull(list.get(1));
+    });
   }
 
   @Test

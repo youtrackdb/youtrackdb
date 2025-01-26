@@ -154,9 +154,11 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
             if (token == JsonToken.START_ARRAY) {
               // ARRAY
               jsonParser.skipChildren();
+              token = jsonParser.nextToken();
             } else if (token == JsonToken.START_OBJECT) {
               // OBJECT
               jsonParser.skipChildren();
+              token = jsonParser.nextToken();
             } else {
               token = jsonParser.nextToken();
             }
@@ -190,7 +192,11 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
         while (token != JsonToken.END_OBJECT) {
           if (token == JsonToken.FIELD_NAME) {
             var fieldName = jsonParser.currentName();
+            jsonParser.nextToken();//jump to value
             parseRecord(db, fieldTypes, record, jsonParser, fieldName, source);
+          } else {
+            throw new SerializationException(
+                "Expected field name. JSON content:\r\n " + source);
           }
           token = jsonParser.nextToken();
         }
@@ -417,8 +423,8 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
       @Nonnull JsonParser jsonParser,
       @Nullable PropertyType type,
       @Nonnull String source) throws IOException {
-    var nextToken = jsonParser.nextToken();
-    return switch (nextToken) {
+    var token = jsonParser.currentToken();
+    return switch (token) {
       case VALUE_NULL -> null;
 
       case VALUE_STRING -> {
@@ -488,6 +494,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     Map<String, String> fieldTypes = new HashMap<>();
     while (token != JsonToken.END_OBJECT) {
       token = jsonParser.nextToken();
+
       if (token == JsonToken.FIELD_NAME) {
         var fieldName = jsonParser.currentName();
 
@@ -499,8 +506,10 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
             var className = jsonParser.nextTextValue();
             embedded.setClazzName(className);
           }
-
-          default -> parseRecord(db, fieldTypes, embedded, jsonParser, fieldName, source);
+          default -> {
+            jsonParser.currentToken();
+            parseRecord(db, fieldTypes, embedded, jsonParser, fieldName, source);
+          }
         }
       }
     }
@@ -511,7 +520,6 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
   private TrackedMap<Object> parseEmbeddedMap(DatabaseSessionInternal db, EntityImpl entity,
       JsonParser jsonParser, String source) throws IOException {
     var map = new TrackedMap<>(entity);
-    jsonParser.nextToken();
 
     while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
       var fieldName = jsonParser.currentName();
@@ -551,7 +559,6 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
   private TrackedList<Object> parseEmbeddedList(DatabaseSessionInternal db, EntityImpl entity,
       JsonParser jsonParser, String source) throws IOException {
     var list = new TrackedList<>(entity);
-    jsonParser.nextToken();
 
     while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
       list.add(parseValue(db, null, jsonParser, null, source));
@@ -563,7 +570,6 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
   private TrackedSet<Object> parseEmbeddedSet(DatabaseSessionInternal db, EntityImpl entity,
       JsonParser jsonParser, String source) throws IOException {
     var list = new TrackedSet<>(entity);
-    jsonParser.nextToken();
 
     while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
       list.add(parseValue(db, null, jsonParser, null, source));
