@@ -136,16 +136,18 @@ public class JSONTest extends BaseDBTest {
 
   @Test
   public void testNumericFloatList() {
-    final EntityImpl documentSource = ((EntityImpl) db.newEntity());
-    documentSource.updateFromJSON("{\"list\" : [17.3,42.7]}");
+    db.executeInTx(() -> {
+      final EntityImpl documentSource = ((EntityImpl) db.newEntity());
+      documentSource.updateFromJSON("{\"list\" : [17.3,42.7]}");
 
-    final EntityImpl documentTarget = ((EntityImpl) db.newEntity());
-    RecordInternal.unsetDirty(documentTarget);
-    documentTarget.fromStream(documentSource.toStream());
+      final EntityImpl documentTarget = ((EntityImpl) db.newEntity());
+      RecordInternal.unsetDirty(documentTarget);
+      documentTarget.fromStream(documentSource.toStream());
 
-    final TrackedList<Object> list = documentTarget.field("list", PropertyType.EMBEDDEDLIST);
-    Assert.assertEquals(list.get(0), 17.3);
-    Assert.assertEquals(list.get(1), 42.7);
+      final TrackedList<Object> list = documentTarget.field("list", PropertyType.EMBEDDEDLIST);
+      Assert.assertEquals(list.get(0), 17.3f);
+      Assert.assertEquals(list.get(1), 42.7f);
+    });
   }
 
   @Test
