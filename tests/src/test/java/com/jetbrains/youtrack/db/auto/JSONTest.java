@@ -88,44 +88,50 @@ public class JSONTest extends BaseDBTest {
 
   @Test
   public void testBooleanList() {
-    final EntityImpl documentSource = ((EntityImpl) db.newEntity());
-    documentSource.updateFromJSON("{\"list\" : [true, false]}");
+    db.executeInTx(() -> {
+      final EntityImpl documentSource = ((EntityImpl) db.newEntity());
+      documentSource.updateFromJSON("{\"list\" : [true, false]}");
 
-    final EntityImpl documentTarget = ((EntityImpl) db.newEntity());
-    RecordInternal.unsetDirty(documentTarget);
-    documentTarget.fromStream(documentSource.toStream());
+      final EntityImpl documentTarget = ((EntityImpl) db.newEntity());
+      RecordInternal.unsetDirty(documentTarget);
+      documentTarget.fromStream(documentSource.toStream());
 
-    final TrackedList<Object> list = documentTarget.field("list", PropertyType.EMBEDDEDLIST);
-    Assert.assertEquals(list.get(0), true);
-    Assert.assertEquals(list.get(1), false);
+      final TrackedList<Object> list = documentTarget.field("list", PropertyType.EMBEDDEDLIST);
+      Assert.assertEquals(list.get(0), true);
+      Assert.assertEquals(list.get(1), false);
+    });
   }
 
   @Test
   public void testNumericIntegerList() {
-    final EntityImpl documentSource = ((EntityImpl) db.newEntity());
-    documentSource.updateFromJSON("{\"list\" : [17,42]}");
+    db.executeInTx(() -> {
+      final EntityImpl documentSource = ((EntityImpl) db.newEntity());
+      documentSource.updateFromJSON("{\"list\" : [17,42]}");
 
-    final EntityImpl documentTarget = ((EntityImpl) db.newEntity());
-    RecordInternal.unsetDirty(documentTarget);
-    documentTarget.fromStream(documentSource.toStream());
+      final EntityImpl documentTarget = ((EntityImpl) db.newEntity());
+      RecordInternal.unsetDirty(documentTarget);
+      documentTarget.fromStream(documentSource.toStream());
 
-    final TrackedList<Object> list = documentTarget.field("list", PropertyType.EMBEDDEDLIST);
-    Assert.assertEquals(list.get(0), 17);
-    Assert.assertEquals(list.get(1), 42);
+      final TrackedList<Object> list = documentTarget.field("list", PropertyType.EMBEDDEDLIST);
+      Assert.assertEquals(list.get(0), 17);
+      Assert.assertEquals(list.get(1), 42);
+    });
   }
 
   @Test
   public void testNumericLongList() {
-    final EntityImpl documentSource = ((EntityImpl) db.newEntity());
-    documentSource.updateFromJSON("{\"list\" : [100000000000,100000000001]}");
+    db.executeInTx(() -> {
+      final EntityImpl documentSource = ((EntityImpl) db.newEntity());
+      documentSource.updateFromJSON("{\"list\" : [100000000000,100000000001]}");
 
-    final EntityImpl documentTarget = ((EntityImpl) db.newEntity());
-    RecordInternal.unsetDirty(documentTarget);
-    documentTarget.fromStream(documentSource.toStream());
+      final EntityImpl documentTarget = ((EntityImpl) db.newEntity());
+      RecordInternal.unsetDirty(documentTarget);
+      documentTarget.fromStream(documentSource.toStream());
 
-    final TrackedList<Object> list = documentTarget.field("list", PropertyType.EMBEDDEDLIST);
-    Assert.assertEquals(list.get(0), 100000000000L);
-    Assert.assertEquals(list.get(1), 100000000001L);
+      final TrackedList<Object> list = documentTarget.field("list", PropertyType.EMBEDDEDLIST);
+      Assert.assertEquals(list.get(0), 100000000000L);
+      Assert.assertEquals(list.get(1), 100000000001L);
+    });
   }
 
   @Test

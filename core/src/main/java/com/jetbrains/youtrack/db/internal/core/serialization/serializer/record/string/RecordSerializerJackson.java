@@ -449,7 +449,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
         }
       }
 
-      case VALUE_NUMBER_INT -> jsonParser.getIntValue();
+      case VALUE_NUMBER_INT -> jsonParser.getNumberValue();
       case VALUE_FALSE -> false;
       case VALUE_TRUE -> true;
       case VALUE_NUMBER_FLOAT -> jsonParser.getFloatValue();
