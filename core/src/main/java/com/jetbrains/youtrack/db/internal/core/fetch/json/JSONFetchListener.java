@@ -19,13 +19,11 @@ package com.jetbrains.youtrack.db.internal.core.fetch.json;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.FetchException;
 import com.jetbrains.youtrack.db.internal.core.fetch.FetchContext;
 import com.jetbrains.youtrack.db.internal.core.fetch.FetchListener;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import java.io.IOException;
 
 /**
@@ -59,20 +57,6 @@ public class JSONFetchListener implements FetchListener {
           new FetchException(
               "Error processing field '" + iFieldValue + " of record " + iRecord.getIdentity()),
           e);
-    }
-  }
-
-  public void processStandardCollectionValue(DatabaseSessionInternal db, final Object iFieldValue,
-      final FetchContext iContext)
-      throws FetchException {
-    try {
-      ((JSONFetchContext) iContext)
-          .getJsonWriter()
-          .writeValue(db,
-              ((JSONFetchContext) iContext).getIndentLevel(),
-              true, JSONWriter.encode(iFieldValue));
-    } catch (IOException e) {
-      LogManager.instance().error(this, "Error on processStandardCollectionValue", e);
     }
   }
 

@@ -572,6 +572,12 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
+  public <T extends Record> T fromJson(String json) {
+    checkOpenness();
+    return internal.fromJson(json);
+  }
+
+  @Override
   public Entity newEntity(String className) {
     checkOpenness();
     return internal.newEntity(className);

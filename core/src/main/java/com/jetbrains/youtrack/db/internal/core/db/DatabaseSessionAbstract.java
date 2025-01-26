@@ -86,6 +86,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJackson;
 import com.jetbrains.youtrack.db.internal.core.storage.RawBuffer;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageInfo;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
@@ -1163,6 +1164,12 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   public Entity newEntity() {
     assert assertIfNotActive();
     return newInstance(Entity.DEFAULT_CLASS_NAME);
+  }
+
+  @Override
+  public <T extends Record> T fromJson(String json) {
+    assert assertIfNotActive();
+    return RecordSerializerJackson.INSTANCE.fromString(this, json);
   }
 
   @Override

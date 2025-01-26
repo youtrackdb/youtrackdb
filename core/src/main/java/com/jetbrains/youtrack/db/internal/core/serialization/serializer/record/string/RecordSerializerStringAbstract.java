@@ -112,7 +112,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
 
       case EMBEDDEDMAP: {
         final String value = (String) iValue;
-        return RecordSerializerSchemaAware2CSV.INSTANCE.embeddedMapFromStream(db,
+        return RecordSerializerCSVAbstract.embeddedMapFromStream(db,
             entity, null, value, null);
       }
     }
@@ -752,7 +752,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
     }
   }
 
-  public abstract RecordAbstract fromString(
+  public abstract <T extends Record> T fromString(
       DatabaseSessionInternal db, String iContent, RecordAbstract iRecord, String[] iFields);
 
   public StringBuilder toString(
@@ -761,8 +761,8 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
     return toString(db, iRecord, iOutput, iFormat, true);
   }
 
-  public Record fromString(DatabaseSessionInternal db, final String iSource) {
-    return fromString(db, iSource, DatabaseRecordThreadLocal.instance().get().newInstance(), null);
+  public <T extends Record> T fromString(DatabaseSessionInternal db, final String iSource) {
+    return fromString(db, iSource, null, null);
   }
 
   @Override

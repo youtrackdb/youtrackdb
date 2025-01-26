@@ -45,7 +45,6 @@ import org.testng.annotations.Test;
 @SuppressWarnings("unchecked")
 @Test
 public class JSONTest extends BaseDBTest {
-
   public static final String FORMAT_WITHOUT_TYPES =
       "rid,version,class,type,attribSameRow,alwaysFetchEmbedded,fetchPlan:*:0";
 
@@ -152,16 +151,18 @@ public class JSONTest extends BaseDBTest {
 
   @Test
   public void testNullity() {
-    final EntityImpl doc = ((EntityImpl) db.newEntity());
-    doc.updateFromJSON(
-        "{\"gender\":{\"name\":\"Male\"},\"firstName\":\"Jack\",\"lastName\":\"Williams\",\"phone\":\"561-401-3348\",\"email\":\"0586548571@example.com\",\"address\":{\"street1\":\"Smith"
-            + " Ave\","
-            + "\"street2\":null,\"city\":\"GORDONSVILLE\",\"state\":\"VA\",\"code\":\"22942\"},\"dob\":\"2011-11-17"
-            + " 03:17:04\"}");
-    final String json = doc.toJSON();
-    final EntityImpl loadedDoc = ((EntityImpl) db.newEntity());
-    loadedDoc.updateFromJSON(json);
-    Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
+    db.executeInTx(() -> {
+      final EntityImpl doc = ((EntityImpl) db.newEntity());
+      doc.updateFromJSON(
+          "{\"gender\":{\"name\":\"Male\"},\"firstName\":\"Jack\",\"lastName\":\"Williams\",\"phone\":\"561-401-3348\",\"email\":\"0586548571@example.com\",\"address\":{\"street1\":\"Smith"
+              + " Ave\","
+              + "\"street2\":null,\"city\":\"GORDONSVILLE\",\"state\":\"VA\",\"code\":\"22942\"},\"dob\":\"2011-11-17"
+              + " 03:17:04\"}");
+      final String json = doc.toJSON();
+
+      final EntityImpl loadedDoc = db.fromJson(json);
+      Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
+    });
   }
 
   @Test
@@ -948,9 +949,8 @@ public class JSONTest extends BaseDBTest {
   public void shouldDeserializeFieldWithCurlyBraces() {
     final String json = "{\"a\":\"{dd}\",\"bl\":{\"b\":\"c\",\"a\":\"d\"}}";
     final EntityImpl in =
-        (EntityImpl)
-            RecordSerializerJackson.INSTANCE.fromString(db,
-                json, db.newInstance(), new String[]{});
+        RecordSerializerJackson.INSTANCE.fromString(db,
+            json, db.newInstance(), new String[]{});
     Assert.assertEquals(in.field("a"), "{dd}");
     Assert.assertTrue(in.field("bl") instanceof Map);
   }

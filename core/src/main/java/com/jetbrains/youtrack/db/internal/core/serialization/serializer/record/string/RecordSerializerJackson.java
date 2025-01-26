@@ -30,7 +30,6 @@ import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
@@ -43,7 +42,6 @@ import com.jetbrains.youtrack.db.internal.core.fetch.FetchHelper;
 import com.jetbrains.youtrack.db.internal.core.fetch.FetchPlan;
 import com.jetbrains.youtrack.db.internal.core.fetch.json.JSONFetchContext;
 import com.jetbrains.youtrack.db.internal.core.fetch.json.JSONFetchListener;
-import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
@@ -65,8 +63,10 @@ import javax.annotation.Nullable;
 
 public class RecordSerializerJackson extends RecordSerializerStringAbstract {
 
+  private static final JsonFactory JSON_FACTORY = new JsonFactory();
   public static final String NAME = "jackson";
   public static final RecordSerializerJackson INSTANCE = new RecordSerializerJackson();
+
 
   @Override
   public int getCurrentVersion() {
@@ -79,14 +79,14 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
   }
 
   @Override
-  public RecordAbstract fromString(DatabaseSessionInternal db, String source,
+  public <T extends Record> T fromString(DatabaseSessionInternal db, String source,
       RecordAbstract record, final String[] fields) {
-    JsonFactory jsonFactory = new JsonFactory();
     try {
       String className = null;
       Map<String, String> fieldTypes = null;
+      byte recordType = EntityImpl.RECORD_TYPE;
 
-      try (JsonParser jsonParser = jsonFactory.createParser(source)) {
+      try (JsonParser jsonParser = JSON_FACTORY.createParser(source)) {
         var token = jsonParser.nextToken();
         if (token != JsonToken.START_OBJECT) {
           throw new SerializationException("Invalid JSON content: " + source);
@@ -94,104 +94,110 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
         token = jsonParser.nextToken();
 
         int metaFilesProcessed = 0;
+
         while (metaFilesProcessed < 3 && token != JsonToken.END_OBJECT) {
           if (token == JsonToken.FIELD_NAME) {
             var fieldName = jsonParser.currentName();
-
-            if (fieldName.equals(FieldTypesString.ATTRIBUTE_FIELD_TYPES)) {
-              metaFilesProcessed++;
-              if (record instanceof EntityImpl) {
-                fieldTypes = parseFieldTypes(jsonParser);
-              }
-            } else {
-              if (fieldName.equals(EntityHelper.ATTRIBUTE_TYPE)) {
+            if (fieldName.charAt(0) != '@') {
+              break;
+            }
+            switch (fieldName) {
+              case FieldTypesString.ATTRIBUTE_FIELD_TYPES -> {
                 metaFilesProcessed++;
-                var fieldValueAsString = jsonParser.nextTextValue();
+                if (record instanceof EntityImpl) {
+                  fieldTypes = parseFieldTypes(jsonParser);
+                }
+              }
+              case EntityHelper.ATTRIBUTE_TYPE -> {
+                metaFilesProcessed++;
+                token = jsonParser.nextToken();
+                if (token != JsonToken.VALUE_STRING) {
+                  throw new SerializationException(
+                      "Expected field value as string. JSON content:\r\n " + source);
+                }
+                var fieldValueAsString = jsonParser.getText();
                 if (fieldValueAsString.length() != 1) {
                   throw new SerializationException(
                       "Invalid record type: " + fieldValueAsString + " for record: " + source);
                 }
-
-                if (record == null) {
-                  // CREATE THE RIGHT RECORD INSTANCE
-                  record =
-                      YouTrackDBEnginesManager.instance()
-                          .getRecordFactoryManager()
-                          .newInstance(
-                              (byte) fieldValueAsString.charAt(0),
-                              new ChangeableRecordId(),
-                              db);
-                } else if (record.getRecordType() != fieldValueAsString.charAt(0)) {
+                if (record != null && record.getRecordType() != fieldValueAsString.charAt(0)) {
                   throw new SerializationException(
                       "Record type mismatch: " + fieldValueAsString + " != "
                           + record.getRecordType());
                 }
-              } else {
-                if (fieldName.equals(EntityHelper.ATTRIBUTE_RID)) {
-                  metaFilesProcessed++;
-                  var fieldValueAsString = jsonParser.nextTextValue();
-                  if (!fieldValueAsString.isEmpty()) {
-                    var recordId = new RecordId(fieldValueAsString);
-                    if (record != null) {
-                      if (!recordId.equals(record.getIdentity())) {
-                        throw new SerializationException(
-                            "Record ID mismatch: " + recordId + " != " + record.getIdentity());
-                      }
-                    } else {
-                      record = db.load(recordId);
+                recordType = fieldValueAsString.getBytes()[0];
+                token = jsonParser.nextToken();
+              }
+              case EntityHelper.ATTRIBUTE_RID -> {
+                metaFilesProcessed++;
+                token = jsonParser.nextToken();
+                if (token != JsonToken.VALUE_STRING) {
+                  throw new SerializationException(
+                      "Expected field value as string. JSON content:\r\n " + source);
+                }
+                var fieldValueAsString = jsonParser.getText();
+                if (!fieldValueAsString.isEmpty()) {
+                  var recordId = new RecordId(fieldValueAsString);
+                  if (record != null) {
+                    if (!recordId.equals(record.getIdentity())) {
+                      throw new SerializationException(
+                          "Record ID mismatch: " + recordId + " != " + record.getIdentity());
                     }
-                  }
-                } else {
-                  if (fieldName.equals(EntityHelper.ATTRIBUTE_CLASS)) {
-                    var fieldValueAsString = jsonParser.nextTextValue();
-                    className = "null".equals(fieldValueAsString) ? null : fieldValueAsString;
+                  } else {
+                    record = db.load(recordId);
                   }
                 }
+                token = jsonParser.nextToken();
               }
-            }
-
-            token = jsonParser.nextToken();
-            if (token == JsonToken.START_ARRAY) {
-              // ARRAY
-              jsonParser.skipChildren();
-              token = jsonParser.nextToken();
-            } else if (token == JsonToken.START_OBJECT) {
-              // OBJECT
-              jsonParser.skipChildren();
-              token = jsonParser.nextToken();
-            } else {
-              token = jsonParser.nextToken();
+              case EntityHelper.ATTRIBUTE_CLASS -> {
+                metaFilesProcessed++;
+                token = jsonParser.nextToken();
+                if (token != JsonToken.VALUE_STRING) {
+                  throw new SerializationException(
+                      "Expected field value as string. JSON content:\r\n " + source);
+                }
+                var fieldValueAsString = jsonParser.getText();
+                className = "null".equals(fieldValueAsString) ? null : fieldValueAsString;
+                token = jsonParser.nextToken();
+              }
+              default -> {
+                token = skipFieldValue(jsonParser);
+              }
             }
           } else {
             throw new SerializationException(
                 "Expected field name. JSON content:\r\n " + source);
           }
         }
-      }
 
-      if (record == null) {
-        if (className == null) {
-          record = db.newInstance();
-        } else {
-          record = db.newInstance(className);
+        if (record == null) {
+          if (recordType == EntityImpl.RECORD_TYPE) {
+            if (className == null) {
+              record = db.newInstance();
+            } else {
+              record = db.newInstance(className);
+            }
+          } else if (recordType == Blob.RECORD_TYPE) {
+            record = (RecordAbstract) db.newBlob();
+          } else {
+            throw new SerializationException(
+                "Unsupported record type: " + recordType + " for record: " + source);
+          }
+
+          RecordInternal.unsetDirty(record);
+        }
+        if (fieldTypes == null) {
+          fieldTypes = new HashMap<>();
         }
 
-        RecordInternal.unsetDirty(record);
-      }
-      if (fieldTypes == null) {
-        fieldTypes = new HashMap<>();
-      }
-
-      try (JsonParser jsonParser = jsonFactory.createParser(source)) {
-        var token = jsonParser.nextToken();
-        if (token != JsonToken.START_OBJECT) {
-          throw new SerializationException("Invalid JSON content: " + source);
-        }
-
-        token = jsonParser.nextToken();
         while (token != JsonToken.END_OBJECT) {
           if (token == JsonToken.FIELD_NAME) {
             var fieldName = jsonParser.currentName();
+            if (fieldName.charAt(0) == '@') {
+              skipFieldValue(jsonParser);
+              continue;
+            }
+
             jsonParser.nextToken();//jump to value
             parseRecord(db, fieldTypes, record, jsonParser, fieldName, source);
           } else {
@@ -202,7 +208,8 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
         }
       }
 
-      return record;
+      //noinspection unchecked
+      return (T) record;
     } catch (Exception e) {
       if (record.getIdentity().isValid()) {
         throw BaseException.wrapException(
@@ -217,6 +224,22 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
       }
     }
 
+  }
+
+  private static JsonToken skipFieldValue(JsonParser jsonParser) throws IOException {
+    var token = jsonParser.nextToken();
+    if (token == JsonToken.START_ARRAY) {
+      // ARRAY
+      jsonParser.skipChildren();
+      token = jsonParser.nextToken();
+    } else if (token == JsonToken.START_OBJECT) {
+      // OBJECT
+      jsonParser.skipChildren();
+      token = jsonParser.nextToken();
+    } else {
+      token = jsonParser.nextToken();
+    }
+    return token;
   }
 
   private static Map<String, String> parseFieldTypes(JsonParser jsonParser) throws IOException {
@@ -523,6 +546,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
 
     while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
       var fieldName = jsonParser.currentName();
+      jsonParser.nextToken();
       var value = parseValue(db, null, jsonParser, null, source);
       map.put(fieldName, value);
     }
@@ -533,7 +557,6 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
   private static LinkList parseLinkList(EntityImpl entity, JsonParser jsonParser)
       throws IOException {
     var list = new LinkList(entity);
-    jsonParser.nextToken();
 
     while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
       var ridText = jsonParser.getText();
@@ -546,7 +569,6 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
   private static LinkSet parseLinkSet(EntityImpl entity, JsonParser jsonParser)
       throws IOException {
     var list = new LinkSet(entity);
-    jsonParser.nextToken();
 
     while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
       var ridText = jsonParser.getText();
