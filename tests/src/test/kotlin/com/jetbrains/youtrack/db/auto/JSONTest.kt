@@ -173,23 +173,25 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testNanNoTypes() {
-        var doc = (db.newEntity() as EntityImpl)
-        var input =
-            "{\"@type\":\"d\",\"@version\":0,\"@class\":\"O\",\"nan\":null,\"p_infinity\":null,\"n_infinity\":null}"
-        doc.field("nan", Double.NaN)
-        doc.field("p_infinity", Double.POSITIVE_INFINITY)
-        doc.field("n_infinity", Double.NEGATIVE_INFINITY)
-        var json = doc.toJSON(FORMAT_WITHOUT_TYPES)
-        Assert.assertEquals(json, input)
+        db.executeInTx {
+            var entity = db.newEntity()
+            var input =
+                "{\"@type\":\"d\",\"@version\":0,\"@class\":\"O\",\"nan\":null,\"p_infinity\":null,\"n_infinity\":null}"
+            entity.setProperty("nan", Double.NaN)
+            entity.setProperty("p_infinity", Double.POSITIVE_INFINITY)
+            entity.setProperty("n_infinity", Double.NEGATIVE_INFINITY)
+            var json = entity.toJSON(FORMAT_WITHOUT_TYPES)
+            Assert.assertEquals(json, input)
 
-        doc = (db.newEntity() as EntityImpl)
-        input =
-            "{\"@type\":\"d\",\"@version\":0,\"@class\":\"O\",\"nan\":null,\"p_infinity\":null,\"n_infinity\":null}"
-        doc.field("nan", Float.NaN)
-        doc.field("p_infinity", Float.POSITIVE_INFINITY)
-        doc.field("n_infinity", Float.NEGATIVE_INFINITY)
-        json = doc.toJSON(FORMAT_WITHOUT_TYPES)
-        Assert.assertEquals(json, input)
+            entity = db.newEntity()
+            input =
+                "{\"@type\":\"d\",\"@version\":0,\"@class\":\"O\",\"nan\":null,\"p_infinity\":null,\"n_infinity\":null}"
+            entity.setProperty("nan", Float.NaN)
+            entity.setProperty("p_infinity", Float.POSITIVE_INFINITY)
+            entity.setProperty("n_infinity", Float.NEGATIVE_INFINITY)
+            json = entity.toJSON(FORMAT_WITHOUT_TYPES)
+            Assert.assertEquals(json, input)
+        }
     }
 
     @Test

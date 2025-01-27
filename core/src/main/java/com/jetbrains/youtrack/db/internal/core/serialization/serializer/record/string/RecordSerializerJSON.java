@@ -41,8 +41,8 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
     public boolean dateAsLong = false;
     public boolean prettyPrint = false;
 
-    public FormatSettings(final String iFormat) {
-      if (iFormat == null) {
+    public FormatSettings(final String stringFormat) {
+      if (stringFormat == null) {
         includeType = true;
         includeVer = true;
         includeId = true;
@@ -61,8 +61,8 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
         indentLevel = 0;
         keepTypes = false;
 
-        if (!iFormat.isEmpty()) {
-          final String[] format = iFormat.split(",");
+        if (!stringFormat.isEmpty()) {
+          final String[] format = stringFormat.split(",");
           for (String f : format) {
             if (f.equals("type")) {
               includeType = true;
