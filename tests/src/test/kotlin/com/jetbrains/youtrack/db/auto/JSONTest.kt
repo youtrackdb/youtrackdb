@@ -16,6 +16,7 @@
 package com.jetbrains.youtrack.db.auto
 
 import com.jetbrains.youtrack.db.api.DatabaseSession
+import com.jetbrains.youtrack.db.api.record.Entity
 import com.jetbrains.youtrack.db.api.record.Identifiable
 import com.jetbrains.youtrack.db.api.record.RID
 import com.jetbrains.youtrack.db.api.schema.PropertyType
@@ -173,24 +174,44 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testNanNoTypes() {
-        db.executeInTx {
-            var entity = db.newEntity()
-            var input =
-                "{\"@type\":\"d\",\"@version\":0,\"@class\":\"O\",\"nan\":null,\"p_infinity\":null,\"n_infinity\":null}"
+        val rid1 = db.computeInTx {
+            val entity = db.newEntity()
             entity.setProperty("nan", Double.NaN)
             entity.setProperty("p_infinity", Double.POSITIVE_INFINITY)
             entity.setProperty("n_infinity", Double.NEGATIVE_INFINITY)
-            var json = entity.toJSON(FORMAT_WITHOUT_TYPES)
-            Assert.assertEquals(json, input)
+            entity.identity
+        }
 
-            entity = db.newEntity()
-            input =
-                "{\"@type\":\"d\",\"@version\":0,\"@class\":\"O\",\"nan\":null,\"p_infinity\":null,\"n_infinity\":null}"
+        val (map1, json1) = db.computeInTx {
+            val entity = db.loadEntity(rid1)
+            Pair(entity.toMap(), entity.toJSON())
+        }
+
+        db.executeInTx {
+            val entity = db.fromJson<Entity>(json1)
+            Assert.assertTrue(entity.isDirty)
+            Assert.assertEquals(entity.toMap(), map1)
+        }
+
+
+        val rid2 = db.computeInTx {
+            val entity = db.newEntity()
             entity.setProperty("nan", Float.NaN)
             entity.setProperty("p_infinity", Float.POSITIVE_INFINITY)
             entity.setProperty("n_infinity", Float.NEGATIVE_INFINITY)
-            json = entity.toJSON(FORMAT_WITHOUT_TYPES)
-            Assert.assertEquals(json, input)
+
+            entity.identity
+        }
+
+        val (map2, json2) = db.computeInTx {
+            val entity = db.loadEntity(rid2)
+            Pair(entity.toMap(), entity.toJSON())
+        }
+
+        db.executeInTx {
+            val entity = db.fromJson<Entity>(json2)
+            Assert.assertTrue(entity.isDirty)
+            Assert.assertEquals(entity.toMap(), map2)
         }
     }
 

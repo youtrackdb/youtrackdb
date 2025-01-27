@@ -23,7 +23,6 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.Entity;
@@ -84,7 +83,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
       //noinspection unchecked
       return (T) recordFromJson(db, record, null, jsonParser);
     } catch (Exception e) {
-      if (record.getIdentity().isValid()) {
+      if (record != null && record.getIdentity().isValid()) {
         throw BaseException.wrapException(
             new SerializationException(
                 "Error on unmarshalling JSON content for record " + record.getIdentity()),
@@ -98,7 +97,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     }
   }
 
-  private RecordAbstract recordFromJson(
+  private static RecordAbstract recordFromJson(
       @Nonnull DatabaseSessionInternal db,
       @Nullable RecordAbstract record,
       @Nullable RecordMetaData recordMetaData,
@@ -158,7 +157,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     return record;
   }
 
-  private void parseProperties(DatabaseSessionInternal db, RecordAbstract record,
+  private static void parseProperties(DatabaseSessionInternal db, RecordAbstract record,
       RecordMetaData recordMetaData, JsonParser jsonParser) throws IOException {
     JsonToken token;
     token = jsonParser.currentToken();
@@ -200,6 +199,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
         switch (fieldName) {
           case FieldTypesString.ATTRIBUTE_FIELD_TYPES -> {
             fieldTypes = parseFieldTypes(jsonParser);
+            token = jsonParser.nextToken();
           }
           case EntityHelper.ATTRIBUTE_TYPE -> {
             token = jsonParser.nextToken();
@@ -251,11 +251,27 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
   }
 
   private static Map<String, String> parseFieldTypes(JsonParser jsonParser) throws IOException {
-    return jsonParser.readValueAs(new TypeReference<Map<String, String>>() {
-    });
+    var map = new HashMap<String, String>();
+
+    var token = jsonParser.nextToken();
+    if (token != JsonToken.START_OBJECT) {
+      throw new SerializationException("Expected start of object");
+    }
+
+    while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+      var fieldName = jsonParser.currentName();
+      token = jsonParser.nextToken();
+      if (token != JsonToken.VALUE_STRING) {
+        throw new SerializationException("Expected field value as string");
+      }
+
+      map.put(fieldName, jsonParser.getText());
+    }
+
+    return map;
   }
 
-  private void parseProperty(
+  private static void parseProperty(
       DatabaseSessionInternal db,
       Map<String, String> fieldTypes,
       RecordAbstract record,
@@ -371,7 +387,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
       if (!entity.isEmbedded()) {
         if (formatSettings.includeType) {
           jsonGenerator.writeFieldName(EntityHelper.ATTRIBUTE_TYPE);
-          jsonGenerator.writeString(String.valueOf(record.getRecordType()));
+          jsonGenerator.writeString(Character.toString(record.getRecordType()));
         }
 
         if (formatSettings.includeId) {
@@ -625,7 +641,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
   }
 
   @Nullable
-  private Object parseValue(
+  private static Object parseValue(
       @Nonnull DatabaseSessionInternal db,
       @Nullable final EntityImpl entity,
       @Nonnull JsonParser jsonParser,
@@ -707,7 +723,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     };
   }
 
-  private EmbeddedEntityImpl parseEmbeddedEntity(DatabaseSessionInternal db,
+  private static EmbeddedEntityImpl parseEmbeddedEntity(DatabaseSessionInternal db,
       JsonParser jsonParser, RecordMetaData metadata) throws IOException {
     var embedded = (EmbeddedEntityImpl) db.newEmbededEntity();
     if (metadata == null) {
@@ -723,7 +739,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     return embedded;
   }
 
-  private TrackedMap<Object> parseEmbeddedMap(DatabaseSessionInternal db, EntityImpl entity,
+  private static TrackedMap<Object> parseEmbeddedMap(DatabaseSessionInternal db, EntityImpl entity,
       JsonParser jsonParser, TrackedMap<Object> map) throws IOException {
     if (map == null) {
       map = new TrackedMap<>(entity);
@@ -775,7 +791,8 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     return bag;
   }
 
-  private TrackedList<Object> parseEmbeddedList(DatabaseSessionInternal db, EntityImpl entity,
+  private static TrackedList<Object> parseEmbeddedList(DatabaseSessionInternal db,
+      EntityImpl entity,
       JsonParser jsonParser) throws IOException {
     var list = new TrackedList<>(entity);
 
@@ -786,7 +803,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     return list;
   }
 
-  private TrackedSet<Object> parseEmbeddedSet(DatabaseSessionInternal db, EntityImpl entity,
+  private static TrackedSet<Object> parseEmbeddedSet(DatabaseSessionInternal db, EntityImpl entity,
       JsonParser jsonParser) throws IOException {
     var list = new TrackedSet<>(entity);
 
