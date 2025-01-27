@@ -350,7 +350,7 @@ public class EdgeDelegate implements EdgeInternal {
   }
 
   @Override
-  public void updateFromJSON(String iJson) {
+  public void updateFromJSON(@Nonnull String iJson) {
     if (entity == null) {
       throw new UnsupportedOperationException("fromJSON is not supported for lightweight edges");
     }

@@ -20,6 +20,7 @@
 package com.jetbrains.youtrack.db.api.record;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
+import javax.annotation.Nonnull;
 
 /**
  * Generic record representation.
@@ -93,7 +94,7 @@ public interface Record extends Identifiable {
    *
    * @param iJson Object content in JSON format
    */
-  void updateFromJSON(String iJson);
+  void updateFromJSON(@Nonnull String iJson);
 
   /**
    * Exports the record in JSON format.

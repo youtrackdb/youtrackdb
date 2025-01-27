@@ -226,7 +226,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     }
   }
 
-  public void updateFromJSON(final String iSource) {
+  public void updateFromJSON(final @Nonnull String iSource) {
     status = STATUS.UNMARSHALLING;
     try {
       RecordSerializerJackson.INSTANCE.fromString(getSessionIfDefined(), iSource, this, null);

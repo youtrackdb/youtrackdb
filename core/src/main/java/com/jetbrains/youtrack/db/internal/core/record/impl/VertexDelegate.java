@@ -169,7 +169,7 @@ public final class VertexDelegate implements VertexInternal {
   }
 
   @Override
-  public void updateFromJSON(String iJson) {
+  public void updateFromJSON(@Nonnull String iJson) {
     entity.updateFromJSON(iJson);
   }
 
