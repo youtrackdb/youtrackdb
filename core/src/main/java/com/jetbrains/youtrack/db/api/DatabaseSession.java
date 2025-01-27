@@ -401,11 +401,11 @@ public interface DatabaseSession extends AutoCloseable {
 
   Entity newEntity();
 
-  <T extends Record> T fromJson(String json);
-
   Entity newEntity(final String className);
 
   Entity newEntity(final SchemaClass cls);
+
+  <T extends Record> T fromJson(String json);
 
   /**
    * Creates a new Edge of type E
