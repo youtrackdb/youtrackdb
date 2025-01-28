@@ -37,6 +37,7 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
     override fun beforeClass() {
         super.beforeClass()
         addBarackObamaAndFollowers()
+        db.createClass("Track")
     }
 
     @Test
@@ -250,24 +251,6 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
         checkJsonSerialization(rid)
     }
 
-    private fun checkJsonSerialization(rid: RID) {
-        db.executeInTx {
-            val original = db.loadEntity(rid)
-            val json = original.toJSON(FORMAT_WITHOUT_RID)
-
-            val loadedDoc = db.newEntity()
-            loadedDoc.updateFromJSON(json)
-
-            val originalMap = original.toMap()
-            val loadedMap = loadedDoc.toMap()
-
-            originalMap.remove(EntityHelper.ATTRIBUTE_RID)
-            loadedMap.remove(EntityHelper.ATTRIBUTE_RID)
-
-            Assert.assertEquals(originalMap, loadedMap)
-        }
-    }
-
     @Test
     fun testListToJSON() {
         val rid = db.computeInTx {
@@ -287,389 +270,184 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
         checkJsonSerialization(rid)
     }
-//
-//    @Test
-//    fun testEmptyEmbeddedMap() {
-//        val doc = (db.newEntity() as EntityImpl)
-//
-//        val map: Map<String, EntityImpl> = HashMap()
-//        doc.field("embeddedMap", map, PropertyType.EMBEDDEDMAP)
-//
-//        val json = doc.toJSON()
-//        val loadedDoc = (db.newEntity() as EntityImpl)
-//        loadedDoc.updateFromJSON(json)
-//        Assert.assertTrue(doc.hasSameContentOf(loadedDoc))
-//        Assert.assertTrue(loadedDoc.containsField("embeddedMap"))
-//        Assert.assertTrue(loadedDoc.field<Any>("embeddedMap") is Map<*, *>)
-//
-//        val loadedMap = loadedDoc.field<Map<String, EntityImpl>>("embeddedMap")
-//        Assert.assertEquals(loadedMap.size, 0)
-//    }
-//
-//    @Test
-//    fun testMultiLevelTypes() {
-//        val oldDataTimeFormat = db[DatabaseSession.ATTRIBUTES.DATE_TIME_FORMAT].toString()
-//        db[DatabaseSession.ATTRIBUTES.DATE_TIME_FORMAT] =
-//            StorageConfiguration.DEFAULT_DATETIME_FORMAT
-//        try {
-//            val newDoc = (db.newEntity() as EntityImpl)
-//            newDoc.field("long", 100000000000L)
-//            newDoc.field("date", Date())
-//            newDoc.field("byte", 12.toByte())
-//            val firstLevelDoc = (db.newEntity() as EntityImpl)
-//            firstLevelDoc.field("long", 200000000000L)
-//            firstLevelDoc.field("date", Date())
-//            firstLevelDoc.field("byte", 13.toByte())
-//            val secondLevelDoc = (db.newEntity() as EntityImpl)
-//            secondLevelDoc.field("long", 300000000000L)
-//            secondLevelDoc.field("date", Date())
-//            secondLevelDoc.field("byte", 14.toByte())
-//            val thirdLevelDoc = (db.newEntity() as EntityImpl)
-//            thirdLevelDoc.field("long", 400000000000L)
-//            thirdLevelDoc.field("date", Date())
-//            thirdLevelDoc.field("byte", 15.toByte())
-//            newDoc.field("doc", firstLevelDoc)
-//            firstLevelDoc.field("doc", secondLevelDoc)
-//            secondLevelDoc.field("doc", thirdLevelDoc)
-//
-//            val json = newDoc.toJSON()
-//            val loadedDoc = (db.newEntity() as EntityImpl)
-//            loadedDoc.updateFromJSON(json)
-//
-//            Assert.assertTrue(newDoc.hasSameContentOf(loadedDoc))
-//            Assert.assertTrue(loadedDoc.field<Any>("long") is Long)
-//            Assert.assertEquals(
-//                (newDoc.field<Any>("long") as Long), (loadedDoc.field<Any>("long") as Long)
-//            )
-//            Assert.assertTrue(loadedDoc.field<Any>("date") is Date)
-//            Assert.assertTrue(loadedDoc.field<Any>("byte") is Byte)
-//            Assert.assertEquals(
-//                (newDoc.field<Any>("byte") as Byte), (loadedDoc.field<Any>("byte") as Byte)
-//            )
-//            Assert.assertTrue(loadedDoc.field<Any>("doc") is EntityImpl)
-//
-//            val firstDoc = loadedDoc.field<EntityImpl>("doc")
-//            Assert.assertTrue(firstLevelDoc.hasSameContentOf(firstDoc))
-//            Assert.assertTrue(firstDoc.field<Any>("long") is Long)
-//            Assert.assertEquals(
-//                (firstLevelDoc.field<Any>("long") as Long),
-//                (firstDoc.field<Any>("long") as Long)
-//            )
-//            Assert.assertTrue(firstDoc.field<Any>("date") is Date)
-//            Assert.assertTrue(firstDoc.field<Any>("byte") is Byte)
-//            Assert.assertEquals(
-//                (firstLevelDoc.field<Any>("byte") as Byte),
-//                (firstDoc.field<Any>("byte") as Byte)
-//            )
-//            Assert.assertTrue(firstDoc.field<Any>("doc") is EntityImpl)
-//
-//            val secondDoc = firstDoc.field<EntityImpl>("doc")
-//            Assert.assertTrue(secondLevelDoc.hasSameContentOf(secondDoc))
-//            Assert.assertTrue(secondDoc.field<Any>("long") is Long)
-//            Assert.assertEquals(
-//                (secondLevelDoc.field<Any>("long") as Long),
-//                (secondDoc.field<Any>("long") as Long)
-//            )
-//            Assert.assertTrue(secondDoc.field<Any>("date") is Date)
-//            Assert.assertTrue(secondDoc.field<Any>("byte") is Byte)
-//            Assert.assertEquals(
-//                (secondLevelDoc.field<Any>("byte") as Byte),
-//                (secondDoc.field<Any>("byte") as Byte)
-//            )
-//            Assert.assertTrue(secondDoc.field<Any>("doc") is EntityImpl)
-//
-//            val thirdDoc = secondDoc.field<EntityImpl>("doc")
-//            Assert.assertTrue(thirdLevelDoc.hasSameContentOf(thirdDoc))
-//            Assert.assertTrue(thirdDoc.field<Any>("long") is Long)
-//            Assert.assertEquals(
-//                (thirdLevelDoc.field<Any>("long") as Long),
-//                (thirdDoc.field<Any>("long") as Long)
-//            )
-//            Assert.assertTrue(thirdDoc.field<Any>("date") is Date)
-//            Assert.assertTrue(thirdDoc.field<Any>("byte") is Byte)
-//            Assert.assertEquals(
-//                (thirdLevelDoc.field<Any>("byte") as Byte),
-//                (thirdDoc.field<Any>("byte") as Byte)
-//            )
-//        } finally {
-//            db[DatabaseSession.ATTRIBUTES.DATE_TIME_FORMAT] = oldDataTimeFormat
-//        }
-//    }
-//
-//    @Test
-//    fun testMerge() {
-//        val doc1 = (db.newEntity() as EntityImpl)
-//        val list = ArrayList<String>()
-//        doc1.field("embeddedList", list, PropertyType.EMBEDDEDLIST)
-//        list.add("Luca")
-//        list.add("Marcus")
-//        list.add("Jay")
-//        doc1.field("salary", 10000)
-//        doc1.field("years", 16)
-//
-//        val doc2 = (db.newEntity() as EntityImpl)
-//        val list2 = ArrayList<String>()
-//        doc2.field("embeddedList", list2, PropertyType.EMBEDDEDLIST)
-//        list2.add("Luca")
-//        list2.add("Michael")
-//        doc2.field("years", 32)
-//
-//        val docMerge1 = doc1.copy()
-//        docMerge1.merge(doc2, true, true)
-//
-//        Assert.assertTrue(docMerge1.containsField("embeddedList"))
-//        Assert.assertTrue(docMerge1.field<Any>("embeddedList") is List<*>)
-//        Assert.assertEquals((docMerge1.field<Any>("embeddedList") as List<*>).size, 4)
-//        Assert.assertTrue(
-//            (docMerge1.field<Any>("embeddedList") as List<*>).first() is String
-//        )
-//        Assert.assertEquals((docMerge1.field<Any>("salary") as Int), 10000)
-//        Assert.assertEquals((docMerge1.field<Any>("years") as Int), 32)
-//
-//        val docMerge2 = doc1.copy()
-//        docMerge2.merge(doc2, true, false)
-//
-//        Assert.assertTrue(docMerge2.containsField("embeddedList"))
-//        Assert.assertTrue(docMerge2.field<Any>("embeddedList") is List<*>)
-//        Assert.assertEquals((docMerge2.field<Any>("embeddedList") as List<*>).size, 2)
-//        Assert.assertTrue(
-//            (docMerge2.field<Any>("embeddedList") as List<*>).first() is String
-//        )
-//        Assert.assertEquals((docMerge2.field<Any>("salary") as Int), 10000)
-//        Assert.assertEquals((docMerge2.field<Any>("years") as Int), 32)
-//
-//        val docMerge3 = doc1.copy()
-//
-//        doc2.removeField("years")
-//        docMerge3.merge(doc2, false, false)
-//
-//        Assert.assertTrue(docMerge3.containsField("embeddedList"))
-//        Assert.assertTrue(docMerge3.field<Any>("embeddedList") is List<*>)
-//        Assert.assertEquals((docMerge3.field<Any>("embeddedList") as List<*>).size, 2)
-//        Assert.assertTrue(
-//            (docMerge3.field<Any>("embeddedList") as List<*>).first() is String
-//        )
-//        Assert.assertFalse(docMerge3.containsField("salary"))
-//        Assert.assertFalse(docMerge3.containsField("years"))
-//    }
-//
-//    @Test
-//    fun testNestedEmbeddedMap() {
-//        val newDoc = (db.newEntity() as EntityImpl)
-//
-//        val map1 = mutableMapOf<String, Map<String, Any>>()
-//        newDoc.field("map1", map1, PropertyType.EMBEDDEDMAP)
-//
-//        val map2 = mutableMapOf<String, Map<String, Any>>()
-//        map1["map2"] = map2
-//
-//        val map3: Map<String, HashMap<String, *>> = HashMap()
-//        map2["map3"] = map3 as HashMap<String, *>
-//
-//        val json = newDoc.toJSON()
-//        val loadedDoc = (db.newEntity() as EntityImpl)
-//        loadedDoc.updateFromJSON(json)
-//
-//        Assert.assertTrue(newDoc.hasSameContentOf(loadedDoc))
-//
-//        Assert.assertTrue(loadedDoc.containsField("map1"))
-//        Assert.assertTrue(loadedDoc.field<Any>("map1") is Map<*, *>)
-//        val loadedMap1 = loadedDoc.field<Map<String, EntityImpl>>("map1")
-//        Assert.assertEquals(loadedMap1.size, 1)
-//
-//        Assert.assertTrue(loadedMap1.containsKey("map2"))
-//        Assert.assertTrue(loadedMap1["map2"] is Map<*, *>)
-//        val loadedMap2 = loadedMap1["map2"] as Map<*, *>?
-//        Assert.assertEquals(loadedMap2!!.size, 1)
-//
-//        Assert.assertTrue(loadedMap2.containsKey("map3"))
-//        Assert.assertTrue(loadedMap2["map3"] is Map<*, *>)
-//        val loadedMap3 = loadedMap2["map3"] as Map<*, *>?
-//        Assert.assertEquals(loadedMap3!!.size, 0)
-//    }
-//
-//    @Test
-//    fun testFetchedJson() {
-//        val resultSet =
-//            db
-//                .command("select * from Profile where name = 'Barack' and surname = 'Obama'")
-//                .toList()
-//
-//        for (result in resultSet) {
-//            val jsonFull =
-//                result.asEntity()!!
-//                    .toJSON("type,rid,version,class,keepTypes,attribSameRow,indent:0,fetchPlan:*:-1")
-//            val loadedDoc = (db.newEntity() as EntityImpl)
-//            loadedDoc.updateFromJSON(jsonFull)
-//            Assert.assertTrue((result.asEntity() as EntityImpl).hasSameContentOf(loadedDoc))
-//        }
-//    }
-//
-//    // Requires JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES
-//    fun testSpecialChar() {
-//        var doc = (db.newEntity() as EntityImpl)
-//        doc.updateFromJSON(
-//            "{name:{\"%Field\":[\"value1\",\"value2\"],\"%Field2\":{},\"%Field3\":\"value3\"}}"
-//        )
-//        db.begin()
-//        doc.save()
-//        db.commit()
-//
-//        db.begin()
-//        doc = db.bindToSession(doc)
-//
-//        val map = doc.toMap()
-//        val docToCompare = (db.newEntity() as EntityImpl)
-//        docToCompare.updateFromMap(map)
-//
-//        val loadedDoc = db.load<EntityImpl>(doc.identity)
-//
-//        Assert.assertTrue(
-//            docToCompare.hasSameContentOf(loadedDoc)
-//        )
-//        db.commit()
-//    }
-//
-//    fun testArrayOfArray() {
-//        var doc = (db.newEntity() as EntityImpl)
-//        doc.updateFromJSON(
-//            "{\"@type\": \"d\",\"@class\": \"Track\",\"type\": \"LineString\",\"coordinates\": [ [ 100,"
-//                    + "  0 ],  [ 101, 1 ] ]}"
-//        )
-//
-//        db.begin()
-//        doc.save()
-//        db.commit()
-//        db.begin()
-//        doc = db.bindToSession(doc)
-//
-//        val map = doc.toMap()
-//        val docToCompare = (db.newEntity() as EntityImpl)
-//        docToCompare.updateFromMap(map)
-//
-//        val loadedDoc = db.load<EntityImpl>(doc.identity)
-//        Assert.assertTrue(docToCompare.hasSameContentOf(loadedDoc))
-//    }
-//
-//    fun testLongTypes() {
-//        var doc = (db.newEntity() as EntityImpl)
-//        doc.updateFromJSON(
-//            "{\"@type\": \"d\",\"@class\": \"Track\",\"type\": \"LineString\",\"coordinates\": [ ["
-//                    + " 32874387347347,  0 ],  [ -23736753287327, 1 ] ]}"
-//        )
-//
-//        db.begin()
-//        doc.save()
-//        db.commit()
-//
-//        db.begin()
-//        doc = db.bindToSession(doc)
-//        val map = doc.toMap()
-//        val docToCompare = (db.newEntity() as EntityImpl)
-//        docToCompare.updateFromMap(map)
-//
-//        val loadedDoc = db.load<EntityImpl>(doc.identity)
-//        Assert.assertTrue(docToCompare.hasSameContentOf(loadedDoc))
-//        db.commit()
-//    }
-//
-//    // Requires JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES
-//    fun testSpecialChars() {
-//        var doc = (db.newEntity() as EntityImpl)
-//        doc.updateFromJSON(
-//            "{Field:{\"Key1\":[\"Value1\",\"Value2\"],\"Key2\":{\"%%dummy%%\":null},\"Key3\":\"Value3\"}}"
-//        )
-//        db.begin()
-//        doc.save()
-//        db.commit()
-//        db.begin()
-//        doc = db.bindToSession(doc)
-//
-//        val map = doc.toMap()
-//        val docToCompare = (db.newEntity() as EntityImpl)
-//        docToCompare.updateFromMap(map)
-//
-//        val loadedDoc = db.load<EntityImpl>(doc.identity)
-//        Assert.assertEquals(docToCompare, loadedDoc)
-//
-//        db.commit()
-//    }
-//
-//    fun testJsonToStream() {
-//        val doc1Json =
-//            "{Key1:{\"%Field1\":[{},{},{},{},{}],\"%Field2\":false,\"%Field3\":\"Value1\"}}"
-//        val doc1 = EntityImpl(db)
-//        doc1.updateFromJSON(doc1Json)
-//        val doc1String = String(
-//            RecordSerializerSchemaAware2CSV.INSTANCE.toStream(db, doc1)
-//        )
-//        Assert.assertEquals("{$doc1String}", doc1Json)
-//
-//        val doc2Json =
-//            "{Key1:{\"%Field1\":[{},{},{},{},{}],\"%Field2\":false,\"%Field3\":\"Value1\"}}"
-//        val doc2 = EntityImpl(db)
-//        doc2.updateFromJSON(doc2Json)
-//        val doc2String = String(
-//            RecordSerializerSchemaAware2CSV.INSTANCE.toStream(db, doc2)
-//        )
-//        Assert.assertEquals("{$doc2String}", doc2Json)
-//    }
-//
-//    fun testSameNameCollectionsAndMap() {
-//        var doc = (db.newEntity() as EntityImpl)
-//        doc.field("string", "STRING_VALUE")
-//        var list: MutableList<EntityImpl?> = ArrayList()
-//        for (i in 0..0) {
-//            val doc1 = (db.newEntity() as EntityImpl)
-//            doc.field("number", i)
-//            list.add(doc1)
-//            val docMap: MutableMap<String, EntityImpl> = HashMap()
-//            for (j in 0..0) {
-//                val doc2 = (db.newEntity() as EntityImpl)
-//                doc2.field("blabla", j)
-//                docMap[j.toString()] = doc2
-//                val doc3 = (db.newEntity() as EntityImpl)
-//                doc3.field("blubli", 0.toString())
-//                doc2.field("out", doc3)
-//            }
-//            doc1.field("out", docMap)
-//            list.add(doc1)
-//        }
-//        doc.field("out", list)
-//
-//        var json = doc.toJSON()
-//        var newDoc = (db.newEntity() as EntityImpl)
-//        newDoc.updateFromJSON(json)
-//
-//        Assert.assertEquals(json, newDoc.toJSON())
-//        Assert.assertTrue(newDoc.hasSameContentOf(doc))
-//
-//        doc = (db.newEntity() as EntityImpl)
-//        doc.field("string", "STRING_VALUE")
-//        val docMap: MutableMap<String, EntityImpl> = HashMap()
-//        for (i in 0..9) {
-//            val doc1 = (db.newEntity() as EntityImpl)
-//            doc.field("number", i)
-//            list.add(doc1)
-//            list = ArrayList()
-//            for (j in 0..4) {
-//                val doc2 = (db.newEntity() as EntityImpl)
-//                doc2.field("blabla", j)
-//                list.add(doc2)
-//                val doc3 = (db.newEntity() as EntityImpl)
-//                doc3.field("blubli", (i + j).toString())
-//                doc2.field("out", doc3)
-//            }
-//            doc1.field("out", list)
-//            docMap[i.toString()] = doc1
-//        }
-//        doc.field("out", docMap)
-//        json = doc.toJSON()
-//        newDoc = (db.newEntity() as EntityImpl)
-//        newDoc.updateFromJSON(json)
-//        Assert.assertEquals(newDoc.toJSON(), json)
-//        Assert.assertTrue(newDoc.hasSameContentOf(doc))
-//    }
+
+    @Test
+    fun testEmptyEmbeddedMap() {
+        val rid = db.computeInTx {
+            val original = db.newEntity()
+            original.getOrCreateEmbeddedMap<Entity>("embeddedMap")
+            original.identity
+        }
+        checkJsonSerialization(rid)
+    }
+
+    @Test
+    fun testMultiLevelTypes() {
+        val rid = db.computeInTx {
+            val newEntity = db.newEntity()
+            newEntity.setProperty("long", 100000000000L)
+            newEntity.setProperty("date", Date())
+            newEntity.setProperty("byte", 12.toByte())
+
+            val firstLevelEntity = db.newEntity()
+            firstLevelEntity.setProperty("long", 200000000000L)
+            firstLevelEntity.setProperty("date", Date())
+            firstLevelEntity.setProperty("byte", 13.toByte())
+
+            val secondLevelEntity = db.newEntity()
+            secondLevelEntity.setProperty("long", 300000000000L)
+            secondLevelEntity.setProperty("date", Date())
+            secondLevelEntity.setProperty("byte", 14.toByte())
+
+            val thirdLevelEntity = db.newEntity()
+            thirdLevelEntity.setProperty("long", 400000000000L)
+            thirdLevelEntity.setProperty("date", Date())
+            thirdLevelEntity.setProperty("byte", 15.toByte())
+
+            newEntity.setProperty("doc", firstLevelEntity)
+            firstLevelEntity.setProperty("doc", secondLevelEntity)
+            secondLevelEntity.setProperty("doc", thirdLevelEntity)
+
+            newEntity.identity
+        }
+
+        checkJsonSerialization(rid)
+    }
+
+    @Test
+    fun testNestedEmbeddedMap() {
+        val rid = db.computeInTx {
+            val entity = db.newEntity()
+
+            val map1 = mutableMapOf<String, Map<String, Any>>()
+            entity.getOrCreateEmbeddedMap<Any>("map1")["map1"] = map1
+
+            val map2 = mutableMapOf<String, Map<String, Any>>()
+            map1["map2"] = map2
+
+            val map3 = mutableMapOf<String, Map<String, Any>>()
+            map2["map3"] = map3
+
+            entity.identity
+        }
+
+        checkJsonSerialization(rid)
+    }
+
+    @Test
+    fun testFetchedJson() {
+        val resultSet =
+            db
+                .command("select * from Profile where name = 'Barack' and surname = 'Obama'")
+                .toList()
+
+        for (result in resultSet) {
+            val entity = result.asEntity()!!
+            checkJsonSerialization(entity.identity)
+        }
+    }
+
+    @Test
+    fun testSpecialChar() {
+        val rid = db.computeInTx {
+            val entity =
+                db.entityFromJson("{\"name\":{\"%Field\":[\"value1\",\"value2\"],\"%Field2\":{},\"%Field3\":\"value3\"}}")
+            entity.identity
+        }
+
+        checkJsonSerialization(rid)
+    }
+
+    @Test
+    fun testArrayOfArray() {
+        val rid = db.computeInTx {
+            val entity = db.entityFromJson(
+                "{\"@type\": \"d\",\"@class\": \"Track\",\"type\": \"LineString\",\"coordinates\": [ [ 100,"
+                        + "  0 ],  [ 101, 1 ] ]}"
+            )
+            entity.identity
+        }
+
+        checkJsonSerialization(rid)
+
+    }
+
+    @Test
+    fun testLongTypes() {
+        val rid = db.computeInTx {
+            val entity = db.entityFromJson(
+                "{\"@type\": \"d\",\"@class\": \"Track\",\"type\": \"LineString\",\"coordinates\": [ ["
+                        + " 32874387347347,  0 ],  [ -23736753287327, 1 ] ]}"
+            )
+            entity.identity
+        }
+
+        checkJsonSerialization(rid)
+    }
+
+    @Test
+    fun testSpecialChars() {
+        val rid = db.computeInTx {
+            val entity =
+                db.entityFromJson("{\"Field\":{\"Key1\":[\"Value1\",\"Value2\"],\"Key2\":{\"%%dummy%%\":null},\"Key3\":\"Value3\"}}")
+            entity.identity
+
+        }
+
+        checkJsonSerialization(rid)
+    }
+
+
+    @Test
+    fun testSameNameCollectionsAndMap() {
+        val rid1 = db.computeInTx {
+            val entity = db.newEntity()
+            entity.setProperty("string", "STRING_VALUE")
+            for (i in 0..0) {
+                val entity1 = db.newEntity()
+                entity.setProperty("number", i)
+                entity.getOrCreateLinkSet("out").add(entity1)
+
+                for (j in 0..0) {
+                    val entity2 = db.newEntity()
+                    entity2.setProperty("blabla", j)
+                    entity1.getOrCreateLinkMap("out")[j.toString()] = entity2
+                    val doc3 = (db.newEntity() as EntityImpl)
+                    doc3.field("blubli", 0.toString())
+                    entity2.setProperty("out", doc3)
+                }
+            }
+
+            entity.identity
+        }
+
+        checkJsonSerialization(rid1)
+
+        val rid2 = db.computeInTx {
+            val entity = db.newEntity()
+            entity.setProperty("string", "STRING_VALUE")
+            for (i in 0..9) {
+                val entity1 = db.newEntity()
+                entity.setProperty("number", i)
+
+                entity1.getOrCreateLinkList("out").add(entity)
+                for (j in 0..4) {
+                    val entity2 = db.newEntity()
+                    entity2.setProperty("blabla", j)
+
+                    entity1.getOrCreateLinkList("out").add(entity2)
+                    val entity3 = db.newEntity()
+
+                    entity3.setProperty("blubli", (i + j).toString())
+                    entity2.setProperty("out", entity3)
+                }
+                entity.getOrCreateLinkMap("out")[i.toString()] = entity1
+            }
+            entity.identity
+        }
+
+        checkJsonSerialization(rid2)
+    }
 //
 //    fun testSameNameCollectionsAndMap2() {
 //        val doc = (db.newEntity() as EntityImpl)
@@ -1454,7 +1232,27 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 //        Assert.assertEquals(number2, 741800E+290)
 //    }
 
+    private fun checkJsonSerialization(rid: RID) {
+        db.begin()
+        try {
+            val original = db.loadEntity(rid)
+            val json = original.toJSON(FORMAT_WITHOUT_RID)
+
+            val newEntity = db.entityFromJson(json)
+
+            val originalMap = original.toMap()
+            val loadedMap = newEntity.toMap()
+
+            originalMap.remove(EntityHelper.ATTRIBUTE_RID)
+            loadedMap.remove(EntityHelper.ATTRIBUTE_RID)
+
+            Assert.assertEquals(originalMap, loadedMap)
+        } finally {
+            db.rollback()
+        }
+    }
+
     companion object {
-        const val FORMAT_WITHOUT_RID: String = "version,class,type"
+        const val FORMAT_WITHOUT_RID: String = "version,class,type,keepTypes"
     }
 }

@@ -691,6 +691,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
       case START_OBJECT -> switch (type) {
         case EMBEDDED -> parseEmbeddedEntity(db, jsonParser, null);
         case EMBEDDEDMAP -> parseEmbeddedMap(db, entity, jsonParser, null);
+        case LINKMAP -> parseLinkMap(entity, jsonParser);
         case LINK -> recordFromJson(db, null, null, jsonParser);
 
         case null -> {
@@ -728,6 +729,17 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
 
       default -> throw new SerializationException("Unexpected token: " + token);
     };
+  }
+
+  private static LinkMap parseLinkMap(EntityImpl entity, JsonParser jsonParser) throws IOException {
+    var map = new LinkMap(entity);
+    while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+      var fieldName = jsonParser.currentName();
+      jsonParser.nextToken();
+      var value = new RecordId(jsonParser.getText());
+      map.put(fieldName, value);
+    }
+    return map;
   }
 
   private static EmbeddedEntityImpl parseEmbeddedEntity(DatabaseSessionInternal db,
