@@ -448,51 +448,53 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
         checkJsonSerialization(rid2)
     }
-//
-//    fun testSameNameCollectionsAndMap2() {
-//        val doc = (db.newEntity() as EntityImpl)
-//        doc.field("string", "STRING_VALUE")
-//        val list: MutableList<EntityImpl> = ArrayList()
-//        for (i in 0..1) {
-//            val doc1 = (db.newEntity() as EntityImpl)
-//            list.add(doc1)
-//            val docMap: MutableMap<String, EntityImpl> = HashMap()
-//            for (j in 0..4) {
-//                val doc2 = (db.newEntity() as EntityImpl)
-//                doc2.field("blabla", j)
-//                docMap[j.toString()] = doc2
-//            }
-//            doc1.field("theMap", docMap)
-//            list.add(doc1)
-//        }
-//        doc.field("theList", list)
-//        val json = doc.toJSON()
-//        val newDoc = (db.newEntity() as EntityImpl)
-//        newDoc.updateFromJSON(json)
-//        Assert.assertEquals(newDoc.toJSON(), json)
-//        Assert.assertTrue(newDoc.hasSameContentOf(doc))
-//    }
-//
-//    fun testSameNameCollectionsAndMap3() {
-//        val doc = (db.newEntity() as EntityImpl)
-//        doc.field("string", "STRING_VALUE")
-//        val list: MutableList<Map<String, EntityImpl>> = ArrayList()
-//        for (i in 0..1) {
-//            val docMap: MutableMap<String, EntityImpl> = HashMap()
-//            for (j in 0..4) {
-//                val doc1 = (db.newEntity() as EntityImpl)
-//                doc1.field("blabla", j)
-//                docMap[j.toString()] = doc1
-//            }
-//
-//            list.add(docMap)
-//        }
-//        doc.field("theList", list)
-//        val json = doc.toJSON()
-//        val newDoc = (db.newEntity() as EntityImpl)
-//        newDoc.updateFromJSON(json)
-//        Assert.assertEquals(newDoc.toJSON(), json)
-//    }
+
+    @Test
+    fun testSameNameCollectionsAndMap2() {
+        val rid = db.computeInTx {
+            val entity = db.newEntity()
+            entity.setProperty("string", "STRING_VALUE")
+
+            for (i in 0..1) {
+                val entity1 = db.newEntity()
+                entity.getOrCreateLinkList("theList").add(entity1)
+
+                for (j in 0..4) {
+                    val entity2 = db.newEntity()
+                    entity2.setProperty("blabla", j)
+                    entity1.getOrCreateLinkMap("theMap")[j.toString()] = entity2
+                }
+
+                entity.getOrCreateLinkList("theList").add(entity1)
+            }
+
+            entity.identity
+        }
+
+        checkJsonSerialization(rid)
+    }
+
+    @Test
+    fun testSameNameCollectionsAndMap3() {
+        val rid = db.computeInTx {
+            val entity = db.newEntity()
+            entity.setProperty("string", "STRING_VALUE")
+            for (i in 0..1) {
+                val docMap = mutableMapOf<String, Entity>()
+
+                for (j in 0..4) {
+                    val doc1 = (db.newEntity() as EntityImpl)
+                    doc1.field("blabla", j)
+                    docMap[j.toString()] = doc1
+                }
+
+                entity.getOrCreateEmbeddedList<Map<String, Entity>>("theList").add(docMap)
+            }
+            entity.identity
+        }
+
+        checkJsonSerialization(rid)
+    }
 //
 //    fun testNestedJsonCollection() {
 //        if (!db.metadata.schema.existsClass("Device")) {

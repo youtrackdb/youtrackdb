@@ -665,8 +665,19 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
 
             yield Base64.getDecoder().decode(text);
           }
-          case null -> jsonParser.getText();
-          default -> jsonParser.getText();
+          case null -> {
+            var text = jsonParser.getText();
+            if (!text.isEmpty() && text.charAt(0) == '#') {
+              try {
+                yield new RecordId(text);
+              } catch (IllegalArgumentException e) {
+                yield text;
+              }
+            } else {
+              yield text;
+            }
+          }
+          default -> PropertyType.convert(db, jsonParser.getText(), type.getDefaultJavaType());
         };
       }
 
