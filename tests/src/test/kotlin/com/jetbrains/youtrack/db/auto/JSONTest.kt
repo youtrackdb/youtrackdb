@@ -518,188 +518,233 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
         result = db.query("select from device where domainset.domain contains 'pqr'")
         Assert.assertTrue(result.stream().findAny().isPresent)
     }
-//
-//    fun testNestedEmbeddedJson() {
-//        if (!db.metadata.schema.existsClass("Device")) {
-//            db.metadata.schema.createClass("Device")
-//        }
-//
-//        db.begin()
-//        db
-//            .command("insert into device (resource_id, domainset) VALUES (1, { 'domain' : 'eee' })")
-//            .close()
-//        db.commit()
-//
-//        val result = db.query("select from device where domainset.domain = 'eee'")
-//        Assert.assertTrue(result.stream().findAny().isPresent)
-//    }
-//
-//    fun testNestedMultiLevelEmbeddedJson() {
-//        if (!db.metadata.schema.existsClass("Device")) {
-//            db.metadata.schema.createClass("Device")
-//        }
-//
-//        db.begin()
-//        db
-//            .command(
-//                "insert into device (domainset) values ({'domain' : { 'lvlone' : { 'value' : 'five' } }"
-//                        + " } )"
-//            )
-//            .close()
-//        db.commit()
-//
-//        val result =
-//            db.query("select from device where domainset.domain.lvlone.value = 'five'")
-//
-//        Assert.assertTrue(result.stream().findAny().isPresent)
-//    }
-//
-//    fun testSpaces() {
-//        val doc = (db.newEntity() as EntityImpl)
-//        val test =
-//            ("{"
-//                    + "\"embedded\": {"
-//                    + "\"second_embedded\":  {"
-//                    + "\"text\":\"this is a test\""
-//                    + "}"
-//                    + "}"
-//                    + "}")
-//        doc.updateFromJSON(test)
-//        Assert.assertTrue(doc.toJSON("fetchPlan:*:0,rid").contains("this is a test"))
-//    }
-//
-//    fun testEscaping() {
-//        val doc = (db.newEntity() as EntityImpl)
-//        val s =
-//            ("{\"name\": \"test\", \"nested\": { \"key\": \"value\", \"anotherKey\": 123 }, \"deep\":"
-//                    + " {\"deeper\": { \"k\": \"v\",\"quotes\": \"\\\"\\\",\\\"oops\\\":\\\"123\\\"\","
-//                    + " \"likeJson\": \"[1,2,3]\",\"spaces\": \"value with spaces\"}}}")
-//        doc.updateFromJSON(s)
-//        Assert.assertEquals(doc.field("deep[deeper][quotes]"), "\"\",\"oops\":\"123\"")
-//
-//        val res = doc.toJSON()
-//
-//        // LOOK FOR "quotes": \"\",\"oops\":\"123\"
-//        Assert.assertTrue(res.contains("\"quotes\":\"\\\"\\\",\\\"oops\\\":\\\"123\\\"\""))
-//    }
-//
-//    fun testEscapingDoubleQuotes() {
-//        val doc = (db.newEntity() as EntityImpl)
-//        val sb =
-//            """
-//             {
-//                "foo":{
-//                        "bar":{
-//                            "P357":[
-//                                        {
-//
-//                                            "datavalue":{
-//                                                "value":"\${'"'}\${'"'}"
-//                                            }
-//                                    }
-//                            ]
-//                        },
-//                        "three": "a"
-//                    }
-//            }
-//            """.trimIndent()
-//        doc.updateFromJSON(sb)
-//        Assert.assertEquals(doc.field("foo.three"), "a")
-//        val c = doc.field<Collection<*>>("foo.bar.P357")
-//        Assert.assertEquals(c.size, 1)
-//        val doc2 = c.iterator().next() as Map<*, *>
-//        Assert.assertEquals((doc2["datavalue"] as Map<*, *>)["value"], "\"\"")
-//    }
-//
-//    fun testEscapingDoubleQuotes2() {
-//        val doc = (db.newEntity() as EntityImpl)
-//        val sb =
-//            """
-//             {
-//                "foo":{
-//                        "bar":{
-//                            "P357":[
-//                                        {
-//
-//                                            "datavalue":{
-//                                                "value":"\${'"'}",
-//
-//                                            }
-//                                    }
-//                            ]
-//                        },
-//                        "three": "a"
-//                    }
-//            }
-//            """.trimIndent()
-//
-//        doc.updateFromJSON(sb)
-//        Assert.assertEquals(doc.field("foo.three"), "a")
-//        val c = doc.field<Collection<*>>("foo.bar.P357")
-//        Assert.assertEquals(c.size, 1)
-//        val doc2 = c.iterator().next() as Map<*, *>
-//        Assert.assertEquals((doc2["datavalue"] as Map<*, *>)["value"], "\"")
-//    }
-//
-//    fun testEscapingDoubleQuotes3() {
-//        val doc = (db.newEntity() as EntityImpl)
-//        val sb =
-//            """
-//             {
-//                "foo":{
-//                        "bar":{
-//                            "P357":[
-//                                        {
-//
-//                                            "datavalue":{
-//                                                "value":"\${'"'}",
-//
-//                                            }
-//                                    }
-//                            ]
-//                        }
-//                    }
-//            }
-//            """.trimIndent()
-//
-//        doc.updateFromJSON(sb)
-//        val c = doc.field<Collection<*>>("foo.bar.P357")
-//        Assert.assertEquals(c.size, 1)
-//        val doc2 = c.iterator().next() as Map<*, *>
-//        Assert.assertEquals((doc2["datavalue"] as Map<*, *>)["value"], "\"")
-//    }
-//
-//    fun testEmbeddedQuotes() {
-//        val doc = (db.newEntity() as EntityImpl)
-//        // FROM ISSUE 3151
-//        doc.updateFromJSON("{\"mainsnak\":{\"datavalue\":{\"value\":\"Sub\\\\urban\"}}}")
-//        Assert.assertEquals(doc.field("mainsnak.datavalue.value"), "Sub\\urban")
-//    }
-//
-//    fun testEmbeddedQuotes2() {
-//        val doc = (db.newEntity() as EntityImpl)
-//        doc.updateFromJSON("{\"datavalue\":{\"value\":\"Sub\\\\urban\"}}")
-//        Assert.assertEquals(doc.field("datavalue.value"), "Sub\\urban")
-//    }
-//
-//    fun testEmbeddedQuotes2a() {
-//        val doc = (db.newEntity() as EntityImpl)
-//        doc.updateFromJSON("{\"datavalue\":\"Sub\\\\urban\"}")
-//        Assert.assertEquals(doc.field("datavalue"), "Sub\\urban")
-//    }
-//
-//    fun testEmbeddedQuotes3() {
-//        val doc = (db.newEntity() as EntityImpl)
-//        doc.updateFromJSON("{\"mainsnak\":{\"datavalue\":{\"value\":\"Suburban\\\\\"\"}}}")
-//        Assert.assertEquals(doc.field("mainsnak.datavalue.value"), "Suburban\\\"")
-//    }
-//
-//    fun testEmbeddedQuotes4() {
-//        val doc = (db.newEntity() as EntityImpl)
-//        doc.updateFromJSON("{\"datavalue\":{\"value\":\"Suburban\\\\\"\"}}")
-//        Assert.assertEquals(doc.field("datavalue.value"), "Suburban\\\"")
-//    }
-//
+
+    @Test
+    fun testNestedEmbeddedJson() {
+        db.executeInTx {
+            db
+                .command("insert into device (resource_id, domainset) VALUES (1, { 'domain' : 'eee' })")
+                .close()
+        }
+
+        db.executeInTx {
+            val result = db.query("select from device where domainset.domain = 'eee'")
+            Assert.assertTrue(result.stream().findAny().isPresent)
+        }
+    }
+
+    @Test
+    fun testNestedMultiLevelEmbeddedJson() {
+        db.executeInTx {
+            db
+                .command(
+                    "insert into device (domainset) values ({'domain' : { 'lvlone' : { 'value' : 'five' } }"
+                            + " } )"
+                )
+                .close()
+        }
+
+        db.executeInTx {
+            val result =
+                db.query("select from device where domainset.domain.lvlone.value = 'five'")
+
+            Assert.assertTrue(result.stream().findAny().isPresent)
+        }
+    }
+
+    @Test
+    fun testSpaces() {
+        val rid = db.computeInTx {
+            val entity = db.newEntity()
+            val test =
+                ("{"
+                        + "\"embedded\": {"
+                        + "\"second_embedded\":  {"
+                        + "\"text\":\"this is a test\""
+                        + "}"
+                        + "}"
+                        + "}")
+            entity.updateFromJSON(test)
+            entity.identity
+        }
+
+        db.executeInTx {
+            val entity = db.loadEntity(rid)
+            Assert.assertTrue(entity.toJSON("fetchPlan:*:0,rid").contains("this is a test"))
+        }
+    }
+
+    @Test
+    fun testEscaping() {
+        val rid = db.computeInTx {
+            val s =
+                ("{\"name\": \"test\", \"nested\": { \"key\": \"value\", \"anotherKey\": 123 }, \"deep\":"
+                        + " {\"deeper\": { \"k\": \"v\",\"quotes\": \"\\\"\\\",\\\"oops\\\":\\\"123\\\"\","
+                        + " \"likeJson\": \"[1,2,3]\",\"spaces\": \"value with spaces\"}}}")
+            val entity = db.entityFromJson(s)
+            Assert.assertEquals(
+                entity.getProperty<Map<String, Map<String, String>>>("deep")!!["deeper"]!!["quotes"],
+                "\"\",\"oops\":\"123\""
+            )
+            entity.identity
+        }
+
+        db.executeInTx {
+            val res = db.loadEntity(rid).toJSON()
+            Assert.assertTrue(res.contains("\"quotes\":\"\\\"\\\",\\\"oops\\\":\\\"123\\\"\""))
+        }
+    }
+
+    @Test
+    fun testEscapingDoubleQuotes() {
+        val rid = db.computeInTx {
+            val sb =
+                (""" {
+                        "foo":{
+                                "bar":{
+                                    "P357":[
+                                                {
+                    
+                                                    "datavalue":{
+                                                        "value":"\"\"" 
+                                                    }
+                                            }
+                                    ]   
+                                },
+                                "three": "a"
+                            }
+                    } """)
+            db.entityFromJson(sb).identity
+        }
+
+        db.executeInTx {
+            val entity = db.loadEntity(rid)
+            Assert.assertEquals(entity.getProperty<Map<String, Any>>("foo")!!["three"], "a")
+
+            val c =
+                entity.getProperty<Map<String, Map<String, List<Map<String, Map<String, String>>>>>>(
+                    "foo"
+                )!!["bar"]!!["P357"]!!
+            Assert.assertEquals(c.size, 1)
+            val map = c.iterator().next()
+            Assert.assertEquals((map["datavalue"] as Map<*, *>)["value"], "\"\"")
+        }
+    }
+
+    @Test
+    fun testEscapingDoubleQuotes2() {
+        val rid = db.computeInTx {
+            val sb =
+                (""" {
+                        "foo":{
+                                "bar":{
+                                    "P357":[
+                                                {
+                    
+                                                    "datavalue":{
+                                                        "value":"\""
+                    
+                                                    }
+                                            }
+                                    ]   
+                                },
+                                "three": "a"
+                        }
+                    } """)
+            db.entityFromJson(sb).identity
+        }
+
+        db.executeInTx {
+            val entity = db.loadEntity(rid)
+            Assert.assertEquals(entity.getProperty<Map<String, Any>>("foo")!!["three"], "a")
+
+            val c =
+                entity.getProperty<Map<String, Map<String, List<Map<String, Map<String, String>>>>>>(
+                    "foo"
+                )!!["bar"]!!["P357"]!!
+            Assert.assertEquals(c.size, 1)
+            val map = c.iterator().next()
+            Assert.assertEquals((map["datavalue"] as Map<*, *>)["value"], "\"")
+        }
+    }
+
+    @Test
+    fun testEscapingDoubleQuotes3() {
+        val rid = db.computeInTx {
+            val sb =
+                (""" {
+                        "foo":{
+                                "bar":{
+                                    "P357":[
+                                                {
+                    
+                                                    "datavalue":{
+                                                        "value":"\""
+                    
+                                                    }
+                                            }
+                                    ]   
+                                }
+                            }
+                     } """)
+            db.entityFromJson(sb).identity
+        }
+
+        db.executeInTx {
+            val entity = db.loadEntity(rid)
+            val c =
+                entity.getProperty<Map<String, Map<String, List<Map<String, Map<String, String>>>>>>(
+                    "foo"
+                )!!["bar"]!!["P357"]!!
+            Assert.assertEquals(c.size, 1)
+            val map = c.iterator().next()
+            Assert.assertEquals((map["datavalue"] as Map<*, *>)["value"], "\"")
+        }
+    }
+
+    @Test
+    fun testEmbeddedQuotes() {
+        db.executeInTx {
+            val entity =
+                db.entityFromJson("{\"mainsnak\":{\"datavalue\":{\"value\":\"Sub\\\\urban\"}}}")
+            Assert.assertEquals(
+                entity.getProperty<Map<String, Map<String, String>>>("mainsnak")!!["datavalue"]!!["value"],
+                "Sub\\urban"
+            )
+        }
+    }
+
+    @Test
+    fun testEmbeddedQuotes2() {
+        db.executeInTx {
+            val entity = db.entityFromJson("{\"datavalue\":{\"value\":\"Sub\\\\urban\"}}")
+            Assert.assertEquals(
+                entity.getProperty<Map<String, Map<String, String>>>("datavalue")!!["value"],
+                "Sub\\urban"
+            )
+        }
+    }
+
+    @Test
+    fun testEmbeddedQuotes2a() {
+        db.executeInTx {
+            val entity = db.entityFromJson("{\"datavalue\":\"Sub\\\\urban\"}")
+            Assert.assertEquals(entity.getProperty("datavalue"), "Sub\\urban")
+        }
+    }
+
+    @Test
+    fun testEmbeddedQuotes3() {
+        db.executeInTx {
+            val entity =
+                db.entityFromJson("{\"mainsnak\":{\"datavalue\":{\"value\":\"Suburban\\\\\\\"\"}}}")
+            Assert.assertEquals(
+                entity.getProperty<Map<String, Map<String, String>>>("mainsnak")!!["datavalue"]!!["value"],
+                "Suburban\\\""
+            )
+        }
+    }
+
 //    fun testEmbeddedQuotes5() {
 //        val doc = (db.newEntity() as EntityImpl)
 //        doc.updateFromJSON("{\"datavalue\":\"Suburban\\\\\"\"}")
