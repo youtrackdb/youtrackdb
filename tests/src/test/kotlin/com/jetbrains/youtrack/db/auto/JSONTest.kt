@@ -236,51 +236,44 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
             Assert.assertEquals(originalMap, restoredMap)
         }
     }
-//
-//    @Test
-//    fun testEmbeddedMap() {
-//        val doc = (db.newEntity() as EntityImpl)
-//
-//        val map: MutableMap<String, EntityImpl> = HashMap()
-//        doc.field("map", map)
-//        map["Luca"] =
-//            (db.newEntity() as EntityImpl).field(
-//                "name",
-//                "Luca"
-//            )
-//        map["Marcus"] =
-//            (db.newEntity() as EntityImpl).field(
-//                "name",
-//                "Marcus"
-//            )
-//        map["Cesare"] =
-//            (db.newEntity() as EntityImpl).field(
-//                "name",
-//                "Cesare"
-//            )
-//
-//        val json = doc.toJSON()
-//        val loadedDoc = (db.newEntity() as EntityImpl)
-//        loadedDoc.updateFromJSON(json)
-//
-//        Assert.assertTrue(doc.hasSameContentOf(loadedDoc))
-//
-//        Assert.assertTrue(loadedDoc.containsField("map"))
-//        Assert.assertTrue(loadedDoc.field<Any>("map") is Map<*, *>)
-//        Assert.assertTrue(
-//            (loadedDoc.field<Any>("map") as Map<*, *>).values.iterator().next()
-//                    is EntityImpl
-//        )
-//
-//        var newDoc = loadedDoc.field<Map<String, EntityImpl>>("map")["Luca"]
-//        Assert.assertEquals(newDoc!!.field("name"), "Luca")
-//
-//        newDoc = loadedDoc.field<Map<String, EntityImpl>>("map")["Marcus"]
-//        Assert.assertEquals(newDoc!!.field("name"), "Marcus")
-//
-//        newDoc = loadedDoc.field<Map<String, EntityImpl>>("map")["Cesare"]
-//        Assert.assertEquals(newDoc!!.field("name"), "Cesare")
-//    }
+
+    @Test
+    fun testEmbeddedMap() {
+        val rid = db.computeInTx {
+            val original = db.newEntity()
+            val map = original.getOrCreateEmbeddedMap<Entity>("embeddedMap")
+
+            val entityOne = db.newEntity()
+            entityOne.setProperty("name", "Luca")
+            map["Luca"] = entityOne
+
+            val entityTwo = db.newEntity()
+            entityTwo.setProperty("name", "Marcus")
+            map["Marcus"] = entityTwo
+
+            val entityThree = db.newEntity()
+            entityThree.setProperty("name", "Cesare")
+            map["Cesare"] = entityThree
+
+            original.identity
+        }
+
+        db.executeInTx {
+            val original = db.loadEntity(rid)
+            val json = original.toJSON(FORMAT_WITHOUT_RID)
+
+            val loadedDoc = db.newEntity()
+            loadedDoc.updateFromJSON(json)
+
+            val originalMap = original.toMap()
+            val loadedMap = loadedDoc.toMap()
+
+            originalMap.remove(EntityHelper.ATTRIBUTE_RID)
+            loadedMap.remove(EntityHelper.ATTRIBUTE_RID)
+
+            Assert.assertEquals(originalMap, loadedMap)
+        }
+    }
 //
 //    @Test
 //    fun testListToJSON() {

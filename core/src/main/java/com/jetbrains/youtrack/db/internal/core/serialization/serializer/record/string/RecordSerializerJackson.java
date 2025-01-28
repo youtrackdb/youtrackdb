@@ -459,7 +459,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     }
 
     if (type == null) {
-      type = PropertyType.getTypeByValue(entity.getProperty(propertyName));
+      type = PropertyType.getTypeByValue(entity.getPropertyInternal(propertyName));
     }
 
     return type;
