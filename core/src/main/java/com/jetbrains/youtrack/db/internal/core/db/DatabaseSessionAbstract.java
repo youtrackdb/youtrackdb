@@ -1173,6 +1173,18 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   @Override
+  public Entity entityFromJson(String json) {
+    assert assertIfNotActive();
+    var result = RecordSerializerJackson.INSTANCE.fromString(this, json);
+
+    if (result instanceof Entity) {
+      return (Entity) result;
+    }
+
+    throw new DatabaseException("The record is not an entity");
+  }
+
+  @Override
   public Entity newEntity(String className) {
     assert assertIfNotActive();
     return newInstance(className);

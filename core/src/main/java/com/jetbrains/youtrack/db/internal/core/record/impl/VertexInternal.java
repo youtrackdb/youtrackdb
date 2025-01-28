@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -73,7 +74,49 @@ public interface VertexInternal extends Vertex, EntityInternal {
   default <RET> RET getProperty(String name) {
     checkPropertyName(name);
 
-    return getBaseEntity().getPropertyInternal(name);
+    return getBaseEntity().getProperty(name);
+  }
+
+  @Override
+  default <T> List<T> getOrCreateEmbeddedList(String name) {
+    checkPropertyName(name);
+
+    return getBaseEntity().getOrCreateEmbeddedList(name);
+  }
+
+  @Override
+  default <T> Set<T> getOrCreateEmbeddedSet(String name) {
+    checkPropertyName(name);
+
+    return getBaseEntity().getOrCreateEmbeddedSet(name);
+  }
+
+  @Override
+  default <T> Map<String, T> getOrCreateEmbeddedMap(String name) {
+    checkPropertyName(name);
+
+    return getBaseEntity().getOrCreateEmbeddedMap(name);
+  }
+
+  @Override
+  default List<Identifiable> getOrCreateLinkList(String name) {
+    checkPropertyName(name);
+
+    return getBaseEntity().getOrCreateLinkList(name);
+  }
+
+  @Override
+  default Set<Identifiable> getOrCreateLinkSet(String name) {
+    checkPropertyName(name);
+
+    return getBaseEntity().getOrCreateLinkSet(name);
+  }
+
+  @Override
+  default Map<String, Identifiable> getOrCreateLinkMap(String name) {
+    checkPropertyName(name);
+
+    return getBaseEntity().getOrCreateLinkMap(name);
   }
 
   @Nullable
@@ -134,7 +177,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
   default void setProperty(String name, Object value) {
     checkPropertyName(name);
 
-    getBaseEntity().setPropertyInternal(name, value);
+    getBaseEntity().setProperty(name, value);
   }
 
   @Override
@@ -153,7 +196,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
   default void setProperty(String name, Object value, PropertyType fieldType) {
     checkPropertyName(name);
 
-    getBaseEntity().setPropertyInternal(name, value, fieldType);
+    getBaseEntity().setProperty(name, value, fieldType);
   }
 
   @Override

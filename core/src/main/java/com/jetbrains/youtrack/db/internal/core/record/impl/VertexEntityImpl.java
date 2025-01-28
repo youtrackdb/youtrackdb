@@ -59,18 +59,16 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
   public void setProperty(String fieldName, Object propertyValue) {
     checkForBinding();
 
-    EdgeInternal.checkPropertyName(fieldName);
-
-    setPropertyInternal(fieldName, propertyValue);
+    setProperty(fieldName, propertyValue);
   }
 
   @Override
-  public void setProperty(String name, Object value, PropertyType types) {
+  public void setProperty(String name, Object propertyValue, PropertyType types) {
     checkForBinding();
 
     EdgeInternal.checkPropertyName(name);
 
-    super.setProperty(name, value, types);
+    super.setProperty(name, propertyValue, types);
   }
 
   @Override

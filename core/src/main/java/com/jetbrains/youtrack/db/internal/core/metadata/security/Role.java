@@ -160,13 +160,14 @@ public class Role extends IdentityWrapper implements SecurityRole {
   protected void toEntity(@Nonnull DatabaseSessionInternal db, @Nonnull EntityImpl entity) {
     entity.setProperty(NAME, name);
     entity.setProperty(INHERITED_ROLE, parent != null ? parent.getIdentity() : null);
-    entity.setProperty(RULES, getEncodedRules());
+    entity.getOrCreateEmbeddedMap(RULES).putAll(getEncodedRules());
 
     var storedPolicies = new HashMap<String, Identifiable>();
     for (Map.Entry<String, SecurityPolicy> policy : policies.entrySet()) {
       storedPolicies.put(policy.getKey(), policy.getValue().getIdentity());
     }
-    entity.setProperty(POLICIES, storedPolicies);
+
+    entity.getOrCreateLinkMap(POLICIES).putAll(storedPolicies);
   }
 
   /**

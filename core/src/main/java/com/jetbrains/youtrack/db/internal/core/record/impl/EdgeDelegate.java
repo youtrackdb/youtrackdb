@@ -399,6 +399,19 @@ public class EdgeDelegate implements EdgeInternal {
 
   @Override
   public Map<String, Object> toMap() {
+    if (entity != null) {
+      return entity.toMap();
+    }
+
+    return Map.of(DIRECTION_OUT, getToIdentifiable(), DIRECTION_IN, getFromIdentifiable());
+  }
+
+  @Override
+  public Map<String, Object> toMap(boolean includeMetadata) {
+    if (entity != null) {
+      return entity.toMap(includeMetadata);
+    }
+
     return Map.of(DIRECTION_OUT, getToIdentifiable(), DIRECTION_IN, getFromIdentifiable());
   }
 

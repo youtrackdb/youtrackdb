@@ -213,9 +213,12 @@ public class TrackedSet<T> extends LinkedHashSet<T>
   }
 
   private void addOwnerToEmbeddedDoc(T e) {
-    if (embeddedCollection && e instanceof EntityImpl && !((EntityImpl) e).getIdentity()
-        .isValid()) {
-      EntityInternalUtils.addOwner((EntityImpl) e, this);
+    if (embeddedCollection && e instanceof EntityImpl entity) {
+      var rid = entity.getIdentity();
+
+      if (!rid.isValid() || rid.isNew()) {
+        EntityInternalUtils.addOwner((EntityImpl) e, this);
+      }
     }
   }
 

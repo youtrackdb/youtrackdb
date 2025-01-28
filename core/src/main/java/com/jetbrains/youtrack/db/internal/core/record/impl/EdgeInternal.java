@@ -8,6 +8,9 @@ import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nullable;
 
 public interface EdgeInternal extends Edge, EntityInternal {
@@ -44,7 +47,12 @@ public interface EdgeInternal extends Edge, EntityInternal {
   default <RET> RET getProperty(String name) {
     checkPropertyName(name);
 
-    return getPropertyInternal(name);
+    var baseEntity = getBaseEntity();
+    if (baseEntity == null) {
+      return null;
+    }
+
+    return baseEntity.getProperty(name);
   }
 
   @Nullable
@@ -104,13 +112,91 @@ public interface EdgeInternal extends Edge, EntityInternal {
   default void setProperty(String name, Object value) {
     checkPropertyName(name);
 
-    setPropertyInternal(name, value);
+    var baseEntity = getBaseEntity();
+    if (baseEntity == null) {
+      throw new UnsupportedOperationException("This edge is not backed by a entity.");
+    }
+
+    baseEntity.setProperty(name, value);
+  }
+
+  @Override
+  default <T> List<T> getOrCreateEmbeddedList(String name) {
+    checkPropertyName(name);
+
+    var baseEntity = getBaseEntity();
+    if (baseEntity == null) {
+      throw new UnsupportedOperationException("This edge is not backed by a entity.");
+    }
+
+    return baseEntity.getOrCreateEmbeddedList(name);
+  }
+
+  @Override
+  default <T> Set<T> getOrCreateEmbeddedSet(String name) {
+    checkPropertyName(name);
+
+    var baseEntity = getBaseEntity();
+    if (baseEntity == null) {
+      throw new UnsupportedOperationException("This edge is not backed by a entity.");
+    }
+
+    return baseEntity.getOrCreateEmbeddedSet(name);
+  }
+
+  @Override
+  default <T> Map<String, T> getOrCreateEmbeddedMap(String name) {
+    checkPropertyName(name);
+
+    var baseEntity = getBaseEntity();
+    if (baseEntity == null) {
+      throw new UnsupportedOperationException("This edge is not backed by a entity.");
+    }
+
+    return baseEntity.getOrCreateEmbeddedMap(name);
+  }
+
+  @Override
+  default List<Identifiable> getOrCreateLinkList(String name) {
+    checkPropertyName(name);
+
+    var baseEntity = getBaseEntity();
+    if (baseEntity == null) {
+      throw new UnsupportedOperationException("This edge is not backed by a entity.");
+    }
+
+    return baseEntity.getOrCreateLinkList(name);
+  }
+
+  @Override
+  default Set<Identifiable> getOrCreateLinkSet(String name) {
+    checkPropertyName(name);
+
+    var baseEntity = getBaseEntity();
+    if (baseEntity == null) {
+      throw new UnsupportedOperationException("This edge is not backed by a entity.");
+    }
+
+    return baseEntity.getOrCreateLinkSet(name);
+  }
+
+  @Override
+  default Map<String, Identifiable> getOrCreateLinkMap(String name) {
+    checkPropertyName(name);
+
+    var baseEntity = getBaseEntity();
+    if (baseEntity == null) {
+      throw new UnsupportedOperationException("This edge is not backed by a entity.");
+    }
+
+    return baseEntity.getOrCreateLinkMap(name);
   }
 
   @Override
   default boolean hasProperty(final String propertyName) {
     checkPropertyName(propertyName);
     var baseEntity = getBaseEntity();
+
     if (baseEntity == null) {
       return false;
     }
@@ -121,14 +207,24 @@ public interface EdgeInternal extends Edge, EntityInternal {
   @Override
   default void setProperty(String name, Object value, PropertyType fieldType) {
     checkPropertyName(name);
-    setPropertyInternal(name, value, fieldType);
+    var baseEntity = getBaseEntity();
+    if (baseEntity == null) {
+      throw new UnsupportedOperationException("This edge is not backed by a entity.");
+    }
+
+    baseEntity.setProperty(name, value, fieldType);
   }
 
   @Override
   default <RET> RET removeProperty(String name) {
     checkPropertyName(name);
 
-    return removePropertyInternal(name);
+    var baseEntity = getBaseEntity();
+    if (baseEntity == null) {
+      throw new UnsupportedOperationException("This edge is not backed by a entity.");
+    }
+
+    return baseEntity.removeProperty(name);
   }
 
   @Nullable

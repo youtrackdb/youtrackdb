@@ -15,7 +15,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStepInterna
 import com.jetbrains.youtrack.db.internal.core.sql.executor.FetchFromIndexStep;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -106,27 +105,28 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
       bObama.setProperty("nick", "ThePresident");
       bObama.setProperty("name", "Barack");
       bObama.setProperty("surname", "Obama");
-      bObama.setProperty("followings", Collections.emptySet());
+      bObama.getOrCreateLinkSet("followings");
 
       var follower1 = db.newEntity("Profile");
       follower1.setProperty("nick", "PresidentSon1");
       follower1.setProperty("name", "Malia Ann");
       follower1.setProperty("surname", "Obama");
-      follower1.setProperty("followings", Collections.singleton(bObama));
-      follower1.setProperty("followers", Collections.emptySet());
+
+      follower1.getOrCreateLinkSet("followings").add(bObama);
+      follower1.getOrCreateLinkSet("followers");
 
       var follower2 = db.newEntity("Profile");
       follower2.setProperty("nick", "PresidentSon2");
       follower2.setProperty("name", "Natasha");
       follower2.setProperty("surname", "Obama");
-      follower2.setProperty("followings", Collections.singleton(bObama));
-      follower2.setProperty("followers", Collections.emptySet());
+      follower2.getOrCreateLinkSet("followings").add(bObama);
+      follower2.getOrCreateLinkSet("followers");
 
       var followers = new HashSet<Entity>();
       followers.add(follower1);
       followers.add(follower2);
 
-      bObama.setProperty("followers", followers);
+      bObama.getOrCreateLinkSet("followers").addAll(followers);
       bObama.save();
     }
 

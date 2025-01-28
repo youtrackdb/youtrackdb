@@ -407,6 +407,8 @@ public interface DatabaseSession extends AutoCloseable {
 
   <T extends Record> T fromJson(String json);
 
+  Entity entityFromJson(String json);
+
   /**
    * Creates a new Edge of type E
    *

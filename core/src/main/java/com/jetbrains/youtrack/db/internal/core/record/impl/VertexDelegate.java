@@ -206,4 +206,9 @@ public final class VertexDelegate implements VertexInternal {
   public Map<String, Object> toMap() {
     return entity.toMap();
   }
+
+  @Override
+  public Map<String, Object> toMap(boolean includeMetadata) {
+    return entity.toMap(includeMetadata);
+  }
 }

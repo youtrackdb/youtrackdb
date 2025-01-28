@@ -133,6 +133,7 @@ public class EntityImpl extends RecordAbstract
   protected ImmutableSchema schema;
   private String className;
   private SchemaImmutableClass immutableClazz;
+
   private int immutableSchemaVersion = 1;
   PropertyAccess propertyAccess;
   PropertyEncryption propertyEncryption;
@@ -614,11 +615,85 @@ public class EntityImpl extends RecordAbstract
   /**
    * sets a property value on current entity
    *
-   * @param iFieldName     The property name
-   * @param iPropertyValue The property value
+   * @param iFieldName    The property name
+   * @param propertyValue The property value
    */
-  public void setProperty(final String iFieldName, Object iPropertyValue) {
-    setPropertyInternal(iFieldName, iPropertyValue);
+  public void setProperty(final String iFieldName, Object propertyValue) {
+    if (propertyValue instanceof Collection<?> || propertyValue instanceof Map<?, ?>
+        || propertyValue != null && propertyValue.getClass()
+        .isArray()) {
+      throw new DatabaseException(
+          "Data containers have to be created using appropriate getOrCreateXxx methods");
+    }
+
+    setPropertyInternal(iFieldName, propertyValue);
+  }
+
+  @Override
+  public <T> List<T> getOrCreateEmbeddedList(String name) {
+    var value = this.<List<T>>getPropertyInternal(name);
+
+    if (value == null) {
+      value = new TrackedList<T>(this);
+      setPropertyInternal(name, value, PropertyType.EMBEDDEDLIST);
+    }
+
+    return value;
+  }
+
+  @Override
+  public <T> Set<T> getOrCreateEmbeddedSet(String name) {
+    var value = this.<Set<T>>getPropertyInternal(name);
+    if (value == null) {
+      value = new TrackedSet<T>(this);
+      setPropertyInternal(name, value, PropertyType.EMBEDDEDSET);
+    }
+
+    return value;
+  }
+
+  @Override
+  public <T> Map<String, T> getOrCreateEmbeddedMap(String name) {
+    var value = this.<Map<String, T>>getPropertyInternal(name);
+    if (value == null) {
+      value = new TrackedMap<T>(this);
+      setPropertyInternal(name, value, PropertyType.EMBEDDEDMAP);
+    }
+
+    return value;
+  }
+
+  @Override
+  public List<Identifiable> getOrCreateLinkList(String name) {
+    var value = this.<List<Identifiable>>getPropertyInternal(name);
+    if (value == null) {
+      value = new LinkList(this);
+      setPropertyInternal(name, value, PropertyType.LINKLIST);
+    }
+
+    return value;
+  }
+
+  @Override
+  public Set<Identifiable> getOrCreateLinkSet(String name) {
+    var value = this.<Set<Identifiable>>getPropertyInternal(name);
+    if (value == null) {
+      value = new LinkSet(this);
+      setPropertyInternal(name, value, PropertyType.LINKSET);
+    }
+
+    return value;
+  }
+
+  @Override
+  public Map<String, Identifiable> getOrCreateLinkMap(String name) {
+    var value = this.<Map<String, Identifiable>>getPropertyInternal(name);
+    if (value == null) {
+      value = new LinkMap(this);
+      setPropertyInternal(name, value, PropertyType.LINKMAP);
+    }
+
+    return value;
   }
 
   @Override
@@ -721,12 +796,19 @@ public class EntityImpl extends RecordAbstract
   /**
    * Sets
    *
-   * @param name  The property name
-   * @param value The property value
-   * @param types Forced type (not auto-determined)
+   * @param name          The property name
+   * @param propertyValue The property value
+   * @param types         Forced type (not auto-determined)
    */
-  public void setProperty(String name, Object value, PropertyType types) {
-    setPropertyInternal(name, value, types);
+  public void setProperty(String name, Object propertyValue, PropertyType types) {
+    if (propertyValue instanceof Collection<?> || propertyValue instanceof Map<?, ?>
+        || propertyValue != null && propertyValue.getClass()
+        .isArray()) {
+      throw new DatabaseException(
+          "Data containers have to be created using appropriate getOrCreateXxx methods");
+    }
+
+    setPropertyInternal(name, propertyValue, types);
   }
 
   public void compareAndSetPropertyInternal(String name, Object value, PropertyType type) {
@@ -1568,24 +1650,101 @@ public class EntityImpl extends RecordAbstract
    * @since 2.0
    */
   public Map<String, Object> toMap() {
+    return toMap(true);
+  }
+
+  @Override
+  public Map<String, Object> toMap(boolean includeMetadata) {
     checkForBinding();
 
     final Map<String, Object> map = new HashMap<>();
-    for (String field : fieldNames()) {
-      map.put(field, field(field));
+
+    for (var propertyName : getPropertyNamesInternal()) {
+      var value = getPropertyInternal(propertyName);
+      map.put(propertyName, mapValue(value));
     }
 
-    final RecordId id = getIdentity();
-    if (id.isValid()) {
-      map.put(EntityHelper.ATTRIBUTE_RID, id);
-    }
-
-    final String className = getClassName();
-    if (className != null) {
-      map.put(EntityHelper.ATTRIBUTE_CLASS, className);
+    if (includeMetadata) {
+      if (isEmbedded()) {
+        map.put(EntityHelper.ATTRIBUTE_EMBEDDED, true);
+      } else {
+        final RecordId id = getIdentity();
+        if (id.isValid()) {
+          map.put(EntityHelper.ATTRIBUTE_RID, id);
+        }
+      }
+      final String className = getClassName();
+      if (className != null) {
+        map.put(EntityHelper.ATTRIBUTE_CLASS, className);
+      }
     }
 
     return map;
+  }
+
+  private static Object mapValue(Object value) {
+    return switch (value) {
+      case null -> null;
+      case Record record -> {
+        if (record instanceof EntityImpl entity && entity.isEmbedded()) {
+          yield entity.toMap();
+        }
+
+        yield record.getIdentity();
+      }
+
+      case LinkList linkList -> {
+        List<RID> list = new ArrayList<>(linkList.size());
+        for (Identifiable item : linkList) {
+          list.add(item.getIdentity());
+        }
+        yield list;
+      }
+
+      case LinkSet linkSet -> {
+        Set<RID> set = new HashSet<>(linkSet.size());
+        for (Identifiable item : linkSet) {
+          set.add(item.getIdentity());
+        }
+        yield set;
+      }
+      case LinkMap linkMap -> {
+        Map<Object, RID> map = new HashMap<>(linkMap.size());
+        for (var entry : linkMap.entrySet()) {
+          map.put(entry.getKey(), entry.getValue().getIdentity());
+        }
+        yield map;
+      }
+      case RidBag ridBag -> {
+        List<RID> list = new ArrayList<>(ridBag.size());
+        for (RID rid : ridBag) {
+          list.add(rid);
+        }
+        yield list;
+      }
+      case TrackedList<?> trackedList -> {
+        List<Object> list = new ArrayList<>(trackedList.size());
+        for (Object item : trackedList) {
+          list.add(mapValue(item));
+        }
+        yield list;
+      }
+      case TrackedSet<?> trackedSet -> {
+        Set<Object> set = new HashSet<>(trackedSet.size());
+        for (Object item : trackedSet) {
+          set.add(mapValue(item));
+        }
+        yield set;
+      }
+      case TrackedMap<?> trackedMap -> {
+        Map<Object, Object> map = new HashMap<>(trackedMap.size());
+        for (var entry : trackedMap.entrySet()) {
+          map.put(entry.getKey(), mapValue(entry.getValue()));
+        }
+        yield map;
+      }
+      default -> value;
+    };
   }
 
   /**
@@ -1894,6 +2053,9 @@ public class EntityImpl extends RecordAbstract
   public void updateFromMap(final Map<String, ?> map) {
     checkForBinding();
 
+    var session = getSession();
+    var cls = getImmutableSchemaClass();
+
     status = STATUS.UNMARSHALLING;
     try {
       if (map != null) {
@@ -1906,13 +2068,261 @@ public class EntityImpl extends RecordAbstract
             continue;
           }
 
-          setProperty(entry.getKey(), entry.getValue());
+          var property = cls != null ? cls.getProperty(key) : null;
+          var type = property != null ? property.getType() : null;
+
+          switch (type) {
+            case LINKLIST: {
+              updateLinkListFromMapEntry(entry, key);
+              break;
+            }
+            case LINKSET: {
+              updateLinkSetFromMapEntry(entry, key);
+              break;
+            }
+            case LINKBAG: {
+              updateLinkBagFromMapEntry(entry, session, key);
+              break;
+            }
+            case LINKMAP: {
+              updateLinkMapFromMapEntry(entry, key);
+              break;
+            }
+            case EMBEDDEDLIST: {
+              updateEmbeddedListFromMapEntry(session, entry, key);
+              break;
+            }
+            case EMBEDDEDSET: {
+              updateEmbeddedSetFromMapEntry(session, entry, key);
+              break;
+            }
+            case EMBEDDEDMAP: {
+              updateEmbeddedMapFromMapEntry(session, entry, key);
+              break;
+            }
+            case EMBEDDED: {
+              updateEmbeddedFromMapEntry(entry, session, key);
+              break;
+            }
+            case null: {
+              updatePropertyFromNonTypedMapEntry(entry, session, key);
+              break;
+            }
+            default: {
+              setPropertyInternal(key, entry.getValue());
+            }
+          }
         }
       }
     } finally {
       status = STATUS.LOADED;
     }
   }
+
+  private void updatePropertyFromNonTypedMapEntry(Entry<String, ?> entry,
+      DatabaseSessionInternal session, String key) {
+    var value = entry.getValue();
+    value = convertMapValue(session, value);
+    setPropertyInternal(key, value);
+  }
+
+  private Object convertMapValue(DatabaseSessionInternal session, Object value) {
+    if (value instanceof Map<?, ?>) {
+      var mapValue = (Map<String, ?>) value;
+
+      var className = mapValue.get(EntityHelper.ATTRIBUTE_CLASS);
+      var rid = mapValue.get(EntityHelper.ATTRIBUTE_RID);
+      var embedded = mapValue.get(EntityHelper.ATTRIBUTE_EMBEDDED);
+
+      if (embedded != null && Boolean.parseBoolean(embedded.toString())) {
+        Entity embeddedEntity;
+        if (className != null) {
+          embeddedEntity = session.newEmbededEntity(className.toString());
+        } else {
+          embeddedEntity = session.newEmbededEntity();
+        }
+
+        embeddedEntity.updateFromMap(mapValue);
+        value = embeddedEntity;
+      } else if (rid != null) {
+        var record = session.load(new RecordId(rid.toString()));
+        if (record instanceof EntityImpl entity) {
+          if (className != null && !className.equals(entity.getClassName())) {
+            throw new IllegalArgumentException("Invalid  entity class name provided: "
+                + className + " expected: " + entity.getClassName());
+          }
+          entity.updateFromMap(mapValue);
+          value = entity;
+        } else if (record instanceof Blob) {
+          if (mapValue.size() > 1) {
+            throw new IllegalArgumentException(
+                "Invalid value for LINK: " + value);
+          }
+          value = record;
+        } else {
+          throw new IllegalArgumentException(
+              "Invalid value, record expectd, provided : " + value);
+        }
+      } else if (className != null) {
+        var entity = session.newEntity(className.toString());
+        entity.updateFromMap(mapValue);
+        value = entity;
+      } else {
+        var trackedMap = new TrackedMap<>(this);
+        for (var mapEntry : mapValue.entrySet()) {
+          trackedMap.put(mapEntry.getKey(), convertMapValue(session, mapEntry.getValue()));
+        }
+        value = trackedMap;
+      }
+    } else if (value instanceof List<?> list) {
+      var trackedList = new TrackedList<>(this);
+      for (var item : list) {
+        trackedList.add(convertMapValue(session, item));
+      }
+      value = trackedList;
+    } else if (value instanceof Set<?> set) {
+      var trackedSet = new TrackedSet<>(this);
+      for (var item : set) {
+        trackedSet.add(convertMapValue(session, item));
+      }
+      value = trackedSet;
+    }
+
+    return value;
+  }
+
+  private void updateEmbeddedFromMapEntry(Entry<String, ?> entry, DatabaseSessionInternal session,
+      String key) {
+    Entity embedded;
+    if (entry.getValue() instanceof Map<?, ?> mapValue) {
+      embedded = new EntityImpl(session);
+      embedded.updateFromMap((Map<String, ?>) mapValue);
+    } else {
+      throw new IllegalArgumentException(
+          "Invalid value for EMBEDDED: " + entry.getValue());
+    }
+
+    setPropertyInternal(key, embedded);
+  }
+
+  private void updateEmbeddedMapFromMapEntry(DatabaseSessionInternal session,
+      Entry<String, ?> entry, String key) {
+    if (entry.getValue() instanceof Map<?, ?> mapValue) {
+      var embeddedMap = new TrackedMap<>(this);
+      for (var mapEntry : mapValue.entrySet()) {
+        embeddedMap.put(mapEntry.getKey().toString(),
+            convertMapValue(session, mapEntry.getValue()));
+      }
+      setPropertyInternal(key, embeddedMap);
+    } else {
+      throw new IllegalArgumentException(
+          "Invalid value for EMBEDDEDMAP: " + entry.getValue());
+    }
+  }
+
+  private void updateEmbeddedSetFromMapEntry(DatabaseSessionInternal session,
+      Entry<String, ?> entry, String key) {
+    if (entry.getValue() instanceof Collection<?> collection) {
+      var embeddedSet = new TrackedSet<>(this);
+      for (var item : collection) {
+        embeddedSet.add(convertMapValue(session, item));
+      }
+      setPropertyInternal(key, embeddedSet);
+    } else {
+      throw new IllegalArgumentException(
+          "Invalid value for EMBEDDEDSET: " + entry.getValue());
+    }
+  }
+
+  private void updateEmbeddedListFromMapEntry(DatabaseSessionInternal session,
+      Entry<String, ?> entry, String key) {
+    if (entry.getValue() instanceof Collection<?> collection) {
+      var embeddedList = new TrackedList<>(this);
+      for (var item : collection) {
+        embeddedList.add(convertMapValue(session, item));
+      }
+      setPropertyInternal(key, embeddedList);
+    } else {
+      throw new IllegalArgumentException(
+          "Invalid value for EMBEDDEDLIST: " + entry.getValue());
+    }
+  }
+
+  private void updateLinkMapFromMapEntry(Entry<String, ?> entry, String key) {
+    if (entry.getValue() instanceof Map<?, ?> mapValue) {
+      var linkMap = new LinkMap(this);
+      for (var mapEntry : mapValue.entrySet()) {
+        if (mapEntry.getKey() instanceof String keyString) {
+          if (mapEntry.getValue() instanceof Identifiable identifiable) {
+            linkMap.put(keyString, identifiable);
+          } else {
+            throw new IllegalArgumentException(
+                "Invalid value for LINKMAP: " + mapEntry.getValue());
+          }
+        } else {
+          throw new IllegalArgumentException(
+              "Invalid key for LINKMAP: " + mapEntry.getKey());
+        }
+      }
+      setPropertyInternal(key, linkMap);
+    } else {
+      throw new IllegalArgumentException(
+          "Invalid value for LINKMAP: " + entry.getValue());
+    }
+  }
+
+  private void updateLinkBagFromMapEntry(Entry<String, ?> entry, DatabaseSessionInternal session,
+      String key) {
+    if (entry.getValue() instanceof Collection<?> collection) {
+      var linkBag = new RidBag(session);
+      for (var item : collection) {
+        if (item instanceof Identifiable identifiable) {
+          linkBag.add(identifiable.getIdentity());
+        } else {
+          throw new IllegalArgumentException("Invalid value for LINKBAG: " + item);
+        }
+      }
+      setPropertyInternal(key, linkBag);
+    } else {
+      throw new IllegalArgumentException(
+          "Invalid value for LINKBAG: " + entry.getValue());
+    }
+  }
+
+  private void updateLinkSetFromMapEntry(Entry<String, ?> entry, String key) {
+    if (entry.getValue() instanceof Collection<?> collection) {
+      var linkSet = new LinkSet(this);
+      for (var item : collection) {
+        if (item instanceof Identifiable identifiable) {
+          linkSet.add(identifiable);
+        } else {
+          throw new IllegalArgumentException("Invalid value for LINKSET: " + item);
+        }
+      }
+      setPropertyInternal(key, linkSet);
+    } else {
+      throw new IllegalArgumentException(
+          "Invalid value for LINKSET: " + entry.getValue());
+    }
+  }
+
+  private void updateLinkListFromMapEntry(Entry<String, ?> entry, String key) {
+    if (entry.getValue() instanceof Collection<?> collection) {
+      var linkList = new LinkList();
+      for (var item : collection) {
+        if (item instanceof Identifiable identifiable) {
+          linkList.add(identifiable);
+        } else {
+          throw new IllegalArgumentException("Invalid value for LINKLIST: " + item);
+        }
+      }
+      setPropertyInternal(key, linkList);
+    } else {
+      throw new IllegalArgumentException(
+          "Invalid value for LINKLIST: " + entry.getValue());
+    }
+  }
+
 
   public final EntityImpl updateFromJSON(final String iSource, final String iOptions) {
     return super.updateFromJSON(iSource, iOptions);
@@ -3011,7 +3421,7 @@ public class EntityImpl extends RecordAbstract
     return className;
   }
 
-  protected void setClassName(final String className) {
+  protected void setClassName(@Nullable final String className) {
     checkForBinding();
 
     immutableClazz = null;
@@ -3558,6 +3968,11 @@ public class EntityImpl extends RecordAbstract
 
     var optimistic = (FrontendTransactionOptimistic) tx;
     optimistic.deleteRecordOperation(this);
+
+    recordId.reset();
+    if (Entity.DEFAULT_CLASS_NAME.equals(className)) {
+      setClassName(null);
+    }
   }
 
   void removeOwner(final RecordElement iRecordElement) {

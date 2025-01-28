@@ -8,6 +8,9 @@ import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nullable;
 
 public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
@@ -144,18 +147,65 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
   @Override
   public void setProperty(String fieldName, Object propertyValue) {
     checkForBinding();
-
     EdgeInternal.checkPropertyName(fieldName);
 
-    setPropertyInternal(fieldName, propertyValue);
+    super.setProperty(fieldName, propertyValue);
   }
 
   @Override
-  public void setProperty(String name, Object value, PropertyType types) {
+  public void setProperty(String name, Object propertyValue, PropertyType types) {
     checkForBinding();
     EdgeInternal.checkPropertyName(name);
 
-    super.setProperty(name, value, types);
+    super.setProperty(name, propertyValue, types);
+  }
+
+  @Override
+  public <T> List<T> getOrCreateEmbeddedList(String name) {
+    checkForBinding();
+    EdgeInternal.checkPropertyName(name);
+
+    return super.getOrCreateEmbeddedList(name);
+  }
+
+  @Override
+  public <T> Set<T> getOrCreateEmbeddedSet(String name) {
+    checkForBinding();
+    EdgeInternal.checkPropertyName(name);
+
+    return super.getOrCreateEmbeddedSet(name);
+  }
+
+  @Override
+  public <T> Map<String, T> getOrCreateEmbeddedMap(String name) {
+    checkForBinding();
+    EdgeInternal.checkPropertyName(name);
+
+    return super.getOrCreateEmbeddedMap(name);
+  }
+
+  @Override
+  public List<Identifiable> getOrCreateLinkList(String name) {
+    checkForBinding();
+    EdgeInternal.checkPropertyName(name);
+
+    return super.getOrCreateLinkList(name);
+  }
+
+  @Override
+  public Set<Identifiable> getOrCreateLinkSet(String name) {
+    checkForBinding();
+    EdgeInternal.checkPropertyName(name);
+
+    return super.getOrCreateLinkSet(name);
+  }
+
+  @Override
+  public Map<String, Identifiable> getOrCreateLinkMap(String name) {
+    checkForBinding();
+    EdgeInternal.checkPropertyName(name);
+
+    return super.getOrCreateLinkMap(name);
   }
 
   @Override
@@ -163,7 +213,7 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
     checkForBinding();
     EdgeInternal.checkPropertyName(fieldName);
 
-    return removePropertyInternal(fieldName);
+    return super.removeProperty(fieldName);
   }
 
   public static void deleteLinks(Edge delegate) {

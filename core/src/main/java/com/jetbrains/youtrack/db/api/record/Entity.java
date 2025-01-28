@@ -23,8 +23,10 @@ import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 
 /**
@@ -32,6 +34,7 @@ import javax.annotation.Nullable;
  * It's schema aware.
  */
 public interface Entity extends Record {
+
   String DEFAULT_CLASS_NAME = "O";
 
   /**
@@ -163,6 +166,18 @@ public interface Entity extends Record {
    */
   void setProperty(String name, Object value);
 
+  <T> List<T> getOrCreateEmbeddedList(String name);
+
+  <T> Set<T> getOrCreateEmbeddedSet(String name);
+
+  <T> Map<String, T> getOrCreateEmbeddedMap(String name);
+
+  List<Identifiable> getOrCreateLinkList(String name);
+
+  Set<Identifiable> getOrCreateLinkSet(String name);
+
+  Map<String, Identifiable> getOrCreateLinkMap(String name);
+
   /**
    * Sets a property value
    *
@@ -266,8 +281,22 @@ public interface Entity extends Record {
   void updateFromMap(final Map<String, ?> map);
 
   /**
-   * Returns the entity as Map String,Object . If the entity has identity, then the @rid entry is
-   * valued. If the entity has a class, then the @class entry is valued.
+   * Returns the entity as <code>Map</code>. If the entity has identity, then the @rid entry is
+   * added. If the entity has a class, then the @class entry is added.If entity is embedded, then
+   * the @embedded entry is added.
    */
   Map<String, Object> toMap();
+
+  /**
+   * Returns the entity as <code>Map</code>. If specified includes entity metadata:
+   *
+   * <ol>
+   *  <li>If the entity has identity, then the @rid entry is added.</li>
+   *  <li>If the entity has a class, then the @class entry is added.</li>
+   *  <li>If entity is embedded, then the @embedded entry is added.</li>
+   * </ol>
+   *
+   * @param includeMetadata if true, includes metadata in the map
+   */
+  Map<String, Object> toMap(boolean includeMetadata);
 }

@@ -115,6 +115,12 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
       }
     }
 
+    return createRecordFromJsonAfterMetadata(db, record, recordMetaData, jsonParser);
+  }
+
+  private static RecordAbstract createRecordFromJsonAfterMetadata(DatabaseSessionInternal db,
+      RecordAbstract record,
+      RecordMetaData recordMetaData, JsonParser jsonParser) throws IOException {
     //initialize record first and then validate the rest of the found metadata
     if (record == null) {
       if (recordMetaData.recordId != null) {
@@ -153,7 +159,6 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     }
 
     parseProperties(db, record, recordMetaData, jsonParser);
-
     return record;
   }
 
@@ -351,9 +356,9 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     writeMetadata(jsonGenerator, (RecordAbstract) record, formatSettings);
 
     if (record instanceof EntityImpl entity) {
-      for (var propertyName : entity.getPropertyNames()) {
+      for (var propertyName : entity.getPropertyNamesInternal()) {
         jsonGenerator.writeFieldName(propertyName);
-        var propertyValue = entity.getProperty(propertyName);
+        var propertyValue = entity.getPropertyInternal(propertyName);
 
         serializeValue(jsonGenerator, propertyValue, formatSettings);
       }
@@ -385,15 +390,15 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
       throws IOException {
     if (record instanceof EntityImpl entity) {
       if (!entity.isEmbedded()) {
-        if (formatSettings.includeType) {
-          jsonGenerator.writeFieldName(EntityHelper.ATTRIBUTE_TYPE);
-          jsonGenerator.writeString(Character.toString(record.getRecordType()));
-        }
-
         if (formatSettings.includeId) {
           jsonGenerator.writeFieldName(EntityHelper.ATTRIBUTE_RID);
           serializeLink(jsonGenerator, entity.getIdentity());
         }
+      }
+
+      if (formatSettings.includeType) {
+        jsonGenerator.writeFieldName(EntityHelper.ATTRIBUTE_TYPE);
+        jsonGenerator.writeString(Character.toString(record.getRecordType()));
       }
 
       var schemaClass = entity.getSchemaClass();
@@ -696,9 +701,11 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
               if (recordMetaData.className == null) {
                 yield parseEmbeddedEntity(db, jsonParser, recordMetaData);
               }
+            } else {
+              recordMetaData = defaultRecordMetaData();
             }
 
-            yield recordFromJson(db, null, recordMetaData, jsonParser);
+            yield createRecordFromJsonAfterMetadata(db, null, recordMetaData, jsonParser);
           }
 
           //we have read the filed name already, so we need to read the value

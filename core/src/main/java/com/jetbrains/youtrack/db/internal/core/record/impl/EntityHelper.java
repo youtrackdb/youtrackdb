@@ -85,6 +85,7 @@ public class EntityHelper {
   public static final String ATTRIBUTE_VERSION = "@version";
   public static final String ATTRIBUTE_CLASS = "@class";
   public static final String ATTRIBUTE_TYPE = "@type";
+  public static final String ATTRIBUTE_EMBEDDED = "@embedded";
   public static final String ATTRIBUTE_SIZE = "@size";
   public static final String ATTRIBUTE_FIELDS = "@fields";
   public static final String ATTRIBUTE_FIELS_TYPES = "@fieldtypes";
