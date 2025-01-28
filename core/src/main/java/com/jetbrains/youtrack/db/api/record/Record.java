@@ -51,6 +51,7 @@ public interface Record extends Identifiable {
   /**
    * Returns the record identity as &lt;cluster-id&gt;:&lt;cluster-position&gt;
    */
+  @Nonnull
   RID getIdentity();
 
   /**

@@ -82,6 +82,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     return dirty;
   }
 
+  @Nonnull
   public final RecordId getIdentity() {
     return recordId;
   }

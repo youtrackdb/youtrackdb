@@ -148,6 +148,7 @@ public final class VertexDelegate implements VertexInternal {
     return false;
   }
 
+  @Nonnull
   @Override
   public RID getIdentity() {
     return entity.getIdentity();

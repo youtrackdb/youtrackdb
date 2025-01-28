@@ -16,6 +16,7 @@
 package com.jetbrains.youtrack.db.auto
 
 import com.jetbrains.youtrack.db.api.record.Entity
+import com.jetbrains.youtrack.db.api.record.RID
 import com.jetbrains.youtrack.db.api.schema.PropertyType
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal
@@ -222,19 +223,7 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
             original.identity
         }
 
-        db.executeInTx {
-            val original = db.loadEntity(rid)
-            val json = original.toJSON(FORMAT_WITHOUT_RID)
-            val restoredEntity = db.entityFromJson(json)
-
-            val originalMap = original.toMap()
-            val restoredMap = restoredEntity.toMap()
-
-            originalMap.remove(EntityHelper.ATTRIBUTE_RID)
-            restoredMap.remove(EntityHelper.ATTRIBUTE_RID)
-
-            Assert.assertEquals(originalMap, restoredMap)
-        }
+        checkJsonSerialization(rid)
     }
 
     @Test
@@ -258,6 +247,10 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
             original.identity
         }
 
+        checkJsonSerialization(rid)
+    }
+
+    private fun checkJsonSerialization(rid: RID) {
         db.executeInTx {
             val original = db.loadEntity(rid)
             val json = original.toJSON(FORMAT_WITHOUT_RID)
@@ -274,25 +267,26 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
             Assert.assertEquals(originalMap, loadedMap)
         }
     }
-//
-//    @Test
-//    fun testListToJSON() {
-//        val list: MutableList<EntityImpl> = ArrayList()
-//        val first = (db.newEntity() as EntityImpl).field("name", "Luca")
-//        val second = (db.newEntity() as EntityImpl).field("name", "Marcus")
-//        list.add(first)
-//        list.add(second)
-//
-//        val jsonResult = JSONWriter.listToJSON(db, list, null)
-//        val doc = (db.newEntity() as EntityImpl)
-//        doc.updateFromJSON("{\"result\": $jsonResult}")
-//        val result = doc.field<Collection<EntityImpl>>("result")
-//        Assert.assertTrue(result is Collection<*>)
-//        Assert.assertEquals(result.size, 2)
-//        for (resultDoc in result) {
-//            Assert.assertTrue(first.hasSameContentOf(resultDoc) || second.hasSameContentOf(resultDoc))
-//        }
-//    }
+
+    @Test
+    fun testListToJSON() {
+        val rid = db.computeInTx {
+            val original = db.newEntity()
+            val list = original.getOrCreateEmbeddedList<Entity>("embeddedList")
+
+            val entityOne = db.newEntity()
+            entityOne.setProperty("name", "Luca")
+            list.add(entityOne)
+
+            val entityTwo = db.newEntity()
+            entityTwo.setProperty("name", "Marcus")
+            list.add(entityTwo)
+            original.identity
+        }
+
+
+        checkJsonSerialization(rid)
+    }
 //
 //    @Test
 //    fun testEmptyEmbeddedMap() {

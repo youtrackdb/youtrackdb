@@ -261,6 +261,7 @@ public class EdgeDelegate implements EdgeInternal {
     return false;
   }
 
+  @Nonnull
   @Override
   public RID getIdentity() {
     if (entity == null) {
