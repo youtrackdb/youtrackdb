@@ -37,6 +37,8 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
     override fun beforeClass() {
         super.beforeClass()
         addBarackObamaAndFollowers()
+
+        db.createClass("Device")
         db.createClass("Track")
     }
 
@@ -495,30 +497,27 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
         checkJsonSerialization(rid)
     }
-//
-//    fun testNestedJsonCollection() {
-//        if (!db.metadata.schema.existsClass("Device")) {
-//            db.metadata.schema.createClass("Device")
-//        }
-//
-//        db.begin()
-//        db
-//            .command(
-//                "insert into device (resource_id, domainset) VALUES (0, [ { 'domain' : 'abc' }, {"
-//                        + " 'domain' : 'pqr' } ])"
-//            )
-//            .close()
-//        db.commit()
-//
-//        var result = db.query("select from device where domainset.domain contains 'abc'")
-//        Assert.assertTrue(result.stream().findAny().isPresent)
-//
-//        result = db.query("select from device where domainset[domain = 'abc'] is not null")
-//        Assert.assertTrue(result.stream().findAny().isPresent)
-//
-//        result = db.query("select from device where domainset.domain contains 'pqr'")
-//        Assert.assertTrue(result.stream().findAny().isPresent)
-//    }
+
+    @Test
+    fun testNestedJsonCollection() {
+        db.executeInTx {
+            db
+                .command(
+                    "insert into device (resource_id, domainset) VALUES (0, [ { 'domain' : 'abc' }, {"
+                            + " 'domain' : 'pqr' } ])"
+                )
+                .close()
+        }
+
+        var result = db.query("select from device where domainset.domain contains 'abc'")
+        Assert.assertTrue(result.stream().findAny().isPresent)
+
+        result = db.query("select from device where domainset[domain = 'abc'] is not null")
+        Assert.assertTrue(result.stream().findAny().isPresent)
+
+        result = db.query("select from device where domainset.domain contains 'pqr'")
+        Assert.assertTrue(result.stream().findAny().isPresent)
+    }
 //
 //    fun testNestedEmbeddedJson() {
 //        if (!db.metadata.schema.existsClass("Device")) {
