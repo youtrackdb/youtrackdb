@@ -19,6 +19,8 @@ import com.jetbrains.youtrack.db.api.record.Entity
 import com.jetbrains.youtrack.db.api.record.RID
 import com.jetbrains.youtrack.db.api.schema.PropertyType
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList
+import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag
+import com.jetbrains.youtrack.db.internal.core.exception.SerializationException
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl
@@ -745,123 +747,153 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
         }
     }
 
-//    fun testEmbeddedQuotes5() {
-//        val doc = (db.newEntity() as EntityImpl)
-//        doc.updateFromJSON("{\"datavalue\":\"Suburban\\\\\"\"}")
-//        Assert.assertEquals(doc.field("datavalue"), "Suburban\\\"")
-//    }
-//
-//    fun testEmbeddedQuotes6() {
-//        val doc = (db.newEntity() as EntityImpl)
-//        doc.updateFromJSON("{\"mainsnak\":{\"datavalue\":{\"value\":\"Suburban\\\\\"}}}")
-//        Assert.assertEquals(doc.field("mainsnak.datavalue.value"), "Suburban\\")
-//    }
-//
-//    fun testEmbeddedQuotes7() {
-//        val doc = (db.newEntity() as EntityImpl)
-//        doc.updateFromJSON("{\"datavalue\":{\"value\":\"Suburban\\\\\"}}")
-//        Assert.assertEquals(doc.field("datavalue.value"), "Suburban\\")
-//    }
-//
-//    fun testEmbeddedQuotes8() {
-//        val doc = (db.newEntity() as EntityImpl)
-//        doc.updateFromJSON("{\"datavalue\":\"Suburban\\\\\"}")
-//        Assert.assertEquals(doc.field("datavalue"), "Suburban\\")
-//    }
-//
-//    fun testEmpty() {
-//        val doc = (db.newEntity() as EntityImpl)
-//        doc.updateFromJSON("{}")
-//        Assert.assertEquals(doc.fieldNames().size, 0)
-//    }
-//
-//    fun testInvalidJson() {
-//        val doc = (db.newEntity() as EntityImpl)
-//        try {
-//            doc.updateFromJSON("{")
-//            Assert.fail()
-//        } catch (ignored: SerializationException) {
-//        }
-//
-//        try {
-//            doc.updateFromJSON("{\"foo\":{}")
-//            Assert.fail()
-//        } catch (ignored: SerializationException) {
-//        }
-//
-//        try {
-//            doc.updateFromJSON("{{}")
-//            Assert.fail()
-//        } catch (ignored: SerializationException) {
-//        }
-//
-//        try {
-//            doc.updateFromJSON("{}}")
-//            Assert.fail()
-//        } catch (ignored: SerializationException) {
-//        }
-//
-//        try {
-//            doc.updateFromJSON("}")
-//            Assert.fail()
-//        } catch (ignored: SerializationException) {
-//        }
-//    }
-//
-//    fun testDates() {
-//        val now = Date(1350518475000L)
-//
-//        val doc = (db.newEntity() as EntityImpl)
-//        doc.field("date", now)
-//        val json = doc.toJSON()
-//
-//        val unmarshalled = (db.newEntity() as EntityImpl)
-//        unmarshalled.updateFromJSON(json)
-//        Assert.assertEquals(unmarshalled.field("date"), now)
-//    }
-//
-//    @Test
-//    fun shouldDeserializeFieldWithCurlyBraces() {
-//        val json = "{\"a\":\"{dd}\",\"bl\":{\"b\":\"c\",\"a\":\"d\"}}"
-//        val `in` =
-//            RecordSerializerJackson.INSTANCE.fromString<EntityImpl>(
-//                db,
-//                json, db.newInstance(), arrayOf()
-//            )
-//        Assert.assertEquals(`in`.field("a"), "{dd}")
-//        Assert.assertTrue(`in`.field<Any>("bl") is Map<*, *>)
-//    }
-//
-//    @Test
-//    @Throws(Exception::class)
-//    fun testList() {
-//        val documentSource = (db.newEntity() as EntityImpl)
-//        documentSource.updateFromJSON("{\"list\" : [\"string\", 42]}")
-//
-//        val documentTarget = (db.newEntity() as EntityImpl)
-//        RecordInternal.unsetDirty(documentTarget)
-//        documentTarget.fromStream(documentSource.toStream())
-//
-//        val list = documentTarget.field<TrackedList<Any>>("list", PropertyType.EMBEDDEDLIST)
-//        Assert.assertEquals(list[0], "string")
-//        Assert.assertEquals(list[1], 42)
-//    }
-//
-//    @Test
-//    @Throws(Exception::class)
-//    fun testEmbeddedRIDBagDeserialisationWhenFieldTypeIsProvided() {
-//        val documentSource = (db.newEntity() as EntityImpl)
-//        documentSource.updateFromJSON(
-//            "{FirstName:\"Student A"
-//                    + " 0\",in_EHasGoodStudents:[#57:0],@fieldTypes:\"in_EHasGoodStudents=g\"}"
-//        )
-//
-//        val bag = documentSource.field<RidBag>("in_EHasGoodStudents")
-//        Assert.assertEquals(bag.size(), 1)
-//        val rid: Identifiable = bag.iterator().next()
-//        Assert.assertEquals(rid.identity.clusterId, 57)
-//        Assert.assertEquals(rid.identity.clusterPosition, 0)
-//    }
+    @Test
+    fun testEmbeddedQuotes4() {
+        db.executeInTx {
+            val entity = db.entityFromJson("{\"datavalue\":\"Suburban\\\\\\\"\"}")
+            Assert.assertEquals(entity.getProperty("datavalue"), "Suburban\\\"")
+        }
+    }
+
+    @Test
+    fun testEmbeddedQuotes5() {
+        db.executeInTx {
+            val entity = db.newEntity()
+            entity.updateFromJSON("{\"mainsnak\":{\"datavalue\":{\"value\":\"Suburban\\\\\"}}}")
+            Assert.assertEquals(
+                entity.getProperty<Map<String, Map<String, String>>>("mainsnak")!!["datavalue"]!!["value"],
+                "Suburban\\"
+            )
+        }
+    }
+
+    @Test
+    fun testEmbeddedQuotes6() {
+        db.executeInTx {
+            val entity = db.newEntity()
+            entity.updateFromJSON("{\"datavalue\":{\"value\":\"Suburban\\\\\"}}")
+            Assert.assertEquals(
+                entity.getProperty<Map<String, Map<String, String>>>("datavalue")!!["value"],
+                "Suburban\\"
+            )
+        }
+    }
+
+    @Test
+    fun testEmbeddedQuotes7() {
+        db.executeInTx {
+            val entity = db.entityFromJson("{\"datavalue\":\"Suburban\\\\\"}")
+            Assert.assertEquals(entity.getProperty("datavalue"), "Suburban\\")
+        }
+    }
+
+
+    @Test
+    fun testEmpty() {
+        db.executeInTx {
+            val entity = db.entityFromJson("{}")
+            Assert.assertTrue(entity.propertyNames.isEmpty())
+        }
+    }
+
+    @Test
+    fun testInvalidJson() {
+        try {
+            db.executeInTx {
+                db.entityFromJson("{")
+            }
+            Assert.fail()
+        } catch (ignored: SerializationException) {
+        }
+
+
+        try {
+            db.executeInTx {
+                db.entityFromJson("{\"foo\":{}")
+            }
+            Assert.fail()
+        } catch (ignored: SerializationException) {
+        }
+
+        try {
+            db.executeInTx {
+                db.entityFromJson("{{}")
+            }
+        } catch (ignored: SerializationException) {
+        }
+
+        try {
+            db.executeInTx {
+                db.entityFromJson("{}}")
+            }
+            Assert.fail()
+        } catch (ignored: SerializationException) {
+        }
+
+        try {
+            db.executeInTx {
+                db.entityFromJson("}")
+            }
+            Assert.fail()
+        } catch (ignored: SerializationException) {
+        }
+    }
+
+    @Test
+    fun testDates() {
+        val now = Date(1350518475000L)
+
+        val rid = db.computeInTx {
+            val entity = db.newEntity()
+            entity.setProperty("date", now)
+            entity.identity
+        }
+
+        db.executeInTx {
+            val entity = db.loadEntity(rid)
+            val json = entity.toJSON(FORMAT_WITHOUT_RID)
+
+            val unmarshalled = db.entityFromJson(json)
+            Assert.assertEquals(unmarshalled.getProperty("date"), now)
+        }
+    }
+
+    @Test
+    fun shouldDeserializeFieldWithCurlyBraces() {
+        val json = "{\"a\":\"{dd}\",\"bl\":{\"b\":\"c\",\"a\":\"d\"}}"
+        db.executeInTx {
+            val entity = db.entityFromJson(json)
+            Assert.assertEquals(entity.getProperty("a"), "{dd}")
+            Assert.assertTrue(entity.getProperty<Any>("bl") is Map<*, *>)
+        }
+    }
+
+    @Test
+    fun testList() {
+        db.executeInTx {
+            val entity = db.entityFromJson("{\"list\" : [\"string\", 42]}")
+            val list = entity.getProperty<List<Any>>("list")
+
+            Assert.assertEquals(list!![0], "string")
+            Assert.assertEquals(list[1], 42)
+        }
+    }
+
+    @Test
+    fun testEmbeddedRIDBagDeserialisationWhenFieldTypeIsProvided() {
+        db.executeInTx {
+            val entity = db.entityFromJson(
+                "{\"@fieldTypes\":{\"in_EHasGoodStudents\": \"g\"}, \"FirstName\":\"Student A"
+                        + " 0\",\"in_EHasGoodStudents\":[\"#57:0\"]}"
+            )
+
+            val bag = entity.getProperty<RidBag>("in_EHasGoodStudents")!!
+            Assert.assertEquals(bag.size(), 1)
+            val rid = bag.iterator().next()
+            Assert.assertEquals(rid.clusterId, 57)
+            Assert.assertEquals(rid.clusterPosition, 0)
+        }
+    }
 //
 //    fun testNestedLinkCreation() {
 //        var jaimeDoc = (db.newEntity("NestedLinkCreation") as EntityImpl)

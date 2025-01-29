@@ -115,7 +115,11 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
       }
     }
 
-    return createRecordFromJsonAfterMetadata(db, record, recordMetaData, jsonParser);
+    var result = createRecordFromJsonAfterMetadata(db, record, recordMetaData, jsonParser);
+    if (jsonParser.nextToken() != null) {
+      throw new SerializationException("End of the JSON object is expected");
+    }
+    return result;
   }
 
   private static RecordAbstract createRecordFromJsonAfterMetadata(DatabaseSessionInternal db,
@@ -250,6 +254,10 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
 
     if (fieldCount == 0) {
       return null;
+    }
+
+    if (className == null) {
+      className = Entity.DEFAULT_CLASS_NAME;
     }
 
     return new RecordMetaData(recordType, recordId, className, fieldTypes);
