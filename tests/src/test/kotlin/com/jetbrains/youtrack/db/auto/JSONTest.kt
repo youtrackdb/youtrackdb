@@ -42,6 +42,7 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
         db.createClass("Device")
         db.createClass("Track")
+        db.createClass("NestedLinkCreation")
     }
 
     @Test
@@ -894,92 +895,46 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
             Assert.assertEquals(rid.clusterPosition, 0)
         }
     }
-//
-//    fun testNestedLinkCreation() {
-//        var jaimeDoc = (db.newEntity("NestedLinkCreation") as EntityImpl)
-//        jaimeDoc.field("name", "jaime")
-//
-//        db.begin()
-//        jaimeDoc.save()
-//        db.commit()
-//
-//        jaimeDoc = db.bindToSession(jaimeDoc)
-//        // The link between jaime and cersei is saved properly - the #2263 test case
-//        val cerseiDoc = (db.newEntity("NestedLinkCreation") as EntityImpl)
-//        cerseiDoc.updateFromJSON(
-//            "{\"@type\":\"d\",\"name\":\"cersei\",\"valonqar\":" + jaimeDoc.toJSON() + "}"
-//        )
-//        db.begin()
-//        cerseiDoc.save()
-//        db.commit()
-//
-//        jaimeDoc = db.bindToSession(jaimeDoc)
-//        // The link between jamie and tyrion is not saved properly
-//        val tyrionDoc = (db.newEntity("NestedLinkCreation") as EntityImpl)
-//        tyrionDoc.updateFromJSON(
-//            ("{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":{\"@type\":\"d\","
-//                    + " \"relationship\":\"brother\",\"contact\":"
-//                    + jaimeDoc.toJSON()
-//                    + "}}")
-//        )
-//
-//        db.begin()
-//        tyrionDoc.save()
-//        db.commit()
-//
-//        val contentMap: MutableMap<RID, EntityImpl> = HashMap()
-//
-//        val jaime = (db.newEntity("NestedLinkCreation") as EntityImpl)
-//        jaime.field("name", "jaime")
-//
-//        contentMap[jaimeDoc.identity] = jaime
-//
-//        val cersei = (db.newEntity("NestedLinkCreation") as EntityImpl)
-//        cersei.field("name", "cersei")
-//        cersei.field("valonqar", jaimeDoc.identity)
-//        contentMap[cerseiDoc.identity] = cersei
-//
-//        val tyrion = (db.newEntity("NestedLinkCreation") as EntityImpl)
-//        tyrion.field("name", "tyrion")
-//
-//        val embeddedDoc = (db.newEntity() as EntityImpl)
-//        embeddedDoc.field("relationship", "brother")
-//        embeddedDoc.field("contact", jaimeDoc.identity)
-//        tyrion.field("emergency_contact", embeddedDoc)
-//
-//        contentMap[tyrionDoc.identity] = tyrion
-//
-//        val traverseMap: MutableMap<RID, MutableList<RID>> = HashMap()
-//        val jaimeTraverse: MutableList<RID> = ArrayList()
-//        jaimeTraverse.add(jaimeDoc.identity)
-//        traverseMap[jaimeDoc.identity] = jaimeTraverse
-//
-//        val cerseiTraverse: MutableList<RID> = ArrayList()
-//        cerseiTraverse.add(cerseiDoc.identity)
-//        cerseiTraverse.add(jaimeDoc.identity)
-//
-//        traverseMap[cerseiDoc.identity] = cerseiTraverse
-//
-//        val tyrionTraverse: MutableList<RID> = ArrayList()
-//        tyrionTraverse.add(tyrionDoc.identity)
-//        tyrionTraverse.add(jaimeDoc.identity)
-//        traverseMap[tyrionDoc.identity] = tyrionTraverse
-//
-//        for (o in db.browseClass("NestedLinkCreation")) {
-//            val content = contentMap[o.identity]
-//            Assert.assertTrue(content!!.hasSameContentOf(o))
-//
-//            val traverse =
-//                traverseMap.remove(o.identity)!!
-//            for (id in SQLSynchQuery<EntityImpl>("traverse * from " + o.identity.toString())) {
-//                Assert.assertTrue(traverse.remove(id.identity))
-//            }
-//
-//            Assert.assertTrue(traverse.isEmpty())
-//        }
-//
-//        Assert.assertTrue(traverseMap.isEmpty())
-//    }
+
+    @Test
+    fun testNestedLinkCreation() {
+        val jaimeRid = db.computeInTx {
+            val jaimeEntity = db.newEntity("NestedLinkCreation")
+            jaimeEntity.setProperty("name", "jaime")
+            jaimeEntity.identity
+        }
+
+        val cerseiRid = db.computeInTx {
+            val jaimeEntity = db.loadEntity(jaimeRid)
+            val cerseiEntity = db.newEntity("NestedLinkCreation")
+
+            cerseiEntity.updateFromJSON(
+                "{\"name\":\"cersei\",\"valonqar\":" + jaimeEntity.toJSON() + "}"
+            )
+            cerseiEntity.identity
+        }
+
+
+        val tyrionRid = db.computeInTx {
+            // The link between jamie and tyrion is not saved properly
+            val jaimeEntity = db.loadEntity(jaimeRid)
+            val tyrionEntity = db.newEntity("NestedLinkCreation")
+
+            tyrionEntity.updateFromJSON(
+                ("{\"name\":\"tyrion\",\"emergency_contact\":{\"@type\":\"d\","
+                        + " \"relationship\":\"brother\",\"contact\":"
+                        + jaimeEntity.toJSON()
+                        + "}}")
+            )
+
+            tyrionEntity.identity
+        }
+
+
+        checkJsonSerialization(jaimeRid)
+        checkJsonSerialization(cerseiRid)
+        checkJsonSerialization(tyrionRid)
+    }
 //
 //    fun testNestedLinkCreationFieldTypes() {
 //        val jaimeDoc = (db.newEntity("NestedLinkCreationFieldTypes") as EntityImpl)

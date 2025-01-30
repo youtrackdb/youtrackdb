@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -81,7 +82,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
       RecordAbstract record, final String[] fields) {
     try (JsonParser jsonParser = JSON_FACTORY.createParser(source)) {
       //noinspection unchecked
-      return (T) recordFromJson(db, record, null, jsonParser);
+      return (T) recordFromJson(db, record, jsonParser);
     } catch (Exception e) {
       if (record != null && record.getIdentity().isValid()) {
         throw BaseException.wrapException(
@@ -100,25 +101,35 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
   private static RecordAbstract recordFromJson(
       @Nonnull DatabaseSessionInternal db,
       @Nullable RecordAbstract record,
-      @Nullable RecordMetaData recordMetaData,
       @Nonnull JsonParser jsonParser) throws IOException {
     var token = jsonParser.nextToken();
     if (token != JsonToken.START_OBJECT) {
       throw new SerializationException("Start of the object is expected");
     }
 
-    if (recordMetaData == null) {
-      recordMetaData = parseRecordMetadata(jsonParser);
+    String defaultClassName;
 
-      if (recordMetaData == null) {
-        recordMetaData = defaultRecordMetaData();
-      }
+    byte defaultRecordType = record != null ? record.getRecordType() : EntityImpl.RECORD_TYPE;
+    if (record instanceof EntityImpl entity) {
+      defaultClassName = entity.getClassName();
+    } else if (defaultRecordType == EntityImpl.RECORD_TYPE) {
+      defaultClassName = Entity.DEFAULT_CLASS_NAME;
+    } else {
+      defaultClassName = null;
+    }
+
+    var recordMetaData = parseRecordMetadata(jsonParser, defaultClassName, defaultRecordType);
+    if (recordMetaData == null) {
+      recordMetaData = new RecordMetaData(defaultRecordType,
+          record != null ? record.getIdentity() : null,
+          defaultClassName, Collections.emptyMap());
     }
 
     var result = createRecordFromJsonAfterMetadata(db, record, recordMetaData, jsonParser);
     if (jsonParser.nextToken() != null) {
       throw new SerializationException("End of the JSON object is expected");
     }
+
     return result;
   }
 
@@ -188,23 +199,23 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
   }
 
   @Nullable
-  private static RecordMetaData parseRecordMetadata(@Nullable JsonParser jsonParser)
-      throws IOException {
+  private static RecordMetaData parseRecordMetadata(@Nullable JsonParser jsonParser,
+      @Nullable String defaultClassName, byte defaultRecordType) throws IOException {
     var token = jsonParser.nextToken();
     RecordId recordId = null;
-    byte recordType = EntityImpl.RECORD_TYPE;
-    String className = null;
+    byte recordType = defaultRecordType;
+    String className = defaultClassName;
     Map<String, String> fieldTypes = new HashMap<>();
 
-    int fieldCount = 0;
+    int fieldsCount = 0;
     while (token != JsonToken.END_OBJECT) {
       if (token == JsonToken.FIELD_NAME) {
         var fieldName = jsonParser.currentName();
         if (fieldName.charAt(0) != '@') {
           break;
         }
-        fieldCount++;
 
+        fieldsCount++;
         switch (fieldName) {
           case FieldTypesString.ATTRIBUTE_FIELD_TYPES -> {
             fieldTypes = parseFieldTypes(jsonParser);
@@ -252,14 +263,9 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
       }
     }
 
-    if (fieldCount == 0) {
+    if (fieldsCount == 0) {
       return null;
     }
-
-    if (className == null) {
-      className = Entity.DEFAULT_CLASS_NAME;
-    }
-
     return new RecordMetaData(recordType, recordId, className, fieldTypes);
   }
 
@@ -711,18 +717,17 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
         case EMBEDDED -> parseEmbeddedEntity(db, jsonParser, null);
         case EMBEDDEDMAP -> parseEmbeddedMap(db, entity, jsonParser, null);
         case LINKMAP -> parseLinkMap(entity, jsonParser);
-        case LINK -> recordFromJson(db, null, null, jsonParser);
+        case LINK -> recordFromJson(db, null, jsonParser);
 
         case null -> {
-          var recordMetaData = parseRecordMetadata(jsonParser);
+          var recordMetaData = parseRecordMetadata(jsonParser, null,
+              EntityImpl.RECORD_TYPE);
 
           if (recordMetaData != null) {
             if (recordMetaData.recordId == null) {
               if (recordMetaData.className == null) {
                 yield parseEmbeddedEntity(db, jsonParser, recordMetaData);
               }
-            } else {
-              recordMetaData = defaultRecordMetaData();
             }
 
             yield createRecordFromJsonAfterMetadata(db, null, recordMetaData, jsonParser);
@@ -761,14 +766,16 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     return map;
   }
 
-  private static EmbeddedEntityImpl parseEmbeddedEntity(DatabaseSessionInternal db,
-      JsonParser jsonParser, RecordMetaData metadata) throws IOException {
+  @Nonnull
+  private static EmbeddedEntityImpl parseEmbeddedEntity(@Nonnull DatabaseSessionInternal db,
+      @Nonnull JsonParser jsonParser, @Nullable RecordMetaData metadata) throws IOException {
     var embedded = (EmbeddedEntityImpl) db.newEmbededEntity();
     if (metadata == null) {
-      metadata = parseRecordMetadata(jsonParser);
+      metadata = parseRecordMetadata(jsonParser, null, EntityImpl.RECORD_TYPE);
 
       if (metadata == null) {
-        metadata = defaultRecordMetaData();
+        metadata = new RecordMetaData(EntityImpl.RECORD_TYPE, null,
+            null, Collections.emptyMap());
       }
     }
 
@@ -777,8 +784,9 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     return embedded;
   }
 
-  private static TrackedMap<Object> parseEmbeddedMap(DatabaseSessionInternal db, EntityImpl entity,
-      JsonParser jsonParser, TrackedMap<Object> map) throws IOException {
+  private static TrackedMap<Object> parseEmbeddedMap(@Nonnull DatabaseSessionInternal db,
+      @Nonnull EntityImpl entity, @Nonnull JsonParser jsonParser, @Nullable TrackedMap<Object> map)
+      throws IOException {
     if (map == null) {
       map = new TrackedMap<>(entity);
     }
@@ -860,10 +868,5 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
   private record RecordMetaData(byte recordType, RecordId recordId, String className,
                                 Map<String, String> fieldTypes) {
 
-  }
-
-  private static RecordMetaData defaultRecordMetaData() {
-    return new RecordMetaData(EntityImpl.RECORD_TYPE, null,
-        Entity.DEFAULT_CLASS_NAME, new HashMap<>());
   }
 }
