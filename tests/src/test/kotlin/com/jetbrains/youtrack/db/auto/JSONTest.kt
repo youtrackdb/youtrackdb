@@ -43,6 +43,8 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
         db.createClass("Device")
         db.createClass("Track")
         db.createClass("NestedLinkCreation")
+        db.createClass("NestedLinkCreationFieldTypes")
+        db.createClass("InnerDocCreation")
     }
 
     @Test
@@ -151,7 +153,7 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testNullity() {
-        val (map, rid) = db.computeInTx {
+        val rid = db.computeInTx {
             val entity = db.newEntity()
             entity.updateFromJSON(
                 "{\"gender\":{\"name\":\"Male\"},\"firstName\":\"Jack\",\"lastName\":\"Williams\"," +
@@ -160,14 +162,30 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
                         "\"street2\":null,\"city\":\"GORDONSVILLE\",\"state\":\"VA\",\"code\":\"22942\"},\"dob\":\"2011-11-17" +
                         " 03:17:04\"}"
             )
-            Pair(entity.toMap(), entity.identity)
+            entity.identity
         }
 
-        db.executeInTx {
-            val loadedEntity = db.loadEntity(rid)
-            val loadedMap = loadedEntity.toMap()
-            Assert.assertEquals(loadedMap, map)
-        }
+        checkJsonSerialization(rid)
+        val expectedMap = mapOf(
+            "gender" to mapOf(
+                "name" to "Male"
+            ),
+            "firstName" to "Jack",
+            "lastName" to "Williams",
+            "phone" to "561-401-3348",
+            "email" to "0586548571@example.com",
+            "address" to mapOf(
+                "street1" to "Smith Ave",
+                "street2" to null,
+                "city" to "GORDONSVILLE",
+                "state" to "VA",
+                "code" to "22942"
+            ),
+            "dob" to "2011-11-17 03:17:04",
+            "@rid" to rid,
+            "@class" to "O"
+        )
+        checkJsonSerialization(rid, expectedMap)
     }
 
     @Test
@@ -361,6 +379,17 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
         }
 
         checkJsonSerialization(rid)
+
+        val expectedMap = mapOf(
+            "name" to mapOf(
+                "%Field" to listOf("value1", "value2"),
+                "%Field2" to mapOf<String, Any>(),
+                "%Field3" to "value3"
+            ),
+            "@rid" to rid,
+            "@class" to "O"
+        )
+        checkJsonSerialization(rid, expectedMap)
     }
 
     @Test
@@ -374,7 +403,16 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
         }
 
         checkJsonSerialization(rid)
-
+        val expectedMap = mapOf(
+            "@class" to "Track",
+            "type" to "LineString",
+            "coordinates" to listOf(
+                listOf(100, 0),
+                listOf(101, 1)
+            ),
+            "@rid" to rid
+        )
+        checkJsonSerialization(rid, expectedMap)
     }
 
     @Test
@@ -388,6 +426,16 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
         }
 
         checkJsonSerialization(rid)
+        val expectedMap = mapOf(
+            "@class" to "Track",
+            "type" to "LineString",
+            "coordinates" to listOf(
+                listOf<Any>(32874387347347L, 0),
+                listOf<Any>(-23736753287327L, 1)
+            ),
+            "@rid" to rid
+        )
+        checkJsonSerialization(rid, expectedMap)
     }
 
     @Test
@@ -400,6 +448,18 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
         }
 
         checkJsonSerialization(rid)
+
+        val expectedMap = mapOf(
+            "Field" to mapOf(
+                "Key1" to listOf("Value1", "Value2"),
+                "Key2" to mapOf("%%dummy%%" to null),
+                "Key3" to "Value3"
+            ),
+            "@rid" to rid,
+            "@class" to "O"
+        )
+
+        checkJsonSerialization(rid, expectedMap)
     }
 
 
@@ -934,153 +994,135 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
         checkJsonSerialization(jaimeRid)
         checkJsonSerialization(cerseiRid)
         checkJsonSerialization(tyrionRid)
+
+        val jaimeMap = mapOf(
+            "name" to "jaime",
+            "@rid" to jaimeRid,
+            "@class" to "NestedLinkCreation"
+        )
+        checkJsonSerialization(jaimeRid, jaimeMap)
+
+        val cerseiMap = mapOf(
+            "name" to "cersei",
+            "valonqar" to jaimeRid,
+            "@rid" to cerseiRid,
+            "@class" to "NestedLinkCreation"
+        )
+        checkJsonSerialization(cerseiRid, cerseiMap)
+
+        val tyrionMap = mapOf(
+            "name" to "tyrion",
+            "emergency_contact" to mapOf(
+                "relationship" to "brother",
+                "contact" to jaimeRid,
+                "@embedded" to true
+            ),
+            "@rid" to tyrionRid,
+            "@class" to "NestedLinkCreation"
+        )
+        checkJsonSerialization(tyrionRid, tyrionMap)
     }
-//
-//    fun testNestedLinkCreationFieldTypes() {
-//        val jaimeDoc = (db.newEntity("NestedLinkCreationFieldTypes") as EntityImpl)
-//        jaimeDoc.field("name", "jaime")
-//
-//        db.begin()
-//        jaimeDoc.save()
-//        db.commit()
-//
-//        // The link between jaime and cersei is saved properly - the #2263 test case
-//        val cerseiDoc = (db.newEntity("NestedLinkCreationFieldTypes") as EntityImpl)
-//        cerseiDoc.updateFromJSON(
-//            ("{\"@type\":\"d\",\"@fieldTypes\":\"valonqar=x\",\"name\":\"cersei\",\"valonqar\":"
-//                    + jaimeDoc.identity
-//                    + "}")
-//        )
-//
-//        db.begin()
-//        cerseiDoc.save()
-//        db.commit()
-//
-//        // The link between jamie and tyrion is not saved properly
-//        val tyrionDoc = (db.newEntity("NestedLinkCreationFieldTypes") as EntityImpl)
-//        tyrionDoc.updateFromJSON(
-//            ("{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":{\"@type\":\"d\","
-//                    + " \"@fieldTypes\":\"contact=x\",\"relationship\":\"brother\",\"contact\":"
-//                    + jaimeDoc.identity
-//                    + "}}")
-//        )
-//
-//        db.begin()
-//        tyrionDoc.save()
-//        db.commit()
-//
-//        val contentMap: MutableMap<RID, EntityImpl> = HashMap()
-//
-//        val jaime = (db.newEntity("NestedLinkCreationFieldTypes") as EntityImpl)
-//        jaime.field("name", "jaime")
-//
-//        contentMap[jaimeDoc.identity] = jaime
-//
-//        val cersei = (db.newEntity("NestedLinkCreationFieldTypes") as EntityImpl)
-//        cersei.field("name", "cersei")
-//        cersei.field("valonqar", jaimeDoc.identity)
-//        contentMap[cerseiDoc.identity] = cersei
-//
-//        val tyrion = (db.newEntity("NestedLinkCreationFieldTypes") as EntityImpl)
-//        tyrion.field("name", "tyrion")
-//
-//        val embeddedDoc = (db.newEntity() as EntityImpl)
-//        embeddedDoc.field("relationship", "brother")
-//        embeddedDoc.field("contact", jaimeDoc.identity)
-//        tyrion.field("emergency_contact", embeddedDoc)
-//
-//        contentMap[tyrionDoc.identity] = tyrion
-//
-//        val traverseMap: MutableMap<RID, MutableList<RID>> = HashMap()
-//        val jaimeTraverse: MutableList<RID> = ArrayList()
-//        jaimeTraverse.add(jaimeDoc.identity)
-//        traverseMap[jaimeDoc.identity] = jaimeTraverse
-//
-//        val cerseiTraverse: MutableList<RID> = ArrayList()
-//        cerseiTraverse.add(cerseiDoc.identity)
-//        cerseiTraverse.add(jaimeDoc.identity)
-//
-//        traverseMap[cerseiDoc.identity] = cerseiTraverse
-//
-//        val tyrionTraverse: MutableList<RID> = ArrayList()
-//        tyrionTraverse.add(tyrionDoc.identity)
-//        tyrionTraverse.add(jaimeDoc.identity)
-//        traverseMap[tyrionDoc.identity] = tyrionTraverse
-//
-//        for (o in db.browseClass("NestedLinkCreationFieldTypes")) {
-//            val content = contentMap[o.identity]
-//            Assert.assertTrue(content!!.hasSameContentOf(o))
-//
-//            val traverse =
-//                traverseMap.remove(o.identity)!!
-//            for (id in SQLSynchQuery<EntityImpl>("traverse * from " + o.identity.toString())) {
-//                Assert.assertTrue(traverse.remove(id.identity))
-//            }
-//            Assert.assertTrue(traverse.isEmpty())
-//        }
-//        Assert.assertTrue(traverseMap.isEmpty())
-//    }
-//
-//    fun testInnerDocCreation() {
-//        var adamDoc = (db.newEntity("InnerDocCreation") as EntityImpl)
-//        adamDoc.updateFromJSON("{\"name\":\"adam\"}")
-//
-//        db.begin()
-//        adamDoc.save()
-//        db.commit()
-//
-//        db.begin()
-//        adamDoc = db.bindToSession(adamDoc)
-//        val eveDoc = (db.newEntity("InnerDocCreation") as EntityImpl)
-//        eveDoc.updateFromJSON(
-//            "{\"@type\":\"d\",\"name\":\"eve\",\"friends\":[" + adamDoc.toJSON() + "]}"
-//        )
-//
-//        eveDoc.save()
-//        db.commit()
-//
-//        val contentMap: MutableMap<RID, EntityImpl> = HashMap()
-//        val adam = (db.newEntity("InnerDocCreation") as EntityImpl)
-//        adam.field("name", "adam")
-//
-//        contentMap[adamDoc.identity] = adam
-//
-//        val eve = (db.newEntity("InnerDocCreation") as EntityImpl)
-//        eve.field("name", "eve")
-//
-//        val friends: MutableList<RID> = ArrayList()
-//        friends.add(adamDoc.identity)
-//        eve.field("friends", friends)
-//
-//        contentMap[eveDoc.identity] = eve
-//
-//        val traverseMap: MutableMap<RID, MutableList<RID>> = HashMap()
-//
-//        val adamTraverse: MutableList<RID> = ArrayList()
-//        adamTraverse.add(adamDoc.identity)
-//        traverseMap[adamDoc.identity] = adamTraverse
-//
-//        val eveTraverse: MutableList<RID> = ArrayList()
-//        eveTraverse.add(eveDoc.identity)
-//        eveTraverse.add(adamDoc.identity)
-//
-//        traverseMap[eveDoc.identity] = eveTraverse
-//
-//        for (o in db.browseClass("InnerDocCreation")) {
-//            val content = contentMap[o.identity]
-//            Assert.assertTrue(content!!.hasSameContentOf(o))
-//        }
-//
-//        for (o in db.browseClass("InnerDocCreation")) {
-//            val traverse =
-//                traverseMap.remove(o.identity)!!
-//            for (id in SQLSynchQuery<EntityImpl>("traverse * from " + o.identity.toString())) {
-//                Assert.assertTrue(traverse.remove(id.identity))
-//            }
-//            Assert.assertTrue(traverse.isEmpty())
-//        }
-//        Assert.assertTrue(traverseMap.isEmpty())
-//    }
+
+    @Test
+    fun testNestedLinkCreationFieldTypes() {
+        val jaimeRid = db.computeInTx {
+            val jaimeDoc = (db.newEntity("NestedLinkCreationFieldTypes") as EntityImpl)
+            jaimeDoc.field("name", "jaime")
+            jaimeDoc.identity
+        }
+
+        val cerseiRid = db.computeInTx {
+            // The link between jaime and cersei is saved properly - the #2263 test case
+            val cerseiDoc = db.newEntity("NestedLinkCreationFieldTypes")
+            cerseiDoc.updateFromJSON(
+                ("{\"@type\":\"d\"," +
+                        "\"@fieldTypes\":{\"valonqar\" : \"x\"},\"name\":\"cersei\",\"valonqar\":\""
+                        + jaimeRid
+                        + "\"}")
+            )
+            cerseiDoc.identity
+        }
+
+        val tyrionRid = db.computeInTx {
+            // The link between jamie and tyrion is not saved properly
+            val tyrionDoc = (db.newEntity("NestedLinkCreationFieldTypes") as EntityImpl)
+            tyrionDoc.updateFromJSON(
+                "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":{\"@type\":\"d\","
+                        + " \"@fieldTypes\":{\"contact\":\"x\"},\"relationship\":\"brother\",\"contact\":\""
+                        + jaimeRid + "\"}}"
+            )
+            tyrionDoc.identity
+        }
+
+
+        checkJsonSerialization(jaimeRid)
+        checkJsonSerialization(cerseiRid)
+        checkJsonSerialization(tyrionRid)
+
+        val jaimeMap = mapOf(
+            "name" to "jaime",
+            "@rid" to jaimeRid,
+            "@class" to "NestedLinkCreationFieldTypes"
+        )
+        checkJsonSerialization(jaimeRid, jaimeMap)
+
+        val cerseiMap = mapOf(
+            "name" to "cersei",
+            "valonqar" to jaimeRid,
+            "@rid" to cerseiRid,
+            "@class" to "NestedLinkCreationFieldTypes"
+        )
+        checkJsonSerialization(cerseiRid, cerseiMap)
+
+        val tyrionMap = mapOf(
+            "name" to "tyrion",
+            "emergency_contact" to mapOf(
+                "relationship" to "brother",
+                "contact" to jaimeRid,
+                "@embedded" to true
+            ),
+            "@rid" to tyrionRid,
+            "@class" to "NestedLinkCreationFieldTypes"
+        )
+        checkJsonSerialization(tyrionRid, tyrionMap)
+    }
+
+    @Test
+    fun testInnerDocCreation() {
+        val adamRid = db.computeInTx {
+            val adamDoc = (db.newEntity("InnerDocCreation") as EntityImpl)
+            adamDoc.updateFromJSON("{\"name\":\"adam\"}")
+
+            adamDoc.identity
+        }
+
+        val eveRid = db.computeInTx {
+            val adamDoc = db.loadEntity(adamRid)
+            val eveDoc = (db.newEntity("InnerDocCreation") as EntityImpl)
+            eveDoc.updateFromJSON(
+                "{\"@type\":\"d\",\"name\":\"eve\",\"friends\":[" + adamDoc.toJSON() + "]}"
+            )
+            eveDoc.identity
+        }
+
+        checkJsonSerialization(adamRid)
+        checkJsonSerialization(eveRid)
+
+        val adamMap = mapOf(
+            "name" to "adam",
+            "@rid" to adamRid,
+            "@class" to "InnerDocCreation"
+        )
+        checkJsonSerialization(adamRid, adamMap)
+
+        val eveMap = mapOf(
+            "name" to "eve",
+            "friends" to listOf(adamRid),
+            "@rid" to eveRid,
+            "@class" to "InnerDocCreation"
+        )
+        checkJsonSerialization(eveRid, eveMap)
+    }
 //
 //    fun testInnerDocCreationFieldTypes() {
 //        val adamDoc = (db.newEntity("InnerDocCreationFieldTypes") as EntityImpl)
@@ -1282,6 +1324,14 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
             Assert.assertEquals(originalMap, loadedMap)
         } finally {
             db.rollback()
+        }
+    }
+
+    private fun checkJsonSerialization(rid: RID, expectedMap: Map<String, Any>) {
+        db.executeInTx {
+            val original = db.loadEntity(rid)
+            val originalMap = original.toMap()
+            Assert.assertEquals(originalMap, expectedMap)
         }
     }
 
