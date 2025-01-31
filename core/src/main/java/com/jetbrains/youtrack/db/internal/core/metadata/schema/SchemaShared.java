@@ -645,7 +645,7 @@ public abstract class SchemaShared implements CloseableInStorage {
       EntityImpl entity = db.load(identity);
       entity.field("schemaVersion", CURRENT_VERSION_NUMBER);
 
-      // This steps is needed because in classes there are duplicate due to aliases
+      // These steps are needed because in classes there are duplicate due to aliases
       Set<SchemaClassImpl> realClases = new HashSet<SchemaClassImpl>();
       for (SchemaClass c : classes.values()) {
         realClases.add(((SchemaClassImpl) c));
