@@ -695,10 +695,9 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
         };
       }
 
-      case VALUE_NUMBER_INT -> jsonParser.getNumberValue();
+      case VALUE_NUMBER_INT, VALUE_NUMBER_FLOAT -> jsonParser.getNumberValue();
       case VALUE_FALSE -> false;
       case VALUE_TRUE -> true;
-      case VALUE_NUMBER_FLOAT -> jsonParser.getFloatValue();
 
       case START_ARRAY -> switch (type) {
         case EMBEDDEDLIST -> parseEmbeddedList(db, entity, jsonParser);

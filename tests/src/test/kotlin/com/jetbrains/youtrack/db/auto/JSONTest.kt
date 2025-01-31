@@ -15,6 +15,7 @@
  */
 package com.jetbrains.youtrack.db.auto
 
+import com.jetbrains.youtrack.db.api.exception.CommitSerializationException
 import com.jetbrains.youtrack.db.api.record.Entity
 import com.jetbrains.youtrack.db.api.record.RID
 import com.jetbrains.youtrack.db.api.schema.PropertyType
@@ -45,6 +46,7 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
         db.createClass("NestedLinkCreation")
         db.createClass("NestedLinkCreationFieldTypes")
         db.createClass("InnerDocCreation")
+        db.createClass("InnerDocCreationFieldTypes")
     }
 
     @Test
@@ -133,7 +135,7 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
     }
 
     @Test
-    fun testNumericFloatList() {
+    fun testNumericDoubleList() {
         db.executeInTx {
             val documentSource =
                 (db.newEntity() as EntityImpl)
@@ -146,8 +148,8 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
             val list =
                 documentTarget.field<TrackedList<Any>>("list", PropertyType.EMBEDDEDLIST)
-            Assert.assertEquals(list[0], 17.3f)
-            Assert.assertEquals(list[1], 42.7f)
+            Assert.assertEquals(list[0], 17.3)
+            Assert.assertEquals(list[1], 42.7)
         }
     }
 
@@ -1123,189 +1125,121 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
         )
         checkJsonSerialization(eveRid, eveMap)
     }
-//
-//    fun testInnerDocCreationFieldTypes() {
-//        val adamDoc = (db.newEntity("InnerDocCreationFieldTypes") as EntityImpl)
-//        adamDoc.updateFromJSON("{\"name\":\"adam\"}")
-//
-//        db.begin()
-//        adamDoc.save()
-//        db.commit()
-//
-//        val eveDoc = (db.newEntity("InnerDocCreationFieldTypes") as EntityImpl)
-//        eveDoc.updateFromJSON(
-//            ("{\"@type\":\"d\", \"@fieldTypes\" : \"friends=z\", \"name\":\"eve\",\"friends\":["
-//                    + adamDoc.identity
-//                    + "]}")
-//        )
-//
-//        db.begin()
-//        eveDoc.save()
-//        db.commit()
-//
-//        val contentMap: MutableMap<RID, EntityImpl> = HashMap()
-//        val adam = (db.newEntity("InnerDocCreationFieldTypes") as EntityImpl)
-//        adam.field("name", "adam")
-//
-//        contentMap[adamDoc.identity] = adam
-//
-//        val eve = (db.newEntity("InnerDocCreationFieldTypes") as EntityImpl)
-//        eve.field("name", "eve")
-//
-//        val friends: MutableList<RID> = ArrayList()
-//        friends.add(adamDoc.identity)
-//        eve.field("friends", friends)
-//
-//        contentMap[eveDoc.identity] = eve
-//
-//        val traverseMap: MutableMap<RID, MutableList<RID>> = HashMap()
-//
-//        val adamTraverse: MutableList<RID> = ArrayList()
-//        adamTraverse.add(adamDoc.identity)
-//        traverseMap[adamDoc.identity] = adamTraverse
-//
-//        val eveTraverse: MutableList<RID> = ArrayList()
-//        eveTraverse.add(eveDoc.identity)
-//        eveTraverse.add(adamDoc.identity)
-//
-//        traverseMap[eveDoc.identity] = eveTraverse
-//
-//        for (o in db.browseClass("InnerDocCreationFieldTypes")) {
-//            val content = contentMap[o.identity]
-//            Assert.assertTrue(content!!.hasSameContentOf(o))
-//        }
-//
-//        for (o in db.browseClass("InnerDocCreationFieldTypes")) {
-//            val traverse =
-//                traverseMap.remove(o.identity)!!
-//            for (id in SQLSynchQuery<EntityImpl>("traverse * from " + o.identity.toString())) {
-//                Assert.assertTrue(traverse.remove(id.identity))
-//            }
-//
-//            Assert.assertTrue(traverse.isEmpty())
-//        }
-//
-//        Assert.assertTrue(traverseMap.isEmpty())
-//    }
-//
-//    fun testJSONTxDocInsertOnly() {
-//        val classNameDocOne = "JSONTxDocOneInsertOnly"
-//        if (!db.metadata.schema.existsClass(classNameDocOne)) {
-//            db.metadata.schema.createClass(classNameDocOne)
-//        }
-//        val classNameDocTwo = "JSONTxDocTwoInsertOnly"
-//        if (!db.metadata.schema.existsClass(classNameDocTwo)) {
-//            db.metadata.schema.createClass(classNameDocTwo)
-//        }
-//        db.begin()
-//        val eveDoc = (db.newEntity(classNameDocOne) as EntityImpl)
-//        eveDoc.field("name", "eve")
-//        eveDoc.save()
-//
-//        val nestedWithTypeD = (db.newEntity(classNameDocTwo) as EntityImpl)
-//        nestedWithTypeD.updateFromJSON(
-//            "{\"@type\":\"d\",\"event_name\":\"world cup 2014\",\"admin\":[" + eveDoc.toJSON() + "]}"
-//        )
-//        nestedWithTypeD.save()
-//        db.commit()
-//        Assert.assertEquals(db.countClass(classNameDocOne), 1)
-//
-//        val contentMap: MutableMap<RID, EntityImpl> = HashMap()
-//        val eve = (db.newEntity(classNameDocOne) as EntityImpl)
-//        eve.field("name", "eve")
-//        contentMap[eveDoc.identity] = eve
-//
-//        for (document in db.browseClass(classNameDocOne)) {
-//            val content = contentMap[document.identity]
-//            Assert.assertTrue(content!!.hasSameContentOf(document))
-//        }
-//    }
-//
-//    fun testJSONTxDoc() {
-//        if (!db.metadata.schema.existsClass("JSONTxDocOne")) {
-//            db.metadata.schema.createClass("JSONTxDocOne")
-//        }
-//
-//        if (!db.metadata.schema.existsClass("JSONTxDocTwo")) {
-//            db.metadata.schema.createClass("JSONTxDocTwo")
-//        }
-//
-//        var adamDoc = (db.newEntity("JSONTxDocOne") as EntityImpl)
-//        adamDoc.field("name", "adam")
-//
-//        db.begin()
-//        adamDoc.save()
-//        db.commit()
-//
-//        db.begin()
-//        val eveDoc = (db.newEntity("JSONTxDocOne") as EntityImpl)
-//        eveDoc.field("name", "eve")
-//        eveDoc.save()
-//
-//        adamDoc = db.bindToSession(adamDoc)
-//        val nestedWithTypeD = (db.newEntity("JSONTxDocTwo") as EntityImpl)
-//        nestedWithTypeD.updateFromJSON(
-//            ("{\"@type\":\"d\",\"event_name\":\"world cup 2014\",\"admin\":["
-//                    + eveDoc.toJSON()
-//                    + ","
-//                    + adamDoc.toJSON()
-//                    + "]}")
-//        )
-//        nestedWithTypeD.save()
-//
-//        db.commit()
-//
-//        Assert.assertEquals(db.countClass("JSONTxDocOne"), 2)
-//
-//        val contentMap: MutableMap<RID, EntityImpl> = HashMap()
-//        val adam = (db.newEntity("JSONTxDocOne") as EntityImpl)
-//        adam.field("name", "adam")
-//        contentMap[adamDoc.identity] = adam
-//
-//        val eve = (db.newEntity("JSONTxDocOne") as EntityImpl)
-//        eve.field("name", "eve")
-//        contentMap[eveDoc.identity] = eve
-//
-//        for (o in db.browseClass("JSONTxDocOne")) {
-//            val content = contentMap[o.identity]
-//            Assert.assertTrue(content!!.hasSameContentOf(o))
-//        }
-//    }
-//
-//    fun testInvalidLink() {
-//        val nullRefDoc = (db.newEntity() as EntityImpl)
-//        nullRefDoc.updateFromJSON("{\"name\":\"Luca\", \"ref\":\"#-1:-1\"}")
-//
-//        // Assert.assertNull(nullRefDoc.rawField("ref"));
-//        val json = nullRefDoc.toJSON()
-//        val pos = json.indexOf("\"ref\":")
-//
-//        Assert.assertTrue(pos > -1)
-//        Assert.assertEquals(json[pos + "\"ref\":".length], 'n')
-//    }
-//
-//    fun testOtherJson() {
-//        db.newEntity()
-//            .updateFromJSON(
-//                ("{\"Salary\":1500.0,\"Type\":\"Person\",\"Address\":[{\"Zip\":\"JX2"
-//                        + " MSX\",\"Type\":\"Home\",\"Street1\":\"13 Marge"
-//                        + " Street\",\"Country\":\"Holland\",\"Id\":\"Address-28813211\",\"City\":\"Amsterdam\",\"From\":\"1996-02-01\",\"To\":\"1998-01-01\"},{\"Zip\":\"90210\",\"Type\":\"Work\",\"Street1\":\"100"
-//                        + " Hollywood"
-//                        + " Drive\",\"Country\":\"USA\",\"Id\":\"Address-11595040\",\"City\":\"Los"
-//                        + " Angeles\",\"From\":\"2009-09-01\"}],\"Id\":\"Person-7464251\",\"Name\":\"Stan\"}")
-//            )
-//    }
-//
-//    @Test
-//    fun testScientificNotation() {
-//        val doc = (db.newEntity() as EntityImpl)
-//        doc.updateFromJSON("{'number1': -9.2741500e-31, 'number2': 741800E+290}")
-//
-//        val number1 = doc.field<Double>("number1")
-//        Assert.assertEquals(number1, -9.27415E-31)
-//        val number2 = doc.field<Double>("number2")
-//        Assert.assertEquals(number2, 741800E+290)
-//    }
+
+    @Test
+    fun testInnerDocCreationFieldTypes() {
+        val (adamRid, eveRid) = db.computeInTx {
+            val adamDoc = (db.newEntity("InnerDocCreationFieldTypes") as EntityImpl)
+            adamDoc.updateFromJSON("{\"name\":\"adam\"}")
+
+            val eveDoc = (db.newEntity("InnerDocCreationFieldTypes") as EntityImpl)
+            eveDoc.updateFromJSON(
+                ("{\"@type\":\"d\", \"@fieldTypes\" : { \"friends\":\"z\"}, \"name\":\"eve\",\"friends\":[\""
+                        + adamDoc.identity
+                        + "\"]}")
+            )
+
+            Pair(adamDoc.identity, eveDoc.identity)
+        }
+
+        checkJsonSerialization(adamRid)
+        checkJsonSerialization(eveRid)
+
+        val expectedAdamMap = mapOf(
+            "name" to "adam",
+            "@rid" to adamRid,
+            "@class" to "InnerDocCreationFieldTypes"
+        )
+        checkJsonSerialization(adamRid, expectedAdamMap)
+
+        val expectedEveMap = mapOf(
+            "name" to "eve",
+            "friends" to listOf(adamRid),
+            "@rid" to eveRid,
+            "@class" to "InnerDocCreationFieldTypes"
+        )
+        checkJsonSerialization(eveRid, expectedEveMap)
+    }
+
+
+    @Test
+    fun testInvalidLink() {
+        try {
+            db.executeInTx {
+                val nullRefDoc = (db.newEntity() as EntityImpl)
+                nullRefDoc.updateFromJSON("{\"name\":\"Luca\", \"ref\":\"#-1:-1\"}")
+            }
+            Assert.fail()
+        } catch (e: CommitSerializationException) {
+            // expected
+        }
+    }
+
+
+    @Test
+    fun testOtherJson() {
+        val rid = db.computeInTx {
+            val entity = db.newEntity()
+            entity.updateFromJSON(
+                ("{\"Salary\":1500.0,\"Type\":\"Person\",\"Address\":[{\"Zip\":\"JX2"
+                        + " MSX\",\"Type\":\"Home\",\"Street1\":\"13 Marge"
+                        + " Street\",\"Country\":\"Holland\",\"Id\":\"Address-28813211\",\"City\":\"Amsterdam\",\"From\":\"1996-02-01\",\"To\":\"1998-01-01\"},{\"Zip\":\"90210\",\"Type\":\"Work\",\"Street1\":\"100"
+                        + " Hollywood"
+                        + " Drive\",\"Country\":\"USA\",\"Id\":\"Address-11595040\",\"City\":\"Los"
+                        + " Angeles\",\"From\":\"2009-09-01\"}],\"Id\":\"Person-7464251\",\"Name\":\"Stan\"}")
+            )
+            entity.identity
+        }
+        checkJsonSerialization(rid)
+        val map = mapOf(
+            "Salary" to 1500.0,
+            "Type" to "Person",
+            "Address" to listOf(
+                mapOf(
+                    "Zip" to "JX2 MSX",
+                    "Type" to "Home",
+                    "Street1" to "13 Marge Street",
+                    "Country" to "Holland",
+                    "Id" to "Address-28813211",
+                    "City" to "Amsterdam",
+                    "From" to "1996-02-01",
+                    "To" to "1998-01-01"
+                ),
+                mapOf(
+                    "Zip" to "90210",
+                    "Type" to "Work",
+                    "Street1" to "100 Hollywood Drive",
+                    "Country" to "USA",
+                    "Id" to "Address-11595040",
+                    "City" to "Los Angeles",
+                    "From" to "2009-09-01"
+                )
+            ),
+            "Id" to "Person-7464251",
+            "Name" to "Stan",
+            "@rid" to rid,
+            "@class" to "O"
+        )
+        checkJsonSerialization(rid, map)
+    }
+
+    @Test
+    fun testScientificNotation() {
+        val rid = db.computeInTx {
+            val doc = (db.newEntity() as EntityImpl)
+            doc.updateFromJSON("{\"number1\": -9.2741500e-31, \"number2\": 741800E+290}")
+            doc.identity
+        }
+
+        checkJsonSerialization(rid)
+        val expectedMap = mapOf(
+            "number1" to -9.27415E-31,
+            "number2" to 741800E+290,
+            "@rid" to rid,
+            "@class" to "O"
+        )
+        checkJsonSerialization(rid, expectedMap)
+    }
 
     private fun checkJsonSerialization(rid: RID) {
         db.begin()
